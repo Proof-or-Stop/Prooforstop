@@ -13,6 +13,26 @@ function fileDiff(path: string, oldSource: string, newSource: string): string {
   ].join('\n');
 }
 
+function renamedFileDiff(oldPath: string, newPath: string, oldSource: string, newSource: string): string {
+  return [
+    `diff --git a/${oldPath} b/${newPath}`,
+    `--- a/${oldPath}`,
+    `+++ b/${newPath}`,
+    ...oldSource.split('\n').map((line) => `-${line}`),
+    ...newSource.split('\n').map((line) => `+${line}`),
+  ].join('\n');
+}
+
+function devNullDiff(path: string, side: 'addition' | 'deletion', source: string): string {
+  const deleting = side === 'deletion';
+  return [
+    `diff --git a/${path} b/${path}`,
+    deleting ? `--- a/${path}` : '--- /dev/null',
+    deleting ? '+++ /dev/null' : `+++ b/${path}`,
+    ...source.split('\n').map((line) => `${deleting ? '-' : '+'}${line}`),
+  ].join('\n');
+}
+
 const deletedExport = fileDiff(
   'src/old.ts',
   'export function audit_resources() { return true; }',
@@ -127,6 +147,45 @@ const mixedSourceAndArtifacts = [
 const mixedAnalysis = analyzeDeletedSymbols(mixedSourceAndArtifacts);
 assert.deepEqual(mixedAnalysis.symbols, ['realDeletion'], 'non-source artifacts are ignored while supported source deletions remain visible');
 assert.deepEqual(mixedAnalysis.diagnostics, [], 'JSON and Markdown content cannot create declaration parse diagnostics');
+
+for (const [oldPath, source, symbol] of [
+  ['src/renamed.ts', 'export function removedTs() { return true; }', 'removedTs'],
+  ['src/renamed.js', 'export function removedJs() { return true; }', 'removedJs'],
+  ['src/renamed.py', 'def removed_py():\n    return True', 'removed_py'],
+] as const) {
+  const analysis = analyzeDeletedSymbols(renamedFileDiff(oldPath, 'docs/renamed.md', source, '# prose'));
+  assert.deepEqual(analysis.symbols, [symbol], `${oldPath} to unsupported rename remains a deletion`);
+  assert.deepEqual(analysis.diagnostics, []);
+}
+
+const unsupportedToSupported = analyzeDeletedSymbols(renamedFileDiff(
+  'docs/new-source.md',
+  'src/new-source.ts',
+  '# prose',
+  'export function newlyAdded() { return true; }',
+));
+assert.deepEqual(unsupportedToSupported.symbols, [], 'unsupported to supported rename is an addition, not a deletion');
+assert.deepEqual(unsupportedToSupported.diagnostics, []);
+
+const supportedRename = analyzeDeletedSymbols(renamedFileDiff(
+  'src/old-name.ts',
+  'src/new-name.ts',
+  'export function movedDeclaration() { return true; }',
+  'export function movedDeclaration() { return true; }',
+));
+assert.deepEqual(supportedRename.symbols, ['movedDeclaration'], 'supported path rename preserves path-bound deletion identity');
+assert.deepEqual(supportedRename.diagnostics, []);
+
+assert.deepEqual(
+  analyzeDeletedSymbols(devNullDiff('src/deleted.ts', 'deletion', 'export function deletedFileSymbol() { return true; }')).symbols,
+  ['deletedFileSymbol'],
+  'a supported file deletion through /dev/null remains visible',
+);
+assert.deepEqual(
+  analyzeDeletedSymbols(devNullDiff('src/added.ts', 'addition', 'export function addedFileSymbol() { return true; }')).symbols,
+  [],
+  'a supported file addition through /dev/null is not a deletion',
+);
 
 const shebangMjs = [
   'diff --git a/scripts/tool.mjs b/scripts/tool.mjs',
@@ -247,6 +306,14 @@ const malformedResult = checkConcept({
 assert.equal(malformedResult.status, 'fail');
 assert.match(malformedResult.summary, /parse failed closed/);
 assert.ok((malformedResult.diagnostics?.length ?? 0) > 0);
+
+for (const malformedSide of [
+  renamedFileDiff('src/malformed-old.ts', 'docs/malformed-old.md', 'export function broken( {', '# prose'),
+  renamedFileDiff('docs/malformed-new.md', 'src/malformed-new.ts', '# prose', 'export function broken( {'),
+]) {
+  const analysis = analyzeDeletedSymbols(malformedSide);
+  assert.ok(analysis.diagnostics.length > 0, 'a malformed supported old or new side must fail closed');
+}
 
 const diffFailure = checkConcept({
   projectRoot: '/tmp/unused',

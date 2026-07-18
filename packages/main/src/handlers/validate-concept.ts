@@ -123,7 +123,8 @@ const defaultGrepReader: GrepReader = ({ symbol, projectRoot: gitCwd }) => {
  * Returns a deduplicated and sorted symbol list.
  */
 interface DiffFileSources {
-  file: string;
+  oldPath: string;
+  newPath: string;
   oldSource: string;
   newSource: string;
 }
@@ -140,11 +141,12 @@ interface DeletedSymbolAnalysis {
 
 function diffFileSources(diff: string): DiffFileSources[] {
   const files: DiffFileSources[] = [];
-  let current: { file: string; oldLines: string[]; newLines: string[] } | null = null;
+  let current: { oldPath: string; newPath: string; oldLines: string[]; newLines: string[] } | null = null;
   const flush = () => {
     if (!current) return;
     files.push({
-      file: current.file,
+      oldPath: current.oldPath,
+      newPath: current.newPath,
       oldSource: current.oldLines.join('\n'),
       newSource: current.newLines.join('\n'),
     });
@@ -153,14 +155,30 @@ function diffFileSources(diff: string): DiffFileSources[] {
     const header = /^diff --git a\/(.+?) b\/(.+)$/.exec(line);
     if (header) {
       flush();
-      current = { file: header[2]!, oldLines: [], newLines: [] };
+      current = {
+        oldPath: header[1]!,
+        newPath: header[2]!,
+        oldLines: [],
+        newLines: [],
+      };
       continue;
     }
-    if (!current) current = { file: '__fragment__.ts', oldLines: [], newLines: [] };
+    if (!current) {
+      current = {
+        oldPath: '__fragment__.ts',
+        newPath: '__fragment__.ts',
+        oldLines: [],
+        newLines: [],
+      };
+    }
     if (line.startsWith('@@')) {
       current.oldLines.push('');
       current.newLines.push('');
-    } else if (line.startsWith('---') || line.startsWith('+++') || line.startsWith('\\ No newline')) {
+    } else if (/^--- (?:a\/|\/dev\/null)/.test(line)) {
+      current.oldPath = line.slice(4).replace(/^a\//, '');
+    } else if (/^\+\+\+ (?:b\/|\/dev\/null)/.test(line)) {
+      current.newPath = line.slice(4).replace(/^b\//, '');
+    } else if (line.startsWith('\\ No newline')) {
       continue;
     } else if (line.startsWith('-')) {
       current.oldLines.push(line.slice(1));
@@ -372,20 +390,20 @@ export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
   const added = new Map<string, number>();
   const diagnostics: string[] = [];
   for (const file of diffFileSources(diff)) {
-    const python = PYTHON_DECLARATION_EXTENSION.test(file.file);
-    if (
-      !python
-      && !TYPESCRIPT_DECLARATION_EXTENSION.test(file.file)
-      && !JAVASCRIPT_DECLARATION_EXTENSION.test(file.file)
-    ) {
-      continue;
-    }
-    const oldSide = python
-      ? collectPythonDeclarations(file.file, file.oldSource)
-      : collectTsDeclarations(file.file, file.oldSource);
-    const newSide = python
-      ? collectPythonDeclarations(file.file, file.newSource)
-      : collectTsDeclarations(file.file, file.newSource);
+    const collectSide = (path: string, source: string) => {
+      if (PYTHON_DECLARATION_EXTENSION.test(path)) {
+        return collectPythonDeclarations(path, source);
+      }
+      if (
+        TYPESCRIPT_DECLARATION_EXTENSION.test(path)
+        || JAVASCRIPT_DECLARATION_EXTENSION.test(path)
+      ) {
+        return collectTsDeclarations(path, source);
+      }
+      return { declarations: [], diagnostics: [] };
+    };
+    const oldSide = collectSide(file.oldPath, file.oldSource);
+    const newSide = collectSide(file.newPath, file.newSource);
     diagnostics.push(...oldSide.diagnostics, ...newSide.diagnostics);
     for (const declaration of oldSide.declarations) {
       removed.set(declaration.key, [...(removed.get(declaration.key) ?? []), declaration]);
