@@ -111,7 +111,7 @@
       "desc": "packages/main/src/core/owner-session-token-store.ts:8-16 and 68-134 persist generated tokens with createdAt but implement no expiry, ownership-scoped cleanup, or enumeration; handlers/doctor.ts only reports the current resolved identity and does not expose token-store cleanup/health. This conflicts with the ratified contract at owner-session-contract-execution-plan.md:242-245 and R3:386-390, and with B-62b8 decision pre-mortem #3. WHY: generated fallback state can accumulate indefinitely and the documented ownership/cleanup boundary is not actually delivered. Add a bounded cleanup policy plus doctor visibility without raw dimensions or tokens, and tests proving one task-role cannot delete or reuse another pair token.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-17T23:31:19.963Z",
@@ -119,7 +119,11 @@
       "reviewRunId": "B-62b8:RR-001",
       "_hash": "5bf56ac73ef6cd8b4464277aea2372394727a05e0a92e747ee901303fb6395a9",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a2f141b9ec + f3b9f3c13e: generated token store has doctor-visible health/repair, idle cleanup, corrupt/orphan recovery, scope-isolated deletion, and sliding activity renewal. Concept/quality focused reviews pass.",
+      "resolvedAt": "2026-07-18T00:36:24.200Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-62b8:F-008",
