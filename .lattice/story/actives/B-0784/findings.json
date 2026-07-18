@@ -154,7 +154,7 @@
       "desc": "The B-META canonical-writer binding is forgeable by any direct writer because both contentDigest and _hash are unkeyed, exported deterministic digests over attacker-controlled data. verifyGapLogArtifactBinding only recomputes those public functions and trusts binding.command=gap_log as a self-asserted string; it has no independently written command receipt/event/secret. A direct inline construction of F-999, followed by digestGapLogArtifact and signFinding, returned trusted:true reason=valid_official_gap_log_binding without invoking gap_log. The smoke only recomputes contentDigest, not _hash, so it misses the actual forgery. Bind to independently authenticated/canonical command execution evidence (or a writer-controlled receipt not writable through the artifact path) and add a full recomputation forgery test.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T02:14:54.537Z",
@@ -168,7 +168,11 @@
         "packages/main/src/tasks/gap-log-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|meta-canonical-writer",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "4106eb3531 moves canonical-writer provenance outside findings.json into an HMAC append ledger keyed from git common-dir, validates sequence/link/content/path/story/writer/head fields, and documents the honest same-UID limitation. gap-log-smoke rejects public digest forgery, edited/deleted receipts, and laundering.",
+      "resolvedAt": "2026-07-18T02:37:52.525Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0784:F-008",
