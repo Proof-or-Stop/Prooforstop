@@ -218,6 +218,21 @@
       "_hash": "94ee83441691cd7f2cd9741f353c3caee5c08470b6ef357a135455b2c94b2324",
       "signatureTag": "edge|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-013",
+      "desc": "packages/main/src/tasks/story-owner-lease-smoke.ts:754-774 — HIGH incomplete F-005 repair: the new focused regression is lifecycle-state-dependent and fails in the current REVIEW phase. Repro: `npm --prefix packages/main run build && npm --prefix packages/main run test:story-owner-lease-smoke` fails at line 774 because the spawned `checklist_update` is rejected by the REVIEW phase policy before owner-lease enforcement; stderr contains `Command checklist_update is not available in REVIEW phase`, so no degraded pre-mutation warning is emitted. The new child identity/race/real session_brief/doctor cases at lines 584-752 are useful and independently cover those slices, but no spawned composite actually acquires then refreshes the same lease across different parent-process shapes; later lease refresh cases still run under explicit `sess-alpha`. Checklist evidence also remains the old a175883c blanket command/note citing unchanged `cli-surface-smoke` rather than the new a2f141b9 child-process suite, so it still overstates the bound proof. WHY: a regression that passes only while the story is in DEV becomes a deterministic REVIEW/TEST/full-suite blocker and does not prove the original cross-process owner refresh. Make the pre-mutation check phase-independent using a bounded temporary story/project or child-mode lease choke point, add two spawned same-composite acquire/refresh invocations with heartbeat/no-foreign assertions, rerun in REVIEW, and rebind affected evidence to the exact new command and claims.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T00:02:27.147Z",
+      "reviewRound": "2026-07-17T23:59:25.126Z",
+      "reviewRunId": "B-62b8:RR-007",
+      "_hash": "0c5feb57051490dc3710b83d1cef8dd71b7122ae4889ebc9eee1becab1442cea",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
