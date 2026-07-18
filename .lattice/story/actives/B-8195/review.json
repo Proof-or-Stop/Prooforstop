@@ -125,6 +125,29 @@
         }
       ],
       "_hash": "5e2540e77809595470774a883f12eed85239eef4bb81b657beac280150cf35da"
+    },
+    {
+      "timestamp": "2026-07-18T10:33:28.931Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Persist an exact RED for TEST-transition fresh-PASS reuse + Make trusted lifecycle metadata and reused PASS persist atomically are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Security/Credentials, Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-8195\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-8195 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "da8fa685e6785a108936885272aacf9c7063a60297d2f8aac85448c80a6e43e6"
     }
   ]
 }
