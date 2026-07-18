@@ -483,6 +483,27 @@
         "scanEscalationReason": null
       },
       "_hash": "f0d7b5121b609c51950818541b0432ea7315645d1b648be87b3cc541a9d123e7"
+    },
+    {
+      "id": "B-62b8:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "PASS (bounded 1a802b23fc): exact Codex-wrapper loader fingerprint re-attestation only. The commit changes only the bin/lattice-codex.js digest in BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS and its mirrored process-fact literal; it adds no loader allowlist entry, path, anchor, runtime branch, or executable behavior. The source drift requiring repinning changes only pre-main owner-session adapter environment setup; main still imports exactly pathToFileURL(localLattice).href under the existing main anchor. Guard authority remains constrained by registered file, exact anchor, exact argument, and whole-source canonical AST fingerprint. Full retired-authority vocabulary guard and process-fact contract pass.",
+      "createdAt": "2026-07-18T01:16:24.822Z",
+      "reviewRound": "2026-07-18T01:14:08.901Z",
+      "reviewRunId": "B-62b8:RR-039",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "bin/lattice-codex.js",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c84cdd1e3f4393d985bf1f9a148673d1ca76e939472d4ab5d71a1349b4136d85"
     }
   ]
 }
