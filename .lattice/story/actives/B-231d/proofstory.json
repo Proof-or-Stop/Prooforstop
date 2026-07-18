@@ -31,19 +31,25 @@
       "id": "AB-001",
       "checklistRefs": [
         "CHK-001",
-        "CHK-002"
+        "CHK-002",
+        "CHK-003"
       ],
       "verificationIntentRefs": [
         "CHK-001:happy:0",
+        "CHK-001:edge:0",
         "CHK-001:adversarial:0",
         "CHK-002:happy:0",
-        "CHK-002:adversarial:0"
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
       ],
       "milestoneIds": [],
-      "note": "portability acceptanceClaim proven by CHK-001/CHK-002 intents."
+      "note": "portability acceptanceClaim proven by CHK-001/002/003 intents."
     }
   ],
   "diagnosticGaps": [],
   "createdAt": "2026-07-18T22:53:30.638Z",
-  "updatedAt": "2026-07-18T22:53:30.638Z"
+  "updatedAt": "2026-07-18T23:20:10.371Z"
 }
