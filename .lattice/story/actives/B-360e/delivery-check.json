@@ -1,71 +1,71 @@
 {
   "storyId": "B-360e",
-  "checkedAt": "2026-07-18T11:30:58.088Z",
-  "headHash": "f0aa75caa37ef21341c03654c98a13a6ef1cd00c",
-  "materialHash": "628c02b83ff7f21cc8d8aef946ce639dc7ef4e69636f84f21ed669167656fc60",
-  "storyFilesHash": "938bfd5d14e7c312c843109d84e015e01bb9748309fc228b5d4a28c0dbe5178d",
-  "reviewRound": "2026-07-18T11:14:50.842Z",
+  "checkedAt": "2026-07-18T12:24:29.194Z",
+  "headHash": "a599b42b2832b71a4ddee0d54e58409325fc009a",
+  "materialHash": "30b4630ba0eca1e217aee2100d782bc885c13d6bedc4487d56169514e3a88798",
+  "storyFilesHash": "098739c49b474379ec11fa3c9eb1124735942cb025c6f831dd7be17f1d6df885",
+  "reviewRound": "2026-07-18T12:03:30.904Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1",
       "promise": "Define versioned Runtime Contract, Role Contract, Prompt Envelope, and PromptMeasurementRecord structures without instantiating a Story-bound envelope or changing existing assembled prompt bodies.",
       "status": "verified",
-      "verifiedBy": "Current source review, focused smoke, and protected-path diff",
-      "evidence": "Current f959a28ba9 material keeps prompt contracts and report implementation intact; prompt-contract-measurement-smoke PASS; no PromptEnvelope producer exists; protected prompt templates, Claude/Codex mirrors, and approved proof-or-stop baseline remain unchanged."
+      "verifiedBy": "Merged-material source review, focused smoke, and protected-path diff",
+      "evidence": "Current merged material retains fail-closed v1 schemas and pinned algorithms; prompt-contract-measurement-smoke PASS; no Story-bound PromptEnvelope producer exists; protected templates, host mirrors, and approved proof-or-stop baseline have no story diff."
     },
     {
       "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1",
-      "promise": "Freeze exactly 16 roles as 12 active, 3 compatibility, and 1 retired while preserving product-reviewer, implementation-reviewer, legacy verification aliases, and lattice-review-channel lifecycle facts.",
+      "promise": "Freeze exactly 16 roles as 12 active, 3 compatibility, and 1 retired while preserving the accepted legacy lifecycle facts.",
       "status": "verified",
-      "verifiedBy": "Fresh registry report, source inspection, and mutation smoke",
-      "evidence": "Fresh report shows 16 roles: 12 active, 3 compatibility, 1 retired; channel is retired/non-default; product-reviewer active; implementation-reviewer compatibility; both legacy verification roles replace to verification-intent; fail-closed registry probes PASS."
+      "verifiedBy": "Fresh merged report, source inspection, and mutation smoke",
+      "evidence": "Report contains exactly 16 unique roles with 12 active, 3 compatibility, and 1 retired; lattice-review-channel remains retired/non-default; product-reviewer remains active; implementation-reviewer and both legacy verification names remain compatibility with accepted replacements."
     },
     {
       "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1",
       "promise": "Expose deterministic bytes, lines, estimated tokens, repetition, assembled input, known dispatch input, and provider-processed input measurements with honest availability boundaries.",
       "status": "verified",
-      "verifiedBy": "Fresh CLI JSON/text execution and semantic sidecar comparison",
-      "evidence": "Both CLI formats exit 0; report digest b634c584353dce13e035c827bc1e4f9b42e769ce7862806db290f797f4d1cf2d; sidecar and current JSON are semantically identical; aggregate is 158715 bytes, 2777 lines, 39685 estimated tokens, with explicit unavailable reasons for unobserved dispatch/provider layers."
+      "verifiedBy": "Fresh JSON/text execution, F-031 no-write replay, and semantic sidecar comparison",
+      "evidence": "JSON/text commands exit 0; F-031 exact self-contained mktemp/status/cmp probe independently PASS; report digest b634c584353dce13e035c827bc1e4f9b42e769ce7862806db290f797f4d1cf2d; current JSON semantically equals sidecar; unobserved dispatch/provider layers remain explicitly unavailable."
     },
     {
       "docPath": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
       "promise": "All 16 existing agent_prompt outputs remain byte-identical and hash-identical; drift probes reject mutations without a self-authorizing refresh.",
       "status": "verified",
-      "verifiedBy": "Fresh independent 16-role CLI replay and proof-or-stop verifier",
-      "evidence": "All 16 current stdout outputs have zero SHA-256 or byte mismatches against the approved baseline; proof-or-stop verifier and mutation-failure-restore probes PASS; protected output sources have no diff."
+      "verifiedBy": "Fresh independent 16-role replay and proof-or-stop verifier",
+      "evidence": "Independent replay reports checked=16 and zero SHA-256/byte mismatches; proof-or-stop verifier exits 0 with exact-output and mutation-failure-restore proofs; protected prompt paths have no diff."
     },
     {
       "docPath": ".lattice/story/actives/B-360e/scope-contract.json",
-      "promise": "The human-authorized bounded concept-gate repair remains fail-closed and does not hide real deleted declarations.",
+      "promise": "The bounded concept-gate repair and merged-main re-attestation remain fail-closed without hiding real declaration deletions.",
       "status": "verified",
-      "verifiedBy": "Current f959a28ba9 diff review, focused smoke, round-15 review, and fresh routine validation",
-      "evidence": "f959 gates legacy fragment fallback whenever any structured Git diff token is present; 18 structured-token adversarial probes reject fallback; true headerless declaration fragments still work; concept-gate-scope-smoke PASS; round-15 3x2 and 46-command validation are fresh; 30 findings are resolved with zero open."
+      "verifiedBy": "Merged focused smoke, round-17 assurance, fresh routine validation, and findings audit",
+      "evidence": "concept-gate-scope-smoke PASS; process-fact verifier PASS; round-17 3x2 assurance is fresh; routine validation records 46 commands with zero required/optional failures; all 31 findings including F-031 are resolved and none are open."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Fresh prompt-contract-measurement-smoke PASS on current material; deterministic schemas, canonical serialization, digests, byte/line/token/repetition algorithms, provider accounting, and fail-closed malformed input remain covered."
+      "transcript": "Current merged prompt-contract-measurement-smoke PASS; contract schemas, canonical serialization, digests, UTF-8 bytes, LF lines, estimator, repetition, provider accounting, and fail-closed malformed inputs remain covered."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Fresh prompt_measurement_report shows exactly 16 roles with active=12 compatibility=3 retired=1; source and mutation probes preserve exact replacements, migration hints, non-default legacy rows, uniqueness, and totality."
+      "transcript": "Fresh merged prompt_measurement_report shows roleCount=16, active=12, compatibility=3, retired=1; exact lifecycle rows and registry mutation rejection PASS."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Fresh JSON and text prompt_measurement_report invocations exit 0; current JSON semantically matches the checked-in sidecar and live-smoke transcript is successful at materialHash 628c02b83ff7."
+      "transcript": "Fresh JSON/text report commands exit 0 and semantic sidecar comparison PASS. Exact F-031 command creates external mktemp snapshots, runs both formats, compares git status byte-for-byte, cleans both paths, and independently exits 0."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Fresh proof-or-stop verifier PASS; independent 16-role replay has zero SHA-256/byte mismatches; process-fact verifier PASS; protected prompt paths have no diff; routine validate records 46/46 commands and 42/42 required evidence covered."
+      "transcript": "Independent 16-role replay has zero hash/byte mismatches; proof-or-stop verifier, process-fact verifier, prompt focused smoke, and concept focused smoke all PASS; fresh routine validation covers 46/46 commands and 42/42 required intents."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Fresh delivery review PASS on materialHash 628c02b83ff7: 4/4 checklist items done, 42/42 evidence covered, 46-command validation PASS, 16/16 prompt outputs unchanged, JSON/text report and live smoke PASS, 30/30 findings resolved. The prior DONE-required failure is bound to pre-fix stale material and is not reused; owner must regenerate that separate artifact before DONE."
+    "summary": "Fresh merged-material delivery PASS: materialHash 30b4630ba0ec, storyFilesHash 098739c49b47, 4/4 checklist done, 42/42 self-contained evidence covered, F-031 exact replay PASS, 46/46 routine validation PASS, 16/16 prompt outputs unchanged, live smoke PASS, and 31/31 findings resolved with zero open."
   },
-  "_hash": "1e3c9da0dc9a0c2b827bf6305d62798b868e5786d8dae6019e49deddb65197d6"
+  "_hash": "c3840b3d9e92a8b8afec071c98634c155af16bc864ffa5981068b3d7ca05258b"
 }
