@@ -647,7 +647,7 @@
       "desc": "F-027: 671e9d77fe separates metadataRoot from gitCwd in runScopeGate default diff-pack path, but the injected gitReader branch still calls checkScopeContract(contract, gitReader(projectRoot), { projectRoot }) where projectRoot is gitCwd ?? metadataRoot. In wrapper-root layouts with a supplied reader and inner gitCwd, checkScopeContract therefore loads policy from the inner repo instead of metadataRoot. Focused repro: wrapper pathCanonicalization=off plus an allowed src/a.ts and injected reader returned fail/path canonicalizer version drift because inner repo defaulted to enforce. Pass `{ projectRoot: metadataRoot, gitCwd: projectRoot }` in the gitReader branch too, and add a wrapper-root injected-reader assertion; Git reads remain on gitCwd while config/canonicalization remain on metadataRoot.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T04:10:08.705Z",
@@ -659,7 +659,11 @@
         "packages/main/src/tasks/scope-contract-smoke.ts"
       ],
       "signatureTag": "edge|ts|671e9d77fe-separates-metadataroot",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 437c825460 preserves metadataRoot for configuration while passing resolved story gitCwd to the injected reader branch; wrapper pathCanonicalization=off regression plus build, scope-contract smoke and gitroot contract pass.",
+      "resolvedAt": "2026-07-18T04:12:02.673Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
