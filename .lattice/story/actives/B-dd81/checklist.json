@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-18T20:26:41.847Z",
-      "endTime": null,
+      "endTime": "2026-07-18T20:31:23.754Z",
       "userSees": "The full-context response exposes a deterministic envelope ID and canonical Task Context whose Story, HEAD, round and ReviewRun fields can be inspected and reproduced.",
       "files": {
         "modify": [
@@ -108,7 +108,130 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "full-envelope-contract-complete",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Focused full-context contract, canonicalization, tamper, role partition, environment provenance and 16-role zero-drift smokes passed.",
+          "headHash": "5f9ed7293b8f4760a93facba2e15d2285e2bcb50",
+          "materialHash": "3ba40f2141a64d24e82804b02be496dae40a6d89a362f922e3677ed0258f30aa",
+          "storyFilesHash": "d55f0d675dd0ca885482f2f98b10b6f862e219f8ec512243715079fb417a5320",
+          "timestamp": "2026-07-18T20:31:24.128Z"
+        },
+        {
+          "intentRef": "full-envelope-content-address-reproducible",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Focused full-context contract, canonicalization, tamper, role partition, environment provenance and 16-role zero-drift smokes passed.",
+          "headHash": "5f9ed7293b8f4760a93facba2e15d2285e2bcb50",
+          "materialHash": "3ba40f2141a64d24e82804b02be496dae40a6d89a362f922e3677ed0258f30aa",
+          "storyFilesHash": "d55f0d675dd0ca885482f2f98b10b6f862e219f8ec512243715079fb417a5320",
+          "timestamp": "2026-07-18T20:31:24.471Z"
+        },
+        {
+          "intentRef": "task-context-authoritative-facts",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Focused full-context contract, canonicalization, tamper, role partition, environment provenance and 16-role zero-drift smokes passed.",
+          "headHash": "5f9ed7293b8f4760a93facba2e15d2285e2bcb50",
+          "materialHash": "3ba40f2141a64d24e82804b02be496dae40a6d89a362f922e3677ed0258f30aa",
+          "storyFilesHash": "d55f0d675dd0ca885482f2f98b10b6f862e219f8ec512243715079fb417a5320",
+          "timestamp": "2026-07-18T20:31:24.804Z"
+        },
+        {
+          "intentRef": "full-only-no-incremental-fields",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Focused full-context contract, canonicalization, tamper, role partition, environment provenance and 16-role zero-drift smokes passed.",
+          "headHash": "5f9ed7293b8f4760a93facba2e15d2285e2bcb50",
+          "materialHash": "3ba40f2141a64d24e82804b02be496dae40a6d89a362f922e3677ed0258f30aa",
+          "storyFilesHash": "d55f0d675dd0ca885482f2f98b10b6f862e219f8ec512243715079fb417a5320",
+          "timestamp": "2026-07-18T20:31:25.158Z"
+        },
+        {
+          "intentRef": "task-context-canonical-order-boundaries",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Focused full-context contract, canonicalization, tamper, role partition, environment provenance and 16-role zero-drift smokes passed.",
+          "headHash": "5f9ed7293b8f4760a93facba2e15d2285e2bcb50",
+          "materialHash": "3ba40f2141a64d24e82804b02be496dae40a6d89a362f922e3677ed0258f30aa",
+          "storyFilesHash": "d55f0d675dd0ca885482f2f98b10b6f862e219f8ec512243715079fb417a5320",
+          "timestamp": "2026-07-18T20:31:25.486Z"
+        },
+        {
+          "intentRef": "known-environment-source-and-version",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Focused full-context contract, canonicalization, tamper, role partition, environment provenance and 16-role zero-drift smokes passed.",
+          "headHash": "5f9ed7293b8f4760a93facba2e15d2285e2bcb50",
+          "materialHash": "3ba40f2141a64d24e82804b02be496dae40a6d89a362f922e3677ed0258f30aa",
+          "storyFilesHash": "d55f0d675dd0ca885482f2f98b10b6f862e219f8ec512243715079fb417a5320",
+          "timestamp": "2026-07-18T20:31:25.808Z"
+        },
+        {
+          "intentRef": "envelope-role-contract-coherence",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Focused full-context contract, canonicalization, tamper, role partition, environment provenance and 16-role zero-drift smokes passed.",
+          "headHash": "5f9ed7293b8f4760a93facba2e15d2285e2bcb50",
+          "materialHash": "3ba40f2141a64d24e82804b02be496dae40a6d89a362f922e3677ed0258f30aa",
+          "storyFilesHash": "d55f0d675dd0ca885482f2f98b10b6f862e219f8ec512243715079fb417a5320",
+          "timestamp": "2026-07-18T20:31:26.141Z"
+        },
+        {
+          "intentRef": "envelope-single-field-tamper-rejected",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Focused full-context contract, canonicalization, tamper, role partition, environment provenance and 16-role zero-drift smokes passed.",
+          "headHash": "5f9ed7293b8f4760a93facba2e15d2285e2bcb50",
+          "materialHash": "3ba40f2141a64d24e82804b02be496dae40a6d89a362f922e3677ed0258f30aa",
+          "storyFilesHash": "d55f0d675dd0ca885482f2f98b10b6f862e219f8ec512243715079fb417a5320",
+          "timestamp": "2026-07-18T20:31:26.470Z"
+        },
+        {
+          "intentRef": "envelope-canonical-invalid-input-rejected",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Focused full-context contract, canonicalization, tamper, role partition, environment provenance and 16-role zero-drift smokes passed.",
+          "headHash": "5f9ed7293b8f4760a93facba2e15d2285e2bcb50",
+          "materialHash": "3ba40f2141a64d24e82804b02be496dae40a6d89a362f922e3677ed0258f30aa",
+          "storyFilesHash": "d55f0d675dd0ca885482f2f98b10b6f862e219f8ec512243715079fb417a5320",
+          "timestamp": "2026-07-18T20:31:26.795Z"
+        },
+        {
+          "intentRef": "envelope-id-substitution-domain-separated",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Focused full-context contract, canonicalization, tamper, role partition, environment provenance and 16-role zero-drift smokes passed.",
+          "headHash": "5f9ed7293b8f4760a93facba2e15d2285e2bcb50",
+          "materialHash": "3ba40f2141a64d24e82804b02be496dae40a6d89a362f922e3677ed0258f30aa",
+          "storyFilesHash": "d55f0d675dd0ca885482f2f98b10b6f862e219f8ec512243715079fb417a5320",
+          "timestamp": "2026-07-18T20:31:27.128Z"
+        },
+        {
+          "intentRef": "untrusted-envelope-constructor-inaccessible",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Focused full-context contract, canonicalization, tamper, role partition, environment provenance and 16-role zero-drift smokes passed.",
+          "headHash": "5f9ed7293b8f4760a93facba2e15d2285e2bcb50",
+          "materialHash": "3ba40f2141a64d24e82804b02be496dae40a6d89a362f922e3677ed0258f30aa",
+          "storyFilesHash": "d55f0d675dd0ca885482f2f98b10b6f862e219f8ec512243715079fb417a5320",
+          "timestamp": "2026-07-18T20:31:27.453Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
