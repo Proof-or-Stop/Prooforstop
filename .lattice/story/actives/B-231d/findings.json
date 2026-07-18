@@ -17,6 +17,25 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-absolute",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-231d:F-002",
+      "desc": "CHK-003:adversarial:0 (altering only the provenance field does not change the digest; altering the logical cwd does) is only half-proven. worktree-portability-smoke.ts check #10 (lines 170-174) proves the provenance-invariance half by comparing envMain vs envWorktree, but in that pair the digested cwd field is identical (both compute repoRelativeLogicalCwd against a command with cwd=.) -- only resolvedCwd differs, so it never isolates a logical-cwd change. The only place a differing cwd is exercised is CHK-002:adversarial:0 (check #6, lines 124-128), which changes args (test vs run/build) AND cwd (. vs packages/main) simultaneously, so it cannot attribute the digest change to cwd specifically. No assertion anywhere builds two envelopes with identical command/args/shell/env and ONLY a different cwd, then checks the digests differ. A regression that silently dropped cwd from commandSpecDigestPayload (done-required-validation.ts lines 139-146) would pass all 10 current smoke checks undetected.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T23:52:06.818Z",
+      "reviewRound": "2026-07-18T23:46:16.425Z",
+      "reviewRunId": "B-231d:RR-004",
+      "_hash": "ade236528025d6123e6ae850dfc0b203e9f03f13ec81e435ee199329150dec46",
+      "files": [
+        "packages/main/src/tasks/worktree-portability-smoke.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-altering-provenance",
+      "signatureTagSource": "auto"
     }
   ]
 }
