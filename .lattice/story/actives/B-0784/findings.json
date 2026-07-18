@@ -145,6 +145,49 @@
       ],
       "signatureTag": "adversarial|ts|meta-canonical-writer",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0784:F-008",
+      "desc": "The AST smoke does not cover the required adversarial/declaration matrix although all related intents are marked PASS. Added assertions cover a simple function/nested function/class constructor/method/interface/type, one rename, and malformed parse, but omit enum/namespace, overload and overload-count loss, anonymous/default exports, computed methods, decorators/multiline declarations, deletion, anchor-kind mismatch, multiple hunks, for-in/while-do/switch/catch/try, and diagnostics/remediation fields required by CHK-002 happy:1/edge:0-1/adversarial:0-2 and CHK-004 happy:1/edge:1-2. Expand semantic-scope-guard-smoke through parseUnifiedDiff/checkSemanticScope production paths and bind evidence only to cases actually asserted.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-18T02:14:55.981Z",
+      "reviewRound": "2026-07-18T02:10:28.512Z",
+      "reviewRunId": "B-0784:RR-003",
+      "_hash": "db90287b64282778e6fdb7fd67674138f4b1d766ed10bc9a957d6ec4fa41b6ea",
+      "files": [
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+        "packages/main/src/core/scope-diff-pack.ts",
+        "packages/main/src/core/semantic-scope-gate.ts"
+      ],
+      "signatureTag": "missing|ts|smoke-cover-required",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0784:F-009",
+      "desc": "The new shared B-META classifier is not wired into every declared scope-gate consumer. evaluatePathAgainstContract calls classifyScopePath without projectRoot, and detectGuardViolations calls checkScopeContract without projectRoot, so prewrite_guard_check/native hooks and guard sessions can never recognize a valid official B-META artifact even though post-diff REVIEW/TEST checks do. This creates contradictory gate decisions for the same exact path/content and contradicts the L4 fact that names prewrite as a consumer. Thread projectRoot through both production handler paths (while keeping pure-call compatibility explicit) and add parity tests for valid and tampered B-META across prewrite, guard-session, post-diff, and done_prepare.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T02:14:56.073Z",
+      "reviewRound": "2026-07-18T02:10:28.512Z",
+      "reviewRunId": "B-0784:RR-002",
+      "_hash": "1cbd17e4ebebbbfb1644f2777bbe88626d968d593a6af78b12e0c989a687ba88",
+      "files": [
+        "packages/main/src/core/prewrite-guard.ts",
+        "packages/main/src/handlers/prewrite-guard.ts",
+        "packages/main/src/core/guard-session.ts",
+        "packages/main/src/handlers/guard-session.ts",
+        "packages/main/src/core/scope-path-classifier.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "signatureTag": "missing|ts|shared-meta-classifier",
+      "signatureTagSource": "auto"
     }
   ]
 }
