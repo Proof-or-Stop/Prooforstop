@@ -93,7 +93,11 @@ const signatureReplacement = fileDiff(
     '}',
   ].join('\n'),
 );
-assert.deepEqual(scanDeletedSymbols(signatureReplacement), ['changed', 'constructor', 'method'], 'true signature replacement remains a deletion signal');
+assert.deepEqual(
+  scanDeletedSymbols(signatureReplacement),
+  [],
+  'same file/scope/kind/name continuity treats signature changes as retained names',
+);
 
 const overloadRemoval = fileDiff(
   'src/overload.ts',
@@ -136,8 +140,8 @@ const renameAndExportRemoval = fileDiff(
 );
 assert.deepEqual(
   scanDeletedSymbols(renameAndExportRemoval),
-  ['noLongerExported', 'removedExport'],
-  'rename and export removal remain deletions; comments and strings cannot forge declaration survivors',
+  ['removedExport'],
+  'rename remains a deletion while export-state change preserves the same declaration name',
 );
 
 const pythonScope = fileDiff(
@@ -226,6 +230,74 @@ const malformedResult = checkConcept({
 assert.equal(malformedResult.status, 'fail');
 assert.match(malformedResult.summary, /parse failed closed/);
 assert.ok((malformedResult.diagnostics?.length ?? 0) > 0);
+
+const unsupportedMetadata = [
+  fileDiff(
+    '.lattice/story/actives/B-smoke/index.json',
+    '{"phase":"DEV","looksLikeCode":"export function broken( {"}',
+    '{"phase":"REVIEW","looksLikeCode":"class ["}',
+  ),
+  fileDiff(
+    '.lattice/story/actives/B-smoke/process-events.jsonl',
+    '{"detail":"function phantom( {"}',
+    '{"detail":"const phantom = ("}',
+  ),
+  fileDiff(
+    'docs/requirements/notes.md',
+    '# Removed\nexport function proseOnly( {',
+    '# Retained\nclass proseOnly [',
+  ),
+  fileDiff(
+    '.lattice-codex/lattice.json',
+    '{"prompt":"async function promptText( {"}',
+    '{"prompt":"const promptText = ("}',
+  ),
+].join('\n');
+const unsupportedAnalysis = analyzeDeletedSymbols(unsupportedMetadata);
+assert.deepEqual(unsupportedAnalysis.symbols, [], 'unsupported-only metadata/docs diff yields no deleted symbols');
+assert.deepEqual(unsupportedAnalysis.diagnostics, [], 'unsupported-only metadata/docs diff yields no parser diagnostics');
+const unsupportedResult = checkConcept({
+  projectRoot: '/tmp/unused',
+  gitDiffReader: () => unsupportedMetadata,
+});
+assert.equal(unsupportedResult.status, 'pass', 'unsupported-only metadata/docs diff passes concept preflight');
+assert.deepEqual(unsupportedResult.deletedSymbols, []);
+assert.equal(unsupportedResult.diagnostics, undefined);
+
+const mixedLanguageDiff = [
+  unsupportedMetadata,
+  fileDiff(
+    'src/mixed.ts',
+    'export function actuallyRemoved(): boolean { return true; }',
+    '',
+  ),
+].join('\n');
+const mixedAnalysis = analyzeDeletedSymbols(mixedLanguageDiff);
+assert.deepEqual(mixedAnalysis.symbols, ['actuallyRemoved'], 'mixed diff still detects a real deleted TypeScript declaration');
+assert.deepEqual(mixedAnalysis.diagnostics, [], 'mixed non-code files contribute no fake TypeScript diagnostics');
+
+const headerlessFragment = [
+  '-export function fragmentRemoved(): boolean { return true; }',
+  '+',
+].join('\n');
+assert.deepEqual(
+  scanDeletedSymbols(headerlessFragment),
+  ['fragmentRemoved'],
+  'headerless injected diff keeps the __fragment__.ts TypeScript fallback',
+);
+
+const shebangBodyOnly = [
+  'diff --git a/bin/tool.mjs b/bin/tool.mjs',
+  '--- a/bin/tool.mjs',
+  '+++ b/bin/tool.mjs',
+  '@@ -1,2 +1,2 @@',
+  ' #!/usr/bin/env node',
+  '-export function retained() { return true; }',
+  '+export function retained() { return Boolean(1); }',
+].join('\n');
+const shebangAnalysis = analyzeDeletedSymbols(shebangBodyOnly);
+assert.deepEqual(shebangAnalysis.diagnostics, [], 'first-hunk reconstruction keeps a legal JS shebang on line 1');
+assert.deepEqual(shebangAnalysis.symbols, [], 'body-only edit after a shebang preserves declaration identity');
 
 const diffFailure = checkConcept({
   projectRoot: '/tmp/unused',
