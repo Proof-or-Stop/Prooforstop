@@ -186,11 +186,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js",
           "result": "pass",
-          "note": "Dense arrays accept only intrinsic length plus exact enumerable data indices; symbol, extra string, non-enumerable extra/index, accessor extra/index, malformed index, sparse and unsupported values all reject.",
-          "headHash": "181771de4bd577fb0175e04b9f48b7a121103e58",
+          "note": "Canonical arrays require exact Array.prototype and are encoded through validated own data descriptors with an explicit indexed loop; subclass/custom prototype and candidate-owned map methods reject without invocation, while normal dense arrays pass.",
+          "headHash": "3af8e2d0592d1ab202fa2db4f7917ad402b6f96f",
           "materialHash": "2d840fa1d536dceb055a489a60d87c2de5faafeb1e4dc9929f19897f02a77a4d",
           "storyFilesHash": "31cbcfaecb42d9988fe42f2b1e757ded45115cd143cf21d1f1e76686f9195902",
-          "timestamp": "2026-07-18T00:27:18.004Z"
+          "timestamp": "2026-07-18T00:27:19.036Z"
         },
         {
           "intentRef": "prompt-contract-schema-fail-closed",
@@ -879,11 +879,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Array symbol/extra/non-enumerable/accessor/malformed/sparse inputs and active default/responsibility/policy-array/semanticDigest mutations are detected; prompt baseline remains unchanged.",
-          "headHash": "181771de4bd577fb0175e04b9f48b7a121103e58",
+          "note": "Subclass overriding map, custom prototype with hidden inherited state, and own map tampering fail closed without method invocation; ordinary dense array remains deterministic and prompt baseline remains unchanged.",
+          "headHash": "3af8e2d0592d1ab202fa2db4f7917ad402b6f96f",
           "materialHash": "2d840fa1d536dceb055a489a60d87c2de5faafeb1e4dc9929f19897f02a77a4d",
           "storyFilesHash": "31cbcfaecb42d9988fe42f2b1e757ded45115cd143cf21d1f1e76686f9195902",
-          "timestamp": "2026-07-18T00:27:18.004Z"
+          "timestamp": "2026-07-18T00:27:19.036Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
