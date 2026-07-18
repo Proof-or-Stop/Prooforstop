@@ -277,7 +277,7 @@
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md#acceptance",
         "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-18T10:54:18.215Z",
       "endTime": "2026-07-18T12:23:11.084Z",
       "verificationIntent": {
@@ -468,6 +468,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Root validation regressions fixed; build, heartbeat, validation reuse, vocabulary guard, diff-check and scope gate all pass."
+    },
+    {
+      "timestamp": "2026-07-18T12:30:58.318Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-010/F-011 require RED coverage for story-branch nested HEAD movement and mid-validation foreign append before revising transaction boundaries."
     }
   ]
 }
