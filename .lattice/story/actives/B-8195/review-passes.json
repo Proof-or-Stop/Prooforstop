@@ -1,0 +1,46 @@
+{
+  "passes": [
+    {
+      "id": "B-8195:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Targeted round-2 docs delta verifies F-001 is fixed: the umbrella plan now treats B-8195 as an independent interposed #7, records its implemented outcome, strict verifier-entry fail-closed boundary and non-goals, and consistently updates landing order, verification matrix, metrics and six-story exit criteria; canonical routine-reuse language remains aligned with the directly relevant writer behavior.",
+      "createdAt": "2026-07-18T11:22:49.145Z",
+      "reviewRound": "2026-07-18T11:21:09.447Z",
+      "reviewRunId": "B-8195:RR-008",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8195/background.md",
+          ".lattice/story/actives/B-8195/checklist.json",
+          ".lattice/story/actives/B-8195/plan.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cc-learnings.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/done-prepare-generated-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "35675b06435bc1335783524d582f14b0b290c2795057bdafbe3f1fc2b7229e68",
+        "corpusDigest": "4913f3cf5ad50f22ee0739f9645f3a55b3ed7ddd21b85ca564cf0381318f5987"
+      },
+      "_hash": "51e62a6a41557dc65869d55929c236e0cbe223f3ba05e78a5c9efc653cbb8fde"
+    }
+  ]
+}
