@@ -178,7 +178,7 @@
           }
         ]
       },
-      "userSees": "Focused verification prints PASS for one-shot reuse and separately confirms human, forged, malformed, unrelated, concurrent and writer-failure metadata remain fail-closed.",
+      "userSees": "The focused terminal prints \"validation-evidence-reuse smoke: PASS\" and \"done-prepare auto-closeout smoke: PASS\", while negative controls print \"canonical metadata was already dirty\".",
       "files": {
         "modify": [
           "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
