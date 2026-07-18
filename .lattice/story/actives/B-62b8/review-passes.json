@@ -291,6 +291,31 @@
         "scanEscalationReason": null
       },
       "_hash": "ca39752ff5bf93c20d81ae1bdca0d2b06a256c7a9c411099a93f12b6d37216c4"
+    },
+    {
+      "id": "B-62b8:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Round-6 bounded docs re-attestation PASS for 2f9fe77398. This is an internal concept-gate parsing/continuity repair: only supported source languages are parsed, metadata/docs no longer create TypeScript diagnostics, and same file/scope/kind/name declaration continuity survives signature/export-form changes while actual rename/deletion remains detectable. No canonical Markdown, CLI syntax, configurable policy, user-visible output contract, or owner-session non-disclosure semantics changed; targeted docs contain no promise of the prior false-positive behavior, so no docs update is required. Build and concept-gate-scope smoke passed.",
+      "createdAt": "2026-07-18T00:55:55.070Z",
+      "reviewRound": "2026-07-18T00:53:30.666Z",
+      "reviewRunId": "B-62b8:RR-024",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/guide-scope-guard.md",
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "613e7dc74c7cd1183bb14f38a11099c229db689c25b845b28d503d761d751868"
     }
   ]
 }
