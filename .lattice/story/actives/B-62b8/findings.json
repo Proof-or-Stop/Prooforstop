@@ -188,6 +188,21 @@
       "_hash": "5e079904e46ccb4e80414c523f53d1ffd80a2246e6be0d18b1435f81f53e1d13",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-62b8:F-011",
+      "desc": "packages/main/src/core/owner-session-token-store.ts:317-374 and docs/requirements/decisions/owner-session-contract-execution-plan.md:248-254 — HIGH: the fixed seven-day expiresAt rotates a generated owner id even when the same adapter task/role is still active. Executable repro: create the scoped token at t0, acquire a lease with it, resolve again at t0+TTL+1, then invoke acquireOrRefresh from the new id; TOKEN_ROTATED=true and the active lease result is foreign. A long-running task therefore deterministically self-locks every seven days, recreating the exact owner-identity failure this story is meant to remove. Expiry must be renewed/sliding while the scope is live, or cleanup must prove the token is no longer bound to an active lease before rotation.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-18T00:02:12.317Z",
+      "reviewRound": "2026-07-17T23:59:25.126Z",
+      "reviewRunId": "B-62b8:RR-006",
+      "_hash": "3e28f5af08185e856ade69ca860f5be66567c5b909077387c44c018b651ea188",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
