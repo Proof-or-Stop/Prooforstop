@@ -53,7 +53,50 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "When the immediately preceding authorized TEST lifecycle flow creates canonical managed metadata, fresh-PASS reuse persists that exact admissible delta together with the reused PASS evidence in one isolated compare-and-swap closeout transaction, then returns PASS with disposition reused and commandExecutions=0 without an operator commit.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Trust is established by a causal canonical-writer proof bound to the lifecycle invocation, story identity, entry HEAD/baseline, exact generated path set and content/digest (or equivalent existing signed writer receipt), not by path allowlisting, event prose, event type, filename, or merely observing that a file is metadata-only.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An authorized lifecycle invocation that produces no admissible metadata still reuses normally, while one that produces a strict subset or multiple canonical rows admits only the causally proven exact paths and leaves no partial transaction state.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The transaction rechecks HEAD, managed-path delta and proof freshness immediately before persistence; any concurrent HEAD or content movement aborts without writing a PASS receipt or committing another writer’s changes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A closeout/CAS writer error or interrupted commit rolls back or leaves a classified recoverable failure with no false PASS, no partially staged/committed trusted metadata and no lost pre-existing user changes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Direct edits, pre-existing human_confirmation rows, forged event-shaped JSON, copied/replayed canonical receipts, wrong-story or wrong-HEAD proofs, malformed/truncated receipts, path aliases and unproven additional managed files remain inadmissible even when their text and paths imitate an authorized lifecycle writer.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Source, configuration, command-entry, hook, untracked, symlink-resolved or unrelated dirty paths can never join the metadata transaction; detection fails closed to execution/refusal rather than laundering them into a reused PASS.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
