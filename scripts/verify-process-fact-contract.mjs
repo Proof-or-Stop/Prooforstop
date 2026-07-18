@@ -2372,6 +2372,116 @@ function extractBalancedBlock(text, openIndex, openChar, closeChar, label) {
   return '';
 }
 
+function findBalancedCloseIndex(text, openIndex, openChar, closeChar) {
+  let depth = 0;
+  let inString = false;
+  let quote = '';
+  let escaped = false;
+
+  for (let index = openIndex; index < text.length; index += 1) {
+    const char = text[index];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (inString) {
+      if (char === '\\') escaped = true;
+      else if (char === quote) inString = false;
+      continue;
+    }
+    if (char === '"' || char === "'" || char === '`') {
+      inString = true;
+      quote = char;
+      continue;
+    }
+    if (char === openChar) depth += 1;
+    else if (char === closeChar) {
+      depth -= 1;
+      if (depth === 0) return index;
+    }
+  }
+  return -1;
+}
+
+function extractNamedFunctionBody(text, functionName) {
+  const declaration = new RegExp(`\\bfunction\\s+${functionName}\\s*\\(`).exec(text);
+  if (!declaration) return null;
+  const paramsStart = text.indexOf('(', declaration.index);
+  const paramsEnd = findBalancedCloseIndex(text, paramsStart, '(', ')');
+  if (paramsEnd < 0) return null;
+  const bodyStart = text.indexOf('{', paramsEnd);
+  if (bodyStart < 0) return null;
+  const bodyEnd = findBalancedCloseIndex(text, bodyStart, '{', '}');
+  if (bodyEnd < 0) return null;
+  return text.slice(bodyStart + 1, bodyEnd);
+}
+
+function validationPersistenceTransactionIssues(verifierText) {
+  const issues = [];
+  const writerCallCount = [...verifierText.matchAll(/\bcommitValidationReuseMetadataTransaction\s*\(/g)].length;
+  if (writerCallCount !== 2) {
+    issues.push(`verifier must contain exactly two canonical validation transaction writer calls; found ${writerCallCount}`);
+  }
+
+  const localContracts = [
+    {
+      functionName: 'reusedStoryValidationResult',
+      evidenceWriter: 'args.ctx.store.writeTestEvidence',
+    },
+    {
+      functionName: 'persistStoryValidationEvidence',
+      evidenceWriter: 'ctx.store.writeTestEvidence',
+    },
+  ];
+  for (const contract of localContracts) {
+    const body = extractNamedFunctionBody(verifierText, contract.functionName);
+    if (!body) {
+      issues.push(`verifier must declare ${contract.functionName}`);
+      continue;
+    }
+    for (const token of [
+      contract.evidenceWriter,
+      'recordValidationTerminal',
+      'commitValidationReuseMetadataTransaction',
+      "reason: 'validate'",
+      'transaction',
+      "closeoutArtifactPaths: ['test-evidence.json']",
+    ]) {
+      if (!body.includes(token)) {
+        issues.push(`${contract.functionName} must locally bind canonical validation persistence token "${token}"`);
+      }
+    }
+  }
+  return issues;
+}
+
+function assertValidationPersistenceTransactionContract() {
+  const verifierPath = 'packages/main/src/handlers/verifier.ts';
+  const verifierText = read(verifierPath);
+  for (const issue of validationPersistenceTransactionIssues(verifierText)) {
+    fail(`${verifierPath}: ${issue}`);
+  }
+
+  const executedBody = extractNamedFunctionBody(verifierText, 'persistStoryValidationEvidence');
+  assert(Boolean(executedBody), 'validation persistence contract self-test requires the executed-validation function');
+  if (!executedBody) return;
+  const mutatedExecutedBody = executedBody.replace(
+    'commitValidationReuseMetadataTransaction',
+    'removedValidationTransactionWriter',
+  );
+  assert(
+    mutatedExecutedBody !== executedBody,
+    'validation persistence contract self-test must remove the executed-validation writer',
+  );
+  const mutatedVerifier = verifierText.replace(executedBody, mutatedExecutedBody);
+  const mutationIssues = validationPersistenceTransactionIssues(mutatedVerifier);
+  assert(
+    mutationIssues.some(issue => issue.includes('persistStoryValidationEvidence'))
+      && mutationIssues.some(issue => issue.includes('exactly two')),
+    'validation persistence contract bite must fail when executed persistence is deleted while reuse persistence remains',
+  );
+}
+
 function extractExportedObjectBody(text, exportName, relPath) {
   const match = new RegExp(`\\bexport\\s+const\\s+${exportName}\\b(?:\\s*:\\s*[^=]+)?\\s*=\\s*\\{`).exec(text);
   assert(Boolean(match), `${relPath} should export ${exportName}`);
@@ -5846,6 +5956,7 @@ assertPromptEvidenceBoundaries(promptMap);
 assertProofStoryProgressiveBoundary();
 assertProofStoryGateConsumedFacts();
 assertCloseoutTrustBoundary();
+assertValidationPersistenceTransactionContract();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
