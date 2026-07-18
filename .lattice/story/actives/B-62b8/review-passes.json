@@ -155,6 +155,45 @@
         "scanEscalationReason": null
       },
       "_hash": "555d6a795ddce1255bf2225cca74580a400b1f07a819bdcfed199a3f663bf5b5"
+    },
+    {
+      "id": "B-62b8:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Targeted round-4 docs/delivery consistency PASS. No canonical Markdown changed. Projecting doctor/usage_sweep outward rows to opaque stable session ids and opaque transcript locators is a direct extension of the existing owner-session non-disclosure contract; docs/host-run-usage.md promises per-session aggregation/diagnostics but does not promise raw native ids or filesystem transcript paths, so no user-facing promise update is required. Opaque projection preserves host, totals, cwd/origin/timestamps/story mentions and advisory semantics. Build, usage-burn-alert and usage-sweep focused suites passed, including every outward string-field sentinel redaction.",
+      "createdAt": "2026-07-18T00:29:55.607Z",
+      "reviewRound": "2026-07-18T00:27:35.045Z",
+      "reviewRunId": "B-62b8:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/host-run-usage.md",
+          "packages/main/src/core/usage-burn-alert.ts",
+          "packages/main/src/core/usage-sweep.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/handlers/usage-sweep.ts",
+          "packages/main/src/tasks/usage-burn-alert-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/owner-session-contract-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "ca7bd5fa3fa8b0a1e61da208ae526aacb3f1e9902f2a7c738aa871623910c96d"
+      },
+      "readDiagnostics": [],
+      "_hash": "3a5c030745105e1eb2d78995854842311d8dd61e0ded7f3bb003017db1591457"
     }
   ]
 }
