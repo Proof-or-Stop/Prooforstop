@@ -278,9 +278,9 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T02:07:46.020Z",
-      "endTime": "2026-07-19T03:04:01.553Z",
+      "endTime": "2026-07-19T03:09:07.346Z",
       "verificationIntent": {
         "happy": [
           {
@@ -330,23 +330,23 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner isolated sandbox seeds 8 real-shaped pass/finding/ReviewRun/verification/validation/lifecycle/process-event sentinel files, executes 3 copied entrypoints, and proves recursive membership plus literal bytes unchanged.",
-          "headHash": "6393056e59fab2714f54a3679ea8cc01e11b5e46",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:04:01.786Z"
+          "note": "Owner 49-check rerun recursively snapshots the entire isolated .lattice tree; legitimate copied entrypoints preserve it and sibling Story plus usage mutation bites both detect drift.",
+          "headHash": "9cd19e331b17c2ee0aa601a2645b431afd24d175",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:07.568Z"
         },
         {
           "intentRef": "partial-observation-remains-honest",
           "kind": "logic_test",
-          "file": "experiments/role-prompt-ab-replay/analyze.mjs",
-          "command": "node experiments/role-prompt-ab-replay/analyze.mjs --ledger=runtime/owner-fourth.jsonl --json",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "36-attempt owner analysis reports finalProviderInputTokens=null, providerInputAvailability=unavailable and no savings/recall claim.",
-          "headHash": "6393056e59fab2714f54a3679ea8cc01e11b5e46",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:04:02.199Z"
+          "note": "Owner 49-check rerun recursively snapshots the entire isolated .lattice tree; legitimate copied entrypoints preserve it and sibling Story plus usage mutation bites both detect drift.",
+          "headHash": "9cd19e331b17c2ee0aa601a2645b431afd24d175",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:07.758Z"
         },
         {
           "intentRef": "tamper-unreconstructable-fails-inconclusive",
@@ -354,11 +354,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "49-check suite rejects data/signature/arm/path/ledger tampering and proves no new .lattice top-level entries or sentinel production evidence changes.",
-          "headHash": "6393056e59fab2714f54a3679ea8cc01e11b5e46",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:04:02.434Z"
+          "note": "Owner 49-check rerun recursively snapshots the entire isolated .lattice tree; legitimate copied entrypoints preserve it and sibling Story plus usage mutation bites both detect drift.",
+          "headHash": "9cd19e331b17c2ee0aa601a2645b431afd24d175",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:07.932Z"
         }
       ]
     }
@@ -672,6 +672,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Fourth-round F-022/F-023/F-024/F-025 require recursive snapshot of the entire isolated .lattice evidence root, not only the sentinel Story subtree.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T03:09:07.346Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted a4b3a20ce6 after independent full-tree isolated evidence and scope verification.",
       "agent": "main"
     }
   ]
