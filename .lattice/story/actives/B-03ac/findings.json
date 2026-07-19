@@ -195,7 +195,7 @@
       "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:165-246 — HIGH coverage gap: the read-only proof invokes the core helper sequentially against a synthetic store and snapshots only story/findings/passes/runs/currentReviewRound. It does not invoke the registered CLI handler, run calls concurrently, or snapshot process-events, prompt envelopes, receipts, host verdicts, floor/quorum artifacts, filesystem bytes, phase transitions, or DONE outcome. Consequently incremental-context-readonly-gate-neutral and readonly-command-cannot-smuggle-evidence are not proven to their stated boundary, and the evidence note claiming repeated/concurrent command-level gate neutrality is unsupported.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T05:34:45.745Z",
@@ -203,7 +203,11 @@
       "reviewRunId": "B-03ac:RR-003",
       "_hash": "833cd8de121dc1227c514c051dbaa28c983b4f77b5a4f5f2ca16645a50db1d96",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 5f7ec42a83: read-only smoke runs 8 concurrent real built-CLI calls and proves byte-identical lifecycle, finding/pass/run, receipt/quorum, git status, phase and DONE artifacts before and after.",
+      "resolvedAt": "2026-07-19T06:15:55.735Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
