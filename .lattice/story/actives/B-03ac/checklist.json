@@ -98,7 +98,117 @@
           "packages/main/src/tasks/review-incremental-context-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "eligibility-trusted-bounded-incremental",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Policy smoke proves only trusted eligibility paths are accepted and legacy unsigned runs fail closed.",
+          "headHash": "25dd684ef5041e747663d26c1c32a954f35f7bf2",
+          "materialHash": "9d0d48a24ebe4848ca4d1517ec4f3b6bddee008667ba4cf90e1060a84de1f8c8",
+          "storyFilesHash": "98128442d5ab7f172d616b9bc07e785ee097c13991e735c1572fab5d29f241d2",
+          "timestamp": "2026-07-19T04:55:36.059Z"
+        },
+        {
+          "intentRef": "eligibility-supported-fixture-closure",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Pure fixture classification requires files.test declaration plus a nonempty Story intentRef binding.",
+          "headHash": "25dd684ef5041e747663d26c1c32a954f35f7bf2",
+          "materialHash": "9d0d48a24ebe4848ca4d1517ec4f3b6bddee008667ba4cf90e1060a84de1f8c8",
+          "storyFilesHash": "98128442d5ab7f172d616b9bc07e785ee097c13991e735c1572fab5d29f241d2",
+          "timestamp": "2026-07-19T04:55:36.059Z"
+        },
+        {
+          "intentRef": "eligibility-freshness-reader-binding",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts canonical metadata-only and related-story freshness classifications.",
+          "headHash": "25dd684ef5041e747663d26c1c32a954f35f7bf2",
+          "materialHash": "9d0d48a24ebe4848ca4d1517ec4f3b6bddee008667ba4cf90e1060a84de1f8c8",
+          "storyFilesHash": "98128442d5ab7f172d616b9bc07e785ee097c13991e735c1572fab5d29f241d2",
+          "timestamp": "2026-07-19T04:55:36.059Z"
+        },
+        {
+          "intentRef": "eligibility-forced-full-contract-policy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Table-driven forced-full cases cover docs, public contract, authority, command/gate, dependency/build and private implementation.",
+          "headHash": "25dd684ef5041e747663d26c1c32a954f35f7bf2",
+          "materialHash": "9d0d48a24ebe4848ca4d1517ec4f3b6bddee008667ba4cf90e1060a84de1f8c8",
+          "storyFilesHash": "98128442d5ab7f172d616b9bc07e785ee097c13991e735c1572fab5d29f241d2",
+          "timestamp": "2026-07-19T04:55:36.059Z"
+        },
+        {
+          "intentRef": "eligibility-unknown-fails-closed",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Unknown paths and untrusted legacy PASS/ReviewRun input select full with stable codes.",
+          "headHash": "25dd684ef5041e747663d26c1c32a954f35f7bf2",
+          "materialHash": "9d0d48a24ebe4848ca4d1517ec4f3b6bddee008667ba4cf90e1060a84de1f8c8",
+          "storyFilesHash": "98128442d5ab7f172d616b9bc07e785ee097c13991e735c1572fab5d29f241d2",
+          "timestamp": "2026-07-19T04:55:36.059Z"
+        },
+        {
+          "intentRef": "eligibility-rename-crossfile-closure",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Rename-aware old/new paths are retained and R status selects FULL_UNSUPPORTED_RENAME.",
+          "headHash": "25dd684ef5041e747663d26c1c32a954f35f7bf2",
+          "materialHash": "9d0d48a24ebe4848ca4d1517ec4f3b6bddee008667ba4cf90e1060a84de1f8c8",
+          "storyFilesHash": "98128442d5ab7f172d616b9bc07e785ee097c13991e735c1572fab5d29f241d2",
+          "timestamp": "2026-07-19T04:55:36.059Z"
+        },
+        {
+          "intentRef": "eligibility-caller-cannot-force-incremental",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Eligibility API accepts only authoritative store/git inputs and exposes no force/contextMode override.",
+          "headHash": "25dd684ef5041e747663d26c1c32a954f35f7bf2",
+          "materialHash": "9d0d48a24ebe4848ca4d1517ec4f3b6bddee008667ba4cf90e1060a84de1f8c8",
+          "storyFilesHash": "98128442d5ab7f172d616b9bc07e785ee097c13991e735c1572fab5d29f241d2",
+          "timestamp": "2026-07-19T04:55:36.059Z"
+        },
+        {
+          "intentRef": "eligibility-raw-hash-forgery-rejected",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Canonical freshness reader, signed run verification, envelope integrity and no-signal handling precede eligibility.",
+          "headHash": "25dd684ef5041e747663d26c1c32a954f35f7bf2",
+          "materialHash": "9d0d48a24ebe4848ca4d1517ec4f3b6bddee008667ba4cf90e1060a84de1f8c8",
+          "storyFilesHash": "98128442d5ab7f172d616b9bc07e785ee097c13991e735c1572fab5d29f241d2",
+          "timestamp": "2026-07-19T04:55:36.059Z"
+        },
+        {
+          "intentRef": "impact-policy-registry-single-source",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact verifier proves the versioned impact/freshness eligibility fact is registered as one L4 gate contract.",
+          "headHash": "25dd684ef5041e747663d26c1c32a954f35f7bf2",
+          "materialHash": "9d0d48a24ebe4848ca4d1517ec4f3b6bddee008667ba4cf90e1060a84de1f8c8",
+          "storyFilesHash": "98128442d5ab7f172d616b9bc07e785ee097c13991e735c1572fab5d29f241d2",
+          "timestamp": "2026-07-19T04:55:36.059Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
