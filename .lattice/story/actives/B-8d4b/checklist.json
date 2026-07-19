@@ -99,7 +99,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-19T02:07:27.042Z",
-      "endTime": "2026-07-19T03:03:55.573Z",
+      "endTime": "2026-07-19T03:09:02.949Z",
       "verificationIntent": {
         "happy": [
           {
@@ -147,11 +147,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner 49-check rerun and copied ordinary replay preserve deterministic same-input 36-cell behavior with unavailable historical metrics fail-closed.",
-          "headHash": "207a7f0b34f9e66da2113d5f089ab71bf9808cb8",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:03:55.934Z"
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "01a66fca66f554c51b8de7394d7a4f1e211dcf4a",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:03.191Z"
         },
         {
           "intentRef": "replay-order-path-and-repeat-invariance",
@@ -159,11 +159,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Order/repeat/path/object invariance and meaningful digest divergence remain covered.",
-          "headHash": "207a7f0b34f9e66da2113d5f089ab71bf9808cb8",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:03:56.199Z"
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "01a66fca66f554c51b8de7394d7a4f1e211dcf4a",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:03.432Z"
         },
         {
           "intentRef": "replay-no-caller-substitution-or-write-path",
@@ -171,11 +171,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Caller substitution/path attacks remain rejected; isolated copied entrypoints create no production evidence or process-event writes.",
-          "headHash": "207a7f0b34f9e66da2113d5f089ab71bf9808cb8",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:03:56.445Z"
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "01a66fca66f554c51b8de7394d7a4f1e211dcf4a",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:03.644Z"
         }
       ]
     },
