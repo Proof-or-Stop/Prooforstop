@@ -278,7 +278,7 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-19T02:07:46.020Z",
       "endTime": "2026-07-19T02:35:25.986Z",
       "verificationIntent": {
@@ -552,6 +552,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Second-round quality findings F-013/F-015 require crash-safe stale-lock recovery and parent-path confinement.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:44:54.005Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Second-round quality finding F-014 requires production no-drift verification that is stable under legitimate concurrent Story metadata writes.",
       "agent": "main"
     }
   ]
