@@ -459,7 +459,7 @@
       "desc": "experiments/role-prompt-ab-replay/selfcheck.mjs:203-205,293-313 and README.md:87-94 — MEDIUM: the isolated no-write proof claims to compare the complete evidence-root tree and detect any new production artifact, but `evidencePaths` snapshots only `.lattice/story/actives/B-sentinel` plus the root process-events file. The final assertion lists only `.lattice` top-level entries, so a copied entrypoint that creates `.lattice/story/actives/B-other/...` (or another child under `.lattice/story`) would leave both assertions unchanged and the test would still report drift NONE. Snapshot and byte-compare the entire `.lattice/story` root (and any other production evidence roots claimed), or recursively assert their complete directory manifests, not just the sentinel Story subtree.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T03:05:43.004Z",
@@ -472,7 +472,11 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
       "signatureTag": "missing|mjs|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a4b3a20ce6: isolated proof recursively snapshots the entire sandbox .lattice tree including directory membership, raw bytes and symlink targets; sibling Story pass and independent usage-artifact mutation bites both detect drift.",
+      "resolvedAt": "2026-07-19T03:09:24.089Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-025",
