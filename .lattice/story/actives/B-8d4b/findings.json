@@ -421,7 +421,7 @@
       "desc": "experiments/role-prompt-ab-replay/selfcheck.mjs:199-204,301-306 — MEDIUM: the isolated no-write proof claims to compare the complete evidence-root tree, but evidencePaths snapshots only .lattice/story/actives/B-sentinel and the root process-events file. It does not snapshot .lattice/story, .lattice, or usage/activity roots, so a copied entrypoint that creates a sibling Story (for example .lattice/story/actives/B-forged/index.json) or a new usage/lifecycle artifact passes the before/after comparison and the top-level .lattice membership assertion. Snapshot the whole isolated .lattice evidence root (with sentinels for governed consumers) so new sibling artifacts are detected.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T03:05:37.358Z",
@@ -429,7 +429,11 @@
       "reviewRunId": "B-8d4b:RR-013",
       "_hash": "f40ced312d421bc2b416d33a1adbc750a2a1ab2d81913d9817fa791b32c0162a",
       "signatureTag": "missing|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a4b3a20ce6: isolated proof recursively snapshots the entire sandbox .lattice tree including directory membership, raw bytes and symlink targets; sibling Story pass and independent usage-artifact mutation bites both detect drift.",
+      "resolvedAt": "2026-07-19T03:09:21.447Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-023",
