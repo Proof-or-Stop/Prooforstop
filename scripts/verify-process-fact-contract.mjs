@@ -3765,7 +3765,14 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${runtimeName} must stay L4`);
     assert(levelEntry.owner === 'core/review-assurance-floor', `${processFactLevelRegistryPath}: ${runtimeName} owner drifted`);
     assert(levelEntry.gateConsumer === 'storyMachine.canFinish DONE review assurance floor gate', `${processFactLevelRegistryPath}: ${runtimeName} gateConsumer drifted`);
-    for (const token of ['material code diffs', '3x1', '3x2', 'high-risk', 'local evidence', 'release readiness']) {
+    // B-956f FIX 2: the L4 rationale must ALSO name the language-neutral
+    // material-code policy semantics the floor now delegates to — policy
+    // resolution, hash-bound snapshot freshness, the diff-enumeration hard-block,
+    // and the shared repro/ProofStory consumers.
+    for (const token of [
+      'material code diffs', '3x1', '3x2', 'high-risk', 'local evidence', 'release readiness',
+      'language-neutral', 'material-code policy', 'snapshot freshness', 'diff enumeration', 'repro-evidence-binding',
+    ]) {
       assert(new RegExp(token, 'i').test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${runtimeName} rationale must name ${token}`);
     }
   }
@@ -3790,7 +3797,14 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     'REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND = 2',
     'three-round-two-hosts-or-degraded-single-host',
     'assuranceLevel',
-    'markdown documentation',
+    // B-956f FIX 2: the floor no longer hard-codes a TS-only whitelist or a literal
+    // "markdown documentation" branch — it DELEGATES per-file classification to the
+    // config-resolved material-code policy via one hash-bound snapshot (docs-only
+    // formats are non-material through the classifier), and surfaces a diff
+    // enumeration failure as a hard block.
+    'buildMaterialClassificationSnapshot',
+    'classifyReviewAssuranceFloorPath',
+    'diffEnumerationError',
     'evaluateHostVerdictRounds',
     'review_escalation_fallback',
     'reviewEscalationFallbackRecordFromEvent',

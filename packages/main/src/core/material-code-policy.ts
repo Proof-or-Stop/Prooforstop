@@ -429,11 +429,21 @@ export function resolveMaterialCodePolicy(projectRoot?: string): MaterialCodePol
 
   const { signature, raw } = readMaterialCodeConfig(projectRoot);
   const cached = _policyCacheByRoot.get(projectRoot);
-  if (cached && cached.configSignature === signature) return cached.policy;
+  const cacheHit = Boolean(cached && cached.configSignature === signature);
+  // The config-signature cache safely memoizes the config parse + policy build +
+  // digest, which depend ONLY on the config file content. It is frozen once.
+  const policy = cacheHit ? cached!.policy : deepFreeze(buildMaterialCodePolicy(raw));
 
-  const policy = buildMaterialCodePolicy(raw);
-  // CX4 FIX E: the filesystem-aware exclusion preflight runs INSIDE production
-  // resolution. Enumeration failure inside preflight throws (fail closed).
+  // B-956f FIX 4 (codex MED — cache skips preflight): the filesystem-aware
+  // exclusion preflight walks the TRACKED TREE (git ls-tree), which can change
+  // WITHOUT the config signature changing — e.g. committing backend/go.mod AFTER a
+  // successful resolve. The config-signature cache must therefore NOT short-circuit
+  // it. Re-run the preflight on EVERY resolution so acceptance is bound to CURRENT
+  // tree identity, not only config identity. Cost is one `git ls-tree` pass and it
+  // is a no-op when excludePaths is empty (the classifier/CX4 FIX E design already
+  // pays this only for exclusion-carrying configs); rebuilding a tracked-tree hash
+  // for a cache key would cost the same ls-tree, so re-running is the cheap-correct
+  // choice. Enumeration failure inside preflight throws (fail closed).
   if (policy.excludePaths.length > 0) {
     const preflight = preflightMaterialCodeExclusions(policy, projectRoot);
     if (!preflight.ok) {
@@ -446,8 +456,7 @@ export function resolveMaterialCodePolicy(projectRoot?: string): MaterialCodePol
       );
     }
   }
-  deepFreeze(policy);
-  _policyCacheByRoot.set(projectRoot, { configSignature: signature, policy });
+  if (!cacheHit) _policyCacheByRoot.set(projectRoot, { configSignature: signature, policy });
   return policy;
 }
 
@@ -698,10 +707,12 @@ interface MainToHeadDiff {
  * classifiable OLD-tree identity. `--name-only` loses both (a deleted
  * executable, shebang-free bin/tool classified non-material).
  */
-function listMainToHeadDiffEntries(gitCwd: string): MainToHeadDiff {
+function listMainToHeadDiffEntries(gitCwd: string, headRef = 'HEAD'): MainToHeadDiff {
   let raw: string;
   try {
-    raw = execFileSync('git', ['diff', '--name-status', '-z', '--find-renames', 'main...HEAD'], {
+    // B-956f FIX 1: diff against the pinned HEAD sha (headRef), not the symbolic
+    // ref, so a concurrent HEAD move cannot change the enumerated set mid-build.
+    raw = execFileSync('git', ['diff', '--name-status', '-z', '--find-renames', `main...${headRef}`], {
       cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -743,9 +754,9 @@ function listMainToHeadDiffEntries(gitCwd: string): MainToHeadDiff {
 }
 
 /** merge-base of main...HEAD — the OLD tree the triple-dot diff is computed against. */
-function diffBaseRef(gitCwd: string): string {
+function diffBaseRef(gitCwd: string, headRef = 'HEAD'): string {
   try {
-    const base = execFileSync('git', ['merge-base', 'main', 'HEAD'], {
+    const base = execFileSync('git', ['merge-base', 'main', headRef], {
       cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     if (base) return base;
@@ -758,17 +769,19 @@ function diffBaseRef(gitCwd: string): string {
  * on the CURRENT side of the diff (added/modified/rename-target). Prefers the
  * git blob/mode at HEAD; falls back to the main blob when HEAD is unavailable.
  */
-function extensionlessScriptSignal(gitCwd: string, path: string): boolean {
-  // Executable bit at HEAD.
+function extensionlessScriptSignal(gitCwd: string, path: string, headRef = 'HEAD'): boolean {
+  // B-956f FIX 1: read the mode/blob at the PINNED head sha (headRef) so the hint
+  // is consistent with the diff enumerated against that same sha.
+  // Executable bit at the pinned head.
   try {
-    const meta = execFileSync('git', ['ls-tree', 'HEAD', '--', path], {
+    const meta = execFileSync('git', ['ls-tree', headRef, '--', path], {
       cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
     const mode = meta.split(/\s+/)[0];
     if (mode === '100755') return true;
-  } catch { /* not tracked at HEAD */ }
-  // Shebang from the HEAD blob.
-  for (const spec of [`HEAD:${path}`, `main:${path}`]) {
+  } catch { /* not tracked at the pinned head */ }
+  // Shebang from the pinned head blob.
+  for (const spec of [`${headRef}:${path}`, `main:${path}`]) {
     try {
       const blob = execFileSync('git', ['show', spec], {
         cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 1024 * 1024,
@@ -839,14 +852,64 @@ function workingTreeScriptSignal(gitCwd: string, path: string): boolean {
  * set is empty and the hashes are undefined, but the resolved policy (the
  * load-bearing part for declared-file classification) is always present.
  */
+/**
+ * B-956f FIX 1: bounded retries when HEAD moves DURING snapshot construction. A
+ * concurrent commit between capturing the head sha and enumerating the diff/hints
+ * would yield an internally inconsistent snapshot; we rebuild against the new sha
+ * and, if HEAD never stabilizes within this bound, fail closed.
+ */
+const MAX_SNAPSHOT_HEAD_STABILITY_RETRIES = 2;
+
 export function buildMaterialClassificationSnapshot(
   projectRoot?: string,
   opts: BuildMaterialClassificationSnapshotOptions = {},
 ): MaterialClassificationSnapshot {
   const policy = opts.policy ?? resolveMaterialCodePolicy(projectRoot);
   const gitCwd = opts.gitCwd ?? projectRoot ?? process.cwd();
-  const headHash = opts.headHash ?? currentGitHead(gitCwd);
-  const materialHash = opts.materialHash ?? currentMaterialHash(gitCwd, 'HEAD', projectRoot);
+
+  // B-956f FIX 1 (codex HIGH — HEAD-move race): capture HEAD as ONE immutable
+  // commit sha, run ALL diff/hint enumeration against that exact sha, then
+  // POST-VALIDATE that live HEAD still equals the captured sha. On a mismatch a
+  // commit landed mid-build, so the enumerated set and the embedded hashes may
+  // disagree — rebuild against the new sha (bounded retries). If no stable
+  // snapshot is reached, throw the named freshness diagnostic (fail closed). This
+  // is the ONLY builder, so every consumer/refresh/rebuild path (the floor,
+  // ensureFreshMaterialClassificationSnapshot, the diagnostics builder) inherits
+  // the post-validation — no path returns an unvalidated snapshot. Outside a git
+  // tree there is no HEAD to move, so the single build is returned directly.
+  for (let attempt = 0; ; attempt++) {
+    const headRef = currentGitHead(gitCwd);
+    const snapshot = buildMaterialClassificationSnapshotAtRef(projectRoot, gitCwd, policy, headRef, opts);
+    if (!headRef) return snapshot; // non-git tree: nothing to race against
+    const liveHead = currentGitHead(gitCwd);
+    if (liveHead === headRef) return snapshot;
+    if (attempt >= MAX_SNAPSHOT_HEAD_STABILITY_RETRIES) {
+      throw new MaterialCodePolicyError(
+        'materialClassification.freshness',
+        `HEAD moved during classification snapshot construction for gitCwd ${JSON.stringify(gitCwd)} ` +
+          `(captured ${headRef}, live ${liveHead ?? 'unavailable'}) across ${attempt + 1} attempts; ` +
+          `refusing to return an internally inconsistent snapshot (fail closed)`,
+      );
+    }
+    // else: loop and rebuild against the moved HEAD.
+  }
+}
+
+/**
+ * Build one classification snapshot against a PINNED head sha (`headRef`). All
+ * git access (diff enumeration, merge-base, old-tree/head hint reads, materialHash)
+ * targets that exact sha so the result is internally consistent for that commit.
+ * `headRef` is undefined only outside a git tree.
+ */
+function buildMaterialClassificationSnapshotAtRef(
+  projectRoot: string | undefined,
+  gitCwd: string,
+  policy: MaterialCodePolicy,
+  headRef: string | undefined,
+  opts: BuildMaterialClassificationSnapshotOptions,
+): MaterialClassificationSnapshot {
+  const headHash = opts.headHash ?? headRef;
+  const materialHash = opts.materialHash ?? currentMaterialHash(gitCwd, headRef ?? 'HEAD', projectRoot);
   let diffEnumerationError: string | undefined;
   let entries: ChangedDiffEntry[];
   if (opts.changedFiles) {
@@ -854,18 +917,18 @@ export function buildMaterialClassificationSnapshot(
       .map((rawPath) => ({ path: normalizeMaterialPath(rawPath), hintSource: 'current' as const }))
       .filter((entry) => entry.path.length > 0);
   } else {
-    const diff = listMainToHeadDiffEntries(gitCwd);
+    const diff = listMainToHeadDiffEntries(gitCwd, headRef);
     entries = diff.entries;
     diffEnumerationError = diff.error;
   }
   let cachedBaseRef: string | undefined;
-  const baseRef = (): string => (cachedBaseRef ??= diffBaseRef(gitCwd));
+  const baseRef = (): string => (cachedBaseRef ??= diffBaseRef(gitCwd, headRef));
 
   const files: MaterialClassificationSnapshotFile[] = entries.map(({ path, hintSource }) => {
     const ext = materialPathExtension(path);
     const underPrefix = !ext && policy.pathPrefixes.some((prefix) => matchesScopePathEntry(prefix, path));
     const shebangOrExecutable = underPrefix
-      ? (hintSource === 'old-tree' ? oldTreeScriptSignal(gitCwd, baseRef(), path) : extensionlessScriptSignal(gitCwd, path))
+      ? (hintSource === 'old-tree' ? oldTreeScriptSignal(gitCwd, baseRef(), path) : extensionlessScriptSignal(gitCwd, path, headRef))
       : undefined;
     return classifyMaterialCodePath(policy, path, { projectRoot, shebangOrExecutable });
   });
@@ -998,16 +1061,13 @@ export function tryBuildMaterialClassificationSnapshotForDiagnostics(
   if (!projectRoot) return undefined;
   const buildOpts = { ...(gitCwd ? { gitCwd } : {}) };
   try {
-    const snapshot = buildMaterialClassificationSnapshot(projectRoot, buildOpts);
-    // B-956f FIX 5: the hash capture and the diff enumeration inside a single
-    // build are not atomic — a concurrent HEAD move between them can yield an
-    // internally mismatched snapshot. When the snapshot is git-bound, validate it
-    // against the live tree and rebuild ONCE on mismatch so the returned snapshot
-    // is self-consistent. A hashless (non-git) snapshot has no HEAD to move, so
-    // it is returned as-is. Still fail-soft (undefined) on any policy/config
-    // error or an unverifiable-freshness throw — this is a diagnostic-only field.
-    if (!snapshot.headHash || !snapshot.materialHash) return snapshot;
-    if (!materialClassificationSnapshotStale(snapshot)) return snapshot;
+    // B-956f FIX 1: buildMaterialClassificationSnapshot now pins HEAD to one sha,
+    // enumerates against it, and post-validates HEAD stability (rebuilding on a
+    // concurrent HEAD move, failing closed if it never stabilizes). The returned
+    // git-bound snapshot is therefore internally self-consistent by construction,
+    // so no separate re-validation is needed here. Still fail-soft (undefined) on
+    // any policy/config error or an unverifiable-freshness throw — this is a
+    // diagnostic-only field and must never crash a gate evaluation.
     return buildMaterialClassificationSnapshot(projectRoot, buildOpts);
   } catch {
     return undefined;

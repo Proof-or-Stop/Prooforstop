@@ -777,6 +777,18 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
       });
   } catch (err) {
     if (err instanceof MaterialCodePolicyError) {
+      // B-956f FIX 3 (codex MED — wrong remediation for freshness failures): a
+      // snapshot-freshness throw (a missing/unreadable gitCwd, or HEAD moving
+      // mid-build) is a WORKSPACE/GIT problem, NOT a lattice.config.json problem.
+      // Branch on the offendingKey so the structured outcome points at the right
+      // fix — config remediation only for genuine config failures.
+      const isFreshness = err.offendingKey === 'materialClassification.freshness';
+      const leadReason = isFreshness
+        ? `material-code classification could not verify a fresh git snapshot for the review-assurance floor: ${err.message}`
+        : `material-code policy/config error blocks the review-assurance floor: ${err.message}`;
+      const remediation = isFreshness
+        ? `→ Ensure the story workspace/git tree at ${gitCwd ?? args.projectRoot ?? process.cwd()} is present and readable (this is a workspace/git error, not a ${LATTICE_CONFIG_FILENAME} problem), then re-run the transition.`
+        : `→ Fix ${LATTICE_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then re-run the transition.`;
       return base({
         ok: false,
         required: true,
@@ -788,10 +800,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
         failureSignals,
         highRiskSignals: collectHighRiskSignals(args, []),
         localRounds: emptyRounds(REVIEW_ASSURANCE_FLOOR_REQUIRED_ROUNDS),
-        reasons: [
-          `material-code policy/config error blocks the review-assurance floor: ${err.message}`,
-          `→ Fix ${LATTICE_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then re-run the transition.`,
-        ],
+        reasons: [leadReason, remediation],
         diffError: err.message,
       });
     }

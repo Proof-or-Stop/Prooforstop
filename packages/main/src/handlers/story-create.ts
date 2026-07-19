@@ -26,7 +26,8 @@ import {
   classifyReproFirstRequirement,
   resolveReproFirstPreflightMode,
 } from '../core/repro-evidence-binding-gate.js';
-import { buildMaterialClassificationSnapshot } from '../core/material-code-policy.js';
+import { buildMaterialClassificationSnapshot, MaterialCodePolicyError } from '../core/material-code-policy.js';
+import { LATTICE_CONFIG_FILENAME } from '../core/config.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 
@@ -122,8 +123,30 @@ function renderReproFirstStoryCreatePreflight(args: {
     endedAt: null,
     events: [],
   } as StoryInfo;
-  const snapshot = buildMaterialClassificationSnapshot(args.projectRoot);
-  const classification = classifyReproFirstRequirement(candidateStory, args.checklist, snapshot);
+  // B-956f FIX 5: the shared classifier fails CLOSED (throws MaterialCodePolicyError)
+  // on a malformed lattice.config.json or an unverifiable git snapshot. Catch it
+  // here — the SAME narrow catch as the floor/repro gate — so the raw error never
+  // escapes uncaught out of story creation. Convert it to a structured message
+  // naming the file + remediation (enforce → throw; warn → advisory).
+  let classification;
+  try {
+    const snapshot = buildMaterialClassificationSnapshot(args.projectRoot);
+    classification = classifyReproFirstRequirement(candidateStory, args.checklist, snapshot);
+  } catch (err) {
+    if (err instanceof MaterialCodePolicyError) {
+      const isFreshness = err.offendingKey === 'materialClassification.freshness';
+      const message = [
+        `Repro-first STORY_INTAKE preflight could not classify material code for ${args.storyId}: the material-code policy failed closed. [repro_first_material_policy_error]`,
+        `  ${err.message}`,
+        isFreshness
+          ? `  → Ensure the workspace/git tree is present and readable (a workspace/git error, not a ${LATTICE_CONFIG_FILENAME} problem), then retry.`
+          : `  → Fix ${LATTICE_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then retry.`,
+      ].join('\n');
+      if (mode === 'enforce') throw new Error(message);
+      return `⚠ ${message}`;
+    }
+    throw err;
+  }
   if (!classification.required) return '';
   const bypassReason = args.bypassReason?.trim();
   if (bypassReason) {

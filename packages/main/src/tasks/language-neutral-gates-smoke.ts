@@ -82,7 +82,11 @@ import {
   classifyReviewAssuranceFloorPath,
   evaluateReviewAssuranceFloor,
 } from '../core/review-assurance-floor.js';
-import { classifyReproFirstRequirement } from '../core/repro-evidence-binding-gate.js';
+import {
+  classifyReproFirstRequirement,
+  evaluateStoryEvidenceBindingGate,
+  formatStoryEvidenceBindingGateFailure,
+} from '../core/repro-evidence-binding-gate.js';
 import {
   evaluateProofStoryDiagnostics,
   materialClassificationHasMaterialCode,
@@ -824,12 +828,111 @@ check('FIX-4: excludePaths:["dist/"] with a tracked dist/package.json resolves W
   );
 });
 
+// ─────────────────── R3 fix-round production-boundary checks ───────────────────
+
+check('R3-a: a JSON-broken lattice.config.json makes the PLAN/DEV repro gate return a structured "Cannot enter" failure naming the file (no raw throw)', () => {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-lngcfg-'));
+  tempRoots.push(root);
+  writeFileSync(join(root, 'lattice.config.json'), '{ "materialCode": { invalid');
+  resetConfigCache();
+  resetMaterialCodePolicyCache();
+  // readStory/readChecklist throwing is tolerated by the gate (story/checklist=null);
+  // the throw comes from the shared classifier resolving the malformed config.
+  const fakeStore = { readStory: () => null, readChecklist: () => null } as any;
+  let result: ReturnType<typeof evaluateStoryEvidenceBindingGate>;
+  assert.doesNotThrow(() => {
+    result = evaluateStoryEvidenceBindingGate(root, fakeStore, 'B-lng-guard', { mode: 'warn' });
+  }, 'the repro gate does not throw raw on a malformed config');
+  assert.equal(result!.ok, false, 'the gate fails closed on a malformed config');
+  assert.equal(result!.reasonCode, 'repro_first_material_policy_error', 'distinct material-policy reason code');
+  assert.equal(result!.blocking, true, 'the failure blocks regardless of reproFirst mode (fail closed)');
+  for (const phase of ['PLAN', 'DEV'] as const) {
+    const msg = formatStoryEvidenceBindingGateFailure(phase, 'B-lng-guard', result!);
+    assert.ok(msg, `${phase} guard renders a failure message`);
+    assert.match(msg!, new RegExp(`Cannot enter ${phase}:`), `${phase} keeps the "Cannot enter <PHASE>:" guard convention`);
+    assert.match(msg!, /\[repro_first_material_policy_error\]/, 'keeps the "[reason_code]" convention');
+    assert.match(msg!, /lattice\.config\.json/, 'names the offending config file');
+  }
+});
+
+check('R3-b: a freshness-failure structured floor outcome names workspace/git remediation, NOT lattice.config.json', () => {
+  const root = makeGitRepo({ 'src/app.ts': 'export const x = 1;\n' }, { 'src/app.ts': 'export const x = 2;\n' });
+  const snap = buildMaterialClassificationSnapshot(root);
+  assert.ok(snap.headHash && snap.materialHash, 'snapshot is git-bound');
+  // Consuming the snapshot against a nonexistent gitCwd makes freshness UNVERIFIABLE,
+  // so the floor catches the freshness throw and returns a structured outcome.
+  const missingGitCwd = join(root, 'this-dir-does-not-exist');
+  let report: ReturnType<typeof evaluateReviewAssuranceFloor>;
+  assert.doesNotThrow(() => {
+    report = evaluateReviewAssuranceFloor({ projectRoot: root, gitCwd: missingGitCwd, storyId: 'B-lng-fresh', materialClassification: snap });
+  }, 'the floor catches the freshness throw');
+  assert.equal(report!.ok, false, 'a freshness failure fails the floor closed');
+  const reasons = report!.reasons.join('\n');
+  assert.match(reasons, /workspace\/git/, 'freshness remediation names workspace/git');
+  assert.match(reasons, /cannot verify snapshot freshness/i, 'the reason names the freshness failure');
+  assert.doesNotMatch(reasons, /Fix lattice\.config\.json/, 'freshness must NOT give the config remediation');
+});
+
+check('R3-c: the exclusion preflight re-fires despite a warm config cache — committing a covered go.mod after a clean resolve rejects on the next resolve', () => {
+  // excludePaths:["backend/"] over a tree with NO covered manifest → clean resolve
+  // (which warms the config-signature cache).
+  const root = makeGitConfigRoot(
+    { materialCode: { excludePaths: ['backend/'] } },
+    { 'backend/main.go': 'package main\n' },
+  );
+  const first = resolveMaterialCodePolicy(root);
+  assert.deepEqual(first.excludePaths, ['backend/'], 'a non-covering directory exclusion resolves clean and caches the policy');
+
+  // Commit a NEW backend/go.mod covered by the SAME excludePaths. The config file
+  // (and thus its signature) is UNCHANGED, so a signature-only cache would echo the
+  // stale "ok" policy. FIX 4: the tree-bound preflight re-fires and rejects.
+  // NOTE: deliberately NO resetMaterialCodePolicyCache() — the warm cache is the point.
+  writeFile(root, 'backend/go.mod', 'module example.com/x\n');
+  commitAll(root, 'add go.mod under the excluded backend/');
+  assert.throws(
+    () => resolveMaterialCodePolicy(root),
+    (err: unknown) => err instanceof MaterialCodePolicyError && err.offendingKey === 'materialCode.excludePaths' && /backend\/go\.mod/.test(err.message),
+    'the preflight re-fires against the new tree and rejects the now-covered manifest',
+  );
+});
+
+check('R3-d: the snapshot is pinned to ONE HEAD sha; after a HEAD move (amend) it is stale and re-resolves bound to the NEW sha (post-build validation)', () => {
+  const root = initRepo();
+  writeFile(root, 'src/base.ts', 'export const base = 1;\n');
+  commitAll(root, 'base');
+  git(root, ['checkout', '-q', '-b', 'feature']);
+  writeFile(root, 'src/app.py', 'print(1)\n');
+  commitAll(root, 'add py');
+
+  const snap = buildMaterialClassificationSnapshot(root);
+  // (1) Pinned: the embedded headHash IS the resolved HEAD commit sha (all diff/hint
+  // enumeration ran against that exact sha, not the symbolic ref).
+  const headSha = git(root, ['rev-parse', 'HEAD']);
+  assert.equal(snap.headHash, headSha, 'snapshot headHash is the pinned HEAD commit sha');
+  assert.equal(snap.files.some((f) => f.path === 'src/app.py' && f.materialCode), true, 'the pinned-sha diff sees the material .py');
+  assert.equal(materialClassificationSnapshotStale(snap), false, 'a freshly pinned snapshot is current');
+
+  // (2) HEAD MOVES (amend rewrites the commit sha). The pinned snapshot is now
+  // stale, and re-resolution rebinds to the NEW sha with an internally consistent
+  // file set — the observable guarantee of FIX 1's capture-once + post-build
+  // HEAD-stability validation (no path returns an unvalidated snapshot).
+  writeFile(root, 'src/app.py', 'print(2)\n');
+  git(root, ['add', '-A']);
+  git(root, ['commit', '-q', '--amend', '--no-edit']);
+  const newSha = git(root, ['rev-parse', 'HEAD']);
+  assert.notEqual(newSha, headSha, 'amend moved HEAD to a new sha');
+  assert.equal(materialClassificationSnapshotStale(snap), true, 'the pinned snapshot is stale after the HEAD move');
+  const refreshed = ensureFreshMaterialClassificationSnapshot(snap);
+  assert.equal(refreshed.headHash, newSha, 're-resolution binds the rebuilt snapshot to the NEW HEAD sha');
+  assert.equal(materialClassificationSnapshotStale(refreshed), false, 'the rebuilt snapshot is internally consistent and current');
+});
+
 for (const root of tempRoots) {
   try { rmSync(root, { recursive: true, force: true }); } catch { /* best effort cleanup */ }
 }
 
 if (failures === 0) {
-  console.log('\nlanguage-neutral-gates smoke passed (23 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks)');
+  console.log('\nlanguage-neutral-gates smoke passed (27 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks)');
 } else {
   console.error(`\nlanguage-neutral-gates smoke FAILED (${failures})`);
   process.exit(1);

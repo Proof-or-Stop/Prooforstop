@@ -1,10 +1,11 @@
 import { listArtifacts, readArtifact, verifyArtifactDigest } from './evidence/artifact-store.js';
-import { loadConfig } from './config.js';
+import { loadConfig, LATTICE_CONFIG_FILENAME } from './config.js';
 import { buildProofAdmissibilityDiagnostic } from './proof-admissibility-gates.js';
 import {
   buildMaterialClassificationSnapshot,
   classifyDeclaredPaths,
   ensureFreshMaterialClassificationSnapshot,
+  MaterialCodePolicyError,
   type MaterialClassificationSnapshot,
 } from './material-code-policy.js';
 import type {
@@ -23,7 +24,11 @@ export type StoryEvidenceBindingGateReasonCode =
   | 'missing_story_evidence_binding'
   | 'stale_story_evidence_binding'
   | 'repro_first_bypassed'
-  | 'repro_first_preflight_engine_error';
+  | 'repro_first_preflight_engine_error'
+  // B-956f FIX 5: the material-code policy/classification failed closed (malformed
+  // lattice.config.json, or unverifiable git-snapshot freshness) while evaluating
+  // repro-first requirements. Fails the gate regardless of reproFirst mode.
+  | 'repro_first_material_policy_error';
 
 export type ReproFirstPreflightMode = 'off' | 'warn' | 'enforce';
 
@@ -142,10 +147,39 @@ export function classifyReproFirstRequirement(
 function resultFor(
   args: Omit<StoryEvidenceBindingGateResult, 'blocking'>,
 ): StoryEvidenceBindingGateResult {
+  // B-956f FIX 5: a material-code policy/classification fail-closed error blocks
+  // the transition regardless of reproFirst mode (mirrors the review-assurance
+  // floor, which fails closed on the same errors) — a malformed config or an
+  // unverifiable git-snapshot must never be laundered into a passing gate.
+  const alwaysBlocking = args.reasonCode === 'repro_first_material_policy_error';
   return {
     ...args,
-    blocking: args.mode === 'enforce' && args.required && args.reasonCode !== null && args.reasonCode !== 'repro_first_bypassed' && args.reasonCode !== 'repro_first_preflight_engine_error',
+    blocking: alwaysBlocking || (args.mode === 'enforce' && args.required && args.reasonCode !== null && args.reasonCode !== 'repro_first_bypassed' && args.reasonCode !== 'repro_first_preflight_engine_error'),
   };
+}
+
+/**
+ * B-956f FIX 5: convert a MaterialCodePolicyError raised by the shared classifier
+ * (config-resolve, snapshot build, or freshness re-check) into a STRUCTURED
+ * failing gate result naming the file + remediation. Freshness failures point at
+ * the workspace/git tree; config failures point at lattice.config.json. Anything
+ * that is NOT a MaterialCodePolicyError is re-thrown by the caller.
+ */
+function materialPolicyErrorResult(
+  mode: ReproFirstPreflightMode,
+  err: MaterialCodePolicyError,
+): StoryEvidenceBindingGateResult {
+  const isFreshness = err.offendingKey === 'materialClassification.freshness';
+  const remediation = isFreshness
+    ? `→ Ensure the story workspace/git tree is present and readable (this is a workspace/git error, not a ${LATTICE_CONFIG_FILENAME} problem), then re-run the transition.`
+    : `→ Fix ${LATTICE_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then re-run the transition.`;
+  return resultFor({
+    ok: false,
+    required: true,
+    mode,
+    reasonCode: 'repro_first_material_policy_error',
+    details: [err.message, remediation],
+  });
 }
 
 function isCandidateArtifact(artifact: EvidenceArtifact<unknown>, kind: string, details: string[]): boolean {
@@ -375,8 +409,18 @@ export function evaluateStoryEvidenceBindingGate(
     checklist = null;
   }
 
-  const snapshot = buildMaterialClassificationSnapshot(projectRoot);
-  const classification = classifyReproFirstRequirement(story, checklist, snapshot);
+  // B-956f FIX 5: the shared classifier fails CLOSED (throws MaterialCodePolicyError)
+  // on a malformed lattice.config.json or an unverifiable git-snapshot. Catch it
+  // here — the SAME narrow catch as the review-assurance floor — so the raw error
+  // never escapes uncaught through the PLAN/DEV guard boolean or getGuardFailureReason.
+  let classification: ReproFirstRequirementClassification;
+  try {
+    const snapshot = buildMaterialClassificationSnapshot(projectRoot);
+    classification = classifyReproFirstRequirement(story, checklist, snapshot);
+  } catch (err) {
+    if (err instanceof MaterialCodePolicyError) return materialPolicyErrorResult(mode, err);
+    throw err;
+  }
   if (!classification.required) {
     return resultFor({
       ok: true,
@@ -490,6 +534,13 @@ export function formatStoryEvidenceBindingGateFailure(
   result: StoryEvidenceBindingGateResult,
 ): string | null {
   if (result.ok || !result.reasonCode) return null;
+  // B-956f FIX 5: a material-code policy/classification failure keeps the
+  // "Cannot enter <PHASE>:" + "[reason_code]" guard conventions and renders the
+  // file + remediation details produced by materialPolicyErrorResult.
+  if (result.reasonCode === 'repro_first_material_policy_error') {
+    const details = result.details.slice(0, 6).map(detail => `  - ${detail}`).join('\n');
+    return `Cannot enter ${targetPhase}: the material-code policy/classification failed closed while checking repro-first requirements for ${storyId}. [repro_first_material_policy_error]${details ? `\n${details}` : ''}`;
+  }
   const requirementSubject = describeRequirementSubject(result);
   const classifier = describeRequirement(result);
   const lead = result.reasonCode === 'missing_story_evidence_binding'
