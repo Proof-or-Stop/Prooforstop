@@ -1,6 +1,7 @@
 import { hostname } from 'os';
+import { join } from 'path';
 import { acquireMkdirLock, type AcquiredMkdirLock, type MkdirLockOptions } from './mkdir-lock.js';
-import type { StoryStore } from './store.js';
+import { LATTICE_DIR } from './lattice-paths.js';
 
 /**
  * B-d877 CHK-002: per-story transition lock.
@@ -15,20 +16,32 @@ import type { StoryStore } from './store.js';
  * commits, then re-reads the committed state (and its guard correctly refuses a
  * second advance from the already-advanced phase).
  *
+ * LOCK LOCATION — the lock MUST live OUTSIDE the story's committed/scanned
+ * metadata dir. An earlier revision rooted it at `<storyDir>/transition.lock/`,
+ * i.e. inside `.lattice/story/actives/<id>/`; the scope gate running in the SAME
+ * transition then saw the just-created `transition.lock/holder.json` as an
+ * out-of-scope change and hard-failed every non-DONE transition (self-inflicted
+ * deadlock). Mirroring `validation-execution-lock.ts` / `main-write-lock.ts`,
+ * the lock now roots under `.lattice/locks/transition/<sanitized-id>.lock`,
+ * which is already gitignored (`.gitignore` `.lattice/locks/`) and registered as
+ * managed runtime state (runtime-artifact-registry `runtime-locks`, prefix
+ * `.lattice/locks/`). It is a runtime artifact, never story-owned metadata.
+ *
  * This REUSES the shared atomic mkdir-lock primitive (core/mkdir-lock.ts) — the
- * exact mechanism `withChecklistLock` / `story_create` use — instead of
- * hand-rolling a lock. `mkdir` of a non-existent directory is atomic on
+ * exact mechanism `withValidationExecutionLock` / `story_create` use — instead
+ * of hand-rolling a lock. `mkdir` of a non-existent directory is atomic on
  * POSIX/Win32, so exactly one caller wins across SEPARATE PROCESSES; this
- * serializes concurrent `lattice story_advance` CLI invocations, not merely
- * in-process callers.
+ * serializes concurrent `lattice story_advance` CLI invocations (and, like the
+ * validation lock which roots at the same project root, transitions across
+ * worktrees of the same story), not merely in-process callers.
  *
  * DONE transitions must NOT take this lock: they already hold the unified main
  * write lock (`acquireDoneMainMergeLock`) across the same span, so the
  * orchestrator only acquires this for `args.phase !== 'DONE'` (no double-lock).
  */
 
-/** Lock-directory filename under a story's metadata dir. */
-export const STORY_TRANSITION_LOCK_FILE = 'transition.lock';
+/** Lock-directory root (relative to the project root) for per-story transition locks. */
+export const STORY_TRANSITION_LOCKS_REL = `${LATTICE_DIR}/locks/transition`;
 
 /**
  * Stale threshold generously exceeds any legitimate non-DONE transition
@@ -41,6 +54,11 @@ export const STORY_TRANSITION_LOCK_FILE = 'transition.lock';
 const STORY_TRANSITION_STALE_MS = 120_000;
 const STORY_TRANSITION_DEADLINE_MS = 180_000;
 
+/** Sanitize a story id into a safe single lock-file segment (mirrors validation-execution-lock). */
+function sanitizeLockSegment(value: string): string {
+  return value.replace(/[^A-Za-z0-9_.-]/g, '_').replace(/^_+|_+$/g, '') || 'unknown';
+}
+
 export interface StoryTransitionLockOptions {
   /** Override the acquire deadline (ms). Defaults to STORY_TRANSITION_DEADLINE_MS. */
   deadlineMs?: number;
@@ -48,9 +66,16 @@ export interface StoryTransitionLockOptions {
   staleMs?: number;
 }
 
-/** Resolve the per-story transition lock directory path. */
-export function storyTransitionLockDir(store: StoryStore, storyId: string): string {
-  return store.storyFilePath(storyId, STORY_TRANSITION_LOCK_FILE);
+/**
+ * Resolve the per-story transition lock directory path under the project root's
+ * gitignored `.lattice/locks/transition/`. NOT under the story metadata dir.
+ */
+export function storyTransitionLockPath(root: string, storyId: string): string {
+  const projectRoot = String(root ?? '').trim();
+  const id = String(storyId ?? '').trim();
+  if (!projectRoot) throw new Error('storyTransitionLockPath: root is required');
+  if (!id) throw new Error('storyTransitionLockPath: storyId is required');
+  return join(projectRoot, STORY_TRANSITION_LOCKS_REL, `${sanitizeLockSegment(id)}.lock`);
 }
 
 /**
@@ -59,11 +84,11 @@ export function storyTransitionLockDir(store: StoryStore, storyId: string): stri
  * cannot leak the lock (no deadlock for the next transition).
  */
 export function acquireStoryTransitionLock(
-  store: StoryStore,
+  root: string,
   storyId: string,
   options: StoryTransitionLockOptions = {},
 ): AcquiredMkdirLock {
-  const lockDir = storyTransitionLockDir(store, storyId);
+  const lockDir = storyTransitionLockPath(root, storyId);
   const opts: MkdirLockOptions = {
     deadlineMs: options.deadlineMs ?? STORY_TRANSITION_DEADLINE_MS,
     staleMs: options.staleMs ?? STORY_TRANSITION_STALE_MS,

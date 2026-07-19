@@ -430,7 +430,7 @@ async function runStoryTransitionInner(
     // committed post-transition state below. DONE is excluded (it serializes via
     // acquireDoneMainMergeLock instead — see the DONE pre-check block).
     if (args.phase !== 'DONE') {
-      transitionLock = acquireStoryTransitionLock(store, args.storyId);
+      transitionLock = acquireStoryTransitionLock(ctx.root, args.storyId);
     }
 
     // B-9bd9 CHK-002: meta-story never enters DONE (long-lived cross-story container, only carries findings)

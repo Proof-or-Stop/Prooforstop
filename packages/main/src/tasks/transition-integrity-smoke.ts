@@ -30,7 +30,7 @@ import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { createWorktreeHandlers } from '../handlers/worktree.js';
 import { runStoryTransition } from '../handlers/transition-orchestrator.js';
-import { acquireStoryTransitionLock, storyTransitionLockDir } from '../core/story-transition-lock.js';
+import { acquireStoryTransitionLock, storyTransitionLockPath } from '../core/story-transition-lock.js';
 
 const NOW = '2026-07-18T00:00:00.000Z';
 
@@ -72,7 +72,7 @@ function makeFixture(storyId: string, phase: string, opts: { withWorktree?: bool
   git(root, ['config', 'user.email', 'tis@test']);
   git(root, ['config', 'user.name', 'TIS']);
   writeFileSync(join(root, 'README.md'), '# fixture\n');
-  writeFileSync(join(root, '.gitignore'), '.worktrees/\nnode_modules/\n');
+  writeFileSync(join(root, '.gitignore'), '.worktrees/\nnode_modules/\n.lattice/locks/\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'init']);
 
@@ -268,7 +268,12 @@ async function main(): Promise<void> {
     // inside the critical section.
     let threw = false;
     try {
-      const lock = acquireStoryTransitionLock(fx.store, fx.storyId);
+      const lock = acquireStoryTransitionLock(fx.root, fx.storyId);
+      // The lock lives OUTSIDE the story metadata dir (under gitignored
+      // .lattice/locks/transition/), never inside .lattice/story/actives/<id>/.
+      check('transition lock is rooted under .lattice/locks/, not the story dir',
+        lock.lockDir.includes(`${'.lattice'}/locks/transition/`) && !lock.lockDir.includes('/story/actives/'),
+        lock.lockDir);
       try {
         throw new Error('simulated mid-critical-section failure');
       } finally {
@@ -281,7 +286,7 @@ async function main(): Promise<void> {
     // here; a properly released one acquires instantly → no deadlock.
     let reacquired = false;
     try {
-      const l = acquireStoryTransitionLock(fx.store, fx.storyId, { deadlineMs: 1500, staleMs: 100000 });
+      const l = acquireStoryTransitionLock(fx.root, fx.storyId, { deadlineMs: 1500, staleMs: 100000 });
       l.release();
       reacquired = true;
     } catch { reacquired = false; }
@@ -295,8 +300,8 @@ async function main(): Promise<void> {
         { storyId: fd.storyId, phase: 'DONE' as any });
     } catch { /* expected to block at a DONE gate */ }
     check('DONE transition never created the per-story transition lock (no double-lock)',
-      !existsSync(storyTransitionLockDir(fd.store, fd.storyId)),
-      storyTransitionLockDir(fd.store, fd.storyId));
+      !existsSync(storyTransitionLockPath(fd.root, fd.storyId)),
+      storyTransitionLockPath(fd.root, fd.storyId));
   }
 
   console.log('');
