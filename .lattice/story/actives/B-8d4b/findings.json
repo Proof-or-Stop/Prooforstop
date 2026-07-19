@@ -116,6 +116,21 @@
       "_hash": "0ee7e1027b772fa151cc004211a906f14ea837abd66c7ce67554f8e24b43f64b",
       "signatureTag": "adversarial|unknown|experiments-role-prompt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d4b:F-008",
+      "desc": "experiments/role-prompt-ab-replay/lib/ledger.mjs:280-294 — HIGH: appendLedgerRecord performs read/verify/derive/append without a lock or compare-and-append primitive. A Promise.all of two valid first-record appends both fulfills with previousRecordHash=null, then readLedger fails LEDGER_CHAIN_BROKEN. Concurrent experiment writers can therefore corrupt the append-only ledger despite both calls succeeding.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T02:12:06.172Z",
+      "reviewRound": "2026-07-19T02:09:19.210Z",
+      "reviewRunId": "B-8d4b:RR-001",
+      "_hash": "0765a328d1f126a90eba2cfe61a41eb876e38c1611d8bc5f16177028546ce315",
+      "signatureTag": "edge|unknown|experiments-role-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
