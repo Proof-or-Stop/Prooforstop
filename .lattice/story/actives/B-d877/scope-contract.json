@@ -62,10 +62,26 @@
       "phase": "DEV",
       "headHash": "10348fbf3e8ca2cc814a2567b38282a09ff5ccce",
       "materialHash": "0a0ab8fe07d5cdde204fce5f2253d3c5341c094ec1d44ab59a97211c7b2cb1aa"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Fix-round R3 codex#4/F-011 (reproduced quorum-submit-smoke clean-tree failure): relocating the in-story mkdir-lock dirs (checklist/finding/review-run/init-check/prompt-envelopes/process-events append) OUT of the git-tracked story metadata dir into gitignored .lattice/locks/<category>/ required threading a shared-root lock path (storyRuntimeLockPath in validation-execution-lock.ts; runtimeLockDirPath in store.ts; optional lockDir in process-events.ts) through every caller that rooted a lock inside .lattice/story/actives/<id>/. quorum-submit-smoke.ts updated to pre-create the relocated lock. Direct, review-demanded consequence of the transition-mutex soundness work; each caller's own smoke re-run green.",
+      "timestamp": "2026-07-19T05:20:08.850Z",
+      "paths": [
+        "packages/main/src/core/dirty-gate-policy.ts,packages/main/src/core/process-events.ts,packages/main/src/core/store.ts,packages/main/src/core/validation-execution-lock.ts,packages/main/src/handlers/agent-prompt.ts,packages/main/src/handlers/checklist.ts,packages/main/src/handlers/finding.ts,packages/main/src/handlers/init-check.ts,packages/main/src/handlers/review-run.ts,packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/dirty-gate-policy.ts,packages/main/src/core/process-events.ts,packages/main/src/core/store.ts,packages/main/src/core/validation-execution-lock.ts,packages/main/src/handlers/agent-prompt.ts,packages/main/src/handlers/checklist.ts,packages/main/src/handlers/finding.ts,packages/main/src/handlers/init-check.ts,packages/main/src/handlers/review-run.ts,packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b52a035d862ee461d0f4a92d557951e8df00b51b",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
     }
   ],
   "createdAt": "2026-07-18T23:51:45.763Z",
-  "updatedAt": "2026-07-19T04:21:23.478Z",
+  "updatedAt": "2026-07-19T05:20:08.850Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -75,6 +91,7 @@
     "packages/main/src/tasks/transition-integrity-smoke.ts": "packages/main/src/tasks/transition-integrity-smoke.ts",
     "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
     "packages/main/src/handlers/hints.ts": "packages/main/src/handlers/hints.ts",
-    ".gitignore": ".gitignore"
+    ".gitignore": ".gitignore",
+    "packages/main/src/core/dirty-gate-policy.ts,packages/main/src/core/process-events.ts,packages/main/src/core/store.ts,packages/main/src/core/validation-execution-lock.ts,packages/main/src/handlers/agent-prompt.ts,packages/main/src/handlers/checklist.ts,packages/main/src/handlers/finding.ts,packages/main/src/handlers/init-check.ts,packages/main/src/handlers/review-run.ts,packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/core/dirty-gate-policy.ts,packages/main/src/core/process-events.ts,packages/main/src/core/store.ts,packages/main/src/core/validation-execution-lock.ts,packages/main/src/handlers/agent-prompt.ts,packages/main/src/handlers/checklist.ts,packages/main/src/handlers/finding.ts,packages/main/src/handlers/init-check.ts,packages/main/src/handlers/review-run.ts,packages/main/src/tasks/quorum-submit-smoke.ts"
   }
 }
