@@ -68,6 +68,7 @@ import {
   classifyEvidenceFreshness,
   currentGitHead,
 } from '../core/evidence-freshness.js';
+import { collectReviewerEvidenceState } from '../core/review-run.js';
 import {
   classifyImpact,
   IMPACT_CLASSIFICATION_POLICY_VERSION,
@@ -846,12 +847,152 @@ function runConcurrentCliReadOnlyCase(): void {
   }
 }
 
+function runConcurrentReviewerWriteCase(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-reviewer-rollout-concurrent-'));
+  const storyId = 'B-concurrent-reviewers';
+  const roles = [
+    'lattice-review-behavior',
+    'lattice-review-concept',
+    'lattice-review-docs',
+    'lattice-review-quality',
+    'lattice-review-test-coverage',
+  ];
+  const round = '2026-07-19T00:00:00.000Z';
+  const shellCommand = (command: string, payload: Record<string, unknown>, role: string) => [
+    `LATTICE_AGENT=${JSON.stringify(role)}`,
+    `LATTICE_SESSION_ID=${JSON.stringify(`concurrent-${role}`)}`,
+    JSON.stringify(process.execPath),
+    JSON.stringify(DIST_CLI_PATH),
+    '--root',
+    JSON.stringify(root),
+    command,
+    JSON.stringify(JSON.stringify(payload)),
+    '>/dev/null',
+  ].join(' ');
+  try {
+    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: '.',
+      rootDir: 'src',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+      flows: { defaults: {}, patterns: [] },
+      promptEnvelope: {
+        version: 'proofbound.prompt-envelope-rollout.v1',
+        roles: Object.fromEntries(roles.map(role => [role, 'full-envelope'])),
+      },
+    }, null, 2) + '\n');
+    write(root, 'src/seed.ts', 'export const seed = true;\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed concurrent reviewer fixture']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const store = new StoryStore(root);
+    store.writeStory(storyId, {
+      ...reviewStory(storyId, 1, round),
+      title: 'Concurrent reviewer rollout',
+      description: 'Exercise real concurrent reviewer evidence writers.',
+      priority: 'high',
+    });
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Preserve every reviewer result',
+        context: 'Concurrent writes must serialize without overwrite.',
+        status: 'done',
+        startTime: null,
+        endTime: round,
+        files: { modify: ['src/seed.ts'], create: [], test: [] },
+        verificationIntent: {
+          happy: [{ id: 'CHK-001:happy:0', desc: 'All reviewer evidence is retained.', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    });
+    git(root, ['add', '.lattice/story']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed review metadata']);
+
+    for (const role of roles) {
+      execFileSync(process.execPath, [
+        DIST_CLI_PATH, '--root', root, 'dispatch', JSON.stringify({ storyId, agentType: role }),
+      ], {
+        cwd: root,
+        env: {
+          ...process.env,
+          LATTICE_PROJECT_ROOT: root,
+          LATTICE_ACTIVITY_SOURCE: 'codex',
+          LATTICE_AGENT: 'main',
+          LATTICE_SESSION_ID: 'concurrent-owner',
+        },
+        stdio: ['ignore', 'pipe', 'pipe'],
+      });
+    }
+    const startScript = ['set -eu', ...roles.map(role =>
+      `${shellCommand('review_run_start', { storyId, agent: role }, role)} &`,
+    ), 'wait'].join('\n');
+    execFileSync('/bin/sh', ['-c', startScript], {
+      cwd: root,
+      env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_ACTIVITY_SOURCE: 'codex' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    const runs = store.readReviewRuns(storyId).runs;
+    assert.equal(runs.length, roles.length, 'concurrent review_run_start preserves every lane');
+    assert.equal(new Set(runs.map(run => run.reviewRunId)).size, roles.length, 'concurrent runs mint unique IDs');
+    assert.equal(store.readPromptEnvelopes(storyId).envelopes.length, roles.length, 'concurrent envelopes are never overwritten');
+
+    const evidenceCommands = roles.map((role, index) => {
+      const reviewRunId = runs.find(run => run.lane === role)!.reviewRunId;
+      return index % 2 === 0
+        ? shellCommand('review_pass_set', {
+          storyId,
+          agent: role,
+          reviewRunId,
+          note: `${role} found no blocker after inspecting the bounded fixture.`,
+          readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+        }, role)
+        : shellCommand('finding_add', {
+          storyId,
+          agent: role,
+          reviewRunId,
+          desc: `${role} recorded a nonblocking concurrent evidence finding.`,
+          severity: 'low',
+          category: 'edge',
+        }, role);
+    });
+    execFileSync('/bin/sh', ['-c', ['set -eu', ...evidenceCommands.map(command => `${command} &`), 'wait'].join('\n')], {
+      cwd: root,
+      env: { ...process.env, LATTICE_PROJECT_ROOT: root, LATTICE_ACTIVITY_SOURCE: 'codex' },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.equal(store.readReviewPasses(storyId).passes.length, 3, 'concurrent passes are retained exactly once');
+    assert.equal(store.readFindings(storyId).findings.length, 2, 'concurrent findings are retained exactly once');
+    const evidence = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(evidence.invalid.length, 0, 'collector accepts every current signed concurrent result');
+    assert.deepEqual(
+      [...new Set(evidence.valid.map(item => item.agent))].sort(),
+      [...roles].sort(),
+      'collector counts every reviewer lane once without overwrite',
+    );
+    assert.equal(canPassReviewGuard({ storyId, store, projectRoot: root }), true, 'real REVIEW gate accepts the complete five-lane matrix');
+    console.log(`${MARKER} CONCURRENT REVIEWERS: five review_run_start + pass/finding writers preserved envelopes and gate evidence`);
+  } finally {
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function run(): void {
   runPolicyCases();
   runFixtureDuplicateIdentityCases();
   runIncrementalCases();
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();
+  runConcurrentReviewerWriteCase();
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
 }
 

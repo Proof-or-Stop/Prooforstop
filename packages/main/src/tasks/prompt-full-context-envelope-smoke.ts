@@ -18,6 +18,7 @@ import {
   type IncrementalReviewBasis,
 } from '../core/prompt-contracts.js';
 import {
+  ACTIVE_MODULAR_REVIEWER_ROLE_IDS,
   PROMPT_ENVELOPE_ROLLOUT_VERSION,
   promptRoleContract,
   resolvePromptEnvelopeRolloutMode,
@@ -157,6 +158,43 @@ assert.equal(safeIncremental.envelope.contextMode, 'incremental');
 assert.equal(safeIncremental.selectionReason, 'SAFE_INCREMENTAL');
 assert.ok(safeIncremental.envelope.incrementalContextBytes! < safeIncremental.envelope.fullContextBytes!);
 assert.equal(verifyPromptEnvelopeIntegrity(safeIncremental.envelope), true);
+
+for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
+  const roleContract = promptRoleContract(roleId);
+  const rolePrompt = resolvePromptRoleBody(roleId, {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [roleId]: 'full-envelope' },
+  }).body;
+  const roleCommon = {
+    ...common,
+    roleContract,
+    rolePrompt,
+    lane: roleId,
+    reviewRunId: `B-envelope:RR-${roleId}`,
+  };
+  const fullLaunch = assembleFullPromptEnvelope({
+    ...roleCommon,
+    createdAt: '2026-07-18T00:00:04.000Z',
+  });
+  assert.equal(fullLaunch.envelope.roleId, roleId, `${roleId} trusted full launch binds its own role`);
+  assert.equal(verifyPromptEnvelopeIntegrity(fullLaunch.envelope), true);
+  const incrementalLaunch = assembleConditionalReviewPromptEnvelope({
+    ...roleCommon,
+    createdAt: '2026-07-18T00:00:05.000Z',
+    eligibilityDigest: '2'.repeat(64),
+    eligibilityReasonCodes: reviewBasis.reReviewReasonCodes,
+    freshnessClassification: 'CURRENT_MATERIAL',
+    impactPolicyVersion: 'proofbound.impact-classification.v1',
+    priorPassRef: reviewBasis.priorPassRef,
+    changedFilesDigest: '3'.repeat(64),
+    impactedFilesDigest: '4'.repeat(64),
+    reviewBasis: { ...reviewBasis, lane: roleId },
+    incrementalEligible: true,
+  });
+  assert.equal(incrementalLaunch.envelope.roleId, roleId);
+  assert.equal(incrementalLaunch.envelope.contextMode, 'incremental', `${roleId} trusted incremental launch stays role-bound`);
+  assert.equal(verifyPromptEnvelopeIntegrity(incrementalLaunch.envelope), true);
+}
 
 const safetyFull = assembleConditionalReviewPromptEnvelope({
   ...conditionalCommon,

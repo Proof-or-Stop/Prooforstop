@@ -764,10 +764,10 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           canonicalType,
           loadConfig(root).promptEnvelope,
         );
-        if (envelopeMode === 'full-envelope') {
-          if (!story.currentReviewRound) {
-            throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
-          }
+        if (!story.currentReviewRound && envelopeMode === 'full-envelope') {
+          throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
+        }
+        if (story.currentReviewRound) {
           const hostRenderHost = currentReviewerPromptHost();
           const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost, envelopeMode);
           const dispatchPromptDigest = reviewerDispatchPromptDigest(result.prompt);

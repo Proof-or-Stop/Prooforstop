@@ -394,8 +394,8 @@ try {
       assert.equal(row.reasonCode, 'ADJUDICATION_EVIDENCE_UNVERIFIED');
       assert.equal(row.incrementalContextReduction, null);
       assert.equal(row.assembledPromptReduction, null);
-      assert.equal(row.providerUsage.claude.availability, 'unavailable');
-      assert.equal(row.providerUsage.codex.availability, 'unavailable');
+      assert.equal(row.providerUsage.claude.providerProcessedInputTokens.availability, 'unavailable');
+      assert.equal(row.providerUsage.codex.providerProcessedInputTokens.availability, 'unavailable');
       assert.ok(row.roleBodyReduction > 0);
     }
     const tampered = clone(STORY5_ROLE_CAMPAIGN);
@@ -975,6 +975,20 @@ try {
     assert.equal(cell.findingComparison.recall, null);
   });
 
+  await check('B-235e provider/cache dimensions preserve unavailable reasons through CLI output', () => {
+    for (const row of roleCampaignResult.results) {
+      for (const [provider, dimensions] of Object.entries(row.providerUsage)) {
+        for (const [dimension, observation] of Object.entries(dimensions)) {
+          assert.equal(observation.availability, 'unavailable', `${provider}.${dimension}`);
+          assert.equal(typeof observation.reason, 'string', `${provider}.${dimension} reason`);
+          assert.ok(observation.reason.length > 0, `${provider}.${dimension} nonblank reason`);
+          assert.equal(Object.hasOwn(observation, 'tokens'), false);
+          assert.equal(Object.hasOwn(observation, 'value'), false);
+        }
+      }
+    }
+  });
+
   await check('isolated copied entrypoints cannot write sentinel production evidence or process events', async () => {
     isolationProof = await proveIsolatedProductionEvidenceNoWrite();
     assert.equal(isolationProof.sentinelArtifacts, 8);
@@ -990,7 +1004,8 @@ try {
     process.stdout.write(
       `B-235e role=${row.roleId} verdict=${row.verdict} reason=${row.reasonCode} ` +
       `legacyRoleBodyTokens=${row.legacyRoleBodyTokens} modularRoleBodyTokens=${row.modularRoleBodyTokens} ` +
-      `incrementalContextReduction=unavailable assembledReduction=unavailable providerUsage=unavailable\n`,
+      `incrementalContextReduction=unavailable assembledReduction=unavailable ` +
+      `providerUsage=${JSON.stringify(row.providerUsage)}\n`,
     );
   }
   process.stdout.write(`Hermetic fixture: EVALUABLE scope=${hermeticResult.evidenceScope} historicalEvidence=${hermeticResult.historicalEvidence} cells=${hermeticResult.cells.length}\n`);

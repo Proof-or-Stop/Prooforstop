@@ -43,6 +43,7 @@ import { readPromptRegistry, type PromptHost } from './prompt-registry.js';
 import { loadConfig } from './config.js';
 import {
   isPromptRoleEligibleForReviewEvidence,
+  PROMPT_ENVELOPE_ROLLOUT_VERSION,
   promptRoleContract,
   reviewerHostRenderIdentity,
   resolvePromptEnvelopeRolloutMode,
@@ -534,6 +535,7 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   lane: string;
   reviewRound: string;
   projectRoot: string;
+  rolloutMode?: 'legacy-full-context' | 'full-envelope';
 }): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
   const event = [...args.store.readProcessEvents(args.storyId)].reverse().find(candidate =>
     candidate.type === 'dispatch'
@@ -549,7 +551,7 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   }
   let hostIdentity;
   try {
-    const rolloutMode = resolvePromptEnvelopeRolloutMode(
+    const rolloutMode = args.rolloutMode ?? resolvePromptEnvelopeRolloutMode(
       args.lane,
       loadConfig(args.projectRoot).promptEnvelope,
     );
@@ -594,11 +596,65 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   };
 }
 
+function verifyLegacyReviewRunPromptBinding(
+  store: StoryStore,
+  run: ReviewRun,
+): { ok: boolean; reason?: string } {
+  const metadataRoot = run.workspaceBinding?.metadataRoot
+    || run.workspaceBinding?.signedWorkspaceRoot
+    || process.cwd();
+  const legacyConfig = {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [run.lane]: 'legacy-full-context' },
+  };
+  const modularConfig = {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [run.lane]: 'full-envelope' },
+  };
+  try {
+    const contract = promptRoleContract(run.lane);
+    const legacyBody = resolvePromptRoleBody(run.lane, legacyConfig);
+    const modularBody = resolvePromptRoleBody(run.lane, modularConfig);
+    if (run.promptHash !== hashReviewPrompt(legacyBody.body)) {
+      return { ok: false, reason: 'legacy ReviewRun promptHash does not match the frozen legacy role body' };
+    }
+    if (contract.renderDigest !== domainSeparatedDigest('role-contract.render.v1', modularBody.body)) {
+      return { ok: false, reason: 'legacy ReviewRun Role Contract render binding is stale or inconsistent' };
+    }
+    // Both supported host transforms must remain deterministic for the exact
+    // frozen body. Legacy rollback is package-resolved, not a claim that the
+    // physically modular full asset contains legacy bytes.
+    reviewerHostRenderIdentity(metadataRoot, run.lane, 'claude', 'legacy-full-context');
+    reviewerHostRenderIdentity(metadataRoot, run.lane, 'codex', 'legacy-full-context');
+
+    const dispatch = verifyCurrentReviewerDispatchBinding({
+      store,
+      storyId: run.storyId,
+      lane: run.lane,
+      reviewRound: run.reviewRound,
+      projectRoot: metadataRoot,
+      rolloutMode: 'legacy-full-context',
+    });
+    // Pre-B-235e legacy runs did not persist dispatch bindings. Preserve only
+    // that bounded history/binding-race case; once a binding exists, every
+    // body/host/round digest is mandatory and drift is rejected.
+    if (!dispatch.ok && !dispatch.reason.startsWith('no trusted story-review dispatch binding')) {
+      return dispatch;
+    }
+    return { ok: true };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: `legacy ReviewRun canonical binding cannot be reconstructed: ${error instanceof Error ? error.message : String(error)}`,
+    };
+  }
+}
+
 export function verifyReviewRunPromptEnvelope(
   store: StoryStore,
   run: ReviewRun,
 ): { ok: boolean; reason?: string } {
-  if (!run.envelopeId) return { ok: true };
+  if (!run.envelopeId) return verifyLegacyReviewRunPromptBinding(store, run);
   const matching = store.readPromptEnvelopes(run.storyId).envelopes.filter(
     envelope => envelope.envelopeId === run.envelopeId,
   );

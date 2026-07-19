@@ -13,7 +13,6 @@ import {
   isModularReviewerRoleId,
   readPromptRegistry,
   readPromptTemplate,
-  renderPromptEntryForHost,
   renderPromptForHost,
   resolvePromptTemplateBody,
   type PromptHost,
@@ -141,8 +140,13 @@ export function reviewerHostRenderIdentity(
     throw new PromptRoleContractRegistryError(`role "${roleId}" is not eligible for reviewer host rendering`);
   }
   const packageTemplate = resolvePromptTemplateBody(entry, rolloutMode);
-  const expectedHostRender = renderPromptEntryForHost(entry, host);
-  const source = reviewerHostRenderSource(projectRoot, host, entry.file);
+  const expectedHostRender = renderPromptForHost(packageTemplate, host);
+  // Legacy rollback bytes are injected by review_run_start from the
+  // content-addressed package resolver. A modular full asset must never be
+  // mistaken for the legacy body merely because the project has local assets.
+  const source = rolloutMode === 'legacy-full-context'
+    ? 'package-registry'
+    : reviewerHostRenderSource(projectRoot, host, entry.file);
   const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
   if (source === 'full-asset') {
     assertExactHostAsset(

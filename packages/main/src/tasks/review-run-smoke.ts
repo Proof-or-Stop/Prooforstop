@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { assembleFullPromptEnvelope } from '../core/prompt-envelope.js';
 import {
+  PROMPT_ENVELOPE_ROLLOUT_VERSION,
   promptRoleContract,
   resolvePromptRoleBody,
   reviewerHostRenderIdentity,
@@ -12,6 +13,7 @@ import {
   reviewerDispatchPromptDigest,
 } from '../core/prompt-contracts.js';
 import {
+  hashReviewPrompt,
   signReviewRun,
   verifyReviewRun,
   verifyReviewRunPromptEnvelope,
@@ -186,6 +188,10 @@ assert.equal(verifyReviewPass(run.storyId, { ...pass, envelopeId: 'f'.repeat(64)
 const legacy: ReviewRun = { ...run };
 delete legacy.envelopeId;
 delete legacy.assembledPrompt;
+legacy.promptHash = hashReviewPrompt(resolvePromptRoleBody('lattice-review-quality', {
+  version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+  roles: { 'lattice-review-quality': 'legacy-full-context' },
+}).body);
 legacy._hash = signReviewRun(
   legacy.storyId,
   legacy.reviewRunId,
@@ -201,5 +207,36 @@ legacy._hash = signReviewRun(
   legacy.storyFilesHash,
 );
 assert.equal(verifyReviewRun(legacy), true, 'pre-envelope ReviewRun remains readable in bounded legacy mode');
+assert.deepEqual(
+  verifyReviewRunPromptEnvelope({
+    readPromptEnvelopes: () => ({ envelopes: [] }),
+    readProcessEvents: () => [],
+  } as never, legacy),
+  { ok: true },
+  'bounded pre-binding legacy run must reconstruct the exact frozen body and Role Contract',
+);
+assert.equal(
+  verifyReviewRunPromptEnvelope({
+    readPromptEnvelopes: () => ({ envelopes: [] }),
+    readProcessEvents: () => [{
+      type: 'dispatch',
+      targetKind: 'story-review',
+      agentType: legacy.lane,
+      reviewRound: legacy.reviewRound,
+      hostRenderHost: 'codex',
+      hostRenderIdentityDigest: 'tampered',
+    }],
+  } as never, legacy).ok,
+  false,
+  'once legacy dispatch binding exists, host/body drift must fail closed',
+);
+assert.equal(
+  verifyReviewRunPromptEnvelope({ readPromptEnvelopes: () => ({ envelopes: [] }), readProcessEvents: () => [] } as never, {
+    ...legacy,
+    promptHash: 'tampered',
+  }).ok,
+  false,
+  'legacy no-envelope path never accepts an unverified prompt hash',
+);
 
 console.log('review-run Prompt Envelope smoke: PASS');

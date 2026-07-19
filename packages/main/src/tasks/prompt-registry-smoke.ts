@@ -26,12 +26,14 @@ import {
   renderPromptEntryForHost,
   restoreLegacyPromptTemplate,
 } from '../core/prompt-registry.js';
+import { assertNoDuplicatePromptEnvelopeRoleKeys } from '../core/config.js';
 import {
   ACTIVE_MODULAR_REVIEWER_ROLE_IDS,
   PROMPT_ENVELOPE_ROLLOUT_VERSION,
   PromptRoleContractRegistryError,
   resolvePromptEnvelopeRolloutMode,
   resolvePromptRoleBody,
+  reviewerHostRenderIdentity,
 } from '../core/prompt-role-contract-registry.js';
 import { renderCodexAgentContent } from '../init-assets.js';
 
@@ -41,12 +43,8 @@ const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
   'lattice-evaluator.md',
   'lattice-implementer.md',
-  'lattice-review-behavior.md',
   'lattice-review-channel.md',
-  'lattice-review-concept.md',
   'lattice-review-delivery.md',
-  'lattice-review-docs.md',
-  'lattice-review-quality.md',
   'lattice-review-scope-plan.md',
   'lattice-review-story-init.md',
 ]);
@@ -136,6 +134,14 @@ for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
   assert.equal(modular.legacyBytesRestored, false);
   assert.ok(Buffer.byteLength(modular.body) < Buffer.byteLength(legacy.body), `${roleId} modular body is smaller`);
   assert.notEqual(modular.bodyDigest, legacy.bodyDigest, `${roleId} bodies are independently content-addressed`);
+  assert.equal(modular.body, readFileSync(entry.sourcePath, 'utf8'), `${roleId} package asset is the actual modular body`);
+  assert.equal(extractLatticeBlock(modular.body), null, `${roleId} modular body contains no legacy Runtime Guide`);
+  assert.ok(modular.body.includes('proofbound:modular-role-body:v1'), `${roleId} keeps the legacy reconstruction anchor`);
+  for (const host of ['claude', 'codex'] as const) {
+    const identity = reviewerHostRenderIdentity(projectRoot, roleId, host, 'full-envelope');
+    assert.equal(identity.rolloutMode, 'full-envelope');
+    assert.ok(identity.hostRenderDigest.length > 0, `${roleId}/${host} binds the actual modular host render`);
+  }
 
   const oneRoleConfig = {
     version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
@@ -170,6 +176,22 @@ for (const roles of [
       version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
       roles,
     }),
+    PromptRoleContractRegistryError,
+  );
+}
+assert.throws(
+  () => assertNoDuplicatePromptEnvelopeRoleKeys(
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"lattice-review-quality":"full-envelope","lattice-review-quality":"legacy-full-context"}}}',
+  ),
+  /duplicate promptEnvelope\.roles key "lattice-review-quality"/,
+);
+for (const malformed of [
+  { version: 'proofbound.prompt-envelope-rollout.v0', roles: {} },
+  { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { 'lattice-review-quality': 'unknown-mode' } },
+  { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: JSON.parse('{"__proto__":"full-envelope"}') },
+]) {
+  assert.throws(
+    () => resolvePromptEnvelopeRolloutMode('lattice-review-quality', malformed),
     PromptRoleContractRegistryError,
   );
 }

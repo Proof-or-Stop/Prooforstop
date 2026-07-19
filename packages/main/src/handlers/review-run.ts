@@ -327,7 +327,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         const summary = `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote}${escalationNote})`;
         return assembledPrompt
           ? `${summary}\n\n--- BEGIN EXACT ASSEMBLED REVIEW PROMPT ---\n${assembledPrompt}\n--- END EXACT ASSEMBLED REVIEW PROMPT ---`
-          : summary;
+          : `${summary}\n\n--- BEGIN EXACT LEGACY REVIEW PROMPT ---\n${canonicalRolePrompt}\n--- END EXACT LEGACY REVIEW PROMPT ---`;
       });
     },
   };

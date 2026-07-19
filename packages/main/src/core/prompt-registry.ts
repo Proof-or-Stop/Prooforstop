@@ -208,9 +208,12 @@ export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string 
   if (!modular.includes(MODULAR_ROLE_BODY_MARKER)) {
     throw new Error(`modular reviewer prompt ${entry.agentId} is missing ${MODULAR_ROLE_BODY_MARKER}`);
   }
-  const restored = entry.agentId === 'lattice-review-test-coverage'
-    ? modular.replace(MODULAR_ROLE_BODY_MARKER, TEST_COVERAGE_LEGACY_PROCESS_CONTRACT)
-    : modular.replace(`${MODULAR_ROLE_BODY_MARKER}\n`, '');
+  const restored = modular.replace(
+    MODULAR_ROLE_BODY_MARKER,
+    entry.agentId === 'lattice-review-test-coverage'
+      ? TEST_COVERAGE_LEGACY_PROCESS_CONTRACT
+      : LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  );
   const actualDigest = sha256(restored);
   const expectedDigest = LEGACY_REVIEWER_TEMPLATE_SHA256[entry.agentId];
   if (actualDigest !== expectedDigest) {
@@ -228,12 +231,7 @@ export function resolvePromptTemplateBody(
   if (mode === 'legacy-full-context') return restoreLegacyPromptTemplate(entry);
   const source = readPromptTemplate(entry);
   if (!isModularReviewerRoleId(entry.agentId)) return source;
-  return entry.agentId === 'lattice-review-test-coverage'
-    ? source.replace(`${MODULAR_ROLE_BODY_MARKER}\n`, '')
-    : source.replace(
-      new RegExp(`${MODULAR_ROLE_BODY_MARKER}\\n<!-- lattice:start -->[\\s\\S]*?<!-- lattice:end -->\\n`),
-      '',
-    );
+  return source;
 }
 
 export function renderCodexPromptContent(content: string): string {
