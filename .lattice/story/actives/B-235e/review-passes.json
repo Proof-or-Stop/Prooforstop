@@ -452,6 +452,34 @@
         "scanEscalationReason": null
       },
       "_hash": "0ed541cac9bf41f570388e36746b27b182915d4b40f26b69f79be71f119faa33"
+    },
+    {
+      "id": "B-235e:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 14 is metadata-only since RP-013: only checklist verification evidence, test evidence, lifecycle index, process events/metrics, and reviewer receipt metadata changed. RR-048 authoritatively selected incremental/SAFE_INCREMENTAL with ELIGIBLE_NO_MATERIAL_CHANGE and trusted prior bindings; no source, Prompt, config, documentation, role authority, eligibility policy, or concept surface changed, so the prior concept review remains valid with no blocker.",
+      "createdAt": "2026-07-19T22:24:09.578Z",
+      "reviewRound": "2026-07-19T22:22:54.891Z",
+      "reviewRunId": "B-235e:RR-048",
+      "envelopeId": "b290ed7a82ffd6db74301c57958eee86818e18e683da02ffa7bd8276a558350a",
+      "writerSessionId": "sess-725b97bee152890e065410dcd644eaff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "af2b9d1b21e0d039398b3117c02c9801766e1f66bad7b785790b008a7b4911f9"
     }
   ]
 }
