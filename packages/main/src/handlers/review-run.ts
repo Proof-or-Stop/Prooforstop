@@ -1,4 +1,5 @@
 import { execFileSync } from 'child_process';
+import { randomUUID } from 'node:crypto';
 import { hostname } from 'node:os';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
@@ -40,6 +41,8 @@ import { reviewIncrementalContext } from '../core/review-incremental-context.js'
 function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.storyFilePath(storyId, 'review-metadata-transaction.lock');
   const localHostname = hostname();
+  const lockId = randomUUID();
+  let deadHolderCandidate: string | undefined;
   return withMkdirLock(lockDir, fn, {
     label: 'review metadata transaction',
     deadlineMs: 120_000,
@@ -49,14 +52,31 @@ function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: stri
       hostname: localHostname,
       command: `review_run_start for ${storyId}`,
       acquiredAt: new Date().toISOString(),
+      lockId,
     },
     classifyExistingLock: ({ holder }) => {
-      if (!holder || holder.hostname !== localHostname) return 'unknown';
+      if (!holder || holder.hostname !== localHostname) {
+        deadHolderCandidate = undefined;
+        return 'unknown';
+      }
       try {
         process.kill(holder.pid, 0);
+        deadHolderCandidate = undefined;
         return 'active';
       } catch (error: any) {
-        return error?.code === 'ESRCH' ? 'stale' : 'active';
+        if (error?.code !== 'ESRCH') {
+          deadHolderCandidate = undefined;
+          return 'active';
+        }
+        // Two observations of the same dead acquisition are required before
+        // reclaim. This closes an ABA race: a waiter can read holder A, then A
+        // releases and B acquires the same path before the waiter checks A's
+        // PID. Removing immediately would delete B's live lock. On the next
+        // poll B has a different lockId and is classified independently.
+        const candidate = holder.lockId ?? `${holder.pid}:${holder.acquiredAt}`;
+        if (deadHolderCandidate === candidate) return 'stale';
+        deadHolderCandidate = candidate;
+        return 'active';
       }
     },
   });
