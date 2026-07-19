@@ -58,6 +58,47 @@
       },
       "readDiagnostics": [],
       "_hash": "a7f84fe1263c7b078a3e321142818a6cb60816e4ebb2d3004a7d3ea0acb3dda5"
+    },
+    {
+      "id": "B-955c:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Third-round quality re-review passed. F-011 is closed mechanically: the public type and runtime expose no attestation resolver trust-root input; repeated attestation refs are classified same_producer_not_independent; empty, singleton, distinct-ref, unknown-descriptor, and callback-shaped injected inputs all return independent=false with distinct_host_quorum_unsupported until a pinned project registry exists. Gate tamper/freshness protections from F-005 remain intact. Build, EEA conformance smoke, DONE-required validation smoke, process-fact contract, declaration scan, documentation calibration, and diff check passed; no new bypass found.",
+      "createdAt": "2026-07-19T01:33:15.502Z",
+      "reviewRound": "2026-07-19T01:28:32.809Z",
+      "reviewRunId": "B-955c:RR-009",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": "Focused third-round adversarial re-review of commit c0c3eeddde and F-011 trust-boundary changes; related specifications and adjacent producer/consumer files were name-triaged or targeted by quorum, registry, shell-identity, and claim-calibration searches."
+      },
+      "_hash": "c09fde0354da01801efca2fd96aada904939afc77caac33ca41b1ccc8d667051"
     }
   ]
 }
