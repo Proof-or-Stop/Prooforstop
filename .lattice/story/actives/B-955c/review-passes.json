@@ -1351,6 +1351,42 @@
       },
       "readDiagnostics": [],
       "_hash": "563be95b2c64496a4d527dd767b3ea4effe5c957c045b133efa949f945b2020f"
+    },
+    {
+      "id": "B-955c:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "PASS: versioned cwd mapping is fail-closed and preserves authority separation. v2 uses digested logical cwd while top-level/resolved physical cwd remains provenance; equivalent roots share EEA identity. v1 keeps legacy absolute-cwd identity. Missing/empty/unknown-v3 CommandSpec inputs reject. Logical-cwd tamper changes derived identity, and the production DONE_REQUIRED chain still independently validates the original CommandSpec digest and policy receipt coverage before EEA projection. EEA, DONE validation/freshness, cross-worktree portability, and diff checks pass.",
+      "createdAt": "2026-07-19T03:34:03.582Z",
+      "reviewRound": "2026-07-19T03:32:04.001Z",
+      "reviewRunId": "B-955c:RR-041",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Current re-review was bounded to commit 29a9fc5288 and the previously reviewed B-955c candidate surface; the cwd projection change was traced through its production DONE consumer and targeted conformance/portability regressions."
+      },
+      "_hash": "b418aacf48f8c17c96aa69885af458efc837359d7f0ac9017f001efbf16f87c6"
     }
   ]
 }
