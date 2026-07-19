@@ -264,7 +264,7 @@
       "desc": "concept-cleanup: the migrated reviewer bootstrap replacement is functionally complete, but the old agent_prompt-as-role-body concept remains in the canonical host-adapter contract and public CLI/source descriptions. lifecycle-artifact-scope.md:248 and 265-270 still say Claude shims fetch the canonical role body through agent_prompt and Codex resolves that same body; agent-prompt.ts:4-8, registry.ts:369-371, and command-catalog.ts:1284 repeat the same contract. For the five migrated roles, agent_prompt/renderPromptEntryForHost now intentionally return a body-free review_run_start bootstrap, while review_run_start supplies the selected body. These residual claims should be narrowed to distinguish migrated reviewer bootstrap resolution from ordinary-role body resolution, so future maintenance does not restore duplicate injection.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T10:09:36.961Z",
@@ -278,7 +278,11 @@
         "packages/main/src/cli/command-catalog.ts"
       ],
       "signatureTag": "missing|md|concept-cleanup-migrated",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3701766bd9; lifecycle, handler, registry and CLI terminology now matches bootstrap-plus-selected-body semantics; docs review pass.",
+      "resolvedAt": "2026-07-19T11:08:44.762Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-013",
