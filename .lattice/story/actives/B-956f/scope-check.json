@@ -1,6 +1,6 @@
 {
   "storyId": "B-956f",
-  "checkedAt": "2026-07-19T15:32:30.079Z",
+  "checkedAt": "2026-07-19T15:35:43.226Z",
   "features": [
     {
       "feature": "Config-resolved material-code policy service threaded via hash-bound snapshot to floor + repro + ProofStory triggers",
@@ -249,8 +249,8 @@
     },
     {
       "feature": "concept-analysis (validate-concept.ts:383) returns its OWN separate diagnostic for non-TS/py files it skips, distinct from the buildScopeDiffPack-produced diagnostic",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-004",
+      "status": "covered",
       "excluded_by": null,
       "source": "decisions:language-neutral-gates-execution-plan.md"
     },
@@ -400,14 +400,14 @@
   },
   "summary": {
     "total": 38,
-    "covered": 36,
+    "covered": 37,
     "excluded": 1,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "bb750b006b275999dbefef9964bc8d74116ddef4f676d2dc8a07c74be0de3830",
+  "_hash": "8cd7ebac15ef51109c4c2340b0bc81e6abc7d5e9b2384d6c180310af29b60ae4",
   "openQuestions": [
     {
       "id": "OQ-001",

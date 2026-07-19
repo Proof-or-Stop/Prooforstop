@@ -134,6 +134,63 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-004",
+      "title": "validate-concept skip diagnostic for non-TS/py files stays distinct and language-neutral",
+      "context": "Spec Change D: concept-analysis (validate-concept.ts:383) emits its OWN separate diagnostic for skipped files, distinct from buildScopeDiffPack semantic_analysis_unavailable; keep it correct and non-conflicting for non-TS/py files.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-956f/background.md"
+      ],
+      "userSees": "lattice validate on a story touching only non-TS/py code files reports the concept-analysis skip diagnostic naming those files, alongside (not conflated with) the scope-diff semantic_analysis_unavailable events.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A story whose diff is only .go/.rs files: validate concept-analysis emits its own skip diagnostic naming those files (not silently absent).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Mixed diff (.ts + .go): TS files get real concept analysis, non-TS files appear only in the skip diagnostic; neither list leaks into the other.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The skip diagnostic and buildScopeDiffPack semantic_analysis_unavailable events remain DISTINCT channels: suppressing one does not suppress the other, and neither double-reports the same file as both analyzed and skipped.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-19T15:34:27.666Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope review gap: spec Change D names the validate-concept skip diagnostic as a second, distinct degradation mechanism not covered by any CHK title; adding explicit coverage instead of amending the frozen CHK-003 title.",
+      "addedTitle": "validate-concept skip diagnostic for non-TS/py files stays distinct and language-neutral",
+      "addedContext": "Spec Change D: concept-analysis (validate-concept.ts:383) emits its OWN separate diagnostic for skipped files, distinct from buildScopeDiffPack semantic_analysis_unavailable; keep it correct and non-conflicting for non-TS/py files."
     }
   ]
 }

@@ -70,20 +70,23 @@
       ],
       "milestoneIds": [],
       "note": "Degradation diagnostics: exactly-one semantic_analysis_unavailable event for a no-contract .go story (happy), per-extension dedupe with TS/JS silent (edge), pure-producer/mutating-writer separation (adversarial) prove the acceptance claim's degradation-event half."
-    }
-  ],
-  "diagnosticGaps": [
+    },
     {
-      "code": "scope_ambiguity",
-      "severity": "warn",
-      "artifact": "scope-contract.json",
-      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
-      "triggeredBy": [
-        "scope_ambiguity"
-      ]
+      "id": "AB-004",
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "validate-concept skip diagnostic (spec Change D second mechanism): own skip diagnostic emitted for non-TS/py files (happy), mixed-diff separation (edge), and channel distinctness vs semantic_analysis_unavailable (adversarial)."
     }
   ],
+  "diagnosticGaps": [],
   "note": "Bindings map 1:1 to plan v4 Changes A (AB-001), B+C (AB-002), D (AB-003); acceptanceClaim defaults to the original intent snapshot claim (requestHash sha256:ba309cb15d22d50c62b75d97c95f8d45b5b22075b2c7d5f00125f77daf3073a8).",
   "createdAt": "2026-07-19T15:24:52.533Z",
-  "updatedAt": "2026-07-19T15:24:52.533Z"
+  "updatedAt": "2026-07-19T15:35:00.185Z"
 }
