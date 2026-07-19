@@ -18,6 +18,10 @@ import {
   type PromptHost,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
+import {
+  extractTemplateFrontmatter,
+  renderReviewerRunBootstrap,
+} from './global-agents.js';
 
 export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
 export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
@@ -39,6 +43,8 @@ export interface ReviewerHostRenderIdentity {
   host: PromptHost;
   source: 'full-asset' | 'package-registry';
   packageTemplateDigest: string;
+  selectedRoleBodyDigest: string;
+  bootstrapDigest?: string;
   hostRenderDigest: string;
   identityDigest: string;
 }
@@ -141,19 +147,19 @@ export function reviewerHostRenderIdentity(
   }
   const packageTemplate = resolvePromptTemplateBody(entry, rolloutMode);
   const expectedHostRender = renderPromptForHost(packageTemplate, host);
-  // Legacy rollback bytes are injected by review_run_start from the
-  // content-addressed package resolver. A modular full asset must never be
-  // mistaken for the legacy body merely because the project has local assets.
-  const source = rolloutMode === 'legacy-full-context'
-    ? 'package-registry'
-    : reviewerHostRenderSource(projectRoot, host, entry.file);
+  const source = reviewerHostRenderSource(projectRoot, host, entry.file);
   const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
+  let bootstrapDigest: string | undefined;
   if (source === 'full-asset') {
+    const canonicalTemplate = renderPromptForHost(readPromptTemplate(entry), host);
+    const { frontmatter, name } = extractTemplateFrontmatter(canonicalTemplate, entry.file);
+    const bootstrap = renderReviewerRunBootstrap(frontmatter, name);
     assertExactHostAsset(
       join(projectRoot, relDir, entry.file),
-      expectedHostRender,
+      bootstrap,
       host,
     );
+    bootstrapDigest = domainSeparatedDigest(`reviewer-${host}-bootstrap.raw-utf8.v1`, bootstrap);
   }
   const hostRender = renderPromptForHost(packageTemplate, host);
   const semantic = {
@@ -163,6 +169,8 @@ export function reviewerHostRenderIdentity(
     host,
     source,
     packageTemplateDigest: domainSeparatedDigest('reviewer-package-template.raw-utf8.v1', packageTemplate),
+    selectedRoleBodyDigest: domainSeparatedDigest(`reviewer-${host}-selected-role-body.raw-utf8.v1`, hostRender),
+    ...(bootstrapDigest ? { bootstrapDigest } : {}),
     hostRenderDigest: domainSeparatedDigest(`reviewer-${host}-render.raw-utf8.v1`, hostRender),
   };
   return {

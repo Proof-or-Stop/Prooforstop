@@ -1225,13 +1225,16 @@ node scripts/verify-process-fact-contract.mjs
   独立 `full-envelope` feature flag；未配置时仍选择冻结且内容寻址的
   `legacy-full-context` 正文。五个 flag 的 32 种组合均有机械覆盖，
   `lattice-review-channel` 因 retired 明确不在 rollout 集合中。
-- package registry 和 Claude/Codex full-asset mirror 现在物理保存模块化正文，
-  不再携带旧共享 Runtime Guide；精确 legacy rollback 由模块化正文中的冻结
-  anchor 加 canonical guide 确定性重建，并以预批准 SHA-256 拒绝漂移。运行时
-  resolver 只在启用角色上选择模块化 Role Contract。`agent_prompt`、Story
-  dispatch、`review_run_start` 和 gate
-  reconstruction 消费同一个 mode-aware resolver，host render identity 同时绑定
-  rollout mode、所选正文 digest 和 host render digest。
+- package registry 物理保存模块化正文，不再携带旧共享 Runtime Guide；
+  Claude/Codex full-asset 文件只保存 canonical role-specific thin bootstrap，
+  bootstrap 本身不含任何 reviewer role body，并要求 reviewer 先调用
+  `review_run_start` 执行其返回的唯一 selected prompt。legacy rollback 由模块化
+  正文中的冻结 anchor 加 canonical guide 确定性重建，并以预批准 SHA-256 拒绝
+  漂移。这里的“精确”只指 selected legacy role body，不虚称总模型输入
+  byte-exact：full-asset 总输入明确为已绑定 bootstrap 加一个 selected body；
+  runtime-owned/thin host 则直接绑定 selected body。host identity 分别绑定
+  bootstrap digest（若存在）、selected role-body digest 和 host render digest，
+  从而拒绝 modular+legacy 双正文或 bootstrap/正文替换。
 - incremental eligibility 仍完全由 Story 4 的 impact policy 决定。本 Story
   没有新增“精简即 incremental”的捷径；未知、contract/policy/scope drift
   继续 fail closed 到 full。
@@ -1242,10 +1245,14 @@ node scripts/verify-process-fact-contract.mjs
   canonical Role Contract 和 Claude/Codex host render；已存在 dispatch
   binding 时任何 body/host/round 漂移均拒绝，仅保留旧同轮 binding-race
   记录缺少 dispatch binding 的 bounded compatibility。
-- REVIEW metadata retention 明确包含 `prompt-envelopes.json`。真实 CLI 并发
-  回归同时启动五个 reviewer run，再并发写三条 pass 和两条 finding，断言
-  五个 run/envelope/evidence 均唯一保留、collector 无 invalid/重复计数且
-  REVIEW gate 通过。
+- REVIEW metadata retention 明确包含 `prompt-envelopes.json`。scope diff reader
+  使用显式大输出上限，超过 1 MiB 的业务 diff 在提交 reviewer metadata 前后
+  保持相同 material diff binding，不会因静默丢失 hunks 而让新 run 自失效。
+  真实 CLI 并发回归在两组互补 mixed legacy/full masks 下同时启动五个 reviewer
+  run，再并发写三条 pass 和两条 finding，断言每个 full lane 有 envelope、
+  legacy lane 没有伪 envelope、全部 evidence 唯一保留、collector 无
+  invalid/重复计数且 REVIEW gate 通过；独立三 lane mixed mask 继续穿过 quorum
+  admission。
 - 三份审批基线已绑定五个角色的 legacy/modular 正文 hash、role
   semantic/render digest，以及 Claude/Codex 两种模式的 host render digest。
   baseline verifier、process-fact registry/verifier 和 smoke tests 同步保护该
@@ -1258,9 +1265,10 @@ node scripts/verify-process-fact-contract.mjs
   unavailable provider usage 当成 0；Claude/Codex 的 input、output、
   cacheRead、cacheCreation、uncached、latency、providerProcessed 每一维均保留
   `unavailable(reason)`。
-- raw `lattice.config.json` 的重复逐角色 flag key 会在 `JSON.parse` 前拒绝；
-  错误 rollout version/mode、prototype key、unknown/retired role 继续 fail
-  closed。真实 handler 权限回归同时拒绝 main/implementer/wrong-lane pass、
+- raw `lattice.config.json` 的重复顶层 `promptEnvelope`、重复 `roles` 容器和
+  重复逐角色 flag key 都会在 `JSON.parse` 前拒绝；错误 rollout
+  version/mode、prototype key、unknown/retired role 继续 fail closed。真实
+  handler 权限回归同时拒绝 main/implementer/wrong-lane pass、
   reviewer owner/implementer mutation 和非 delivery reviewer 的 delivery
   evidence。
 

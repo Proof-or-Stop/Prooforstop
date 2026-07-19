@@ -208,6 +208,29 @@ export function renderAgentShim(frontmatter: string, role: string): string {
 }
 
 /**
+ * Project-local full-asset hosts still load this small bootstrap before the
+ * reviewer asks Lattice for its mode-selected prompt. The bootstrap contains no
+ * role instructions, so exactly one selected role body reaches the reviewer:
+ * frozen legacy bytes or the assembled full/incremental envelope.
+ */
+export function buildReviewerRunBootstrapBody(role: string): string {
+  return [
+    'Proofbound selects this reviewer role body at runtime.',
+    `FIRST run: \`lattice review_run_start '{"storyId":"<storyId from dispatch>","agent":"${role}"}'\`.`,
+    'Follow only the exact prompt returned by that command; this bootstrap intentionally contains no role body.',
+  ].join('\n');
+}
+
+export function renderReviewerRunBootstrap(frontmatter: string, role: string): string {
+  return `---\n${frontmatter}\n---\n${buildReviewerRunBootstrapBody(role)}\n`;
+}
+
+export function renderReviewerRunBootstrapForTemplate(raw: string, file: string): string {
+  const { frontmatter, name } = extractTemplateFrontmatter(raw, file);
+  return renderReviewerRunBootstrap(frontmatter, name);
+}
+
+/**
  * Generate a thin shim into the global agents dir for every `*.md` template.
  *
  * For each template:

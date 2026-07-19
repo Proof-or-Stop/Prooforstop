@@ -69,6 +69,8 @@ import {
   currentGitHead,
 } from '../core/evidence-freshness.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
+import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+import { materialDiffPackDigest } from '../core/review-scope-binding.js';
 import {
   classifyImpact,
   IMPACT_CLASSIFICATION_POLICY_VERSION,
@@ -315,6 +317,54 @@ function buildIncrementalRepo(): { root: string; baseSha: string; headSha: strin
   const headSha = currentGitHead(root)!;
 
   return { root, baseSha, headSha };
+}
+
+function assertLargeDiffReviewMetadataStability(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-large-review-diff-'));
+  try {
+    write(root, 'lattice.config.json', `${JSON.stringify({
+      scanRoot: '.',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+    }, null, 2)}\n`);
+    write(root, '.gitignore', '.lattice/activity.jsonl\n');
+    write(root, 'src/large.ts', 'export const seed = 0;\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'large diff base']);
+    git(root, ['checkout', '-b', 'story/B-large-diff']);
+    write(root, 'src/large.ts', `export const payload = ${JSON.stringify('x'.repeat(900_000))};\n`);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'large business diff']);
+
+    resetConfigCache();
+    const beforePack = buildScopeDiffPack(root);
+    const before = materialDiffPackDigest(beforePack, root);
+    assert.ok(beforePack.hunks.some(hunk => hunk.path === 'src/large.ts'), 'large business hunk is read above Node default output sizes');
+
+    write(
+      root,
+      '.lattice/story/actives/B-large-diff/prompt-envelopes.json',
+      `${JSON.stringify({ envelopes: [], padding: 'm'.repeat(350_000) })}\n`,
+    );
+    git(root, ['add', '.lattice/story/actives/B-large-diff/prompt-envelopes.json']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'review metadata write']);
+
+    resetConfigCache();
+    const afterPack = buildScopeDiffPack(root);
+    const after = materialDiffPackDigest(afterPack, root);
+    assert.ok(afterPack.hunks.some(hunk => hunk.path === 'src/large.ts'), 'review metadata cannot make large business hunks disappear');
+    assert.deepEqual(after, before, 'review_run/prompt-envelope metadata leaves the material scope diff binding byte-stable');
+    console.log(`${MARKER} large diff + review metadata scope binding remains stable`);
+  } finally {
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 function runIncrementalCases(): void {
@@ -847,8 +897,8 @@ function runConcurrentCliReadOnlyCase(): void {
   }
 }
 
-function runConcurrentReviewerWriteCase(): void {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-reviewer-rollout-concurrent-'));
+function runConcurrentReviewerWriteCase(mask: number): void {
+  const root = mkdtempSync(join(tmpdir(), `lattice-reviewer-rollout-mixed-${mask}-`));
   const storyId = 'B-concurrent-reviewers';
   const roles = [
     'lattice-review-behavior',
@@ -857,6 +907,10 @@ function runConcurrentReviewerWriteCase(): void {
     'lattice-review-quality',
     'lattice-review-test-coverage',
   ];
+  const rolloutModes = Object.fromEntries(roles.map((role, index) => [
+    role,
+    (mask & (1 << index)) === 0 ? 'legacy-full-context' : 'full-envelope',
+  ]));
   const round = '2026-07-19T00:00:00.000Z';
   const shellCommand = (command: string, payload: Record<string, unknown>, role: string) => [
     `LATTICE_AGENT=${JSON.stringify(role)}`,
@@ -882,7 +936,7 @@ function runConcurrentReviewerWriteCase(): void {
       flows: { defaults: {}, patterns: [] },
       promptEnvelope: {
         version: 'proofbound.prompt-envelope-rollout.v1',
-        roles: Object.fromEntries(roles.map(role => [role, 'full-envelope'])),
+        roles: rolloutModes,
       },
     }, null, 2) + '\n');
     write(root, 'src/seed.ts', 'export const seed = true;\n');
@@ -943,7 +997,17 @@ function runConcurrentReviewerWriteCase(): void {
     const runs = store.readReviewRuns(storyId).runs;
     assert.equal(runs.length, roles.length, 'concurrent review_run_start preserves every lane');
     assert.equal(new Set(runs.map(run => run.reviewRunId)).size, roles.length, 'concurrent runs mint unique IDs');
-    assert.equal(store.readPromptEnvelopes(storyId).envelopes.length, roles.length, 'concurrent envelopes are never overwritten');
+    const fullRoles = roles.filter(role => rolloutModes[role] === 'full-envelope');
+    assert.equal(
+      store.readPromptEnvelopes(storyId).envelopes.length,
+      fullRoles.length,
+      `mixed mask ${mask} persists one envelope for each full-envelope lane only`,
+    );
+    for (const run of runs) {
+      const full = rolloutModes[run.lane] === 'full-envelope';
+      assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} ${run.lane} binds its selected rollout representation`);
+      assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} ${run.lane} stores assembled prompt only in full mode`);
+    }
 
     const evidenceCommands = roles.map((role, index) => {
       const reviewRunId = runs.find(run => run.lane === role)!.reviewRunId;
@@ -972,14 +1036,14 @@ function runConcurrentReviewerWriteCase(): void {
     assert.equal(store.readReviewPasses(storyId).passes.length, 3, 'concurrent passes are retained exactly once');
     assert.equal(store.readFindings(storyId).findings.length, 2, 'concurrent findings are retained exactly once');
     const evidence = collectReviewerEvidenceState(store, storyId, root);
-    assert.equal(evidence.invalid.length, 0, 'collector accepts every current signed concurrent result');
+    assert.equal(evidence.invalid.length, 0, `collector accepts every current signed result under mixed mask ${mask}`);
     assert.deepEqual(
       [...new Set(evidence.valid.map(item => item.agent))].sort(),
       [...roles].sort(),
-      'collector counts every reviewer lane once without overwrite',
+      `collector counts every reviewer lane once without overwrite under mixed mask ${mask}`,
     );
-    assert.equal(canPassReviewGuard({ storyId, store, projectRoot: root }), true, 'real REVIEW gate accepts the complete five-lane matrix');
-    console.log(`${MARKER} CONCURRENT REVIEWERS: five review_run_start + pass/finding writers preserved envelopes and gate evidence`);
+    assert.equal(canPassReviewGuard({ storyId, store, projectRoot: root }), true, `real REVIEW gate accepts complete evidence under mixed mask ${mask}`);
+    console.log(`${MARKER} MIXED MASK ${mask}: five concurrent legacy/full runs + pass/finding writers preserved gate evidence`);
   } finally {
     resetConfigCache();
     rmSync(root, { recursive: true, force: true });
@@ -989,10 +1053,13 @@ function runConcurrentReviewerWriteCase(): void {
 function run(): void {
   runPolicyCases();
   runFixtureDuplicateIdentityCases();
+  assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();
-  runConcurrentReviewerWriteCase();
+  runConcurrentReviewerWriteCase(0b11111);
+  runConcurrentReviewerWriteCase(0b01010);
+  runConcurrentReviewerWriteCase(0b10101);
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
 }
 

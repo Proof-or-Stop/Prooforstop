@@ -19,10 +19,15 @@ import {
 import { isManagedGlobalThinRoot, loadConfig } from './config.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
+  isModularReviewerRoleId,
   promptRegistryManifest,
   readPromptRegistry,
   renderPromptEntryForHost,
 } from './prompt-registry.js';
+import {
+  extractTemplateFrontmatter,
+  renderReviewerRunBootstrap,
+} from './global-agents.js';
 import type { StoryStore } from './store.js';
 import type { ProcessEvent } from './types.js';
 
@@ -345,7 +350,13 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
     }
     const packagePrompt = readText(registryEntry.sourcePath);
     const claudePrompt = readText(join(claudeDir, file));
-    if (packagePrompt !== claudePrompt) {
+    const expectedClaude = isModularReviewerRoleId(registryEntry.agentId)
+      ? (() => {
+        const parsed = extractTemplateFrontmatter(packagePrompt, file);
+        return renderReviewerRunBootstrap(parsed.frontmatter, parsed.name);
+      })()
+      : packagePrompt;
+    if (expectedClaude !== claudePrompt) {
       issues.push(`package/Claude drift ${file}`);
       continue;
     }
@@ -354,7 +365,13 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
       issues.push(`missing .lattice-codex/agents/${file}`);
       continue;
     }
-    const expected = renderCodexAgentContent(packagePrompt);
+    const codexTemplate = renderCodexAgentContent(packagePrompt);
+    const expected = isModularReviewerRoleId(registryEntry.agentId)
+      ? (() => {
+        const parsed = extractTemplateFrontmatter(codexTemplate, file);
+        return renderReviewerRunBootstrap(parsed.frontmatter, parsed.name);
+      })()
+      : codexTemplate;
     const actual = readText(targetPath);
     if (expected !== actual) issues.push(`drift .lattice-codex/agents/${file}`);
   }

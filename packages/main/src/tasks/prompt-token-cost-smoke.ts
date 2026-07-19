@@ -7,8 +7,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  isModularReviewerRoleId,
   renderCodexPromptContent,
 } from '../core/prompt-registry.js';
+import { renderReviewerRunBootstrapForTemplate } from '../core/global-agents.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
@@ -159,11 +161,24 @@ function assertMirrorsMatch(): void {
     const packageContent = readRepo(`packages/main/templates/agents/${file}`);
     const claudeContent = readRepo(`.claude/agents/${file}`);
     const codexContent = readRepo(`.lattice-codex/agents/${file}`);
-    assert.equal(claudeContent, packageContent, `.claude mirror matches package template for ${file}`);
-    assert.equal(codexContent, renderCodexPromptContent(packageContent), `.lattice-codex mirror matches package render for ${file}`);
+    const roleId = file.replace(/\.md$/, '');
+    const codexPackageContent = renderCodexPromptContent(packageContent);
+    const expectedClaude = isModularReviewerRoleId(roleId)
+      ? renderReviewerRunBootstrapForTemplate(packageContent, file)
+      : packageContent;
+    const expectedCodex = isModularReviewerRoleId(roleId)
+      ? renderReviewerRunBootstrapForTemplate(codexPackageContent, file)
+      : codexPackageContent;
+    assert.equal(claudeContent, expectedClaude, `.claude asset matches canonical host input for ${file}`);
+    assert.equal(codexContent, expectedCodex, `.lattice-codex asset matches canonical host input for ${file}`);
     assertCompactQueryGuidance(packageContent, `package template ${file}`);
-    assertCompactQueryGuidance(claudeContent, `.claude mirror ${file}`);
-    assertCompactQueryGuidance(codexContent, `.lattice-codex mirror ${file}`);
+    if (isModularReviewerRoleId(roleId)) {
+      assert.match(claudeContent, /review_run_start/, `.claude bootstrap selects ${file} at runtime`);
+      assert.match(codexContent, /review_run_start/, `.lattice-codex bootstrap selects ${file} at runtime`);
+    } else {
+      assertCompactQueryGuidance(claudeContent, `.claude mirror ${file}`);
+      assertCompactQueryGuidance(codexContent, `.lattice-codex mirror ${file}`);
+    }
   }
 }
 

@@ -37,6 +37,13 @@ const requiredReviewerRunIdPromptFiles = new Set([
   'lattice-review-scope-plan.md',
   'lattice-review-story-init.md',
 ]);
+const modularReviewerBootstrapFiles = new Set([
+  'lattice-review-behavior.md',
+  'lattice-review-concept.md',
+  'lattice-review-docs.md',
+  'lattice-review-quality.md',
+  'lattice-review-test-coverage.md',
+]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
 const flowFactPolicyPath = 'packages/main/src/core/flow-fact-policy.ts';
@@ -1920,6 +1927,13 @@ function comparePromptSemantics(promptMap) {
       const mirrorRel = `${mirrorDir}/${name}`;
       if (!promptMap.has(mirrorRel)) {
         warn(`${mirrorRel} missing; no semantic drift comparison available`);
+        continue;
+      }
+      if (modularReviewerBootstrapFiles.has(name)) {
+        const bootstrap = promptMap.get(mirrorRel);
+        if (!bootstrap.includes('review_run_start') || bootstrap.includes('finding_add') || bootstrap.includes('review_pass_set')) {
+          fail(`${mirrorRel} must be a body-free reviewer bootstrap that selects exactly one runtime prompt`);
+        }
         continue;
       }
       const mirrorTokens = promptSemanticTokens(promptMap.get(mirrorRel));
@@ -5218,7 +5232,7 @@ function assertParentRoadmapTotalityRuntime() {
   );
   const roleBodyRolloutLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:prompt_role_body_rollout_gate');
   assert(roleBodyRolloutLevel?.level === 'L4', 'prompt role-body rollout must remain L4');
-  for (const token of ['five active REVIEW lanes', 'content-addressed', 'byte-exact legacy body', 'host identity', 'Compatibility and retired']) {
+  for (const token of ['five active REVIEW lanes', 'content-addressed', 'byte-exact legacy role body', 'full-asset hosts bind both', 'total model input explicit', 'Compatibility and retired']) {
     assert(roleBodyRolloutLevel?.rationale.includes(token), `prompt role-body rollout rationale must preserve ${token}`);
   }
   const dispatchAuthorityLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:agent_dispatch_role_authority_gate');

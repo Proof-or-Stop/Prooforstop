@@ -36,6 +36,10 @@ import {
   reviewerHostRenderIdentity,
 } from '../core/prompt-role-contract-registry.js';
 import { renderCodexAgentContent } from '../init-assets.js';
+import {
+  extractTemplateFrontmatter,
+  renderReviewerRunBootstrap,
+} from '../core/global-agents.js';
 
 const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
@@ -104,11 +108,24 @@ for (const entry of registry.agents) {
   }
   const claudeMirrorPath = join(projectRoot, '.claude', 'agents', entry.file);
   if (existsSync(claudeMirrorPath)) {
-    assert.equal(readFileSync(claudeMirrorPath, 'utf8'), source, `${entry.file} .claude mirror matches package template`);
+    const expectedClaude = MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])
+      ? (() => {
+        const parsed = extractTemplateFrontmatter(source, entry.file);
+        return renderReviewerRunBootstrap(parsed.frontmatter, parsed.name);
+      })()
+      : source;
+    assert.equal(readFileSync(claudeMirrorPath, 'utf8'), expectedClaude, `${entry.file} .claude asset matches its canonical host input`);
   }
   const codexMirrorPath = join(projectRoot, '.lattice-codex', 'agents', entry.file);
   if (existsSync(codexMirrorPath)) {
-    assert.equal(readFileSync(codexMirrorPath, 'utf8'), renderCodexAgentContent(source), `${entry.file} .lattice-codex mirror matches codex render`);
+    const codexSource = renderCodexAgentContent(source);
+    const expectedCodex = MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])
+      ? (() => {
+        const parsed = extractTemplateFrontmatter(codexSource, entry.file);
+        return renderReviewerRunBootstrap(parsed.frontmatter, parsed.name);
+      })()
+      : codexSource;
+    assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .lattice-codex asset matches its canonical host input`);
   }
   material.update(`${entry.file}\0${entry.templateHash}\0${entry.bytes}\n`);
 }
@@ -141,6 +158,12 @@ for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
     const identity = reviewerHostRenderIdentity(projectRoot, roleId, host, 'full-envelope');
     assert.equal(identity.rolloutMode, 'full-envelope');
     assert.ok(identity.hostRenderDigest.length > 0, `${roleId}/${host} binds the actual modular host render`);
+    assert.ok(identity.selectedRoleBodyDigest.length > 0, `${roleId}/${host} binds the selected role body`);
+    if (identity.source === 'full-asset') {
+      assert.ok(identity.bootstrapDigest?.length, `${roleId}/${host} binds the full-asset bootstrap`);
+    } else {
+      assert.equal(identity.bootstrapDigest, undefined, `${roleId}/${host} registry mode has no project bootstrap`);
+    }
   }
 
   const oneRoleConfig = {
@@ -179,12 +202,22 @@ for (const roles of [
     PromptRoleContractRegistryError,
   );
 }
-assert.throws(
-  () => assertNoDuplicatePromptEnvelopeRoleKeys(
+for (const [source, expected] of [
+  [
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{}},"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"lattice-review-quality":"full-envelope"}}}',
+    /duplicate promptEnvelope key/,
+  ],
+  [
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{},"roles":{"lattice-review-quality":"full-envelope"}}}',
+    /duplicate promptEnvelope\.roles key/,
+  ],
+  [
     '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"lattice-review-quality":"full-envelope","lattice-review-quality":"legacy-full-context"}}}',
-  ),
-  /duplicate promptEnvelope\.roles key "lattice-review-quality"/,
-);
+    /duplicate promptEnvelope\.roles\.lattice-review-quality key/,
+  ],
+] as const) {
+  assert.throws(() => assertNoDuplicatePromptEnvelopeRoleKeys(source), expected);
+}
 for (const malformed of [
   { version: 'proofbound.prompt-envelope-rollout.v0', roles: {} },
   { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { 'lattice-review-quality': 'unknown-mode' } },

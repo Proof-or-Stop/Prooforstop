@@ -25,7 +25,8 @@ import { fileURLToPath } from 'node:url';
 import { resolveAgentAssetResolution } from '../core/agent-asset-resolution.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { buildRolloutCheck } from '../core/rollout-check.js';
-import { readPromptRegistry, renderPromptEntryForHost } from '../core/prompt-registry.js';
+import { isModularReviewerRoleId, readPromptRegistry, renderPromptEntryForHost } from '../core/prompt-registry.js';
+import { renderReviewerRunBootstrapForTemplate } from '../core/global-agents.js';
 import { renderLatticeCodexAdapterManifest } from '../init-assets.js';
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -43,8 +44,14 @@ function writeText(root: string, relPath: string, content: string): void {
 function seedMatchingPrompts(root: string): void {
   const registry = readPromptRegistry();
   for (const entry of registry.agents) {
-    writeText(root, `.claude/agents/${entry.file}`, renderPromptEntryForHost(entry, 'claude'));
-    writeText(root, `.lattice-codex/agents/${entry.file}`, renderPromptEntryForHost(entry, 'codex'));
+    const claude = renderPromptEntryForHost(entry, 'claude');
+    const codex = renderPromptEntryForHost(entry, 'codex');
+    writeText(root, `.claude/agents/${entry.file}`, isModularReviewerRoleId(entry.agentId)
+      ? renderReviewerRunBootstrapForTemplate(claude, entry.file)
+      : claude);
+    writeText(root, `.lattice-codex/agents/${entry.file}`, isModularReviewerRoleId(entry.agentId)
+      ? renderReviewerRunBootstrapForTemplate(codex, entry.file)
+      : codex);
   }
 }
 
@@ -52,8 +59,14 @@ function countApproximateTokens(): number {
   const registry = readPromptRegistry();
   let bytes = 0;
   for (const entry of registry.agents) {
-    bytes += Buffer.byteLength(renderPromptEntryForHost(entry, 'claude'), 'utf8');
-    bytes += Buffer.byteLength(renderPromptEntryForHost(entry, 'codex'), 'utf8');
+    const claude = renderPromptEntryForHost(entry, 'claude');
+    const codex = renderPromptEntryForHost(entry, 'codex');
+    bytes += Buffer.byteLength(isModularReviewerRoleId(entry.agentId)
+      ? renderReviewerRunBootstrapForTemplate(claude, entry.file)
+      : claude, 'utf8');
+    bytes += Buffer.byteLength(isModularReviewerRoleId(entry.agentId)
+      ? renderReviewerRunBootstrapForTemplate(codex, entry.file)
+      : codex, 'utf8');
   }
   return Math.ceil(bytes / 4);
 }

@@ -620,8 +620,14 @@ export function assertNoDuplicatePromptEnvelopeRoleKeys(source: string): void {
         skipWhitespace();
         if (source[index] !== ':') throw new Error('invalid JSON object separator');
         index += 1;
-        if (path.join('.') === 'promptEnvelope.roles' && keys.has(key)) {
-          throw new Error(`lattice.config.json duplicate promptEnvelope.roles key "${key}"`);
+        const duplicatePromptEnvelopeKey = keys.has(key) && (
+          (path.length === 0 && key === 'promptEnvelope')
+          || (path.length === 1 && path[0] === 'promptEnvelope' && key === 'roles')
+          || (path.length === 2 && path[0] === 'promptEnvelope' && path[1] === 'roles')
+        );
+        if (duplicatePromptEnvelopeKey) {
+          const qualifiedKey = [...path, key].join('.');
+          throw new Error(`lattice.config.json duplicate ${qualifiedKey} key`);
         }
         keys.add(key);
         parseValue([...path, key]);
@@ -665,7 +671,7 @@ export function assertNoDuplicatePromptEnvelopeRoleKeys(source: string): void {
   try {
     parseValue([]);
   } catch (error) {
-    if (error instanceof Error && error.message.startsWith('lattice.config.json duplicate promptEnvelope.roles key')) {
+    if (error instanceof Error && error.message.startsWith('lattice.config.json duplicate promptEnvelope')) {
       throw error;
     }
     // Preserve the existing malformed-config fallback. JSON.parse below owns
