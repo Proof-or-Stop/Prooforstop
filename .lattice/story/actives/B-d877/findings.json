@@ -14,6 +14,47 @@
       "_hash": "1cfb010a8b6c49f513f6548f2666bc2dcf553df501f5f4aeb4d474b030a2f901",
       "signatureTag": "missing|unknown|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d877:F-002",
+      "desc": "concept-cleanup: dev_finish's target phase changed from TEST to REVIEW (raw-actor+PHASE_TO_EVENT mislabel removed, now runStoryTransition CODE_REVIEW->REVIEW), but the sibling dev_merge guard in packages/main/src/handlers/worktree.ts (phase-check just before the CHK-001 runStoryTransition(DONE) call, ~line 1092) still throws `Story ${args.storyId} is currently in phase ${story.phase}; you need to dev_finish first to enter TEST` when phase is not TEST/DONE. This is the old raw-actor-era assumption that dev_finish lands the story directly in TEST; it was scrubbed from dev_finish's own event push but left verbatim in dev_merge's error text within the SAME two functions this story retargets. Post-diff, calling dev_finish only reaches REVIEW; a caller in DEV or REVIEW hitting dev_merge is told a factually wrong next step (dev_finish does not put the story into TEST). Confirmed both the old text and the actual current runtime behavior via: `grep -n \"first to enter TEST\" packages/main/src/handlers/worktree.ts` and the transition-integrity-smoke.js run showing dev_finish lands in REVIEW.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T02:49:07.536Z",
+      "reviewRound": "2026-07-19T02:27:46.689Z",
+      "reviewRunId": "B-d877:RR-002",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/cli/lifecycle-dispatch.ts",
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/metadata/task.json",
+          "docs/requirements/decisions/cc-learnings.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/done-effects.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/tasks/closeout-trust-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "edf033b05bbdf3ffedf5ec2d7264d2c0fc371e75a9b15d15d37d991308281687",
+      "files": [
+        "packages/main/src/handlers/worktree.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-finish",
+      "signatureTagSource": "auto"
     }
   ]
 }
