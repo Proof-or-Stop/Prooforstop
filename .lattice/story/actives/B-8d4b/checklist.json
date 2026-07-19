@@ -278,9 +278,9 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T02:07:46.020Z",
-      "endTime": "2026-07-19T02:35:25.986Z",
+      "endTime": "2026-07-19T02:53:25.226Z",
       "verificationIntent": {
         "happy": [
           {
@@ -330,11 +330,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun: the content-addressed hermetic valid reconstruction is EVALUABLE for exact prompt and semantic finding comparison only with scope=hermetic-selfcheck-only and historicalEvidence=false; canonical historical rows remain INCONCLUSIVE. Production evidence drift is NONE.",
-          "headHash": "b467cb63d0ac06feccc7aa814c3a2f6670f94083",
-          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
-          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
-          "timestamp": "2026-07-19T02:35:26.902Z"
+          "note": "Owner rerun evaluates only the hermetic content-addressed fixture with historicalEvidence=false and reports immutable production process fact drift NONE.",
+          "headHash": "065997fecb491451dbcca851ed5ac870c4887b75",
+          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
+          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
+          "timestamp": "2026-07-19T02:53:25.456Z"
         },
         {
           "intentRef": "partial-observation-remains-honest",
@@ -342,11 +342,11 @@
           "file": "experiments/role-prompt-ab-replay/run.mjs",
           "command": "node experiments/role-prompt-ab-replay/run.mjs --json",
           "result": "pass",
-          "note": "Owner replay reports prompt cost INCONCLUSIVE/PROMPT_SNAPSHOT_UNAVAILABLE and recall INCONCLUSIVE/ADJUDICATION_EVIDENCE_UNVERIFIED; signed historical finding identities do not fabricate replay outputs, provider or cache claims.",
-          "headHash": "b467cb63d0ac06feccc7aa814c3a2f6670f94083",
-          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
-          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
-          "timestamp": "2026-07-19T02:35:27.538Z"
+          "note": "Canonical prompt cost remains INCONCLUSIVE/PROMPT_SNAPSHOT_UNAVAILABLE and recall INCONCLUSIVE/ADJUDICATION_EVIDENCE_UNVERIFIED; no provider/cache zero is invented.",
+          "headHash": "065997fecb491451dbcca851ed5ac870c4887b75",
+          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
+          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
+          "timestamp": "2026-07-19T02:53:25.693Z"
         },
         {
           "intentRef": "tamper-unreconstructable-fails-inconclusive",
@@ -354,11 +354,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun rejects missing/tampered/version-skewed inputs, forged finding signature, cross-Story reference, material/finding digest mismatch, invalid floors and denominators without savings/recall claims or production evidence writes.",
-          "headHash": "b467cb63d0ac06feccc7aa814c3a2f6670f94083",
-          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
-          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
-          "timestamp": "2026-07-19T02:35:28.305Z"
+          "note": "Owner 47-check rerun rejects data/signature/arm/path/lock tampering while legitimate concurrent Story metadata changes are excluded from immutable production fact drift.",
+          "headHash": "065997fecb491451dbcca851ed5ac870c4887b75",
+          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
+          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
+          "timestamp": "2026-07-19T02:53:25.919Z"
         }
       ]
     }
@@ -588,6 +588,16 @@
       "timestamp": "2026-07-19T02:53:22.286Z",
       "phase": "DEV",
       "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted implementer commit 1623374107 after independent 47-check, replay-order and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:53:25.226Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
       "action": "update",
       "from": "in_progress",
       "to": "done",
