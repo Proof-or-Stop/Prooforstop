@@ -138,7 +138,7 @@
       "desc": "packages/main/src/core/evidence/environment-contract.ts:793 and packages/main/src/core/process-fact-levels.ts:395 — HIGH: the claimed L4 lifecycle Gate integration is only a standalone exported helper exercised by `evidence-environment-adapter-smoke.ts`; repository reference search finds no story machine, phase gate, DONE-required handler, or other existing lifecycle consumer calling it. The self-test can pass while real Task/Story/Release gates never consume an EEA receipt, so CHK-006 happy-path integration evidence is missing.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T00:53:41.304Z",
@@ -146,7 +146,11 @@
       "reviewRunId": "B-955c:RR-002",
       "_hash": "8dc84bf909c66c0502b44d238ff25f8b17b7251ee55bd88373e5c0c1fef34bc0",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: process-fact L4 declaration named a consumer that did not exist. Root cause: registry prose was not backed by a production call site. Fix: DONE_REQUIRED evidence evaluator now invokes the EEA Gate for every receipt; process-fact owner and consumer point to the real call chain. Production evaluator tampered environment/executable identity regressions and process-fact verifier PASS at b31b29b522.",
+      "resolvedAt": "2026-07-19T01:10:37.294Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-955c:F-009",
