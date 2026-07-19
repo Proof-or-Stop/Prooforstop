@@ -89,6 +89,21 @@
       "_hash": "bd2c5e7893e19a7f8a4aaa3ebd1a47bc2cd000b19f44d3bc925f7b3723855e5d",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-03ac:F-007",
+      "desc": "packages/main/src/core/impact-classification-policy.ts:92-97 and packages/main/src/core/review-incremental-context.ts:222-230 — HIGH: pure-fixture eligibility only checks whether each changed declared test file has at least one checklist intentRef. It never parses the changed fixture cases or binds each added/changed case to a current Story-scoped intentRef. Therefore a file with one old bound intent plus a newly added unbound case is mechanically classified ELIGIBLE_PURE_STORY_FIXTURE, violating eligibility-supported-fixture-closure and review-basis-omission-fails-closed. The smoke at review-incremental-context-smoke.ts only tests file-level present/absent refs and cannot catch this bypass.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-19T05:34:05.767Z",
+      "reviewRound": "2026-07-19T05:29:10.580Z",
+      "reviewRunId": "B-03ac:RR-003",
+      "_hash": "4b2a0e4789d27db9647927adc265083f5b8443aeab7d58a692ad55e8fcb8183d",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
