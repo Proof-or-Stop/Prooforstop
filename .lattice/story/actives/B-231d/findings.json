@@ -105,14 +105,17 @@
       "desc": "[host-B codex] done-required-validation.ts:~405 absolute cwd anchored at SHARED root breaks for sub-paths inside a worktree: <main>/packages/main -> packages/main but <wt>/.worktrees/B-231d/packages/main -> .worktrees/B-231d/packages/main (digests differ). Fix: relativize an in-workspace absolute cwd against the WORKTREE's OWN projectRoot (both -> packages/main); absolute-outside-workspace stays an inherent limit. Also worktree-portability-smoke.ts:203 reuses the main absolute path for BOTH envelopes (tautological) - test corresponding absolute paths in DIFFERENT worktrees.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-19T01:12:48.889Z",
       "reviewRound": "2026-07-19T01:08:03.737Z",
       "_hash": "4b38b540c74deb7ffed4c9c68bf38f75f6517f3f8cf2f789f564d5c07841f8a6",
       "signatureTag": "missing|unknown|host-codex-required",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f39ef9f967: F-005 digest executed.cwd + coverage compares logical vs policy; F-006 anchor logical cwd at projectRoot (in-workspace absolute portable, out-of-workspace documented limit), deleted shared-root anchoring; F-007 lifecycle-control validationLockPath delegates to exported validationExecutionLockPath. Smoke now 25/25 incl. corresponding-abs-path portability, executed-cwd, and lifecycle-lock-visibility checks.",
+      "resolvedAt": "2026-07-19T01:28:47.719Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-231d:F-007",
