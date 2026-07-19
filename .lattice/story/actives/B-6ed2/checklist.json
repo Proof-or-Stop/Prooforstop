@@ -487,14 +487,14 @@
         },
         {
           "intentRef": "CHK-003:adversarial:1",
-          "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/cross-host-review-smoke.js",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "cross_host_review focused smoke PASS 24/24 after its host-verdict batch migrated to the shared raw append primitive.",
-          "headHash": "e95d88cfb8c65ac9ab764d8945a633aeecb57801",
+          "note": "32-check logic regression proves all production process-event writers outside the primitive are statically free of direct appendFileSync and runtime dirty-audit writes wait for the shared lock.",
+          "headHash": "7af7795dc8ecb1ed7a1db815c77e7cb87fa5fa79",
           "materialHash": "ab46a12885447134418f9be302b03a93910d2ea71f9f4b73fe75e29af619813d",
           "storyFilesHash": "e76dbc98fc7b52b2d223d6ec36ac077773246edd06ce8091145da365159b7575",
-          "timestamp": "2026-07-19T00:13:40.035Z"
+          "timestamp": "2026-07-19T00:13:48.081Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
