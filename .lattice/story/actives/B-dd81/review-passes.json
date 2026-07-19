@@ -440,6 +440,32 @@
         "scanEscalationReason": null
       },
       "_hash": "e6ad440b32ea290a7460018760ddd1a4c89961531a8678000427af02fa334c08"
+    },
+    {
+      "id": "B-dd81:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-attestation for canonical validation metadata found no blocker. test-evidence records PASS, complete=true, 46 configured commands, zero required or optional failures, and 47/47 verification-intent coverage. Validation introduced only excluded story metadata; materialHash 55ae5317 and storyFilesHash 70e5f70c remain unchanged. The current material-filtered diffPackHash 3b7c1a05 was mechanically recomputed and matches this ReviewRun scope binding.",
+      "createdAt": "2026-07-19T00:47:11.482Z",
+      "reviewRound": "2026-07-19T00:18:12.482Z",
+      "reviewRunId": "B-dd81:RR-024",
+      "writerSessionId": "sess-cf9f057ddbaef1074fbda1b96368648b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-dd81/test-evidence.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/review-scope-binding.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7d50f15350f10027d29af9dd094aff0c4a7fbb8a70336075987bb5854de9c0be"
     }
   ]
 }
