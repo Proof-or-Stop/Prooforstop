@@ -252,7 +252,7 @@
       "desc": "packages/main/src/core/done-required-validation.ts:526-530,695-700 — HIGH: F-012 remains open end-to-end. On Windows runValidationCommand now correctly reports the actual implicit shell as result.shell=true, and the producer persists receipt.shell=true, but validateRequiredReceiptCoverage still derives expectedShell only from the configured command.shell (normally false). Every ordinary structured Windows DONE-required command therefore fails with receipt-shell-mismatch before the new dual executable identity can pass. The added platform seam test only compares buildDoneRequiredExecutionIdentity outputs and constructs a CommandSpec; it never evaluates a Windows-shaped receipt through validateRequiredReceiptCoverage/evaluateDoneRequiredEvidence, so this regression is not detected. Make receipt coverage consume the same actual execution identity/platform seam and add an end-to-end Windows-shaped evaluator case preserving non-shell configuration intent while binding target executableDigest plus actual shellExecutableDigest.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T01:32:39.086Z",
@@ -260,7 +260,11 @@
       "reviewRunId": "B-955c:RR-010",
       "_hash": "9901188bdf543b61936ffb784669e44a8a1687c6e532933536db6b80996f6099",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: validateRequiredReceiptCoverage compared receipt.shell to configured command.shell, so an ordinary Windows implicit shell=true receipt failed before identity validation. Root cause: the base coverage Gate did not consume the shared actual execution identity. Fix: evaluateDoneRequiredEvidence builds one current execution identity and passes it to both receipt coverage and identity coverage; expected shell comes from that identity. End-to-end Windows-shaped fixture keeps configured shell=false, binds fake node.exe target digest plus fake ComSpec cmd.exe shell digest, records actual shell=true, traverses the full evaluator including EEA projection, and PASSes. POSIX and validation-reuse suites PASS at 9576d35896.",
+      "resolvedAt": "2026-07-19T01:43:07.261Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-955c:F-015",
