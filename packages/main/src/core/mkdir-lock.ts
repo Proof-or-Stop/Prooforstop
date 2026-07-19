@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { hostname } from 'node:os';
 import {
   mkdirSync,
   readFileSync,
@@ -427,6 +428,57 @@ export function withMkdirTicketLock<T>(
   options: MkdirTicketLockOptions = {},
 ): T {
   const lock = acquireMkdirTicketLock(lockDir, options);
+  try {
+    return fn();
+  } finally {
+    lock.release();
+  }
+}
+
+export const REVIEW_METADATA_TICKET_LOCK_DIR = 'review-metadata-transaction.lock';
+
+/**
+ * Shared transaction boundary for every producer that can update reviewer
+ * protocol metadata. In particular, review_run_start and Story-aware
+ * agent_prompt must use this exact lock so prompt-envelopes.json cannot lose a
+ * review-run envelope to a concurrent audit-only writer.
+ */
+export function acquireReviewMetadataTicketLock(
+  lockDir: string,
+  operation: string,
+  overrides: Pick<MkdirTicketLockOptions, 'onBeforeStaleTicketRemove' | 'pollMs'> = {},
+): AcquiredMkdirLock {
+  const localHostname = hostname();
+  return acquireMkdirTicketLock(lockDir, {
+    label: 'review metadata transaction',
+    deadlineMs: 120_000,
+    staleMs: 10_000,
+    ...overrides,
+    holderInfo: {
+      pid: process.pid,
+      hostname: localHostname,
+      command: operation,
+      acquiredAt: new Date().toISOString(),
+    },
+    classifyExistingLock: ({ holder }) => {
+      if (!holder || holder.hostname !== localHostname) return 'unknown';
+      try {
+        process.kill(holder.pid, 0);
+        return 'active';
+      } catch (error: any) {
+        return error?.code === 'ESRCH' ? 'stale' : 'active';
+      }
+    },
+  });
+}
+
+export function withReviewMetadataTicketLock<T>(
+  lockDir: string,
+  operation: string,
+  fn: () => T,
+  overrides: Pick<MkdirTicketLockOptions, 'onBeforeStaleTicketRemove' | 'pollMs'> = {},
+): T {
+  const lock = acquireReviewMetadataTicketLock(lockDir, operation, overrides);
   try {
     return fn();
   } finally {

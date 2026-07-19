@@ -1,5 +1,4 @@
 import { execFileSync } from 'child_process';
-import { hostname } from 'node:os';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import type { ReviewRun, ReviewScopeBinding } from '../core/types.js';
@@ -15,7 +14,10 @@ import {
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
-import { withMkdirLock, withMkdirTicketLock } from '../core/mkdir-lock.js';
+import {
+  REVIEW_METADATA_TICKET_LOCK_DIR,
+  withReviewMetadataTicketLock,
+} from '../core/mkdir-lock.js';
 import { loadConfig } from '../core/config.js';
 import {
   readGitStatusLines,
@@ -38,28 +40,11 @@ import {
 import { reviewIncrementalContext } from '../core/review-incremental-context.js';
 
 function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
-  const lockDir = ctx.store.storyFilePath(storyId, 'review-metadata-transaction.lock');
-  const localHostname = hostname();
-  return withMkdirTicketLock(lockDir, fn, {
-    label: 'review metadata transaction',
-    deadlineMs: 120_000,
-    staleMs: 10_000,
-    holderInfo: {
-      pid: process.pid,
-      hostname: localHostname,
-      command: `review_run_start for ${storyId}`,
-      acquiredAt: new Date().toISOString(),
-    },
-    classifyExistingLock: ({ holder }) => {
-      if (!holder || holder.hostname !== localHostname) return 'unknown';
-      try {
-        process.kill(holder.pid, 0);
-        return 'active';
-      } catch (error: any) {
-        return error?.code === 'ESRCH' ? 'stale' : 'active';
-      }
-    },
-  });
+  return withReviewMetadataTicketLock(
+    ctx.store.storyFilePath(storyId, REVIEW_METADATA_TICKET_LOCK_DIR),
+    `review_run_start for ${storyId}`,
+    fn,
+  );
 }
 
 type ResolvedReviewWorkspace = ReturnType<typeof resolveStoryCommandWorkspace>;
@@ -263,23 +248,21 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             reviewBasis: incremental.reviewBasis,
             reviewerEscalationReason,
           });
-          withMkdirLock(store.storyFilePath(args.storyId, 'prompt-envelopes.lock'), () => {
-            const envelopeData = store.readPromptEnvelopes(args.storyId);
-            const existingEnvelope = envelopeData.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
-            if (existingEnvelope && !verifyPromptEnvelopeIntegrity(existingEnvelope)) {
-              throw new Error(`review_run_start: persisted Prompt Envelope ${existingEnvelope.envelopeId} is invalid`);
-            }
-            if (!existingEnvelope) {
-              envelopeData.envelopes.push(assembly.envelope);
-              store.writePromptEnvelopes(args.storyId, envelopeData);
-            }
-            const persistedEnvelope = store.readPromptEnvelopes(args.storyId).envelopes.find(
-              candidate => candidate.envelopeId === assembly.envelope.envelopeId,
-            );
-            if (!persistedEnvelope || !verifyPromptEnvelopeIntegrity(persistedEnvelope)) {
-              throw new Error(`review_run_start: Prompt Envelope ${assembly.envelope.envelopeId} was not durably persisted`);
-            }
-          }, { label: 'prompt-envelopes metadata' });
+          const envelopeData = store.readPromptEnvelopes(args.storyId);
+          const existingEnvelope = envelopeData.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
+          if (existingEnvelope && !verifyPromptEnvelopeIntegrity(existingEnvelope)) {
+            throw new Error(`review_run_start: persisted Prompt Envelope ${existingEnvelope.envelopeId} is invalid`);
+          }
+          if (!existingEnvelope) {
+            envelopeData.envelopes.push(assembly.envelope);
+            store.writePromptEnvelopes(args.storyId, envelopeData);
+          }
+          const persistedEnvelope = store.readPromptEnvelopes(args.storyId).envelopes.find(
+            candidate => candidate.envelopeId === assembly.envelope.envelopeId,
+          );
+          if (!persistedEnvelope || !verifyPromptEnvelopeIntegrity(persistedEnvelope)) {
+            throw new Error(`review_run_start: Prompt Envelope ${assembly.envelope.envelopeId} was not durably persisted`);
+          }
           envelopeId = assembly.envelope.envelopeId;
           assembledPrompt = assembly.prompt;
           promptHash = assembly.envelope.assembledPromptDigest;

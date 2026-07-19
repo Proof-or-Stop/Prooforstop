@@ -52,7 +52,7 @@
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { hostname, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -916,8 +916,8 @@ function runDeterministicTicketReclaimAbaCase(): void {
   const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
   mkdirSync(lockDir, { recursive: true });
   writeFileSync(deadTicket, JSON.stringify({
-    pid: -1,
-    hostname: 'barrier-host',
+    pid: 999_999_999,
+    hostname: hostname(),
     command: 'dead A',
     acquiredAt: '2026-07-19T00:00:00.000Z',
     lockId: 'dead-a',
@@ -926,23 +926,19 @@ function runDeterministicTicketReclaimAbaCase(): void {
   const childScript = (id: 'w1' | 'w2') => `
     import { existsSync, writeFileSync } from 'node:fs';
     import { join } from 'node:path';
-    import { acquireMkdirTicketLock } from ${JSON.stringify(DIST_MKDIR_LOCK_URL)};
+    import { acquireReviewMetadataTicketLock } from ${JSON.stringify(DIST_MKDIR_LOCK_URL)};
     const root = ${JSON.stringify(root)};
     const id = ${JSON.stringify(id)};
     const sleep = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
     const wait = path => { while (!existsSync(path)) sleep(5); };
-    const lock = acquireMkdirTicketLock(join(root, 'review-metadata-transaction.lock'), {
-      deadlineMs: 10000,
-      staleMs: 100,
+    const operation = id === 'w2'
+      ? 'review_run_start mixed-producer barrier'
+      : 'agent_prompt mixed-producer barrier';
+    const lock = acquireReviewMetadataTicketLock(
+      join(root, 'review-metadata-transaction.lock'),
+      operation,
+      {
       pollMs: 5,
-      holderInfo: {
-        pid: process.pid,
-        hostname: 'barrier-host',
-        command: id,
-        acquiredAt: new Date().toISOString(),
-        lockId: id,
-      },
-      classifyExistingLock: ({ holder }) => holder?.lockId === 'dead-a' ? 'stale' : 'active',
       onBeforeStaleTicketRemove: ticketPath => {
         if (!ticketPath.endsWith('dead-a.ticket')) return;
         writeFileSync(join(root, 'observed-' + id), ticketPath);
@@ -982,7 +978,7 @@ function runDeterministicTicketReclaimAbaCase(): void {
     writeFileSync(join(root, 'release-w1'), 'go');
     waitForPath(join(root, 'done-w1'), 'W1 completion');
     waitForPath(join(root, 'done-w2'), 'W2 completion');
-    console.log(`${MARKER} LOCK ABA: dead A + two reclaimers + replacement B preserves identity and serialization`);
+    console.log(`${MARKER} MIXED WRITER LOCK ABA: review_run_start + agent_prompt share identity-safe serialization`);
   } finally {
     for (const child of children) {
       if (child.exitCode === null) child.kill('SIGKILL');

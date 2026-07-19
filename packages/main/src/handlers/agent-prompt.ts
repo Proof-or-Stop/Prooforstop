@@ -36,7 +36,10 @@ import {
 } from '../core/prompt-envelope.js';
 import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { canonicalJsonStringify } from '../core/prompt-contracts.js';
-import { withMkdirLock } from '../core/mkdir-lock.js';
+import {
+  REVIEW_METADATA_TICKET_LOCK_DIR,
+  withReviewMetadataTicketLock,
+} from '../core/mkdir-lock.js';
 import {
   acquireOrRefreshOwnerLease,
   formatNonOwnerError,
@@ -143,8 +146,8 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         dispatchKind: 'story-dispatch',
         createdAt: new Date().toISOString(),
       });
-      const lockDir = ctx.store.storyFilePath(storyId, 'prompt-envelopes.lock');
-      const envelope = withMkdirLock(lockDir, () => {
+      const lockDir = ctx.store.storyFilePath(storyId, REVIEW_METADATA_TICKET_LOCK_DIR);
+      const envelope = withReviewMetadataTicketLock(lockDir, `agent_prompt for ${storyId}/${role}`, () => {
         const data = ctx.store.readPromptEnvelopes(storyId);
         const existing = data.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
         if (existing) {
@@ -162,7 +165,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
           throw new Error(`agent_prompt: envelope ${assembly.envelope.envelopeId} was not durably persisted`);
         }
         return persisted;
-      }, { label: 'prompt-envelopes metadata' });
+      });
       if (args.format === 'json') {
         return canonicalJsonStringify({
           schemaVersion: 'proofbound.agent-prompt-response.v1',

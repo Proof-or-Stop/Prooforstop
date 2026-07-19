@@ -273,11 +273,13 @@ keeps one file per role, but that file is a **content-free shim**.
    mode resolves the same host render. For migrated reviewers,
    `review_run_start` alone supplies exactly one selected role body.
 
-   `review_run_start` persists its Prompt Envelope and ReviewRun under one
-   bakery-style unique-ticket transaction lock. Each acquisition owns a
-   never-reused UUID path; stale recovery deletes only that exact dead ticket.
-   This is gate-consumed evidence behavior: two reclaimers cannot delete a
-   replacement holder through fixed-path ABA and lose a reviewer lane.
+   `review_run_start` and Story-aware `agent_prompt` share one bakery-style
+   unique-ticket transaction lock for Prompt Envelope metadata; the review-run
+   path nests no fixed-path envelope lock. Each acquisition owns a never-reused
+   UUID path; stale recovery deletes only that exact dead ticket. This is
+   gate-consumed evidence behavior: two reclaimers cannot delete a replacement
+   holder through fixed-path ABA, overlap the two producers, and lose a reviewer
+   lane.
 
 3. **Shims live in global `~/.claude/agents`; projects get zero agent files.** The
    16 shims are generated once into the user-global `~/.claude/agents` so Claude
