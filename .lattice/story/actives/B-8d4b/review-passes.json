@@ -565,6 +565,63 @@
       },
       "readDiagnostics": [],
       "_hash": "c5c970f1ff8622c812de8ef12570c5fb8a1fffd79f77695aee6bebe788d3f0fc"
+    },
+    {
+      "id": "B-8d4b:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Round-8 concept review PASS after merge-main convergence. Story-owned experiment and canonical role-plan files are byte-unchanged from RP-012 (storyFilesHash 3b4f0b0). The merged Evidence Environment, proof-admissibility, process-fact, validation, quorum, and version changes do not alter Story 3 experiment semantics or grant experiment rows authority. Fresh selfcheck passes 49/49, including normal consumer rejection and recursive production-evidence no-drift; replay identity/result remain unchanged and historical prompt cost/recall remain INCONCLUSIVE.",
+      "createdAt": "2026-07-19T04:32:24.038Z",
+      "reviewRound": "2026-07-19T04:29:33.613Z",
+      "reviewRunId": "B-8d4b:RR-032",
+      "writerSessionId": "sess-582f49a50504746237e21d3db45549a4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/scope-check.json",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ee7bc1e50bc056602f7d578a1646fe6f0a1e0794b8f7cc387b716d8d3247f95e"
+      },
+      "readDiagnostics": [],
+      "_hash": "96e3a9a336d913172e056297ba33d8e3686525c9415e3d4d7eda25763e1ce7cb"
     }
   ]
 }
