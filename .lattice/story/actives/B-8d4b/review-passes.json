@@ -454,6 +454,30 @@
       },
       "readDiagnostics": [],
       "_hash": "af15b588c56005d01e9b4f04d0b9baa71ac9eb1621cb3b017d2b377d5e7e1066"
+    },
+    {
+      "id": "B-8d4b:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Round-8 docs re-review after merge-main convergence found no Story-owned documentation or implementation drift. F-026 transcript fields, canonical decision, README, commands, historical INCONCLUSIVE scope, hermetic historicalEvidence=false boundary, and 49-check selfcheck remain aligned; only the whole-tree material binding changed while storyFilesHash stayed stable.",
+      "createdAt": "2026-07-19T04:30:27.428Z",
+      "reviewRound": "2026-07-19T04:29:33.613Z",
+      "reviewRunId": "B-8d4b:RR-031",
+      "writerSessionId": "sess-b9a6de1a476a204be31251f5a1a12144",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4becaccc2bfac050c365897ee1b1d65fe4607466f35f3c32ecba9e764cf88a5c"
     }
   ]
 }
