@@ -133,7 +133,7 @@
       "desc": "All 6 must-priority verificationIntent items (CHK-001:happy/edge/adversarial:0, CHK-002:happy/edge/adversarial:0) have STALE verificationEvidence that does not correspond to the round-2 fix commit 9cb145baf6 (mkdir-lock ownership-checked release, story-transition-lock pid-liveness classifier, uniform DONE transition-lock ordering, +CHK-002c/002d, smoke grown 17->29 checks). checklist.json still records headHash=30499ca7e1ae5632205216797c29faeb50de045f / materialHash=b54d07bfd0224d6542d575a9daf4416d8bf4113636cb0118554c6a47c96c3cab (the pre-fix commit) with note text unchanged since round 1 (\"transition-integrity smoke (17 checks)\") even though the delivered packages/main/src/tasks/transition-integrity-smoke.ts now runs 29 checks. Confirmed two independent ways: (1) `lattice evidence_inspect --storyId=B-d877 --format=json` returns freshness.status=stale, staleRefs=7 (all 6 checklist refs + test-evidence), currentMaterialHash=340d4635ab4fb2ff7b7a4682b0c316bd0bdb23bd1ca724866bdb33c5109d4656 (differs from recorded); (2) `lattice validate --story=B-d877 --json` independently returns status=fail, summary=\"Project validation commands failed; verification coverage missing 6 required intent(s)\", and refuses routine-validation reuse with refusalReasons=[material-hash-changed-or-missing, story-files-hash-changed-or-missing, untrusted-lineage-path:packages/main/src/core/mkdir-lock.ts, untrusted-lineage-path:packages/main/src/core/story-transition-lock.ts, untrusted-lineage-path:packages/main/src/handlers/transition-orchestrator.ts, untrusted-lineage-path:packages/main/src/handlers/worktree.ts, untrusted-lineage-path:packages/main/src/tasks/transition-integrity-smoke.ts]. No verification_evidence_add/batch_add command was run after fix commit 9cb145baf6 (git log shows only DEV/REVIEW/scope-ack/finding_resolve metadata commits between the fix and current HEAD). Note this is a pure evidence-recording gap, not a code-correctness defect: this reviewer independently rebuilt an isolated detached worktree at current HEAD and confirmed the unmodified smoke passes 29/29, and adversarially confirmed CHK-002c/002d are load-bearing (reverting mkdir-lock.ts release() ownership check to unconditional rmSync makes CHK-002d fail; reverting classifyTransitionLockHolder to always return unknown makes CHK-002c fail; restoring both files returns 29/29). Action: re-run `node packages/main/dist/tasks/transition-integrity-smoke.js` against current HEAD and record fresh verification_evidence_add/batch_add for all 6 intents with current headHash/materialHash/storyFilesHash, then re-run lattice validate to clear the coverage gap before requesting review pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T03:38:39.646Z",
@@ -149,7 +149,9 @@
         ".lattice/story/actives/B-d877/checklist.json"
       ],
       "signatureTag": "missing|ts|priority-verificationintent-items",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-19T04:21:46.849Z",
+      "resolutionType": "fixed"
     }
   ]
 }
