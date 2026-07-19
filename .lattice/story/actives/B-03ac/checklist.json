@@ -217,9 +217,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T04:55:54.768Z",
-      "endTime": "2026-07-19T05:00:04.059Z",
+      "endTime": "2026-07-19T06:14:00.949Z",
       "userSees": "Terminal output includes reviewBasis, changedFiles, impactedFiles, and either selectionReason=SAFE_INCREMENTAL or selectionReason=FULL_CHEAPER_OR_EQUAL after safety eligibility.",
       "files": {
         "modify": [
@@ -908,6 +908,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "F-005/F-006/F-007/F-010 repaired; build, focused suites, quorum 41/41 and final npm test pass.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T06:14:00.949Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001/F-002/F-004/F-008 repaired; snapshot and production escalation integration pass.",
       "agent": "lattice-implementer"
     }
   ]
