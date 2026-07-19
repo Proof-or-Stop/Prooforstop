@@ -104,6 +104,21 @@
       "_hash": "34e23f432832a90de809514d82d7fca753f99efbac51bb9a3ef5f81b541b51b5",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-955c:F-008",
+      "desc": "packages/main/src/core/evidence/environment-contract.ts:793 and packages/main/src/core/process-fact-levels.ts:395 — HIGH: the claimed L4 lifecycle Gate integration is only a standalone exported helper exercised by `evidence-environment-adapter-smoke.ts`; repository reference search finds no story machine, phase gate, DONE-required handler, or other existing lifecycle consumer calling it. The self-test can pass while real Task/Story/Release gates never consume an EEA receipt, so CHK-006 happy-path integration evidence is missing.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-19T00:53:41.304Z",
+      "reviewRound": "2026-07-19T00:51:25.669Z",
+      "reviewRunId": "B-955c:RR-002",
+      "_hash": "8dc84bf909c66c0502b44d238ff25f8b17b7251ee55bd88373e5c0c1fef34bc0",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
