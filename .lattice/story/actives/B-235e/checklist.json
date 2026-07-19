@@ -815,7 +815,7 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-19T07:39:07.035Z",
       "endTime": "2026-07-19T07:54:53.791Z",
       "verificationIntent": {
@@ -1181,6 +1181,16 @@
       "timestamp": "2026-07-19T08:05:22.363Z",
       "phase": "DEV",
       "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened after round-1 reviewer findings: real host prompt path, legacy gate binding, REVIEW retention, and verification coverage require repair.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T08:05:23.839Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
       "action": "update",
       "from": "done",
       "to": "in_progress",
