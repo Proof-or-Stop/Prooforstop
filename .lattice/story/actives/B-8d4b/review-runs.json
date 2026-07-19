@@ -1727,6 +1727,62 @@
         "bindingHash": "e28efcb61264cfca71a9b074ae885370872620f8c28ce7a4ef8af1910c662099"
       },
       "_hash": "e19d57c3a1f8414bcf8643ff6ae4d83fc39e06920e128862b25e15313a73ecb5"
+    },
+    {
+      "reviewRunId": "B-8d4b:RR-032",
+      "storyId": "B-8d4b",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-19T04:29:33.613Z",
+      "startedAt": "2026-07-19T04:30:59.160Z",
+      "headHash": "042f5ff32da3d8ff2aa1b1df84eca4e461c69eef",
+      "materialHash": "10b34aa74efaf1481f008be2f0ae3087ce949bb55620eb6ceed315d823ca3a92",
+      "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+      "promptHash": "cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a",
+      "scopeBinding": {
+        "scopeContractHash": "e84204cfd4815f46236900f3980661b3836dfb81bba4f77b40ce9498b9778e60",
+        "compositeScopeDigest": "c16cb526418ffb37fe26266cab0d5dda51fa889e00569f318cb245265f94d6b2",
+        "diffPackHash": "9e08889cc7598613c2dcb29945182d3d61da96422f950e33adb165dea52f5783",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/runtime/.gitignore",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "120558d715ae7900301d04da06577a05b5ece21ea49b7185fee03a1097c69c91",
+          "29fca9b4b9b833182f74270fde77192436d8b71b2537826efd539bc0bbb622c9",
+          "3448fa6addea63ff135a64969aebf87995ac03e75af780438612707b4b200912",
+          "4a661a842e07bfc3664d83eb85e563ff7fddc62039537cbff6cc8fdb6bcddad4",
+          "5e628ef8a5f35986a22d68359c67175216d9268faaad732c4df2c2575af7a1c2",
+          "7f4542c1220bcef2b2e86548bf6e6007a44d63fe89f1f381e82130c4256a27ca",
+          "a8faa9c0e07c0bec5e29f94962058a153736b1e2a6aa36407a75d05688967fd5",
+          "abb2b6cc8bab556313e756e30053d5a8595b8ba237c3e49023bca093b569891c",
+          "e7cd3ca978aeb0ee70a27e07288a30d8def28e00e6583189d036198512df9e99",
+          "f40565c7c7ec6062b965c1c2665cc5ee6337e56ad214097b1454c5183bd5150b"
+        ],
+        "bindingHash": "5b14a4cc9ebea076dde53af0db4109d7095d0e93e4dfc2a302ca746665c96cb4"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8d4b",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8d4b",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8d4b",
+        "workspaceMode": "story-worktree",
+        "headHash": "042f5ff32da3d8ff2aa1b1df84eca4e461c69eef",
+        "materialHash": "10b34aa74efaf1481f008be2f0ae3087ce949bb55620eb6ceed315d823ca3a92",
+        "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+        "bindingHash": "694d73e3054dcf2485fa21be46b8776573ad5359009a9e12cefd536b15164776"
+      },
+      "_hash": "ea8676736f5d5965dce0e1e366a6fc441c4453d1e414a3fa2d9f3b01afcb6de6"
     }
   ]
 }

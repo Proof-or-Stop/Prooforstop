@@ -515,6 +515,56 @@
         "scanEscalationReason": null
       },
       "_hash": "5fefe7c2da8255398658a937414dbca9e184d6bfd155a28ae5a3b8aaf705ff69"
+    },
+    {
+      "id": "B-8d4b:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-8 merge-main convergence review passed. All 12 verificationIntent objects retain the pre-merge canonical digest and Story-owned storyFilesHash. Fresh routine validation under merged Lattice 0.3.220 is PASS with 46 commands, 0 required failures, and 12/12 coverage at materialHash 10b34aa. Focused selfcheck 49/49, build, and 36-cell reverse replay also pass; no open finding found.",
+      "createdAt": "2026-07-19T04:31:13.719Z",
+      "reviewRound": "2026-07-19T04:29:33.613Z",
+      "reviewRunId": "B-8d4b:RR-030",
+      "writerSessionId": "sess-4926941cc12944671d541e92cc4babe0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5c4488e8f4877a765fe4823e61eedf1ec5e337a1ca9639b271d0e88abee4e252"
+      },
+      "readDiagnostics": [],
+      "_hash": "c5c970f1ff8622c812de8ef12570c5fb8a1fffd79f77695aee6bebe788d3f0fc"
     }
   ]
 }
