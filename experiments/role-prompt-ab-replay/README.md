@@ -64,6 +64,11 @@ evidence digest, so every known dispatch, provider-processed, output, and cache 
 `unavailable(reason)`, never zero. Both corpus and ledger validators reject an
 available numeric historical metric—including zero—until a future schema binds
 it mechanically to a committed evidence artifact and verified digest.
+The ledger likewise rejects available `assembledPromptTokens` unless the record
+schema can bind both a prompt digest and reconstruction evidence; the current
+schema deliberately has no such evidence field, so canonical rows keep that
+dimension unavailable. Empty or wholly unavailable ledgers summarize provider
+input as `null` plus a stable unavailable reason, never as an observed zero.
 
 The harness must not be used to claim production prompt savings, provider cost
 savings, model-quality parity, gate readiness, or Story completion. A missing,
@@ -78,3 +83,14 @@ claims, raw prompts/completions/transcripts/tool arguments, and credentials.
 Appending is serialized by an experiment-local exclusive lock; the ledger is
 opened with `O_NOFOLLOW`, validated and appended through the same file
 descriptor, fsynced, and checked against its canonical fd path.
+
+Selfcheck proves the no-production-write boundary in a temporary isolated
+evidence root. It seeds real-shaped sentinel pass, finding, ReviewRun,
+verification, validation, lifecycle, and process-event artifacts; copies the
+experiment modules and entrypoints into that sandbox; runs ordinary replay,
+ledger replay, and analysis there; then compares every sentinel artifact byte
+and the complete evidence-root tree before and after. This avoids races with
+concurrent real Story metadata while detecting any new or modified production
+artifact or process event. Separate structural tests reject production paths,
+forged gate authority, Story references, and normal process-fact/usage-ledger
+consumption of experiment rows.

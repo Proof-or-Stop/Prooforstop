@@ -155,6 +155,12 @@ export function makeLedgerRecord(input, previousRecordHash = null, supersedesRec
   if (canonicalJson(Object.keys(input.usage).sort()) !== canonicalJson(Object.keys(usage).sort())) {
     throw new ReplayContractError('INVALID_LEDGER_RECORD', 'usage dimensions must be exact');
   }
+  if (usage.assembledPromptTokens.availability === 'available') {
+    throw new ReplayContractError(
+      'UNBOUND_PROMPT_SNAPSHOT',
+      'assembledPromptTokens requires a bound promptDigest and reconstruction evidence, which this ledger schema does not accept',
+    );
+  }
   for (const key of [
     'knownDispatchInputTokens',
     'providerProcessedInputTokens',
@@ -530,10 +536,25 @@ export function summarizeLedger(rows) {
   const terminal = rows.filter(row => row.event === 'terminal');
   const attempts = [...checked.attempts.values()];
   const incompleteAttempts = attempts.filter(state => !state.terminal).length;
-  const finalProviderInputTokens = terminal.reduce((sum, row) => {
-    const dimension = row.usage.providerProcessedInputTokens;
-    return dimension.availability === 'available' ? sum + dimension.tokens : sum;
-  }, 0);
+  const availableProviderDimensions = terminal
+    .map(row => row.usage.providerProcessedInputTokens)
+    .filter(dimension => dimension.availability === 'available');
+  const allProviderDimensionsAvailable = terminal.length > 0
+    && availableProviderDimensions.length === terminal.length;
+  const someProviderDimensionsAvailable = availableProviderDimensions.length > 0;
+  const finalProviderInputTokens = allProviderDimensionsAvailable
+    ? availableProviderDimensions.reduce((sum, dimension) => sum + dimension.tokens, 0)
+    : null;
+  const providerInputAvailability = allProviderDimensionsAvailable
+    ? 'available'
+    : someProviderDimensionsAvailable ? 'partial-or-unavailable' : 'unavailable';
+  const providerInputUnavailableReason = allProviderDimensionsAvailable
+    ? null
+    : terminal.length === 0
+      ? 'NO_TERMINAL_ATTEMPTS'
+      : someProviderDimensionsAvailable
+        ? 'PROVIDER_INPUT_TOKENS_PARTIAL'
+        : 'PROVIDER_INPUT_TOKENS_UNAVAILABLE';
   return {
     schemaVersion: 'proofbound.role-prompt-ab.experiment-summary.v1',
     gateEvidence: false,
@@ -542,8 +563,7 @@ export function summarizeLedger(rows) {
     terminalAttempts: terminal.length,
     incompleteAttempts,
     finalProviderInputTokens,
-    providerInputAvailability: terminal.every(row => row.usage.providerProcessedInputTokens.availability === 'available')
-      ? 'available'
-      : 'partial-or-unavailable',
+    providerInputAvailability,
+    providerInputUnavailableReason,
   };
 }

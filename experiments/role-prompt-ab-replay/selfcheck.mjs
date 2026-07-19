@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
-import { lstat, mkdir, mkdtemp, readFile, readdir, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import {
+  copyFile, cp, lstat, mkdir, mkdtemp, readFile, readdir, rename, rm, symlink, utimes, writeFile,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { promisify } from 'node:util';
 import {
   EXPERIMENT_ROOT,
   canonicalJson,
@@ -29,6 +32,7 @@ import {
 const repoRoot = path.resolve(EXPERIMENT_ROOT, '..', '..');
 const runtimeDir = path.join(EXPERIMENT_ROOT, 'runtime');
 const ledgerPath = `runtime/selfcheck-${process.pid}.jsonl`;
+const execFileAsync = promisify(execFile);
 let checks = 0;
 
 async function check(name, fn) {
@@ -51,10 +55,10 @@ function reverseObjectInsertion(value) {
   return Object.fromEntries(Object.entries(value).reverse().map(([key, child]) => [key, reverseObjectInsertion(child)]));
 }
 
-async function hashTree(relativePaths) {
+async function snapshotTree(root, relativePaths) {
   const rows = [];
   const visit = async relative => {
-    const absolute = path.join(repoRoot, relative);
+    const absolute = path.join(root, relative);
     let stat;
     try {
       stat = await lstat(absolute);
@@ -76,10 +80,10 @@ async function hashTree(relativePaths) {
       return;
     }
     const bytes = await readFile(absolute);
-    rows.push([relative, createHash('sha256').update(bytes).digest('hex'), bytes.length]);
+    rows.push([relative, bytes.toString('base64'), bytes.length]);
   };
   for (const relative of relativePaths) await visit(relative);
-  return digest('role-prompt-ab.production-evidence-snapshot.v1', rows);
+  return rows;
 }
 
 function usage(cell, overrides = {}) {
@@ -192,20 +196,133 @@ function makeHermeticFixture() {
   };
 }
 
-const productionPaths = [
-  'packages/main/src/core/process-fact-registry.ts',
-  'packages/main/src/core/process-fact-levels.ts',
-  'packages/main/src/core/runtime-artifact-registry.ts',
-  'packages/main/src/core/usage-ledger/record.ts',
-  'packages/main/src/core/review-run.ts',
-];
-const beforeProduction = await hashTree(productionPaths);
+async function proveIsolatedProductionEvidenceNoWrite() {
+  const sandbox = await mkdtemp(path.join(tmpdir(), 'role-prompt-evidence-root-'));
+  const isolatedExperimentRoot = path.join(sandbox, 'experiments', 'role-prompt-ab-replay');
+  const sentinelStoryRoot = path.join(sandbox, '.lattice', 'story', 'actives', 'B-sentinel');
+  const evidencePaths = [
+    '.lattice/story/actives/B-sentinel',
+    '.lattice/process-events.jsonl',
+  ];
+  const sentinelFiles = new Map([
+    ['review-passes.json', `${canonicalJson({
+      passes: [{
+        agent: 'lattice-review-quality',
+        reviewRunId: 'B-sentinel:RR-001',
+        reviewRound: 'round-1',
+        headHash: '1'.repeat(40),
+        materialHash: '2'.repeat(64),
+        signature: '3'.repeat(64),
+      }],
+    })}\n`],
+    ['findings.json', `${canonicalJson({
+      findings: [{
+        id: 'B-sentinel:F-001',
+        severity: 'high',
+        category: 'missing',
+        evidenceState: 'verified',
+        status: 'open',
+        reviewRunId: 'B-sentinel:RR-001',
+      }],
+    })}\n`],
+    ['review-runs.json', `${canonicalJson({
+      runs: [{
+        id: 'B-sentinel:RR-001',
+        agent: 'lattice-review-quality',
+        reviewRound: 'round-1',
+        signature: '4'.repeat(64),
+      }],
+    })}\n`],
+    ['checklist.json', `${canonicalJson({
+      items: [{
+        id: 'CHK-001',
+        status: 'done',
+        verificationEvidence: [{
+          kind: 'logic_test',
+          command: 'sentinel-check',
+          result: 'pass',
+        }],
+      }],
+    })}\n`],
+    ['validation-evidence.json', `${canonicalJson({
+      status: 'pass',
+      command: 'lattice validate --story=B-sentinel',
+      headHash: '1'.repeat(40),
+      materialHash: '2'.repeat(64),
+    })}\n`],
+    ['index.json', `${canonicalJson({
+      id: 'B-sentinel',
+      phase: 'TEST',
+      status: 'active',
+      reviewRound: 'round-1',
+    })}\n`],
+    ['process-events.jsonl', `${canonicalJson({
+      event: 'review_pass_set',
+      storyId: 'B-sentinel',
+      reviewRunId: 'B-sentinel:RR-001',
+      gateEvidence: true,
+    })}\n`],
+  ]);
+  try {
+    await mkdir(sentinelStoryRoot, { recursive: true });
+    for (const [name, bytes] of sentinelFiles) {
+      await writeFile(path.join(sentinelStoryRoot, name), bytes, 'utf8');
+    }
+    await writeFile(
+      path.join(sandbox, '.lattice', 'process-events.jsonl'),
+      `${canonicalJson({
+        event: 'validation',
+        storyId: 'B-sentinel',
+        status: 'pass',
+        gateEvidence: true,
+      })}\n`,
+      'utf8',
+    );
+
+    await mkdir(isolatedExperimentRoot, { recursive: true });
+    await cp(path.join(EXPERIMENT_ROOT, 'lib'), path.join(isolatedExperimentRoot, 'lib'), { recursive: true });
+    for (const name of ['protocol.json', 'corpus.json', 'run.mjs', 'analyze.mjs']) {
+      await copyFile(path.join(EXPERIMENT_ROOT, name), path.join(isolatedExperimentRoot, name));
+    }
+    await mkdir(path.join(isolatedExperimentRoot, 'runtime'), { recursive: true });
+    await copyFile(
+      path.join(EXPERIMENT_ROOT, 'runtime', '.gitignore'),
+      path.join(isolatedExperimentRoot, 'runtime', '.gitignore'),
+    );
+
+    const before = await snapshotTree(sandbox, evidencePaths);
+    assert.equal(before.filter(row => row.length === 3).length, sentinelFiles.size + 1);
+    const run = await execFileAsync(process.execPath, [path.join(isolatedExperimentRoot, 'run.mjs')], { cwd: sandbox });
+    assert.match(run.stdout, /Replay: PASS sameInput=true deterministic=true/);
+    const ledgerRun = await execFileAsync(process.execPath, [
+      path.join(isolatedExperimentRoot, 'run.mjs'),
+      '--ledger=runtime/isolated-proof.jsonl',
+      '--run-id=isolated-proof',
+    ], { cwd: sandbox });
+    assert.match(ledgerRun.stdout, /Experiment ledger: PASS gateEvidence=false/);
+    const analysis = await execFileAsync(process.execPath, [
+      path.join(isolatedExperimentRoot, 'analyze.mjs'),
+      '--ledger=runtime/isolated-proof.jsonl',
+    ], { cwd: sandbox });
+    assert.match(analysis.stdout, /Analysis: INCONCLUSIVE ledger=EVALUABLE providerCost=UNAVAILABLE/);
+    const after = await snapshotTree(sandbox, evidencePaths);
+    assert.deepEqual(after, before);
+    assert.deepEqual(
+      (await readdir(path.join(sandbox, '.lattice'))).sort(),
+      ['process-events.jsonl', 'story'],
+    );
+    return { sentinelArtifacts: sentinelFiles.size + 1, entrypoints: 3 };
+  } finally {
+    await rm(sandbox, { recursive: true, force: true });
+  }
+}
 
 try {
   const { protocol, corpus } = await loadPinnedExperiment();
   let identity;
   let baseline;
   let hermeticResult;
+  let isolationProof;
 
   await check('pinned protocol has 3 classes, 6 samples, >=3 repeats and signed historical findings', () => {
     identity = validateExperiment(protocol, corpus);
@@ -525,6 +642,24 @@ try {
     assert.equal(Object.hasOwn(unavailable, 'tokens'), false);
   });
 
+  await check('assembled prompt tokens require both a prompt digest and reconstruction evidence', async () => {
+    const zeroWithoutPrompt = inputFor(baseline, firstCell);
+    zeroWithoutPrompt.usage.assembledPromptTokens = {
+      availability: 'available',
+      tokens: 0,
+      source: 'caller assertion without reconstruction evidence',
+    };
+    await expectCode('UNBOUND_PROMPT_SNAPSHOT', async () => makeLedgerRecord(zeroWithoutPrompt));
+
+    const claimedBinding = clone(zeroWithoutPrompt);
+    claimedBinding.promptDigest = 'a'.repeat(64);
+    await expectCode('UNBOUND_PROMPT_SNAPSHOT', async () => makeLedgerRecord(claimedBinding));
+
+    const forgedStoredRow = makeLedgerRecord(inputFor(baseline, firstCell));
+    forgedStoredRow.usage.assembledPromptTokens = clone(zeroWithoutPrompt.usage.assembledPromptTokens);
+    await expectCode('UNBOUND_PROMPT_SNAPSHOT', async () => verifyLedgerRows([forgedStoredRow]));
+  });
+
   await check('experiment ledger path cannot escape into production evidence', async () => {
     await expectCode('LEDGER_PATH_ESCAPE', async () => resolveLedgerPath('../.lattice/story/forged.jsonl'));
     await expectCode('LEDGER_PATH_ESCAPE', async () => resolveLedgerPath('runtime/../../.lattice/usage/llm-usage.jsonl'));
@@ -719,6 +854,26 @@ try {
     assert.equal(summary.terminalAttempts, 3);
     assert.equal(summary.incompleteAttempts, 0);
     assert.equal(summary.gateEvidence, false);
+    assert.equal(summary.finalProviderInputTokens, null);
+    assert.equal(summary.providerInputAvailability, 'unavailable');
+    assert.equal(summary.providerInputUnavailableReason, 'PROVIDER_INPUT_TOKENS_UNAVAILABLE');
+  });
+
+  await check('empty ledger summary is unavailable with no fabricated numeric zero', async () => {
+    const summary = summarizeLedger([]);
+    assert.equal(summary.records, 0);
+    assert.equal(summary.finalProviderInputTokens, null);
+    assert.equal(summary.providerInputAvailability, 'unavailable');
+    assert.equal(summary.providerInputUnavailableReason, 'NO_TERMINAL_ATTEMPTS');
+    const cli = await execFileAsync(process.execPath, [
+      path.join(EXPERIMENT_ROOT, 'analyze.mjs'),
+      `--ledger=runtime/empty-${process.pid}.jsonl`,
+      '--json',
+    ]);
+    const reported = JSON.parse(cli.stdout);
+    assert.equal(reported.finalProviderInputTokens, null);
+    assert.equal(reported.providerInputAvailability, 'unavailable');
+    assert.equal(reported.providerInputUnavailableReason, 'NO_TERMINAL_ATTEMPTS');
   });
 
   await check('ledger chain tamper is rejected', async () => {
@@ -757,9 +912,10 @@ try {
     assert.equal(cell.findingComparison.recall, null);
   });
 
-  const afterProduction = await hashTree(productionPaths);
-  await check('immutable production process facts have zero drift', () => {
-    assert.equal(afterProduction, beforeProduction);
+  await check('isolated copied entrypoints cannot write sentinel production evidence or process events', async () => {
+    isolationProof = await proveIsolatedProductionEvidenceNoWrite();
+    assert.equal(isolationProof.sentinelArtifacts, 8);
+    assert.equal(isolationProof.entrypoints, 3);
   });
 
   process.stdout.write(`Protocol: PASS experimentId=${identity.experimentId} classes=${identity.classes} samples=${identity.samples} repeats>=3 seededOracles=${identity.seededOracleCount} signedHistoricalFindings=${identity.signedHistoricalFindings} adjudicatedReplayFindings=${identity.adjudicatedFindings}\n`);
@@ -768,7 +924,7 @@ try {
   process.stdout.write('Recall: INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED\n');
   process.stdout.write(`Hermetic fixture: EVALUABLE scope=${hermeticResult.evidenceScope} historicalEvidence=${hermeticResult.historicalEvidence} cells=${hermeticResult.cells.length}\n`);
   process.stdout.write('Experiment ledger: PASS gateEvidence=false attempts=3\n');
-  process.stdout.write('Immutable production fact drift: NONE\n');
+  process.stdout.write(`Isolated production evidence drift: NONE sentinelArtifacts=${isolationProof.sentinelArtifacts} copiedEntrypoints=${isolationProof.entrypoints}\n`);
   process.stdout.write(`Selfcheck: PASS checks=${checks}\n`);
 } finally {
   await rm(await resolveLedgerPath(ledgerPath), { force: true });
