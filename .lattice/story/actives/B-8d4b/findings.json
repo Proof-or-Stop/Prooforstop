@@ -169,7 +169,7 @@
       "desc": "experiments/role-prompt-ab-replay/lib/ledger.mjs:228-257 — MEDIUM: verifyLedgerRows validates only namespace/chain/order and never revalidates the canonical record schema, forbidden privacy fields, recordId, digests, usage, or disposition. A row augmented with rawPrompt=SECRET and a recomputed public recordHash is accepted. readLedger/analyze therefore admit manually injected private or malformed rows even though makeLedgerRecord rejects them.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T02:12:08.222Z",
@@ -177,7 +177,11 @@
       "reviewRunId": "B-8d4b:RR-001",
       "_hash": "634d592173d6e6a6a5969f0f314bf4ba9099cc046cbe9224a2506c0cc21d99bb",
       "signatureTag": "adversarial|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e36af72f74: stored rows are reconstructed through the full canonical record schema and compared byte-for-byte; rehashed rawPrompt privacy injection is rejected before chain acceptance.",
+      "resolvedAt": "2026-07-19T02:37:39.369Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-010",
