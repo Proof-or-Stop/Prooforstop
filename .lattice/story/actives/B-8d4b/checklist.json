@@ -278,9 +278,9 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T02:07:46.020Z",
-      "endTime": null,
+      "endTime": "2026-07-19T02:09:01.277Z",
       "verificationIntent": {
         "happy": [
           {
@@ -322,7 +322,45 @@
         "test": [
           "experiments/role-prompt-ab-replay/selfcheck.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "valid-reconstruction-evaluable-with-zero-production-drift",
+          "kind": "integration_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner rerun reports Recall EVALUABLE for independently adjudicated seeded findings and Production evidence drift: NONE across pass/finding/run/validation/lifecycle snapshots.",
+          "headHash": "0193629c6271b40c92bd968a3dd7fcf8bf053377",
+          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
+          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
+          "timestamp": "2026-07-19T02:09:01.659Z"
+        },
+        {
+          "intentRef": "partial-observation-remains-honest",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner replay/analyze keeps assembled metrics evaluable while providerCost=UNAVAILABLE; no unbound numeric provider/cache claim survives validation.",
+          "headHash": "0193629c6271b40c92bd968a3dd7fcf8bf053377",
+          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
+          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
+          "timestamp": "2026-07-19T02:09:02.018Z"
+        },
+        {
+          "intentRef": "tamper-unreconstructable-fails-inconclusive",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner rerun demonstrates stable INCONCLUSIVE MATERIAL_DIGEST_MISMATCH plus missing/version/arm/floor/denominator failures without savings or recall claims and with zero production drift.",
+          "headHash": "0193629c6271b40c92bd968a3dd7fcf8bf053377",
+          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
+          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
+          "timestamp": "2026-07-19T02:09:02.418Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -390,6 +428,16 @@
       "timestamp": "2026-07-19T02:08:57.252Z",
       "phase": "DEV",
       "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted implementer commits after independent command reruns and evidence-first hardening.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:09:01.277Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
       "action": "update",
       "from": "in_progress",
       "to": "done",
