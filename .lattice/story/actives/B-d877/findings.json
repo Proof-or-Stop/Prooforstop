@@ -242,6 +242,21 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-19T10:21:35.979Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-d877:F-013",
+      "desc": "packages/main/src/handlers/transition-orchestrator.ts:755-767 — the R3 FIX A doc comment self-contradicts: line 755 says the atomic persist claim (mkdir claim at persistClaimPath) \"is what makes a double-mint impossible\" (unqualified/absolute), then the immediately-following KNOWN LIMITATION (lines 757-767) documents that the SAME claim is \"NOT an absolute mutex\" and that \"a waiter could then stale-reclaim a still-live holders claim\" under an OS-freeze scenario — i.e. the double-mint the first sentence calls impossible is exactly what the second paragraph says can still occur in that residual case. Contrast with core/story-transition-lock.ts, which scopes its own never-a-double-mint claim correctly to the ADVISORY lock only (not to the persist claim itself), so it does not have this problem. A reader who stops at line 755 (or greps for \"impossible\") gets a materially wrong correctness guarantee for the exact mechanism the KNOWN-LIMITATION note exists to caveat. Fix: soften line 755 to something like \"makes a double-mint impossible under the normal software-concurrency threat model (see KNOWN LIMITATION below for the OS-freeze residual)\" so the two paragraphs agree.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T10:28:08.626Z",
+      "reviewRound": "2026-07-19T10:21:15.535Z",
+      "reviewRunId": "B-d877:RR-013",
+      "_hash": "33abcf7853c7b44d70842029e8e6392213c4ada92eb3a524ac86352d9a1ed418",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
