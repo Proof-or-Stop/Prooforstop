@@ -217,7 +217,7 @@
       "desc": "packages/main/src/tasks/global-agents-init-smoke.ts:90 — the round4 implementation correctly splits global reviewer bootstraps, but the real init/upgrade smoke was not migrated and still requires every global shim to contain `lattice agent_prompt --role=`. After a fresh build, `node packages/main/dist/tasks/global-agents-init-smoke.js` fails immediately for lattice-review-behavior because the correct new shim contains review_run_start. Update this end-to-end init test to assert review_run_start/no agent_prompt for all five modular reviewers and retain agent_prompt for ordinary roles; also keep the upgrade/idempotent assertions so the production bootstrap split is executable in the required suite.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T09:48:31.006Z",
@@ -225,7 +225,11 @@
       "reviewRunId": "B-235e:RR-016",
       "_hash": "74d9ec9fde27a58d96af9dc40745b3b4075f6ac0abb52314889405bc0473eb25",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a260249f64; global-agents-init smoke now exercises the corrected split and current build passes.",
+      "resolvedAt": "2026-07-19T11:08:41.564Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-011",
