@@ -189,7 +189,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-19T02:07:37.953Z",
-      "endTime": "2026-07-19T03:03:58.749Z",
+      "endTime": "2026-07-19T03:09:05.136Z",
       "verificationIntent": {
         "happy": [
           {
@@ -235,14 +235,14 @@
         {
           "intentRef": "isolated-append-only-experiment-ledger",
           "kind": "integration_test",
-          "file": "experiments/role-prompt-ab-replay/analyze.mjs",
-          "command": "node experiments/role-prompt-ab-replay/analyze.mjs --ledger=runtime/owner-fourth.jsonl --json",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner produced 36 attempts/72 chained rows; ledger EVALUABLE, gateEvidence=false, and all output remains experiment runtime only.",
-          "headHash": "4586391c1f8c2aebcbf9c543cdfd7d10e56bc05e",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:03:59.030Z"
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "1d3d59cf86614228d0866fd9de5ef8e5de51bec1",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:05.362Z"
         },
         {
           "intentRef": "usage-availability-retry-and-summary-semantics",
@@ -250,11 +250,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun covers retries/locks/terminal reconciliation; empty and wholly unavailable summaries return null/unavailable with stable reasons, never fabricated zero.",
-          "headHash": "4586391c1f8c2aebcbf9c543cdfd7d10e56bc05e",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:03:59.269Z"
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "1d3d59cf86614228d0866fd9de5ef8e5de51bec1",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:05.541Z"
         },
         {
           "intentRef": "experiment-ledger-non-authoritative-and-private",
@@ -262,11 +262,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun rejects privacy/authority/schema attacks and available assembledPromptTokens including zero unless bound by prompt digest and reconstruction evidence.",
-          "headHash": "4586391c1f8c2aebcbf9c543cdfd7d10e56bc05e",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:03:59.733Z"
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "1d3d59cf86614228d0866fd9de5ef8e5de51bec1",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:05.757Z"
         }
       ]
     },
