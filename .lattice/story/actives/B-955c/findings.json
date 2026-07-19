@@ -1,0 +1,34 @@
+{
+  "findings": [
+    {
+      "id": "B-955c:F-001",
+      "desc": "packages/main/src/core/evidence/environment-contract.ts:544 — HIGH: producer trust is self-asserted by the receipt: normalization accepts verificationSource=verifier-owned-attestation-registry plus signatureVerified=true without resolving a verifier-owned registry, signature, or key binding; evaluateEvidenceEnvironmentGateProjection then hard-codes environmentDescriptorValid/environmentReceiptValid/environmentPolicyValid to true. A caller can therefore mint two invented lineage/key/session tuples, normalize both, and satisfy evaluateEvidenceEnvironmentQuorum. WHY: this contradicts the identity-bound, forged-producer fail-closed invariant and makes host-independence evidence forgeable.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T00:52:39.455Z",
+      "reviewRound": "2026-07-19T00:51:25.669Z",
+      "reviewRunId": "B-955c:RR-004",
+      "_hash": "f57818f1481cc3726262cbc01275739049d93d9fda13f737e5f3edca05850847",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-955c:F-002",
+      "desc": "packages/main/src/core/evidence/environment-contract.ts:793 — HIGH: M5 is described as actual lifecycle Gate integration, but evaluateEvidenceEnvironmentGateProjection is referenced only by the smoke test and no REVIEW/TEST/DONE state-machine consumer invokes it. The new process-fact entry merely names a consumer; it does not make the receipt gate-consumed. WHY: the public support matrix currently upgrades a pure library projection to an implemented lifecycle-control claim, leaving the Story/Release combination gap unchanged.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T00:52:39.470Z",
+      "reviewRound": "2026-07-19T00:51:25.669Z",
+      "reviewRunId": "B-955c:RR-004",
+      "_hash": "becf52666b6cb3585e2651c932b81f0be5ca0576d9836040e58f34021ecbd5f8",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
