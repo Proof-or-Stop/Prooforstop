@@ -1,0 +1,1505 @@
+{
+  "passes": [
+    {
+      "id": "B-955c:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Re-review of b31b29b522 found no documentation blocker. The documented production chain matches code: done-oracle calls evaluateDoneRequiredEvidence, which validates execution identity and invokes validateDoneRequiredEvidenceEnvironmentProjection/evaluateEvidenceEnvironmentGateProjection before the blocking DONE_REQUIRED row can pass. Build, EEA smoke, DONE-required smoke, and process-fact contract all passed. The paper plan explicitly keeps external M6 open and the unbound external manuscript at Level B, while limiting Lean/Rosetta/AlphaFold/PINN/browser/database/CI/Kubernetes/deployment to integration targets.",
+      "createdAt": "2026-07-19T01:14:51.702Z",
+      "reviewRound": "2026-07-19T01:09:36.550Z",
+      "reviewRunId": "B-955c:RR-007",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "679032960f48987e84e197c8681078ebccf70deccaa94f3842568822086c9d70"
+      },
+      "readDiagnostics": [],
+      "_hash": "a7f84fe1263c7b078a3e321142818a6cb60816e4ebb2d3004a7d3ea0acb3dda5"
+    },
+    {
+      "id": "B-955c:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Third-round quality re-review passed. F-011 is closed mechanically: the public type and runtime expose no attestation resolver trust-root input; repeated attestation refs are classified same_producer_not_independent; empty, singleton, distinct-ref, unknown-descriptor, and callback-shaped injected inputs all return independent=false with distinct_host_quorum_unsupported until a pinned project registry exists. Gate tamper/freshness protections from F-005 remain intact. Build, EEA conformance smoke, DONE-required validation smoke, process-fact contract, declaration scan, documentation calibration, and diff check passed; no new bypass found.",
+      "createdAt": "2026-07-19T01:33:15.502Z",
+      "reviewRound": "2026-07-19T01:28:32.809Z",
+      "reviewRunId": "B-955c:RR-009",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": "Focused third-round adversarial re-review of commit c0c3eeddde and F-011 trust-boundary changes; related specifications and adjacent producer/consumer files were name-triaged or targeted by quorum, registry, shell-identity, and claim-calibration searches."
+      },
+      "_hash": "c09fde0354da01801efca2fd96aada904939afc77caac33ca41b1ccc8d667051"
+    },
+    {
+      "id": "B-955c:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Third-round concept re-review found no blocker: public attestation resolver types and inputs are removed, quorum is mechanically fail-closed unsupported even with injected callback-shaped data, documentation consistently marks producer independence and cross-vendor quorum as future work, and build plus EEA, DONE_REQUIRED, and process-fact regressions pass.",
+      "createdAt": "2026-07-19T01:34:23.504Z",
+      "reviewRound": "2026-07-19T01:28:32.809Z",
+      "reviewRunId": "B-955c:RR-012",
+      "writerSessionId": "sess-3f7565f7f61d53a3ee9fed5bca52533e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bc0614386214980a0c0387b0696b2c966300799f945457efbe4386ab7b4c31b3"
+    },
+    {
+      "id": "B-955c:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Final re-review of 9576d35896 found no documentation blocker. F-013 is resolved: current distinct-host quorum is consistently unsupported/fail-closed and pinned-key/session/revocation-backed acceptance is future-only. F-015 is resolved: normative and implementation vocabulary now use shellExecutableDigest for resolved shell executable content only; shell version/login/init posture is explicitly future work, and the Windows actual-shell audit row is current. M6 remains open and the unbound external manuscript remains Level B. Build, EEA smoke, DONE-required smoke, and validation-evidence-reuse smoke passed.",
+      "createdAt": "2026-07-19T01:49:29.214Z",
+      "reviewRound": "2026-07-19T01:42:44.743Z",
+      "reviewRunId": "B-955c:RR-013",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "679032960f48987e84e197c8681078ebccf70deccaa94f3842568822086c9d70"
+      },
+      "readDiagnostics": [],
+      "_hash": "de061a1551d039c62f5f90801449b443ee92e6769cd1d536ddcf7fbe3631eb93"
+    },
+    {
+      "id": "B-955c:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Final concept/security/authority review found no blocker: distinct-host quorum remains unconditionally unsupported and fail-closed without an injectable resolver or producer trust root, documentation does not overclaim independence, and the raw EEA projection remains consumed by the real DONE_REQUIRED evaluator with current execution/shell identity checks. Build and all relevant smoke/contract checks passed.",
+      "createdAt": "2026-07-19T01:49:31.882Z",
+      "reviewRound": "2026-07-19T01:42:44.743Z",
+      "reviewRunId": "B-955c:RR-016",
+      "writerSessionId": "sess-3f7565f7f61d53a3ee9fed5bca52533e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "14b9517005ffebbfa30f14e0b23729b703a6fd9678b0aea67d784a4be44bd585"
+    },
+    {
+      "id": "B-955c:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fourth-round full coverage review found no blocker. F-014 is closed end-to-end: the Windows-shaped receipt binds both target executableDigest and actual shellExecutableDigest, shared producer/consumer identity drives shell coverage, and evaluateDoneRequiredEvidence passes. All 36 verification intents have exactly one evidence reference. Build, EEA, DONE-required, validation reuse, pack, Quantum, process-fact, and diff-check regressions passed.",
+      "createdAt": "2026-07-19T01:49:39.516Z",
+      "reviewRound": "2026-07-19T01:42:44.743Z",
+      "reviewRunId": "B-955c:RR-014",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/package.json",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c7b8cc2cbf05dafd7ab1003cb0f53b9c09464ff55f4ce9345a99cd0ba9769c16"
+      },
+      "readDiagnostics": [],
+      "_hash": "2dd75324fa954f15068773806e134c660ea7bd770cf4d2ba1dad84819fd71550"
+    },
+    {
+      "id": "B-955c:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Convergence concept review found no blocker: nullable target executable identity is confined to shell=true compound commands, which still require an executor-owned shell executable digest and exact CommandSpec/environment/policy bindings; direct execution continues to require a target executable digest. This does not grant adapter completion authority or weaken semantic confinement, DONE_REQUIRED consumption, or fail-closed distinct-host quorum.",
+      "createdAt": "2026-07-19T01:56:39.556Z",
+      "reviewRound": "2026-07-19T01:54:45.274Z",
+      "reviewRunId": "B-955c:RR-020",
+      "writerSessionId": "sess-3f7565f7f61d53a3ee9fed5bca52533e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f131f9f50997b02eb28d46abb2230a0d3bd79262f41eba0f9c32aec903fe8448"
+    },
+    {
+      "id": "B-955c:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Final convergence quality/security review passed. F-016 is closed end-to-end: the full DONE_REQUIRED evaluator accepts a policy-authorized compound shell receipt with exact CommandSpec, null single-target executableDigest, and bound shellExecutableDigest, while tampering the shell digest blocks with shell-executable-digest-mismatch. Independent contract repro also confirms direct shell:false with null target digest is rejected, compound shell:true with a shell digest normalizes, and missing shell digest is rejected. Earlier controls remain intact: raw Gate inputs are re-normalized, stale/tampered/unknown descriptors stop, arbitrary attestation resolver input has no trust-root API, and distinct-host quorum remains unsupported/fail-closed. Build, EEA, DONE-required, Pack, Quantum, process-fact, documentation, and diff checks passed; no blocker found.",
+      "createdAt": "2026-07-19T01:56:56.782Z",
+      "reviewRound": "2026-07-19T01:54:45.274Z",
+      "reviewRunId": "B-955c:RR-017",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Final convergence review focused on commit 16988f6a57 and the complete F-016 compound-shell identity path, while rechecking all previously identified trust, Gate, registry, quorum, Windows execution-identity, and documentation boundaries."
+      },
+      "_hash": "bee98f9b18d239784c8fa58be540aed54971659f4809cb1a2deaa339ad0cccdb"
+    },
+    {
+      "id": "B-955c:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Convergence review of 16988f6a57 found no documentation blocker. The conditional command identity union matches implementation: direct execution requires a non-null target executable digest; shell execution requires the actual shell executable digest and permits a null target only for compound commands without one resolvable target, while the exact CommandSpec remains bound. Windows implicit-shell dual identity remains accurate, distinct-host quorum remains unsupported/fail-closed pending a pinned registry, and the unbound external manuscript remains Level B with M6 open. Build, EEA smoke, and DONE-required smoke passed.",
+      "createdAt": "2026-07-19T01:57:31.297Z",
+      "reviewRound": "2026-07-19T01:54:45.274Z",
+      "reviewRunId": "B-955c:RR-018",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "679032960f48987e84e197c8681078ebccf70deccaa94f3842568822086c9d70"
+      },
+      "readDiagnostics": [],
+      "_hash": "c13189404e5108a2ab64ed3af8a185ff9f67f60655684148328be185bddeadee"
+    },
+    {
+      "id": "B-955c:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final convergence coverage review found no blocker. Compound shell positive evidence passes the complete DONE evaluator with target executableDigest null only for a multi-command shell and a mandatory shellExecutableDigest; tampered shell identity fails closed. Windows target and actual shell dual identity remains covered, all 36 intents map one-to-one, and build, EEA, DONE-required, validation reuse, pack, Quantum, process-fact, and diff-check regressions passed.",
+      "createdAt": "2026-07-19T01:59:02.210Z",
+      "reviewRound": "2026-07-19T01:54:45.274Z",
+      "reviewRunId": "B-955c:RR-019",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/package.json",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c7b8cc2cbf05dafd7ab1003cb0f53b9c09464ff55f4ce9345a99cd0ba9769c16"
+      },
+      "readDiagnostics": [],
+      "_hash": "0324887ba48e4ab729bb0fe0b8eaeb72ec9fab392243a4db1522842cf321e352"
+    },
+    {
+      "id": "B-955c:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round code-quality/security review passed after the author-controlled metadata translation. Current storyFilesHash and implementation remain identical to the converged 16988f6a57 candidate; no packages/main/src or scripts diff exists after that commit. The translated plan, understanding, and decision preserve the same M0-M5 scope, open M6 manuscript boundary, no-arbitrary-runner rule, fail-closed unsupported distinct-host quorum, and adapter authority separation. Build, EEA tamper/identity/quorum smoke, DONE_REQUIRED full evaluator including Windows and compound-shell identity, Pack, Quantum, process-fact contract, and diff checks all passed. Prior raw Gate revalidation, resolver removal, freshness, executable/shell digest, and direct-completion protections have not regressed.",
+      "createdAt": "2026-07-19T02:07:49.077Z",
+      "reviewRound": "2026-07-19T02:05:01.939Z",
+      "reviewRunId": "B-955c:RR-021",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/decision.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          ".lattice/story/actives/B-955c/understanding.json",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Fresh REVIEW round required after translating author-controlled story metadata to English; review compared translated metadata semantics and hashes against the already-audited converged implementation, then reran all security-sensitive suites."
+      },
+      "_hash": "cb4607670e45eb84721c12416881de452dbdd62ecac10a2142de1e9dca562dd5"
+    },
+    {
+      "id": "B-955c:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Fresh-round documentation review after the English story-metadata translation found no blocker. Background, plan, understanding, decision, and checklist consistently state M0-M5 implementation only, keep M6 open pending an external manuscript revision/digest, classify Lean/Rosetta/AlphaFold/PINN/browser/database/CI/Kubernetes/deployment as integration targets, and keep distinct-host producer quorum unsupported/fail-closed until a pinned cryptographic registry exists. Public README and architecture wording remain aligned. git diff --check, EEA smoke, and DONE-required smoke passed on the current material.",
+      "createdAt": "2026-07-19T02:08:58.775Z",
+      "reviewRound": "2026-07-19T02:05:01.939Z",
+      "reviewRunId": "B-955c:RR-022",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/decision.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          ".lattice/story/actives/B-955c/understanding.json",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "679032960f48987e84e197c8681078ebccf70deccaa94f3842568822086c9d70"
+      },
+      "readDiagnostics": [],
+      "_hash": "a1d2d044f0dcf05ec2e5ae69a7dd539e93cd05f8f4b9017e2570ac9a2376b18d"
+    },
+    {
+      "id": "B-955c:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Fresh-round architecture review found no blocker after the author-controlled metadata translation. The English understanding, decision, and execution plan preserve the implemented M0-M5 boundary, keep M6/external manuscript binding open, retain unsupported fail-closed distinct-host quorum, prohibit arbitrary execution and adapter completion authority, and remain aligned with the actual DONE_REQUIRED EEA consumer and passing conformance checks.",
+      "createdAt": "2026-07-19T02:09:13.830Z",
+      "reviewRound": "2026-07-19T02:05:01.939Z",
+      "reviewRunId": "B-955c:RR-024",
+      "writerSessionId": "sess-3f7565f7f61d53a3ee9fed5bca52533e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/decision.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          ".lattice/story/actives/B-955c/understanding.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a360c7a4bcbea91f890357c0080050fbbd15351b806bcfcc695eec5d7a9dbf36"
+    },
+    {
+      "id": "B-955c:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh post-translation test-coverage review found no blocker. The author-controlled English metadata translation changed no executable story material, preserved the current story hash, and retained exact 36-of-36 intent/evidence mapping. Build, EEA, DONE-required including Windows and compound-shell full-evaluator cases, validation reuse, Pack, Quantum, process-fact, and diff-check regressions all passed.",
+      "createdAt": "2026-07-19T02:11:33.404Z",
+      "reviewRound": "2026-07-19T02:05:01.939Z",
+      "reviewRunId": "B-955c:RR-023",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/package.json",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c7b8cc2cbf05dafd7ab1003cb0f53b9c09464ff55f4ce9345a99cd0ba9769c16"
+      },
+      "readDiagnostics": [],
+      "_hash": "38590686826f6c4971f81d9e7e80d0aed9c7c6eb1c0c58d01fe49ff47373e489"
+    },
+    {
+      "id": "B-955c:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Current-round quality/security review passed for test-only commit 3b5b5cfd99. The change is confined to done-required-freshness-smoke.ts and replaces an incomplete legacy synthetic receipt with identity fields from the same canonical buildDoneRequiredExecutionIdentity helper used by the production producer and consumer. No core evaluator, handler, proof policy, or Gate code changed, so missing/forged identity remains blocking rather than being weakened. The freshness smoke, full DONE-required evaluator smoke, EEA tamper/security smoke, TypeScript build, process-fact contract, and diff checks all passed; no new blocker found.",
+      "createdAt": "2026-07-19T02:21:38.782Z",
+      "reviewRound": "2026-07-19T02:20:03.166Z",
+      "reviewRunId": "B-955c:RR-025",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Fresh REVIEW required after formal validation exposed an outdated synthetic test receipt; review focused on proving the fix reuses canonical production identity construction without modifying or weakening any production evaluator or Gate."
+      },
+      "_hash": "082b4d1718c022cdcff89a77f1def89598ccadf3895b23ea7d2a2f15db887f90"
+    },
+    {
+      "id": "B-955c:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Current-round concept review found no blocker. Commit 3b5b5cfd99 changes only the synthetic DONE freshness smoke to derive effective environment, target executable, and shell executable identities through the canonical production buildDoneRequiredExecutionIdentity helper. Production evaluator and EEA authority semantics are unchanged, and focused freshness, DONE_REQUIRED, and EEA regressions all pass.",
+      "createdAt": "2026-07-19T02:21:39.987Z",
+      "reviewRound": "2026-07-19T02:20:03.166Z",
+      "reviewRunId": "B-955c:RR-028",
+      "writerSessionId": "sess-3f7565f7f61d53a3ee9fed5bca52533e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "447d5bf32120ec790b3f89a623a0a1ec91abef0f9576374480d474046903c17c"
+    },
+    {
+      "id": "B-955c:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Docs/claims delta review PASS for 3b5b5cfd99. The only product-tree change is packages/main/src/tasks/done-required-freshness-smoke.ts; the remaining changed files are Lattice lifecycle metadata. The smoke now derives synthetic receipt environment/executable/shell digests from the canonical production buildDoneRequiredExecutionIdentity helper. README.md, docs/evidence/, and docs/requirements/ have no diff in this commit, so the documented boundaries remain unchanged: distinct-host quorum is unsupported/fail-closed pending a project-owned pinned registry; named external environments remain integration targets; and external manuscript M6 remains pending/Level B. npm run test:done-required-freshness-smoke passed and git diff --check reported no issues.",
+      "createdAt": "2026-07-19T02:22:29.336Z",
+      "reviewRound": "2026-07-19T02:20:03.166Z",
+      "reviewRunId": "B-955c:RR-026",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-955c/index.json",
+          ".lattice/story/actives/B-955c/process-events.jsonl",
+          ".lattice/story/actives/B-955c/process-metrics.json",
+          ".lattice/story/actives/B-955c/scope-contract.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "679032960f48987e84e197c8681078ebccf70deccaa94f3842568822086c9d70"
+      },
+      "readDiagnostics": [],
+      "_hash": "c2e79a78592eef5c60af7b0c9d38984bf4aae8b56e2635b04b1454e867b752e1"
+    },
+    {
+      "id": "B-955c:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh test-coverage review for current HEAD: the former done-required-freshness failure now passes after constructing synthetic identity with the production helper. Build, done-required validation/freshness, Evidence Environment adapter, claim-pack, quantum admissibility, validation evidence reuse, process-fact contract, and diff checks all pass; 36 verification intents have one-to-one evidence coverage.",
+      "createdAt": "2026-07-19T02:25:39.453Z",
+      "reviewRound": "2026-07-19T02:20:03.166Z",
+      "reviewRunId": "B-955c:RR-027",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/package.json",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c7b8cc2cbf05dafd7ab1003cb0f53b9c09464ff55f4ce9345a99cd0ba9769c16"
+      },
+      "readDiagnostics": [],
+      "_hash": "9a4e5931f78142fd33e5c3b71b2a827893386b9c691555404775418646b6cde6"
+    },
+    {
+      "id": "B-955c:RP-019",
+      "agent": "lattice-review-quality",
+      "note": "Merged-main quality/security review passed. The only semantic conflict in scripts/verify-process-fact-contract.mjs was resolved additively: the Evidence Environment Gate projection requirement from the Story and the prompt-envelope plus role-eligibility Gate requirements from main are all retained, with matching entries in process-fact levels and registry. The merged Process Fact Contract verifies all three; neither side was weakened or overwritten. Merged-state TypeScript build, EEA security/tamper suite, DONE-required validation and freshness suites, prompt full-context envelope and review-run envelope suites, diff check, and runtime-fact union check passed. The parent-reported full 46-command validation and root npm test are consistent with these focused checks; no blocker found.",
+      "createdAt": "2026-07-19T03:12:34.341Z",
+      "reviewRound": "2026-07-19T03:10:30.771Z",
+      "reviewRunId": "B-955c:RR-029",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": "Fresh merged-main REVIEW required because main introduced prompt-envelope and reviewer-role process facts adjacent to the Story Evidence Environment fact; review compared both merge parents and the resolved merge, then ran focused regressions for both sides."
+      },
+      "_hash": "685ff429dcdce329863d423bddcafcb74a74b5e806043adabcbd7d3a3ff1820a"
+    },
+    {
+      "id": "B-955c:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Round 8 merged-state concept review found no blocker: EEA remains an identity-bound observation boundary consumed by DONE_REQUIRED and Proof Admissibility, while the mainline Prompt Envelope facts remain independently enforced; the additive verifier conflict resolution preserves both contracts. Build, EEA smoke, DONE-required smoke, and process-fact contract all pass.",
+      "createdAt": "2026-07-19T03:13:16.011Z",
+      "reviewRound": "2026-07-19T03:10:30.771Z",
+      "reviewRunId": "B-955c:RR-032",
+      "writerSessionId": "sess-3f7565f7f61d53a3ee9fed5bca52533e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b332d10cc73616442bc854c4da5f193b6709b8503f1d9ab1026666ace7f8fe68"
+      },
+      "readDiagnostics": [],
+      "_hash": "75352a2c6bbc92d7e7c984c89df0ac9c0aed25124ab1ffff295c9ed8ba722974"
+    },
+    {
+      "id": "B-955c:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Merged-main docs/claims review PASS. The B-955c claim surface and Evidence Environment implementation are byte-unchanged from prior PASS b56ae688: README, evidence-platform architecture, EEA execution plan, environment-contract, and EEA smoke have no delta. M0-M5 remain accurately calibrated: terminology/ownership, descriptor registry, identity-bound normalization, bounded code-runtime and Quantum receipt-only projections, fail-closed conformance, and the real DONE_REQUIRED Proof Admissibility/Gate projection are implemented and freshly tested. M6 remains open because no external manuscript path/version or B-955c release binding exists; repository Level C evidence does not upgrade the external manuscript beyond Level B. Merged main adds local-review-quorum host-verdict evidence, but proof-admissibility limits it to REVIEW review-pass with productionDoneEligible=false; it is not the EEA cryptographic producer-independence quorum. The EEA quorum still always returns distinct_host_quorum_unsupported without a pinned producer registry. Named Lean/Rosetta/AlphaFold/PINN/browser/database/CI/Kubernetes/deployment adapters remain integration targets, with no matching implementation introduced. EEA, Pack, Quantum, DONE-required validation/freshness, and process-fact contract tests passed on current HEAD.",
+      "createdAt": "2026-07-19T03:13:26.210Z",
+      "reviewRound": "2026-07-19T03:10:30.771Z",
+      "reviewRunId": "B-955c:RR-031",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/artifact-releases.jsonl",
+          ".lattice/capability-releases.jsonl",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": "Merged-main scopeChanged review: inspected the changed proof-admissibility host-verdict surface and the two newly changed decision documents to distinguish local REVIEW quorum from Evidence Environment producer-independence claims."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b97bf724bf414e4b19374e8c9f03c9d527419b97649a5b7ccaab315730e38a0a"
+      },
+      "readDiagnostics": [],
+      "_hash": "067bb936005b987d5b8c965f15231ab3e1c5f314d96c2e47d6b4d4a7b7388790"
+    },
+    {
+      "id": "B-955c:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "Merged-state round-8 test-coverage review found no blocker. Recorded routine validation is an executed 46-command PASS with zero required/optional failures; root DONE-required evidence is PASS with two passing npm receipts and no reasons. All 36 must intents have unique passing evidence. Independent current-state build, EEA conformance, done-required freshness/validation, process-fact contract, and diff checks pass.",
+      "createdAt": "2026-07-19T03:13:38.536Z",
+      "reviewRound": "2026-07-19T03:10:30.771Z",
+      "reviewRunId": "B-955c:RR-030",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/done-required-evidence.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          ".lattice/story/actives/B-955c/test-evidence.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/package.json",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c7b8cc2cbf05dafd7ab1003cb0f53b9c09464ff55f4ce9345a99cd0ba9769c16"
+      },
+      "readDiagnostics": [],
+      "_hash": "1f258d14e5caa0f90899c5018b89a093f66d211f0833a15b78fa5ab16c067ebe"
+    },
+    {
+      "id": "B-955c:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Round 9 concept review found no blocker in EEA compatibility with portable DONE-required identities. Portable v2 removes only physical worktree-root variance from the policy command digest while retaining logical/executed cwd checks; current environment and executable identities remain independently re-derived and checked before EEA projection. EEA then binds the stored receipt, portable command ID, physical receipt cwd, environment identity, executable identity, subject, policy, timing, and output. Legacy v1 migration does not silently grant admissibility because missing EEA execution identities still fail closed. Build, worktree portability, EEA, and DONE-required integration smokes pass.",
+      "createdAt": "2026-07-19T03:16:56.584Z",
+      "reviewRound": "2026-07-19T03:15:15.271Z",
+      "reviewRunId": "B-955c:RR-036",
+      "writerSessionId": "sess-3f7565f7f61d53a3ee9fed5bca52533e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b332d10cc73616442bc854c4da5f193b6709b8503f1d9ab1026666ace7f8fe68"
+      },
+      "readDiagnostics": [],
+      "_hash": "2e64a19b05a96e5e4fbd6c83c86e0f2a2d97d253d2fcd533ed5577399851e534"
+    },
+    {
+      "id": "B-955c:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-9 coverage review bound to the post-B-231d scope found no blocker. The portability smoke proves v2 repo-relative command-spec digests are stable across worktree roots while executed-cwd drift, forged logical cwd, and genuinely different cwd remain fail-closed; legacy v1 receipts still verify. Independent build, EEA, done-required freshness/validation, and validation-evidence-reuse regressions pass. All 36 verification intents have unique current-storyFilesHash passing evidence.",
+      "createdAt": "2026-07-19T03:18:56.013Z",
+      "reviewRound": "2026-07-19T03:15:15.271Z",
+      "reviewRunId": "B-955c:RR-033",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-955c/done-required-evidence.json",
+          ".lattice/story/actives/B-955c/test-evidence.json",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "lattice.config.json",
+          "packages/main/package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "878f3fe22b18ed1d75c50617f7c89018a63350478886516fd9cb7a93f1eb2dfe"
+      },
+      "readDiagnostics": [],
+      "_hash": "bfa7c7ca879cdcd34549659de7aded58242b68f94f33397705dd32d1a856933f"
+    },
+    {
+      "id": "B-955c:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final coverage review for 5b203d35ba found no test-design blocker. The EEA regression executes current v2 projection/normalization, legacy v1 compatibility, and exact missing-CommandSpec diagnostic wording; build, EEA, worktree-portability, done-required freshness/validation, and diff checks pass. All 36 intents remain uniquely mapped to passing evidence. Checklist evidence is mechanically stale after the story-owned hash change and must be refreshed/revalidated before TEST/DONE; this is freshness convergence, not a coverage-logic failure.",
+      "createdAt": "2026-07-19T03:29:04.599Z",
+      "reviewRound": "2026-07-19T03:23:39.690Z",
+      "reviewRunId": "B-955c:RR-039",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-955c/done-required-evidence.json",
+          ".lattice/story/actives/B-955c/test-evidence.json",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "lattice.config.json",
+          "packages/main/package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "878f3fe22b18ed1d75c50617f7c89018a63350478886516fd9cb7a93f1eb2dfe"
+      },
+      "readDiagnostics": [],
+      "_hash": "314f0b5cc4b621c8a6b05d2edc5582d1984516a28fb2a45b17b22e478e208b47"
+    },
+    {
+      "id": "B-955c:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "F-019/F-020/F-021 re-review found no remaining architecture blocker. v2 EEA projection now consumes the receipt commandSpec portable logical cwd, while top-level physical cwd and resolvedCwd remain receipt provenance excluded from EEA command and invocation digests. Equivalent v2 receipts under different physical roots produce equal EEA digests; logical cwd changes alter identity. Legacy v1 preserves its absolute digested cwd and remains intentionally non-portable, while unknown schemas fail closed. Build, worktree-portability, EEA adapter, and DONE-required integration smokes all pass.",
+      "createdAt": "2026-07-19T03:33:57.379Z",
+      "reviewRound": "2026-07-19T03:32:04.001Z",
+      "reviewRunId": "B-955c:RR-044",
+      "writerSessionId": "sess-3f7565f7f61d53a3ee9fed5bca52533e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b332d10cc73616442bc854c4da5f193b6709b8503f1d9ab1026666ace7f8fe68"
+      },
+      "readDiagnostics": [],
+      "_hash": "563be95b2c64496a4d527dd767b3ea4effe5c957c045b133efa949f945b2020f"
+    },
+    {
+      "id": "B-955c:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "PASS: versioned cwd mapping is fail-closed and preserves authority separation. v2 uses digested logical cwd while top-level/resolved physical cwd remains provenance; equivalent roots share EEA identity. v1 keeps legacy absolute-cwd identity. Missing/empty/unknown-v3 CommandSpec inputs reject. Logical-cwd tamper changes derived identity, and the production DONE_REQUIRED chain still independently validates the original CommandSpec digest and policy receipt coverage before EEA projection. EEA, DONE validation/freshness, cross-worktree portability, and diff checks pass.",
+      "createdAt": "2026-07-19T03:34:03.582Z",
+      "reviewRound": "2026-07-19T03:32:04.001Z",
+      "reviewRunId": "B-955c:RR-041",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Current re-review was bounded to commit 29a9fc5288 and the previously reviewed B-955c candidate surface; the cwd projection change was traced through its production DONE consumer and targeted conformance/portability regressions."
+      },
+      "_hash": "b418aacf48f8c17c96aa69885af458efc837359d7f0ac9017f001efbf16f87c6"
+    },
+    {
+      "id": "B-955c:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review for 29a9fc5288 found no blocker. New EEA tests prove v2 projections preserve identical command/invocation identities across physical roots, logical-cwd changes alter both identities, legacy v1 roots remain intentionally distinct, and unsupported v3 fails closed. Build, EEA, worktree-portability, done-required freshness/validation, and diff checks pass. The 36 intent mappings remain unique and passing, but their checklist bindings still require freshness refresh/revalidation after the story-owned hash change.",
+      "createdAt": "2026-07-19T03:34:07.642Z",
+      "reviewRound": "2026-07-19T03:32:04.001Z",
+      "reviewRunId": "B-955c:RR-042",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-955c/done-required-evidence.json",
+          ".lattice/story/actives/B-955c/test-evidence.json",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "lattice.config.json",
+          "packages/main/package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "878f3fe22b18ed1d75c50617f7c89018a63350478886516fd9cb7a93f1eb2dfe"
+      },
+      "readDiagnostics": [],
+      "_hash": "25ea0af651f3b1e8392e1590cea0a109239396a499d492e1128be3dee4937139"
+    },
+    {
+      "id": "B-955c:RP-029",
+      "agent": "lattice-review-docs",
+      "note": "Docs/claims PASS after 29a9fc5288. F-019/F-020 are correctly resolved: the v2 DONE-required projection now sources EEA commandSpec.cwd from the repo-relative logical receipt.commandSpec.cwd, while top-level receipt.cwd and resolvedCwd remain physical provenance outside portable EEA identity; legacy v1 preserves its absolute digested cwd and remains intentionally non-portable; empty and unknown schemas fail closed. The original cross-root repro now projects both /root-a and /root-b to logical cwd dot and produces the same invocation digest, while logical-cwd tampering changes both command and invocation identity. The focused smoke adds these cross-root, tamper, v1, and unknown-schema assertions and passes, along with DONE-required validation and process-fact contract checks. The paper plan remains aligned: v2 is current, v1 is legacy, and the logical/physical provenance split is explicit. Public docs were unchanged by this implementation fix. M6 remains open/external manuscript Level B, Lean/Rosetta/AlphaFold/PINN/browser/database/CI/Kubernetes/deployment remain integration targets, and Evidence Environment distinct-host quorum remains fail-closed unsupported pending a project-owned pinned producer registry.",
+      "createdAt": "2026-07-19T03:34:19.087Z",
+      "reviewRound": "2026-07-19T03:32:04.001Z",
+      "reviewRunId": "B-955c:RR-043",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/artifact-releases.jsonl",
+          ".lattice/capability-releases.jsonl",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "679032960f48987e84e197c8681078ebccf70deccaa94f3842568822086c9d70"
+      },
+      "readDiagnostics": [],
+      "_hash": "fdc7ddb79ac6e7d119bf2886d267d87f59175b3f8cf6f97b4d8e44fb7f07e3a3"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import type {
   DoneRequiredCommandReceipt,
   DoneRequiredEvidenceData,
   DoneRequiredEvidenceStatus,
+  RoutineValidationIdentity,
   ValidationCommand,
   ValidationCommandResult,
   ValidationProgressReporter,
@@ -20,6 +21,13 @@ import {
   resolveProofAdmissibilityPolicy,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
+import { buildRoutineValidationIdentity } from './validation-evidence-reuse.js';
+import { digestCanonicalJson } from './digest.js';
+import {
+  CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR_ID,
+  evaluateEvidenceEnvironmentGateProjection,
+  projectDoneRequiredReceiptToEnvironment,
+} from './evidence/environment-contract.js';
 
 export const DONE_REQUIRED_EVIDENCE_FILE = 'done-required-evidence.json';
 export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'lattice.done-required-evidence' as const;
@@ -66,6 +74,32 @@ export interface DoneRequiredGateEvaluation {
   policy: DoneRequiredPolicy;
   evidence: DoneRequiredEvidenceData | null;
   proofAdmissibility: ProofAdmissibilityDiagnostic;
+}
+
+/**
+ * Single producer/consumer identity constructor for DONE-required execution.
+ * Platform/env seams are exposed only for deterministic cross-platform tests;
+ * production callers use the current process values.
+ */
+export function buildDoneRequiredExecutionIdentity(args: {
+  projectRoot: string;
+  policy: DoneRequiredPolicy;
+  processEnvironment?: NodeJS.ProcessEnv;
+  platform?: NodeJS.Platform;
+}): RoutineValidationIdentity {
+  return buildRoutineValidationIdentity({
+    projectRoot: args.projectRoot,
+    sourceKind: 'configured',
+    sourceInputs: args.policy.commands,
+    commands: args.policy.commands,
+    profile: 'done-required',
+    verificationPolicyInputs: {
+      policyHash: args.policy.policyHash,
+      commandSetHash: args.policy.commandSetHash,
+    },
+    ...(args.processEnvironment ? { processEnvironment: args.processEnvironment } : {}),
+    ...(args.platform ? { platform: args.platform } : {}),
+  });
 }
 
 interface DoneRequiredValidationRuntimeOptions {
@@ -644,6 +678,7 @@ export function validateRequiredReceiptCoverage(
   evidence: Pick<DoneRequiredEvidenceData, 'receipts'>,
   projectRoot: string,
   commands: DoneRequiredCommand[],
+  executionIdentity?: RoutineValidationIdentity,
 ): string[] {
   const reasons: string[] = [];
   const receipts = Array.isArray(evidence.receipts) ? evidence.receipts : [];
@@ -681,7 +716,7 @@ export function validateRequiredReceiptCoverage(
       reasons.push(`receipt-cwd-mismatch[${i}]: expected ${expectedCwd}, got ${actualCwd || '<missing>'}`);
     }
 
-    const expectedShell = command.shell === true;
+    const expectedShell = executionIdentity?.commands[i]?.shell ?? command.shell === true;
     const actualShell = receipt.shell === true;
     if (actualShell !== expectedShell) {
       reasons.push(`receipt-shell-mismatch[${i}]: expected ${expectedShell}, got ${actualShell}`);
@@ -719,6 +754,86 @@ export function validateSelfHostBuildProof(
   return reasons;
 }
 
+function validateDoneRequiredEvidenceEnvironmentProjection(
+  evidence: DoneRequiredEvidenceData,
+  policy: DoneRequiredPolicy,
+): string[] {
+  const reasons: string[] = [];
+  const subjectDigest = digestCanonicalJson({
+    storyId: evidence.storyId,
+    headHash: evidence.headHash ?? null,
+    materialHash: evidence.materialHash ?? null,
+    storyFilesHash: evidence.storyFilesHash ?? null,
+  });
+  for (let i = 0; i < evidence.receipts.length; i++) {
+    const commandReceipt = evidence.receipts[i];
+    try {
+      const projected = projectDoneRequiredReceiptToEnvironment(commandReceipt, {
+        invocationId: `done-required:${i}:${commandReceipt.commandSpec?.digest ?? 'missing'}`,
+        subjectId: evidence.storyId,
+        subjectDigest,
+        policyId: policy.source,
+        policyDigest: policy.policyHash,
+        requestedAt: commandReceipt.startedAt,
+        freshnessDeadline: '9999-12-31T23:59:59.999Z',
+      });
+      const gate = evaluateEvidenceEnvironmentGateProjection({
+        descriptorId: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR_ID,
+        invocation: projected.invocation,
+        receipt: projected.receipt,
+        artifactKind: 'done-required-evidence',
+        consumer: 'DONE_REQUIRED',
+        claim: 'done-readiness',
+        checks: {
+          schemaVersion: 'lattice.done_required_evidence.v1',
+          strictShapeValid: true,
+          temporalAndMaterialBindingValid: true,
+          subjectMatches: true,
+          producerBoundaryTrusted: true,
+          commandSpecDigestValid: true,
+          hashTupleFresh: true,
+        },
+      });
+      if (!gate.allowed) {
+        reasons.push(...gate.reasons.map((reason) => `evidence-environment[${i}]: ${reason}`));
+      }
+    } catch (error) {
+      reasons.push(`evidence-environment[${i}]: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  return [...new Set(reasons)];
+}
+
+function validateDoneRequiredExecutionIdentityCoverage(
+  evidence: DoneRequiredEvidenceData,
+  currentIdentity: RoutineValidationIdentity,
+  policy: DoneRequiredPolicy,
+): string[] {
+  const reasons: string[] = [];
+  for (let i = 0; i < policy.commands.length; i++) {
+    const receipt = evidence.receipts[i];
+    const commandIdentity = currentIdentity.commands[i];
+    if (!receipt || !commandIdentity) {
+      reasons.push(`execution-identity-missing[${i}]`);
+      continue;
+    }
+    if (!receipt.effectiveEnvironmentDigest || receipt.effectiveEnvironmentDigest !== commandIdentity.effectiveEnvironmentDigest) {
+      reasons.push(`effective-environment-digest-mismatch[${i}]`);
+    }
+    if (receipt.executableDigest !== commandIdentity.executableDigest) {
+      reasons.push(`executable-digest-mismatch[${i}]`);
+    }
+    const expectedShellDigest = commandIdentity.shellExecutableDigest ?? null;
+    const receiptShellDigest = receipt.shellExecutableDigest ?? null;
+    if ((receipt.shell === true) !== commandIdentity.shell
+      || receiptShellDigest !== expectedShellDigest
+      || (commandIdentity.shell && !receiptShellDigest)) {
+      reasons.push(`shell-executable-digest-mismatch[${i}]`);
+    }
+  }
+  return reasons;
+}
+
 export async function runDoneRequiredValidation(args: {
   projectRoot: string;
   storyId: string;
@@ -733,6 +848,10 @@ export async function runDoneRequiredValidation(args: {
   const startedAt = new Date(startedMs).toISOString();
   const receipts: DoneRequiredCommandReceipt[] = [];
   const reasons: string[] = [];
+  const executionIdentity = buildDoneRequiredExecutionIdentity({
+    projectRoot: args.projectRoot,
+    policy,
+  });
 
   if (!policy.required) {
     reasons.push('no doneRequiredCommands policy configured');
@@ -761,6 +880,7 @@ export async function runDoneRequiredValidation(args: {
       const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
       const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
       const status = commandStatus(result.code, result.timedOut);
+      const commandIdentity = executionIdentity.commands[i];
       const receipt: DoneRequiredCommandReceipt = {
         label: result.label,
         command: result.command,
@@ -776,6 +896,13 @@ export async function runDoneRequiredValidation(args: {
         startedAt: receiptStartedAt,
         endedAt: receiptEndedAt,
         ...(result.timedOut ? { timedOut: true } : {}),
+        ...(commandIdentity
+          ? {
+              effectiveEnvironmentDigest: commandIdentity.effectiveEnvironmentDigest,
+              executableDigest: commandIdentity.executableDigest,
+              shellExecutableDigest: commandIdentity.shellExecutableDigest ?? null,
+            }
+          : {}),
         ...(headHash ? { headHash } : {}),
         ...(materialHash ? { materialHash } : {}),
         ...(storyFilesHash ? { storyFilesHash } : {}),
@@ -822,6 +949,11 @@ export function evaluateDoneRequiredEvidence(args: {
   storyId: string;
   store: StoryStore;
   gitCwd: string;
+  /** Deterministic platform/env seam for cross-platform identity regressions. */
+  executionIdentityContext?: {
+    processEnvironment?: NodeJS.ProcessEnv;
+    platform?: NodeJS.Platform;
+  };
 }): DoneRequiredGateEvaluation {
   const policy = resolveDoneRequiredPolicy(args.projectRoot);
   const proofPolicy = resolveProofAdmissibilityPolicy(args.projectRoot);
@@ -908,6 +1040,16 @@ export function evaluateDoneRequiredEvidence(args: {
   }
 
   const reasons: string[] = [];
+  const currentExecutionIdentity = buildDoneRequiredExecutionIdentity({
+    projectRoot: args.projectRoot,
+    policy,
+    ...(args.executionIdentityContext?.processEnvironment
+      ? { processEnvironment: args.executionIdentityContext.processEnvironment }
+      : {}),
+    ...(args.executionIdentityContext?.platform
+      ? { platform: args.executionIdentityContext.platform }
+      : {}),
+  });
   if (evidence.schema !== DONE_REQUIRED_EVIDENCE_SCHEMA || evidence.version !== DONE_REQUIRED_EVIDENCE_VERSION) {
     reasons.push('schema-version-mismatch');
   }
@@ -915,7 +1057,12 @@ export function evaluateDoneRequiredEvidence(args: {
   if (evidence.status !== 'PASS') reasons.push(...(evidence.reasons.length > 0 ? evidence.reasons : ['status-fail']));
   if (evidence.policyHash !== policy.policyHash) reasons.push('policy-drift');
   if (evidence.commandSetHash !== policy.commandSetHash) reasons.push('command-set-drift');
-  reasons.push(...validateRequiredReceiptCoverage(evidence, args.projectRoot, policy.commands));
+  reasons.push(...validateRequiredReceiptCoverage(
+    evidence,
+    args.projectRoot,
+    policy.commands,
+    currentExecutionIdentity,
+  ));
   const commandSpecDigestCoverage = validateCommandSpecDigestCoverage(evidence, args.projectRoot, policy.commands);
   reasons.push(...commandSpecDigestCoverage.reasons);
 
@@ -932,6 +1079,7 @@ export function evaluateDoneRequiredEvidence(args: {
   if (!evidence.storyFilesHash || !currentStoryFiles) reasons.push('missing-storyFilesHash');
   else if (evidence.storyFilesHash !== currentStoryFiles) reasons.push('stale-storyFilesHash');
   reasons.push(...validateSelfHostBuildProof(evidence, args.projectRoot, policy.commands));
+  reasons.push(...validateDoneRequiredExecutionIdentityCoverage(evidence, currentExecutionIdentity, policy));
 
   const uniqueReasons = [...new Set(reasons)];
   if (uniqueReasons.length > 0) {
@@ -945,6 +1093,24 @@ export function evaluateDoneRequiredEvidence(args: {
         `rerun: lattice done_required_validate --storyId=${args.storyId}`,
       ].join('\n'),
       reasons: uniqueReasons,
+      policy,
+      evidence,
+      proofAdmissibility: doneRequiredDiagnostic(evidence, false, commandSpecDigestCoverage.valid),
+    });
+  }
+
+  const environmentProjectionReasons = validateDoneRequiredEvidenceEnvironmentProjection(evidence, policy);
+  if (environmentProjectionReasons.length > 0) {
+    return withProofBlock({
+      required: true,
+      ok: false,
+      status: 'fail',
+      detail: environmentProjectionReasons.slice(0, 3).join(', '),
+      hint: [
+        ...environmentProjectionReasons,
+        `rerun: lattice done_required_validate --storyId=${args.storyId}`,
+      ].join('\n'),
+      reasons: environmentProjectionReasons,
       policy,
       evidence,
       proofAdmissibility: doneRequiredDiagnostic(evidence, false, commandSpecDigestCoverage.valid),

@@ -332,6 +332,7 @@ export function runValidationCommand(
   const statusBefore = readGitStatus(statusGitCwd);
 
   return new Promise((resolveResult) => {
+    const isWindows = process.platform === 'win32';
     let output = '';
     let timedOut = false;
     let runnerFailure = false;
@@ -360,7 +361,7 @@ export function runValidationCommand(
         label: command.label,
         command: command.command,
         args: command.args,
-        ...(command.shell ? { shell: true } : {}),
+        ...(command.shell || isWindows ? { shell: true } : {}),
         ...(command.cwd ? { cwd } : {}),
         code,
         output: trimOutput(stripAnsi(output)),
@@ -390,7 +391,6 @@ export function runValidationCommand(
       resolveResult(result);
     };
 
-    const isWindows = process.platform === 'win32';
     const child = spawn(command.command, command.args, {
       cwd,
       env: effectiveValidationCommandEnvironment(process.env, command.env, cwd),

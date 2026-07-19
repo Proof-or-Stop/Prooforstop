@@ -115,7 +115,10 @@ export interface RoutineValidationIdentityCommand {
   focus: string[];
   /** Digest of process.env plus the command overlay; raw environment values are never stored. */
   effectiveEnvironmentDigest: string;
+  /** Content identity of the configured target executable. */
   executableDigest: string | null;
+  /** Content identity of the actual command shell when shell=true, else null. */
+  shellExecutableDigest?: string | null;
 }
 
 export interface RoutineValidationIdentity {
@@ -188,6 +191,12 @@ export interface DoneRequiredCommandReceipt {
   startedAt: string;
   endedAt: string;
   timedOut?: boolean;
+  /** Executor-owned effective environment identity; raw environment values are never stored. */
+  effectiveEnvironmentDigest?: string;
+  /** Executor-owned resolved executable content identity. */
+  executableDigest?: string | null;
+  /** Executor-owned actual shell executable identity; required when shell=true. */
+  shellExecutableDigest?: string | null;
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;
