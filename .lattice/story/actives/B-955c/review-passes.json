@@ -296,6 +296,42 @@
       },
       "readDiagnostics": [],
       "_hash": "2dd75324fa954f15068773806e134c660ea7bd770cf4d2ba1dad84819fd71550"
+    },
+    {
+      "id": "B-955c:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Convergence concept review found no blocker: nullable target executable identity is confined to shell=true compound commands, which still require an executor-owned shell executable digest and exact CommandSpec/environment/policy bindings; direct execution continues to require a target executable digest. This does not grant adapter completion authority or weaken semantic confinement, DONE_REQUIRED consumption, or fail-closed distinct-host quorum.",
+      "createdAt": "2026-07-19T01:56:39.556Z",
+      "reviewRound": "2026-07-19T01:54:45.274Z",
+      "reviewRunId": "B-955c:RR-020",
+      "writerSessionId": "sess-3f7565f7f61d53a3ee9fed5bca52533e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f131f9f50997b02eb28d46abb2230a0d3bd79262f41eba0f9c32aec903fe8448"
     }
   ]
 }
