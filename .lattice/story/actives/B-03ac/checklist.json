@@ -82,7 +82,7 @@
           }
         ]
       },
-      "userSees": "The command reports a deterministic incremental or full eligibility decision with policy version, freshness classification, and stable reason codes; unsafe or unknown inputs always report full.",
+      "userSees": "Terminal output includes quoted fields contextMode=incremental or contextMode=full, impactPolicyVersion, freshnessClassification, and eligibilityReasonCodes; unknown inputs show contextMode=full.",
       "files": {
         "modify": [
           "packages/main/src/core/evidence-freshness.ts",
