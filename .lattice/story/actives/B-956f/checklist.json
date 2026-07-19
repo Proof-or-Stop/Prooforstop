@@ -20,6 +20,29 @@
         "test": [
           "packages/main/src/tasks/language-neutral-gates-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A type=bug story whose only changed file is src/core/auth.py flips repro-first required=true identically to the same story with auth.ts: rebuild dist and run `node tmp/w1-red/red-language-degradation.cjs` from the repo root — all 11 assertions pass (exit 0), including .py/.rs/.go/.java/.cpp sources classified material.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "All three consumers (review-assurance floor, collectMaterialCodeFiles repro classification, ProofStoryDiagnosticInput.materialClassification) receive the SAME HEAD+materialHash-bound snapshot object within one evaluation; a snapshot whose embedded HEAD or materialHash differs from the live tree at decision time is re-resolved, never silently consumed stale.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The repro classification path cannot regress to the config-blind call (repro-evidence-binding-gate.ts:83): invoking collectMaterialCodeFiles without the classification snapshot fails closed (compile-time signature or explicit error), and no consumer re-derives its own classification from raw paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
