@@ -153,6 +153,20 @@
       ],
       "signatureTag": "missing|ts|cross-root-digest-reconstruction",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-231d:F-009",
+      "desc": "[host-B codex round-2] done-required-validation.ts:~571 validateCommandSpecDigestCoverage reconstructs the v2 expected digest from the receipt's ORIGIN absolute cwd using the CURRENT projectRoot, so a valid worktree receipt yields command-spec-digest-mismatch when verified from main — even though validateRequiredReceiptCoverage (F-001 path) now passes. The aggregate validator needs BOTH, so cross-root digest verification is still broken. Fix: reconstruct the expected v2 digest from the receipt's stored LOGICAL (repo-relative) cwd — receiptLogicalCwd — not a re-normalized absolute cwd; do NOT re-anchor via the current projectRoot. Add a smoke check: build a receipt+envelope under worktree root, verify its FULL digest-coverage (not just receipt-coverage) from the MAIN root -> valid=true.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-19T01:37:02.297Z",
+      "reviewRound": "2026-07-19T01:28:28.627Z",
+      "_hash": "f5cec0d6f48b1ecb3b9a582fa59d6b64589bf0aacf2dd637d4b7c4b4a3d5c759",
+      "signatureTag": "missing|unknown|host-codex-round",
+      "signatureTagSource": "auto"
     }
   ]
 }
