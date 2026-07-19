@@ -126,6 +126,35 @@
         "scanEscalationReason": null
       },
       "_hash": "54109843bf5ac39ebf945ba70a11ecb39ae0acd8ee3d83e78c45b533e07cbaba"
+    },
+    {
+      "id": "B-d877:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Ran transition-integrity-smoke.js 5x in-place (72/72 deterministic) + validate-progress-heartbeat-smoke.js (pass); lattice validate --json shows 6/6 must intents covered, freshness fresh, staleRefs:0; in an isolated detached worktree confirmed CHK-002d2/d3 are load-bearing by reverting the F-016 ownedAuxFiles cleanup (CHK-002d2 fails) and breaking the rename-mismatch restore path (CHK-002d3 fails on holder.json byte-identity), then restored to 72/72 across 5 runs.",
+      "createdAt": "2026-07-19T11:42:32.693Z",
+      "reviewRound": "2026-07-19T11:29:20.310Z",
+      "reviewRunId": "B-d877:RR-017",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "07e3159bc843dcdcf199ca866066eb2d49f51d6ec8f22d3f4c048e605827b5e8"
     }
   ]
 }
