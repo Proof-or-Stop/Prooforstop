@@ -111,7 +111,7 @@ architecture.
 | External proof surfaces already resolve through verifier adapter identity | `ExternalSurfaceDefinition.verifierAdapterId` in the Evidence Platform architecture | EEA can refine this extension point rather than replace it |
 | Claim-admissibility Packs already declare schemas, verifier adapters, Gate policies, and benchmarks | `docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md` and `packages/main/src/core/claim-admissibility/pack-framework.ts` | Domain semantics remain Pack-owned |
 | Adapter execution boundaries already distinguish declaration, receipt reading, and local command contracts | `ClaimAdmissibilityAdapterExecutionBoundary` in `pack-framework.ts` | EEA generalizes an existing boundary vocabulary |
-| Existing command identity has two relevant surfaces: DONE-required `lattice.command-spec.v1` binds command, args, cwd, actual shell mode, declared environment overlay, and timeout; routine-validation identity additionally binds `effectiveEnvironmentDigest`, target `executableDigest`, and conditional actual `shellExecutableDigest`. Windows implicit-shell execution is recorded as `shell:true` and binds `ComSpec`/`cmd.exe` content identity | `packages/main/src/core/done-required-validation.ts`, `validation-evidence-reuse.ts`, `validation-command-environment.ts`, and `validation-executor.ts` | The local-command reference path reuses the existing effective-environment and executable identity scheme; richer shell version/login/init posture remains future work |
+| Existing command identity has two relevant surfaces: the current DONE-required `lattice.command-spec.v2` binds command, args, repo-relative logical cwd, actual shell mode, declared environment overlay, and timeout while recording absolute `resolvedCwd` as non-digested provenance; legacy `lattice.command-spec.v1`, whose digest bound an absolute cwd, remains accepted only for pre-existing receipts. Routine-validation identity additionally binds `effectiveEnvironmentDigest`, target `executableDigest`, and conditional actual `shellExecutableDigest`. Windows implicit-shell execution is recorded as `shell:true` and binds `ComSpec`/`cmd.exe` content identity | `packages/main/src/core/done-required-validation.ts`, `validation-evidence-reuse.ts`, `validation-command-environment.ts`, and `validation-executor.ts` | The local-command reference path reuses the existing effective-environment and executable identity scheme; the v2 logical/physical cwd split preserves cross-worktree portability without discarding execution provenance, while richer shell version/login/init posture remains future work |
 | Quantum adapters are currently `read-receipt-only` | `packages/main/src/core/claim-admissibility/quantum.ts` | A non-executing scientific reference path already exists |
 | Generic command-backed domain verifier execution and generic Pack Gate integration remain pending | Claim-admissibility Pack framework M3 command-backed execution and M4 generic Gate integration | The paper must not describe all domain integrations as implemented |
 
@@ -617,14 +617,20 @@ versioned compatibility migration.
 
 ### 9.2 Existing command-spec to EEA mapping
 
-The existing `lattice.command-spec.v1` envelope remains a compatibility input;
-it is not byte-identical to the EEA invocation command spec.
+The current DONE-required envelope is `lattice.command-spec.v2`. It digests a
+repo-relative logical `cwd` so the same command identity is portable across
+worktrees and hosts, and records the absolute physical `resolvedCwd` separately
+as non-digested provenance. `lattice.command-spec.v1`, whose digest included an
+absolute cwd, remains accepted only as a legacy compatibility input. Neither
+version is byte-identical to the EEA invocation command spec.
 
 | Existing command identity surface | EEA command spec | Rule |
 |---|---|---|
 | DONE-required `command` | `command` | Exact |
 | DONE-required `args` | `args` | Exact ordered array |
-| DONE-required `cwd` | `cwd` | Same canonical path semantics |
+| DONE-required v2 logical `cwd` | `cwd` | Map the repo-relative logical cwd through the EEA canonical resolver; do not substitute the physical worktree path |
+| DONE-required v2 `resolvedCwd` | receipt provenance only | Preserve as observed absolute execution provenance; exclude it from the DONE-required command-spec digest and do not promote it into portable EEA command identity |
+| Legacy DONE-required v1 absolute `cwd` | `cwd` | Accept only when verifying a pre-existing v1 receipt, then map through the compatibility resolver; never emit v1 for new evidence |
 | DONE-required `env` | `processEnvironmentOverlay` | Rename the declared non-secret overlay |
 | routine-validation `effectiveEnvironmentDigest` | `processEnvironmentDigest` | Reuse or versionedly reconcile the existing effective-environment canonicalization; do not introduce an unrelated third digest |
 | routine-validation `executableDigest` | `executableDigest` | Required and non-null for `shell:false`; for `shell:true`, include when one target resolves and allow `null` only when the command has no single target executable |
@@ -632,7 +638,8 @@ it is not byte-identical to the EEA invocation command spec.
 | routine-validation `shellExecutableDigest` | `shellExecutableDigest` | Required when actual `shell:true`; forbidden otherwise; resolved shell executable content only |
 | DONE-required `timeoutMs` | `timeoutMs` | Exact |
 
-M2 must implement one versioned canonical resolver and must not reuse the
+M2 must implement one versioned canonical resolver and must not reuse either
+the current `lattice.command-spec.v2` digest or the legacy
 `lattice.command-spec.v1` digest as an EEA invocation digest. For effective
 environment identity it must either reuse the existing
 `validationIdentityDigest(effectiveValidationCommandEnvironment(...))` semantics

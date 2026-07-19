@@ -401,11 +401,12 @@ function expectBlock(
     command: 'npm',
     args: ['--prefix', 'packages/main', 'run', 'build'],
     commandSpec: {
-      schema: 'lattice.command-spec.v1',
-      digest: 'legacy-command-spec-digest',
+      schema: 'lattice.command-spec.v2',
+      digest: 'portable-command-spec-digest',
       command: 'npm',
       args: ['--prefix', 'packages/main', 'run', 'build'],
-      cwd: '/repo',
+      cwd: '.',
+      resolvedCwd: '/repo',
       shell: false,
       env: {},
       timeoutMs: 60_000,
@@ -440,6 +441,43 @@ function expectBlock(
       new Date('2026-07-19T00:30:00.000Z'),
     ).ok,
     true,
+  );
+  const legacyProjected = projectDoneRequiredReceiptToEnvironment({
+    ...doneReceipt,
+    commandSpec: {
+      schema: 'lattice.command-spec.v1',
+      digest: 'legacy-command-spec-digest',
+      command: 'npm',
+      args: ['--prefix', 'packages/main', 'run', 'build'],
+      cwd: '/repo',
+      shell: false,
+      env: {},
+      timeoutMs: 60_000,
+    },
+  }, {
+    invocationId: 'legacy-done-invocation',
+    subjectId: 'B-smoke',
+    subjectDigest: 'subject:sha256:done',
+    policyId: 'done-required',
+    policyDigest: 'policy:sha256:done',
+    requestedAt: '2026-07-19T00:00:00.000Z',
+    freshnessDeadline: '2026-07-19T01:00:00.000Z',
+  });
+  assert.equal(legacyProjected.invocation.commandSpec?.policyAuthorized, true);
+  assert.throws(
+    () => projectDoneRequiredReceiptToEnvironment({
+      ...doneReceipt,
+      commandSpec: undefined,
+    }, {
+      invocationId: 'missing-command-spec',
+      subjectId: 'B-smoke',
+      subjectDigest: 'subject:sha256:done',
+      policyId: 'done-required',
+      policyDigest: 'policy:sha256:done',
+      requestedAt: '2026-07-19T00:00:00.000Z',
+      freshnessDeadline: '2026-07-19T01:00:00.000Z',
+    }),
+    /current lattice\.command-spec\.v2; legacy lattice\.command-spec\.v1 accepted/,
   );
   console.log('code-runtime execute-local receipt projection: PASS');
 }

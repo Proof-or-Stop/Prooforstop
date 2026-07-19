@@ -640,7 +640,11 @@ export function projectDoneRequiredReceiptToEnvironment(
   readonly invocation: EvidenceEnvironmentInvocationRequest;
   readonly receipt: EvidenceEnvironmentReceipt;
 } {
-  if (!receipt.commandSpec) throw new Error('command_spec_mismatch: DONE-required receipt must carry lattice.command-spec.v1');
+  if (!receipt.commandSpec) {
+    throw new Error(
+      'command_spec_mismatch: DONE-required receipt must carry an accepted versioned CommandSpec envelope (current lattice.command-spec.v2; legacy lattice.command-spec.v1 accepted for pre-existing receipts)',
+    );
+  }
   if (!isNonEmpty(receipt.effectiveEnvironmentDigest)) {
     throw new Error('command_spec_mismatch: executor-owned effective environment identity is required');
   }
