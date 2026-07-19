@@ -103,6 +103,34 @@
         "scanEscalationReason": null
       },
       "_hash": "963d4723bd52fdb8c6746f753757b4e2e8af3b2a1526eb0a033e226609992310"
+    },
+    {
+      "id": "B-231d:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check for f39ef9f967 (sharedRootInProjectSpace deletion). Grepped repo: only 2 hits, both immutable historical audit-trail entries (findings.json F-003 resolvedReason, review-passes.json note) describing the intermediate commit 1d98a3a7c6 state, not current code claims. No source/doc/test residue. v1/v2 command-spec migration intact (DONE_REQUIRED_COMMAND_SPEC_SCHEMA=v2 + LEGACY_V1 constant, buildLegacyAbsoluteCwdCommandSpecEnvelope, both schemas validated in coverage + exercised by worktree-portability-smoke and done-required-validation-smoke). lifecycle-control validationLockPath now delegates to exported validationExecutionLockPath (no orphaned hand-rolled duplicate; old sanitize-regex removed). resolveSharedLockRoot correctly retained for the LOCK path only (CHK-001), distinct from the deleted digest-anchoring concept. Rebuilt packages/main and ran worktree-portability-smoke.js: 25/25 checks pass. done-required-validation-smoke.js also passes.",
+      "createdAt": "2026-07-19T01:32:59.615Z",
+      "reviewRound": "2026-07-19T01:28:28.627Z",
+      "reviewRunId": "B-231d:RR-012",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-231d/findings.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-231d/checklist.json",
+          ".lattice/story/actives/B-231d/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b366fa42eab4306e486191e38a8f54f2dd337e5e3e6a1556866c4d891ada7e5e"
     }
   ]
 }
