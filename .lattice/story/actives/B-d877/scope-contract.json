@@ -30,10 +30,26 @@
       "phase": "DEV",
       "headHash": "e715e95b17afa9b9c8d6bf21ae62551e8d816946",
       "materialHash": "340d4635ab4fb2ff7b7a4682b0c316bd0bdb23bd1ca724866bdb33c5109d4656"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Fix-round R2 concept F-004: dev_finish CLI hint (hints.ts:176-178) falsely claimed 'merged back to local main'; corrected to REVIEW-advanced/worktree-preserved to match the routed dev_finish semantics this story introduces. 2-line text fix, direct consequence of the routing change.",
+      "timestamp": "2026-07-19T04:04:49.511Z",
+      "paths": [
+        "packages/main/src/handlers/hints.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/hints.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6fca1f62685e5465b8146715f0addfcc97165c5a",
+      "materialHash": "0d8b9ae73f1110fdfb0efc64258643f9a8670a8e02d1eb795847acac4628b292"
     }
   ],
   "createdAt": "2026-07-18T23:51:45.763Z",
-  "updatedAt": "2026-07-19T03:17:09.519Z",
+  "updatedAt": "2026-07-19T04:04:49.511Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -41,6 +57,7 @@
     "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
     "packages/main/src/core/story-transition-lock.ts": "packages/main/src/core/story-transition-lock.ts",
     "packages/main/src/tasks/transition-integrity-smoke.ts": "packages/main/src/tasks/transition-integrity-smoke.ts",
-    "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts"
+    "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/handlers/hints.ts": "packages/main/src/handlers/hints.ts"
   }
 }
