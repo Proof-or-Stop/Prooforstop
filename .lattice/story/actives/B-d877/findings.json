@@ -158,7 +158,7 @@
       "desc": "concept-cleanup: packages/main/src/handlers/worktree.ts:992 (dev_start return text, fires on every dev_start CLI/handler call) still says: `→ After development completes, call dev_finish(${args.storyId}) to merge back to the main branch`. This is the SAME raw-actor-era misconception already fixed twice elsewhere in this exact file/story (round-1 F-002 fixed the dev_merge precondition message assuming dev_finish lands in TEST; round-2 F-004 fixed hints.ts devFinishHint claiming dev_finish merged to main) but was missed in this third location. Post-fix, dev_finish (worktree.ts:1000) only advances DEV->REVIEW via runStoryTransition and its own result text correctly says `Worktree preserved: ${wtPath}` + `Run code review in the worktree; after review passes, advance to TEST` -- nothing is merged, the worktree stays. The actual merge-to-main only happens later via dev_merge at TEST->DONE (worktree.ts:1056, confirmed by runStoryTransition phase=DONE -> applyDoneMergeEffects). So a user who just ran dev_start sees this text as the very next instruction, is told the wrong function name performs the wrong action, and would expect a merge that will not happen for at least one more phase transition (REVIEW->TEST) after calling dev_finish. Confirmed pre-existing (unchanged by this diff: `git show main:packages/main/src/handlers/worktree.ts` has byte-identical text at line 989) and confirmed no other reference to this phrase remains anywhere else in the repo (`grep -rn \"merge back to the main branch\"` across *.ts/*.md returns only this one line).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T04:25:26.789Z",
@@ -166,7 +166,9 @@
       "reviewRunId": "B-d877:RR-008",
       "_hash": "e48d86cbe2c62dbf7b36b36eb09e4f450b3578e32ee37fda29e0400014c67466",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-19T05:30:17.109Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-d877:F-009",
