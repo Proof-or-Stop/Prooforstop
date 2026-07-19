@@ -66,6 +66,37 @@
         "scanEscalationReason": null
       },
       "_hash": "6e91ce3899a84cf551775891836065e4988904599d6b488310aecfc3aeca16d0"
+    },
+    {
+      "id": "B-d877:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "R4 test-coverage review: validate genuinely PASSES end-to-end (status=pass, allPass=true; reused off a real executed run at materialHash 60082ac2d... with commandExecutions=46/result=pass at 2026-07-19T05:27:15Z; my own re-runs at 05:38 reproduced pass with clean git tree). evidence_inspect: freshness=fresh, staleRefs=0. 6/6 must-priority intents covered (CHK-001/CHK-002 happy+edge+adversarial) via manual_transcript, result=pass, hashes bound fresh. Independently rebuilt (npm run build) and ran packages/main/dist/tasks/transition-integrity-smoke.js 10x in the real worktree: 57/57 checks, 0 fails, deterministic. Ran quorum-submit-smoke.js: 39/39 checks pass (F-011 clean-tree failure gone; locks live under gitignored .lattice/locks/, confirmed untracked via git ls-files). Isolated destructive probe in a detached git-worktree copy: stubbed out the atomic mkdir persist-claim in dist/handlers/transition-orchestrator.js (acquireMkdirLock replaced with an always-succeeding no-op) and reran the smoke -- CHK-002c6 correctly FAILED, catching a genuine double-mint (both racing real processes returned ok:true/REVIEW with the advisory lock bypassed), proving CHK-002c6 is load-bearing. Restored the file and reran 3x: 57/57 clean again. CHK-002c7 confirmed load-bearing: relocated lock paths (checklist/finding/review-run/init-check/prompt-envelopes/process-events) all resolve under .lattice/locks/<category>/, and .lattice/locks/ is gitignored with zero tracked files in the real worktree. Non-blocking observation: CHK-001/CHK-002 verificationEvidence note text still says (17 checks), stale wording from an earlier round, but the bound headHash/materialHash/storyFilesHash resolve to a commit at/after the R3 fix (57-check version) which I independently reproduced at that same materialHash -- evidence binding is accurate even though prose count is outdated; not filing a finding, does not affect coverage or gate correctness. No coverage gaps found.",
+      "createdAt": "2026-07-19T05:44:03.620Z",
+      "reviewRound": "2026-07-19T05:30:00.772Z",
+      "reviewRunId": "B-d877:RR-012",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".gitignore",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4892fde2b1285280cd957fe6274c99802748d9d023c7dab2d028ca12490dfd5c"
     }
   ]
 }
