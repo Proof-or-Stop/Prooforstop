@@ -328,7 +328,7 @@
       "desc": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md:114,620,636 and packages/main/src/core/evidence/environment-contract.ts:643 — merged B-231d makes lattice.command-spec.v2 the current portable DONE-required envelope and retains v1 only as a legacy compatibility input, but the paper-facing audit/mapping still names v1 as the existing/current surface and the EEA missing-commandSpec diagnostic says a receipt must carry v1. This contradicts the implemented support boundary and can mislead an auditor/operator into treating valid v2 evidence as unsupported. Update the current-surface text to v2, describe v1 explicitly as legacy migration input, make the mapping cover the supported versioned envelope, and make the runtime diagnostic version-neutral or list v1/v2. Severity medium because Gate behavior remains fail-closed and all identity regressions pass, but CHK-005 requires publication claims to remain implementation-bound after merged-state changes.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T03:18:24.906Z",
@@ -336,7 +336,11 @@
       "reviewRunId": "B-955c:RR-035",
       "_hash": "720a34024c0bbe90a0492221ff6f19bbcc98cbcb630467bad9b1186fc34d5e30",
       "signatureTag": "edge|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate verified merged-state drift reproduced and fixed by 5b203d35ba. The support audit/mapping now names lattice.command-spec.v2 as the current portable envelope, limits v1 to pre-existing receipt compatibility, and explains logical cwd versus resolvedCwd provenance. The missing-commandSpec diagnostic lists current v2 and legacy v1 without weakening fail-closed checks. Regression evidence: build, EEA smoke including both versions and diagnostic assertion, DONE-required validation/freshness, worktree portability, process-fact contract, and diff check all PASS.",
+      "resolvedAt": "2026-07-19T03:24:03.725Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
