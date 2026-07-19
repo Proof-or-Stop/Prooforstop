@@ -182,6 +182,35 @@
         "scanEscalationReason": null
       },
       "_hash": "112b6cc00862b2496a7aafa4403824c8afe9bab87922125c9e4d55e0ee49ed13"
+    },
+    {
+      "id": "B-231d:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check: v1->v2 command-spec schema migration + absolute->logical cwd digest concept. Fresh grep of full repo (src/*.ts, docs) plus worktree-portability-smoke.js (29/29 checks pass) confirms v2/logical-cwd is used consistently in every reconstruction/comparison site (validateCommandSpecDigestCoverage, validateRequiredReceiptCoverage, isPackagesMainBuild, receiptLogicalCwd, repoRelativeLogicalCwd); v1/absolute-cwd only remains in the deliberately-named legacy migration path (buildLegacyAbsoluteCwdCommandSpecEnvelope, DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1) and non-digested resolvedCwd provenance, plus pre-existing .lattice story evidence data (expected legacy receipts, not code residue). No stray shared-root-anchoring residue from the superseded F-006 approach. No blocker.",
+      "createdAt": "2026-07-19T02:10:34.579Z",
+      "reviewRound": "2026-07-19T02:06:18.939Z",
+      "reviewRunId": "B-231d:RR-016",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-231d/plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence/types.ts",
+          "packages/main/src/core/repro-intake.ts",
+          "packages/main/src/handlers/repro-intake.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "88476275e1a358f38c70b39270a3bfa021e39170813d80e162c88fad83951692"
     }
   ]
 }
