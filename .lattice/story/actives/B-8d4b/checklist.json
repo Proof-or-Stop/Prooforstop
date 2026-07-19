@@ -10,7 +10,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pinned-ab-contract-and-corpus",
+            "desc": "A versioned, canonical experiment contract pins the A/B arm definitions, exact same-input material envelope, model and controllable sampling settings, estimator and contract versions, run order, at least three repetitions per applicable cell, three required historical sample classes with at least two samples each, and a pre-adjudicated stable finding set before any result is recorded; rerunning the same contract yields the same experiment identity and corpus digests.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "availability-aware-preregistered-boundaries",
+            "desc": "The contract explicitly distinguishes assembled prompt, known dispatch input, and provider-processed input; provider seed/tool/usage/cache dimensions that cannot be observed are recorded as unavailable with reason and never as zero, while unsupported sampling controls and partially reconstructable samples are declared before comparison rather than normalized post-hoc.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "contract-corpus-posthoc-tamper-rejected",
+            "desc": "Changing a frozen arm, sample, repetition count, model/contract/estimator version, run order, adjudicated finding, reconstruction prerequisite or INCONCLUSIVE rule changes the content-addressed experiment identity or fails validation; duplicate/unknown samples, fewer than the pinned class/repetition floor, and result-dependent contract edits cannot be accepted under the original experiment ID.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

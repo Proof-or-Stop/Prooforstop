@@ -1,0 +1,86 @@
+{
+  "principles": [
+    "证据不足必须停止结论，不能用静态 prompt 变短替代 finding 召回证明。",
+    "实验事实与生产 lifecycle 事实必须物理和语义隔离。",
+    "复用已有 canonical measurement、envelope 与 usage availability 语义，避免平行协议漂移。",
+    "同一 pinned 输入的两条 arm 除 prompt 形态外保持相同，并可由 digest 重放。"
+  ],
+  "drivers": [
+    "Story 3 的验收要求只读历史 material、可复算测量、独立 ledger 和 INCONCLUSIVE。",
+    "现有生产 agent_prompt handler 会写 envelope metadata，不适合历史 replay。",
+    "现有纯 core assembler 和 measurement primitives 已足够支持离线装配。",
+    "现有历史实验缺三类 adjudicated finding corpus，必须新增固定样本。"
+  ],
+  "options": [
+    {
+      "name": "A: experiment-only harness 复用纯 core primitives",
+      "pros": [
+        "不会暴露新的生产写入口",
+        "最小改动即可证明隔离和确定性",
+        "能够显式记录 provider unavailable"
+      ],
+      "cons": [
+        "需要固定新的 corpus/adjudication",
+        "真实 provider usage 留待有 dispatch 证据时补充"
+      ]
+    },
+    {
+      "name": "B: 新增生产 lattice replay CLI 与 handler",
+      "pros": [
+        "用户入口统一",
+        "未来可扩展 live dispatch"
+      ],
+      "cons": [
+        "扩大生产 command/policy/process-fact surface",
+        "容易让实验 ledger 被误读为 gate evidence",
+        "本 Story 没有必要承担此复杂度"
+      ]
+    },
+    {
+      "name": "C: 直接调用 Story-aware agent_prompt 重放历史 Story",
+      "pros": [
+        "完全沿用生产入口"
+      ],
+      "cons": [
+        "会写生产 prompt-envelope metadata",
+        "依赖 owner/phase/current HEAD，破坏 pinned 历史同输入",
+        "违反实验与生产 evidence 隔离"
+      ]
+    }
+  ],
+  "chosen": "A: experiment-only harness 复用纯 core primitives",
+  "rationale": "A 直接满足当前 Story 的用户价值：可执行、可复算、可审计且失败闭合；它复用已验证的纯装配与测量算法，同时把所有输出限制在 experiments/role-prompt-ab-replay。B 会增加无必要的生产流程事实和维护面，C 则明确违反只读与隔离约束。",
+  "preMortem": [
+    {
+      "scenario": "corpus 看似历史但缺少完整 arm 或 adjudicated findings",
+      "trigger": "样本 manifest 缺 pinned digest、三类标签、seeded critical/high truth 或任一 arm",
+      "consequence": "harness 产生虚假的召回率结论",
+      "mitigation": "启动前机械校验 corpus 完整性，任一缺失即整体 INCONCLUSIVE 且不写成功结论"
+    },
+    {
+      "scenario": "实验运行污染生产 Story evidence",
+      "trigger": "harness 调用 agent_prompt/story finding/review/pass 等写 handler，或写入 docs/story/.lattice story metadata",
+      "consequence": "实验结果影响生命周期门禁",
+      "mitigation": "只 import pure core，限制 output root 到实验目录；自检运行前后 hash/计数生产 evidence 并要求完全不变"
+    },
+    {
+      "scenario": "把 estimated tokens 当作 provider processed usage",
+      "trigger": "报告聚合不同 availability 层或用 0 代替 unavailable",
+      "consequence": "预算结论失真并错误推动后续迁移",
+      "mitigation": "分列 assembled、known dispatch、provider/cache，缺失值保持 unavailable + reason；分析不得跨层替代"
+    },
+    {
+      "scenario": "A/B 两条 arm 实际输入除 prompt 外不一致",
+      "trigger": "task context、runtime、model/contract 或 execution environment digest 不同",
+      "consequence": "finding 差异无法归因于 prompt 模块化",
+      "mitigation": "manifest 固定共享输入与唯一允许变化字段，runner 在执行前做 same-input parity 校验"
+    },
+    {
+      "scenario": "重复运行因时间戳或输出顺序产生不同 digest",
+      "trigger": "createdAt、JSON key order、finding order 或 ledger identity 未规范化",
+      "consequence": "用户无法复算，结果不可审计",
+      "mitigation": "使用 pinned timestamp、canonical JSON、稳定排序和 identity-keyed records；selfcheck 连跑两次比较核心 digest"
+    }
+  ],
+  "timestamp": "2026-07-19T01:36:51.550Z"
+}

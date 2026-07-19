@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-8d4b",
+  "state": "confirmed",
+  "ledgerHash": "sha256:a6de0d3f3c1df1882548a21657d47b9d42cab9bd144cb269513ad7bc10abc259",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "S3-CONTRACT",
+      "claim": "固定 A/B replay 合同、三类样本与裁决集",
+      "doneMeans": "协议和 corpus manifest 均由 digest 绑定，固定两条 arm、重复次数、模型/contract 版本、seeded/adjudicated findings 与 INCONCLUSIVE 规则。",
+      "requiredEvidence": [
+        "protocol_selfcheck",
+        "corpus_digest_verification"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "S3-REPLAY",
+      "claim": "只读重放同一 pinned 历史输入",
+      "doneMeans": "两条 arm 仅 prompt 形态不同；重复运行可复算 bytes、tokens、digest 和 finding 对比。",
+      "requiredEvidence": [
+        "deterministic_replay_test",
+        "same_input_parity_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "S3-LEDGER",
+      "claim": "隔离记录 usage/cache 与实验 finding",
+      "doneMeans": "实验 ledger 分列 assembled、known dispatch、provider/cache availability、attempt、版本与 findings，且明确 gateEvidence=false。",
+      "requiredEvidence": [
+        "ledger_schema_test",
+        "availability_semantics_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "S3-FAIL-CLOSED",
+      "claim": "不可重建时 INCONCLUSIVE 且生产证据零漂移",
+      "doneMeans": "缺失、篡改、版本偏差、partial usage 和 retry 对抗场景均停止召回结论；运行前后生产 Story evidence 摘要完全相同。",
+      "requiredEvidence": [
+        "tamper_negative_tests",
+        "production_evidence_no_drift_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-19T01:37:16.645Z",
+  "updatedAt": "2026-07-19T01:37:21.799Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260719013721",
+    "acceptedInterpretationHash": "sha256:ff31280c103d8eb7a79b0be989759041207b1cf7028910f3b8093edba81a2ac8",
+    "acceptedAt": "2026-07-19T01:37:21.799Z"
+  }
+}
