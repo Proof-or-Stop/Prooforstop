@@ -294,6 +294,29 @@
       ],
       "signatureTag": "missing|ts|code-drift-f012",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-015",
+      "desc": "doc-promise-undelivered: review_run_start does not yet make Prompt Envelope plus ReviewRun persistence one fully serialized transaction across all producers. handlers/review-run.ts wraps reviewer starts in withMkdirTicketLock, but its nested prompt-envelopes.json write still uses the old fixed-path withMkdirLock; handlers/agent-prompt.ts is a second allowed all-phase Story-aware writer to the same prompt-envelopes.json and independently uses that same fixed-path lock without the outer reviewer ticket. With a stale prompt-envelopes.lock, one review_run_start and one owner agent_prompt can both classify dead A; one removes A and acquires replacement B, then the delayed reclaimer removes B at the reused path, so both read-modify-write sections overlap. The later write can omit the review-run envelope after review_run_start already verified it and then persist a signed ReviewRun that REVIEW/quorum rejects for missing envelope. The new ABA smoke exercises acquireMkdirTicketLock directly only and never covers this mixed-producer boundary. All prompt-envelopes writers must share an identity-safe lock/transaction boundary, and the deterministic regression must include review_run_start versus Story-aware agent_prompt.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T10:48:50.457Z",
+      "reviewRound": "2026-07-19T10:45:46.587Z",
+      "reviewRunId": "B-235e:RR-029",
+      "_hash": "c4f74198e0e6d2ae54bb2e24102a41945a05e6c2d3b98fc0e4bc8543d1c882fa",
+      "files": [
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/handlers/agent-prompt.ts",
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
