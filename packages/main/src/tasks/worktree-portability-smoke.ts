@@ -23,9 +23,15 @@
  *            different logical cwd still mismatches.
  *   F-002    varying ONLY the logical cwd (command/args/shell/env fixed) changes the
  *            digest — a regression dropping cwd from the payload would be caught.
- *   F-003    an ABSOLUTE in-repo cwd digests identically across two worktree roots
- *            (shared-root anchored), and an absolute path equal to the workspace root
- *            normalizes identically to a relative '.'.
+ *   F-005    the digest binds the EXECUTED cwd, so a command configured for one cwd
+ *            but run at another digests to where it really ran and is caught by
+ *            receipt coverage (receipt-cwd-mismatch) while staying digest-consistent.
+ *   F-006    CORRESPONDING absolute in-workspace cwds (built relative to EACH worktree
+ *            root, anchored at each projectRoot) digest identically; an out-of-
+ *            workspace absolute cwd keeps a stable '..'-prefixed logical cwd
+ *            (documented inherent limitation), never anchored at the shared root.
+ *   F-007    the lifecycle-control runtime status probe resolves the SAME shared-root
+ *            validation lock path across two worktrees (no worktree-local divergence).
  *
  * Prints ✓/✗ per check; exits non-zero on the first failure; final line
  * "worktree-portability smoke passed".
@@ -43,7 +49,10 @@ import {
   validateCommandSpecDigestCoverage,
   validateRequiredReceiptCoverage,
 } from '../core/done-required-validation.js';
+import { projectRuntimeClosure } from '../core/lifecycle-control/runtime/index.js';
+import { StoryStore } from '../core/store.js';
 import type { DoneRequiredCommandReceipt, ValidationCommand } from '../core/validation-types.js';
+import type { StoryInfo } from '../core/types.js';
 
 const cleanups: Array<() => void> = [];
 function cleanupAll(): void {
@@ -115,6 +124,58 @@ try {
     'CHK-001 non-git dir falls back to root without throwing',
     !nonGitThrew && nonGitLock.startsWith(nonGit),
     nonGitThrew ? 'threw' : nonGitLock,
+  );
+
+  // ── F-007: lifecycle-control runtime probe uses the SHARED lock root ─────────
+  // The runtime closure's validationLock status is derived from a lock PATH. That
+  // path used to be hand-rolled off each worktree's OWN root, so a linked worktree
+  // reported a genuinely-held lock as 'free', silently defeating cross-worktree
+  // lock visibility. Prove the probe run FROM the worktree now observes a lock held
+  // at the shared (main) root — i.e. it resolves the same canonical path that
+  // validationExecutionLockPath returns.
+  const worktreeStore = new StoryStore(worktreeRoot);
+  const runtimeStory: StoryInfo = {
+    storyId: STORY,
+    name: 'worktree-portability',
+    title: 'Worktree portability runtime lock probe',
+    description: 'Synthetic story for F-007 cross-worktree validation-lock visibility.',
+    type: 'chore',
+    phase: 'DEV',
+    priority: 'medium',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    startedAt: '2026-01-01T00:00:00.000Z',
+    endedAt: null,
+  };
+  worktreeStore.writeStory(STORY, runtimeStory);
+  worktreeStore.writeChecklist(STORY, {
+    items: [{ id: 'CHK-001', title: 'x', context: 'x', status: 'in_progress', startTime: '2026-01-01T00:00:00.000Z', endTime: null }],
+  });
+
+  const freeRow = projectRuntimeClosure(worktreeStore, worktreeRoot, { storyId: STORY }).stories.find((row) => row.storyId === STORY);
+  check(
+    'F-007 runtime closure resolves the story row for the worktree probe',
+    Boolean(freeRow),
+    'no B-port row projected',
+  );
+  check(
+    'F-007 with no lock held the worktree runtime probe reports validationLock free',
+    freeRow?.locks.validationLock === 'free',
+    String(freeRow?.locks.validationLock),
+  );
+
+  // Hold the lock at the SHARED (main-root) canonical path.
+  const sharedLockPath = validationExecutionLockPath(mainRoot, STORY);
+  check(
+    'F-007 shared validation lock path is anchored at the main root, not the worktree',
+    sharedLockPath.startsWith(mainRoot) && !sharedLockPath.includes('.worktrees'),
+    sharedLockPath,
+  );
+  mkdirSync(sharedLockPath, { recursive: true });
+  const heldRow = projectRuntimeClosure(worktreeStore, worktreeRoot, { storyId: STORY }).stories.find((row) => row.storyId === STORY);
+  check(
+    'F-007 a lock held at the shared root is SEEN as active by the WORKTREE runtime probe (hand-rolled worktree-local path reported free)',
+    heldRow?.locks.validationLock === 'active',
+    String(heldRow?.locks.validationLock),
   );
 
   // ── CHK-002: repo-relative logical cwd in the digest ────────────────────────
@@ -199,29 +260,104 @@ try {
     `${digDot} vs ${digSub}`,
   );
 
-  // ── F-003: absolute in-repo cwd is shared-root-relative and portable ────────
-  const absSub = join(mainRoot, 'packages', 'main'); // absolute path inside the repo
-  const absSubCmd: ValidationCommand = { label: 'abs', command: 'npm', args: ['run', 'build'], cwd: absSub, shell: false, env: {} };
-  const absEnvMain = buildDoneRequiredCommandSpecEnvelope(mainRoot, absSubCmd);
-  const absEnvWorktree = buildDoneRequiredCommandSpecEnvelope(worktreeRoot, absSubCmd);
+  // ── F-006: CORRESPONDING absolute in-workspace cwds are portable ────────────
+  // The absolute cwd is built RELATIVE TO EACH ROOT — the real physical path a
+  // command would run at in THAT worktree — not one root's path reused for both
+  // (which is what the previous smoke did, so it never tested cross-worktree
+  // absolute paths). Anchored at each projectRoot, both map to the SAME logical
+  // 'packages/main', so the digests MUST be equal. The reverted shared-root
+  // anchoring would relativize the worktree's path to '.worktrees/B-port/…'.
+  const absSubMain = join(mainRoot, 'packages', 'main');
+  const absSubWorktree = join(worktreeRoot, 'packages', 'main');
+  const absEnvMain = buildDoneRequiredCommandSpecEnvelope(mainRoot, {
+    label: 'abs', command: 'npm', args: ['run', 'build'], cwd: absSubMain, shell: false, env: {},
+  });
+  const absEnvWorktree = buildDoneRequiredCommandSpecEnvelope(worktreeRoot, {
+    label: 'abs', command: 'npm', args: ['run', 'build'], cwd: absSubWorktree, shell: false, env: {},
+  });
   check(
-    'F-003 absolute in-repo cwd digests identically across two worktree roots',
+    'F-006 corresponding absolute in-workspace cwds digest identically across two worktree roots',
     absEnvMain.digest === absEnvWorktree.digest,
-    `${absEnvMain.digest} vs ${absEnvWorktree.digest}`,
+    `${absEnvMain.digest} (${absEnvMain.cwd}) vs ${absEnvWorktree.digest} (${absEnvWorktree.cwd})`,
   );
   check(
-    'F-003 absolute in-repo cwd normalizes to a shared-root-relative logical cwd (packages/main)',
+    'F-006 absolute in-workspace cwd normalizes to a projectRoot-relative logical cwd (packages/main)',
     absEnvMain.cwd === 'packages/main' && absEnvWorktree.cwd === 'packages/main',
     `${absEnvMain.cwd} / ${absEnvWorktree.cwd}`,
   );
-  // An absolute path equal to the workspace (main) root normalizes to the SAME
-  // canonical '.' as a relative '.', so the two forms digest identically.
-  const absRootCmd: ValidationCommand = { label: 'absroot', command: 'npm', args: ['test'], cwd: mainRoot, shell: false, env: {} };
-  const absRootEnv = buildDoneRequiredCommandSpecEnvelope(mainRoot, absRootCmd);
   check(
-    'F-003 absolute path equal to the workspace root normalizes identically to relative `.`',
+    'F-006 worktree absolute cwd is NOT anchored at the shared root (no .worktrees prefix)',
+    !absEnvWorktree.cwd.includes('.worktrees'),
+    absEnvWorktree.cwd,
+  );
+  // An absolute path equal to the workspace root normalizes to the SAME canonical
+  // '.' as a relative '.', so the two forms digest identically.
+  const absRootEnv = buildDoneRequiredCommandSpecEnvelope(mainRoot, {
+    label: 'absroot', command: 'npm', args: ['test'], cwd: mainRoot, shell: false, env: {},
+  });
+  check(
+    'F-006 absolute path equal to the workspace root normalizes identically to relative `.`',
     absRootEnv.cwd === '.' && absRootEnv.digest === envMain.digest,
     `${absRootEnv.cwd} / ${absRootEnv.digest} vs ${envMain.digest}`,
+  );
+
+  // ── F-006: OUT-of-workspace absolute cwd — documented inherent limitation ────
+  // A cwd outside the story's workspace genuinely cannot be made cross-root
+  // portable. It must relativize to a STABLE '..'-prefixed representation (NOT
+  // force-anchored into an in-workspace 'packages/main'), and remain distinct from
+  // the in-workspace case.
+  const outsideAbs = join(base, 'external-tool'); // sibling of mainRoot, outside the repo
+  const outsideEnv = buildDoneRequiredCommandSpecEnvelope(mainRoot, {
+    label: 'outside', command: 'npm', args: ['test'], cwd: outsideAbs, shell: false, env: {},
+  });
+  check(
+    'F-006 out-of-workspace absolute cwd keeps a stable `..`-prefixed logical cwd (documented limitation)',
+    outsideEnv.cwd.startsWith('..') && outsideEnv.cwd !== 'packages/main' && outsideEnv.digest !== absEnvMain.digest,
+    outsideEnv.cwd,
+  );
+
+  // ── F-005: digest binds the EXECUTED cwd; configured-vs-executed drift caught ─
+  // Policy configures the command for 'packages/main', but the receipt records it
+  // actually running at the workspace ROOT. The receipt is internally consistent
+  // (its digest faithfully binds the executed root), yet coverage MUST reject it
+  // because executed('.') != configured('packages/main').
+  const configuredCommand: ValidationCommand = { label: 'suite', command: 'npm', args: ['test'], cwd: 'packages/main', shell: false, env: {} };
+  const ranAtRootSpec = buildDoneRequiredCommandSpecEnvelope(
+    mainRoot,
+    configuredCommand,
+    { command: 'npm', args: ['test'], shell: false, cwd: mainRoot }, // EXECUTED at root, not packages/main
+  );
+  check(
+    'F-005 command-spec digest binds the EXECUTED cwd (root -> `.`), not the configured `packages/main`',
+    ranAtRootSpec.cwd === '.',
+    ranAtRootSpec.cwd,
+  );
+  const ranAtRootReceipt: DoneRequiredCommandReceipt = {
+    label: 'suite',
+    command: 'npm',
+    args: ['test'],
+    cwd: mainRoot, // executed physical cwd = workspace root
+    commandSpec: ranAtRootSpec,
+    shell: false,
+    status: 'PASS',
+    exitCode: 0,
+    durationMs: 1,
+    outputDigest: 'x',
+    outputTail: '',
+    startedAt: '1970-01-01T00:00:00.000Z',
+    endedAt: '1970-01-01T00:00:00.001Z',
+  };
+  const f005DigestCoverage = validateCommandSpecDigestCoverage({ receipts: [ranAtRootReceipt] }, mainRoot, [configuredCommand]);
+  check(
+    'F-005 executed-cwd receipt stays internally digest-consistent (honest binding of where it ran)',
+    f005DigestCoverage.valid === true,
+    JSON.stringify(f005DigestCoverage.reasons),
+  );
+  const f005CoverageReasons = validateRequiredReceiptCoverage({ receipts: [ranAtRootReceipt] }, mainRoot, [configuredCommand]);
+  check(
+    'F-005 executed cwd differing from the configured cwd is caught (receipt-cwd-mismatch)',
+    f005CoverageReasons.some((reason) => reason.startsWith('receipt-cwd-mismatch')),
+    JSON.stringify(f005CoverageReasons),
   );
 
   // ── F-001: cross-root receipt coverage (receipt from worktree, verified under main) ──

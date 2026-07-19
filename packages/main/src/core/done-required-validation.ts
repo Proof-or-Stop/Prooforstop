@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { realpathSync } from 'node:fs';
-import { isAbsolute, relative, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { loadConfig, type LatticeConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import type { StoryStore } from './store.js';
@@ -20,7 +20,6 @@ import {
   resolveProofAdmissibilityPolicy,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
-import { resolveSharedLockRoot } from './validation-execution-lock.js';
 
 export const DONE_REQUIRED_EVIDENCE_FILE = 'done-required-evidence.json';
 export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'lattice.done-required-evidence' as const;
@@ -153,11 +152,15 @@ function commandSpecDigest(spec: Omit<DoneRequiredCommandSpecEnvelope, 'schema' 
 }
 
 /**
- * Portable (v2) command-spec envelope. The DIGESTED cwd is a repo-root-relative
- * LOGICAL cwd derived from the command's configured (relative) cwd, so the same
- * logical command digests identically across worktree/host roots. The physical
- * absolute workspace path is recorded separately (see CHK-003 `resolvedCwd`) as
- * NON-digested provenance.
+ * Portable (v2) command-spec envelope. The DIGESTED cwd is a workspace-root-
+ * relative LOGICAL cwd derived from the cwd the command ACTUALLY ran in
+ * (`executed.cwd` when present, else the configured cwd). Binding the executed
+ * cwd (F-005) means a command configured for one location but run somewhere else
+ * digests to where it really ran, and validateRequiredReceiptCoverage catches the
+ * divergence from the policy's configured cwd (receipt-cwd-mismatch). The same
+ * logical command still digests identically across worktree/host roots, and the
+ * physical absolute workspace path is recorded separately (see CHK-003
+ * `resolvedCwd`) as NON-digested provenance.
  */
 export function buildDoneRequiredCommandSpecEnvelope(
   projectRoot: string,
@@ -167,7 +170,7 @@ export function buildDoneRequiredCommandSpecEnvelope(
   const spec = {
     command: executed?.command ?? command.command,
     args: [...(executed?.args ?? command.args)],
-    cwd: repoRelativeLogicalCwd(projectRoot, command.cwd),
+    cwd: repoRelativeLogicalCwd(projectRoot, executed?.cwd ?? command.cwd),
     // Non-digested provenance: the real absolute workspace path the command ran
     // in. commandSpecDigestPayload intentionally omits it so it never affects
     // the portable digest (CHK-003).
@@ -376,57 +379,71 @@ function normalizedCommandCwd(projectRoot: string, cwd?: string): string {
 }
 
 /**
- * Repo-relative LOGICAL cwd for the portable command-spec digest. The anchor is
- * chosen so that BOTH a relative cwd AND an in-repo ABSOLUTE cwd map to the same
- * portable logical value in every worktree/host of the same story.
+ * Longest-existing-prefix realpath: resolves symlinks on the part of `p` that
+ * exists on disk (e.g. macOS /var -> /private/var) and re-appends any trailing
+ * segments that do not exist yet. Falls back to the input verbatim when nothing
+ * resolves. Used to symlink-normalize BOTH the anchor and an absolute cwd before
+ * relativizing, so a symlinked workspace root does not produce a spurious '..'.
+ */
+function canonicalizeExisting(p: string): string {
+  let current = p;
+  const tail: string[] = [];
+  // Bounded by path depth; dirname() reaches a fixed point at the filesystem root.
+  for (;;) {
+    try {
+      const real = realpathSync(current);
+      return tail.length ? join(real, ...tail.reverse()) : real;
+    } catch {
+      const parent = dirname(current);
+      if (parent === current) return p;
+      tail.push(basename(current));
+      current = parent;
+    }
+  }
+}
+
+/**
+ * Portable LOGICAL cwd for the command-spec digest, anchored at the STORY'S OWN
+ * workspace root (projectRoot) — NOT the shared git-common-dir root. Anchoring at
+ * projectRoot is what makes the same logical command portable across a story's
+ * worktrees/hosts:
  *
- * - RELATIVE (or empty) cwd: resolve against the current worktree root
- *   (projectRoot) and express it relative to that SAME root. This is
- *   root-independent by construction ('.' -> '.', 'packages/main' ->
- *   'packages/main'), because a worktree's checked-out tree root IS its
- *   projectRoot.
- * - ABSOLUTE cwd (allowed by the config parser): anchoring an absolute path at
- *   projectRoot would relativize the SAME literal string differently in each
- *   worktree (root vs '.worktrees/<id>/...'), reintroducing the non-portability
- *   bug (F-003). Instead anchor at the SHARED git-common-dir root, which is
- *   identical for the main worktree and every linked worktree, so an in-repo
- *   absolute path digests identically across worktrees. The shared root itself
- *   maps to the canonical '.', so an absolute path equal to the workspace root
- *   normalizes the same as a relative '.'.
+ * - RELATIVE (or empty) cwd: resolved against projectRoot and expressed relative
+ *   to that SAME root — root-independent by construction ('.' -> '.',
+ *   'packages/main' -> 'packages/main').
+ * - ABSOLUTE cwd INSIDE projectRoot: relativized against projectRoot, so the
+ *   CORRESPONDING physical path in EVERY worktree ('<root>/packages/main') maps to
+ *   the same portable logical value ('packages/main'). Anchoring an in-workspace
+ *   absolute path at the SHARED root instead relativized the SAME logical location
+ *   differently per worktree ('.worktrees/<id>/packages/main' vs 'packages/main')
+ *   — that shared-root anchoring was the broken over-correction this replaces
+ *   (F-006). resolveSharedLockRoot stays in use for the LOCK path only (CHK-001).
+ * - ABSOLUTE cwd OUTSIDE projectRoot (relative result starts with '..', e.g.
+ *   '/opt/tool'): it points outside this story's workspace and genuinely CANNOT be
+ *   made cross-root portable. We keep the STABLE relative representation (which
+ *   starts with '..'); this is an accepted, documented limitation, not something
+ *   to force-anchor into an in-workspace path.
  *
- * Forward-slash normalized; '.' when equal to the anchor.
+ * Symlink-safe: for an absolute cwd, projectRoot and the cwd are realpath-
+ * canonicalized (longest existing prefix) before relativizing, so a symlinked
+ * temp/workspace root (macOS /var -> /private/var) does not yield a spurious '..'.
+ *
+ * Forward-slash normalized; '.' when equal to projectRoot.
  */
 function repoRelativeLogicalCwd(projectRoot: string, cwd?: string): string {
   if (!cwd || !isAbsolute(cwd)) {
+    // Relative/empty: both sides live in projectRoot's OWN path space, so a plain
+    // resolve+relativize is exact and needs no symlink canonicalization.
     const absolute = resolve(projectRoot, cwd ?? '');
     const rel = relative(projectRoot, absolute).replace(/\\/g, '/');
     return rel === '' ? '.' : rel;
   }
-  const rel = relative(sharedRootInProjectSpace(projectRoot), cwd).replace(/\\/g, '/');
+  // Absolute: the configured/executed path may live in a different symlink space
+  // than projectRoot, so canonicalize BOTH before relativizing against projectRoot.
+  const anchor = canonicalizeExisting(projectRoot);
+  const target = canonicalizeExisting(cwd);
+  const rel = relative(anchor, target).replace(/\\/g, '/');
   return rel === '' ? '.' : rel;
-}
-
-/**
- * The shared git-common-dir root, expressed in projectRoot's OWN path space.
- *
- * resolveSharedLockRoot realpath-resolves symlinks (needed for stable lock
- * identity), but the projectRoot and an absolute config cwd we relativize
- * against it may be symlinked paths (e.g. macOS /var -> /private/var). Comparing
- * a realpath'd anchor against a symlinked path yields a broken '../..' relative
- * path. So we derive the shared root's structural depth below projectRoot in
- * realpath space, then re-apply that pure `..` offset to the ORIGINAL projectRoot
- * string — keeping the anchor in the caller's path space while still resolving to
- * the same shared location in every worktree.
- */
-function sharedRootInProjectSpace(projectRoot: string): string {
-  try {
-    const sharedReal = realpathSync(resolveSharedLockRoot(projectRoot));
-    const projectReal = realpathSync(projectRoot);
-    const upToShared = relative(projectReal, sharedReal);
-    return upToShared === '' ? projectRoot : resolve(projectRoot, upToShared);
-  } catch {
-    return projectRoot;
-  }
 }
 
 /**
