@@ -21,6 +21,7 @@ import {
   PROMPT_ENVELOPE_ROLLOUT_VERSION,
   promptRoleContract,
   resolvePromptEnvelopeRolloutMode,
+  resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { createAgentPromptHandlers, findRoleEntry } from '../handlers/agent-prompt.js';
@@ -29,6 +30,13 @@ import { isReviewerAgent, resolveReviewRunLane } from '../core/review-run.js';
 import { parseForceReviewers } from '../handlers/reviewer-list.js';
 
 const role = promptRoleContract('lattice-review-quality');
+const fullRollout = {
+  version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+  roles: {
+    'lattice-review-quality': 'full-envelope',
+    'lattice-review-behavior': 'full-envelope',
+  },
+} as const;
 const taskContext: FullTaskContext = {
   schemaVersion: 'proofbound.full-task-context.v1',
   storyId: 'B-envelope',
@@ -73,7 +81,7 @@ const taskContext: FullTaskContext = {
 const common = {
   roleContract: role,
   runtimeContract: BASELINE_RUNTIME_CONTRACT,
-  rolePrompt: readPromptTemplate(findRoleEntry(role.roleId)!),
+  rolePrompt: resolvePromptRoleBody(role.roleId, fullRollout).body,
   taskContext,
   dispatchKind: 'review-run' as const,
   reviewRunId: 'B-envelope:RR-001',
@@ -218,7 +226,7 @@ assert.throws(
 assert.throws(
   () => assembleFullPromptEnvelope({
     ...common,
-    rolePrompt: readPromptTemplate(findRoleEntry('lattice-review-behavior')!),
+    rolePrompt: resolvePromptRoleBody('lattice-review-behavior', fullRollout).body,
     createdAt: '2026-07-18T00:00:01.000Z',
   }),
   /renderDigest does not match/,

@@ -18,14 +18,13 @@
 
 import {
   readPromptRegistry,
-  readPromptTemplate,
   type PromptRegistryEntry,
 } from '../core/prompt-registry.js';
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import {
   promptRoleContract,
-  resolvePromptEnvelopeRolloutMode,
+  resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
@@ -96,16 +95,16 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         );
       }
 
-      const rolePrompt = readPromptTemplate(entry);
+      const resolvedRoleBody = resolvePromptRoleBody(
+        role,
+        ctx ? loadConfig(ctx.root).promptEnvelope : undefined,
+      );
+      const rolePrompt = resolvedRoleBody.body;
       if (!args.storyId || !ctx) return rolePrompt;
 
-      const mode = resolvePromptEnvelopeRolloutMode(
-        role,
-        loadConfig(ctx.root).promptEnvelope,
-      );
       // Rollback is exact: a disabled role follows the original no-Story path
       // even when a host still supplies storyId/format during rollout.
-      if (mode === 'legacy-full-context') return rolePrompt;
+      if (resolvedRoleBody.mode === 'legacy-full-context') return rolePrompt;
 
       const storyId = args.storyId.trim();
       const leaseResult = acquireOrRefreshOwnerLease(ctx.store.storyDirPath(storyId), {
@@ -161,7 +160,9 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       if (args.format === 'json') {
         return canonicalJsonStringify({
           schemaVersion: 'proofbound.agent-prompt-response.v1',
-          mode,
+          mode: resolvedRoleBody.mode,
+          roleBodyDigest: resolvedRoleBody.bodyDigest,
+          legacyBytesRestored: resolvedRoleBody.legacyBytesRestored,
           auditOnly: true,
           canMintReviewEvidence: false,
           prompt: assembly.prompt,

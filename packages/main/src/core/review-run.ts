@@ -39,13 +39,14 @@ import {
   reviewerDispatchPromptDigest,
 } from './prompt-contracts.js';
 import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
-import { readPromptRegistry, readPromptTemplate, type PromptHost } from './prompt-registry.js';
+import { readPromptRegistry, type PromptHost } from './prompt-registry.js';
 import { loadConfig } from './config.js';
 import {
   isPromptRoleEligibleForReviewEvidence,
   promptRoleContract,
   reviewerHostRenderIdentity,
   resolvePromptEnvelopeRolloutMode,
+  resolvePromptRoleBody,
 } from './prompt-role-contract-registry.js';
 import { reviewIncrementalContext } from './review-incremental-context.js';
 
@@ -548,7 +549,11 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   }
   let hostIdentity;
   try {
-    hostIdentity = reviewerHostRenderIdentity(args.projectRoot, args.lane, hostRenderHost);
+    const rolloutMode = resolvePromptEnvelopeRolloutMode(
+      args.lane,
+      loadConfig(args.projectRoot).promptEnvelope,
+    );
+    hostIdentity = reviewerHostRenderIdentity(args.projectRoot, args.lane, hostRenderHost, rolloutMode);
   } catch (error) {
     return {
       ok: false,
@@ -613,18 +618,29 @@ export function verifyReviewRunPromptEnvelope(
   }
   const promptEntry = readPromptRegistry().agents.find(entry => entry.agentId === run.lane);
   if (!promptEntry) return { ok: false, reason: `no canonical prompt registry entry for ReviewRun lane ${run.lane}` };
+  const metadataRoot = run.workspaceBinding?.metadataRoot
+    || run.workspaceBinding?.signedWorkspaceRoot
+    || process.cwd();
   let roleContract;
+  let resolvedRoleBody;
   try {
     roleContract = promptRoleContract(run.lane);
+    resolvedRoleBody = resolvePromptRoleBody(
+      run.lane,
+      loadConfig(metadataRoot).promptEnvelope,
+    );
   } catch {
     return { ok: false, reason: `no canonical Role Contract for ReviewRun lane ${run.lane}` };
+  }
+  if (resolvedRoleBody.mode !== 'full-envelope') {
+    return { ok: false, reason: `Prompt Envelope cannot be consumed while ${run.lane} is ${resolvedRoleBody.mode}` };
   }
   const dispatchBinding = verifyCurrentReviewerDispatchBinding({
     store,
     storyId: run.storyId,
     lane: run.lane,
     reviewRound: run.reviewRound,
-    projectRoot: run.workspaceBinding?.metadataRoot || run.workspaceBinding?.signedWorkspaceRoot || process.cwd(),
+    projectRoot: metadataRoot,
   });
   if (!dispatchBinding.ok) return dispatchBinding;
   const assemblyValid = envelope.contextMode === 'incremental'
@@ -633,7 +649,7 @@ export function verifyReviewRunPromptEnvelope(
       envelope,
       runtimeContract: BASELINE_RUNTIME_CONTRACT,
       roleContract,
-      rolePrompt: readPromptTemplate(promptEntry),
+      rolePrompt: resolvedRoleBody.body,
       dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
       hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
     })
@@ -642,7 +658,7 @@ export function verifyReviewRunPromptEnvelope(
       envelope,
       runtimeContract: BASELINE_RUNTIME_CONTRACT,
       roleContract,
-      rolePrompt: readPromptTemplate(promptEntry),
+      rolePrompt: resolvedRoleBody.body,
       dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
       hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
     });

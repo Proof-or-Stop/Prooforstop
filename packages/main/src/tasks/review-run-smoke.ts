@@ -2,9 +2,11 @@ import assert from 'node:assert/strict';
 
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { assembleFullPromptEnvelope } from '../core/prompt-envelope.js';
-import { promptRoleContract } from '../core/prompt-role-contract-registry.js';
-import { reviewerHostRenderIdentity } from '../core/prompt-role-contract-registry.js';
-import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
+import {
+  promptRoleContract,
+  resolvePromptRoleBody,
+  reviewerHostRenderIdentity,
+} from '../core/prompt-role-contract-registry.js';
 import {
   reviewerDispatchBindingDigest,
   reviewerDispatchPromptDigest,
@@ -17,11 +19,13 @@ import {
 import { signReviewPass, verifyReviewPass } from '../core/finding-verify.js';
 import type { ReviewPass, ReviewRun } from '../core/types.js';
 
-const qualityPrompt = readPromptTemplate(
-  readPromptRegistry().agents.find(entry => entry.agentId === 'lattice-review-quality')!,
-);
+const fullRollout = {
+  version: 'proofbound.prompt-envelope-rollout.v1',
+  roles: { 'lattice-review-quality': 'full-envelope' },
+} as const;
+const qualityPrompt = resolvePromptRoleBody('lattice-review-quality', fullRollout).body;
 const dispatchPrompt = 'As lattice-review-quality, review story B-run in full.';
-const hostIdentity = reviewerHostRenderIdentity(process.cwd(), 'lattice-review-quality');
+const hostIdentity = reviewerHostRenderIdentity(process.cwd(), 'lattice-review-quality', 'codex', 'full-envelope');
 const dispatchPromptDigest = reviewerDispatchPromptDigest(dispatchPrompt);
 const dispatchBindingDigest = reviewerDispatchBindingDigest({
   storyId: 'B-run',

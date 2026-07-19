@@ -14,6 +14,7 @@ import {
   readPromptRegistry,
   readPromptTemplate,
   renderPromptEntryForHost,
+  renderPromptForHost,
   resolvePromptTemplateBody,
   type PromptHost,
   type PromptRegistrySnapshot,
@@ -35,6 +36,7 @@ export interface ResolvedPromptRoleBody {
 export interface ReviewerHostRenderIdentity {
   schemaVersion: 'proofbound.reviewer-host-render-identity.v1';
   roleId: string;
+  rolloutMode: PromptEnvelopeRolloutMode;
   host: PromptHost;
   source: 'full-asset' | 'package-registry';
   packageTemplateDigest: string;
@@ -130,6 +132,7 @@ export function reviewerHostRenderIdentity(
   projectRoot: string,
   roleId: string,
   host: PromptHost = 'codex',
+  rolloutMode: PromptEnvelopeRolloutMode = 'full-envelope',
 ): ReviewerHostRenderIdentity {
   const registry = readPromptRegistry();
   const entry = registry.agents.find(candidate => candidate.agentId === roleId);
@@ -137,20 +140,22 @@ export function reviewerHostRenderIdentity(
   if (!isPromptRoleEligibleForReviewEvidence(roleId)) {
     throw new PromptRoleContractRegistryError(`role "${roleId}" is not eligible for reviewer host rendering`);
   }
-  const packageTemplate = readPromptTemplate(entry);
+  const packageTemplate = resolvePromptTemplateBody(entry, rolloutMode);
   const expectedHostRender = renderPromptEntryForHost(entry, host);
   const source = reviewerHostRenderSource(projectRoot, host, entry.file);
   const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
-  const hostRender = source === 'package-registry'
-    ? expectedHostRender
-    : assertExactHostAsset(
+  if (source === 'full-asset') {
+    assertExactHostAsset(
       join(projectRoot, relDir, entry.file),
       expectedHostRender,
       host,
     );
+  }
+  const hostRender = renderPromptForHost(packageTemplate, host);
   const semantic = {
     schemaVersion: 'proofbound.reviewer-host-render-identity.v1' as const,
     roleId,
+    rolloutMode,
     host,
     source,
     packageTemplateDigest: domainSeparatedDigest('reviewer-package-template.raw-utf8.v1', packageTemplate),
@@ -526,14 +531,14 @@ export function resolvePromptEnvelopeRolloutMode(
   const roles = record.roles as Record<string, unknown>;
   for (const key of Object.keys(roles)) {
     if (!PROMPT_ROLE_CONTRACT_BY_ID.has(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.roles contains unknown role "${key}"`);
-    if (!isModularReviewerRoleId(key)) {
-      throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} is outside the five-role modular rollout`);
-    }
     if (!['legacy-full-context', 'full-envelope'].includes(roles[key] as string)) {
       throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} has unsupported mode`);
     }
     if (roles[key] === 'full-envelope' && promptRoleContract(key).status !== 'active') {
       throw new PromptRoleContractRegistryError(`${key} is ${promptRoleContract(key).status} and cannot enable full-envelope`);
+    }
+    if (!isModularReviewerRoleId(key)) {
+      throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} is outside the five-role modular rollout`);
     }
   }
   if (Object.prototype.hasOwnProperty.call(roles, '__proto__') || Object.prototype.hasOwnProperty.call(roles, 'constructor')) {

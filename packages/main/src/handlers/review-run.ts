@@ -25,9 +25,9 @@ import {
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import {
   promptRoleContract,
-  resolvePromptEnvelopeRolloutMode,
+  resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
-import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
+import { readPromptRegistry } from '../core/prompt-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
   assembleConditionalReviewPromptEnvelope,
@@ -178,18 +178,19 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           return match ? Math.max(max, Number(match[1])) : max;
         }, 0) + 1;
         const reviewRunId = `${args.storyId}:RR-${String(nextNum).padStart(3, '0')}`;
-        const rolloutMode = resolvePromptEnvelopeRolloutMode(
+        const resolvedRoleBody = resolvePromptRoleBody(
           lane,
           loadConfig(workspace.metadataRoot || ctx.root).promptEnvelope,
         );
         const promptEntry = readPromptRegistry().agents.find(entry => entry.agentId === lane);
         if (!promptEntry) throw new Error(`review_run_start: no canonical prompt registry entry for ${lane}`);
-        const canonicalRolePrompt = readPromptTemplate(promptEntry);
+        const canonicalRolePrompt = resolvedRoleBody.body;
         let promptHash = hashReviewPrompt(canonicalRolePrompt);
         let envelopeId: string | undefined;
         let assembledPrompt: string | undefined;
         let promptContextNote = 'legacy-full-context';
-        if (rolloutMode === 'full-envelope') {
+        let promptBudgetNote = '';
+        if (resolvedRoleBody.mode === 'full-envelope') {
           const dispatchBinding = verifyCurrentReviewerDispatchBinding({
             store,
             storyId: args.storyId,
@@ -259,6 +260,10 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           assembledPrompt = assembly.prompt;
           promptHash = assembly.envelope.assembledPromptDigest;
           promptContextNote = `${assembly.envelope.contextMode}/${assembly.selectionReason}`;
+          promptBudgetNote =
+            `, budget full=${assembly.envelope.fullContextBytes ?? 'unavailable'}` +
+            `/incremental=${assembly.envelope.incrementalContextBytes ?? 'unavailable'}` +
+            `/violation=${assembly.envelope.budgetViolation ?? 'none'}`;
         }
         const run: ReviewRun = {
           reviewRunId,
@@ -314,8 +319,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           : '';
         const storyHashNote = storyFilesHash ? `, story ${storyFilesHash.slice(0, 7)}` : '';
         const envelopeNote = envelopeId
-          ? `, envelope ${envelopeId.slice(0, 7)}, context ${promptContextNote}`
-          : ', legacy-full-context';
+          ? `, rollout ${resolvedRoleBody.mode}, roleBody ${resolvedRoleBody.bodyDigest.slice(0, 7)}, envelope ${envelopeId.slice(0, 7)}, context ${promptContextNote}${promptBudgetNote}`
+          : `, rollout legacy-full-context, legacyBytesRestored=${resolvedRoleBody.legacyBytesRestored}`;
         const escalationNote = reviewerEscalationReason
           ? `, reviewer escalation: ${reviewerEscalationReason}`
           : '';

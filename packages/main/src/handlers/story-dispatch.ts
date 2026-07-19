@@ -349,7 +349,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     const storyDir = `${store.storyDirRel()}/${args.storyId}`;
     const routed = store.readCandidateSpecSet(args.storyId);
     const lines: string[] = [
-      `As ${entry.canonicalName}, review story ${args.storyId} in full.`,
+      `As ${entry.canonicalName}, review story ${args.storyId} using the trusted context selected by review_run_start.`,
       '',
       `Working directory (subagent must cd here): ${root}`,
       '',
@@ -769,7 +769,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
             throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
           }
           const hostRenderHost = currentReviewerPromptHost();
-          const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost);
+          const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost, envelopeMode);
           const dispatchPromptDigest = reviewerDispatchPromptDigest(result.prompt);
           const dispatchBindingDigest = reviewerDispatchBindingDigest({
             storyId: args.storyId,
