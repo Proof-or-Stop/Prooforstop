@@ -128,8 +128,8 @@
       "_hash": "64395247490e139279927ca93c3c5f1b536114b4f9fb44d521de6cb9603e61a7",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
-      "resolvedReason": "rootCause: quorum previously inferred append ownership across a separate pre-write check, leaving a TOCTOU window where a foreign row could occupy the guessed offset. fix: 55f6d658 made appendProcessEvent return writer-owned start/end/eventBytes under the process-event lock; e95d88cf then moved every remaining production process-events writer onto the same locked raw/record primitives, eliminating the non-cooperative gap. REDs: 1f5cbb39 and 7ec6e7d7. verification: static incremental review confirms exact writer identity, timestamp preservation and atomic cross-host batch bytes; current focused quorum-submit-smoke PASS 32/32 including shared-lock production writer guard and writer-boundary rollback.",
-      "resolvedAt": "2026-07-19T00:17:44.430Z",
+      "resolvedReason": "rootCause: quorum inferred append ownership from pre/post file positions, leaving TOCTOU windows around the actual writer. fix: appendProcessEvent now returns exact start/end/eventBytes from inside the shared mkdir lock; verdict writer returns that identity directly; all production process-event writers use the same lock. verification: writer-boundary foreign injection remains preserved, no host residue/JSON remains, build PASS and focused quorum smoke PASS 32/32 at e95d88cf.",
+      "resolvedAt": "2026-07-19T00:18:17.504Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
