@@ -654,11 +654,29 @@ export function projectDoneRequiredReceiptToEnvironment(
   if (receipt.commandSpec.shell && !isNonEmpty(receipt.shellExecutableDigest)) {
     throw new Error('command_spec_mismatch: shell execution requires executor-owned shell executable identity');
   }
+  const commandSpecCwd = (() => {
+    if (!isNonEmpty(receipt.commandSpec.cwd)) {
+      throw new Error('command_spec_mismatch: DONE-required CommandSpec cwd is required');
+    }
+    switch (receipt.commandSpec.schema) {
+      case 'lattice.command-spec.v2':
+        // v2 owns a repo-relative logical cwd. The top-level receipt.cwd and
+        // commandSpec.resolvedCwd are physical execution provenance and must
+        // not enter the portable EEA invocation/command identity.
+        return receipt.commandSpec.cwd;
+      case 'lattice.command-spec.v1':
+        // Legacy v1 digested its absolute cwd. Preserve that identity exactly
+        // for pre-existing receipts; v1 was never cross-root portable.
+        return receipt.commandSpec.cwd;
+      default:
+        throw new Error(`command_spec_mismatch: unsupported DONE-required CommandSpec schema ${String((receipt.commandSpec as { schema?: unknown }).schema)}`);
+    }
+  })();
   const commandSpec: EvidenceEnvironmentCommandSpec = Object.freeze({
     commandId: receipt.commandSpec.digest,
     executable: receipt.command,
     args: Object.freeze([...receipt.args]),
-    cwd: receipt.cwd,
+    cwd: commandSpecCwd,
     shell: receipt.commandSpec.shell,
     processEnvironmentDigest: receipt.effectiveEnvironmentDigest,
     executableDigest: receipt.executableDigest ?? null,

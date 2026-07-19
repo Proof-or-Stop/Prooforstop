@@ -433,6 +433,7 @@ function expectBlock(
   });
   assert.equal(projected.descriptor.mode, 'execute-local');
   assert.equal(projected.invocation.commandSpec?.policyAuthorized, true);
+  assert.equal(projected.invocation.commandSpec?.cwd, '.', 'v2 EEA identity must use the portable logical cwd');
   assert.equal(
     normalizeEvidenceEnvironmentReceipt(
       projected.descriptor,
@@ -441,6 +442,58 @@ function expectBlock(
       new Date('2026-07-19T00:30:00.000Z'),
     ).ok,
     true,
+  );
+  const otherRootProjected = projectDoneRequiredReceiptToEnvironment({
+    ...doneReceipt,
+    cwd: '/other-worktree',
+    commandSpec: {
+      ...doneReceipt.commandSpec!,
+      resolvedCwd: '/other-worktree',
+    },
+  }, {
+    invocationId: 'done-invocation',
+    subjectId: 'B-smoke',
+    subjectDigest: 'subject:sha256:done',
+    policyId: 'done-required',
+    policyDigest: 'policy:sha256:done',
+    requestedAt: '2026-07-19T00:00:00.000Z',
+    freshnessDeadline: '2026-07-19T01:00:00.000Z',
+  });
+  assert.equal(otherRootProjected.invocation.commandSpec?.cwd, '.');
+  assert.equal(
+    otherRootProjected.receipt.commandSpecDigest,
+    projected.receipt.commandSpecDigest,
+    'physical cwd provenance must not alter the portable EEA command identity',
+  );
+  assert.equal(
+    otherRootProjected.invocation.invocationDigest,
+    projected.invocation.invocationDigest,
+    'equivalent v2 executions under different physical roots must share EEA invocation identity',
+  );
+  const logicalCwdTamper = projectDoneRequiredReceiptToEnvironment({
+    ...doneReceipt,
+    commandSpec: {
+      ...doneReceipt.commandSpec!,
+      cwd: 'packages/main',
+    },
+  }, {
+    invocationId: 'done-invocation',
+    subjectId: 'B-smoke',
+    subjectDigest: 'subject:sha256:done',
+    policyId: 'done-required',
+    policyDigest: 'policy:sha256:done',
+    requestedAt: '2026-07-19T00:00:00.000Z',
+    freshnessDeadline: '2026-07-19T01:00:00.000Z',
+  });
+  assert.notEqual(
+    logicalCwdTamper.receipt.commandSpecDigest,
+    projected.receipt.commandSpecDigest,
+    'logical cwd tampering must alter the EEA command identity',
+  );
+  assert.notEqual(
+    logicalCwdTamper.invocation.invocationDigest,
+    projected.invocation.invocationDigest,
+    'logical cwd tampering must alter the EEA invocation identity',
   );
   const legacyProjected = projectDoneRequiredReceiptToEnvironment({
     ...doneReceipt,
@@ -464,6 +517,56 @@ function expectBlock(
     freshnessDeadline: '2026-07-19T01:00:00.000Z',
   });
   assert.equal(legacyProjected.invocation.commandSpec?.policyAuthorized, true);
+  assert.equal(
+    legacyProjected.invocation.commandSpec?.cwd,
+    '/repo',
+    'legacy v1 keeps its absolute digested cwd identity',
+  );
+  const otherLegacyRootProjected = projectDoneRequiredReceiptToEnvironment({
+    ...doneReceipt,
+    cwd: '/other-worktree',
+    commandSpec: {
+      schema: 'lattice.command-spec.v1',
+      digest: 'other-legacy-command-spec-digest',
+      command: 'npm',
+      args: ['--prefix', 'packages/main', 'run', 'build'],
+      cwd: '/other-worktree',
+      shell: false,
+      env: {},
+      timeoutMs: 60_000,
+    },
+  }, {
+    invocationId: 'legacy-done-invocation',
+    subjectId: 'B-smoke',
+    subjectDigest: 'subject:sha256:done',
+    policyId: 'done-required',
+    policyDigest: 'policy:sha256:done',
+    requestedAt: '2026-07-19T00:00:00.000Z',
+    freshnessDeadline: '2026-07-19T01:00:00.000Z',
+  });
+  assert.notEqual(
+    otherLegacyRootProjected.invocation.invocationDigest,
+    legacyProjected.invocation.invocationDigest,
+    'legacy v1 absolute cwd remains intentionally non-portable',
+  );
+  assert.throws(
+    () => projectDoneRequiredReceiptToEnvironment({
+      ...doneReceipt,
+      commandSpec: {
+        ...doneReceipt.commandSpec!,
+        schema: 'lattice.command-spec.v3' as never,
+      },
+    }, {
+      invocationId: 'unsupported-command-spec',
+      subjectId: 'B-smoke',
+      subjectDigest: 'subject:sha256:done',
+      policyId: 'done-required',
+      policyDigest: 'policy:sha256:done',
+      requestedAt: '2026-07-19T00:00:00.000Z',
+      freshnessDeadline: '2026-07-19T01:00:00.000Z',
+    }),
+    /unsupported DONE-required CommandSpec schema lattice\.command-spec\.v3/,
+  );
   assert.throws(
     () => projectDoneRequiredReceiptToEnvironment({
       ...doneReceipt,
