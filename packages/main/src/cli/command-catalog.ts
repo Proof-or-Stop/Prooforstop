@@ -1281,10 +1281,10 @@ Behavior:
     host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'agent_prompt', description: 'Print the canonical Proofbound agent prompt body for a role from the package prompt registry (host-neutral single source; Claude thin-shims fetch from here, Codex resolves the same registry)', schema: {
+  { name: 'agent_prompt', description: 'Print the canonical package-registry host render: a body-free review_run_start bootstrap for migrated reviewers, or the role body for ordinary roles', schema: {
     role: z.string().min(1).describe('Proofbound agent role name, e.g. lattice-implementer, lattice-review-concept (the template basename without .md)'),
     storyId: z.string().min(1).optional().describe('Optional Story ID for trusted full-context assembly when this role rollout flag is enabled.'),
-    format: z.enum(['text', 'json']).optional().describe('Story-aware full-context output format (default text); role-only output remains byte-identical.'),
+    format: z.enum(['text', 'json']).optional().describe('Story-aware full-context output format (default text); role-only output equals the canonical registry host render.'),
   }},
   { name: 'prompt_measurement_report', description: 'Report deterministic local prompt bytes, lines, estimated tokens, repetition, and three-layer input availability for all 16 package prompt roles (read-only L0)', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),

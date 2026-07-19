@@ -1,11 +1,11 @@
 /**
  * agent-prompt.ts — `lattice agent_prompt --role=<name>` (B-097f CHK-002)
  *
- * Host-neutral shared content endpoint. Returns the canonical role prompt BODY
- * straight from the package prompt registry (`readPromptRegistry()` over
- * `templates/agents`), byte-for-byte identical to what the Codex manifest
- * resolves. Claude thin-shims fetch from this command; Codex resolves the same
- * registry. There is ONE content source.
+ * Host-neutral package-registry endpoint. Role-only calls return the canonical
+ * host render: a body-free `review_run_start` bootstrap for the five migrated
+ * reviewers, and the package role body for ordinary roles. For migrated
+ * reviewers, `review_run_start` selects and returns exactly one legacy or
+ * modular body. Codex registry mode resolves the same bootstrap/body split.
  *
  * Contract: docs/requirements/decisions/lifecycle-artifact-scope.md
  *   §"Policy: host-neutral prompt content, thin host adapters (B-097f)" point 2.
@@ -178,9 +178,9 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         });
       }
 
-      // Return the canonical body byte-for-byte from the registry (the same
-      // source the Codex manifest resolves via readPromptTemplate). No host
-      // transform is applied — this is the single neutral content source.
+      // Story-aware assembly returns the selected canonical body plus trusted
+      // context. Migrated role-only calls above intentionally return only the
+      // bootstrap and enter this path through review_run_start instead.
       return assembly.prompt;
     },
   };

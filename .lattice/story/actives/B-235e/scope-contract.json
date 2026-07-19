@@ -305,10 +305,34 @@
         "renderCodexAgentAsset",
         "runGlobalAgentsInitSmoke"
       ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required F-012 terminology cleanup only: these canonical lifecycle and command descriptions still say migrated reviewer agent_prompt directly returns a role body, while the implemented contract is bootstrap-only plus one review_run_start selected body; no handler registration or CLI schema behavior changes are involved.",
+      "timestamp": "2026-07-19T10:24:22.223Z",
+      "paths": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/registry.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/registry.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "a84c0d175fa09000111b29f1b8535488c5005a12",
+      "materialHash": "d949850142b7cad7a43d0dc5901aaf28a4f2cc37b96991f3c2685a8247a74196",
+      "anchors": [
+        "agentPromptDescription",
+        "renderPromptEntryForHost"
+      ]
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T09:53:25.074Z",
+  "updatedAt": "2026-07-19T10:24:22.223Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -378,6 +402,9 @@
     "packages/main/src/core/scope-diff-pack.ts": "packages/main/src/core/scope-diff-pack.ts",
     "packages/main/src/tasks/global-agents-unit-smoke.ts": "packages/main/src/tasks/global-agents-unit-smoke.ts",
     "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
-    "packages/main/src/tasks/global-agents-init-smoke.ts": "packages/main/src/tasks/global-agents-init-smoke.ts"
+    "packages/main/src/tasks/global-agents-init-smoke.ts": "packages/main/src/tasks/global-agents-init-smoke.ts",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts"
   }
 }
