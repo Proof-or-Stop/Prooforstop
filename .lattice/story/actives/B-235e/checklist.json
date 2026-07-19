@@ -103,7 +103,7 @@
           }
         ]
       },
-      "userSees": "Reviewer rollout status lists concept, quality, test-coverage, behavior, and docs independently as modular or legacy-full-context; retired channel is absent, and disabling one flag restores the exact legacy prompt only for that role.",
+      "userSees": "User sees \"role=lattice-review-concept rollout=full-envelope\" for an enabled role and \"role=lattice-review-quality rollout=legacy-full-context legacyBytesRestored=true\" after independently rolling back only quality; \"lattice-review-channel\" is absent from active roles.",
       "files": {
         "modify": [
           "packages/main/src/core/prompt-role-contract-registry.ts",

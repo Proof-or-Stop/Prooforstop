@@ -25,17 +25,20 @@
     "packages/main/src/core/prompt-registry.ts",
     "packages/main/src/core/prompt-envelope.ts",
     "packages/main/src/core/config.ts",
+    "packages/main/src/core/review-run.ts",
     "packages/main/src/handlers/agent-prompt.ts",
     "packages/main/src/handlers/review-run.ts",
     "packages/main/src/handlers/story-dispatch.ts",
-    "packages/main/templates/agents",
-    ".claude/agents",
-    ".lattice-codex/agents",
+    "packages/main/templates/agents/lattice-review-concept.md",
+    ".claude/agents/lattice-review-concept.md",
+    ".lattice-codex/agents/lattice-review-concept.md",
     "packages/main/src/tasks/prompt-registry-smoke.ts",
     "packages/main/src/tasks/review-run-smoke.ts",
     "experiments/role-prompt-ab-replay",
     "lattice.config.json",
-    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/host-run-usage.md"
   ],
-  "timestamp": "2026-07-19T07:11:37.274Z"
+  "timestamp": "2026-07-19T07:24:07.026Z"
 }
