@@ -1,0 +1,103 @@
+{
+  "storyId": "B-8d4b",
+  "checkedAt": "2026-07-19T01:45:54.363Z",
+  "features": [
+    {
+      "feature": "Pinned A/B replay contract and three-class historical corpus with adjudicated finding set, repetitions, reconstruction prerequisites and content-addressed identity",
+      "covered_by": "CHK-001 and its happy/edge/adversarial verificationIntent",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "role-prompt plan §13 and Story 3"
+    },
+    {
+      "feature": "Read-only same-input historical-material replay with deterministic prompt measurement/digests and no caller substitution or write path",
+      "covered_by": "CHK-002 and its happy/edge/adversarial verificationIntent",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "role-prompt Story 3; evidence-instrument replay §6.2-6.4"
+    },
+    {
+      "feature": "Append-only experiment-only usage/finding ledger with availability-aware provider/cache fields, retry identity, privacy and non-authority semantics",
+      "covered_by": "CHK-003 and its happy/edge/adversarial verificationIntent",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "role-prompt Story 3; LLM usage ledger source/correlation/privacy semantics"
+    },
+    {
+      "feature": "Fail closed as INCONCLUSIVE for invalid reconstruction/adjudication/denominators and mechanically prove zero production evidence/process-fact drift",
+      "covered_by": "CHK-004 and its happy/edge/adversarial verificationIntent",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "role-prompt Story 3; proof admissibility producer/consumer/binding rules"
+    },
+    {
+      "feature": "Incremental eligibility, impact classification, reviewBasis and full escalation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Canonical execution plan assigns this to Story 4; PLAN explicitly excludes incremental policy",
+      "source": "role-prompt Story 4"
+    },
+    {
+      "feature": "Active reviewer role prompt migration and incremental assembly",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Canonical execution plan assigns this to Story 5; no role prompt files are in the files contract",
+      "source": "role-prompt Story 5"
+    },
+    {
+      "feature": "Complex init/scope/implementer/delivery/evaluator role migration",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Canonical execution plan assigns this to Story 6; no complex role prompt files are in the files contract",
+      "source": "role-prompt Story 6"
+    },
+    {
+      "feature": "Legacy asset isolation and budget observe-to-warn rollout",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Canonical execution plan assigns this to Story 7; Story 3 remains measurement-only",
+      "source": "role-prompt Story 7"
+    },
+    {
+      "feature": "Live provider dispatch or fabricated provider usage/cache values",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Offline replay must record unavailable(reason); real provider usage requires later real dispatch evidence",
+      "source": "role-prompt §5.1/§13; usage-ledger unavailable semantics"
+    },
+    {
+      "feature": "Production Story/review/lifecycle evidence mutation or new gate authority",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Artifacts are experiment-only gateEvidence=false; CHK-002/003/004 prove production consumers cannot ingest or change them",
+      "source": "proof-admissibility target rule and Story 3 acceptance"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    ],
+    "filesTriagedByName": [
+      "AGENTS.md",
+      "CLAUDE.md",
+      "docs/requirements/NAV.md",
+      "README.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 10,
+    "covered": 4,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "6e002670b474e97c3f168cd3023f969b7c751e97fbebd530acb4ad3e6dd31077",
+  "openQuestions": []
+}

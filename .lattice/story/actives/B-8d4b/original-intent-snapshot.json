@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-8d4b",
+  "sourceText": "继续按 role-prompt-modularization-and-budget-execution-plan.md 的顺序完成所有 Story；验证建议必须使用证据，不要为了优化而优化。",
+  "normalizedOutcome": "用户可以运行隔离的角色 Prompt A/B replay，看到固定三类样本的可复算输入/usage/finding 对比；证据不足明确显示 INCONCLUSIVE，生产 Story evidence 不变。",
+  "acceptanceClaim": "固定且可重建的同输入 A/B 样本可重复产生相同核心 digest 和分层 measurement/finding 结果；不可重建或篡改样本只产生稳定 INCONCLUSIVE，实验运行前后生产 evidence digest 相同。",
+  "keyRequirementIds": [
+    "S3-CONTRACT",
+    "S3-FAIL-CLOSED",
+    "S3-LEDGER",
+    "S3-REPLAY"
+  ],
+  "requestHash": "sha256:7c0fb4568fdf9de14d707c04b78d4d58db6e7d280a2497ae16fb6fbcfad179e8",
+  "createdAt": "2026-07-19T01:42:21.666Z",
+  "updatedAt": "2026-07-19T01:42:21.666Z"
+}
