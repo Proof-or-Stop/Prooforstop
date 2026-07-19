@@ -1,0 +1,59 @@
+{
+  "storyId": "B-955c",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+    "docs/evidence/evidence-platform-architecture.md",
+    "packages/main/src/core/claim-admissibility/pack-framework.ts",
+    "packages/main/src/index.ts",
+    "packages/main/src/core/evidence/environment-contract.ts",
+    "packages/main/package.json",
+    "README.md",
+    "docs/requirements/NAV.md",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/evidence/environment-contract.ts",
+    "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+    "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    "packages/main/src/**/.omx/**"
+  ],
+  "scopeChangeReason": "Initialize DEV scope from reviewed PLAN for delegated lattice implementation",
+  "acknowledgements": [],
+  "createdAt": "2026-07-19T00:32:46.036Z",
+  "updatedAt": "2026-07-19T00:32:46.036Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+    "docs/evidence/evidence-platform-architecture.md": "docs/evidence/evidence-platform-architecture.md",
+    "packages/main/src/core/claim-admissibility/pack-framework.ts": "packages/main/src/core/claim-admissibility/pack-framework.ts",
+    "packages/main/src/index.ts": "packages/main/src/index.ts",
+    "packages/main/src/core/evidence/environment-contract.ts": "packages/main/src/core/evidence/environment-contract.ts",
+    "packages/main/package.json": "packages/main/package.json",
+    "README.md": "README.md",
+    "docs/requirements/NAV.md": "docs/requirements/NAV.md",
+    "packages/main/src/core/proof-admissibility.ts": "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/evidence-environment-adapter-smoke.ts": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+    "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts": "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+    "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
+    "docs/story/**": "docs/story/**",
+    "tests/fixtures/**": "tests/fixtures/**",
+    "packages/main/src/**/.omx/**": "**/.omx/**"
+  }
+}
