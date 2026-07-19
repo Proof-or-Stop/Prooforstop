@@ -24,7 +24,7 @@
       "desc": "concept-cleanup: legacy-full-context rollback is not exact for supported full-asset hosts. packages/main/src/core/prompt-role-contract-registry.ts:144-149 deliberately forces source=package-registry in legacy mode and therefore does not bind or validate the actual .claude/.lattice-codex full asset, while those physical assets now contain the modular role body. packages/main/src/handlers/review-run.ts:330 only appends the reconstructed legacy body as an EXACT LEGACY REVIEW PROMPT after the host has already loaded the modular full-asset prompt. The resulting model input is modular+legacy, not the frozen pre-migration prompt, yet runtime:prompt_role_body_rollout_gate and docs claim a byte-exact rollback/selected host identity. Either make full-asset launch use a thin mode-aware bootstrap so only the resolver-selected body reaches the model, or explicitly bind both actual host bootstrap bytes and injected body and stop claiming exact legacy rollback. [HIGH]",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T08:40:48.257Z",
@@ -39,7 +39,11 @@
         ".lattice-codex/agents/lattice-review-concept.md"
       ],
       "signatureTag": "missing|ts|concept-cleanup-legacy",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7644eaacc5. Five migrated full assets are canonical role-specific thin bootstraps; host identity binds bootstrapDigest plus selectedRoleBodyDigest, and runtime injects exactly one selected body. Documentation now claims exact frozen legacy role-body rollback plus explicit bootstrap overhead, not total-input byte identity. verify_codex, runtime-owned-assets, codex-registry-mode, init/managed checks, prompt-registry, and review-run passed.",
+      "resolvedAt": "2026-07-19T09:11:44.863Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-003",
