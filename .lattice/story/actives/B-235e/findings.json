@@ -50,7 +50,7 @@
       "desc": "CHK-002/CHK-004 verificationEvidence remains bound to commands that do not execute the claimed repaired behavior. five-role-trusted-full-envelope cites prompt-full-context-envelope-smoke, which assembles envelopes but does not mint/sign ReviewRuns; eligible-role-incremental-envelope cites review-incremental-context-smoke, while its five-role incremental assembler matrix lives in prompt-full-context-envelope-smoke. reviewer-owner-permission-boundaries and unauthorized-pass-and-lifecycle-writes-rejected still cite review-run-smoke, which has no permission/lifecycle handlers; the real rejection probes are in agent-dispatch-registry-smoke. concurrent-lane-write-and-collector-determinism still cites quorum-submit-smoke, while the repaired five-role concurrent writers/collector probe is in review-incremental-context-smoke. Under the lane contract, a passing test elsewhere is not valid evidence until the intent is bound to the concrete command/file that exercises it; current notes therefore overclaim their recorded commands.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T08:41:05.445Z",
@@ -65,7 +65,11 @@
         "packages/main/src/tasks/quorum-submit-smoke.ts"
       ],
       "signatureTag": "missing|ts|verificationevidence-remains-bound",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by owner evidence rebinding on final implementation. five-role signed runs, mixed modes, and concurrency now cite review-incremental-context-smoke; assembler eligibility cites prompt-full-context-envelope-smoke; permission intents cite agent-dispatch-registry-smoke. All cited commands were rerun and passed on the repaired Story HEAD.",
+      "resolvedAt": "2026-07-19T09:11:45.700Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-004",
