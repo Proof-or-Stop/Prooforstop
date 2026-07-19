@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-235e:F-001",
+      "desc": "packages/main/src/core/config.ts:623 — duplicate-key protection only checks keys when path is exactly promptEnvelope.roles. JSON containing duplicate top-level promptEnvelope objects or duplicate roles members is accepted and JSON.parse silently selects the last contradictory role flag; a reviewed legacy-full-context value can therefore become full-envelope (or vice versa). Repro after build: assertNoDuplicatePromptEnvelopeRoleKeys accepts both {promptEnvelope: legacy, promptEnvelope: full} and {promptEnvelope:{roles: legacy, roles: full}}, while JSON.parse resolves full. Reject duplicate promptEnvelope and promptEnvelope.roles container keys as well as duplicate individual role keys, with regression coverage for all nesting forms.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T08:39:58.585Z",
+      "reviewRound": "2026-07-19T08:38:05.631Z",
+      "reviewRunId": "B-235e:RR-006",
+      "_hash": "eea9e87360f66885ff8961423dea3d179a9d74ad6081e14674b958dedac7b86e",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
