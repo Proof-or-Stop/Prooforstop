@@ -1,64 +1,64 @@
 {
   "storyId": "B-235e",
-  "checkedAt": "2026-07-19T21:24:03.559Z",
-  "headHash": "60d92a63ef1f1b653b6a8d4c3672926415188d90",
-  "materialHash": "875f9c5f685ca175d68bca022de769cc317361d5bcf56852d3af05d916fb2cbd",
-  "storyFilesHash": "6cae3ed6a44b1354eea954a17c36511dcdb453c2aaf4c2a316a0521acce6fdf2",
-  "reviewRound": "2026-07-19T11:51:48.217Z",
+  "checkedAt": "2026-07-19T22:28:55.331Z",
+  "headHash": "7e0a249bbeecf930467170cbe4ba10f692a7d557",
+  "materialHash": "f108b0b3a21990e18ad252ed56fe66097a3250374cb6305855612191011e424c",
+  "storyFilesHash": "645080887673ae8bfef02e5dde7704eceb40b9a0d87e52802ac616849e5e6c51",
+  "reviewRound": "2026-07-19T22:22:54.891Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
-      "promise": "Prompt modularization and budget execution plan reflects the implemented rollout.",
+      "promise": "User sees role=lattice-review-concept rollout=full-envelope and role=lattice-review-quality rollout=legacy-full-context legacyBytesRestored=true after independently rolling back only quality; lattice-review-channel is absent from active roles.",
       "status": "verified",
-      "verifiedBy": "full validate and review evidence",
-      "evidence": "B-235e current HEAD validation/review evidence"
+      "verifiedBy": "current TEST validation plus prompt-registry/runtime-owned-agent-assets smokes",
+      "evidence": "Current validation-bound evidence retains five independent active reviewer modes, exact legacy restoration, and retired-channel exclusion."
     },
     {
-      "docPath": "docs/requirements/decisions/prompt-envelope-runtime-contract.md",
-      "promise": "Prompt Envelope runtime contract matches the active implementation.",
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "promise": "User sees context incremental reason=ELIGIBLE_PURE_FIXTURE_DELTA only for proven bounded input, or context full reason=CONTRACT_DRIFT for unsafe input; requesting full creates a new run and prints reason=REVIEWER_REQUESTED_FULL.",
       "status": "verified",
-      "verifiedBy": "process contract verification",
-      "evidence": "verify-process-fact-contract PASS"
+      "verifiedBy": "current TEST validation plus prompt-full-context-envelope/review-incremental-context/review-run smokes",
+      "evidence": "Current validation evidence covers trusted envelope provenance, eligibility matrix, stable reason codes, drift escalation, and legacy compatibility."
     },
     {
-      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
-      "promise": "Review assurance and degraded fallback semantics remain documented.",
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "promise": "User sees one report row per role with honest INCONCLUSIVE/providerUsage unavailable values when adjudication or provider receipts are unavailable, without fabricated PASS values.",
       "status": "verified",
-      "verifiedBy": "review assurance smoke",
-      "evidence": "review-assurance-floor smoke PASS"
+      "verifiedBy": "current TEST validation plus role-aware replay selfcheck",
+      "evidence": "Current validation preserves honest INCONCLUSIVE and unavailable provider/adjudication states; no fabricated PASS or zero is admitted."
     },
     {
-      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md",
-      "promise": "Shared writer and lock ownership constraints remain documented.",
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "promise": "User sees process contract PASS, host mirror identity PASS, legacy pass compatibility PASS, and retired or compatibility gate credit 0 after permission, signature, rollback, baseline, and documentation checks.",
       "status": "verified",
-      "verifiedBy": "mixed-writer ABA smoke",
-      "evidence": "20/20 mixed producer rounds PASS"
+      "verifiedBy": "current TEST validation plus process-fact/baseline/dispatch/runtime smokes",
+      "evidence": "Current validation is PASS and binds process-fact contract, immutable baseline, dispatch permission, host mirror identity, rollback, and retired/compatibility exclusion checks."
     }
   ],
   "realMachineTests": [
     {
-      "featureId": "B-235e-prompt-registry",
-      "transcript": "prompt-registry-smoke PASS: 16 agents rendered for claude and codex."
+      "featureId": "CHK-001",
+      "transcript": "Current validation PASS: prompt-registry-smoke and runtime-owned-agent-assets-smoke verify five active modular/legacy role paths and retired-channel exclusion."
     },
     {
-      "featureId": "B-235e-review-incremental",
-      "transcript": "review-incremental-context-smoke PASS including mixed writer ABA and 20/20 mask rounds."
+      "featureId": "CHK-002",
+      "transcript": "Current validation PASS: prompt-full-context-envelope-smoke, review-incremental-context-smoke, and review-run-smoke verify trusted full/incremental provenance, reason codes, drift escalation, and legacy compatibility."
     },
     {
-      "featureId": "B-235e-quorum",
-      "transcript": "quorum-submit-smoke PASS."
+      "featureId": "CHK-003",
+      "transcript": "Current validation PASS: role-prompt-ab-replay/selfcheck reports protocol/replay integrity PASS and honest INCONCLUSIVE output for unavailable provider/adjudication evidence."
     },
     {
-      "featureId": "B-235e-live-smoke",
-      "transcript": "live-smoke-transcript PASS: prompt registry smoke exitCode 0."
+      "featureId": "CHK-004",
+      "transcript": "Current validation PASS: agent-dispatch-registry-smoke, quorum-submit-smoke, review-incremental-context-smoke, verify-process-fact-contract, and verify-proof-or-stop-prompt-baseline cover permissions, signed admission, mixed rollout gates, concurrency, process contract, and immutable baseline."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Current HEAD has full validation PASS, DONE-required build and npm test PASS, current review assurance fallback PASS, and refreshed evidence."
+    "summary": "Fresh delivery review performed against current TEST validation PASS and current material/story hashes after round-14 metadata refresh. Four checklist items and all recorded findings are complete; all documentation promises are verified; replay limitations remain explicitly INCONCLUSIVE rather than overstated; no unresolved TODOs or waivers."
   },
-  "_hash": "4eddee2c0b64f761a13e2bc58a2a7b9171df5e83d40cb370c750ea1ea3d271bb"
+  "_hash": "18632a0760073933780833dbda5f61f0603a082a9b4412b31d4b62666ab5d89a"
 }
