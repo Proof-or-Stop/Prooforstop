@@ -383,7 +383,7 @@
       "desc": "experiments/role-prompt-ab-replay/lib/ledger.mjs:127-172 — HIGH: the ledger rejects unbound numeric provider dimensions but omits assembledPromptTokens from that rejection. A caller can persist assembledPromptTokens={availability:available,tokens:0,source:caller claim} while promptDigest=null, despite the canonical protocol declaring PROMPT_SNAPSHOT_UNAVAILABLE. Independent repro via makeLedgerRecord accepted exactly that row. This reintroduces a fabricated prompt-cost claim through the public writer even though run.mjs uses unavailable.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T02:55:59.164Z",
@@ -391,7 +391,11 @@
       "reviewRunId": "B-8d4b:RR-009",
       "_hash": "8928bf6952a902cc9a9c01dd03c220fc18f3bdb5dc0a574c23c806b40ebcb8f9",
       "signatureTag": "adversarial|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f8c1b2c73a: ledger construction and stored-row validation reject available assembledPromptTokens including zero unless prompt digest and reconstruction evidence are both bound; current schema therefore records unavailable.",
+      "resolvedAt": "2026-07-19T03:04:27.589Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-021",
