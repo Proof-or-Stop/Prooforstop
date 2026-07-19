@@ -113,7 +113,20 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees a paper-ready claim that names implemented EEA contract and reference paths while labeling Lean, Rosetta, AlphaFold and production deployment as integration targets.",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/NAV.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-006",
