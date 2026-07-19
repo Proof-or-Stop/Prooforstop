@@ -224,6 +224,77 @@
           "packages/main/src/tasks/quorum-submit-smoke.ts",
           "scripts/verify-process-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "incremental-envelope-reviewrun-binding",
+            "desc": "A trusted incremental Prompt Envelope records all context, prior-pass, contract, environment, policy, eligibility, freshness, file, reviewBasis, escalation, and digest fields and binds them to exact Story, HEAD, round, lane, and signed ReviewRun.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "incremental-pass-chain-admissible",
+            "desc": "A pass from a valid current incremental envelope is accepted only after shared binding and digest re-verification; REVIEW, receipt, readiness, and quorum consume that same admissibility result.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "full-escalation-mints-new-binding",
+            "desc": "Mechanical or reviewer-requested escalation records its reason and binds the full envelope to the run so the obsolete incremental envelope cannot authorize the final pass.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "legacy-pass-full-context-only",
+            "desc": "A pre-migration pass without Prompt Envelope fields remains legacy-full-context in its original round and cannot become an incremental prior pass through default values.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "nonlatest-pass-material-scope-rules-preserved",
+            "desc": "Existing kind-aware material and scope freshness semantics remain intact; older open findings stay visible and empty storyFilesHash supplies no advisory signal.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "incremental-envelope-required-fields-total",
+            "desc": "Missing, unknown-version, malformed, or inconsistent incremental fields are rejected at envelope verification and cannot be repaired downstream.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "incremental-envelope-tamper-chain-rejected",
+            "desc": "Single-field tampering across envelope, prior pass, Story, HEAD, lane, round, run, material, storyFiles, scope, policy, freshness, contracts, files, basis, or context digests invalidates the pass and downstream credit.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "served-wrong-mode-proof-invalid",
+            "desc": "If incremental context was served when authoritative eligibility required full, a syntactically valid reviewer response cannot mint an admissible pass, receipt, host verdict, or quorum contribution.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "untrusted-caller-envelope-authority-blocked",
+            "desc": "Main, implementer, compatibility aliases, request payloads, cached sidecars, or caller objects cannot supply authoritative envelope fields, override mode, or bypass trusted assembly.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
