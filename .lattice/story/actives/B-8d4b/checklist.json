@@ -92,7 +92,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "isolated-append-only-experiment-ledger",
+            "desc": "Each experiment dispatch attempt writes an append-only, experiment-namespace record keyed by experiment/cell/ledgerCallId/attemptId and bound to exact assembled-prompt, known-dispatch, model/contract, input and finding-set digests; it records prompt bytes/estimated tokens, known dispatch counts when observable, provider-reported uncached/cache-read/cache-creation/output usage when reported, latency/attempt disposition and experiment findings without acquiring gate authority.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "usage-availability-retry-and-summary-semantics",
+            "desc": "Missing provider usage or a provider-specific missing cache dimension remains explicitly unavailable/unknown with reason, never inferred as zero; provider-reported zero is accepted only when actually reported, retries keep distinct attempt IDs, terminal summaries reconcile exactly one final disposition per attempt, and estimates are not double-counted after reported usage supersedes them.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "experiment-ledger-non-authoritative-and-private",
+            "desc": "Forged authority flags, production Story/review references, duplicate or out-of-order attempts, raw prompt/completion/transcript/tool arguments, credentials, malformed counts and digest substitution are rejected; registry/gate probes prove even a perfectly shaped experiment record cannot satisfy review pass, finding, ReviewRun, verificationEvidence, validation, TEST or DONE consumers.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
