@@ -19,7 +19,8 @@
   ],
   "allowedCreate": [],
   "allowedTest": [
-    "packages/main/src/tasks/quorum-submit-smoke.ts"
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
   ],
   "protectedFiles": [
     "package.json",
@@ -34,10 +35,10 @@
     "packages/main/src/core/runtime-fact-registry.ts",
     "packages/main/src/core/candidate-spec-routing.ts"
   ],
-  "scopeChangeReason": "F-008 proves two production process-event writers bypass the cooperative append lock and can invalidate writer-returned offsets. Add only cross-host-review.ts and dirty-gate-policy.ts to migrate their existing direct appendFileSync calls to the shared locked raw-append primitive; remote routing, host execution, gate decisions, verifier and validation reuse remain unchanged.",
+  "scopeChangeReason": "Formal 46-command validation found exactly one failure: cli-engine canonical AST changed intentionally for quorum terminal ownership while the executable-source fingerprint pin remained stale. Add only retired-authority-vocabulary-guard-smoke.ts as a test contract so its exact cli-engine pin can be updated together with the already-scoped process-fact projection; loader anchor and argument remain unchanged.",
   "acknowledgements": [],
   "createdAt": "2026-07-18T22:21:57.061Z",
-  "updatedAt": "2026-07-19T00:00:01.696Z",
+  "updatedAt": "2026-07-19T00:34:14.251Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -66,6 +67,7 @@
     "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
     "packages/main/src/core/process-events.ts": "packages/main/src/core/process-events.ts",
     "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
-    "packages/main/src/core/dirty-gate-policy.ts": "packages/main/src/core/dirty-gate-policy.ts"
+    "packages/main/src/core/dirty-gate-policy.ts": "packages/main/src/core/dirty-gate-policy.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
   }
 }
