@@ -165,7 +165,21 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Repeated review_incremental_context calls produce the same advisory result without changing files, evidence, phases, or gates; reviewer full-context requests and budget violations are reported without weakening correctness.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-incremental-context.ts",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ]
+      }
     }
   ]
 }
