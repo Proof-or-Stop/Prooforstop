@@ -99,7 +99,7 @@
       "desc": "adversarial-repro: packages/main/src/core/story-transition-lock.ts:94-114 (classifyTransitionLockHolder) — the round-2 liveness classifier checks only whether SOME process currently exists with the recorded pid on the recorded host (process.kill(pid,0)); it never verifies that live process is actually the SAME process instance that originally acquired the lock (e.g. via a recorded process-start-time). Confirmed by direct repro: calling the compiled classifyTransitionLockHolder with a snapshot whose holder.pid is set to an unrelated but genuinely live pid on this host (this shell's ppid) and ageMs=10 minutes (>> staleMs=120000) returns classification=\"active\" — i.e. a lock whose true original holder crashed minutes ago is permanently un-reclaimable as long as its old pid happens to have been recycled by any other live process, which is common on any long-uptime/busy host given the OS pid namespace is finite and this very smoke test alone spawns ~50 short-lived child pids per 25 runs. Effect: every subsequent story_advance for that story blocks for the full acquire deadline (STORY_TRANSITION_DEADLINE_MS=180000ms in the same file) and then hard-fails with an opaque lock-timeout error, requiring manual deletion of the stale .lattice/locks/transition/<id>.lock dir to recover — a self-inflicted, non-obvious denial-of-service, not a data-corrupting double-mint, but still a real regression in availability versus the pre-fix mtime-only behavior (which at least reclaimed after staleMs regardless of pid games). The codebase already has an established, stronger pattern for this exact hazard in the sibling lock family: packages/main/src/core/validation-execution-lock.ts:85-126 (classifyValidationExecutionLock) cross-checks a heartbeat file's freshness AND processStartTimeMs (via sameProcessStart) before trusting a live pid, specifically to rule out pid-reuse impersonating the real holder. story-transition-lock.ts' MkdirLockHolderInfo already carries an optional processStartTimeMs field (mkdir-lock.ts:49) but acquireStoryTransitionLock's holderInfo (story-transition-lock.ts:151-156) never populates it, and classifyTransitionLockHolder never consults it — so the sibling's defense was not carried over to this new classifier.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T03:31:33.121Z",
@@ -107,7 +107,9 @@
       "reviewRunId": "B-d877:RR-005",
       "_hash": "fdec6e8a721e5338d7726fb3a1efc975fb0b0342c415ae9ccfdbf188e8301761",
       "signatureTag": "adversarial|unknown|adversarial-repro-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-19T04:21:45.226Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-d877:F-006",
