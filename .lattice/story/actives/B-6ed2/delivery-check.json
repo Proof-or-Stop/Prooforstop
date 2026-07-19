@@ -1,0 +1,46 @@
+{
+  "storyId": "B-6ed2",
+  "checkedAt": "2026-07-19T01:17:08.177Z",
+  "headHash": "384cc7cbe108b5d12008a49aebc703ee10013426",
+  "materialHash": "f252bf09077a093305a648e0a3b015b202889c59f601d48577672473821d297c",
+  "storyFilesHash": "ebc74cf8134a8d12c18f7b25129525ccf71eeccae4f48894731407239b7c8e12",
+  "reviewRound": "2026-07-19T00:49:06.810Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "promise": "Quorum closeout must not leave generated host-verdict metadata dirty or force a later validation failure.",
+      "status": "verified",
+      "verifiedBy": "B-6ed2 production-path quorum_submit live smoke plus formal validation",
+      "evidence": "Commit e764c1cd18 contains exactly six additions in only .lattice/story/actives/B-6ed2/process-events.jsonl; summary records clean post-command worktree; formal validate PASS at 2026-07-19T01:02:22.845Z."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "A 3x2 quorum submission must persist six signed host verdicts with auditable review-assurance evidence.",
+      "status": "verified",
+      "verifiedBy": "B-6ed2 quorum_submit transcript, quorum evidence and DONE pre-check",
+      "evidence": "DONE pre-check reports full-3x2 review escalation and floor satisfied; e764c1cd18 is the single six-row metadata commit."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Production-path RED and subsequent live smoke established the prior metadata residue and the corrected clean closeout; live-smoke transcript is fresh and records successful command exit."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Worktree-local quorum_submit emitted the complete 3-round x 2-host batch; git show --numstat e764c1cd18 reports 6 additions, 0 deletions, one process-events.jsonl path, matching the accepted summary."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Formal routine validation PASS at 2026-07-19T01:02:22.845Z covered all 46 commands; DONE-required validation PASS at 2026-07-19T01:15:18.232Z covered both required commands."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promise is met: one successful quorum submission produced exactly one six-row metadata-only commit, preserved the required 3x2 assurance record, and the fresh live smoke, 46/46 routine validation, and 2/2 DONE-required validation all passed with no unresolved delivery blocker."
+  },
+  "_hash": "b7466de940a89c0e2028a994f6d2721148271458dcfd72a31f4ac98b4205de88"
+}
