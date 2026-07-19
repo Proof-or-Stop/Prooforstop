@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Config-resolved material-code policy service threaded via a hash-bound snapshot",
       "context": "Add resolveMaterialCodePolicy(projectRoot) and a HEAD+materialHash-bound classification snapshot passed into all three consumers: review-assurance floor, repro classification (collectMaterialCodeFiles gains the snapshot; fixes the dropped-projectRoot call), and the ProofStory diagnostic input. Pure evaluators stay pure.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-19T15:46:51.803Z",
       "endTime": null,
       "userSees": "An identical bug story flips required=true across floor + repro + ProofStory triggers, all driven by one classification snapshot; project materialCode config reaches all three consumers.",
       "files": {
