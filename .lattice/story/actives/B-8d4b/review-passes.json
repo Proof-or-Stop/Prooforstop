@@ -243,6 +243,56 @@
         "scanEscalationReason": null
       },
       "_hash": "b15a80775fdcc1f65f59d0d4f9467fc579db070151d8b0f9d2078e2b4c5ad37a"
+    },
+    {
+      "id": "B-8d4b:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-6 metadata-only re-review passed. The canonical digest of all 12 verificationIntent objects is byte-identical before and after the English translation; business implementation and storyFilesHash remain unchanged. Current selfcheck 49/49, package build, and 36-cell reverse replay pass, and every evidence row remains bound to the current storyFilesHash/materialHash. No open finding or test-coverage regression found.",
+      "createdAt": "2026-07-19T03:51:55.311Z",
+      "reviewRound": "2026-07-19T03:50:19.464Z",
+      "reviewRunId": "B-8d4b:RR-022",
+      "writerSessionId": "sess-4926941cc12944671d541e92cc4babe0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5c4488e8f4877a765fe4823e61eedf1ec5e337a1ca9639b271d0e88abee4e252"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd5e35d60e7b74ac02cc1cbcdba9ae80344ea73c4a857f2be115c18a383f7f7a"
     }
   ]
 }
