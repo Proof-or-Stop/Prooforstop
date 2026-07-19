@@ -583,6 +583,27 @@
         "scanEscalationReason": null
       },
       "_hash": "aaf4ab35c0592792a4e83a6b37ec2698ce823f950765796f56fa5c32fbda0e10"
+    },
+    {
+      "id": "B-235e:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Metadata-only re-attestation after DONE-required validation. Trusted incremental assembly reports changedFiles=[], ELIGIBLE_NO_MATERIAL_CHANGE and ELIGIBLE_TRUSTED_PRIOR_BINDINGS, bound to prior quality pass RP-019, review run RR-051 and its Prompt Envelope. Diff since RP-019 contains only closeout receipts, delivery check, DONE-required evidence, live-smoke transcript, index/process metrics, review-pass and test evidence metadata; implementation, contracts, runtime lock integration and docs are unchanged. Prior current-code quality evidence remains applicable. No blocking quality issue found.",
+      "createdAt": "2026-07-19T22:46:23.733Z",
+      "reviewRound": "2026-07-19T22:44:59.941Z",
+      "reviewRunId": "B-235e:RR-055",
+      "envelopeId": "5c786c4d868dc232f08d8624e7ccc4230227e15338e94e8d6dc85ea3dd6cd995",
+      "writerSessionId": "sess-61e583213cb095be130628a3b1ad47cd",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe17cefbd0619b5c4a113150ca60a7bf876730cc7a768c19ade18e99cf988434"
     }
   ]
 }
