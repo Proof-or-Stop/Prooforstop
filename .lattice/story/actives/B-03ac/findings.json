@@ -29,6 +29,21 @@
       "_hash": "a0c34b46bd02b70cba6194907947c192a7a20d191095f1423581ca3b4f1fe996",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-03ac:F-003",
+      "desc": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md:314-355,768-793 — The canonical PromptEnvelope interface and the audit-field example are stale relative to the implemented v1 contract. They omit impactPolicyVersion, eligibilityReasonCodes, changedFilesDigest, impactedFilesDigest, reviewBasisDigest, incrementalContextDigest, taskSemanticDigest, selectionReason, fullContextBytes, incrementalContextBytes, escalatedToFull, escalationReason, and budgetViolation (implemented in packages/main/src/core/prompt-contracts.ts:217-229 and assembled in prompt-envelope.ts:412-435). The text also says every review run records reviewBasisDigest/incrementalContextDigest, but those fields are conditional on a trusted prior basis and are absent for first-pass safety-full runs. Update the formal schema and audit description to distinguish always-recorded v1 fields from conditional incremental-basis fields; preserve legacy-full-context compatibility and do not imply Stories 5-7 rollout.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T05:31:54.696Z",
+      "reviewRound": "2026-07-19T05:29:10.580Z",
+      "reviewRunId": "B-03ac:RR-004",
+      "_hash": "0e709cc40a2b26066fd1f5df1039bdfcc959905857ef4bc57af892dbd4c488f0",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
