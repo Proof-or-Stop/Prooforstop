@@ -9,7 +9,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-19T02:07:15.718Z",
-      "endTime": "2026-07-19T03:03:52.707Z",
+      "endTime": "2026-07-19T03:09:00.715Z",
       "verificationIntent": {
         "happy": [
           {
@@ -53,15 +53,15 @@
       "verificationEvidence": [
         {
           "intentRef": "pinned-ab-contract-and-corpus",
-          "kind": "logic_test",
+          "kind": "integration_test",
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner 49-check rerun preserves pinned protocol/corpus and signed historical finding validation; canonical plan now states the actual isolated evidence-root proof.",
-          "headHash": "f8c1b2c73a5fb7b13cb17da2f743019dfb60b54c",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:03:53.086Z"
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "a4b3a20ce602f5e4b252999fdb11830ba9c085a4",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:00.978Z"
         },
         {
           "intentRef": "availability-aware-preregistered-boundaries",
@@ -69,11 +69,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Absent prompt/provider/finding evidence stays unavailable; ledger cross-field validation forbids assembled prompt token availability without digest plus reconstruction evidence.",
-          "headHash": "f8c1b2c73a5fb7b13cb17da2f743019dfb60b54c",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:03:53.308Z"
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "a4b3a20ce602f5e4b252999fdb11830ba9c085a4",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:01.236Z"
         },
         {
           "intentRef": "contract-corpus-posthoc-tamper-rejected",
@@ -81,11 +81,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "All protocol/corpus/version/signature/floor mutations remain rejected under experimentId 330d7937e85ea9e2ac50cb9c2cabc4ff60239695fb28677075fe6755b35fe152.",
-          "headHash": "f8c1b2c73a5fb7b13cb17da2f743019dfb60b54c",
-          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
-          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
-          "timestamp": "2026-07-19T03:03:53.513Z"
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "a4b3a20ce602f5e4b252999fdb11830ba9c085a4",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:01.411Z"
         }
       ]
     },
