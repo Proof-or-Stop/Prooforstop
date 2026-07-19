@@ -722,7 +722,117 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "incremental-context-readonly-gate-neutral",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Repeated 8x per-lane advisory calls are deterministic and preserve byte-identical Story/gate inputs and outcomes.",
+          "headHash": "3a541a8889e1a42395cb2606519780344bbec062",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:23:43.755Z"
+        },
+        {
+          "intentRef": "reviewer-authoritative-read-and-escalate",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Bound basis carries repository-relative authoritative references and reasoned reviewer escalation mints full.",
+          "headHash": "3a541a8889e1a42395cb2606519780344bbec062",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:23:43.755Z"
+        },
+        {
+          "intentRef": "budget-observation-separated-from-correctness",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Measured full/incremental bytes and budgetViolation fields are independent of safety eligibility.",
+          "headHash": "3a541a8889e1a42395cb2606519780344bbec062",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:23:43.755Z"
+        },
+        {
+          "intentRef": "oversize-incremental-forces-full",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "One-byte incremental budget selects full with INCREMENTAL_BUDGET_EXCEEDED and no truncation.",
+          "headHash": "3a541a8889e1a42395cb2606519780344bbec062",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:23:43.755Z"
+        },
+        {
+          "intentRef": "oversize-full-remains-correctness-path",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Forced-full public-contract case stays full with budgetViolation=full under one-byte full budget.",
+          "headHash": "3a541a8889e1a42395cb2606519780344bbec062",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:23:43.755Z"
+        },
+        {
+          "intentRef": "full-cheaper-readonly-regression",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Oversized eligible basis selects FULL_CHEAPER_OR_EQUAL; advisory smoke separately proves repeated calls are gate-neutral.",
+          "headHash": "3a541a8889e1a42395cb2606519780344bbec062",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:23:43.755Z"
+        },
+        {
+          "intentRef": "budget-gaming-cannot-change-mode",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Budgets can only escalate incremental or record full violation; they never convert safety-required full into incremental.",
+          "headHash": "3a541a8889e1a42395cb2606519780344bbec062",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:23:43.755Z"
+        },
+        {
+          "intentRef": "readonly-command-cannot-smuggle-evidence",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Read-only API has no evidence-write arguments and store/gate snapshots remain identical across repeated calls.",
+          "headHash": "3a541a8889e1a42395cb2606519780344bbec062",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:23:43.755Z"
+        },
+        {
+          "intentRef": "unsupported-paths-and-stale-evidence-full",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Executable campaign covers untrusted legacy, rename, docs, implementation, contract, authority, policy, dependency and unknown forced-full classes.",
+          "headHash": "3a541a8889e1a42395cb2606519780344bbec062",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:23:43.755Z"
+        }
+      ]
     }
   ]
 }
