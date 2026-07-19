@@ -1,0 +1,21 @@
+{
+  "task": "Make validation lock identity and done-required command-spec digest portable across linked worktrees and hosts.",
+  "outcome": "Same story shares one validation lock across worktrees; identical logical commands digest identically across roots; legacy receipts still verify.",
+  "facts": [
+    "validationExecutionLockPath joins projectRoot (validation-execution-lock.ts:128/133)",
+    "buildDoneRequiredCommandSpecEnvelope digests absolute cwd (done-required-validation.ts:147/323/328)",
+    "RED harness 2/2 fail on baseline"
+  ],
+  "constraints": [
+    "fail-closed for genuinely different commands preserved",
+    "legacy old-shape receipts must still verify (versioned migration)"
+  ],
+  "unknowns": [
+    "exact canonical-root source: git --git-common-dir vs metadata root"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/core/done-required-validation.ts"
+  ],
+  "timestamp": "2026-07-18T22:55:33.952Z"
+}
