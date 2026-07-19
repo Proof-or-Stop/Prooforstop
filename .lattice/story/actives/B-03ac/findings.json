@@ -176,7 +176,7 @@
       "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:429-494 — HIGH coverage gap: the forced-full campaign covers only docs, one public-contract path, authority, command-policy, package.json, private TS, unknown binary, and rename. It never exercises classificationUnavailable/FULL_DYNAMIC_OR_PARSE_FAILURE, deletion/copy status, wrong-lane or stale trusted baselines, empty/no-signal storyFilesHash, Runtime/Role/render/dispatch/environment/policy drift, or caller override attempts, although eligibility-forced-full-contract-policy, eligibility-unknown-fails-closed, eligibility-raw-hash-forgery-rejected, and unsupported-paths-and-stale-evidence-full require those classes. The recorded evidence overstates the executable campaign.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T05:34:38.963Z",
@@ -184,7 +184,11 @@
       "reviewRunId": "B-03ac:RR-003",
       "_hash": "79e89f735ed0373d1000957ba176483bf3e4bceec0e3c3a601c57861678555cb",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 5f7ec42a83: production-consumed forced-full classifier matrix covers Runtime, Role, environment, assembler, dispatch, scope, task, freshness, D/R/C, parse unavailable, wrong lane/stale/empty bindings and caller overrides.",
+      "resolvedAt": "2026-07-19T06:15:54.982Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-03ac:F-011",
