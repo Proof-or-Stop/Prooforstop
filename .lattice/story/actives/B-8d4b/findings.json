@@ -101,6 +101,21 @@
       "_hash": "9ed964ab532b5c2e3ab6850e3a75a592a3493fa9373fa66660a5e168cd4a7415",
       "signatureTag": "edge|unknown|experiments-role-prompt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d4b:F-007",
+      "desc": "experiments/role-prompt-ab-replay/lib/replay.mjs:301-305,362 — HIGH: armPrompt ignores the frozen arm.promptContract value and hard-codes bytes solely from arm id. Repro: mutate protocol.arms[0].promptContract from legacy-full-context.v1 to .v2; experimentId and emitted metadata change but the A-arm promptDigest remains identical. This breaks the promised contract-drift sensitivity and can label old prompt bytes as a new contract.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T02:12:04.412Z",
+      "reviewRound": "2026-07-19T02:09:19.210Z",
+      "reviewRunId": "B-8d4b:RR-001",
+      "_hash": "0ee7e1027b772fa151cc004211a906f14ea837abd66c7ce67554f8e24b43f64b",
+      "signatureTag": "adversarial|unknown|experiments-role-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
