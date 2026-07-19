@@ -156,6 +156,32 @@
         "scanEscalationReason": null
       },
       "_hash": "7adae938c8ad13a13849fb34e2cbe9a157668aefc2a9209262dbdae0100ea128"
+    },
+    {
+      "id": "B-231d:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review: all 9 must-priority verificationIntent lanes (CHK-001/002/003 x happy/edge/adversarial) covered by manual_transcript evidence re-recorded at fix HEAD 2206d4f; smoke re-run genuinely 25/25 pass. Verified the new checks are non-tautological: F-006 builds corresponding absolute cwds from DISTINCT literals (join(mainRoot,...) vs join(worktreeRoot,...)), F-006 out-of-workspace `..`-limit check, F-005 executed-vs-configured cwd mismatch caught via receipt-cwd-mismatch, F-007 lock-visibility free-then-active transition from a worktree probe. Read implementation fully (done-required-validation.ts, lifecycle-control/runtime/index.ts) confirming repoRelativeLogicalCwd anchors at projectRoot, digest binds executed.cwd, and validationLockPath delegates to validationExecutionLockPath. evidence_inspect freshness=fresh (staleRefs=0) after re-recording; full `lattice validate` re-run clean (46/46 pass) confirms no regression. No blocker found.",
+      "createdAt": "2026-07-19T01:54:05.437Z",
+      "reviewRound": "2026-07-19T01:28:28.627Z",
+      "reviewRunId": "B-231d:RR-013",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lattice-evidence.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "112b6cc00862b2496a7aafa4403824c8afe9bab87922125c9e4d55e0ee49ed13"
     }
   ]
 }
