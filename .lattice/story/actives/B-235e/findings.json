@@ -156,6 +156,26 @@
       "_hash": "57ffdf0697b625c85a54bef298d8d7e4e3b2f14ec2602526c979482a6897ae04",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-008",
+      "desc": "The freshly rerun command recorded for concurrent-lane-write-and-collector-determinism is flaky and exposed a real lost update. `node packages/main/dist/tasks/review-incremental-context-smoke.js` passed masks 31 and 10, then mask 21 completed all child processes but `store.readReviewRuns()` contained only 4 of the expected 5 runs (`AssertionError: concurrent review_run_start preserves every lane; 4 !== 5`, dist test line 849). An immediate rerun passed all masks, confirming timing-dependent nondeterminism rather than a deterministic fixture error. Therefore the current PASS evidence cannot substantiate that concurrent five-role ReviewRun writers serialize without overwrite; one successful prior execution is insufficient for this must-level adversarial concurrency intent.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-19T09:15:28.054Z",
+      "reviewRound": "2026-07-19T09:11:23.938Z",
+      "reviewRunId": "B-235e:RR-014",
+      "_hash": "29f066450126cb48dd8d64ce9e243edc2718376b7c2b81172b966f0b2f5bc3c8",
+      "files": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/core/store.ts"
+      ],
+      "signatureTag": "adversarial|ts|freshly-rerun-command",
+      "signatureTagSource": "auto"
     }
   ]
 }
