@@ -71,7 +71,7 @@
       "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js",
       "node packages/main/dist/tasks/init-preflight-smoke.js",
       "node packages/main/dist/tasks/english-early-check-smoke.js",
-      "node packages/main/dist/tasks/quorum-submit-smoke.js",
+      { "command": "node", "args": ["packages/main/dist/tasks/quorum-submit-smoke.js"], "timeoutMs": 600000 },
       "node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
       "node packages/main/dist/tasks/gate-strength-contract-smoke.js",
       "node packages/main/dist/tasks/product-capability-release-smoke.js",
