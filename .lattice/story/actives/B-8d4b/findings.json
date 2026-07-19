@@ -306,6 +306,26 @@
       "_hash": "a5bda6b85e464075a20e77d9b4e62182158e25022170e8034685003888232bc7",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d4b:F-018",
+      "desc": "experiments/role-prompt-ab-replay/selfcheck.mjs:193-201,758-771 and docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md:1099-1104 — HIGH: the F-014 repair makes concurrency stable by replacing snapshots of production pass/finding/ReviewRun/verification/validation/lifecycle artifacts with hashes of immutable TypeScript source files. That proves implementation files did not change during the process, but it no longer tests the Story acceptance claim that the experiment writes no production evidence or process-fact event; a new `.lattice/story` pass/finding/event write would leave all five source files unchanged and the 47-check selfcheck would still print drift NONE. Preserve concurrency stability without dropping the target: run the replay/selfcheck against an isolated copy/sandbox of the canonical evidence roots, or attribute/filter concurrent external events while asserting the experiment PID/run identity produced no production artifact/event. Update the canonical decision claim or restore mechanically equivalent runtime-evidence proof.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T02:55:23.105Z",
+      "reviewRound": "2026-07-19T02:53:38.210Z",
+      "reviewRunId": "B-8d4b:RR-012",
+      "_hash": "78f99d87187768ae5878e202715c4920ea1c959cfed9b0ad3f7e60a85f984389",
+      "files": [
+        "experiments/role-prompt-ab-replay/selfcheck.mjs",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "experiments/role-prompt-ab-replay/README.md"
+      ],
+      "signatureTag": "missing|mjs|experiments-role-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
