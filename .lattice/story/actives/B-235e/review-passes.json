@@ -815,6 +815,23 @@
         "scanEscalationReason": null
       },
       "_hash": "48e4982632a898516462282acc318c432e2c8de551c0a2b8108535f01b5c9b6f"
+    },
+    {
+      "id": "B-235e:RP-034",
+      "agent": "lattice-review-docs",
+      "note": "Round 17 second same-round docs re-attestation passed on authoritative Prompt Envelope e5cb2df at current HEAD a93dd0151f. This run remains bound to reviewRound 2026-07-19T22:57:57.775Z and independently reports incremental/SAFE_INCREMENTAL with ELIGIBLE_NO_MATERIAL_CHANGE and ELIGIBLE_TRUSTED_PRIOR_BINDINGS, changedFiles=[], affectedContracts=[], impactedFiles=[], findingDeltas=[], and unresolvedFindings=[]. The only intervening changes are reviewer-pass metadata from the first convergence pass and sibling lanes. Step 1 extracted 0 new code symbols and Step 2 compared 0 additional documentation paragraphs; no code/documentation contract or promised behavior changed, so the prior docs conclusion remains valid.",
+      "createdAt": "2026-07-19T23:01:36.962Z",
+      "reviewRound": "2026-07-19T22:57:57.775Z",
+      "reviewRunId": "B-235e:RR-065",
+      "envelopeId": "e5cb2dff01ef7ba6abc01e4314ce96be0ef7a6e1d9aa7bf609396cc36f824444",
+      "writerSessionId": "sess-476100f59d979f9fd34feeeb69b7f272",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "62922d430ea4a0f0f2aa4b2eddbbd30e51aaeac0eaefe768dc6d181e2fb13be6"
     }
   ]
 }
