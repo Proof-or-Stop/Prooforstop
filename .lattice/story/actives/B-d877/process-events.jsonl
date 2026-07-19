@@ -10,3 +10,5 @@
 {"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-07-19T02:02:43.686Z"}
 {"type":"dispatch","checklistId":"CHK-002","timestamp":"2026-07-19T02:04:35.883Z"}
 {"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-07-19T02:11:58.448Z"}
+{"type":"human_confirmation","storyId":"B-d877","attemptId":"","command":"story_resume","confirmation":"convergence_breaker_resume","reason":"false-positive freeze: gate-repeat accumulated from the transition.lock-in-story-dir self-deadlock (now fixed by relocating the lock to gitignored .lattice/locks/transition/); all DEV gates pass, smoke 18/18; user authorized clearing to advance","phase":"DEV","reviewRound":"","timestamp":"2026-07-19T02:27:33.506Z"}
+{"type":"phase_transition","storyId":"B-d877","attemptId":"2026-07-19T02:27:46.689Z","fromPhase":"DEV","toPhase":"REVIEW","materialHash":"b54d07bfd0224d6542d575a9daf4416d8bf4113636cb0118554c6a47c96c3cab","storyFilesHash":"b3e23fec817abe037d58b9bab7e7dabeafbebb2a1c4118f40b55b9bd21799089","reviewRound":"2026-07-19T02:27:46.689Z","timestamp":"2026-07-19T02:27:48.305Z"}
