@@ -65,7 +65,7 @@
       "desc": "quality-cleanup: packages/main/src/core/story-transition-lock.ts:54-55,93-94 (staleMs=120000/deadlineMs=180000) + packages/main/src/tasks/transition-integrity-smoke.ts:210-260 (CHK-002a) — the per-story transition lock is a plain mtime-based mkdir lock with NO heartbeat/liveness renewal, so a holder that is scheduled off-CPU for >120s while still alive (not crashed) can have its lock force-reclaimed by a waiting same-owner transition, producing exactly the double-mint this story exists to prevent. This is not hypothetical: re-running the delivered, unmodified `node dist/tasks/transition-integrity-smoke.js` repeatedly on this review host, CHK-002a failed once out of ~15 runs with `successes===1` false — both concurrent workers reported {ok:true,phase:REVIEW} (a genuine double-mint), correlating with host load average ~36 on a 10-core machine at the time; 0/14 other runs failed as load dropped to ~15-25. staleMs=120000 matches the already-accepted sibling convention (MAIN_WRITE_LOCK_STALE_MS / VALIDATION_EXECUTION_LOCK_STALE_MS are also 120000), so this is not a novel regression introduced by this diff's specific choice of threshold, and is very unlikely under normal (non-contended) operation since a fixture-scale REVIEW transition with no worktree/git calls should complete in milliseconds. Flagging because the reviewer task explicitly asks to confirm the lock's stale/deadline choices are sane and because it is directly reproducible evidence against the story's core \"exactly one succeeds\" claim under host contention; recommend the story or a follow-up note that this smoke can flake on a heavily loaded shared CI/dev host for reasons unrelated to a code regression (mkdir-lock family has no heartbeat renewal to distinguish slow-but-alive from crashed), rather than being silently re-run until green.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T02:49:11.664Z",
@@ -73,7 +73,9 @@
       "reviewRunId": "B-d877:RR-001",
       "_hash": "83cbc2dd6e3001775b26071ed52254d3b62f9491ec6567740e1e6d9e56bb1ac3",
       "signatureTag": "adversarial|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-19T03:17:46.289Z",
+      "resolutionType": "fixed"
     }
   ]
 }
