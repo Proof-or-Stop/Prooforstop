@@ -9,9 +9,12 @@ import {
   validateRoleContract,
 } from './prompt-contracts.js';
 import {
+  MODULAR_REVIEWER_ROLE_IDS,
+  isModularReviewerRoleId,
   readPromptRegistry,
   readPromptTemplate,
   renderPromptEntryForHost,
+  resolvePromptTemplateBody,
   type PromptHost,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
@@ -19,6 +22,15 @@ import {
 export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
 export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
 export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
+export const ACTIVE_MODULAR_REVIEWER_ROLE_IDS = Object.freeze([...MODULAR_REVIEWER_ROLE_IDS]);
+
+export interface ResolvedPromptRoleBody {
+  roleId: string;
+  mode: PromptEnvelopeRolloutMode;
+  body: string;
+  bodyDigest: string;
+  legacyBytesRestored: boolean;
+}
 
 export interface ReviewerHostRenderIdentity {
   schemaVersion: 'proofbound.reviewer-host-render-identity.v1';
@@ -357,7 +369,12 @@ export function buildPromptRoleContracts(snapshot: PromptRegistrySnapshot = read
       requiredOutputIds: [...policy.requiredOutputIds],
       stopConditionCodes: [...policy.stopConditionCodes],
       semanticDigest: domainSeparatedDigest('role-contract.semantic.v1', roleSemanticValue(entry.agentId, policy)),
-      renderDigest: domainSeparatedDigest('role-contract.render.v1', readPromptTemplate(entry)),
+      renderDigest: domainSeparatedDigest(
+        'role-contract.render.v1',
+        isModularReviewerRoleId(entry.agentId)
+          ? resolvePromptTemplateBody(entry, 'full-envelope')
+          : readPromptTemplate(entry),
+      ),
     };
     validateRoleContract(contract);
     return contract;
@@ -509,6 +526,9 @@ export function resolvePromptEnvelopeRolloutMode(
   const roles = record.roles as Record<string, unknown>;
   for (const key of Object.keys(roles)) {
     if (!PROMPT_ROLE_CONTRACT_BY_ID.has(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.roles contains unknown role "${key}"`);
+    if (!isModularReviewerRoleId(key)) {
+      throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} is outside the five-role modular rollout`);
+    }
     if (!['legacy-full-context', 'full-envelope'].includes(roles[key] as string)) {
       throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} has unsupported mode`);
     }
@@ -521,4 +541,22 @@ export function resolvePromptEnvelopeRolloutMode(
   }
   const configured = roles[contract.roleId];
   return configured === undefined ? 'legacy-full-context' : configured as PromptEnvelopeRolloutMode;
+}
+
+export function resolvePromptRoleBody(
+  roleId: string,
+  config: unknown,
+  snapshot: PromptRegistrySnapshot = readPromptRegistry(),
+): ResolvedPromptRoleBody {
+  const mode = resolvePromptEnvelopeRolloutMode(roleId, config);
+  const entry = snapshot.agents.find(candidate => candidate.agentId === roleId);
+  if (!entry) throw new PromptRoleContractRegistryError(`unknown prompt role "${roleId}"`);
+  const body = resolvePromptTemplateBody(entry, mode);
+  return Object.freeze({
+    roleId,
+    mode,
+    body,
+    bodyDigest: domainSeparatedDigest(`reviewer-role-body.${mode}.raw-utf8.v1`, body),
+    legacyBytesRestored: mode === 'legacy-full-context' && isModularReviewerRoleId(roleId),
+  });
 }

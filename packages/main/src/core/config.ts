@@ -82,10 +82,17 @@ export interface LatticeConfig {
   fixturesDir: string;
   storyDir: string;
   requirementsDir: string;
-  /** Per-role trusted full-context rollout. Missing roles remain byte-exact legacy-full-context. */
+  /** Five independent active-reviewer rollouts. Missing roles remain byte-exact legacy-full-context. */
   promptEnvelope?: {
     version?: 'proofbound.prompt-envelope-rollout.v1';
-    roles?: Record<string, 'legacy-full-context' | 'full-envelope'>;
+    roles?: Partial<Record<
+      | 'lattice-review-behavior'
+      | 'lattice-review-concept'
+      | 'lattice-review-docs'
+      | 'lattice-review-quality'
+      | 'lattice-review-test-coverage',
+      'legacy-full-context' | 'full-envelope'
+    >>;
   };
   candidateSpecRouting?: {
     mode?: 'shadow' | 'warn' | 'enforce';

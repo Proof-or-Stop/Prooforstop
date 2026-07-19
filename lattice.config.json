@@ -6,6 +6,16 @@
   "fixturesDir": "packages/main/tests/fixtures",
   "storyDir": ".lattice/story/actives",
   "requirementsDir": "docs/requirements",
+  "promptEnvelope": {
+    "version": "proofbound.prompt-envelope-rollout.v1",
+    "roles": {
+      "lattice-review-behavior": "full-envelope",
+      "lattice-review-concept": "full-envelope",
+      "lattice-review-docs": "full-envelope",
+      "lattice-review-quality": "full-envelope",
+      "lattice-review-test-coverage": "full-envelope"
+    }
+  },
   "candidateSpecRouting": {
     "mode": "shadow",
     "candidateBudget": 8,

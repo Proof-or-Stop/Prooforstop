@@ -4,6 +4,7 @@ description: REVIEW audit: code quality (dead code / type safety / I/O isolation
 model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
+<!-- proofbound:modular-role-body:v1 -->
 <!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 

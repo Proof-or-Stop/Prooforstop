@@ -4,6 +4,7 @@ description: REVIEW review: functional correctness (userSees vs actual behavior 
 model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
+<!-- proofbound:modular-role-body:v1 -->
 <!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 

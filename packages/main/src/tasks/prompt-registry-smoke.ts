@@ -18,12 +18,21 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  MODULAR_REVIEWER_ROLE_IDS,
   PROMPT_REGISTRY_SOURCE,
   PROMPT_REGISTRY_VERSION,
   listPromptTemplateFiles,
   readPromptRegistry,
   renderPromptEntryForHost,
+  restoreLegacyPromptTemplate,
 } from '../core/prompt-registry.js';
+import {
+  ACTIVE_MODULAR_REVIEWER_ROLE_IDS,
+  PROMPT_ENVELOPE_ROLLOUT_VERSION,
+  PromptRoleContractRegistryError,
+  resolvePromptEnvelopeRolloutMode,
+  resolvePromptRoleBody,
+} from '../core/prompt-role-contract-registry.js';
 import { renderCodexAgentContent } from '../init-assets.js';
 
 const registry = readPromptRegistry();
@@ -49,10 +58,9 @@ const requiredSafetyPhrases = [
   'finding_add',
   'reviewRunId',
   'verificationEvidence',
-  'receiptVerified',
-  'productionDone',
-  'authorityDone',
-  'fullAuthorityDone',
+  'admissibilityStatus',
+  'assuranceLevel',
+  'evidenceScope',
 ];
 const qualityProofMetadataPhrases = [
   'job.metadata',
@@ -107,5 +115,63 @@ for (const entry of registry.agents) {
   material.update(`${entry.file}\0${entry.templateHash}\0${entry.bytes}\n`);
 }
 assert.equal(registry.materialHash, material.digest('hex'), 'registry material hash is deterministic');
+
+assert.deepEqual(
+  [...ACTIVE_MODULAR_REVIEWER_ROLE_IDS],
+  [...MODULAR_REVIEWER_ROLE_IDS],
+  'the modular rollout roster is exactly the five active REVIEW lanes',
+);
+const fullRoles = Object.fromEntries(MODULAR_REVIEWER_ROLE_IDS.map(roleId => [roleId, 'full-envelope']));
+const fullConfig = { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: fullRoles };
+for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
+  const entry = registry.agents.find(candidate => candidate.agentId === roleId)!;
+  const legacy = resolvePromptRoleBody(roleId, {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [roleId]: 'legacy-full-context' },
+  });
+  const modular = resolvePromptRoleBody(roleId, fullConfig);
+  assert.equal(legacy.body, restoreLegacyPromptTemplate(entry), `${roleId} rollback restores frozen bytes`);
+  assert.equal(legacy.legacyBytesRestored, true);
+  assert.equal(modular.mode, 'full-envelope');
+  assert.equal(modular.legacyBytesRestored, false);
+  assert.ok(Buffer.byteLength(modular.body) < Buffer.byteLength(legacy.body), `${roleId} modular body is smaller`);
+  assert.notEqual(modular.bodyDigest, legacy.bodyDigest, `${roleId} bodies are independently content-addressed`);
+
+  const oneRoleConfig = {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [roleId]: 'full-envelope' },
+  };
+  for (const otherRoleId of MODULAR_REVIEWER_ROLE_IDS) {
+    assert.equal(
+      resolvePromptEnvelopeRolloutMode(otherRoleId, oneRoleConfig),
+      otherRoleId === roleId ? 'full-envelope' : 'legacy-full-context',
+      `${roleId} rollout flag does not bleed into ${otherRoleId}`,
+    );
+  }
+}
+for (let mask = 0; mask < 2 ** MODULAR_REVIEWER_ROLE_IDS.length; mask += 1) {
+  const roles = Object.fromEntries(MODULAR_REVIEWER_ROLE_IDS.map((roleId, index) => [
+    roleId,
+    (mask & (1 << index)) === 0 ? 'legacy-full-context' : 'full-envelope',
+  ]));
+  const config = { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles };
+  for (const [roleId, expected] of Object.entries(roles)) {
+    assert.equal(resolvePromptEnvelopeRolloutMode(roleId, config), expected, `mixed rollout mask ${mask} keeps ${roleId}`);
+  }
+}
+assert.equal(resolvePromptEnvelopeRolloutMode('lattice-review-concept', undefined), 'legacy-full-context');
+for (const roles of [
+  { 'lattice-review-channel': 'full-envelope' },
+  { 'implementation-reviewer': 'full-envelope' },
+  { 'unknown-reviewer': 'full-envelope' },
+]) {
+  assert.throws(
+    () => resolvePromptEnvelopeRolloutMode('lattice-review-concept', {
+      version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+      roles,
+    }),
+    PromptRoleContractRegistryError,
+  );
+}
 
 console.log(`✓ prompt registry smoke passed: ${registry.agentCount} agents rendered for claude and codex`);

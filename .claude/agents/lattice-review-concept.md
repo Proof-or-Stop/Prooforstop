@@ -4,6 +4,7 @@ description: REVIEW review: concept deletion completeness (grep scan for residua
 model: sonnet
 tools: Grep, Glob, Bash
 ---
+<!-- proofbound:modular-role-body:v1 -->
 <!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 

@@ -4,6 +4,7 @@ description: REVIEW review: documentation-code consistency (narrowed input: only
 model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
+<!-- proofbound:modular-role-body:v1 -->
 <!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 
