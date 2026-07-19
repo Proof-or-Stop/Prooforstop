@@ -50,10 +50,10 @@
           "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
           "result": "pass",
           "note": "transition-integrity smoke (79 checks): dev_finish routes through runStoryTransition — phase=REVIEW, currentReviewRound minted, phase_transition toPhase=REVIEW. RED red-s1-devfinish-bypass.mjs 4/4 FAIL on baseline -> GREEN.",
-          "headHash": "31d32308acfacb6118329029c43f60187dbc89b3",
-          "materialHash": "b35e2f61e51da0ba8abef99cb5c59ca6654b817dd416e08e9a93f22923bd8fff",
-          "storyFilesHash": "468382d8f18fa26aa43ba1f41dc6638ac5d2df5619d9616e24ba89170d1361e0",
-          "timestamp": "2026-07-19T11:56:22.374Z"
+          "headHash": "486d3e36e3d6712e707512176d5c7cebf25cc81e",
+          "materialHash": "b2c93cb530b199ec6cdb24642b5d91a8fb1a75f7e225d1c20ce3fe5384882981",
+          "storyFilesHash": "6b1c037caaf4c4f18eca410f76e06656a825ba17e6877c0990365ecfdee912d6",
+          "timestamp": "2026-07-19T11:57:28.940Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
           "result": "pass",
           "note": "transition-integrity smoke (79 checks): dev_merge also routes through runStoryTransition (second bypass door closed), no raw phase-write. RED red-s1-devfinish-bypass.mjs GREEN.",
-          "headHash": "31d32308acfacb6118329029c43f60187dbc89b3",
-          "materialHash": "b35e2f61e51da0ba8abef99cb5c59ca6654b817dd416e08e9a93f22923bd8fff",
-          "storyFilesHash": "468382d8f18fa26aa43ba1f41dc6638ac5d2df5619d9616e24ba89170d1361e0",
-          "timestamp": "2026-07-19T11:56:22.374Z"
+          "headHash": "486d3e36e3d6712e707512176d5c7cebf25cc81e",
+          "materialHash": "b2c93cb530b199ec6cdb24642b5d91a8fb1a75f7e225d1c20ce3fe5384882981",
+          "storyFilesHash": "6b1c037caaf4c4f18eca410f76e06656a825ba17e6877c0990365ecfdee912d6",
+          "timestamp": "2026-07-19T11:57:28.940Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,10 +72,10 @@
           "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
           "result": "pass",
           "note": "transition-integrity smoke (79 checks): neither handler writes story.phase directly and no TEST-mislabeled event is produced (toPhase=REVIEW; labels INIT/REVIEW). RED red-s1-devfinish-bypass.mjs GREEN.",
-          "headHash": "31d32308acfacb6118329029c43f60187dbc89b3",
-          "materialHash": "b35e2f61e51da0ba8abef99cb5c59ca6654b817dd416e08e9a93f22923bd8fff",
-          "storyFilesHash": "468382d8f18fa26aa43ba1f41dc6638ac5d2df5619d9616e24ba89170d1361e0",
-          "timestamp": "2026-07-19T11:56:22.374Z"
+          "headHash": "486d3e36e3d6712e707512176d5c7cebf25cc81e",
+          "materialHash": "b2c93cb530b199ec6cdb24642b5d91a8fb1a75f7e225d1c20ce3fe5384882981",
+          "storyFilesHash": "6b1c037caaf4c4f18eca410f76e06656a825ba17e6877c0990365ecfdee912d6",
+          "timestamp": "2026-07-19T11:57:28.940Z"
         }
       ]
     },
@@ -134,10 +134,10 @@
           "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
           "result": "pass",
           "note": "transition-integrity smoke (79 checks): two concurrent same-owner DEV->REVIEW transitions produce exactly one currentReviewRound and one phase_transition event; CHK-002a spawns 2 real concurrent procs — 5/5 double-mint without the lock, 1 with.",
-          "headHash": "31d32308acfacb6118329029c43f60187dbc89b3",
-          "materialHash": "b35e2f61e51da0ba8abef99cb5c59ca6654b817dd416e08e9a93f22923bd8fff",
-          "storyFilesHash": "468382d8f18fa26aa43ba1f41dc6638ac5d2df5619d9616e24ba89170d1361e0",
-          "timestamp": "2026-07-19T11:56:22.374Z"
+          "headHash": "486d3e36e3d6712e707512176d5c7cebf25cc81e",
+          "materialHash": "b2c93cb530b199ec6cdb24642b5d91a8fb1a75f7e225d1c20ce3fe5384882981",
+          "storyFilesHash": "6b1c037caaf4c4f18eca410f76e06656a825ba17e6877c0990365ecfdee912d6",
+          "timestamp": "2026-07-19T11:57:28.940Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -145,10 +145,10 @@
           "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
           "result": "pass",
           "note": "transition-integrity smoke (79 checks): the losing transition observes the committed post-transition state, not a stale re-mint (per-story transition lock held across read/gate/persist).",
-          "headHash": "31d32308acfacb6118329029c43f60187dbc89b3",
-          "materialHash": "b35e2f61e51da0ba8abef99cb5c59ca6654b817dd416e08e9a93f22923bd8fff",
-          "storyFilesHash": "468382d8f18fa26aa43ba1f41dc6638ac5d2df5619d9616e24ba89170d1361e0",
-          "timestamp": "2026-07-19T11:56:22.374Z"
+          "headHash": "486d3e36e3d6712e707512176d5c7cebf25cc81e",
+          "materialHash": "b2c93cb530b199ec6cdb24642b5d91a8fb1a75f7e225d1c20ce3fe5384882981",
+          "storyFilesHash": "6b1c037caaf4c4f18eca410f76e06656a825ba17e6877c0990365ecfdee912d6",
+          "timestamp": "2026-07-19T11:57:28.940Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -156,10 +156,10 @@
           "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
           "result": "pass",
           "note": "transition-integrity smoke (79 checks): a transition that throws mid-critical-section releases the lock (no deadlock); ownership-checked release never deletes a successor dir (CHK-002d/d2/d3) and the F-017 mismatch-restore leak is bounded + stale-reclaimable (CHK-002d4).",
-          "headHash": "31d32308acfacb6118329029c43f60187dbc89b3",
-          "materialHash": "b35e2f61e51da0ba8abef99cb5c59ca6654b817dd416e08e9a93f22923bd8fff",
-          "storyFilesHash": "468382d8f18fa26aa43ba1f41dc6638ac5d2df5619d9616e24ba89170d1361e0",
-          "timestamp": "2026-07-19T11:56:22.374Z"
+          "headHash": "486d3e36e3d6712e707512176d5c7cebf25cc81e",
+          "materialHash": "b2c93cb530b199ec6cdb24642b5d91a8fb1a75f7e225d1c20ce3fe5384882981",
+          "storyFilesHash": "6b1c037caaf4c4f18eca410f76e06656a825ba17e6877c0990365ecfdee912d6",
+          "timestamp": "2026-07-19T11:57:28.940Z"
         }
       ]
     }
