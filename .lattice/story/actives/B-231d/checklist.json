@@ -49,33 +49,33 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
           "result": "pass",
-          "note": "worktree-portability smoke (25 checks, exit 0) at fix HEAD 2206d4f, post F-005/F-006/F-007 fix (commit f39ef9f967); covers validationExecutionLockPath cross-worktree lock identity.",
-          "headHash": "85ba6902f3c3e190ae6385b4db07d696923e39c3",
-          "materialHash": "ea1ac433d1024a7ec28cfc1c80514b9f7ad77d1ea492113d2727473a50e60913",
-          "storyFilesHash": "2fc781a23072e50f1d011b42cd4c3e7646f63df5e5008029719238ff0fb082fb",
-          "timestamp": "2026-07-19T01:36:04.899Z"
+          "note": "Re-verified at HEAD 2eca6544 post F-009/F-010 fix (29/29 checks, exit 0). validationExecutionLockPath returns the identical lock path for mainRoot and a real linked worktree of the same story.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
           "result": "pass",
-          "note": "worktree-portability smoke (25 checks, exit 0) at fix HEAD 2206d4f; non-git dir falls back to root lock path without throwing.",
-          "headHash": "85ba6902f3c3e190ae6385b4db07d696923e39c3",
-          "materialHash": "ea1ac433d1024a7ec28cfc1c80514b9f7ad77d1ea492113d2727473a50e60913",
-          "storyFilesHash": "2fc781a23072e50f1d011b42cd4c3e7646f63df5e5008029719238ff0fb082fb",
-          "timestamp": "2026-07-19T01:36:04.899Z"
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). A non-git temp dir falls back to a lock path rooted at itself without throwing.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
           "result": "pass",
-          "note": "worktree-portability smoke (25 checks, exit 0) at fix HEAD 2206d4f; different storyIds still get different locks, plain repo unchanged.",
-          "headHash": "85ba6902f3c3e190ae6385b4db07d696923e39c3",
-          "materialHash": "ea1ac433d1024a7ec28cfc1c80514b9f7ad77d1ea492113d2727473a50e60913",
-          "storyFilesHash": "2fc781a23072e50f1d011b42cd4c3e7646f63df5e5008029719238ff0fb082fb",
-          "timestamp": "2026-07-19T01:36:04.899Z"
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). Different storyIds under the same root still resolve to different lock paths; plain-repo lock behavior unchanged.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
         }
       ]
     },
@@ -131,33 +131,33 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
           "result": "pass",
-          "note": "worktree-portability smoke (25 checks, exit 0) at fix HEAD 2206d4f; buildDoneRequiredCommandSpecEnvelope digests identically for the same logical command under two worktree roots (schema v2).",
-          "headHash": "85ba6902f3c3e190ae6385b4db07d696923e39c3",
-          "materialHash": "ea1ac433d1024a7ec28cfc1c80514b9f7ad77d1ea492113d2727473a50e60913",
-          "storyFilesHash": "2fc781a23072e50f1d011b42cd4c3e7646f63df5e5008029719238ff0fb082fb",
-          "timestamp": "2026-07-19T01:36:04.899Z"
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). buildDoneRequiredCommandSpecEnvelope digests identically for the same logical command under mainRoot and worktreeRoot (schema v2, cwd=.).",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
           "result": "pass",
-          "note": "worktree-portability smoke (25 checks, exit 0) at fix HEAD 2206d4f; legacy schema v1 absolute-cwd receipt still verifies under validateCommandSpecDigestCoverage migration.",
-          "headHash": "85ba6902f3c3e190ae6385b4db07d696923e39c3",
-          "materialHash": "ea1ac433d1024a7ec28cfc1c80514b9f7ad77d1ea492113d2727473a50e60913",
-          "storyFilesHash": "2fc781a23072e50f1d011b42cd4c3e7646f63df5e5008029719238ff0fb082fb",
-          "timestamp": "2026-07-19T01:36:04.899Z"
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). A legacy schema-v1 absolute-cwd envelope still verifies via validateCommandSpecDigestCoverage under the migration (matchesEnvelope accepts v1 OR v2).",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
           "result": "pass",
-          "note": "worktree-portability smoke (25 checks, exit 0) at fix HEAD 2206d4f; genuinely different commands digest differently, plus F-002 isolation check (only cwd varies) digest differs.",
-          "headHash": "85ba6902f3c3e190ae6385b4db07d696923e39c3",
-          "materialHash": "ea1ac433d1024a7ec28cfc1c80514b9f7ad77d1ea492113d2727473a50e60913",
-          "storyFilesHash": "2fc781a23072e50f1d011b42cd4c3e7646f63df5e5008029719238ff0fb082fb",
-          "timestamp": "2026-07-19T01:36:04.899Z"
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). Genuinely different commands digest differently; F-002 isolates cwd-only variation (args/shell/env fixed) as a regression guard.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
         }
       ]
     },
@@ -213,33 +213,33 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
           "result": "pass",
-          "note": "worktree-portability smoke (25 checks, exit 0) at fix HEAD 2206d4f; envelope.resolvedCwd records the resolved absolute physical workspace path per root.",
-          "headHash": "85ba6902f3c3e190ae6385b4db07d696923e39c3",
-          "materialHash": "ea1ac433d1024a7ec28cfc1c80514b9f7ad77d1ea492113d2727473a50e60913",
-          "storyFilesHash": "2fc781a23072e50f1d011b42cd4c3e7646f63df5e5008029719238ff0fb082fb",
-          "timestamp": "2026-07-19T01:36:04.899Z"
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). envelope.resolvedCwd records the resolved absolute physical workspace path per root (mainRoot vs worktreeRoot).",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
           "result": "pass",
-          "note": "worktree-portability smoke (25 checks, exit 0) at fix HEAD 2206d4f; two different physical roots (mainRoot vs worktreeRoot) yield the same digest but different resolvedCwd provenance values.",
-          "headHash": "85ba6902f3c3e190ae6385b4db07d696923e39c3",
-          "materialHash": "ea1ac433d1024a7ec28cfc1c80514b9f7ad77d1ea492113d2727473a50e60913",
-          "storyFilesHash": "2fc781a23072e50f1d011b42cd4c3e7646f63df5e5008029719238ff0fb082fb",
-          "timestamp": "2026-07-19T01:36:04.899Z"
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). mainRoot and worktreeRoot yield the SAME digest but DIFFERENT resolvedCwd provenance values.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
           "result": "pass",
-          "note": "worktree-portability smoke (25 checks, exit 0) at fix HEAD 2206d4f; resolvedCwd differs while digest stays equal (provenance excluded from digest), and F-002 shows altering the logical cwd changes the digest.",
-          "headHash": "85ba6902f3c3e190ae6385b4db07d696923e39c3",
-          "materialHash": "ea1ac433d1024a7ec28cfc1c80514b9f7ad77d1ea492113d2727473a50e60913",
-          "storyFilesHash": "2fc781a23072e50f1d011b42cd4c3e7646f63df5e5008029719238ff0fb082fb",
-          "timestamp": "2026-07-19T01:36:04.899Z"
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). resolvedCwd differs while digest stays equal (provenance excluded); F-002 shows altering the logical cwd DOES change the digest, confirming isolation of digest-affecting vs provenance-only fields.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
         }
       ]
     }
