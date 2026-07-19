@@ -245,10 +245,29 @@
       "anchors": [
         "collectManagedAssets"
       ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required F-005 repair from a reproduced self-invalidating reviewer run: the scope diff reader used Node default 1 MiB maxBuffer, so the large B-235e diff collapsed to zero hunks after review metadata crossed the threshold; using the established 32 MiB git-tree output cap preserves the same business diff hash before and after protocol metadata writes.",
+      "timestamp": "2026-07-19T09:11:08.349Z",
+      "paths": [
+        "packages/main/src/core/scope-diff-pack.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/scope-diff-pack.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2ec14a42b7b3c1a07149db8c2d871754b2ebb1b9",
+      "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
+      "anchors": [
+        "readUnifiedDiff"
+      ]
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T08:58:11.347Z",
+  "updatedAt": "2026-07-19T09:11:08.349Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -314,6 +333,7 @@
     "packages/main/src/tasks/codex-registry-mode-smoke.ts": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
     "packages/main/src/tasks/prompt-token-cost-smoke.ts": "packages/main/src/tasks/prompt-token-cost-smoke.ts",
     "packages/main/src/core/agent-asset-resolution.ts": "packages/main/src/core/agent-asset-resolution.ts",
-    "packages/main/src/core/managed-assets.ts": "packages/main/src/core/managed-assets.ts"
+    "packages/main/src/core/managed-assets.ts": "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/core/scope-diff-pack.ts": "packages/main/src/core/scope-diff-pack.ts"
   }
 }
