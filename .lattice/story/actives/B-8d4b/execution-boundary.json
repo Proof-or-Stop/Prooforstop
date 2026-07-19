@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8d4b",
+  "allowedCommands": [
+    "git diff",
+    "git log",
+    "git ls-files",
+    "git show",
+    "git status",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git read-only and normal local commit/merge",
+    "Lattice CLI",
+    "Node.js",
+    "npm",
+    "rg"
+  ],
+  "allowedPaths": [
+    ".lattice/experiments",
+    "experiments/role-prompt-ab-replay",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean -fd *",
+    "git push *",
+    "git reset --hard *",
+    "live provider execution commands",
+    "manual writes to Story or fixture stores",
+    "omx *"
+  ],
+  "excludedTools": [
+    "OMX",
+    "remote provider dispatch",
+    "remote publishing"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "production Story evidence outside Lattice commands",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Historical material is read-only. Experiment outputs must remain in the isolated experiment namespace and must never be accepted by production evidence or lifecycle gates. Later Story 4-7 capabilities are excluded.",
+  "createdAt": "2026-07-19T01:31:18.371Z",
+  "updatedAt": "2026-07-19T01:31:18.371Z",
+  "_hash": "be70c3646c68a9a5a2b01064a333f70bfe132ec389b5ee02fe977e7bc8df38ed"
+}

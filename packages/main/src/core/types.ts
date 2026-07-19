@@ -788,6 +788,8 @@ export interface ReviewPass {
   reviewRound?: string;
   /** Signed reviewer-run binding for current REVIEW evidence. */
   reviewRunId?: string;
+  /** New-format pass must equal the envelopeId signed by its ReviewRun. */
+  envelopeId?: string;
   /** Signed self-reported reviewer read coverage. Missing only on legacy passes. */
   readManifest?: ReviewerReadManifest;
   /** Signed mechanical reviewer read-log summary when read events/log input was supplied. */
@@ -836,6 +838,13 @@ export interface ReviewRun {
   materialHash: string;
   storyFilesHash?: string;
   promptHash: string;
+  /** Content-addressed full Prompt Envelope; absent only for bounded legacy-full-context history/rollback. */
+  envelopeId?: string;
+  /**
+   * Exact bytes delivered by review_run_start in full-envelope mode. The
+   * domain-separated digest is promptHash and is also bound by envelopeId.
+   */
+  assembledPrompt?: string;
   /**
    * B-6bfd CHK-005: scope/diff/hunk binding for scope-protected stories. Present
    * only when the story has a scope contract at review_run_start time; absent for

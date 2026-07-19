@@ -369,7 +369,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-097f CHK-002: agent_prompt — host-neutral shared content endpoint. Returns
   // the canonical role body straight from the package prompt registry (the same
   // registry the Codex manifest resolves). Claude thin-shims fetch from here.
-  registry.registerBatch(createAgentPromptHandlers());
+  registry.registerBatch(createAgentPromptHandlers(ctx));
   registry.registerBatch(createPromptMeasurementHandlers());
 
   // Proofbound productized export and cross-host handoff surfaces.

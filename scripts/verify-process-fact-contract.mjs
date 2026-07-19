@@ -154,6 +154,8 @@ const requiredProcessFactSemantics = {
   parent_roadmap_evaluate: ['schema-contract', 'verification-policy'],
 };
 const requiredRuntimeFactSemantics = {
+  'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
+  'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 };
@@ -166,13 +168,13 @@ const requiredReviewerLanes = [
   'lattice-review-test-coverage',
   'lattice-review-behavior',
   'lattice-review-docs',
-  'lattice-review-channel',
   'lattice-review-delivery',
 ];
 const requiredArtifactFacts = [
   { name: 'artifact:index.json', path: 'index.json', signed: false },
   { name: 'artifact:review.json', path: 'review.json', signed: true, signaturePattern: /sha256\(storyId:timestamp:issueCount:blockerCount/ },
   { name: 'artifact:checklist.json', path: 'checklist.json', signed: false },
+  { name: 'artifact:prompt-envelopes.json', path: 'prompt-envelopes.json', signed: false },
   { name: 'artifact:init-check.json', path: 'init-check.json', signed: true, signaturePattern: /signInitCheck\/recomputeInitCheckHash/ },
   { name: 'artifact:scope-boundary.json', path: 'scope-boundary.json', signed: true, signaturePattern: /stable scope boundary _hash/ },
   { name: 'artifact:execution-boundary.json', path: 'execution-boundary.json', signed: true, signaturePattern: /stable execution boundary _hash/ },
@@ -183,7 +185,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
   { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
-  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures; writerSessionId-inclusive records bind writer session provenance \(writerSessionId \+ sessionSource \+ provenanceFlag, absent flag canonicalized to empty\) in a versioned domain with no legacy fallback/ },
+  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
@@ -4589,7 +4591,8 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
 
   const promptReviewerLanes = listMarkdown('packages/main/templates/agents')
     .map(relPath => basename(relPath, '.md'))
-    .filter(name => name.startsWith('lattice-review-') || name === 'product-reviewer');
+    .filter(name => (name.startsWith('lattice-review-') || name === 'product-reviewer')
+      && name !== 'lattice-review-channel');
   for (const lane of promptReviewerLanes) {
     assert(
       registry.has(`reviewer-lane:${lane}`),
@@ -5583,12 +5586,37 @@ const inventory = [
     name: 'review_run_start',
     files: [
       {
-        relPath: 'packages/main/src/handlers/review-run.ts',
-        patterns: ['review_run_start', 'resolveReviewRunLane', 'captureReviewRunSnapshot', 'buildReviewRunWorkspaceBinding', 'workspaceBinding', 'signReviewRun', 'writeReviewRuns', 'Review run'],
+        relPath: 'packages/main/src/core/owner-session-adapters.ts',
+        patterns: [
+          'explicitProvider',
+          "return normalizeProvider(explicitProvider) ?? 'unknown'",
+          'CODEX_THREAD_ID',
+          'CLAUDE_CODE_SESSION_ID',
+        ],
       },
       {
-        relPath: 'packages/main/src/cli-engine.ts',
-        patterns: ['review_run_start', 'promptHash: z.string()', 'lane: z.enum'],
+        relPath: 'packages/main/src/handlers/story-dispatch.ts',
+        patterns: [
+          'reviewerPromptHostForProvider',
+          'currentReviewerPromptHost',
+          'unsupported session host provider',
+          'hostRenderHost',
+          'hostRenderIdentityDigest',
+          'dispatchBindingDigest',
+        ],
+      },
+      {
+        relPath: 'packages/main/src/handlers/review-run.ts',
+        patterns: ['review_run_start', 'resolveReviewRunLane', 'captureReviewRunSnapshot', 'buildReviewRunWorkspaceBinding', 'verifyCurrentReviewerDispatchBinding', 'dispatchPrompt', 'hostRenderHost', 'hostRenderIdentityDigest', 'workspaceBinding', 'signReviewRun', 'writeReviewRuns', 'Review run'],
+      },
+      {
+        relPath: 'packages/main/src/cli/command-catalog.ts',
+        patterns: [
+          'review_run_start',
+          'lane: z.enum',
+          'reviewedIntentRefs',
+          { label: 'caller-controlled promptHash removed', absentRegex: /promptHash:\s*z\.string\(\)/ },
+        ],
       },
     ],
   },

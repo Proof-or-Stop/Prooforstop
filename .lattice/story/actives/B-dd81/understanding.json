@@ -1,0 +1,42 @@
+{
+  "task": "Build trusted full-context Story-aware Prompt assembly and bind its content-addressed envelope to signed review evidence and eligibility gates.",
+  "outcome": "Running agent_prompt --role=lattice-review-quality --storyId=B-dd81 --format=json prints a deterministic full Prompt Envelope ID tied to the current HEAD and Story facts; replaying it for another HEAD, round, or ReviewRun prints a stable rejection, and compatibility-only evidence leaves REVIEW/quorum readiness blocked.",
+  "facts": [
+    "Story 1 already provides strict canonical JSON, domain-separated digests, PromptEnvelope types, measurement algorithms, and a frozen 16-role lifecycle registry.",
+    "agent_prompt currently accepts only role and returns the package role body byte-for-byte.",
+    "ReviewRun is the existing signed authority for reviewRunId, lane, round, HEAD, material/storyFiles hashes, scope and workspace.",
+    "ReviewPass currently binds ReviewRun indirectly through reviewRunId.",
+    "usage-ledger mintRetryAttempt preserves ledgerCallId and creates a fresh attemptId; Envelope must not own those fields.",
+    "retired lattice-review-channel remains registered as a REVIEW lane and needs shared evidence eligibility filtering."
+  ],
+  "constraints": [
+    "Full context only; incremental selection, A/B replay and budget policy remain excluded.",
+    "No-Story agent_prompt output and all 16 protected Prompt bodies must remain byte-identical.",
+    "The main Agent cannot supply context payloads, envelope IDs, hashes, contextMode, round or ReviewRun bindings.",
+    "New gate evidence must be signed, content-addressed, current and mechanically verified; legacy compatibility is bounded to existing full-context records.",
+    "Prompt/process facts require registry plus verifier updates.",
+    "Provider calls and hidden wrapper claims remain unavailable and must not be fabricated."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-07-18T20:09:37.431Z"
+}

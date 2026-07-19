@@ -470,7 +470,11 @@ assert.equal(canonicalJsonStringify(AGENT_DISPATCH_REGISTRY), dispatchBefore);
 assert.equal(resolveAgentDispatchType('test-intent').canonicalType, 'verification-intent');
 assert.equal(resolveAgentDispatchType('test-case-reviewer').canonicalType, 'verification-intent');
 assert.equal(resolveAgentDispatchType('product-reviewer').entry.allowedPhases[0], 'INIT');
-assert.equal(resolveAgentDispatchType('lattice-review-channel').entry.allowedPhases[0], 'REVIEW');
+assert.throws(
+  () => resolveAgentDispatchType('lattice-review-channel'),
+  /retired agentType "lattice-review-channel"/,
+  'retired prompt remains readable in the prompt registry but cannot be newly dispatched',
+);
 assert.equal(AGENT_DISPATCH_REGISTRY.some(entry => String(entry.canonicalName) === 'implementation-reviewer'), false);
 
 rejects(

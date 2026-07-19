@@ -1,3 +1,6 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
 import {
   canonicalJsonStringify,
   domainSeparatedDigest,
@@ -8,10 +11,144 @@ import {
 import {
   readPromptRegistry,
   readPromptTemplate,
+  renderPromptEntryForHost,
+  type PromptHost,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
 
 export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
+export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
+export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
+
+export interface ReviewerHostRenderIdentity {
+  schemaVersion: 'proofbound.reviewer-host-render-identity.v1';
+  roleId: string;
+  host: PromptHost;
+  source: 'full-asset' | 'package-registry';
+  packageTemplateDigest: string;
+  hostRenderDigest: string;
+  identityDigest: string;
+}
+
+type ReviewerHostRenderSource = ReviewerHostRenderIdentity['source'];
+
+function readJsonRecord(path: string): Record<string, unknown> | null {
+  if (!existsSync(path)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(path, 'utf8'));
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : null;
+  } catch {
+    throw new PromptRoleContractRegistryError(`${path} is not valid JSON`);
+  }
+}
+
+function normalizeHostRenderSource(value: unknown): ReviewerHostRenderSource | null {
+  if (typeof value !== 'string') return null;
+  const normalized = value.trim().toLowerCase().replace(/_/g, '-');
+  if (['runtime-owned', 'global-thin', 'thin', 'registry', 'pinned-runtime'].includes(normalized)) {
+    return 'package-registry';
+  }
+  if (['full-asset', 'full', 'legacy-mirror', 'local'].includes(normalized)) {
+    return 'full-asset';
+  }
+  return null;
+}
+
+function globalHostRenderSource(projectRoot: string): ReviewerHostRenderSource | null {
+  for (const relPath of ['.lattice/lattice.json', '.Lattice/lattice.json']) {
+    const manifest = readJsonRecord(join(projectRoot, relPath));
+    if (!manifest) continue;
+    const source = normalizeHostRenderSource(
+      manifest.agentAssetMode ?? manifest.assetMode ?? manifest.promptMode,
+    );
+    if (source) return source;
+  }
+  return null;
+}
+
+function reviewerHostRenderSource(
+  projectRoot: string,
+  host: PromptHost,
+  file: string,
+): ReviewerHostRenderSource {
+  const globalSource = globalHostRenderSource(projectRoot);
+  if (host === 'codex') {
+    const codexManifest = readJsonRecord(join(projectRoot, '.lattice-codex', 'lattice.json'));
+    const codexSource = normalizeHostRenderSource(
+      codexManifest?.agentAssetMode ?? codexManifest?.assetMode ?? codexManifest?.promptMode,
+    );
+    if (codexSource === 'package-registry') return codexSource;
+    if (globalSource === 'package-registry') return globalSource;
+    if (codexSource === 'full-asset') return codexSource;
+    if (
+      codexManifest?.adapterOwner === 'lattice'
+      && codexManifest.adapterKind === 'codex'
+      && codexManifest.promptMode === undefined
+    ) {
+      return 'full-asset';
+    }
+  } else if (globalSource) {
+    return globalSource;
+  }
+  if (globalSource) return globalSource;
+  const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
+  return existsSync(join(projectRoot, relDir, file)) ? 'full-asset' : 'package-registry';
+}
+
+function assertExactHostAsset(path: string, expected: string, host: PromptHost): string {
+  if (!existsSync(path)) throw new PromptRoleContractRegistryError(`missing ${host} reviewer prompt asset: ${path}`);
+  const actual = readFileSync(path, 'utf8');
+  if (actual !== expected) {
+    throw new PromptRoleContractRegistryError(
+      `${host} reviewer prompt asset drift: ${path} does not equal the canonical package render`,
+    );
+  }
+  return actual;
+}
+
+/**
+ * Proves that one host-visible role prompt is the exact deterministic render of
+ * the package registry entry. Runtime-owned/thin hosts bind the package render
+ * without requiring project assets. Explicit full-asset hosts bind only their
+ * own materialized mirror, never another host's files.
+ */
+export function reviewerHostRenderIdentity(
+  projectRoot: string,
+  roleId: string,
+  host: PromptHost = 'codex',
+): ReviewerHostRenderIdentity {
+  const registry = readPromptRegistry();
+  const entry = registry.agents.find(candidate => candidate.agentId === roleId);
+  if (!entry) throw new PromptRoleContractRegistryError(`unknown reviewer prompt role "${roleId}"`);
+  if (!isPromptRoleEligibleForReviewEvidence(roleId)) {
+    throw new PromptRoleContractRegistryError(`role "${roleId}" is not eligible for reviewer host rendering`);
+  }
+  const packageTemplate = readPromptTemplate(entry);
+  const expectedHostRender = renderPromptEntryForHost(entry, host);
+  const source = reviewerHostRenderSource(projectRoot, host, entry.file);
+  const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
+  const hostRender = source === 'package-registry'
+    ? expectedHostRender
+    : assertExactHostAsset(
+      join(projectRoot, relDir, entry.file),
+      expectedHostRender,
+      host,
+    );
+  const semantic = {
+    schemaVersion: 'proofbound.reviewer-host-render-identity.v1' as const,
+    roleId,
+    host,
+    source,
+    packageTemplateDigest: domainSeparatedDigest('reviewer-package-template.raw-utf8.v1', packageTemplate),
+    hostRenderDigest: domainSeparatedDigest(`reviewer-${host}-render.raw-utf8.v1`, hostRender),
+  };
+  return {
+    ...semantic,
+    identityDigest: domainSeparatedDigest('reviewer-host-render-identity.v1', semantic),
+  };
+}
 
 interface RolePolicy {
   status: RoleLifecycleStatus;
@@ -332,3 +469,56 @@ function deepFreezeRoleContract(contract: RoleContract): Readonly<RoleContract> 
 export const PROMPT_ROLE_CONTRACTS = Object.freeze(
   buildPromptRoleContracts().map(deepFreezeRoleContract),
 );
+
+const PROMPT_ROLE_CONTRACT_BY_ID = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
+
+export function promptRoleContract(roleId: string): Readonly<RoleContract> {
+  const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(roleId);
+  if (!contract) throw new PromptRoleContractRegistryError(`unknown prompt role "${roleId}"`);
+  return contract;
+}
+
+/** Gate evidence is owned only by active canonical REVIEW lanes, never compatibility/retired prompts. */
+export function isPromptRoleEligibleForReviewEvidence(roleId: string | undefined | null): boolean {
+  if (!roleId) return false;
+  const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(roleId);
+  return contract?.status === 'active'
+    && contract.allowedCommandIds.includes('review_run_start')
+    && contract.allowedCommandIds.includes('review_pass_set');
+}
+
+export function resolvePromptEnvelopeRolloutMode(
+  roleId: string,
+  config: unknown,
+): PromptEnvelopeRolloutMode {
+  const contract = promptRoleContract(roleId);
+  if (config === undefined || config === null) return 'legacy-full-context';
+  if (typeof config !== 'object' || Array.isArray(config) || Object.getPrototypeOf(config) !== Object.prototype) {
+    throw new PromptRoleContractRegistryError('promptEnvelope config must be a plain object');
+  }
+  const record = config as Record<string, unknown>;
+  for (const key of Object.keys(record)) {
+    if (!['version', 'roles'].includes(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.${key} is unknown`);
+  }
+  if (record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION) {
+    throw new PromptRoleContractRegistryError(`promptEnvelope.version must be ${PROMPT_ENVELOPE_ROLLOUT_VERSION}`);
+  }
+  if (!record.roles || typeof record.roles !== 'object' || Array.isArray(record.roles) || Object.getPrototypeOf(record.roles) !== Object.prototype) {
+    throw new PromptRoleContractRegistryError('promptEnvelope.roles must be a plain object');
+  }
+  const roles = record.roles as Record<string, unknown>;
+  for (const key of Object.keys(roles)) {
+    if (!PROMPT_ROLE_CONTRACT_BY_ID.has(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.roles contains unknown role "${key}"`);
+    if (!['legacy-full-context', 'full-envelope'].includes(roles[key] as string)) {
+      throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} has unsupported mode`);
+    }
+    if (roles[key] === 'full-envelope' && promptRoleContract(key).status !== 'active') {
+      throw new PromptRoleContractRegistryError(`${key} is ${promptRoleContract(key).status} and cannot enable full-envelope`);
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(roles, '__proto__') || Object.prototype.hasOwnProperty.call(roles, 'constructor')) {
+    throw new PromptRoleContractRegistryError('promptEnvelope.roles contains a forbidden prototype key');
+  }
+  const configured = roles[contract.roleId];
+  return configured === undefined ? 'legacy-full-context' : configured as PromptEnvelopeRolloutMode;
+}
