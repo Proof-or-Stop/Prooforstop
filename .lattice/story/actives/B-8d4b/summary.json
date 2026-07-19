@@ -1,10 +1,10 @@
 {
   "storyId": "B-8d4b",
   "changes": "Added an isolated experiment-only role-prompt A/B replay harness with a pinned three-class corpus, deterministic same-input replay, append-only non-authoritative usage ledger, fail-closed historical measurement semantics, full .lattice-tree no-drift checks, and canonical Story 3 status updates.",
-  "usage": "Run `node experiments/role-prompt-ab-replay/selfcheck.mjs` for the 49-check contract and isolation proof; run `node experiments/role-prompt-ab-replay/run.mjs --json` for deterministic per-cell replay data; run `node experiments/role-prompt-ab-replay/analyze.mjs --json` for ledger analysis.",
+  "usage": "Run `node experiments/role-prompt-ab-replay/selfcheck.mjs` for the 49-check proof. For a persisted operator ledger, run `node experiments/role-prompt-ab-replay/run.mjs --ledger=runtime/operator-run.jsonl --run-id=operator-run-001 --json`, then analyze that same file with `node experiments/role-prompt-ab-replay/analyze.mjs --ledger=runtime/operator-run.jsonl --json`.",
   "expectedOutcome": "The terminal reports Protocol PASS, deterministic same-input Replay PASS, historical Prompt cost INCONCLUSIVE with PROMPT_SNAPSHOT_UNAVAILABLE, historical Recall INCONCLUSIVE with ADJUDICATION_EVIDENCE_UNVERIFIED, a non-historical hermetic fixture marked EVALUABLE, a non-authoritative experiment ledger PASS, and Isolated production evidence drift: NONE.",
-  "actualTranscript": "Protocol PASS for experiment 330d7937e... with 3 classes, 6 samples, 3 or more repeats, 4 seeded oracles, 2 signed historical findings, and 0 adjudicated replay findings; Replay PASS sameInput=true deterministic=true; Prompt cost INCONCLUSIVE/PROMPT_SNAPSHOT_UNAVAILABLE; Recall INCONCLUSIVE/ADJUDICATION_EVIDENCE_UNVERIFIED; Hermetic fixture EVALUABLE with historicalEvidence=false; Experiment ledger PASS gateEvidence=false; Isolated production evidence drift NONE; Selfcheck PASS checks=49.",
-  "outcomeDiff": "No difference: the fresh live-smoke transcript matches the corrected fail-closed user-visible expectation.",
+  "actualTranscript": "Protocol PASS for experiment 330d7937e... with 3 classes, 6 samples, 3 or more repeats, 4 seeded oracles, 2 signed historical findings, and 0 adjudicated replay findings; Replay PASS sameInput=true deterministic=true; Prompt cost INCONCLUSIVE/PROMPT_SNAPSHOT_UNAVAILABLE; Recall INCONCLUSIVE/ADJUDICATION_EVIDENCE_UNVERIFIED; Hermetic fixture EVALUABLE with historicalEvidence=false; Experiment ledger PASS gateEvidence=false; Isolated production evidence drift NONE; Selfcheck PASS checks=49. The persisted operator command produced 36 cells and analyze reported gateEvidence=false with 36 attempts.",
+  "outcomeDiff": "No difference: the fresh live-smoke transcript and persisted-ledger command sequence match the corrected user-visible expectation.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
@@ -12,7 +12,7 @@
     "skipped": []
   },
   "limitations": "Historical prompt-cost and recall conclusions correctly remain INCONCLUSIVE because the pinned corpus has no reconstructable prompt snapshots or independently verified replay outputs; the EVALUABLE hermetic fixture is explicitly non-historical.",
-  "pitfalls": "The implementation required several adversarial review rounds to remove synthetic evidence paths and strengthen isolation. Final TEST preflight also exposed legacy Chinese metadata and then a stale user-facing transcript; both were corrected through legal PLAN rollback and independently re-reviewed. Future changes should preserve exact output-field alignment and never infer unavailable historical values.",
+  "pitfalls": "The implementation required several adversarial review rounds to remove synthetic evidence paths and strengthen isolation. Final delivery review also caught that analyze requires an explicit ledger and ledger-producing replay requires a run ID; both commands were rerun successfully. Future changes should preserve exact output-field and CLI-argument alignment and never infer unavailable historical values.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 56603
+      "durationMs": 402749
     }
   },
-  "totalDurationMs": 8912726,
+  "totalDurationMs": 9258872,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-07-19T03:57:18.969Z",
-  "updatedAt": "2026-07-19T03:57:18.969Z"
+  "updatedAt": "2026-07-19T04:03:05.115Z"
 }
