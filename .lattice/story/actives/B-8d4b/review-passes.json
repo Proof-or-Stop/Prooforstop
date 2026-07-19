@@ -478,6 +478,43 @@
         "scanEscalationReason": null
       },
       "_hash": "4becaccc2bfac050c365897ee1b1d65fe4607466f35f3c32ecba9e764cf88a5c"
+    },
+    {
+      "id": "B-8d4b:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 quality review found no merge-main interaction regression: the merge changed no Story-owned experiment or decision files, current package build passes, all 49 selfchecks pass against the merged framework, and the signed run binds materialHash 10b34aa with unchanged storyFilesHash 3b4f0b0.",
+      "createdAt": "2026-07-19T04:30:42.773Z",
+      "reviewRound": "2026-07-19T04:29:33.613Z",
+      "reviewRunId": "B-8d4b:RR-029",
+      "writerSessionId": "sess-f7a2a0f533e1e60cdc80160470ffbf35",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/scope-check.json",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-experiment-protocol.md",
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5fefe7c2da8255398658a937414dbca9e184d6bfd155a28ae5a3b8aaf705ff69"
     }
   ]
 }
