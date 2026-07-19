@@ -126,7 +126,7 @@
       "desc": "concept-cleanup: exactly-one-selected-role-body is fixed only for project full-asset mode, not the supported runtime-owned/global-thin paths. packages/main/src/core/global-agents.ts:289-293 still renders every global Claude shim with renderAgentShim, whose body runs agent_prompt --role and injects the selected modular role body before that reviewer follows its role instructions and calls review_run_start, which returns an assembled prompt containing the same selected role body again. Codex promptMode=registry likewise resolves the package template directly, while reviewerHostRenderIdentity marks package-registry mode with no bootstrapDigest and binds only one selectedRoleBodyDigest. Thus thin hosts receive role-body + assembled role-body (and a legacy rollout can receive modular body + selected legacy body), contradicting docs/process-fact claims that runtime-owned/thin directly binds one selected body. Generate the reviewer-run bootstrap for the five modular roles in syncGlobalAgents and the Codex registry adapter path as well, or mechanically bind and honestly model both inputs. [HIGH]",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T09:13:21.790Z",
@@ -140,7 +140,11 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
       "signatureTag": "missing|ts|concept-cleanup-exactly",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a260249f64 and 3701766bd9; migrated role bootstrap-only paths and exact selected-body semantics verified by current prompt/Codex/Claude smokes and fresh review passes.",
+      "resolvedAt": "2026-07-19T11:08:36.161Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-007",
