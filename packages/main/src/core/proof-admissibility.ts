@@ -386,7 +386,7 @@ export const PROOF_SURFACE_REGISTRY = [
     allowedClaims: [
       { claim: 'review-pass', consumers: ['REVIEW'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'Structured local host verdict rounds may satisfy only the local REVIEW assurance floor; they never prove Authority or production completion.',
+    producerBoundaryNote: 'Structured local host verdict rounds may satisfy only the local REVIEW assurance floor; they never prove external Authority acceptance or production-grade readiness.',
     remediation: 'Run the configured current-material multi-host quorum path and consume its host verdicts only for the local REVIEW assurance floor.',
   },
   {
