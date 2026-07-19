@@ -167,6 +167,25 @@
       "_hash": "f5cec0d6f48b1ecb3b9a582fa59d6b64589bf0aacf2dd637d4b7c4b4a3d5c759",
       "signatureTag": "missing|unknown|host-codex-round",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-231d:F-010",
+      "desc": "CHK-002:happy:0 (must) verificationEvidence overclaims coverage. worktree-portability-smoke.ts's cross-root check (F-001, lines ~363-407) calls only validateRequiredReceiptCoverage cross-root; it never calls validateCommandSpecDigestCoverage (or the aggregate evaluateDoneRequiredEvidence, which ANDs both validators per F-008) cross-root. Confirmed by direct repro against the built dist: for a v2 receipt written under a worktree root with commandSpec built from that worktree's own absolute cwd, validateRequiredReceiptCoverage(receipt, mainRoot, [cmd]) returns [] (valid) but validateCommandSpecDigestCoverage(receipt, mainRoot, [cmd]) returns {valid:false, reasons:['command-spec-digest-mismatch[0]: suite']} -- because it reconstructs the expected v2 envelope from the receipt's absolute physical cwd re-normalized against the CURRENT (main) projectRoot, which relativizes to .worktrees/<id> instead of the portable logical value. This matches host-B codex findings F-008/F-009 already filed this round (verified, open, high). Net effect: the smoke's 25/25 pass gives false confidence that cross-root DONE-required evidence verification works, when the aggregate gate would still reject a genuinely valid cross-worktree receipt. Fix required in done-required-validation.ts (reconstruct the v2 digest from receiptLogicalCwd, not a re-normalized absolute cwd) plus a new smoke check exercising validateCommandSpecDigestCoverage (or the aggregate evaluator) cross-root before this evidence can be trusted.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-19T01:56:25.692Z",
+      "reviewRound": "2026-07-19T01:28:28.627Z",
+      "reviewRunId": "B-231d:RR-013",
+      "_hash": "f49fb492f1a238de06ea96a9910aef37f541cfac561c62b131d40581ffd42780",
+      "files": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/tasks/worktree-portability-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-verificationevidence-overclaims",
+      "signatureTagSource": "auto"
     }
   ]
 }
