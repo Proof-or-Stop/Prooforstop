@@ -7,9 +7,11 @@ import {
   promptUtf8Bytes,
   reviewerDispatchPromptDigest,
   validateFullTaskContext,
+  validateIncrementalReviewBasis,
   validateKnownExecutionEnvironment,
   validatePromptEnvelope,
   type FullTaskContext,
+  type IncrementalReviewBasis,
   type KnownExecutionEnvironment,
   type PromptEnvelope,
   type RoleContract,
@@ -48,6 +50,27 @@ export interface FullPromptAssembly {
   envelope: PromptEnvelope;
 }
 
+export interface ConditionalReviewAssemblyInput extends FullPromptAssemblyInput {
+  incrementalEligible: boolean;
+  eligibilityDigest: string;
+  eligibilityReasonCodes: string[];
+  freshnessClassification: string;
+  impactPolicyVersion: string;
+  priorPassRef?: string;
+  changedFilesDigest: string;
+  impactedFilesDigest: string;
+  reviewBasis?: IncrementalReviewBasis | null;
+  incrementalBudgetBytes?: number;
+  fullBudgetBytes?: number;
+  reviewerEscalationReason?: string;
+}
+
+export interface ConditionalReviewAssembly extends FullPromptAssembly {
+  selectionReason: NonNullable<PromptEnvelope['selectionReason']>;
+  fullPrompt: string;
+  incrementalPrompt?: string;
+}
+
 function renderFullPrompt(
   runtimeContract: RuntimeContract,
   roleContract: RoleContract,
@@ -69,6 +92,30 @@ function renderFullPrompt(
   if (dispatchPrompt !== undefined) sections.push('## Dispatch Prompt', dispatchPrompt);
   sections.push('## Role Prompt', rolePrompt);
   return sections.join('\n\n');
+}
+
+function renderIncrementalPrompt(
+  runtimeContract: RuntimeContract,
+  roleContract: RoleContract,
+  reviewBasis: IncrementalReviewBasis,
+  environment: KnownExecutionEnvironment,
+  rolePrompt: string,
+  dispatchPrompt: string,
+): string {
+  return [
+    '## Runtime Contract',
+    runtimeContract.compactText,
+    '## Role Contract',
+    canonicalJsonStringify(roleContract),
+    '## Incremental Review Basis',
+    canonicalJsonStringify(reviewBasis),
+    '## Known Execution Environment',
+    canonicalJsonStringify(environment),
+    '## Dispatch Prompt',
+    dispatchPrompt,
+    '## Role Prompt',
+    rolePrompt,
+  ].join('\n\n');
 }
 
 function assertContractRenderCoherence(
@@ -295,6 +342,105 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
   validatePromptEnvelope(envelope);
   if (!verifyPromptEnvelopeIntegrity(envelope)) throw new Error('assembled Prompt Envelope failed integrity verification');
   return { prompt, taskContext: input.taskContext, knownExecutionEnvironment: environment, envelope };
+}
+
+/**
+ * Safety is resolved before cost. A required full prompt remains full even when
+ * over budget; cost can only select full from an already-safe incremental path.
+ */
+export function assembleConditionalReviewPromptEnvelope(
+  input: ConditionalReviewAssemblyInput,
+): ConditionalReviewAssembly {
+  if (input.dispatchKind !== 'review-run') {
+    throw new Error('conditional review assembly is available only for review-run dispatch');
+  }
+  const full = assembleFullPromptEnvelope(input);
+  const fullBudgetBytes = Number.isSafeInteger(input.fullBudgetBytes) && input.fullBudgetBytes! >= 0
+    ? input.fullBudgetBytes!
+    : 256_000;
+  const incrementalBudgetBytes = Number.isSafeInteger(input.incrementalBudgetBytes) && input.incrementalBudgetBytes! >= 0
+    ? input.incrementalBudgetBytes!
+    : 64_000;
+  const fullBudgetViolation = full.envelope.bytes > fullBudgetBytes;
+  const basis = input.reviewBasis ?? null;
+  const safetyRequiresFull = !input.incrementalEligible || !basis;
+  let incrementalPrompt: string | undefined;
+  if (basis) {
+    validateIncrementalReviewBasis(basis);
+    incrementalPrompt = renderIncrementalPrompt(
+      input.runtimeContract,
+      input.roleContract,
+      basis,
+      full.knownExecutionEnvironment,
+      input.rolePrompt,
+      input.dispatchPrompt!,
+    );
+  }
+  const incrementalBytes = incrementalPrompt ? promptUtf8Bytes(incrementalPrompt) : undefined;
+  let selectionReason: NonNullable<PromptEnvelope['selectionReason']>;
+  if (input.reviewerEscalationReason?.trim()) {
+    selectionReason = 'REVIEWER_REQUESTED_FULL';
+  } else if (safetyRequiresFull) {
+    selectionReason = 'SAFETY_REQUIRES_FULL';
+  } else if (incrementalBytes! > incrementalBudgetBytes) {
+    selectionReason = 'INCREMENTAL_BUDGET_EXCEEDED';
+  } else if (incrementalBytes! >= full.envelope.bytes) {
+    selectionReason = 'FULL_CHEAPER_OR_EQUAL';
+  } else {
+    selectionReason = 'SAFE_INCREMENTAL';
+  }
+  const contextMode = selectionReason === 'SAFE_INCREMENTAL' ? 'incremental' as const : 'full' as const;
+  const prompt = contextMode === 'incremental' ? incrementalPrompt! : full.prompt;
+  const envelopeBase: PromptEnvelope = {
+    ...full.envelope,
+    contextMode,
+    eligibilityDecision: contextMode,
+    contextDigest: contextMode === 'incremental'
+      ? domainSeparatedDigest('incremental-review-basis.v1', basis!)
+      : full.envelope.contextDigest,
+    ...(input.priorPassRef ? { priorPassRef: input.priorPassRef } : {}),
+    eligibilityDigest: input.eligibilityDigest,
+    freshnessClassification: input.freshnessClassification,
+    impactPolicyVersion: input.impactPolicyVersion,
+    eligibilityReasonCodes: [...new Set(input.eligibilityReasonCodes)].sort(),
+    changedFilesDigest: input.changedFilesDigest,
+    impactedFilesDigest: input.impactedFilesDigest,
+    ...(basis ? {
+      reviewBasisDigest: domainSeparatedDigest('incremental-review-basis.v1', basis),
+      incrementalContextDigest: domainSeparatedDigest('incremental-review-context.raw-utf8.v1', incrementalPrompt!),
+    } : {}),
+    selectionReason,
+    fullContextBytes: full.envelope.bytes,
+    ...(incrementalBytes !== undefined ? { incrementalContextBytes: incrementalBytes } : {}),
+    escalatedToFull: contextMode === 'full' && Boolean(basis),
+    ...(selectionReason === 'REVIEWER_REQUESTED_FULL'
+      ? { escalationReason: input.reviewerEscalationReason!.trim() }
+      : selectionReason !== 'SAFE_INCREMENTAL' && basis
+        ? { escalationReason: selectionReason }
+        : {}),
+    ...((contextMode === 'full' && fullBudgetViolation)
+      ? { budgetViolation: 'full' as const }
+      : (selectionReason === 'INCREMENTAL_BUDGET_EXCEEDED')
+        ? { budgetViolation: 'incremental' as const }
+        : {}),
+    assembledPromptDigest: domainSeparatedDigest('assembled-prompt.raw-utf8.v1', prompt),
+    bytes: promptUtf8Bytes(prompt),
+    lines: promptLogicalLines(prompt),
+    estimatedTokens: estimatePromptTokens(prompt),
+  };
+  const provisional = { ...envelopeBase, envelopeId: '0'.repeat(64) };
+  const envelope = { ...envelopeBase, envelopeId: computePromptEnvelopeId(provisional) };
+  validatePromptEnvelope(envelope);
+  if (!verifyPromptEnvelopeIntegrity(envelope)) throw new Error('conditional Prompt Envelope failed integrity verification');
+  return {
+    prompt,
+    taskContext: full.taskContext,
+    knownExecutionEnvironment: full.knownExecutionEnvironment,
+    envelope,
+    selectionReason,
+    fullPrompt: full.prompt,
+    ...(incrementalPrompt ? { incrementalPrompt } : {}),
+  };
 }
 
 /**

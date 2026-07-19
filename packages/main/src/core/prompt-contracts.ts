@@ -168,6 +168,26 @@ export interface FullTaskContext {
   scope?: FullTaskScopeContext;
 }
 
+export interface IncrementalReviewBasis {
+  schemaVersion: 'proofbound.incremental-review-basis.v1';
+  storyId: string;
+  lane: string;
+  priorPassRef: string;
+  priorReviewRunId: string;
+  priorEnvelopeId: string;
+  reReviewReasonCodes: string[];
+  changedFiles: string[];
+  impactedFiles: string[];
+  impactedIntentRefs: string[];
+  currentClaims: Array<{ intentRef: string; claim: string; state: string }>;
+  invariants: string[];
+  findingDeltas: Array<{ id: string; state: string; severity: string; category: string }>;
+  unresolvedFindings: Array<{ id: string; severity: string; category: string; desc: string }>;
+  affectedContracts: string[];
+  authoritativeReferences: string[];
+  scopeAcknowledgementDigest?: string;
+}
+
 export interface PromptEnvelope {
   schemaVersion: 'proofbound.prompt-envelope.v1';
   envelopeId: string;
@@ -194,6 +214,18 @@ export interface PromptEnvelope {
   eligibilityDecision: 'full' | 'incremental';
   eligibilityDigest: string;
   freshnessClassification?: string;
+  impactPolicyVersion?: string;
+  eligibilityReasonCodes?: string[];
+  changedFilesDigest?: string;
+  impactedFilesDigest?: string;
+  reviewBasisDigest?: string;
+  incrementalContextDigest?: string;
+  selectionReason?: 'SAFETY_REQUIRES_FULL' | 'SAFE_INCREMENTAL' | 'FULL_CHEAPER_OR_EQUAL' | 'INCREMENTAL_BUDGET_EXCEEDED' | 'REVIEWER_REQUESTED_FULL';
+  fullContextBytes?: number;
+  incrementalContextBytes?: number;
+  escalatedToFull?: boolean;
+  escalationReason?: string;
+  budgetViolation?: 'incremental' | 'full';
   knownExecutionEnvironmentDigest: string;
   assemblerVersion: string;
   dispatchProtocolVersion: string;
@@ -559,7 +591,10 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   const optional = [
     'reviewRunId', 'reviewRound', 'lane', 'priorPassRef', 'materialHash', 'storyFilesHash', 'policyHash',
     'freshnessClassification', 'toolPolicyDigest', 'systemInstructionDigest', 'requestedModelId',
-    'dispatchPromptDigest', 'hostRenderIdentityDigest',
+    'dispatchPromptDigest', 'hostRenderIdentityDigest', 'impactPolicyVersion', 'eligibilityReasonCodes',
+    'changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest',
+    'selectionReason', 'fullContextBytes', 'incrementalContextBytes', 'escalatedToFull',
+    'escalationReason', 'budgetViolation',
   ];
   requireExactKeys(record, required, optional, 'PromptEnvelope');
   if (record.schemaVersion !== 'proofbound.prompt-envelope.v1') throw new PromptContractValidationError('PromptEnvelope.schemaVersion is unsupported');
@@ -569,6 +604,35 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   if (!['story-dispatch', 'review-run'].includes(record.dispatchKind as string)) throw new PromptContractValidationError('PromptEnvelope.dispatchKind is invalid');
   if (!['full', 'incremental'].includes(record.contextMode as string) || record.contextMode !== record.eligibilityDecision) {
     throw new PromptContractValidationError('PromptEnvelope context and eligibility bindings are inconsistent');
+  }
+  if (record.contextMode === 'incremental') {
+    for (const key of [
+      'priorPassRef', 'freshnessClassification', 'impactPolicyVersion', 'changedFilesDigest',
+      'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest',
+    ]) requireNonblank(record[key], `PromptEnvelope.${key}`);
+    requireStringArray(record.eligibilityReasonCodes, 'PromptEnvelope.eligibilityReasonCodes');
+    if (record.selectionReason !== 'SAFE_INCREMENTAL') {
+      throw new PromptContractValidationError('incremental PromptEnvelope.selectionReason must be SAFE_INCREMENTAL');
+    }
+  }
+  for (const key of ['changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest']) {
+    if (record[key] !== undefined) requireDigest(record[key], `PromptEnvelope.${key}`);
+  }
+  if (record.eligibilityReasonCodes !== undefined) requireStringArray(record.eligibilityReasonCodes, 'PromptEnvelope.eligibilityReasonCodes');
+  for (const key of ['fullContextBytes', 'incrementalContextBytes']) {
+    if (record[key] !== undefined) requireNonnegativeInteger(record[key], `PromptEnvelope.${key}`);
+  }
+  if (record.escalatedToFull !== undefined && typeof record.escalatedToFull !== 'boolean') {
+    throw new PromptContractValidationError('PromptEnvelope.escalatedToFull must be boolean');
+  }
+  if (record.selectionReason !== undefined && ![
+    'SAFETY_REQUIRES_FULL', 'SAFE_INCREMENTAL', 'FULL_CHEAPER_OR_EQUAL',
+    'INCREMENTAL_BUDGET_EXCEEDED', 'REVIEWER_REQUESTED_FULL',
+  ].includes(record.selectionReason as string)) {
+    throw new PromptContractValidationError('PromptEnvelope.selectionReason is invalid');
+  }
+  if (record.budgetViolation !== undefined && !['incremental', 'full'].includes(record.budgetViolation as string)) {
+    throw new PromptContractValidationError('PromptEnvelope.budgetViolation is invalid');
   }
   if (record.dispatchKind === 'review-run') {
     requireNonblank(record.reviewRunId, 'PromptEnvelope.reviewRunId');
@@ -584,9 +648,6 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   } else if (record.dispatchPromptDigest !== undefined || record.hostRenderIdentityDigest !== undefined) {
     throw new PromptContractValidationError('story-dispatch PromptEnvelope cannot carry reviewer host dispatch authority');
   }
-  if (record.contextMode !== 'full' || record.eligibilityDecision !== 'full' || record.priorPassRef !== undefined) {
-    throw new PromptContractValidationError('Story 2 PromptEnvelope supports full context only');
-  }
   const optionalDigests = [
     'materialHash', 'storyFilesHash', 'policyHash', 'toolPolicyDigest', 'systemInstructionDigest',
     'dispatchPromptDigest', 'hostRenderIdentityDigest',
@@ -594,7 +655,10 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   for (const key of optionalDigests.filter(key => record[key] !== undefined)) {
     requireDigest(record[key], `PromptEnvelope.${key}`);
   }
-  const optionalText = ['priorPassRef', 'freshnessClassification', 'requestedModelId'];
+  const optionalText = [
+    'priorPassRef', 'freshnessClassification', 'requestedModelId', 'impactPolicyVersion',
+    'escalationReason',
+  ];
   for (const key of optionalText.filter(key => record[key] !== undefined)) {
     requireNonblank(record[key], `PromptEnvelope.${key}`);
   }
@@ -616,6 +680,43 @@ export function validateKnownExecutionEnvironment(value: unknown): asserts value
   }
   if (record.source !== 'trusted-local-runtime') {
     throw new PromptContractValidationError('KnownExecutionEnvironment.source is invalid');
+  }
+}
+
+export function validateIncrementalReviewBasis(value: unknown): asserts value is IncrementalReviewBasis {
+  const record = asRecord(value, 'IncrementalReviewBasis');
+  requireExactKeys(record, [
+    'schemaVersion', 'storyId', 'lane', 'priorPassRef', 'priorReviewRunId', 'priorEnvelopeId',
+    'reReviewReasonCodes', 'changedFiles', 'impactedFiles', 'impactedIntentRefs', 'currentClaims',
+    'invariants', 'findingDeltas', 'unresolvedFindings', 'affectedContracts', 'authoritativeReferences',
+  ], ['scopeAcknowledgementDigest'], 'IncrementalReviewBasis');
+  if (record.schemaVersion !== 'proofbound.incremental-review-basis.v1') {
+    throw new PromptContractValidationError('IncrementalReviewBasis.schemaVersion is unsupported');
+  }
+  for (const key of ['storyId', 'lane', 'priorPassRef', 'priorReviewRunId', 'priorEnvelopeId']) {
+    requireBoundedText(record[key], `IncrementalReviewBasis.${key}`);
+  }
+  for (const key of [
+    'reReviewReasonCodes', 'changedFiles', 'impactedFiles', 'impactedIntentRefs',
+    'invariants', 'affectedContracts', 'authoritativeReferences',
+  ]) requireBoundedStringArray(record[key], `IncrementalReviewBasis.${key}`);
+  if (record.scopeAcknowledgementDigest !== undefined) {
+    requireDigest(record.scopeAcknowledgementDigest, 'IncrementalReviewBasis.scopeAcknowledgementDigest');
+  }
+  for (const [key, required] of [
+    ['currentClaims', ['intentRef', 'claim', 'state']],
+    ['findingDeltas', ['id', 'state', 'severity', 'category']],
+    ['unresolvedFindings', ['id', 'severity', 'category', 'desc']],
+  ] as const) {
+    if (!Array.isArray(record[key])) throw new PromptContractValidationError(`IncrementalReviewBasis.${key} must be an array`);
+    if ((record[key] as unknown[]).length > FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane) {
+      throw new PromptContractValidationError(`IncrementalReviewBasis.${key} exceeds bounded entries`);
+    }
+    (record[key] as unknown[]).forEach((entry, index) => {
+      const item = asRecord(entry, `IncrementalReviewBasis.${key}[${index}]`);
+      requireExactKeys(item, required, [], `IncrementalReviewBasis.${key}[${index}]`);
+      required.forEach(field => requireBoundedText(item[field], `IncrementalReviewBasis.${key}[${index}].${field}`));
+    });
   }
 }
 

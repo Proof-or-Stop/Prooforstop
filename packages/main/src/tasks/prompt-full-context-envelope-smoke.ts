@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 
 import {
   assembleFullPromptEnvelope,
+  assembleConditionalReviewPromptEnvelope,
   computePromptEnvelopeId,
   verifyPromptEnvelopeIntegrity,
 } from '../core/prompt-envelope.js';
@@ -14,6 +15,7 @@ import {
   validateFullTaskContext,
   validatePromptEnvelope,
   type FullTaskContext,
+  type IncrementalReviewBasis,
 } from '../core/prompt-contracts.js';
 import {
   PROMPT_ENVELOPE_ROLLOUT_VERSION,
@@ -101,12 +103,98 @@ assert.equal(verifyPromptEnvelopeIntegrity(substituted), false, 'cross-envelope 
 
 assert.throws(
   () => validatePromptEnvelope({ ...first.envelope, contextMode: 'incremental', eligibilityDecision: 'incremental', priorPassRef: 'RP-1' }),
-  /full context only/,
+  /freshnessClassification|impactPolicyVersion/,
 );
 assert.throws(
   () => validatePromptEnvelope({ ...first.envelope, hiddenProviderWrapper: 'claimed' }),
   PromptContractValidationError,
 );
+
+const reviewBasis: IncrementalReviewBasis = {
+  schemaVersion: 'proofbound.incremental-review-basis.v1',
+  storyId: taskContext.storyId,
+  lane: role.roleId,
+  priorPassRef: 'RP-001',
+  priorReviewRunId: 'B-envelope:RR-000',
+  priorEnvelopeId: '1'.repeat(64),
+  reReviewReasonCodes: ['ELIGIBLE_TRUSTED_PRIOR_BINDINGS', 'ELIGIBLE_PURE_STORY_FIXTURE'],
+  changedFiles: ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts'],
+  impactedFiles: ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts'],
+  impactedIntentRefs: ['CHK-001:happy:0'],
+  currentClaims: [{ intentRef: 'CHK-001:happy:0', claim: 'Canonical full context is assembled.', state: 'done' }],
+  invariants: ['Gate evidence remains envelope-bound.'],
+  findingDeltas: [],
+  unresolvedFindings: [],
+  affectedContracts: [],
+  authoritativeReferences: ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts'],
+  scopeAcknowledgementDigest: taskContext.scopeContractDigest,
+};
+const conditionalCommon = {
+  ...common,
+  createdAt: '2026-07-18T00:00:03.000Z',
+  eligibilityDigest: '2'.repeat(64),
+  eligibilityReasonCodes: reviewBasis.reReviewReasonCodes,
+  freshnessClassification: 'CURRENT_MATERIAL',
+  impactPolicyVersion: 'proofbound.impact-classification.v1',
+  priorPassRef: reviewBasis.priorPassRef,
+  changedFilesDigest: '3'.repeat(64),
+  impactedFilesDigest: '4'.repeat(64),
+  reviewBasis,
+};
+const safeIncremental = assembleConditionalReviewPromptEnvelope({
+  ...conditionalCommon,
+  incrementalEligible: true,
+});
+assert.equal(safeIncremental.envelope.contextMode, 'incremental');
+assert.equal(safeIncremental.selectionReason, 'SAFE_INCREMENTAL');
+assert.ok(safeIncremental.envelope.incrementalContextBytes! < safeIncremental.envelope.fullContextBytes!);
+assert.equal(verifyPromptEnvelopeIntegrity(safeIncremental.envelope), true);
+
+const safetyFull = assembleConditionalReviewPromptEnvelope({
+  ...conditionalCommon,
+  incrementalEligible: false,
+  eligibilityReasonCodes: ['FULL_PUBLIC_CONTRACT'],
+});
+assert.equal(safetyFull.envelope.contextMode, 'full');
+assert.equal(safetyFull.selectionReason, 'SAFETY_REQUIRES_FULL');
+
+const fullCheaper = assembleConditionalReviewPromptEnvelope({
+  ...conditionalCommon,
+  incrementalEligible: true,
+  reviewBasis: {
+    ...reviewBasis,
+    invariants: Array.from({ length: 200 }, (_, index) => `large bounded invariant ${index} ${'x'.repeat(80)}`),
+  },
+});
+assert.equal(fullCheaper.envelope.contextMode, 'full');
+assert.equal(fullCheaper.selectionReason, 'FULL_CHEAPER_OR_EQUAL');
+
+const incrementalOverBudget = assembleConditionalReviewPromptEnvelope({
+  ...conditionalCommon,
+  incrementalEligible: true,
+  incrementalBudgetBytes: 1,
+});
+assert.equal(incrementalOverBudget.envelope.contextMode, 'full');
+assert.equal(incrementalOverBudget.selectionReason, 'INCREMENTAL_BUDGET_EXCEEDED');
+assert.equal(incrementalOverBudget.envelope.budgetViolation, 'incremental');
+
+const fullOverBudget = assembleConditionalReviewPromptEnvelope({
+  ...conditionalCommon,
+  incrementalEligible: false,
+  eligibilityReasonCodes: ['FULL_PUBLIC_CONTRACT'],
+  fullBudgetBytes: 1,
+});
+assert.equal(fullOverBudget.envelope.contextMode, 'full');
+assert.equal(fullOverBudget.envelope.budgetViolation, 'full');
+
+const reviewerEscalated = assembleConditionalReviewPromptEnvelope({
+  ...conditionalCommon,
+  incrementalEligible: true,
+  reviewerEscalationReason: 'Affected contract was omitted from the bounded basis.',
+});
+assert.equal(reviewerEscalated.envelope.contextMode, 'full');
+assert.equal(reviewerEscalated.selectionReason, 'REVIEWER_REQUESTED_FULL');
+assert.match(reviewerEscalated.envelope.escalationReason!, /Affected contract/);
 assert.throws(
   () => validateFullTaskContext({ ...taskContext, checklist: [taskContext.checklist[0], { ...taskContext.checklist[0], title: 'duplicate' }] }),
   /duplicate id/,

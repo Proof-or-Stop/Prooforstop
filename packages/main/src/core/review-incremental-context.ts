@@ -21,7 +21,7 @@
  */
 
 import type { StoryStore } from './store.js';
-import type { ReviewPass, ReviewRun } from './types.js';
+import type { Finding, ReviewPass, ReviewRun } from './types.js';
 import {
   changedFilesBetweenRenameAware,
   changedFileStatusesBetweenRenameAware,
@@ -40,7 +40,11 @@ import {
   IMPACT_CLASSIFICATION_POLICY_VERSION,
   type ImpactClassification,
 } from './impact-classification-policy.js';
-import { domainSeparatedDigest } from './prompt-contracts.js';
+import {
+  domainSeparatedDigest,
+  validateIncrementalReviewBasis,
+  type IncrementalReviewBasis,
+} from './prompt-contracts.js';
 import {
   PROMPT_DISPATCH_PROTOCOL_VERSION,
   PROMPT_ENVELOPE_ASSEMBLER_VERSION,
@@ -110,6 +114,8 @@ export interface ReviewIncrementalContext {
   changedFilesDigest: string;
   impactedFiles: string[];
   impactedFilesDigest: string;
+  reviewBasis: IncrementalReviewBasis | null;
+  reviewBasisDigest: string | null;
 }
 
 interface TrustedPriorPass {
@@ -166,11 +172,13 @@ export function reviewIncrementalContext(
 ): ReviewIncrementalContext {
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
+  const findings = store.readFindings(storyId).findings || [];
   const prior = latestTrustedPriorPass(store, storyId, role, passes, runs);
   const currentHead = currentGitHead(projectRoot) ?? null;
   const currentMaterial = currentMaterialHash(projectRoot, 'HEAD', projectRoot) ?? null;
   const currentStoryFiles = currentStoryFilesHash(projectRoot, 'HEAD', projectRoot) ?? null;
   const checklist = store.readChecklist(storyId);
+  const scopeContract = store.readScopeContract(storyId);
   const declaredTestFiles = checklist.items.flatMap(item => item.files?.test ?? []);
   const testIntentRefsByFile = Object.fromEntries(declaredTestFiles.map(path => {
     const refs = checklist.items
@@ -194,6 +202,80 @@ export function reviewIncrementalContext(
       : 'full' as const;
     const changedFilesDigest = domainSeparatedDigest('incremental.changed-files.v1', args.changedFiles);
     const impactedFilesDigest = domainSeparatedDigest('incremental.impacted-files.v1', args.impact.impactedFiles);
+    const affectedPaths = new Set([...args.changedFiles, ...args.impact.impactedFiles]);
+    const affectedItems = checklist.items.filter(item => [
+      ...(item.files?.modify ?? []),
+      ...(item.files?.create ?? []),
+      ...(item.files?.test ?? []),
+    ].some(path => affectedPaths.has(path)));
+    const impactedIntentRefs = affectedItems.flatMap(item =>
+      (['happy', 'edge', 'adversarial'] as const).flatMap(lane =>
+        (item.verificationIntent?.[lane] ?? []).map((intent, index) =>
+          intent.id?.trim() || `${item.id}:${lane}:${index}`)));
+    let reviewBasis: IncrementalReviewBasis | null = null;
+    if (args.prior) {
+      const priorTime = Date.parse(args.prior.pass.createdAt);
+      const findingDeltas = findings
+        .filter(finding => !Number.isFinite(priorTime) || Date.parse(finding.createdAt ?? '') >= priorTime)
+        .map(finding => ({
+          id: finding.id,
+          state: finding.status,
+          severity: finding.severity,
+          category: finding.category,
+        }))
+        .sort((left, right) => left.id.localeCompare(right.id));
+      const unresolvedFindings = findings
+        .filter(finding => finding.status === 'open')
+        .map(finding => ({
+          id: finding.id,
+          severity: finding.severity,
+          category: finding.category,
+          desc: finding.desc,
+        }))
+        .sort((left, right) => left.id.localeCompare(right.id));
+      const authoritativeReferences = [...new Set([
+        ...affectedItems.flatMap(item => item.relatedDocs ?? []),
+        ...args.changedFiles,
+        ...args.impact.impactedFiles,
+      ])].sort();
+      reviewBasis = {
+        schemaVersion: 'proofbound.incremental-review-basis.v1',
+        storyId,
+        lane: role,
+        priorPassRef: args.prior.pass.id,
+        priorReviewRunId: args.prior.run.reviewRunId,
+        priorEnvelopeId: args.prior.run.envelopeId!,
+        reReviewReasonCodes: eligibilityReasonCodes,
+        changedFiles: [...args.changedFiles].sort(),
+        impactedFiles: [...args.impact.impactedFiles].sort(),
+        impactedIntentRefs: [...new Set(impactedIntentRefs)].sort(),
+        currentClaims: affectedItems
+          .flatMap(item => (['happy', 'edge', 'adversarial'] as const)
+            .flatMap(lane => (item.verificationIntent?.[lane] ?? []).map((intent, index) => ({
+              intentRef: intent.id?.trim() || `${item.id}:${lane}:${index}`,
+              claim: intent.desc,
+              state: item.status,
+            }))))
+          .sort((left, right) => left.intentRef.localeCompare(right.intentRef)),
+        invariants: [
+          'Reviewer evidence remains bound to the exact current Story, lane, round, ReviewRun, Prompt Envelope, and hashes.',
+          'Missing or unclosed affected context escalates to full review.',
+          'Authoritative repository-relative references remain readable on demand.',
+        ],
+        findingDeltas,
+        unresolvedFindings,
+        affectedContracts: args.impact.impacts
+          .filter(impact => !['no-material-change', 'pure-story-fixture'].includes(impact.category))
+          .map(impact => `${impact.category}:${impact.path}`)
+          .sort(),
+        authoritativeReferences,
+        ...(scopeContract ? { scopeAcknowledgementDigest: digestScopeContract(scopeContract) } : {}),
+      };
+      validateIncrementalReviewBasis(reviewBasis);
+    }
+    const reviewBasisDigest = reviewBasis
+      ? domainSeparatedDigest('incremental-review-basis.v1', reviewBasis)
+      : null;
     const semantic = {
       impactPolicyVersion: IMPACT_CLASSIFICATION_POLICY_VERSION,
       role,
@@ -210,6 +292,7 @@ export function reviewIncrementalContext(
       changedFilesDigest,
       impactedFilesDigest,
       impactDigest: args.impact.digest,
+      reviewBasisDigest,
     };
     return {
       role,
@@ -232,6 +315,8 @@ export function reviewIncrementalContext(
       changedFilesDigest,
       impactedFiles: args.impact.impactedFiles,
       impactedFilesDigest,
+      reviewBasis,
+      reviewBasisDigest,
     };
   };
 
@@ -274,7 +359,6 @@ export function reviewIncrementalContext(
   const priorEnvelope = store.readPromptEnvelopes(storyId).envelopes.find(
     envelope => envelope.envelopeId === prior.run.envelopeId,
   );
-  const scopeContract = store.readScopeContract(storyId);
   const currentPolicyHash = scopeContract ? digestScopeContract(scopeContract) : undefined;
   const bindingReasons: string[] = [];
   if (!priorEnvelope) bindingReasons.push('FULL_MISSING_PRIOR_ENVELOPE');

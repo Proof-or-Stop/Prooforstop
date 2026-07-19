@@ -44,6 +44,10 @@ function renderIncrementalContextText(
     for (const file of ctx.impactedFiles) lines.push(`  ${file}`);
   }
   lines.push(`impactedFilesDigest: ${ctx.impactedFilesDigest}`);
+  lines.push(`reviewBasisDigest: ${ctx.reviewBasisDigest ?? '(none)'}`);
+  if (ctx.reviewBasis) {
+    lines.push(`reviewBasis: ${JSON.stringify(ctx.reviewBasis)}`);
+  }
   return lines.join('\n');
 }
 
