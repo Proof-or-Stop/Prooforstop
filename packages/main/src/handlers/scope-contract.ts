@@ -474,11 +474,32 @@ export function runScopeGate(
       { projectRoot: metadataRoot, gitCwd: resolvedGitCwd },
     );
   }
+  return runScopeGateAndDiffPack(storyId, store, metadataRoot, gitCwd).result;
+}
+
+/**
+ * B-956f FIX 6: run the scope gate AND return the diff pack it built so the
+ * caller can reuse it for the semantic-degradation event, instead of computing
+ * the full diff pack (git diff + TS AST parsing) twice per transition. Returns
+ * `{ result: null }` (no pack) when no contract is configured — the no-contract
+ * path builds its own pack for degradation diagnostics. The gitReader override
+ * is intentionally NOT supported here (it has no diff pack).
+ */
+export function runScopeGateAndDiffPack(
+  storyId: string,
+  store: import('../core/store.js').StoryStore,
+  metadataRoot: string,
+  gitCwd?: string,
+): { result: import('../core/types.js').ScopeCheckResult | null; diffPack?: ScopeDiffPack } {
+  const contract = store.readScopeContract(storyId);
+  if (!contract) return { result: null };
+  const resolvedGitCwd = gitCwd ?? metadataRoot;
   const diffPack = buildScopeDiffPack(metadataRoot, undefined, resolvedGitCwd);
-  return mergeSemanticScopeResult(
+  const result = mergeSemanticScopeResult(
     checkScopeContract(contract, diffPack.changedFiles, { projectRoot: metadataRoot, gitCwd: resolvedGitCwd }),
     checkSemanticScope(contract, diffPack),
   );
+  return { result, diffPack };
 }
 
 /**

@@ -50,7 +50,7 @@ import {
   type DoneCheckRow,
 } from '../core/done-oracle.js';
 import {
-  runScopeGate,
+  runScopeGateAndDiffPack,
   emitSemanticDegradationEvent,
 } from './scope-contract.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
@@ -413,14 +413,19 @@ export function runScopeTransitionGate(
   let result;
   try {
     const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-    result = runScopeGate(storyId, ctx.store, ctx.root, undefined, gitCwd);
+    // B-956f FIX 6: compute the full diff pack (git diff + TS AST parsing) ONCE
+    // and share it between the scope gate and the degradation-event emission —
+    // previously it was built twice per transition when a scope contract existed.
+    const scopeGate = runScopeGateAndDiffPack(storyId, ctx.store, ctx.root, gitCwd);
+    result = scopeGate.result;
     // B-956f: emit the language-neutral semantic-degradation event regardless of
     // whether a scope contract exists. The no-contract early return in
     // runScopeGate must NOT bypass diagnostics, so a pure-.go/.rs/.py story still
     // surfaces exactly one deduped semantic_analysis_unavailable event during the
     // mutating transition validation. Best-effort: never blocks the transition.
     try {
-      const diffPack = buildScopeDiffPack(ctx.root, undefined, gitCwd);
+      // Reuse the contract path's pack; only the no-contract path (no pack) builds one.
+      const diffPack = scopeGate.diffPack ?? buildScopeDiffPack(ctx.root, undefined, gitCwd);
       emitSemanticDegradationEvent(ctx.store, storyId, diffPack);
     } catch { /* degradation diagnostics are advisory; never block the transition */ }
   } catch (e) {

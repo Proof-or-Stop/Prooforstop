@@ -139,6 +139,21 @@ function isStructuralArtifactPath(path: string): boolean {
   return segments.slice(0, -1).some((segment) => STRUCTURAL_ARTIFACT_DIR_SEGMENTS.includes(segment.toLowerCase()));
 }
 
+/**
+ * B-956f FIX 4: the shared step-0 "structurally non-material artifact" predicate
+ * reused by the classifier and the exclusion preflight so precedence matches
+ * exactly. A manifest under a generated/vendored artifact directory
+ * (dist/package.json, node_modules/pkg/package.json) or a lattice runtime/build
+ * artifact is a build output's / dependency's file — NOT the project's own
+ * level-1 runtime/build manifest — so a config excludePaths entry covering it is
+ * never an immutable-manifest violation. Composes the same two structural checks
+ * the classifier applies at step 0 (no duplicated logic).
+ */
+function isStructurallyNonMaterialArtifactPath(path: string): boolean {
+  const normalized = normalizeMaterialPath(path);
+  return isStructuralArtifactPath(normalized) || isMaterialExcludedRuntimeArtifactPath(normalized);
+}
+
 /** Recursively freeze an object graph (CX4 FIX A): compiled output is strict-mode ESM, so any mutation attempt on a frozen snapshot/policy throws a TypeError. */
 function deepFreeze<T>(value: T): T {
   if (value !== null && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -190,6 +205,14 @@ export interface MaterialClassificationSnapshot {
   projectRoot?: string;
   /** Immutable per-file classification of the main...HEAD diff. */
   files: MaterialClassificationSnapshotFile[];
+  /**
+   * B-956f FIX 1: set when the main...HEAD diff enumeration itself failed (e.g.
+   * `main` is unavailable). Consumers that gate on the diff (the review-assurance
+   * floor) surface this as a hard "unable to classify git diff" block rather than
+   * silently treating an unenumerable diff as an empty (non-material) change set.
+   * Undefined on the success path and when the changed set was supplied directly.
+   */
+  diffEnumerationError?: string;
   generatedAt: string;
 }
 
@@ -350,8 +373,18 @@ function readMaterialCodeConfig(projectRoot: string): { signature: string; raw: 
   let content: string;
   try {
     content = readFileSync(configPath, 'utf8');
-  } catch {
-    return { signature: 'absent', raw: {} }; // no config file → defaults
+  } catch (err) {
+    // B-956f FIX 3(a): ONLY a genuinely-absent file (ENOENT) degrades to defaults.
+    // Any other read failure (EACCES/EISDIR/IO) is NOT "no config" — treating it as
+    // absent is fail-OPEN (an unreadable config whose removeExtensions/excludePaths
+    // silently vanish). Fail CLOSED naming the file instead.
+    if ((err as NodeJS.ErrnoException)?.code === 'ENOENT') {
+      return { signature: 'absent', raw: {} }; // no config file → defaults
+    }
+    throw new MaterialCodePolicyError(
+      LATTICE_CONFIG_FILENAME,
+      `config file exists but could not be read (${err instanceof Error ? err.message : String(err)}); material-code policy fails closed instead of degrading to defaults`,
+    );
   }
   let parsed: unknown;
   try {
@@ -596,6 +629,12 @@ export function preflightMaterialCodeExclusions(
   for (const entry of policy.excludePaths) {
     for (const file of files) {
       const path = normalizeMaterialPath(file);
+      // B-956f FIX 4: skip manifests that are structurally non-material at step 0
+      // (dist/package.json, node_modules/**, runtime artifacts) BEFORE applying
+      // immutable-manifest protection — they are not the project's level-1
+      // manifest, so excluding their directory is legitimate. This matches the
+      // classifier's precedence (step 0 runs before the level-1 rule).
+      if (isStructurallyNonMaterialArtifactPath(path)) continue;
       if (!isImmutableManifestName(policy, baseName(path))) continue;
       if (matchesScopePathEntry(entry, path)) {
         violations.push({ entry, manifest: path });
@@ -646,6 +685,12 @@ interface ChangedDiffEntry {
   hintSource: 'current' | 'old-tree';
 }
 
+interface MainToHeadDiff {
+  entries: ChangedDiffEntry[];
+  /** Set when `git diff` itself failed (e.g. `main` is unavailable). */
+  error?: string;
+}
+
 /**
  * Enumerate the main...HEAD diff with IDENTITY PRESERVED (CX4 FIX B):
  * `--name-status -z --find-renames` yields explicit D rows for deletions and
@@ -653,7 +698,7 @@ interface ChangedDiffEntry {
  * classifiable OLD-tree identity. `--name-only` loses both (a deleted
  * executable, shebang-free bin/tool classified non-material).
  */
-function listMainToHeadDiffEntries(gitCwd: string): ChangedDiffEntry[] {
+function listMainToHeadDiffEntries(gitCwd: string): MainToHeadDiff {
   let raw: string;
   try {
     raw = execFileSync('git', ['diff', '--name-status', '-z', '--find-renames', 'main...HEAD'], {
@@ -662,8 +707,11 @@ function listMainToHeadDiffEntries(gitCwd: string): ChangedDiffEntry[] {
       stdio: ['pipe', 'pipe', 'pipe'],
       maxBuffer: 64 * 1024 * 1024,
     });
-  } catch {
-    return [];
+  } catch (err) {
+    // B-956f FIX 1: surface the enumeration failure so the floor can hard-block
+    // ("unable to classify git diff against main") instead of consuming an empty
+    // (non-material) change set — a silent bypass.
+    return { entries: [], error: err instanceof Error ? err.message : String(err) };
   }
   const tokens = raw.split('\u0000');
   const entries: ChangedDiffEntry[] = [];
@@ -691,7 +739,7 @@ function listMainToHeadDiffEntries(gitCwd: string): ChangedDiffEntry[] {
       push(tokens[index++], kind === 'D' ? 'old-tree' : 'current');
     }
   }
-  return entries;
+  return { entries };
 }
 
 /** merge-base of main...HEAD — the OLD tree the triple-dot diff is computed against. */
@@ -799,11 +847,17 @@ export function buildMaterialClassificationSnapshot(
   const gitCwd = opts.gitCwd ?? projectRoot ?? process.cwd();
   const headHash = opts.headHash ?? currentGitHead(gitCwd);
   const materialHash = opts.materialHash ?? currentMaterialHash(gitCwd, 'HEAD', projectRoot);
-  const entries: ChangedDiffEntry[] = opts.changedFiles
-    ? opts.changedFiles
+  let diffEnumerationError: string | undefined;
+  let entries: ChangedDiffEntry[];
+  if (opts.changedFiles) {
+    entries = opts.changedFiles
       .map((rawPath) => ({ path: normalizeMaterialPath(rawPath), hintSource: 'current' as const }))
-      .filter((entry) => entry.path.length > 0)
-    : listMainToHeadDiffEntries(gitCwd);
+      .filter((entry) => entry.path.length > 0);
+  } else {
+    const diff = listMainToHeadDiffEntries(gitCwd);
+    entries = diff.entries;
+    diffEnumerationError = diff.error;
+  }
   let cachedBaseRef: string | undefined;
   const baseRef = (): string => (cachedBaseRef ??= diffBaseRef(gitCwd));
 
@@ -825,6 +879,7 @@ export function buildMaterialClassificationSnapshot(
     gitCwd,
     ...(projectRoot !== undefined ? { projectRoot } : {}),
     files,
+    ...(diffEnumerationError ? { diffEnumerationError } : {}),
     generatedAt: new Date().toISOString(),
   });
 }
@@ -859,8 +914,21 @@ export function materialClassificationSnapshotStale(
   if (!snapshot.headHash || !snapshot.materialHash) return true;
   const liveHead = args.headHash ?? currentGitHead(gitCwd);
   const liveMaterial = args.materialHash ?? currentMaterialHash(gitCwd, 'HEAD', projectRoot);
-  if (liveHead && snapshot.headHash !== liveHead) return true;
-  if (liveMaterial && snapshot.materialHash !== liveMaterial) return true;
+  // B-956f FIX 2: never ACCEPT a snapshot whose freshness cannot be verified.
+  // When the live HEAD/materialHash cannot be computed (nonexistent/unreadable
+  // gitCwd), the previous code skipped the comparison and returned false ("fresh")
+  // — a fail-OPEN that consumed an unverifiable snapshot. Throw a named freshness
+  // diagnostic instead (fail closed); consumers that route through
+  // ensureFreshMaterialClassificationSnapshot force a loud re-resolve, and the
+  // gate evaluators catch it into a structured failing outcome.
+  if (!liveHead || !liveMaterial) {
+    throw new MaterialCodePolicyError(
+      'materialClassification.freshness',
+      `cannot verify snapshot freshness: live ${!liveHead ? 'HEAD' : 'materialHash'} is unavailable for gitCwd ${JSON.stringify(gitCwd)} (nonexistent/unreadable git tree); refusing to accept unverifiable freshness (fail closed)`,
+    );
+  }
+  if (snapshot.headHash !== liveHead) return true;
+  if (snapshot.materialHash !== liveMaterial) return true;
   return false;
 }
 
@@ -928,8 +996,19 @@ export function tryBuildMaterialClassificationSnapshotForDiagnostics(
   gitCwd?: string,
 ): MaterialClassificationSnapshot | undefined {
   if (!projectRoot) return undefined;
+  const buildOpts = { ...(gitCwd ? { gitCwd } : {}) };
   try {
-    return buildMaterialClassificationSnapshot(projectRoot, { ...(gitCwd ? { gitCwd } : {}) });
+    const snapshot = buildMaterialClassificationSnapshot(projectRoot, buildOpts);
+    // B-956f FIX 5: the hash capture and the diff enumeration inside a single
+    // build are not atomic — a concurrent HEAD move between them can yield an
+    // internally mismatched snapshot. When the snapshot is git-bound, validate it
+    // against the live tree and rebuild ONCE on mismatch so the returned snapshot
+    // is self-consistent. A hashless (non-git) snapshot has no HEAD to move, so
+    // it is returned as-is. Still fail-soft (undefined) on any policy/config
+    // error or an unverifiable-freshness throw — this is a diagnostic-only field.
+    if (!snapshot.headHash || !snapshot.materialHash) return snapshot;
+    if (!materialClassificationSnapshotStale(snapshot)) return snapshot;
+    return buildMaterialClassificationSnapshot(projectRoot, buildOpts);
   } catch {
     return undefined;
   }

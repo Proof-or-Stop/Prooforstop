@@ -716,12 +716,120 @@ check('FIX-G: the PRODUCTION phase-gates builder populates materialClassificatio
   assert.equal(enforced.hardeningLevel, baseline.hardeningLevel, 'hardening level unchanged');
 });
 
+// ─────────────────── R2 fix-round production-boundary checks ───────────────────
+
+check('FIX-1: a deleted exec-bit-only bin/tool is material in the SNAPSHOT and to the FLOOR (floor-through-snapshot path)', () => {
+  const root = initRepo();
+  writeFile(root, 'src/base.ts', 'export const base = 1;\n');
+  writeFile(root, 'bin/tool', 'echo hi\n'); // NO shebang — executable bit only
+  chmodSync(join(root, 'bin/tool'), 0o755);
+  commitAll(root, 'base');
+  git(root, ['checkout', '-q', '-b', 'feature']);
+  rmSync(join(root, 'bin/tool'));
+  commitAll(root, 'delete the tool');
+
+  // The snapshot classifies the DELETED exec-bit-only script as material.
+  const snap = buildMaterialClassificationSnapshot(root);
+  const inSnap = snap.files.find((f) => f.path === 'bin/tool');
+  assert.ok(inSnap && inSnap.materialCode === true, 'the deleted bin/tool is material in the snapshot');
+
+  // The FLOOR — with NO explicit changedFiles and NO supplied snapshot — builds
+  // its OWN identity-preserving snapshot and classifies THROUGH it, so the
+  // deletion is material to the floor too (the codex repro: the old --name-only
+  // + hintless floor classified it non-material → snapshot=true/floor=false).
+  const floor = evaluateReviewAssuranceFloor({ projectRoot: root, gitCwd: root, materialHash: 'deadbeef' });
+  assert.equal(floor.materialCodePaths.includes('bin/tool'), true, 'the floor classifies the deleted bin/tool material via its snapshot');
+  const floorEntry = floor.changedFiles.find((f) => f.path === 'bin/tool');
+  assert.ok(floorEntry && floorEntry.materialCode === true, 'the floor changed-file entry carries the old-tree exec-bit classification');
+});
+
+check('FIX-2: a snapshot consumed with a nonexistent gitCwd throws a named freshness diagnostic (never silent acceptance)', () => {
+  const root = makeGitRepo({ 'src/app.ts': 'export const x = 1;\n' }, { 'src/app.ts': 'export const x = 2;\n' });
+  const snap = buildMaterialClassificationSnapshot(root);
+  assert.ok(snap.headHash && snap.materialHash, 'the snapshot is git-bound with embedded hashes');
+  // The live HEAD/materialHash cannot be computed for a nonexistent git tree —
+  // freshness is UNVERIFIABLE, so the stale check throws instead of returning
+  // false ("fresh") and silently accepting the snapshot (fail-open).
+  const missingGitCwd = join(root, 'this-dir-does-not-exist');
+  assert.throws(
+    () => materialClassificationSnapshotStale(snap, { gitCwd: missingGitCwd }),
+    (err: unknown) => err instanceof MaterialCodePolicyError
+      && err.offendingKey === 'materialClassification.freshness'
+      && /cannot verify snapshot freshness/.test(err.message)
+      && /fail closed/.test(err.message),
+    'unverifiable freshness fails CLOSED with a named diagnostic',
+  );
+});
+
+check('FIX-3(a): an unreadable lattice.config.json (EISDIR — not ENOENT) fails CLOSED naming the file (no silent defaults)', () => {
+  // A DIRECTORY named lattice.config.json is not "absent" — reading it throws
+  // EISDIR. The previous catch-all treated any read error as absent (fail-open,
+  // silently dropping removeExtensions/excludePaths); now only ENOENT degrades.
+  const root = mkdtempSync(join(tmpdir(), 'lattice-lngcfg-'));
+  tempRoots.push(root);
+  mkdirSync(join(root, 'lattice.config.json'));
+  resetConfigCache();
+  resetMaterialCodePolicyCache();
+  assert.throws(
+    () => resolveMaterialCodePolicy(root),
+    (err: unknown) => err instanceof MaterialCodePolicyError
+      && err.offendingKey === 'lattice.config.json'
+      && /could not be read/.test(err.message)
+      && /fails closed/.test(err.message),
+    'an unreadable (non-ENOENT) config file fails closed naming the file',
+  );
+});
+
+check('FIX-3(b): a JSON-parse-broken config makes the FLOOR return a structured failing outcome naming lattice.config.json (no uncaught throw)', () => {
+  // A broken config now throws through resolveMaterialCodePolicy into the floor.
+  // The floor evaluator MUST catch it and return ok:false naming the file, not
+  // crash the DONE-readiness callers with an unrelated-looking exception.
+  const root = mkdtempSync(join(tmpdir(), 'lattice-lngcfg-'));
+  tempRoots.push(root);
+  writeFileSync(join(root, 'lattice.config.json'), '{ "materialCode": { invalid');
+  resetConfigCache();
+  resetMaterialCodePolicyCache();
+
+  let report: ReturnType<typeof evaluateReviewAssuranceFloor>;
+  assert.doesNotThrow(() => {
+    report = evaluateReviewAssuranceFloor({ projectRoot: root, gitCwd: root, storyId: 'B-lng-cfg' });
+  }, 'the floor evaluator does not throw on a malformed config');
+  assert.equal(report!.ok, false, 'the floor blocks (fail closed) on a malformed config');
+  assert.equal(report!.required, true, 'the floor marks the transition required');
+  assert.match(report!.reasons.join('\n'), /lattice\.config\.json/, 'the failing outcome names lattice.config.json');
+  assert.match(report!.reasons.join('\n'), /fails closed|not valid JSON/, 'the failing outcome explains the fail-closed config error');
+});
+
+check('FIX-4: excludePaths:["dist/"] with a tracked dist/package.json resolves WITHOUT throwing; backend/go.mod coverage still rejects', () => {
+  // A tracked dist/package.json is a BUILD OUTPUT (structural non-material at
+  // step 0), not the project's level-1 manifest — excluding dist/ is legitimate,
+  // so the preflight skips it and resolution succeeds.
+  const distRoot = makeGitConfigRoot(
+    { materialCode: { excludePaths: ['dist/'] } },
+    { 'dist/package.json': '{"generated":true}\n', 'src/app.ts': 'export const x = 1;\n' },
+  );
+  const distPolicy = resolveMaterialCodePolicy(distRoot);
+  assert.deepEqual(distPolicy.excludePaths, ['dist/'], 'excluding a build-output dir with a generated manifest resolves without throwing');
+
+  // A FIRST-PARTY backend/go.mod is a real level-1 manifest — excluding its
+  // directory still rejects (structural skip must NOT weaken level-1 immutability).
+  const backendRoot = makeGitConfigRoot(
+    { materialCode: { excludePaths: ['backend/'] } },
+    { 'backend/go.mod': 'module example.com/x\n', 'backend/main.go': 'package main\n' },
+  );
+  assert.throws(
+    () => resolveMaterialCodePolicy(backendRoot),
+    (err: unknown) => err instanceof MaterialCodePolicyError && err.offendingKey === 'materialCode.excludePaths' && /backend\/go\.mod/.test(err.message),
+    'excluding a first-party manifest directory still rejects',
+  );
+});
+
 for (const root of tempRoots) {
   try { rmSync(root, { recursive: true, force: true }); } catch { /* best effort cleanup */ }
 }
 
 if (failures === 0) {
-  console.log('\nlanguage-neutral-gates smoke passed (18 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks)');
+  console.log('\nlanguage-neutral-gates smoke passed (23 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks)');
 } else {
   console.error(`\nlanguage-neutral-gates smoke FAILED (${failures})`);
   process.exit(1);

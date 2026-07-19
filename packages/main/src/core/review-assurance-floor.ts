@@ -1,9 +1,11 @@
-import { execFileSync } from 'child_process';
 import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
+import { LATTICE_CONFIG_FILENAME } from './config.js';
 import {
+  buildMaterialClassificationSnapshot,
   classifyMaterialCodePath,
   ensureFreshMaterialClassificationSnapshot,
   resolveMaterialCodePolicy,
+  MaterialCodePolicyError,
   type MaterialClassificationSnapshot,
 } from './material-code-policy.js';
 import {
@@ -497,22 +499,6 @@ export function classifyReviewAssuranceFloorPath(
   return { path: classified.path, materialCode: classified.materialCode, reason: classified.reason };
 }
 
-function listChangedFiles(gitCwd: string): { files: string[]; error?: string } {
-  try {
-    const raw = execFileSync('git', ['diff', '--name-only', 'main...HEAD'], {
-      cwd: gitCwd,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    return { files: raw ? raw.split('\n').map(line => line.trim()).filter(Boolean) : [] };
-  } catch (err) {
-    return {
-      files: [],
-      error: err instanceof Error ? err.message : String(err),
-    };
-  }
-}
-
 function readStory(args: EvaluateReviewAssuranceFloorArgs): StoryInfo | null {
   if (args.story) return args.story;
   if (!args.store || !args.storyId) return null;
@@ -760,26 +746,69 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
     ...(storyId ? { storyId } : {}),
     ...overrides,
   });
-  const listed = args.changedFiles ? { files: args.changedFiles } : listChangedFiles(gitCwd);
-  // CX4 FIX A: a supplied snapshot is validated at THIS consumer entry point —
-  // embedded HEAD/materialHash against the live tree AND policyDigest against
-  // live config — and re-resolved on drift. A stale snapshot whose policy no
-  // longer matches config (codex repro: an excluded src/) is never consumed.
-  const materialClassification = args.materialClassification
-    ? ensureFreshMaterialClassificationSnapshot(args.materialClassification, {
-      gitCwd,
-      ...(args.projectRoot !== undefined ? { projectRoot: args.projectRoot } : {}),
-    })
-    : undefined;
-  const changedFiles = listed.files.map(path => classifyReviewAssuranceFloorPath(path, args.projectRoot, materialClassification));
+  const materialHash = args.materialHash ?? currentMaterialHash(gitCwd, 'HEAD', args.projectRoot) ?? null;
+  const failureSignals = collectFailureSignals(args);
+
+  // B-956f FIX 1: classify the changed set THROUGH one fresh classification
+  // snapshot per evaluation instead of a hintless `git diff --name-only`
+  // enumeration + per-file pure classifier. The snapshot enumerates main...HEAD
+  // with rename/deletion identity preserved (--name-status --find-renames) and
+  // classifies each entry with old-tree/exec-bit hints, so a deleted exec-bit-only
+  // bin/tool or a renamed-away script is material to the floor exactly as it is in
+  // the snapshot (codex repro: the old floor classified them non-material). A
+  // supplied snapshot is freshness-validated (CX4 FIX A) and re-resolved on drift;
+  // otherwise the floor builds one, using the caller's explicit changedFiles as
+  // the classified set when provided.
+  // B-956f FIX 3: a malformed materialCode config / unreadable lattice.config.json
+  // now throws through resolveMaterialCodePolicy. Catch it at THIS evaluator
+  // boundary and return a STRUCTURED failing outcome naming the file — never an
+  // uncaught exception into the DONE-readiness callers (machine canFinishGuard/
+  // getGuardFailureReason, done-oracle, review-escalation, done-prepare).
+  let snapshot: MaterialClassificationSnapshot;
+  try {
+    snapshot = args.materialClassification
+      ? ensureFreshMaterialClassificationSnapshot(args.materialClassification, {
+        gitCwd,
+        ...(args.projectRoot !== undefined ? { projectRoot: args.projectRoot } : {}),
+      })
+      : buildMaterialClassificationSnapshot(args.projectRoot, {
+        ...(gitCwd !== undefined ? { gitCwd } : {}),
+        ...(args.changedFiles ? { changedFiles: args.changedFiles } : {}),
+      });
+  } catch (err) {
+    if (err instanceof MaterialCodePolicyError) {
+      return base({
+        ok: false,
+        required: true,
+        requiredAssurance: 'one-local-round',
+        assuranceLevel: 'missing',
+        materialHash,
+        changedFiles: [],
+        materialCodePaths: [],
+        failureSignals,
+        highRiskSignals: collectHighRiskSignals(args, []),
+        localRounds: emptyRounds(REVIEW_ASSURANCE_FLOOR_REQUIRED_ROUNDS),
+        reasons: [
+          `material-code policy/config error blocks the review-assurance floor: ${err.message}`,
+          `→ Fix ${LATTICE_CONFIG_FILENAME} (the material-code policy fails closed rather than degrading to a TS-only whitelist), then re-run the transition.`,
+        ],
+        diffError: err.message,
+      });
+    }
+    throw err;
+  }
+
+  const changedFiles: ReviewAssuranceFloorChangedFile[] = snapshot.files.map(file => ({
+    path: file.path,
+    materialCode: file.materialCode,
+    reason: file.reason,
+  }));
   const materialCodePaths = changedFiles
     .filter(file => file.materialCode)
     .map(file => file.path);
-  const materialHash = args.materialHash ?? currentMaterialHash(gitCwd, 'HEAD', args.projectRoot) ?? null;
-  const failureSignals = collectFailureSignals(args);
   const highRiskSignals = collectHighRiskSignals(args, materialCodePaths);
 
-  if (listed.error) {
+  if (snapshot.diffEnumerationError) {
     return base({
       ok: false,
       required: true,
@@ -791,8 +820,8 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
       failureSignals,
       highRiskSignals,
       localRounds: emptyRounds(REVIEW_ASSURANCE_FLOOR_REQUIRED_ROUNDS),
-      reasons: [`unable to classify git diff against main: ${listed.error}`],
-      diffError: listed.error,
+      reasons: [`unable to classify git diff against main: ${snapshot.diffEnumerationError}`],
+      diffError: snapshot.diffEnumerationError,
     });
   }
 
