@@ -364,7 +364,7 @@
       "desc": "experiments/role-prompt-ab-replay/selfcheck.mjs:193-201,758-772 — HIGH: F-014 was addressed by replacing the production-evidence snapshot with immutable source-code files. Those files are not review pass/finding/ReviewRun/verification/validation/lifecycle artifacts and the harness never targets them, so the new check is vacuous and no longer proves CHK-004 zero production-evidence writes or no process-event append. It avoids concurrent metadata noise by dropping the required assertion rather than isolating/attributing production evidence changes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T02:55:56.347Z",
@@ -372,7 +372,11 @@
       "reviewRunId": "B-8d4b:RR-009",
       "_hash": "33ea76ab34680e682d0669004c25a7feac566821b61f99249a028203c88d3701",
       "signatureTag": "missing|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f8c1b2c73a: no-drift proof now exercises copied entrypoints against isolated evidence roots rather than hashing immutable source files; concurrent real Story metadata cannot interfere.",
+      "resolvedAt": "2026-07-19T03:04:25.905Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-020",
