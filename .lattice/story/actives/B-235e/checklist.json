@@ -554,8 +554,8 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
         "docs/host-run-usage.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-19T07:35:27.519Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -823,6 +823,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Accepted business commit 8885f1ef78 after build and review-run/full-envelope/incremental-context smokes passed.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T07:35:27.519Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "CHK-002 commit accepted; implementer started the role-aware preregistered replay campaign.",
       "agent": "lattice-implementer"
     }
   ]
