@@ -24,6 +24,34 @@
         "scanEscalationReason": null
       },
       "_hash": "749c3498c3553968855d03e8306bcea0559dd3af5bd1068eec83c2b72780699f"
+    },
+    {
+      "id": "B-231d:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "F-003 verified fixed in 1d98a3a7c6 (repoRelativeLogicalCwd branches abs-vs-relative, absolute in-repo cwd anchors at sharedRootInProjectSpace via realpath offset re-applied to caller path space). Confirmed via built dist: worktree-portability-smoke 16/16 pass, custom symlink repro (raw macOS TMPDIR /var/folders vs realpath /private/var/folders, no caller-side realpathSync) shows identical digest/cwd/lock-path across two worktree roots. No new dead code, no as any, new catch blocks follow existing fallback-to-root pattern. Smoke auto-discovered by run-all-smokes.js, verified running. Full related regression (done-required-freshness, done-required-validation, gitroot-cwd-contract, bare-gate-gitroot-cwd, project-gitroot-cwd, graceful-sites-gitroot-cwd-wrapper-root, gitroot-cwd-routing, storydir-inside-gitroot) all PASS. No I/O-shell isolation concern (no bridge.ts/fn.ts pattern in project). No promised-but-undelivered doc claims (no CLAUDE.md/README changes; inline doc comments match implementation). No new quality finding.",
+      "createdAt": "2026-07-19T00:25:15.706Z",
+      "reviewRound": "2026-07-19T00:16:28.435Z",
+      "reviewRunId": "B-231d:RR-007",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-231d/findings.json",
+          ".lattice/story/actives/B-231d/plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ba5b158b0001a2763d9425b6629dde788a3b26b30d769e6d52b4aa82ace5c48b"
     }
   ]
 }
