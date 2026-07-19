@@ -308,7 +308,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Repeated review_incremental_context calls produce the same advisory result without changing files, evidence, phases, or gates; reviewer full-context requests and budget violations are reported without weakening correctness.",
+      "userSees": "Repeated review_incremental_context output is deterministic and read-only; full escalation prints escalationReason, and an oversized correctness-required full prompt prints budgetViolation without changing contextMode=full.",
       "files": {
         "modify": [
           "packages/main/src/handlers/review-incremental-context.ts",
