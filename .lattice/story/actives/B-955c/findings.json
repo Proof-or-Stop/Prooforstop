@@ -100,7 +100,7 @@
       "desc": "packages/main/src/core/evidence/environment-contract.ts:549-563,833-858 [high] Producer attestation is not verifier-owned in implementation: normalize accepts producerId/lineageId/keyId/sessionId, verificationSource, trustClass, and signatureVerified directly from the caller receipt, and quorum trusts those booleans/strings. A caller can submit two invented attestations with signatureVerified:true and distinct arbitrary IDs; both normalize and evaluateEvidenceEnvironmentQuorum returns independent:true (the existing smoke itself does exactly this for codex-host/claude-host). WHY: the string literal verificationSource does not prove registry verification, so forged producers can manufacture independent quorum, contradicting CHK-006 and the documented authority separation. Resolve attestations through a verifier-owned registry/verification callback or accept only an opaque verified-attestation handle; also make quorum enforce its required cardinality/policy rather than treating empty or one-element input as independent.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T00:53:35.716Z",
@@ -108,7 +108,11 @@
       "reviewRunId": "B-955c:RR-001",
       "_hash": "c38006e48396d22736b8348e8c1e43e47b387ddf0ae97e6c39bdbe8665016a6a",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: two caller-invented signatureVerified attestations could satisfy quorum, including empty/one-element ambiguity. Root cause: self-attested trust and absent cardinality floor. Fix: opaque refs resolve through verifier-owned resolver; quorum re-normalizes raw items and requires at least two verified producers with distinct lineage, key, and session. Zero, one, duplicate, and unresolved cases fail; smoke PASS at b31b29b522.",
+      "resolvedAt": "2026-07-19T01:10:31.491Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-955c:F-007",
