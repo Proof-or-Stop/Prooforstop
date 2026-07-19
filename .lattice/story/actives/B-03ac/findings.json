@@ -100,7 +100,7 @@
       "desc": "packages/main/src/core/review-incremental-context.ts:387-429 — HIGH: the only trusted freshness classes accepted for incremental are CURRENT_MATERIAL and KNOWN_METADATA_ONLY_HEAD_DRIFT. A real pure Story fixture commit changes both materialHash and storyFilesHash, so checkEvidenceFreshnessForGit classifies it RELATED_STORY_MATERIAL_DRIFT before impact policy is combined. Therefore the documented v1 capability pure test fixture with explicit binding may be incremental is unreachable in the integrated eligibility path; current smoke only unit-tests classifyImpact and demonstrates incremental on same-material reruns, not a fixture delta from a prior signed pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T05:32:18.077Z",
@@ -108,7 +108,11 @@
       "reviewRunId": "B-03ac:RR-002",
       "_hash": "bd2c5e7893e19a7f8a4aaa3ebd1a47bc2cd000b19f44d3bc925f7b3723855e5d",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 5f7ec42a83: RELATED_STORY_MATERIAL_DRIFT is allowed only through the independently proven pure-fixture case-closure path; integrated committed fixture delta selects incremental when safe and cheaper, all other related drift remains full.",
+      "resolvedAt": "2026-07-19T06:15:51.864Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-03ac:F-007",
