@@ -372,6 +372,51 @@
       "_hash": "594e6890cda97efd9c5b155b4000ef0e8d98cfa2edc78b0453bdcba5dc1ee9c4",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-017",
+      "desc": "packages/main/src/core/review-incremental-context.ts:171-184 and packages/main/src/core/review-run.ts:727-740 add the gate-consumed passesCutoffAt rule, but commit 38f197554d changes no test and repository test sources contain no passesCutoffAt reference. Existing prior-pass evidence is bound to old storyFilesHash 6450808..., while current review run binds 454e0e3..., so it cannot prove the fix. Add a deterministic regression that creates signed pass A before ReviewRun B, appends a different valid signed pass C after B.startedAt, then proves verifyReviewRunPromptEnvelope(B) still selects A / remains valid at DONE; also prove a pass before the cutoff is accepted and the test fails when the cutoff is removed. Without this, the exact stale-eligibility bug can regress undetected.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-19T23:58:45.491Z",
+      "reviewRound": "2026-07-19T23:55:41.162Z",
+      "reviewRunId": "B-235e:RR-071",
+      "_hash": "75f99af8df08901f9c30de5662e763e4af49158ce2214cd5803310dd6ff99798",
+      "files": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/review-run-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-018",
+      "desc": "packages/main/src/core/review-run.ts:727-740 changes the gate-consumed incremental eligibility reconstruction so prior passes are selected as-of the signed ReviewRun.startedAt, preventing later review_pass_set metadata from rewriting an older run priorPassRef. However packages/main/src/core/process-fact-levels.ts:390 still describes only a same-lane valid-pass baseline and scripts/verify-process-fact-contract.mjs has no passesCutoffAt/as-of-run assertion; no focused smoke mentions this cutoff either. Project policy requires every changed gate semantic to update the process fact registry and contract verifier. Without that mechanical contract, this exact DONE self-invalidation regression can silently return. Update runtime:incremental_review_eligibility_gate rationale to state the signed-run cutoff, add verifier assertions over review-run.ts/review-incremental-context.ts, and add a regression smoke proving a pass created after run.startedAt cannot change that run eligibility/priorPassRef while an earlier valid pass remains selectable. The existing decision doc already promises immutable Envelope eligibility/recomputation, so no optimization-driven prose rewrite is required unless the implementation chooses a different contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T23:58:45.545Z",
+      "reviewRound": "2026-07-19T23:55:41.162Z",
+      "reviewRunId": "B-235e:RR-070",
+      "_hash": "5126df17d3c86a07e6e402824d276797e15466f8886d4ded44477d8e2297bdb8",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
