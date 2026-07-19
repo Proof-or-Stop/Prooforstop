@@ -252,6 +252,26 @@
         "scanEscalationReason": null
       },
       "_hash": "ea62f8daf55e2783a35ac09af1d3755aef6c360bf711a4fd4c28e488e7b8c4bb"
+    },
+    {
+      "id": "B-6ed2:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 fingerprint-sync review passed: commit 38952190 changes only the cli-engine canonical AST pin from 57e34467adfc091cfe86ae9defbe7cb0606283f33f168aa148124dd100f41c89 to 48ca6562b11dda8996163ad992cdb2a9f6e19e6073beaf171290d064f1d106e2 in the guard and process-fact projection, with no production changes. Relocated-loader and path-producer mutation controls remain intact. Focused vocabulary guard and process-fact contract both pass.",
+      "createdAt": "2026-07-19T00:42:06.499Z",
+      "reviewRound": "2026-07-19T00:37:23.078Z",
+      "reviewRunId": "B-6ed2:RR-017",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ca47cb70b9d321c3f8c0a34e99ec52e6d04173cb9fdbe170463354c90a017db5"
     }
   ]
 }
