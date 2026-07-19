@@ -4,12 +4,14 @@
   "allowedModify": [
     "packages/main/src/handlers/quorum-submit.ts",
     "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/handlers/cross-host-review.ts",
     "packages/main/src/core/auto-commit-metadata.ts",
     "packages/main/src/core/done-prepare-generated-metadata.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/process-events.ts",
     "packages/main/src/core/store.ts",
+    "packages/main/src/core/dirty-gate-policy.ts",
     "packages/main/src/cli-engine.ts",
     "scripts/verify-process-fact-contract.mjs",
     "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
@@ -30,13 +32,12 @@
     "packages/main/src/handlers/verifier.ts",
     "packages/main/src/core/validation-evidence-reuse.ts",
     "packages/main/src/core/runtime-fact-registry.ts",
-    "packages/main/src/core/candidate-spec-routing.ts",
-    "packages/main/src/handlers/cross-host-review.ts"
+    "packages/main/src/core/candidate-spec-routing.ts"
   ],
-  "scopeChangeReason": "F-007 production RED proves quorum cannot infer exact ownership around an opaque process-event writer. Add only core/process-events.ts for cooperative locked append returning exact writer identity and core/store.ts to transparently propagate that identity; verdict/quorum consume it. Verifier, validation reuse, routing, package wiring and unrelated commands remain excluded.",
+  "scopeChangeReason": "F-008 proves two production process-event writers bypass the cooperative append lock and can invalidate writer-returned offsets. Add only cross-host-review.ts and dirty-gate-policy.ts to migrate their existing direct appendFileSync calls to the shared locked raw-append primitive; remote routing, host execution, gate decisions, verifier and validation reuse remain unchanged.",
   "acknowledgements": [],
   "createdAt": "2026-07-18T22:21:57.061Z",
-  "updatedAt": "2026-07-18T23:40:45.771Z",
+  "updatedAt": "2026-07-19T00:00:01.696Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -64,6 +65,7 @@
     "packages/main/src/handlers/cross-host-review.ts": "packages/main/src/handlers/cross-host-review.ts",
     "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
     "packages/main/src/core/process-events.ts": "packages/main/src/core/process-events.ts",
-    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts"
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/dirty-gate-policy.ts": "packages/main/src/core/dirty-gate-policy.ts"
   }
 }
