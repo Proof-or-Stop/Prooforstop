@@ -97,9 +97,9 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T02:07:27.042Z",
-      "endTime": "2026-07-19T02:08:52.743Z",
+      "endTime": "2026-07-19T02:35:08.831Z",
       "verificationIntent": {
         "happy": [
           {
@@ -145,25 +145,25 @@
           "intentRef": "same-input-deterministic-readonly-replay",
           "kind": "integration_test",
           "file": "experiments/role-prompt-ab-replay/run.mjs",
-          "command": "node experiments/role-prompt-ab-replay/run.mjs",
+          "command": "node experiments/role-prompt-ab-replay/run.mjs --json",
           "result": "pass",
-          "note": "Owner rerun reports Replay PASS sameInput=true deterministic=true across 6 samples x 2 arms x 3 repeats = 36 cells with exact bytes/tokens/digests/finding comparisons.",
-          "headHash": "91afef39021edd00100699ecf4f8ce77ac6c0553",
-          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
-          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
-          "timestamp": "2026-07-19T02:08:53.231Z"
+          "note": "Owner rerun reports Replay PASS sameInput=true deterministic=true for 36 canonical cells. Unavailable historical prompt/finding outputs produce no fabricated bytes, token counts or finding comparisons; the separately labeled hermetic fixture proves exact prompt/semantic comparison capability only.",
+          "headHash": "26af3492875f488a50e1d9f0baafbbe34410616a",
+          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
+          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
+          "timestamp": "2026-07-19T02:35:09.665Z"
         },
         {
           "intentRef": "replay-order-path-and-repeat-invariance",
           "kind": "integration_test",
-          "file": "experiments/role-prompt-ab-replay/run.mjs",
-          "command": "node experiments/role-prompt-ab-replay/run.mjs --reverse",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun of reverse arm order reports the same experimentId and canonical cell measurements; selfcheck also covers insertion/path invariance and meaningful model/tool/material divergence.",
-          "headHash": "91afef39021edd00100699ecf4f8ce77ac6c0553",
-          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
-          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
-          "timestamp": "2026-07-19T02:08:53.744Z"
+          "note": "Owner rerun covers reversed arm order, repeated execution, POSIX path and object-order invariance, plus digest divergence for meaningful contract/model/tool/material changes.",
+          "headHash": "26af3492875f488a50e1d9f0baafbbe34410616a",
+          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
+          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
+          "timestamp": "2026-07-19T02:35:10.333Z"
         },
         {
           "intentRef": "replay-no-caller-substitution-or-write-path",
@@ -171,11 +171,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun rejects caller-supplied digests/findings, mutable Story material, traversal and symlink escapes, while production evidence snapshot remains unchanged.",
-          "headHash": "91afef39021edd00100699ecf4f8ce77ac6c0553",
-          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
-          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
-          "timestamp": "2026-07-19T02:08:54.072Z"
+          "note": "Owner rerun rejects caller-supplied digests/findings, mutable Story material, traversal and symlink escape; production pass/finding/run/validation/lifecycle evidence snapshot remains byte-identical.",
+          "headHash": "26af3492875f488a50e1d9f0baafbbe34410616a",
+          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
+          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
+          "timestamp": "2026-07-19T02:35:10.908Z"
         }
       ]
     },
@@ -488,6 +488,16 @@
       "timestamp": "2026-07-19T02:34:59.484Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner independently reran the repaired 43-check fail-closed harness and bound fresh evidence without promoting unavailable historical metrics.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:35:08.831Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "in_progress",
       "to": "done",
