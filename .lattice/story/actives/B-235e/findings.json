@@ -78,6 +78,28 @@
       ],
       "signatureTag": "missing|ts|edge-intent-mixed",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-005",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md:1245-1248 promises concurrent review metadata retention, but a fresh review_run_start on HEAD be870d5 self-invalidates its own scope binding: RR-008 was minted with one diffPackHash and immediate review_pass_set failed diff_pack_changed solely after review-run/prompt-envelope metadata writes; retry RR-011 captured a6fa0f64 while the live scope pack moved again. This prevents the documented reviewer pass/finding workflow from completing even without code changes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T08:42:38.275Z",
+      "reviewRound": "2026-07-19T08:38:05.631Z",
+      "reviewRunId": "B-235e:RR-011",
+      "_hash": "667e295a4af0663abb82dcf3461908f477b25f7a00e4c2c7d2950e679eaa6818",
+      "files": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/core/scope-diff-pack.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
