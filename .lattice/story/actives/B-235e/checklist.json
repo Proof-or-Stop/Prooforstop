@@ -115,7 +115,99 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "five-role-trusted-full-envelope",
+            "desc": "For each of concept, quality, test-coverage, behavior, and docs, full mode is assembled in the trusted launch process and binds the exact Runtime Contract, role-specific Role Contract, current task context, known environment, assembler and launcher digests, current HEAD/material/storyFiles hashes, and signed ReviewRun.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "eligible-role-incremental-envelope",
+            "desc": "For each active reviewer role, only Story 4 mechanically eligible metadata-only or fully bound pure-fixture deltas produce an incremental Prompt Envelope with exact lane, prior-pass, freshness, reviewBasis, changed/impacted file, intent, contract, and context digests.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "drift-selects-full-per-role",
+            "desc": "Contract, policy, scope, required-lane, authority, permission, source, docs, public schema/API/protocol, dependency/build, unknown-impact, or stale material drift deterministically selects full for the affected role with stable reason codes.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "incremental-read-through-and-escalation",
+            "desc": "An incremental reviewer can read current authoritative references and request a new full-context ReviewRun with a recorded reason; the original incremental run is not silently mutated or accepted as full.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "prior-pass-lane-signature-freshness",
+            "desc": "Incremental baseline requires the latest valid PASS from the same role lane, same review round, signed ReviewRun, intact Prompt Envelope, and canonical freshness classification; wrong-lane, older, stale, unsigned, or envelope-less evidence selects full.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "semantic-render-vs-metadata-drift",
+            "desc": "Role or Runtime semanticDigest and agent-facing renderDigest changes invalidate incremental reuse, while only metadata proven absent from model input may retain eligibility under the canonical freshness reader.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "correctness-before-budget-selection",
+            "desc": "Safety eligibility is decided before size: eligible incremental wins only when under its budget and smaller than full; equal/larger uses FULL_CHEAPER_OR_EQUAL, oversize incremental selects full, and correctness-required oversize full remains full with budgetViolation=full.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "legacy-pass-never-upgraded",
+            "desc": "A pre-migration pass without the new Prompt Envelope remains legacy-full-context, readable only in its original round, and can never become an incremental baseline through defaults, backfill, or a newly enabled role flag.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "caller-cannot-force-role-incremental",
+            "desc": "Main, implementer, reviewer, config, or CLI arguments such as contextMode, forceIncremental, fabricated impacted files, or claimed reason codes cannot override authoritative full selection for any role.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-signature-digest-tamper-rejected",
+            "desc": "Mutating role ID, contract/context/reviewBasis digest, eligibility decision, freshness class, changed files, selection reason, ReviewRun binding, signature, or assembled prompt after launch invalidates pass, finding admission, collector credit, receipt, floor, and quorum.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "mixed-mode-role-substitution-rejected",
+            "desc": "During mixed rollback, an incremental or full envelope for one active role cannot be replayed as another role, and a legacy prompt cannot be paired with a modular envelope or vice versa.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "concurrent-run-snapshot-race-fails-closed",
+            "desc": "Concurrent reviewers, flag changes, baseline writes, or material changes cannot combine eligibility from one snapshot with contracts or task context from another; stale or hybrid runs are rejected and require fresh full assembly.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
