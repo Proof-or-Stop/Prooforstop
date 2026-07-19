@@ -138,6 +138,47 @@
         "scanEscalationReason": null
       },
       "_hash": "663e91e5927c07efed6908bc3e25dca232aa7f79e79662dd173e07e55baa403b"
+    },
+    {
+      "id": "B-956f:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue audit for R2 fix round (floor-through-snapshot rewiring). (a) Removed floor --name-only enumeration + hintless classifyReviewAssuranceFloorPath: grepped listChangedFiles/isPackageOrRuntimeConfigPath/hasExtension/fileName/isMaterialExcludedPath in review-assurance-floor.ts, zero references; only other listChangedFiles hit is an unrelated pre-existing function in verification-context-pack.ts. classifyReviewAssuranceFloorPath now delegates to material-code-policy.ts and keeps its old exported signature for callers/tests. tsc build compiles clean, confirming no dangling imports. (b) isStructurallyNonMaterialArtifactPath composes isStructuralArtifactPath + isMaterialExcludedRuntimeArtifactPath; classifyMaterialCodePath step 0 calls the SAME two primitives directly (distinct per-branch reason strings), preflightMaterialCodeExclusions calls the composed predicate; one source list (STRUCTURAL_ARTIFACT_DIR_SEGMENTS) and one runtime-artifact registry, no duplicated/drifting directory lists found elsewhere in the repo. (c) Diffs in review-assurance-floor.ts, repro-evidence-binding-gate.ts, proofstory.ts, scope-diff-pack.ts, scope-contract.ts, phase-gates.ts, machine.ts, config.ts, validate-concept.ts, types.ts, story-create.ts, story-review.ts, handlers/proofstory.ts accurately describe fail-closed MaterialCodePolicyError handling and structured floor outcomes replacing the old crash path, plus the diagnostic-only ProofStory trigger design (FIX G). No stale claims of old crash/silent-degrade behavior found. No prior concept findings in RR-002/RR-005, consistent with R1/R2 passes.",
+      "createdAt": "2026-07-19T18:23:35.045Z",
+      "reviewRound": "2026-07-19T18:18:25.942Z",
+      "reviewRunId": "B-956f:RR-007",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/review-runs.json",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d6ff2d59520eb59abde75a1081ff9a00ff00d5f68371a705c33612e9881922be"
     }
   ]
 }
