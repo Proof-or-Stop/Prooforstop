@@ -425,6 +425,7 @@ export function signReviewRun(
   // without the secondary binding keep the exact previous signature domain.
   storyFilesHash?: string,
   envelopeId?: string,
+  reviewerEscalationReason?: string,
 ): string {
   const parts = [
     storyId,
@@ -441,6 +442,7 @@ export function signReviewRun(
   if (scopeBindingHash) parts.push(scopeBindingHash);
   if (workspaceBindingHash) parts.push(workspaceBindingHash);
   if (envelopeId) parts.push(envelopeId);
+  if (reviewerEscalationReason) parts.push(reviewerEscalationReason);
   parts.push(REVIEW_RUN_SALT);
   return createHash('sha256').update(parts.join(':')).digest('hex');
 }
@@ -504,6 +506,7 @@ export function verifyReviewRun(run: ReviewRun): boolean {
     run.workspaceBinding?.bindingHash,
     run.storyFilesHash,
     run.envelopeId,
+    run.reviewerEscalationReason,
   );
   return run._hash === expected
     && (!run.workspaceBinding || verifyReviewRunWorkspaceBinding(run.workspaceBinding, run))
@@ -654,7 +657,7 @@ export function verifyReviewRunPromptEnvelope(
         run.workspaceBinding?.signedWorkspaceRoot || run.workspaceBinding?.metadataRoot || process.cwd(),
         run.storyId,
         run.lane,
-        { excludedReviewRunId: run.reviewRunId },
+        { excludedReviewRunId: run.reviewRunId, findingsCutoffAt: run.startedAt },
       );
     } catch (error) {
       return {
@@ -688,6 +691,13 @@ export function verifyReviewRunPromptEnvelope(
     }
     if (envelope.contextMode === 'full' && envelope.selectionReason === 'SAFETY_REQUIRES_FULL' && !safetyRequiresFull) {
       return { ok: false, reason: 'full safety selection contradicts authoritative incremental eligibility' };
+    }
+    if (envelope.selectionReason === 'REVIEWER_REQUESTED_FULL'
+      && (
+        !run.reviewerEscalationReason
+        || envelope.escalationReason !== run.reviewerEscalationReason
+      )) {
+      return { ok: false, reason: 'reviewer escalation reason is missing or does not match the signed ReviewRun' };
     }
     if (envelope.selectionReason === 'FULL_CHEAPER_OR_EQUAL'
       && (envelope.incrementalContextBytes === undefined || envelope.fullContextBytes === undefined
@@ -1460,7 +1470,15 @@ export function collectReviewerEvidenceState(
     }
   }
 
-  const agentsWithCurrentValidEvidence = new Set(valid.map((evidence) => evidence.agent));
+  const evidenceCreatedAt = (evidence: ReviewerEvidenceRecord): number => {
+    const value = evidence.pass?.createdAt ?? evidence.finding?.createdAt;
+    const parsed = value ? Date.parse(value) : Number.NaN;
+    return Number.isFinite(parsed) ? parsed : Number.NEGATIVE_INFINITY;
+  };
+  const evidenceById = new Map(
+    [...reviewerFindings, ...reviewerPasses].map(evidence => [evidence.id, evidence]),
+  );
+  const agentsWithCurrentValidEvidence = new Set(valid.map(evidence => evidence.agent));
   const terminalReviewerFindingIds = new Set(
     reviewerFindings
       .filter((evidence) => evidence.finding?.status === 'resolved' || evidence.finding?.status === 'dismissed')
@@ -1468,9 +1486,17 @@ export function collectReviewerEvidenceState(
   );
   const invalid = rawInvalid.filter((issue) => {
     if (!SUPERSEDED_PASS_ISSUE_CODES.has(issue.code)) return true;
-    if (!agentsWithCurrentValidEvidence.has(issue.agent)) return true;
+    if (
+      issue.kind === 'finding'
+      && terminalReviewerFindingIds.has(issue.evidenceId)
+      && agentsWithCurrentValidEvidence.has(issue.agent)
+    ) return false;
+    const invalidEvidence = evidenceById.get(issue.evidenceId);
+    const hasNewerValidEvidence = Boolean(invalidEvidence) && valid.some(evidence =>
+      evidence.agent === issue.agent
+      && evidenceCreatedAt(evidence) > evidenceCreatedAt(invalidEvidence!));
+    if (!hasNewerValidEvidence) return true;
     if (issue.kind === 'pass') return false;
-    if (issue.kind === 'finding' && terminalReviewerFindingIds.has(issue.evidenceId)) return false;
     return true;
   });
 

@@ -20,6 +20,7 @@
  * not falsely flag scopeChanged.
  */
 
+import { execFileSync } from 'node:child_process';
 import type { StoryStore } from './store.js';
 import type { Finding, ReviewPass, ReviewRun } from './types.js';
 import {
@@ -127,6 +128,40 @@ interface TrustedPriorPass {
   run: ReviewRun;
 }
 
+export interface IncrementalBindingAssessment {
+  priorEnvelopePresent: boolean;
+  runtimeContractMatches: boolean;
+  roleContractMatches: boolean;
+  executionEnvironmentMatches: boolean;
+  assemblerMatches: boolean;
+  dispatchProtocolMatches: boolean;
+  scopePolicyMatches: boolean;
+  taskSemanticDigestMatches: boolean;
+  freshnessClassification: EvidenceFreshnessClassification;
+  pureFixtureDrift: boolean;
+}
+
+/** Stable forced-full campaign surface consumed by the production assembler. */
+export function classifyIncrementalBindingReasons(input: IncrementalBindingAssessment): string[] {
+  const reasons: string[] = [];
+  if (!input.priorEnvelopePresent) reasons.push('FULL_MISSING_PRIOR_ENVELOPE');
+  if (!input.runtimeContractMatches) reasons.push('FULL_RUNTIME_CONTRACT_CHANGED');
+  if (!input.roleContractMatches) reasons.push('FULL_ROLE_CONTRACT_CHANGED');
+  if (!input.executionEnvironmentMatches) reasons.push('FULL_EXECUTION_ENVIRONMENT_CHANGED');
+  if (!input.assemblerMatches) reasons.push('FULL_ASSEMBLER_CHANGED');
+  if (!input.dispatchProtocolMatches) reasons.push('FULL_DISPATCH_PROTOCOL_CHANGED');
+  if (!input.scopePolicyMatches) reasons.push('FULL_SCOPE_OR_POLICY_CHANGED');
+  if (!input.taskSemanticDigestMatches) reasons.push('FULL_MODEL_RELEVANT_TASK_CONTEXT_CHANGED');
+  if (['CURRENT_MATERIAL', 'KNOWN_METADATA_ONLY_HEAD_DRIFT'].includes(input.freshnessClassification)) {
+    reasons.push('ELIGIBLE_TRUSTED_PRIOR_BINDINGS');
+  } else if (input.pureFixtureDrift) {
+    reasons.push('ELIGIBLE_RELATED_PURE_STORY_FIXTURE_DRIFT');
+  } else {
+    reasons.push(`FULL_FRESHNESS_${input.freshnessClassification}`);
+  }
+  return reasons;
+}
+
 function verdictTime(value: string | undefined): number {
   if (!value) return 0;
   const parsed = Date.parse(value);
@@ -176,6 +211,69 @@ function materialOnly(files: string[], projectRoot: string): string[] {
   return files.filter((file) => !isMaterialExcludedPath(file, projectRoot));
 }
 
+function gitFileAt(gitCwd: string, ref: string, path: string): string | null {
+  try {
+    return execFileSync('git', ['show', `${ref}:${path}`], {
+      cwd: gitCwd,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+  } catch {
+    return null;
+  }
+}
+
+function fixtureCases(raw: string | null): Array<Record<string, unknown>> | null {
+  if (raw === null) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray((parsed as { cases?: unknown }).cases)) return null;
+    const cases = (parsed as { cases: unknown[] }).cases;
+    if (!cases.every(value => value && typeof value === 'object' && !Array.isArray(value))) return null;
+    return cases as Array<Record<string, unknown>>;
+  } catch {
+    return null;
+  }
+}
+
+function fixtureCaseKey(value: Record<string, unknown>, index: number): string {
+  for (const field of ['_id', 'id', 'name']) {
+    const candidate = value[field];
+    if (typeof candidate === 'string' && candidate.trim()) return `${field}:${candidate.trim()}`;
+  }
+  return `index:${index}`;
+}
+
+/**
+ * Proves case-level closure from trusted git objects. File-level declarations
+ * are insufficient: every new/changed case must carry a current Story-scoped
+ * positional intentRef and removed cases fail closed.
+ */
+function fixtureCaseClosure(
+  gitCwd: string,
+  baseRef: string,
+  storyId: string,
+  path: string,
+  currentStoryIntentRefs: ReadonlySet<string>,
+): boolean {
+  const before = fixtureCases(gitFileAt(gitCwd, baseRef, path));
+  const after = fixtureCases(gitFileAt(gitCwd, 'HEAD', path));
+  if (!before || !after) return false;
+  const prior = new Map(before.map((value, index) => [fixtureCaseKey(value, index), value]));
+  const current = new Map(after.map((value, index) => [fixtureCaseKey(value, index), value]));
+  if ([...prior.keys()].some(key => !current.has(key))) return false;
+  const storyPrefix = `${storyId}:`;
+  for (const [key, value] of current) {
+    const previous = prior.get(key);
+    if (previous && domainSeparatedDigest('fixture-case.v1', previous) === domainSeparatedDigest('fixture-case.v1', value)) {
+      continue;
+    }
+    const intentRef = typeof value.intentRef === 'string' ? value.intentRef.trim() : '';
+    if (!intentRef.startsWith(storyPrefix) || !currentStoryIntentRefs.has(intentRef)) return false;
+  }
+  return true;
+}
+
 /**
  * Read-only incremental review context for a reviewer `role` on `storyId`.
  *
@@ -191,7 +289,7 @@ export function reviewIncrementalContext(
   projectRoot: string,
   storyId: string,
   role: string,
-  options: { excludedReviewRunId?: string } = {},
+  options: { excludedReviewRunId?: string; findingsCutoffAt?: string } = {},
 ): ReviewIncrementalContext {
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
@@ -228,6 +326,10 @@ export function reviewIncrementalContext(
           .map((intent, index) => intent.id?.trim() || `${item.id}:${lane}:${index}`)));
     return [path, [...new Set(refs)].sort()];
   }));
+  const currentStoryIntentRefs = new Set(checklist.items.flatMap(item =>
+    (['happy', 'edge', 'adversarial'] as const).flatMap(lane =>
+      (item.verificationIntent?.[lane] ?? []).map((_intent, index) =>
+        `${storyId}:${item.id}:${lane}:${index}`))));
 
   const finalize = (args: {
     prior: TrustedPriorPass | null;
@@ -255,7 +357,12 @@ export function reviewIncrementalContext(
     let reviewBasis: IncrementalReviewBasis | null = null;
     if (args.prior) {
       const priorTime = Date.parse(args.prior.pass.createdAt);
-      const findingDeltas = findings
+      const cutoff = options.findingsCutoffAt ? Date.parse(options.findingsCutoffAt) : Number.POSITIVE_INFINITY;
+      const basisFindings = findings.filter(finding => {
+        const created = Date.parse(finding.createdAt ?? '');
+        return !Number.isFinite(cutoff) || (Number.isFinite(created) && created <= cutoff);
+      });
+      const findingDeltas = basisFindings
         .filter(finding => !Number.isFinite(priorTime) || Date.parse(finding.createdAt ?? '') >= priorTime)
         .map(finding => ({
           id: finding.id,
@@ -264,7 +371,7 @@ export function reviewIncrementalContext(
           category: finding.category,
         }))
         .sort((left, right) => left.id.localeCompare(right.id));
-      const unresolvedFindings = findings
+      const unresolvedFindings = basisFindings
         .filter(finding => finding.status === 'open')
         .map(finding => ({
           id: finding.id,
@@ -368,6 +475,11 @@ export function reviewIncrementalContext(
       changedFiles: fullDiff,
       declaredTestFiles,
       testIntentRefsByFile,
+      fixtureCaseClosureByFile: Object.fromEntries(fullDiff.map(path => [
+        path,
+        declaredTestFiles.includes(path)
+          && fixtureCaseClosure(projectRoot, 'main', storyId, path, currentStoryIntentRefs),
+      ])),
       changedFileStatus: changedFileStatusesBetweenRenameAware(projectRoot, 'main', 'HEAD'),
     });
     return finalize({
@@ -398,41 +510,43 @@ export function reviewIncrementalContext(
     envelope => envelope.envelopeId === prior.run.envelopeId,
   );
   const currentPolicyHash = scopeContract ? digestScopeContract(scopeContract) : undefined;
-  const bindingReasons: string[] = [];
-  if (!priorEnvelope) bindingReasons.push('FULL_MISSING_PRIOR_ENVELOPE');
-  if (priorEnvelope && (
-    priorEnvelope.runtimeContractVersion !== BASELINE_RUNTIME_CONTRACT.schemaVersion
-    || priorEnvelope.runtimeSemanticDigest !== BASELINE_RUNTIME_CONTRACT.semanticDigest
-    || priorEnvelope.runtimeRenderDigest !== BASELINE_RUNTIME_CONTRACT.renderDigest
-  )) bindingReasons.push('FULL_RUNTIME_CONTRACT_CHANGED');
-  if (priorEnvelope && (
-    priorEnvelope.roleContractVersion !== currentRole.schemaVersion
-    || priorEnvelope.roleSemanticDigest !== currentRole.semanticDigest
-    || priorEnvelope.roleRenderDigest !== currentRole.renderDigest
-  )) bindingReasons.push('FULL_ROLE_CONTRACT_CHANGED');
-  if (priorEnvelope?.knownExecutionEnvironmentDigest !== environmentDigest) {
-    bindingReasons.push('FULL_EXECUTION_ENVIRONMENT_CHANGED');
-  }
-  if (priorEnvelope?.assemblerVersion !== PROMPT_ENVELOPE_ASSEMBLER_VERSION) {
-    bindingReasons.push('FULL_ASSEMBLER_CHANGED');
-  }
-  if (priorEnvelope?.dispatchProtocolVersion !== PROMPT_DISPATCH_PROTOCOL_VERSION) {
-    bindingReasons.push('FULL_DISPATCH_PROTOCOL_CHANGED');
-  }
-  if (priorEnvelope?.policyHash !== currentPolicyHash) bindingReasons.push('FULL_SCOPE_OR_POLICY_CHANGED');
-  if (!priorEnvelope?.taskSemanticDigest || priorEnvelope.taskSemanticDigest !== currentTaskSemanticDigest) {
-    bindingReasons.push('FULL_MODEL_RELEVANT_TASK_CONTEXT_CHANGED');
-  }
-  if (!['CURRENT_MATERIAL', 'KNOWN_METADATA_ONLY_HEAD_DRIFT'].includes(freshnessClassification)) {
-    bindingReasons.push(`FULL_FRESHNESS_${freshnessClassification}`);
-  } else {
-    bindingReasons.push('ELIGIBLE_TRUSTED_PRIOR_BINDINGS');
-  }
+  const runtimeContractMatches = Boolean(priorEnvelope) && !(
+    priorEnvelope?.runtimeContractVersion !== BASELINE_RUNTIME_CONTRACT.schemaVersion
+    || priorEnvelope?.runtimeSemanticDigest !== BASELINE_RUNTIME_CONTRACT.semanticDigest
+    || priorEnvelope?.runtimeRenderDigest !== BASELINE_RUNTIME_CONTRACT.renderDigest
+  );
+  const roleContractMatches = Boolean(priorEnvelope) && !(
+    priorEnvelope?.roleContractVersion !== currentRole.schemaVersion
+    || priorEnvelope?.roleSemanticDigest !== currentRole.semanticDigest
+    || priorEnvelope?.roleRenderDigest !== currentRole.renderDigest
+  );
   const impact = classifyImpact({
     changedFiles,
     declaredTestFiles,
     testIntentRefsByFile,
+    fixtureCaseClosureByFile: Object.fromEntries(changedFiles.map(path => [
+      path,
+      declaredTestFiles.includes(path)
+        && fixtureCaseClosure(projectRoot, prior.run.headHash, storyId, path, currentStoryIntentRefs),
+    ])),
     changedFileStatus: statuses,
+  });
+  const pureFixtureDrift = freshnessClassification === 'RELATED_STORY_MATERIAL_DRIFT'
+    && impact.eligible
+    && impact.impacts.every(item => item.reasonCode === 'ELIGIBLE_PURE_STORY_FIXTURE')
+    && Boolean(prior.run.storyFilesHash);
+  const bindingReasons = classifyIncrementalBindingReasons({
+    priorEnvelopePresent: Boolean(priorEnvelope),
+    runtimeContractMatches,
+    roleContractMatches,
+    executionEnvironmentMatches: priorEnvelope?.knownExecutionEnvironmentDigest === environmentDigest,
+    assemblerMatches: priorEnvelope?.assemblerVersion === PROMPT_ENVELOPE_ASSEMBLER_VERSION,
+    dispatchProtocolMatches: priorEnvelope?.dispatchProtocolVersion === PROMPT_DISPATCH_PROTOCOL_VERSION,
+    scopePolicyMatches: priorEnvelope?.policyHash === currentPolicyHash,
+    taskSemanticDigestMatches: Boolean(priorEnvelope?.taskSemanticDigest)
+      && priorEnvelope?.taskSemanticDigest === currentTaskSemanticDigest,
+    freshnessClassification,
+    pureFixtureDrift,
   });
   return finalize({
     prior,

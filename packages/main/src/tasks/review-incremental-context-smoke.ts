@@ -51,12 +51,15 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { reviewIncrementalContext } from '../core/review-incremental-context.js';
+import {
+  classifyIncrementalBindingReasons,
+  reviewIncrementalContext,
+} from '../core/review-incremental-context.js';
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
 import { resetConfigCache } from '../core/config.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
@@ -68,7 +71,7 @@ import {
   classifyImpact,
   IMPACT_CLASSIFICATION_POLICY_VERSION,
 } from '../core/impact-classification-policy.js';
-import type { StoryStore } from '../core/store.js';
+import { StoryStore } from '../core/store.js';
 import type {
   Finding,
   ReviewPass,
@@ -79,6 +82,7 @@ import type {
 
 /** Marker line printed by the smoke so `lattice validate` output is greppable. */
 const MARKER = 'review-incremental-context-smoke:';
+const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
 
 const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
 
@@ -93,6 +97,25 @@ function git(cwd: string, args: string[]): string {
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), content);
+}
+
+function directoryBytes(root: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  const visit = (path: string, relativePath: string): void => {
+    if (!statSync(path).isDirectory()) {
+      result[relativePath] = readFileSync(path).toString('base64');
+      return;
+    }
+    for (const name of readdirSync(path).sort()) {
+      visit(join(path, name), relativePath ? `${relativePath}/${name}` : name);
+    }
+  };
+  try {
+    visit(root, '');
+  } catch {
+    return {};
+  }
+  return result;
 }
 
 /**
@@ -443,6 +466,7 @@ function runPolicyCases(): void {
     changedFiles: ['tests/case.fixture.json'],
     declaredTestFiles: ['tests/case.fixture.json'],
     testIntentRefsByFile: { 'tests/case.fixture.json': ['CHK-001:happy:0'] },
+    fixtureCaseClosureByFile: { 'tests/case.fixture.json': true },
   });
   assert.equal(fixture.eligible, true);
   assert.deepEqual(fixture.reasonCodes, ['ELIGIBLE_PURE_STORY_FIXTURE']);
@@ -454,6 +478,92 @@ function runPolicyCases(): void {
   });
   assert.equal(fixtureWithoutIntent.eligible, false);
   assert.deepEqual(fixtureWithoutIntent.reasonCodes, ['FULL_FIXTURE_BINDING_INCOMPLETE']);
+
+  const fixtureWithUnboundChangedCase = classifyImpact({
+    changedFiles: ['tests/case.fixture.json'],
+    declaredTestFiles: ['tests/case.fixture.json'],
+    testIntentRefsByFile: { 'tests/case.fixture.json': ['CHK-001:happy:0'] },
+    fixtureCaseClosureByFile: { 'tests/case.fixture.json': false },
+  });
+  assert.equal(fixtureWithUnboundChangedCase.eligible, false);
+  assert.deepEqual(fixtureWithUnboundChangedCase.reasonCodes, ['FULL_FIXTURE_BINDING_INCOMPLETE']);
+
+  for (const status of ['D', 'R100', 'C100']) {
+    const unsupportedFixtureStatus = classifyImpact({
+      changedFiles: ['tests/case.fixture.json'],
+      declaredTestFiles: ['tests/case.fixture.json'],
+      testIntentRefsByFile: { 'tests/case.fixture.json': ['CHK-001:happy:0'] },
+      fixtureCaseClosureByFile: { 'tests/case.fixture.json': true },
+      changedFileStatus: { 'tests/case.fixture.json': status },
+    });
+    assert.equal(unsupportedFixtureStatus.eligible, false, `declared fixture status ${status} must fail closed`);
+    assert.deepEqual(unsupportedFixtureStatus.reasonCodes, ['FULL_UNSUPPORTED_RENAME']);
+  }
+
+  const unavailable = classifyImpact({
+    changedFiles: ['tests/case.fixture.json'],
+    declaredTestFiles: ['tests/case.fixture.json'],
+    testIntentRefsByFile: { 'tests/case.fixture.json': ['CHK-001:happy:0'] },
+    fixtureCaseClosureByFile: { 'tests/case.fixture.json': true },
+    classificationUnavailable: true,
+  });
+  assert.equal(unavailable.eligible, false);
+  assert.deepEqual(unavailable.reasonCodes, ['FULL_DYNAMIC_OR_PARSE_FAILURE']);
+
+  const trustedBinding = {
+    priorEnvelopePresent: true,
+    runtimeContractMatches: true,
+    roleContractMatches: true,
+    executionEnvironmentMatches: true,
+    assemblerMatches: true,
+    dispatchProtocolMatches: true,
+    scopePolicyMatches: true,
+    taskSemanticDigestMatches: true,
+    freshnessClassification: 'CURRENT_MATERIAL' as const,
+    pureFixtureDrift: false,
+  };
+  for (const [field, expected] of [
+    ['priorEnvelopePresent', 'FULL_MISSING_PRIOR_ENVELOPE'],
+    ['runtimeContractMatches', 'FULL_RUNTIME_CONTRACT_CHANGED'],
+    ['roleContractMatches', 'FULL_ROLE_CONTRACT_CHANGED'],
+    ['executionEnvironmentMatches', 'FULL_EXECUTION_ENVIRONMENT_CHANGED'],
+    ['assemblerMatches', 'FULL_ASSEMBLER_CHANGED'],
+    ['dispatchProtocolMatches', 'FULL_DISPATCH_PROTOCOL_CHANGED'],
+    ['scopePolicyMatches', 'FULL_SCOPE_OR_POLICY_CHANGED'],
+    ['taskSemanticDigestMatches', 'FULL_MODEL_RELEVANT_TASK_CONTEXT_CHANGED'],
+  ] as const) {
+    const reasons = classifyIncrementalBindingReasons({ ...trustedBinding, [field]: false });
+    assert.ok(reasons.includes(expected), `${field} drift forces stable full reason ${expected}`);
+  }
+  for (const freshnessClassification of [
+    'RELATED_STORY_MATERIAL_DRIFT',
+    'KNOWN_UNRELATED_MATERIAL_DRIFT',
+    'LEGACY_UNBOUND',
+    'RUNTIME_UNAVAILABLE',
+    'UNCOMPARABLE',
+  ] as const) {
+    const reasons = classifyIncrementalBindingReasons({
+      ...trustedBinding,
+      freshnessClassification,
+      pureFixtureDrift: false,
+    });
+    assert.ok(reasons.includes(`FULL_FRESHNESS_${freshnessClassification}`));
+  }
+  assert.ok(classifyIncrementalBindingReasons({
+    ...trustedBinding,
+    freshnessClassification: 'RELATED_STORY_MATERIAL_DRIFT',
+    pureFixtureDrift: true,
+  }).includes('ELIGIBLE_RELATED_PURE_STORY_FIXTURE_DRIFT'));
+  const callerOverride = classifyImpact({
+    changedFiles: ['src/private.ts'],
+    declaredTestFiles: [],
+    testIntentRefsByFile: {},
+    contextMode: 'incremental',
+    forceIncremental: true,
+    eligibilityReasonCodes: ['ELIGIBLE_ATTACKER_OVERRIDE'],
+  } as Parameters<typeof classifyImpact>[0] & Record<string, unknown>);
+  assert.equal(callerOverride.eligible, false);
+  assert.deepEqual(callerOverride.reasonCodes, ['FULL_PRIVATE_IMPLEMENTATION_V1']);
 
   for (const [path, expected] of [
     ['docs/decision.md', 'FULL_DOCS_V1'],
@@ -610,10 +720,78 @@ function runGateUnchangedCase(): void {
   }
 }
 
+function runConcurrentCliReadOnlyCase(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-cli-readonly-'));
+  const storyId = 'B-readonly';
+  try {
+    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
+    write(root, 'lattice.config.json', JSON.stringify({
+      storyDir: '.lattice/story/actives',
+      workflow: { profile: 'balanced' },
+    }, null, 2) + '\n');
+    write(root, 'src/seed.ts', 'export const seed = true;\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed read-only CLI fixture']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'src/seed.ts', 'export const seed = false;\n');
+    git(root, ['add', 'src/seed.ts']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'story material']);
+    const store = new StoryStore(root);
+    store.writeStory(storyId, reviewStory(storyId, 1, ts(1)));
+    store.writeChecklist(storyId, { items: [] });
+    git(root, ['add', '.lattice/story']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'story metadata']);
+
+    const storyDir = store.storyDirPath(storyId);
+    const beforeStoryBytes = directoryBytes(storyDir);
+    const beforeVerdictBytes = directoryBytes(join(root, '.lattice/autopilot-verdicts'));
+    const beforeStatus = git(root, ['status', '--porcelain=v1']);
+    const beforeStory = JSON.stringify(store.readStory(storyId));
+    const command = [
+      JSON.stringify(process.execPath),
+      JSON.stringify(DIST_CLI_PATH),
+      '--root',
+      JSON.stringify(root),
+      'review_incremental_context',
+      JSON.stringify(JSON.stringify({ storyId, role: 'quality', json: true })),
+    ].join(' ');
+    const script = [
+      'set -eu',
+      ...Array.from({ length: 8 }, () => `${command} >/dev/null &`),
+      'wait',
+    ].join('\n');
+    execFileSync('/bin/sh', ['-c', script], {
+      cwd: root,
+      env: {
+        ...process.env,
+        LATTICE_PROJECT_ROOT: root,
+        LATTICE_ACTIVITY_SOURCE: 'codex',
+        LATTICE_SESSION_ID: 'incremental-readonly-concurrent',
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.deepEqual(directoryBytes(storyDir), beforeStoryBytes, 'concurrent CLI calls preserve every Story artifact byte');
+    assert.deepEqual(
+      directoryBytes(join(root, '.lattice/autopilot-verdicts')),
+      beforeVerdictBytes,
+      'concurrent CLI calls create no receipts, host verdicts, floor, or quorum artifacts',
+    );
+    assert.equal(git(root, ['status', '--porcelain=v1']), beforeStatus, 'concurrent CLI calls preserve project filesystem status');
+    assert.equal(JSON.stringify(store.readStory(storyId)), beforeStory, 'concurrent CLI calls preserve phase and DONE outcome');
+    console.log(`${MARKER} CLI READ-ONLY: 8 concurrent built-CLI calls preserved Story/gate/verdict bytes and lifecycle state`);
+  } finally {
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function run(): void {
   runPolicyCases();
   runIncrementalCases();
   runGateUnchangedCase();
+  runConcurrentCliReadOnlyCase();
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
 }
 

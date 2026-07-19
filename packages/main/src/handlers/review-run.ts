@@ -76,7 +76,13 @@ function resolveGitTopLevel(gitCwd: string): string | null {
 export function createReviewRunHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
-    review_run_start(args: { storyId: string; agent?: string; lane?: string; reviewedIntentRefs?: string[] }): string {
+    review_run_start(args: {
+      storyId: string;
+      agent?: string;
+      lane?: string;
+      reviewedIntentRefs?: string[];
+      reviewerEscalationReason?: string;
+    }): string {
       const authority = resolveAgentMutationAuthority({
         command: 'review_run_start',
         payloadActors: [args.agent, args.lane],
@@ -116,6 +122,10 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       // status.ok === false → fail-open: after this preflight declines to block, proceed to the snapshot.
 
       const lane = resolveReviewRunLane(authority.actor, args.lane);
+      const reviewerEscalationReason = args.reviewerEscalationReason?.trim();
+      if (args.reviewerEscalationReason !== undefined && !reviewerEscalationReason) {
+        throw new Error('review_run_start: reviewerEscalationReason must be nonblank when provided');
+      }
       const startedAt = new Date().toISOString();
       // B-9dcb CHK-002: thread the resolved metadataRoot into the snapshot so the
       // storyDir-aware material/story hash exclusion loads lattice.config.json
@@ -190,7 +200,9 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           if (!dispatchBinding.ok) {
             throw new Error(`review_run_start: ${dispatchBinding.reason}; rerun lattice dispatch for ${lane}`);
           }
-          const incremental = reviewIncrementalContext(store, signedWorkspaceRoot, args.storyId, lane);
+          const incremental = reviewIncrementalContext(store, signedWorkspaceRoot, args.storyId, lane, {
+            findingsCutoffAt: startedAt,
+          });
           const assembly = assembleConditionalReviewPromptEnvelope({
             roleContract: promptRoleContract(lane),
             runtimeContract: BASELINE_RUNTIME_CONTRACT,
@@ -224,6 +236,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             changedFilesDigest: incremental.changedFilesDigest,
             impactedFilesDigest: incremental.impactedFilesDigest,
             reviewBasis: incremental.reviewBasis,
+            reviewerEscalationReason,
           });
           withMkdirLock(store.storyFilePath(args.storyId, 'prompt-envelopes.lock'), () => {
             const envelopeData = store.readPromptEnvelopes(args.storyId);
@@ -260,6 +273,9 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           promptHash,
           ...(envelopeId ? { envelopeId } : {}),
           ...(assembledPrompt ? { assembledPrompt } : {}),
+          ...(reviewerEscalationReason
+            ? { reviewerEscalationReason }
+            : {}),
           ...(scopeBinding ? { scopeBinding } : {}),
           workspaceBinding,
           _hash: signReviewRun(
@@ -276,6 +292,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             workspaceBinding.bindingHash,
             storyFilesHash,
             envelopeId,
+            reviewerEscalationReason,
           ),
         };
         data.runs.push(run);
@@ -288,6 +305,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           || persisted.workspaceBinding?.bindingHash !== workspaceBinding.bindingHash
           || persisted.envelopeId !== envelopeId
           || persisted.assembledPrompt !== assembledPrompt
+          || persisted.reviewerEscalationReason !== reviewerEscalationReason
         ) {
           throw new Error(`review_run_start: ${reviewRunId} was not durably persisted; refusing to continue`);
         }
@@ -298,7 +316,10 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         const envelopeNote = envelopeId
           ? `, envelope ${envelopeId.slice(0, 7)}, context ${promptContextNote}`
           : ', legacy-full-context';
-        const summary = `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote})`;
+        const escalationNote = reviewerEscalationReason
+          ? `, reviewer escalation: ${reviewerEscalationReason}`
+          : '';
+        const summary = `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote}${escalationNote})`;
         return assembledPrompt
           ? `${summary}\n\n--- BEGIN EXACT ASSEMBLED REVIEW PROMPT ---\n${assembledPrompt}\n--- END EXACT ASSEMBLED REVIEW PROMPT ---`
           : summary;

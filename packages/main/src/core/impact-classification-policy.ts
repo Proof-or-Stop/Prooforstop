@@ -48,6 +48,12 @@ export interface ImpactClassificationInput {
   changedFiles: readonly string[];
   declaredTestFiles: readonly string[];
   testIntentRefsByFile: Readonly<Record<string, readonly string[]>>;
+  /**
+   * True only when the trusted git-backed fixture reader proved that every
+   * added/changed case is bound to a current Story-scoped verification intent
+   * and that no case was removed. Missing entries fail closed.
+   */
+  fixtureCaseClosureByFile?: Readonly<Record<string, boolean>>;
   changedFileStatus?: Readonly<Record<string, string>>;
   classificationUnavailable?: boolean;
 }
@@ -91,8 +97,12 @@ export function classifyImpact(input: ImpactClassificationInput): ImpactClassifi
     impacts = [{ path: '<none>', category: 'no-material-change', reasonCode: 'ELIGIBLE_NO_MATERIAL_CHANGE' }];
   } else if (changedFiles.every(path => declaredTests.has(path))) {
     impacts = changedFiles.map(path => {
+      const status = input.changedFileStatus?.[path];
+      if (status?.startsWith('R') || status?.startsWith('C') || status === 'D') {
+        return { path, category: 'unsupported-rename' as const, reasonCode: 'FULL_UNSUPPORTED_RENAME' as const };
+      }
       const refs = [...new Set(input.testIntentRefsByFile[path] ?? [])].filter(ref => ref.trim().length > 0);
-      return refs.length > 0
+      return refs.length > 0 && input.fixtureCaseClosureByFile?.[path] === true
         ? { path, category: 'pure-story-fixture' as const, reasonCode: 'ELIGIBLE_PURE_STORY_FIXTURE' as const }
         : { path, category: 'pure-story-fixture' as const, reasonCode: 'FULL_FIXTURE_BINDING_INCOMPLETE' as const };
     });
