@@ -194,7 +194,7 @@
       "desc": "A changed Story-owned smoke still fails on the current built HEAD: `node packages/main/dist/tasks/prompt-token-cost-smoke.js` aborts at `lattice-evaluator.md keeps prompt-safety phrase: receiptVerified`. The Story modified prompt-token-cost-smoke to validate modular reviewer bootstrap assets, but its shared safety-phrase list still requires a retired phrase that is absent from the unchanged evaluator template. This does not invalidate the focused reviewer rollout behavior, but it leaves the modified smoke red and would break run-all-smokes/full-suite execution until the stale expectation is reconciled or the pre-existing baseline failure is explicitly isolated.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T09:19:27.629Z",
@@ -206,7 +206,11 @@
         "packages/main/templates/agents/lattice-evaluator.md"
       ],
       "signatureTag": "edge|ts|changed-story-owned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4be084025/a260249f64; current prompt-token smoke passes with migrated reviewer safety phrases and fresh current-head review.",
+      "resolvedAt": "2026-07-19T11:08:39.769Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-010",
