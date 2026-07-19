@@ -231,6 +231,27 @@
         "scanEscalationReason": null
       },
       "_hash": "8538853ea70f4f5082a5a6165790c8124aea940d67d5526a550e7e2e982d10e3"
+    },
+    {
+      "id": "B-6ed2:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round-6 incremental concept PASS: the only production-independent delta repins the guard and process-fact projection to the mechanically recomputed canonical cli-engine AST fingerprint 48ca6562b11dda8996163ad992cdb2a9f6e19e6073beaf171290d064f1d106e2. cli-engine.ts itself is unchanged; the approved loader remains anchored in runCli with exact argument `file://${initPath}`. Process Fact Contract passed and no safety predicate or executable behavior was weakened.",
+      "createdAt": "2026-07-19T00:38:48.203Z",
+      "reviewRound": "2026-07-19T00:37:23.078Z",
+      "reviewRunId": "B-6ed2:RR-018",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ea62f8daf55e2783a35ac09af1d3755aef6c360bf711a4fd4c28e488e7b8c4bb"
     }
   ]
 }
