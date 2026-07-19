@@ -4,7 +4,7 @@
   "title": "Story 3: establish isolated role-prompt A/B replay and usage measurement",
   "description": "Implement the third milestone of the canonical role-prompt modularization plan: a read-only historical-material replay harness that deterministically compares pinned prompt contracts/models/samples, records assembled and known-dispatch input plus provider usage/cache and adjudicated findings in experiment-only artifacts, and returns INCONCLUSIVE when source material cannot be reconstructed without mutating production Story evidence.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -28,6 +28,32 @@
       "user": "Harmonygo",
       "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-19T01:31:47.703Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
+      "agent": "main"
     }
-  ]
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "The word token refers only to prompt token-count measurement under pinned estimators; this Story does not read, write, transmit, or alter authentication tokens, credentials, secrets, or authorization behavior.",
+      "at": "2026-07-19T01:30:35.118Z"
+    },
+    {
+      "category": "Production/Emergency",
+      "reason": "The word production appears only in the negative isolation requirement that experiment artifacts must not mutate production Story evidence; this Story does not deploy to production or change incident/hotfix behavior.",
+      "at": "2026-07-19T01:30:37.195Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-8d4b",
+    "branch": "story/B-8d4b",
+    "createdAt": "2026-07-19T01:31:37.152Z"
+  }
 }
