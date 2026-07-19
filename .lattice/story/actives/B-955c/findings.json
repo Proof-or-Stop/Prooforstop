@@ -43,7 +43,7 @@
       "desc": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md:62,936-942 claims the EEA mechanism is integrated/demonstrated at a lifecycle Gate, but repository call-site search shows evaluateEvidenceEnvironmentGateProjection is referenced only by exports, process-fact declarations, and packages/main/src/tasks/evidence-environment-adapter-smoke.ts; no TEST/DONE/storyMachine or other production lifecycle Gate consumes normalized EEA receipts. The smoke directly calls the helper with fabricated checks, so it proves the helper projection, not M5 actual Gate integration. WHY: the paper must remain at Level B and CHK-006/M5 is incomplete until a real configured lifecycle Gate consumer invokes the projection and a test exercises that consumer end-to-end.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-19T00:53:01.605Z",
@@ -51,7 +51,11 @@
       "reviewRunId": "B-955c:RR-003",
       "_hash": "3bb228b672a4a2a47d386d52d6d3ff0cd6e06bd41e632d38b950269f33cd3d16",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: documentation claimed lifecycle integration while only smoke code called the helper. Root cause: support matrix outpaced implementation. Fix: actual DONE_REQUIRED call chain is implemented and documented as evaluateDoneRequiredEvidence -> validateDoneRequiredEvidenceEnvironmentProjection -> Gate projection. Repro test: done-required lifecycle smoke and process-fact contract PASS at b31b29b522.",
+      "resolvedAt": "2026-07-19T01:10:21.105Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-955c:F-004",
