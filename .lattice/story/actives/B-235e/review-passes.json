@@ -161,6 +161,33 @@
         "scanEscalationReason": null
       },
       "_hash": "7d0967e843c671a9a8dfc940c1e31c783163d5844ee50620b28b704443c78976"
+    },
+    {
+      "id": "B-235e:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "F-015 is closed on corrected commit f367111ba1: review_run_start and Story-aware agent_prompt use the same REVIEW_METADATA_TICKET_LOCK_DIR and withReviewMetadataTicketLock; review_run_start has no nested fixed-path envelope lock. The deterministic actual-producer ABA regression launches both CLI commands, proves no critical-section overlap, preserves review-run and story-dispatch envelopes, verifies the signed ReviewRun, and passes the gate verifier. Build and process-fact contract also passed; migrated bootstrap/selected-body semantics remain consistent.",
+      "createdAt": "2026-07-19T11:04:45.725Z",
+      "reviewRound": "2026-07-19T11:02:56.636Z",
+      "reviewRunId": "B-235e:RR-039",
+      "envelopeId": "a9693a6970ba5a7ebde14d36197d9c3bcf65291c6410d1ede82bc07b76c0efd8",
+      "writerSessionId": "sess-725b97bee152890e065410dcd644eaff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5511a094e00108a932666e335d9d3d66d083c24ea28040121e61a11b46842878"
     }
   ]
 }
