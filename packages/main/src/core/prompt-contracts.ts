@@ -220,6 +220,7 @@ export interface PromptEnvelope {
   impactedFilesDigest?: string;
   reviewBasisDigest?: string;
   incrementalContextDigest?: string;
+  taskSemanticDigest?: string;
   selectionReason?: 'SAFETY_REQUIRES_FULL' | 'SAFE_INCREMENTAL' | 'FULL_CHEAPER_OR_EQUAL' | 'INCREMENTAL_BUDGET_EXCEEDED' | 'REVIEWER_REQUESTED_FULL';
   fullContextBytes?: number;
   incrementalContextBytes?: number;
@@ -593,6 +594,7 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
     'freshnessClassification', 'toolPolicyDigest', 'systemInstructionDigest', 'requestedModelId',
     'dispatchPromptDigest', 'hostRenderIdentityDigest', 'impactPolicyVersion', 'eligibilityReasonCodes',
     'changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest',
+    'taskSemanticDigest',
     'selectionReason', 'fullContextBytes', 'incrementalContextBytes', 'escalatedToFull',
     'escalationReason', 'budgetViolation',
   ];
@@ -615,7 +617,10 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
       throw new PromptContractValidationError('incremental PromptEnvelope.selectionReason must be SAFE_INCREMENTAL');
     }
   }
-  for (const key of ['changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest']) {
+  if (record.impactPolicyVersion !== undefined) {
+    requireDigest(record.taskSemanticDigest, 'PromptEnvelope.taskSemanticDigest');
+  }
+  for (const key of ['changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest', 'taskSemanticDigest']) {
     if (record[key] !== undefined) requireDigest(record[key], `PromptEnvelope.${key}`);
   }
   if (record.eligibilityReasonCodes !== undefined) requireStringArray(record.eligibilityReasonCodes, 'PromptEnvelope.eligibilityReasonCodes');

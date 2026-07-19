@@ -12,7 +12,7 @@ import { canonicalDigest } from '../core/authority-signing.js';
 import { resetConfigCache } from '../core/config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signReviewPass } from '../core/finding-verify.js';
-import { signReviewRun, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
+import { collectReviewerEvidenceState, signReviewRun, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
 import {
   deriveCanonicalHostKeyId,
   deriveHostVerdictBindings,
@@ -561,6 +561,7 @@ try {
         assert.equal(existsSync(join(thin.root, '.lattice-codex/agents')), false);
         assert.equal(existsSync(join(thin.root, '.claude/agents')), false);
         recordReviewerPasses(thin.registry, selected.provider);
+        const thinEvidence = collectReviewerEvidenceState(thin.store, STORY_ID, thin.root);
         const qualityDispatch = [...thin.store.readProcessEvents(STORY_ID)].reverse().find(
           event => event.type === 'dispatch' && event.agentType === 'lattice-review-quality',
         );
@@ -573,7 +574,7 @@ try {
             gitCwd: thin.root,
           }),
           true,
-          `${selected.provider} completes dispatch, review_run_start and REVIEW gate without host assets`,
+          `${selected.provider} completes dispatch, review_run_start and REVIEW gate without host assets; invalid=${JSON.stringify(thinEvidence.invalid)}`,
         );
       } finally {
         process.chdir(primaryCwd);
@@ -880,6 +881,23 @@ try {
   });
 
   check('refuses when reviewer passes are stale and writes no verdicts', () => {
+    const checklist = store.readChecklist(STORY_ID);
+    store.writeChecklist(STORY_ID, {
+      items: [
+        ...checklist.items,
+        ...Array.from({ length: 60 }, (_, index) => ({
+          id: `CHK-PAD-${String(index + 1).padStart(3, '0')}`,
+          title: `Current unaffected acceptance context ${index + 1}`,
+          context: `Authoritative current full-context padding ${index + 1} ${'x'.repeat(160)}`,
+          status: 'done' as const,
+          startTime: null,
+          endTime: null,
+          relatedDocs: [],
+          files: { modify: [], create: [], test: [] },
+          verificationIntent: { happy: [], edge: [], adversarial: [] },
+        })),
+      ],
+    });
     recordReviewerPasses(registry);
     commitMaterialChange(root);
     assertQuorumRefuses(registry, store, root, 'stale reviewer pass refusal');
@@ -893,7 +911,12 @@ try {
       projectRoot: root,
       gitCwd: root,
     };
-    assert.equal(canPassReviewGuard(machineContext), true, 'current canonical full-envelope evidence passes REVIEW');
+    const currentEnvelopeEvidence = collectReviewerEvidenceState(store, STORY_ID, root);
+    assert.equal(
+      canPassReviewGuard(machineContext),
+      true,
+      `current canonical full-envelope evidence passes REVIEW; invalid=${JSON.stringify(currentEnvelopeEvidence.invalid)}`,
+    );
     const qualityRun = [...store.readReviewRuns(STORY_ID).runs]
       .reverse()
       .find(run => run.lane === 'lattice-review-quality');
@@ -983,6 +1006,15 @@ try {
   let result: any;
   check('emits exactly rounds x 2 verdicts after current reviewer passes', () => {
     recordReviewerPasses(registry);
+    for (const lane of REVIEW_LANES) {
+      const latestRun = [...store.readReviewRuns(STORY_ID).runs].reverse().find(run => run.lane === lane)!;
+      const latestEnvelope = store.readPromptEnvelopes(STORY_ID).envelopes.find(
+        envelope => envelope.envelopeId === latestRun.envelopeId,
+      )!;
+      assert.equal(latestEnvelope.contextMode, 'incremental', `${lane} second same-material run uses trusted incremental context`);
+      assert.equal(latestEnvelope.selectionReason, 'SAFE_INCREMENTAL');
+      assert.equal(verifyReviewRunPromptEnvelope(store, latestRun).ok, true);
+    }
     const handler = registry.get('quorum_submit');
     assert.ok(handler, 'quorum_submit handler is registered');
     const beforeHead = git(root, ['rev-parse', 'HEAD']);

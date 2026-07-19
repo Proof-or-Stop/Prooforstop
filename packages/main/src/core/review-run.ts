@@ -30,6 +30,7 @@ import {
 import { AGENT_DISPATCH_REGISTRY, resolveRegisteredAgentActor } from './agent-dispatch-registry.js';
 import {
   verifyFullPromptAssemblyIntegrity,
+  verifyIncrementalPromptAssemblyIntegrity,
   verifyPromptEnvelopeIntegrity,
 } from './prompt-envelope.js';
 import {
@@ -46,6 +47,7 @@ import {
   reviewerHostRenderIdentity,
   resolvePromptEnvelopeRolloutMode,
 } from './prompt-role-contract-registry.js';
+import { reviewIncrementalContext } from './review-incremental-context.js';
 
 export const REVIEW_RUN_SALT = 'lattice-review-run-integrity-v1';
 
@@ -121,6 +123,9 @@ const SUPERSEDED_PASS_ISSUE_CODES = new Set<ReviewRunIssueCode>([
   'missing_scope_binding',
   'stale_scope_binding',
   'scope_binding_tampered',
+  'missing_prompt_envelope',
+  'prompt_envelope_tampered',
+  'prompt_envelope_mismatch',
 ]);
 
 export function isReviewRunLane(value: string): value is ReviewRunLane {
@@ -581,7 +586,10 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   };
 }
 
-export function verifyReviewRunPromptEnvelope(store: StoryStore, run: ReviewRun): { ok: boolean; reason?: string } {
+export function verifyReviewRunPromptEnvelope(
+  store: StoryStore,
+  run: ReviewRun,
+): { ok: boolean; reason?: string } {
   if (!run.envelopeId) return { ok: true };
   const matching = store.readPromptEnvelopes(run.storyId).envelopes.filter(
     envelope => envelope.envelopeId === run.envelopeId,
@@ -616,16 +624,76 @@ export function verifyReviewRunPromptEnvelope(store: StoryStore, run: ReviewRun)
     projectRoot: run.workspaceBinding?.metadataRoot || run.workspaceBinding?.signedWorkspaceRoot || process.cwd(),
   });
   if (!dispatchBinding.ok) return dispatchBinding;
-  if (!verifyFullPromptAssemblyIntegrity({
-    prompt: run.assembledPrompt,
-    envelope,
-    runtimeContract: BASELINE_RUNTIME_CONTRACT,
-    roleContract,
-    rolePrompt: readPromptTemplate(promptEntry),
-    dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
-    hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
-  })) {
+  const assemblyValid = envelope.contextMode === 'incremental'
+    ? verifyIncrementalPromptAssemblyIntegrity({
+      prompt: run.assembledPrompt,
+      envelope,
+      runtimeContract: BASELINE_RUNTIME_CONTRACT,
+      roleContract,
+      rolePrompt: readPromptTemplate(promptEntry),
+      dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
+      hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
+    })
+    : verifyFullPromptAssemblyIntegrity({
+      prompt: run.assembledPrompt,
+      envelope,
+      runtimeContract: BASELINE_RUNTIME_CONTRACT,
+      roleContract,
+      rolePrompt: readPromptTemplate(promptEntry),
+      dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
+      hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
+    });
+  if (!assemblyValid) {
     return { ok: false, reason: 'Prompt Envelope does not match the canonical runtime/role/task assembly bytes' };
+  }
+  if (envelope.impactPolicyVersion) {
+    let incremental;
+    try {
+      incremental = reviewIncrementalContext(
+        store,
+        run.workspaceBinding?.signedWorkspaceRoot || run.workspaceBinding?.metadataRoot || process.cwd(),
+        run.storyId,
+        run.lane,
+        { excludedReviewRunId: run.reviewRunId },
+      );
+    } catch (error) {
+      return {
+        ok: false,
+        reason: `incremental eligibility could not be recomputed: ${error instanceof Error ? error.message : String(error)}`,
+      };
+    }
+    const eligibilityMismatches = [
+      ['impactPolicyVersion', envelope.impactPolicyVersion, incremental.impactPolicyVersion],
+      ['eligibilityDigest', envelope.eligibilityDigest, incremental.eligibilityDigest],
+      ['eligibilityReasonCodes', JSON.stringify(envelope.eligibilityReasonCodes), JSON.stringify(incremental.eligibilityReasonCodes)],
+      ['freshnessClassification', envelope.freshnessClassification, incremental.freshnessClassification],
+      ['priorPassRef', envelope.priorPassRef, incremental.priorPassRef ?? undefined],
+      ['changedFilesDigest', envelope.changedFilesDigest, incremental.changedFilesDigest],
+      ['impactedFilesDigest', envelope.impactedFilesDigest, incremental.impactedFilesDigest],
+      ['reviewBasisDigest', envelope.reviewBasisDigest, incremental.reviewBasisDigest ?? undefined],
+      ['taskSemanticDigest', envelope.taskSemanticDigest, incremental.taskSemanticDigest ?? undefined],
+    ].filter(([, actual, expected]) => actual !== expected);
+    if (eligibilityMismatches.length > 0) {
+      return {
+        ok: false,
+        reason: `Prompt Envelope incremental eligibility fields do not match authoritative recomputation: ${eligibilityMismatches.map(([key]) => key).join(', ')}`,
+      };
+    }
+    const safetyRequiresFull = incremental.contextMode === 'full';
+    if (envelope.contextMode === 'incremental' && safetyRequiresFull) {
+      return { ok: false, reason: 'incremental context was served while authoritative eligibility required full' };
+    }
+    if (envelope.contextMode === 'incremental' && envelope.selectionReason !== 'SAFE_INCREMENTAL') {
+      return { ok: false, reason: 'incremental context is missing SAFE_INCREMENTAL selection' };
+    }
+    if (envelope.contextMode === 'full' && envelope.selectionReason === 'SAFETY_REQUIRES_FULL' && !safetyRequiresFull) {
+      return { ok: false, reason: 'full safety selection contradicts authoritative incremental eligibility' };
+    }
+    if (envelope.selectionReason === 'FULL_CHEAPER_OR_EQUAL'
+      && (envelope.incrementalContextBytes === undefined || envelope.fullContextBytes === undefined
+        || envelope.incrementalContextBytes < envelope.fullContextBytes)) {
+      return { ok: false, reason: 'FULL_CHEAPER_OR_EQUAL size relation is invalid' };
+    }
   }
   const fieldsMatch = envelope.dispatchKind === 'review-run'
     && envelope.storyId === run.storyId

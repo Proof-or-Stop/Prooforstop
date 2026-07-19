@@ -30,10 +30,11 @@ import {
 import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
-  assembleFullPromptEnvelope,
+  assembleConditionalReviewPromptEnvelope,
   buildFullTaskContext,
   verifyPromptEnvelopeIntegrity,
 } from '../core/prompt-envelope.js';
+import { reviewIncrementalContext } from '../core/review-incremental-context.js';
 
 function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.storyFilePath(storyId, 'review-runs.lock');
@@ -177,6 +178,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         let promptHash = hashReviewPrompt(canonicalRolePrompt);
         let envelopeId: string | undefined;
         let assembledPrompt: string | undefined;
+        let promptContextNote = 'legacy-full-context';
         if (rolloutMode === 'full-envelope') {
           const dispatchBinding = verifyCurrentReviewerDispatchBinding({
             store,
@@ -188,7 +190,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           if (!dispatchBinding.ok) {
             throw new Error(`review_run_start: ${dispatchBinding.reason}; rerun lattice dispatch for ${lane}`);
           }
-          const assembly = assembleFullPromptEnvelope({
+          const incremental = reviewIncrementalContext(store, signedWorkspaceRoot, args.storyId, lane);
+          const assembly = assembleConditionalReviewPromptEnvelope({
             roleContract: promptRoleContract(lane),
             runtimeContract: BASELINE_RUNTIME_CONTRACT,
             rolePrompt: canonicalRolePrompt,
@@ -212,6 +215,15 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
               dispatchBindingDigest: dispatchBinding.binding.dispatchBindingDigest,
               hostRenderHost: dispatchBinding.binding.hostRenderHost,
             },
+            incrementalEligible: incremental.contextMode === 'incremental',
+            eligibilityDigest: incremental.eligibilityDigest,
+            eligibilityReasonCodes: incremental.eligibilityReasonCodes,
+            freshnessClassification: incremental.freshnessClassification,
+            impactPolicyVersion: incremental.impactPolicyVersion,
+            priorPassRef: incremental.priorPassRef ?? undefined,
+            changedFilesDigest: incremental.changedFilesDigest,
+            impactedFilesDigest: incremental.impactedFilesDigest,
+            reviewBasis: incremental.reviewBasis,
           });
           withMkdirLock(store.storyFilePath(args.storyId, 'prompt-envelopes.lock'), () => {
             const envelopeData = store.readPromptEnvelopes(args.storyId);
@@ -233,6 +245,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           envelopeId = assembly.envelope.envelopeId;
           assembledPrompt = assembly.prompt;
           promptHash = assembly.envelope.assembledPromptDigest;
+          promptContextNote = `${assembly.envelope.contextMode}/${assembly.selectionReason}`;
         }
         const run: ReviewRun = {
           reviewRunId,
@@ -282,7 +295,9 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           ? `, scope ${scopeBinding.scopeContractHash?.slice(0, 7)}/${scopeBinding.diffPackHash?.slice(0, 7)}`
           : '';
         const storyHashNote = storyFilesHash ? `, story ${storyFilesHash.slice(0, 7)}` : '';
-        const envelopeNote = envelopeId ? `, envelope ${envelopeId.slice(0, 7)}` : ', legacy-full-context';
+        const envelopeNote = envelopeId
+          ? `, envelope ${envelopeId.slice(0, 7)}, context ${promptContextNote}`
+          : ', legacy-full-context';
         const summary = `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote})`;
         return assembledPrompt
           ? `${summary}\n\n--- BEGIN EXACT ASSEMBLED REVIEW PROMPT ---\n${assembledPrompt}\n--- END EXACT ASSEMBLED REVIEW PROMPT ---`

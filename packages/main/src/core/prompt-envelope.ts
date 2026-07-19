@@ -222,6 +222,16 @@ export function buildFullTaskContext(args: {
   return context;
 }
 
+export function fullTaskSemanticDigest(context: FullTaskContext): string {
+  const {
+    headHash: _headHash,
+    materialHash: _materialHash,
+    storyFilesHash: _storyFilesHash,
+    ...modelRelevant
+  } = context;
+  return domainSeparatedDigest('full-task-context.model-relevant.v1', modelRelevant);
+}
+
 export function captureKnownExecutionEnvironment(): KnownExecutionEnvironment {
   const value: KnownExecutionEnvironment = {
     schemaVersion: 'proofbound.known-execution-environment.v1',
@@ -405,6 +415,7 @@ export function assembleConditionalReviewPromptEnvelope(
     eligibilityReasonCodes: [...new Set(input.eligibilityReasonCodes)].sort(),
     changedFilesDigest: input.changedFilesDigest,
     impactedFilesDigest: input.impactedFilesDigest,
+    taskSemanticDigest: fullTaskSemanticDigest(input.taskContext),
     ...(basis ? {
       reviewBasisDigest: domainSeparatedDigest('incremental-review-basis.v1', basis),
       incrementalContextDigest: domainSeparatedDigest('incremental-review-context.raw-utf8.v1', incrementalPrompt!),
@@ -518,6 +529,73 @@ export function verifyFullPromptAssemblyIntegrity(input: {
       && envelope.bytes === promptUtf8Bytes(input.prompt)
       && envelope.lines === promptLogicalLines(input.prompt)
       && envelope.estimatedTokens === estimatePromptTokens(input.prompt);
+  } catch {
+    return false;
+  }
+}
+
+export function verifyIncrementalPromptAssemblyIntegrity(input: {
+  prompt: string;
+  envelope: PromptEnvelope;
+  runtimeContract: RuntimeContract;
+  roleContract: RoleContract;
+  rolePrompt: string;
+  dispatchPrompt: string;
+  hostRenderIdentityDigest: string;
+}): boolean {
+  try {
+    assertContractRenderCoherence(input.runtimeContract, input.roleContract, input.rolePrompt);
+    validatePromptEnvelope(input.envelope);
+    if (input.envelope.contextMode !== 'incremental') return false;
+    const basisMarker = '\n\n## Incremental Review Basis\n\n';
+    const environmentMarker = '\n\n## Known Execution Environment\n\n';
+    const dispatchPromptMarker = '\n\n## Dispatch Prompt\n\n';
+    const rolePromptMarker = '\n\n## Role Prompt\n\n';
+    const basisStart = input.prompt.indexOf(basisMarker);
+    const environmentStart = input.prompt.indexOf(environmentMarker, basisStart + basisMarker.length);
+    const dispatchStart = input.prompt.indexOf(dispatchPromptMarker, environmentStart + environmentMarker.length);
+    const roleStart = input.prompt.indexOf(rolePromptMarker, dispatchStart + dispatchPromptMarker.length);
+    if (basisStart < 0 || environmentStart < 0 || dispatchStart < 0 || roleStart < 0) return false;
+    const basisJson = input.prompt.slice(basisStart + basisMarker.length, environmentStart);
+    const environmentJson = input.prompt.slice(environmentStart + environmentMarker.length, dispatchStart);
+    const embeddedDispatchPrompt = input.prompt.slice(dispatchStart + dispatchPromptMarker.length, roleStart);
+    const basis = JSON.parse(basisJson) as IncrementalReviewBasis;
+    const environment = JSON.parse(environmentJson) as KnownExecutionEnvironment;
+    validateIncrementalReviewBasis(basis);
+    validateKnownExecutionEnvironment(environment);
+    if (canonicalJsonStringify(basis) !== basisJson || canonicalJsonStringify(environment) !== environmentJson) return false;
+    if (embeddedDispatchPrompt !== input.dispatchPrompt) return false;
+    const expected = renderIncrementalPrompt(
+      input.runtimeContract,
+      input.roleContract,
+      basis,
+      environment,
+      input.rolePrompt,
+      input.dispatchPrompt,
+    );
+    const envelope = input.envelope;
+    return input.prompt === expected
+      && envelope.roleId === input.roleContract.roleId
+      && envelope.runtimeContractVersion === input.runtimeContract.schemaVersion
+      && envelope.runtimeSemanticDigest === input.runtimeContract.semanticDigest
+      && envelope.runtimeRenderDigest === input.runtimeContract.renderDigest
+      && envelope.roleContractVersion === input.roleContract.schemaVersion
+      && envelope.roleSemanticDigest === input.roleContract.semanticDigest
+      && envelope.roleRenderDigest === input.roleContract.renderDigest
+      && envelope.dispatchPromptDigest === reviewerDispatchPromptDigest(input.dispatchPrompt)
+      && envelope.hostRenderIdentityDigest === input.hostRenderIdentityDigest
+      && envelope.storyId === basis.storyId
+      && envelope.lane === basis.lane
+      && envelope.priorPassRef === basis.priorPassRef
+      && envelope.contextDigest === domainSeparatedDigest('incremental-review-basis.v1', basis)
+      && envelope.reviewBasisDigest === domainSeparatedDigest('incremental-review-basis.v1', basis)
+      && envelope.incrementalContextDigest === domainSeparatedDigest('incremental-review-context.raw-utf8.v1', input.prompt)
+      && envelope.knownExecutionEnvironmentDigest === domainSeparatedDigest('known-execution-environment.v1', environment)
+      && envelope.assembledPromptDigest === domainSeparatedDigest('assembled-prompt.raw-utf8.v1', input.prompt)
+      && envelope.bytes === promptUtf8Bytes(input.prompt)
+      && envelope.lines === promptLogicalLines(input.prompt)
+      && envelope.estimatedTokens === estimatePromptTokens(input.prompt)
+      && verifyPromptEnvelopeIntegrity(envelope);
   } catch {
     return false;
   }

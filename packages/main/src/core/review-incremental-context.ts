@@ -34,7 +34,7 @@ import {
   type EvidenceFreshnessClassification,
 } from './evidence-freshness.js';
 import { verifyReviewPass } from './finding-verify.js';
-import { verifyReviewRun, verifyReviewRunPromptEnvelope } from './review-run.js';
+import { verifyReviewRun } from './review-run.js';
 import {
   classifyImpact,
   IMPACT_CLASSIFICATION_POLICY_VERSION,
@@ -48,7 +48,10 @@ import {
 import {
   PROMPT_DISPATCH_PROTOCOL_VERSION,
   PROMPT_ENVELOPE_ASSEMBLER_VERSION,
+  buildFullTaskContext,
   captureKnownExecutionEnvironment,
+  fullTaskSemanticDigest,
+  verifyPromptEnvelopeIntegrity,
 } from './prompt-envelope.js';
 import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
 import { promptRoleContract } from './prompt-role-contract-registry.js';
@@ -116,6 +119,7 @@ export interface ReviewIncrementalContext {
   impactedFilesDigest: string;
   reviewBasis: IncrementalReviewBasis | null;
   reviewBasisDigest: string | null;
+  taskSemanticDigest: string | null;
 }
 
 interface TrustedPriorPass {
@@ -135,14 +139,32 @@ function latestTrustedPriorPass(
   role: string,
   passes: ReviewPass[],
   runs: ReviewRun[],
+  excludedReviewRunId?: string,
 ): TrustedPriorPass | null {
   const candidates: TrustedPriorPass[] = [];
   for (const pass of passes) {
     if (pass.agent !== role || !verifyReviewPass(storyId, pass) || !pass.reviewRunId) continue;
+    if (pass.reviewRunId === excludedReviewRunId) continue;
     const run = runs.find(candidate => candidate.reviewRunId === pass.reviewRunId);
     if (!run || run.lane !== role || !verifyReviewRun(run)) continue;
-    if (!run.envelopeId || pass.envelopeId !== run.envelopeId) continue;
-    if (!verifyReviewRunPromptEnvelope(store, run).ok) continue;
+    if (!run.envelopeId || pass.envelopeId !== run.envelopeId || !run.assembledPrompt) continue;
+    const envelopes = store.readPromptEnvelopes(storyId).envelopes.filter(
+      envelope => envelope.envelopeId === run.envelopeId,
+    );
+    if (envelopes.length !== 1) continue;
+    const envelope = envelopes[0];
+    if (!verifyPromptEnvelopeIntegrity(envelope)) continue;
+    if (
+      envelope.storyId !== storyId
+      || envelope.roleId !== role
+      || envelope.lane !== role
+      || envelope.reviewRunId !== run.reviewRunId
+      || envelope.reviewRound !== run.reviewRound
+      || envelope.headHash !== run.headHash
+      || envelope.materialHash !== run.materialHash
+      || envelope.storyFilesHash !== run.storyFilesHash
+      || envelope.assembledPromptDigest !== run.promptHash
+    ) continue;
     candidates.push({ pass, run });
   }
   if (candidates.length === 0) return null;
@@ -169,16 +191,28 @@ export function reviewIncrementalContext(
   projectRoot: string,
   storyId: string,
   role: string,
+  options: { excludedReviewRunId?: string } = {},
 ): ReviewIncrementalContext {
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
   const findings = store.readFindings(storyId).findings || [];
-  const prior = latestTrustedPriorPass(store, storyId, role, passes, runs);
+  const prior = latestTrustedPriorPass(store, storyId, role, passes, runs, options.excludedReviewRunId);
   const currentHead = currentGitHead(projectRoot) ?? null;
   const currentMaterial = currentMaterialHash(projectRoot, 'HEAD', projectRoot) ?? null;
   const currentStoryFiles = currentStoryFilesHash(projectRoot, 'HEAD', projectRoot) ?? null;
   const checklist = store.readChecklist(storyId);
   const scopeContract = store.readScopeContract(storyId);
+  const story = store.readStory(storyId);
+  const currentTaskSemanticDigest = currentHead
+    ? fullTaskSemanticDigest(buildFullTaskContext({
+      story,
+      checklist,
+      headHash: currentHead,
+      materialHash: currentMaterial ?? undefined,
+      storyFilesHash: currentStoryFiles ?? undefined,
+      scopeContract,
+    }))
+    : null;
   const declaredTestFiles = checklist.items.flatMap(item => item.files?.test ?? []);
   const testIntentRefsByFile = Object.fromEntries(declaredTestFiles.map(path => {
     const refs = checklist.items
@@ -284,9 +318,6 @@ export function reviewIncrementalContext(
       priorReviewRunId: args.prior?.run.reviewRunId ?? null,
       priorEnvelopeId: args.prior?.run.envelopeId ?? null,
       priorHeadHash: args.prior?.run.headHash ?? null,
-      currentHeadHash: currentHead,
-      currentMaterialHash: currentMaterial,
-      currentStoryFilesHash: currentStoryFiles,
       freshnessClassification: args.freshnessClassification,
       eligibilityReasonCodes,
       changedFilesDigest,
@@ -317,6 +348,7 @@ export function reviewIncrementalContext(
       impactedFilesDigest,
       reviewBasis,
       reviewBasisDigest,
+      taskSemanticDigest: currentTaskSemanticDigest,
     };
   };
 
@@ -382,6 +414,9 @@ export function reviewIncrementalContext(
     bindingReasons.push('FULL_DISPATCH_PROTOCOL_CHANGED');
   }
   if (priorEnvelope?.policyHash !== currentPolicyHash) bindingReasons.push('FULL_SCOPE_OR_POLICY_CHANGED');
+  if (!priorEnvelope?.taskSemanticDigest || priorEnvelope.taskSemanticDigest !== currentTaskSemanticDigest) {
+    bindingReasons.push('FULL_MODEL_RELEVANT_TASK_CONTEXT_CHANGED');
+  }
   if (!['CURRENT_MATERIAL', 'KNOWN_METADATA_ONLY_HEAD_DRIFT'].includes(freshnessClassification)) {
     bindingReasons.push(`FULL_FRESHNESS_${freshnessClassification}`);
   } else {
