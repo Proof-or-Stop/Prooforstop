@@ -56,6 +56,21 @@
       "_hash": "a3bb18f96e5e1f753f3c5764125927ffdc0773acde387930ff4f8bbe54965e3c",
       "signatureTag": "missing|unknown|lattice-story-actives",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d4b:F-004",
+      "desc": "experiments/role-prompt-ab-replay/README.md:14-22 labels the ledger target as runtime output and documents a command that writes runtime/operator-run.jsonl, but experiments/role-prompt-ab-replay/runtime/ is not gitignored (git check-ignore returns no match). The documented command therefore leaves a clean Story worktree with an untracked 72-row ledger until the operator manually deletes it. Add an experiment-local ignore rule or document an ignored/temp output path so the runnable instructions do not create accidental repository artifacts.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T02:11:42.974Z",
+      "reviewRound": "2026-07-19T02:09:19.210Z",
+      "reviewRunId": "B-8d4b:RR-003",
+      "_hash": "0841279584862ac7eae20446f28478cd514dbdf5a2b65af38926ff7b1ed25343",
+      "signatureTag": "edge|unknown|experiments-role-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
