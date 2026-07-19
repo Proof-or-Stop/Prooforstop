@@ -27,6 +27,7 @@ import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 const STORY_ID = 'B-quorum-smoke';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
+const DIST_DIRTY_GATE_POLICY_PATH = fileURLToPath(new URL('../core/dirty-gate-policy.js', import.meta.url));
 const IMPLEMENTATION_REPO_ROOT = fileURLToPath(new URL('../../../..', import.meta.url));
 const HISTORICAL_RED_COMMIT = 'ffedfb4eb3';
 const REVIEW_ROUND = '2026-06-22T10:00:00.000Z';
@@ -273,6 +274,64 @@ const { root, store, registry } = makeFixture();
 
 try {
   process.chdir(root);
+
+  check('every production process-event writer honors the shared append lock', () => {
+    const lockFixture = mkdtempSync(join(tmpdir(), 'lattice-process-event-lock-'));
+    try {
+      const storyDirRel = '.lattice/story/actives';
+      const storyDir = join(lockFixture, storyDirRel, STORY_ID);
+      const lockDir = join(storyDir, '.process-events-append.lock');
+      mkdirSync(lockDir, { recursive: true });
+      write(lockFixture, 'invoke-audit-writer.mjs', [
+        `import { defaultAuditWriter } from ${JSON.stringify(DIST_DIRTY_GATE_POLICY_PATH)};`,
+        `defaultAuditWriter(${JSON.stringify(lockFixture)}, ${JSON.stringify(storyDirRel)}, ${JSON.stringify(STORY_ID)})({`,
+        "  type: 'dirty_gate_audit',",
+        `  storyId: ${JSON.stringify(STORY_ID)},`,
+        "  gate: 'validate-side-effect',",
+        "  category: 'lattice_metadata_changes',",
+        "  pathCount: 1,",
+        "  paths: ['.lattice/story/actives/B-quorum-smoke/index.json'],",
+        "  reason: 'lock ownership regression',",
+        "  timestamp: '2026-07-19T00:00:00.000Z',",
+        '});',
+        '',
+      ].join('\n'));
+      const script = [
+        `"${process.execPath}" invoke-audit-writer.mjs &`,
+        'child=$!',
+        'sleep 0.25',
+        `if test -e ${JSON.stringify(join(storyDir, 'process-events.jsonl'))}; then`,
+        '  wait "$child" || true',
+        '  exit 41',
+        'fi',
+        `rmdir ${JSON.stringify(lockDir)}`,
+        'wait "$child"',
+      ].join('\n');
+      assert.doesNotThrow(
+        () => execFileSync('/bin/sh', ['-c', script], {
+          cwd: lockFixture,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        }),
+        'defaultAuditWriter must wait for the shared process-event lock instead of writing through it',
+      );
+      const rows = readFileSync(join(storyDir, 'process-events.jsonl'), 'utf8').trim().split('\n');
+      assert.equal(rows.length, 1);
+
+      for (const rel of [
+        'packages/main/src/handlers/cross-host-review.ts',
+        'packages/main/src/core/dirty-gate-policy.ts',
+      ]) {
+        const source = readFileSync(join(IMPLEMENTATION_REPO_ROOT, rel), 'utf8');
+        assert.doesNotMatch(
+          source,
+          /\bappendFileSync\b/,
+          `${rel} must use the shared process-event append primitive`,
+        );
+      }
+    } finally {
+      rmSync(lockFixture, { recursive: true, force: true });
+    }
+  });
 
   check('shared binding derivation is byte-identical to the former quorum envelopes', () => {
     const vector = {
