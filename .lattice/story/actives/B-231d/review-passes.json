@@ -1,0 +1,29 @@
+{
+  "passes": [
+    {
+      "id": "B-231d:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "F-001 verified fixed in 1d98a3a7c6. Rebuilt+ran worktree-portability-smoke live: all 16 checks pass incl. cross-root receipt-coverage (no receipt-cwd-mismatch) and genuinely-different-cwd still mismatches. Grepped repo for residual absolute-cwd equality comparisons: none found outside documented v1 legacy migration path. No concept-residue blocker.",
+      "createdAt": "2026-07-19T00:20:46.080Z",
+      "reviewRound": "2026-07-19T00:16:28.435Z",
+      "reviewRunId": "B-231d:RR-005",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "749c3498c3553968855d03e8306bcea0559dd3af5bd1068eec83c2b72780699f"
+    }
+  ]
+}
