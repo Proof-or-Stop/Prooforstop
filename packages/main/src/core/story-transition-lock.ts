@@ -43,6 +43,20 @@ import { LATTICE_DIR } from './lattice-paths.js';
  * subsumes the liveness concern. A false-reclaim wastes a little CPU; it cannot
  * corrupt the phase.
  *
+ * ── KNOWN LIMITATION (B-d877 R4, codex #1 residual — deliberately deferred) ────
+ * The atomic persist claim itself uses a TIME-BASED stale reclaim (staleMs), so
+ * it is NOT an absolute mutex against a holder that is OS-level frozen (e.g.
+ * SIGSTOP) for LONGER than staleMs in the middle of the persist: a waiter could
+ * then stale-reclaim a still-live holder's claim. Mitigation in place: the
+ * persist critical section in the orchestrator (claim acquire → phase re-read →
+ * checklist + story write → release) is FULLY SYNCHRONOUS — there is NO `await`
+ * between acquire and release — so the JS runtime cannot preempt a live holder
+ * mid-section; only an external multi-second OS process freeze could trip a
+ * stale-reclaim of a live holder, which is outside the software-concurrency
+ * threat model and is recoverable (re-run story_advance). Full fencing-token
+ * hardening (a monotonic generation checked at commit, with crash → explicit
+ * recovery instead of a time reclaim) is a deliberately-deferred follow-up.
+ *
  * LOCK LOCATION — the lock MUST live OUTSIDE the story's committed/scanned
  * metadata dir. An earlier revision rooted it at `<storyDir>/transition.lock/`,
  * i.e. inside `.lattice/story/actives/<id>/`; the scope gate running in the SAME

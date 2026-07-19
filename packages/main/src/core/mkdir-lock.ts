@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
+import { mkdirSync, readFileSync, rmdirSync, rmSync, statSync, writeFileSync } from 'fs';
 import { hostname } from 'os';
 import { dirname, join } from 'path';
 import { randomUUID } from 'crypto';
@@ -163,6 +163,26 @@ export function readMkdirLockHolder(lockDir: string): MkdirLockHolderInfo | null
 }
 
 /**
+ * B-d877 R4 (codex #2): remove an OWNED, now-empty lock dir NON-recursively.
+ *
+ * This NEVER recursively force-removes: it uses the non-recursive empty-dir
+ * removal (`rmdirSync`), which fails harmlessly (ENOTEMPTY / ENOENT) if the dir
+ * is NOT empty (e.g. a successor's `holder.json` is present after a stale-reclaim
+ * race) or already gone. A missed removal simply leaves a lock that self-reclaims
+ * at `staleMs` — far safer than a recursive force-remove that could delete a
+ * successor's LIVE lock dir. Callers must have already removed their own
+ * `holder.json` (or confirmed the dir is empty) before calling this.
+ */
+function removeEmptyLockDirNonRecursive(lockDir: string): void {
+  try {
+    rmdirSync(lockDir);
+  } catch {
+    /* PROBE: dir not empty (successor present) or already gone — both harmless.
+       We deliberately do NOT escalate to a recursive force-remove here. */
+  }
+}
+
+/**
  * Default acquire deadline. Kept strictly above DEFAULT_STALE_MS so the
  * stale-reclaim path is reachable for every caller using defaults: a waiter
  * polls past the 10s stale threshold and reclaims a crashed holder's lock
@@ -289,13 +309,12 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
   } catch (writeErr: any) {
     if (options.requireHolderToken) {
       // Fail-closed: cannot prove ownership on release, so do not proceed
-      // token-less. Remove the dir we just created so the lock does not leak,
-      // then fail the acquire.
-      try {
-        rmSync(lockDir, { recursive: true, force: true });
-      } catch {
-        /* best-effort cleanup — the throw below still surfaces the failure. */
-      }
+      // token-less. The dir we JUST created is empty (the holder.json write
+      // failed) and no successor can exist yet (mkdir just won the race, age≈0 so
+      // no waiter could stale-reclaim), so clean it up with the NON-recursive
+      // empty-dir removal — B-d877 R4 (codex #2): never recursive-force-remove an
+      // identity-unverified dir. Then fail the acquire.
+      removeEmptyLockDirNonRecursive(lockDir);
       throw new Error(
         `${label} lock: failed to persist required ownership token (holder.json): ${writeErr?.message ?? writeErr}`,
       );
@@ -307,12 +326,25 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
   return {
     lockDir,
     release() {
-      // BACK-COMPAT / fail-open: the holder.json write failed AND the caller did
-      // NOT require a token — keep the original unconditional remove so the lock
-      // can never leak. requireHolderToken callers never reach here token-less
-      // because a failed write threw at acquire.
+      // B-d877 R4 (codex #2): release is OWNERSHIP-SAFE and NON-recursive. It
+      // NEVER recursively force-removes an identity-unverified directory, so a
+      // holder that was suspended (holder.json write failed / OS freeze),
+      // stale-reclaimed, and then resumed can never wipe a SUCCESSOR's LIVE lock
+      // dir. It removes only what it can prove it owns, and the directory removal
+      // is the non-recursive empty-dir remove that fails harmlessly if a
+      // successor's holder.json is present (dir not empty).
       if (releaseLockId === undefined) {
-        rmSync(lockDir, { recursive: true, force: true });
+        // BACK-COMPAT / fail-open: the holder.json write failed AND the caller did
+        // NOT require a token, so we have NO token to prove ownership. Do NOT
+        // recursive-force-remove (that could delete a successor's dir). Since
+        // FIX D always writes a holder.json on a successful acquire, a holder.json
+        // present now belongs to a SUCCESSOR → no-op. Only when NO holder.json is
+        // present (our failed write left the dir empty/orphaned) do we remove it,
+        // non-recursively. A missed removal merely leaks a lock that self-reclaims
+        // at staleMs — far safer than deleting a live successor.
+        if (readMkdirLockHolder(lockDir) === null) {
+          removeEmptyLockDirNonRecursive(lockDir);
+        }
         return;
       }
       // Ownership-checked release: only remove the dir if WE still hold it.
@@ -321,7 +353,11 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
       // is a no-op so a successor's lock is never deleted.
       const current = readMkdirLockHolder(lockDir);
       if (current?.lockId === releaseLockId) {
-        rmSync(lockDir, { recursive: true, force: true });
+        // Unlink OUR holder.json, then remove the now-empty dir NON-recursively.
+        // If a successor somehow re-populated the dir between the re-read and here,
+        // the non-recursive dir remove fails harmlessly (dir not empty).
+        rmSync(join(lockDir, MKDIR_LOCK_HOLDER_FILE), { force: true });
+        removeEmptyLockDirNonRecursive(lockDir);
       }
     },
   };

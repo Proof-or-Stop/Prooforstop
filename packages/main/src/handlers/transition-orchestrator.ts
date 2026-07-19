@@ -46,7 +46,7 @@ import { join, relative } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
-import type { ProcessEvent, StoryInfo, StoryPhase } from '../core/types.js';
+import type { ChecklistData, ProcessEvent, StoryInfo, StoryPhase } from '../core/types.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
@@ -699,9 +699,16 @@ async function runStoryTransitionInner(
       }
     }
 
-    // IDEA→PLAN: write checklist
+    // IDEA→PLAN: BUILD the checklist to write. B-d877 R4 FIX F-012: the WRITE is
+    // deferred INTO the atomic persist claim's critical section below (co-located
+    // with the phase writeStory), so it becomes atomically conditional on the
+    // pre-write phase re-read guard too. Building the object here is a pure,
+    // side-effect-free computation; only its persist moves. A losing concurrent
+    // PLAN transition aborts at the re-read guard BEFORE writing either the
+    // checklist or the story, so a loser's checklist can never land on disk.
+    let checklistToWrite: ChecklistData | undefined;
     if (args.phase === 'PLAN' && args.checklist && args.checklist.length > 0) {
-      const checklist = {
+      checklistToWrite = {
         items: args.checklist.map(c => ({
           id: c.id,
           title: c.title,
@@ -710,7 +717,6 @@ async function runStoryTransitionInner(
           endTime: null,
         })),
       };
-      store.writeChecklist(args.storyId, checklist);
     }
 
     // Persist state
@@ -747,6 +753,20 @@ async function runStoryTransitionInner(
     // share this one writeStory). The advisory transition lock and the in-process
     // fail-fast guard remain as contention reducers; THIS atomic claim — not the
     // lock — is what makes a double-mint impossible.
+    //
+    // KNOWN LIMITATION (B-d877 R4, codex #1 residual — deliberately deferred):
+    // this atomic claim uses a TIME-BASED stale reclaim (staleMs=15s), so it is
+    // NOT an absolute mutex against a holder that is OS-level frozen (e.g.
+    // SIGSTOP) for LONGER than staleMs in the middle of the persist — a waiter
+    // could then stale-reclaim a still-live holder's claim. Mitigation in place:
+    // the persist critical section (claim acquire → phase re-read → checklist +
+    // story write → release) is FULLY SYNCHRONOUS — there is NO `await` between
+    // acquire and release — so the JS runtime cannot preempt a live holder
+    // mid-section; only an external multi-second OS process freeze could trigger
+    // a stale-reclaim of a live holder, which is outside the software-concurrency
+    // threat model and is recoverable (re-run story_advance). Full fencing-token
+    // hardening (a monotonic generation checked at commit, with crash → explicit
+    // recovery instead of a time reclaim) is a deliberately-deferred follow-up.
     const persistClaimPath = join(
       resolveSharedLockRoot(ctx.root),
       LATTICE_DIR, 'locks', 'transition-cas',
@@ -780,6 +800,16 @@ async function runStoryTransitionInner(
           `(expected fromPhase ${oldPhase}, found ${persistedBeforeWrite.phase}); ` +
           `aborting to prevent double-mint`,
         );
+      }
+      // B-d877 R4 FIX F-012: write the IDEA→PLAN checklist INSIDE the claim,
+      // immediately before the phase writeStory, so BOTH writes are atomically
+      // conditional on the oldPhase re-read guard above. Two concurrent PLAN
+      // transitions previously wrote the checklist BEFORE acquiring the claim, so
+      // the LOSING transition's checklist still landed on disk even though its
+      // phase write aborted. Co-locating the checklist write here makes the loser
+      // abort at the guard before writing EITHER file.
+      if (checklistToWrite) {
+        store.writeChecklist(args.storyId, checklistToWrite);
       }
       store.writeStory(args.storyId, story);
     } finally {

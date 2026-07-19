@@ -29,10 +29,11 @@
  * check and exits nonzero on the first failure.
  */
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdtempSync, writeFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, existsSync, rmSync, readFileSync, readdirSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 
 import { StoryStore } from '../core/store.js';
 import { createWorktreeHandlers } from '../handlers/worktree.js';
@@ -153,6 +154,16 @@ async function runConcurrencyWorker(): Promise<void> {
   const storyId = process.env.TIS_STORY!;
   const barrier = process.env.TIS_BARRIER!;
   const readyFile = process.env.TIS_READY!;
+  // TIS_PHASE / TIS_CHECKLIST let a worker drive IDEA→PLAN (with a per-worker
+  // checklist payload) as well as the default DEV→REVIEW. TIS_CHECKLIST is a JSON
+  // array of {id,title}; the worker echoes its own checklist id back so the parent
+  // can prove the persisted checklist matches the WINNER's payload (F-012).
+  const phase = (process.env.TIS_PHASE ?? 'REVIEW') as any;
+  let checklist: Array<{ id: string; title: string }> | undefined;
+  if (process.env.TIS_CHECKLIST) {
+    try { checklist = JSON.parse(process.env.TIS_CHECKLIST); } catch { checklist = undefined; }
+  }
+  const checklistId = checklist?.[0]?.id ?? null;
   const store = new StoryStore(root);
   writeFileSync(readyFile, 'ready');
   const deadline = Date.now() + 10000;
@@ -164,32 +175,38 @@ async function runConcurrencyWorker(): Promise<void> {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 5);
   }
   try {
-    const r = await runStoryTransition({ store, root, scanRoot: root } as any, { storyId, phase: 'REVIEW' as any });
-    console.log(JSON.stringify({ ok: true, phase: r.newState }));
+    const r = await runStoryTransition(
+      { store, root, scanRoot: root } as any,
+      { storyId, phase, ...(checklist ? { checklist } : {}) },
+    );
+    console.log(JSON.stringify({ ok: true, phase: r.newState, checklistId }));
   } catch (e: any) {
-    console.log(JSON.stringify({ ok: false, err: String(e?.message ?? e).slice(0, 120) }));
+    console.log(JSON.stringify({ ok: false, err: String(e?.message ?? e).slice(0, 120), checklistId }));
   }
   process.exit(0);
 }
 
 /**
- * Spawn TWO genuinely-concurrent OS processes that both drive the SAME story's
- * DEV→REVIEW transition through the REAL `runStoryTransition`, released together
- * by a barrier so they race the persist boundary. `extraEnv` is merged into both
- * children (e.g. LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1 to bypass the
- * advisory lock and prove the atomic persist claim alone serializes them).
- * Returns each worker's parsed JSON result ({ ok, phase } | { ok:false, err }).
+ * Spawn TWO genuinely-concurrent OS processes that both drive the SAME story
+ * through the REAL `runStoryTransition`, released together by a barrier so they
+ * race the persist boundary. `extraEnv` is merged into BOTH children (e.g.
+ * LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1 to bypass the advisory lock and
+ * prove the atomic persist claim alone serializes them; TIS_PHASE to pick the
+ * target phase). `perWorkerEnv` supplies env that DIFFERS per worker (e.g. a
+ * distinct TIS_CHECKLIST payload each) — worker 1 gets [0], worker 2 gets [1].
+ * Returns each worker's parsed JSON result ({ ok, phase, checklistId } | { ok:false, err }).
  */
-async function raceTwoReviewWorkers(
+async function raceTwoTransitionWorkers(
   fx: Fixture,
   extraEnv: Record<string, string> = {},
+  perWorkerEnv: [Record<string, string>, Record<string, string>] = [{}, {}],
 ): Promise<{ r1: any; r2: any }> {
   const tag = Math.random().toString(36).slice(2, 8);
   const barrier = join(fx.root, `GO-${tag}`);
   const ready1 = join(fx.root, `ready1-${tag}`);
   const ready2 = join(fx.root, `ready2-${tag}`);
   const selfPath = fileURLToPath(import.meta.url);
-  const spawnWorker = (readyFile: string) => spawn(process.execPath, [selfPath], {
+  const spawnWorker = (readyFile: string, own: Record<string, string>) => spawn(process.execPath, [selfPath], {
     env: {
       ...process.env,
       TIS_WORKER: '1',
@@ -198,11 +215,12 @@ async function raceTwoReviewWorkers(
       TIS_BARRIER: barrier,
       TIS_READY: readyFile,
       ...extraEnv,
+      ...own,
     },
     stdio: ['ignore', 'pipe', 'inherit'],
   });
-  const w1 = spawnWorker(ready1);
-  const w2 = spawnWorker(ready2);
+  const w1 = spawnWorker(ready1, perWorkerEnv[0]);
+  const w2 = spawnWorker(ready2, perWorkerEnv[1]);
   let out1 = '';
   let out2 = '';
   w1.stdout!.on('data', (d) => { out1 += d.toString(); });
@@ -218,6 +236,60 @@ async function raceTwoReviewWorkers(
   await exited;
   const parse = (s: string) => { try { return JSON.parse(s.trim().split('\n').filter(Boolean).pop() || '{}'); } catch { return {}; } };
   return { r1: parse(out1), r2: parse(out2) };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// B-d877 R4 (codex #3): static guard — every PRODUCTION call to the process-event
+// APPEND HELPERS (appendRawProcessEventBytes / appendProcessEventRecord) must pass
+// a RELOCATED lockDir. The quorum-submit smoke already flags a writer that bypasses
+// the primitive with a DIRECT `appendFileSync`; THIS complements it by catching the
+// exact codex #3 regression class — a writer that DOES call the primitive but OMITS
+// the relocated lockDir, so the append lock defaults into the git-tracked story dir
+// (`appendHostVerdictEvents` in cross-host-review.ts did this). A call is a
+// violation if it passes fewer than 3 args (no lockDir) or its file never sources a
+// relocated-lock resolver (runtimeLockDirPath / storyRuntimeLockPath), i.e. it could
+// only be fabricating an in-story path.
+// ─────────────────────────────────────────────────────────────────────────────
+const APPEND_HELPERS = new Set(['appendRawProcessEventBytes', 'appendProcessEventRecord']);
+
+function productionTsFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const p = join(dir, entry.name);
+    if (entry.isDirectory()) return entry.name === 'tasks' ? [] : productionTsFiles(p);
+    return entry.isFile() && entry.name.endsWith('.ts') ? [p] : [];
+  });
+}
+
+function appendHelperMissingRelocatedLock(repoRoot: string): string[] {
+  const srcRoot = join(repoRoot, 'packages/main/src');
+  const primitive = join(srcRoot, 'core/process-events.ts');
+  const violations: string[] = [];
+  for (const path of productionTsFiles(srcRoot)) {
+    if (path === primitive) continue; // the helpers are DEFINED here; the internal forward is fine.
+    const text = readFileSync(path, 'utf8');
+    if (![...APPEND_HELPERS].some((h) => text.includes(h))) continue;
+    const referencesRelocatedResolver =
+      text.includes('runtimeLockDirPath') || text.includes('storyRuntimeLockPath');
+    const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
+    const visit = (node: ts.Node): void => {
+      if (
+        ts.isCallExpression(node)
+        && ts.isIdentifier(node.expression)
+        && APPEND_HELPERS.has(node.expression.text)
+      ) {
+        const pos = source.getLineAndCharacterOfPosition(node.getStart(source));
+        const where = `${relative(repoRoot, path)}:${pos.line + 1}`;
+        if (node.arguments.length < 3) {
+          violations.push(`${where} (no relocated lockDir argument)`);
+        } else if (!referencesRelocatedResolver) {
+          violations.push(`${where} (file does not source runtimeLockDirPath/storyRuntimeLockPath)`);
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+  }
+  return violations;
 }
 
 async function main(): Promise<void> {
@@ -298,7 +370,7 @@ async function main(): Promise<void> {
   console.log('\nCHK-002a: two concurrent same-owner DEV→REVIEW transitions → exactly one round + one event');
   {
     const fx = makeFixture('B-tisconc', 'DEV', { withWorktree: false });
-    const { r1, r2 } = await raceTwoReviewWorkers(fx);
+    const { r1, r2 } = await raceTwoTransitionWorkers(fx);
     const successes = [r1, r2].filter((r) => r.ok).length;
     check('exactly one concurrent transition succeeded (the other serialized behind the lock)',
       successes === 1, `r1=${JSON.stringify(r1)} r2=${JSON.stringify(r2)}`);
@@ -576,7 +648,7 @@ async function main(): Promise<void> {
   console.log('\nCHK-002c6: two REAL concurrent processes, advisory lock BYPASSED → the atomic persist claim alone yields exactly one commit (FIX A)');
   {
     const fx = makeFixture('B-tisatomic', 'DEV', { withWorktree: false });
-    const { r1, r2 } = await raceTwoReviewWorkers(fx, { LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK: '1' });
+    const { r1, r2 } = await raceTwoTransitionWorkers(fx, { LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK: '1' });
     const results = [r1, r2];
     const successes = results.filter((r) => r.ok).length;
     check('with the advisory lock bypassed, exactly one concurrent transition committed (atomic claim serialized the persist)',
@@ -607,6 +679,45 @@ async function main(): Promise<void> {
     const pt = phaseTransitionEvents(fx.store, fx.storyId);
     check('exactly one phase_transition event appended by the atomic-claim winner (no double-mint)', pt.length === 1, `count=${pt.length}`);
     check('the single event\'s toPhase is REVIEW', pt.filter((e) => e.toPhase === 'REVIEW').length === 1, JSON.stringify(pt.map((e) => e.toPhase)));
+  }
+
+  // ── CHK-002c9 (F-012): concurrent IDEA→PLAN — only the WINNER's checklist lands ─
+  // Round-4 quality flagged that the IDEA→PLAN checklist write ran BEFORE the
+  // atomic persist claim, so a LOSING concurrent PLAN transition's checklist still
+  // landed on disk. The fix co-locates the checklist write INSIDE the claim's
+  // critical section (after the oldPhase re-read guard, alongside the phase write),
+  // so the loser aborts before writing EITHER file. Two REAL processes race
+  // IDEA→PLAN with the advisory lock BYPASSED and DISTINCT checklist payloads:
+  // exactly one commits, and the persisted checklist must match the WINNER — never
+  // the loser.
+  console.log('\nCHK-002c9 (F-012): two concurrent IDEA→PLAN transitions with distinct checklists → exactly one commit + the WINNER\'s checklist persists');
+  {
+    const fx = makeFixture('B-tisplan', 'IDEA', { withWorktree: false });
+    const checklistA = [{ id: 'CHK-WINA', title: 'plan payload A' }];
+    const checklistB = [{ id: 'CHK-WINB', title: 'plan payload B' }];
+    const { r1, r2 } = await raceTwoTransitionWorkers(
+      fx,
+      { TIS_PHASE: 'PLAN', LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK: '1' },
+      [{ TIS_CHECKLIST: JSON.stringify(checklistA) }, { TIS_CHECKLIST: JSON.stringify(checklistB) }],
+    );
+    const results = [r1, r2];
+    const winners = results.filter((r) => r.ok);
+    check('exactly one concurrent IDEA→PLAN transition committed (atomic claim serialized the persist)',
+      winners.length === 1, `r1=${JSON.stringify(r1)} r2=${JSON.stringify(r2)}`);
+
+    const after = fx.store.readStory(fx.storyId);
+    check('landed in PLAN (the winner persisted)', after.phase === 'PLAN', `phase=${after.phase}`);
+
+    const winner = winners[0];
+    const loser = results.find((r) => !r.ok);
+    const persisted = fx.store.readChecklist(fx.storyId);
+    const persistedIds = (persisted.items ?? []).map((i: any) => i.id);
+    check('the persisted checklist is EXACTLY the winner\'s payload (loser\'s checklist did NOT land)',
+      !!winner && persistedIds.length === 1 && persistedIds[0] === winner.checklistId,
+      `persisted=${JSON.stringify(persistedIds)} winner=${winner?.checklistId} loser=${loser?.checklistId}`);
+    check('the LOSER\'s checklist id is ABSENT from the persisted checklist (F-012 fix)',
+      !!loser && loser.checklistId != null && !persistedIds.includes(loser.checklistId),
+      `persisted=${JSON.stringify(persistedIds)} loser=${loser?.checklistId}`);
   }
 
   // ── CHK-002c7: relocated per-story runtime locks live under .lattice/locks/ ──
@@ -642,6 +753,19 @@ async function main(): Promise<void> {
     const fromWt = wtStore.runtimeLockDirPath(fx.storyId, 'finding', 'review-passes');
     check('a relocated lock path is identical from the worktree root and the main root (shared, git-common-dir anchored)',
       fromMain === fromWt, `main=${fromMain} worktree=${fromWt}`);
+  }
+
+  // ── CHK-002c8: every production append-primitive call passes a RELOCATED lock ─
+  // B-d877 R4 (codex #3): guards the exact missed-relocation class — a production
+  // writer that CALLS appendRawProcessEventBytes / appendProcessEventRecord but
+  // omits the relocated lockDir (so the append lock lands in the git-tracked story
+  // dir). Complements quorum-submit-smoke's direct-appendFileSync scan.
+  console.log('\nCHK-002c8: every production process-event append-primitive call passes a relocated lockDir (codex #3 regression guard)');
+  {
+    const repoRoot = fileURLToPath(new URL('../../../..', import.meta.url));
+    const violations = appendHelperMissingRelocatedLock(repoRoot);
+    check('no production process-event append-primitive call omits the relocated lockDir',
+      violations.length === 0, violations.join(', ') || 'none');
   }
 
   // ── CHK-002d: ownership-checked release never deletes a successor's lock ─────
