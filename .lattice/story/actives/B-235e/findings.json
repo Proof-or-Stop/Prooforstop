@@ -141,6 +141,21 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-exactly",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-007",
+      "desc": "packages/main/src/core/global-agents.ts:293 — syncGlobalAgents still renders every Claude global managed agent with renderAgentShim, whose FIRST command is agent_prompt --role. For the five migrated reviewer roles this injects the selected modular role body before the reviewer later calls review_run_start and receives the assembled Envelope containing that role body again. lattice init uses this global-shim path as the default Claude production path, while only project-local assets were converted to the new review_run_start bootstrap. This violates the stated exactly-one-selected-role-body boundary and understates actual model input/budget. Generate renderReviewerRunBootstrap for the five modular reviewer roles in syncGlobalAgents and update global-agents init/unit and managed migration tests to prove those shims never call agent_prompt or contain a role body.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T09:13:26.512Z",
+      "reviewRound": "2026-07-19T09:11:23.938Z",
+      "reviewRunId": "B-235e:RR-012",
+      "_hash": "57ffdf0697b625c85a54bef298d8d7e4e3b2f14ec2602526c979482a6897ae04",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
