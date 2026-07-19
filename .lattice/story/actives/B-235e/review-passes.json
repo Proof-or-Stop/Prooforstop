@@ -407,6 +407,30 @@
       },
       "readDiagnostics": [],
       "_hash": "6d1710ae8becdfe42065d3818fc09e86be0c3b3678fa45a06a3325a861140584"
+    },
+    {
+      "id": "B-235e:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh coverage PASS for REVIEW round 13 after main merge and runtime-lock fixture fix adc2414c4d: prompt full-context envelope smoke passed with authoritative runtime lock path; semantic mapping remains 48 intents to 48 concrete passing evidence with zero missing, duplicates, failures, waivers, or orphans; actual CLI review_run_start plus Story-aware agent_prompt preserved two Prompt Envelopes, one signed ReviewRun, and gate validity; eligibility invalid-binding branches remained fail-closed and gate-neutral; masks31/10 passed and mask21 passed 20/20 concurrent iterations with all five lanes and gate evidence retained. This lane pass does not claim full quorum completion.",
+      "createdAt": "2026-07-19T21:44:04.995Z",
+      "reviewRound": "2026-07-19T21:34:56.422Z",
+      "reviewRunId": "B-235e:RR-046",
+      "envelopeId": "c1fb1f6da0e4d48028db644de75fd67253ad718ba38246854985f4a3980e1811",
+      "writerSessionId": "sess-78c1fcc0db71cb224b0d05382e8243ea",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": "Coverage review used all 48 structured semantic intent/evidence mappings and executed the changed full-envelope runtime-lock regression, actual mixed-producer barrier, eligibility fail-closed checks, and complete 20-round concurrency stress; relevant regions were triaged without claiming entire files were read fully."
+      },
+      "_hash": "7e59b312f762c856871d861431f67993641b2286ad304400eb4883ac50176a9c"
     }
   ]
 }
