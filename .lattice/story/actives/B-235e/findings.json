@@ -336,7 +336,7 @@
       "desc": "doc-promise-undelivered: review_run_start does not yet make Prompt Envelope plus ReviewRun persistence one fully serialized transaction across all producers. handlers/review-run.ts wraps reviewer starts in withMkdirTicketLock, but its nested prompt-envelopes.json write still uses the old fixed-path withMkdirLock; handlers/agent-prompt.ts is a second allowed all-phase Story-aware writer to the same prompt-envelopes.json and independently uses that same fixed-path lock without the outer reviewer ticket. With a stale prompt-envelopes.lock, one review_run_start and one owner agent_prompt can both classify dead A; one removes A and acquires replacement B, then the delayed reclaimer removes B at the reused path, so both read-modify-write sections overlap. The later write can omit the review-run envelope after review_run_start already verified it and then persist a signed ReviewRun that REVIEW/quorum rejects for missing envelope. The new ABA smoke exercises acquireMkdirTicketLock directly only and never covers this mixed-producer boundary. All prompt-envelopes writers must share an identity-safe lock/transaction boundary, and the deterministic regression must include review_run_start versus Story-aware agent_prompt.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T10:48:50.457Z",
@@ -352,7 +352,11 @@
         "packages/main/src/core/process-fact-levels.ts"
       ],
       "signatureTag": "missing|ts|promise-undelivered-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 312357d841/f367111ba1; review_run_start and Story-aware agent_prompt share the same identity-safe ticket transaction, real mixed CLI regression preserves both envelopes and signed ReviewRun.",
+      "resolvedAt": "2026-07-19T11:08:48.700Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
