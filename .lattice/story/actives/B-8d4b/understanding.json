@@ -1,6 +1,6 @@
 {
   "task": "Establish an isolated, reproducible, fail-closed historical A/B replay and usage measurement tool for modular role prompts.",
-  "outcome": "After the user runs the role-prompt A/B replay, the terminal shows bytes, estimated tokens, known-dispatch and provider-cache availability, finding comparisons, and a final PASS or INCONCLUSIVE result for both arms of each pinned sample. Unreconstructable historical input is reported as INCONCLUSIVE, while production Story review-run, finding, pass, and lifecycle-evidence counts remain unchanged.",
+  "outcome": "After the user runs selfcheck, the terminal shows \"Replay: PASS sameInput=true deterministic=true\", \"Prompt cost: INCONCLUSIVE reason=PROMPT_SNAPSHOT_UNAVAILABLE\", and \"Recall: INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED\" for the historical corpus. It separately shows \"Hermetic fixture: EVALUABLE scope=hermetic-selfcheck-only historicalEvidence=false cells=2\", \"Experiment ledger: PASS gateEvidence=false attempts=3\", and \"Isolated production evidence drift: NONE\" without claiming unavailable historical prompt metrics or recall.",
   "facts": [
     "Story 1 fixed the Prompt Contract, role-module boundaries, and measurement baseline.",
     "Story 2 core/prompt-envelope provides pure assembly and completeness semantics; the production agent_prompt handler persists metadata, so the experiment must not call that write handler.",
@@ -30,5 +30,5 @@
     "experiments/role-prompt-ab-replay/selfcheck.mjs",
     "experiments/role-prompt-ab-replay/README.md"
   ],
-  "timestamp": "2026-07-19T03:47:46.152Z"
+  "timestamp": "2026-07-19T03:52:35.541Z"
 }
