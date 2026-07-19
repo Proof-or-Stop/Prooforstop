@@ -109,7 +109,20 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "For an eligible bounded change, the terminal shows the exact reviewBasis and selects incremental only when it is safe and smaller; otherwise it reports full with FULL_CHEAPER_OR_EQUAL or the correctness escalation reason.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
