@@ -3,10 +3,10 @@
   "version": 1,
   "storyId": "B-8d4b",
   "status": "PASS",
-  "startedAt": "2026-07-19T04:10:58.863Z",
-  "endedAt": "2026-07-19T04:16:10.413Z",
-  "durationMs": 311550,
-  "headHash": "429bee85917ccc18f75fef866acddc511094f5a3",
+  "startedAt": "2026-07-19T04:16:32.913Z",
+  "endedAt": "2026-07-19T04:21:43.807Z",
+  "durationMs": 310894,
+  "headHash": "5f0c4390a78941d44f623d56aeb6d9f76dd4f673",
   "materialHash": "10b34aa74efaf1481f008be2f0ae3087ce949bb55620eb6ceed315d823ca3a92",
   "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
   "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
@@ -22,8 +22,8 @@
         "build"
       ],
       "commandSpec": {
-        "schema": "lattice.command-spec.v1",
-        "digest": "21da36f297aeda696aed65c96d09959a7fba6c4b06a39255c7728bdaecdc86bf",
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
         "command": "npm",
         "args": [
           "--prefix",
@@ -31,7 +31,8 @@
           "run",
           "build"
         ],
-        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8d4b",
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8d4b",
         "shell": false,
         "env": {},
         "timeoutMs": 290000
@@ -39,12 +40,15 @@
       "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8d4b",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 8851,
+      "durationMs": 11608,
       "outputDigest": "a6a8253c8f9dae7b92a190e0b8a9e59a3318a9fe0964144abef421ea88054fca",
       "outputTail": "\n> @lattice/core@0.3.220 build\n> tsc\n\n",
-      "startedAt": "2026-07-19T04:10:58.863Z",
-      "endedAt": "2026-07-19T04:11:07.714Z",
-      "headHash": "429bee85917ccc18f75fef866acddc511094f5a3",
+      "startedAt": "2026-07-19T04:16:32.913Z",
+      "endedAt": "2026-07-19T04:16:44.522Z",
+      "effectiveEnvironmentDigest": "021d693f38c6469c277a0cd300e19d4bac973da4727ef7ce2f7558c1a2ea7ee2",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "5f0c4390a78941d44f623d56aeb6d9f76dd4f673",
       "materialHash": "10b34aa74efaf1481f008be2f0ae3087ce949bb55620eb6ceed315d823ca3a92",
       "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8"
     },
@@ -55,13 +59,14 @@
         "test"
       ],
       "commandSpec": {
-        "schema": "lattice.command-spec.v1",
-        "digest": "7ffd35989513958b9184da9ab58f404a0fa9a0eecc78290befec357e879a549e",
+        "schema": "lattice.command-spec.v2",
+        "digest": "78930ae87695f1715fdcc3c72e06fb8500f1fdc3945cf1b3e21331b2150581d0",
         "command": "npm",
         "args": [
           "test"
         ],
-        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8d4b",
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8d4b",
         "shell": false,
         "env": {},
         "timeoutMs": 1200000
@@ -69,12 +74,15 @@
       "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8d4b",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 302343,
+      "durationMs": 298952,
       "outputDigest": "74aaf9fc7166de6bf5f794d2816470b516a8b6c542d2c133ee9e0a4677e1edcc",
       "outputTail": "epted\n  ✓ validateResolvedCloseInvariant: resolved close requires evidence refs\n  ✓ validateResolvedCloseInvariant: resolved close requires current material hash\n  ✓ validateResolvedCloseInvariant: resolved close accepts fresh evidence refs\n  ✓ validateResolvedCloseInvariant: blocked close does not require resolved evidence refs\n\n[2] runReviewLoopGate gate behavior\n  ✓ gate passes when no loops exist\n  ✓ gate throws for start record (open loop)\n  ✓ gate message includes loopId\n  ✓ gate message includes decision and nextAction when iteration is latest\n  ✓ gate passes after resolved close\n  ✓ gate passes after blocked close (loop gate clears; other gates still apply separately)\n  ✓ gate passes after escalated close (loop gate clears; other gates still apply separately)\n  ✓ gate throws for open loop even if a different loop is resolved\n  ✓ gate fails closed when review loop records are unreadable\n\n[3] getGuardFailureReason TEST phase with open loop\n  ✓ returns Cannot enter TEST message with open_review_loop tag\n  ✓ shared verdict preserves iteration decision and nextAction diagnostics\n  ✓ returns null (no loop blocker) after resolved close — reviewer gate then controls\n  ✓ blocked close also clears loop gate message\n  ✓ returns fail-closed reason when review loop records are unreadable\n\n[4] Authority/receipt/production field absence\n  ✓ ReviewLoopStart has no authority/receipt/production fields\n  ✓ ReviewLoopIteration has no authority/receipt/production fields\n  ✓ ReviewLoopClose has no authority/receipt/production fields\n\n[5] Reflection context isolation\n  ✓ reusableLearning is stored in reflection only, not at top-level or in evaluation\n  ✓ DEFAULT_REVIEW_LOOP_POLICY has no auto-execution flags set true\n\n[6] Handler projection and duplicate loopId safety\n  ✓ review_loop_status JSON exposes active and latest fields\n  ✓ review_loop_start rejects duplicate explicit loopId\n  ✓ review_loop_start rejects placeholder rollbackRef hashes\n\nreview-loop-smoke: 39 passed, 0 failed\n\n> lattice@0.3.220 test:delivery-context-pack-smoke\n> npm --prefix packages/main run test:delivery-context-pack-smoke\n\n\n> @lattice/core@0.3.220 test:delivery-context-pack-smoke\n> node dist/tasks/delivery-context-pack-smoke.js\n\ndelivery_context_pack smoke passed\n\n> lattice@0.3.220 test:flow-stability-smoke\n> npm --prefix packages/main run test:flow-stability-smoke\n\n\n> @lattice/core@0.3.220 test:flow-stability-smoke\n> node dist/tasks/flow-stability-smoke.js\n\n✓ flow stability smoke passed\n\n> lattice@0.3.220 test:review-assurance-floor-smoke\n> npm --prefix packages/main run test:review-assurance-floor-smoke\n\n\n> @lattice/core@0.3.220 test:review-assurance-floor-smoke\n> node dist/tasks/review-assurance-floor-smoke.js\n\n  ✓ docs-only markdown is not overblocked\n  ✓ zero-review material code is blocked\n  ✓ one fresh local review round passes clean material code\n  ✓ compatibility/retired-only records cannot satisfy the host-verdict assurance floor\n  ✓ stale local review evidence does not count\n  ✓ stale recovery placeholder commands are shell-safe without story or material bindings\n  ✓ stale recovery output truncates ignored verdict details\n  ✓ failure signals require sticky 3x1 local rounds\n  ✓ high-risk lifecycle gate work requires 3x2 or explicit degraded fallback\n  ✓ literal worktree-local guidance executes three complete degraded-only rounds\n  ✓ missing host readiness probe blocks non-human high-risk degraded fallback\n  ✓ temporary host unavailability also requires fresh insufficient-host proof\n  ✓ probe with reviewReadyHostCount below two permits high-risk degraded 3x1\n  ✓ probe with two executable canonical hosts blocks high-risk single-host fallback\n  ✓ explicit-human-approval remains lower assurance without host probe\n  ✓ forged local Authority completion fields remain non-authority\n  ✓ git diff classification detects material code without injected changedFiles\n  ✓ wrapper-root machine DONE guard uses resolved gitCwd\n\nreview-assurance-flo\n...[truncated 78809 chars]",
-      "startedAt": "2026-07-19T04:11:07.849Z",
-      "endedAt": "2026-07-19T04:16:10.192Z",
-      "headHash": "429bee85917ccc18f75fef866acddc511094f5a3",
+      "startedAt": "2026-07-19T04:16:44.705Z",
+      "endedAt": "2026-07-19T04:21:43.657Z",
+      "effectiveEnvironmentDigest": "021d693f38c6469c277a0cd300e19d4bac973da4727ef7ce2f7558c1a2ea7ee2",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "5f0c4390a78941d44f623d56aeb6d9f76dd4f673",
       "materialHash": "10b34aa74efaf1481f008be2f0ae3087ce949bb55620eb6ceed315d823ca3a92",
       "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8"
     }
