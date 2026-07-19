@@ -164,8 +164,8 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-19T02:07:46.020Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -236,6 +236,16 @@
       "timestamp": "2026-07-19T02:07:37.953Z",
       "phase": "DEV",
       "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementer commits c604919579, 7ac5731ce3 and b2860c42ae are complete; owner is binding independently rerun verification evidence.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:07:46.020Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
