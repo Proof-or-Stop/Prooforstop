@@ -5232,7 +5232,7 @@ function assertParentRoadmapTotalityRuntime() {
   );
   const roleBodyRolloutLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:prompt_role_body_rollout_gate');
   assert(roleBodyRolloutLevel?.level === 'L4', 'prompt role-body rollout must remain L4');
-  for (const token of ['five active REVIEW lanes', 'content-addressed', 'byte-exact legacy role body', 'full-asset hosts bind both', 'total model input explicit', 'Compatibility and retired']) {
+  for (const token of ['five active REVIEW lanes', 'content-addressed', 'byte-exact legacy role body', 'Every supported host mode binds both', 'total model input explicit', 'Compatibility and retired']) {
     assert(roleBodyRolloutLevel?.rationale.includes(token), `prompt role-body rollout rationale must preserve ${token}`);
   }
   const dispatchAuthorityLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:agent_dispatch_role_authority_gate');

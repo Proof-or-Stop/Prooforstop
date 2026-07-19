@@ -135,6 +135,8 @@ try {
   assert.equal(identity.host, 'codex');
   assert.equal(identity.source, 'package-registry');
   assert.equal(identity.hostRenderDigest.length, 64);
+  assert.equal(identity.bootstrapDigest?.length, 64, 'registry mode binds the same body-free review bootstrap');
+  assert.notEqual(identity.bootstrapDigest, identity.selectedRoleBodyDigest);
 } finally {
   rmSync(thinRoot, { recursive: true, force: true });
 }
@@ -146,6 +148,8 @@ try {
   const claudeIdentity = reviewerHostRenderIdentity(globalThinRoot, 'lattice-review-quality', 'claude');
   assert.equal(codexIdentity.source, 'package-registry');
   assert.equal(claudeIdentity.source, 'package-registry');
+  assert.equal(codexIdentity.bootstrapDigest?.length, 64);
+  assert.equal(claudeIdentity.bootstrapDigest?.length, 64);
   assert.notEqual(codexIdentity.identityDigest, claudeIdentity.identityDigest, 'host is part of the render identity');
 } finally {
   rmSync(globalThinRoot, { recursive: true, force: true });

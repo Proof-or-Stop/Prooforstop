@@ -159,11 +159,7 @@ for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
     assert.equal(identity.rolloutMode, 'full-envelope');
     assert.ok(identity.hostRenderDigest.length > 0, `${roleId}/${host} binds the actual modular host render`);
     assert.ok(identity.selectedRoleBodyDigest.length > 0, `${roleId}/${host} binds the selected role body`);
-    if (identity.source === 'full-asset') {
-      assert.ok(identity.bootstrapDigest?.length, `${roleId}/${host} binds the full-asset bootstrap`);
-    } else {
-      assert.equal(identity.bootstrapDigest, undefined, `${roleId}/${host} registry mode has no project bootstrap`);
-    }
+    assert.ok(identity.bootstrapDigest?.length, `${roleId}/${host} binds the canonical bootstrap in ${identity.source} mode`);
   }
 
   const oneRoleConfig = {

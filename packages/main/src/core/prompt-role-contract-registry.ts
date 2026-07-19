@@ -146,22 +146,20 @@ export function reviewerHostRenderIdentity(
     throw new PromptRoleContractRegistryError(`role "${roleId}" is not eligible for reviewer host rendering`);
   }
   const packageTemplate = resolvePromptTemplateBody(entry, rolloutMode);
-  const expectedHostRender = renderPromptForHost(packageTemplate, host);
   const source = reviewerHostRenderSource(projectRoot, host, entry.file);
   const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
-  let bootstrapDigest: string | undefined;
+  const canonicalTemplate = renderPromptForHost(readPromptTemplate(entry), host);
+  const { frontmatter, name } = extractTemplateFrontmatter(canonicalTemplate, entry.file);
+  const bootstrap = renderReviewerRunBootstrap(frontmatter, name);
+  const bootstrapDigest = domainSeparatedDigest(`reviewer-${host}-bootstrap.raw-utf8.v1`, bootstrap);
   if (source === 'full-asset') {
-    const canonicalTemplate = renderPromptForHost(readPromptTemplate(entry), host);
-    const { frontmatter, name } = extractTemplateFrontmatter(canonicalTemplate, entry.file);
-    const bootstrap = renderReviewerRunBootstrap(frontmatter, name);
     assertExactHostAsset(
       join(projectRoot, relDir, entry.file),
       bootstrap,
       host,
     );
-    bootstrapDigest = domainSeparatedDigest(`reviewer-${host}-bootstrap.raw-utf8.v1`, bootstrap);
   }
-  const hostRender = renderPromptForHost(packageTemplate, host);
+  const selectedRoleBody = renderPromptForHost(packageTemplate, host);
   const semantic = {
     schemaVersion: 'proofbound.reviewer-host-render-identity.v1' as const,
     roleId,
@@ -169,9 +167,9 @@ export function reviewerHostRenderIdentity(
     host,
     source,
     packageTemplateDigest: domainSeparatedDigest('reviewer-package-template.raw-utf8.v1', packageTemplate),
-    selectedRoleBodyDigest: domainSeparatedDigest(`reviewer-${host}-selected-role-body.raw-utf8.v1`, hostRender),
-    ...(bootstrapDigest ? { bootstrapDigest } : {}),
-    hostRenderDigest: domainSeparatedDigest(`reviewer-${host}-render.raw-utf8.v1`, hostRender),
+    selectedRoleBodyDigest: domainSeparatedDigest(`reviewer-${host}-selected-role-body.raw-utf8.v1`, selectedRoleBody),
+    bootstrapDigest,
+    hostRenderDigest: bootstrapDigest,
   };
   return {
     ...semantic,

@@ -14,7 +14,9 @@
  *   *thin shim* file: the registry template's frontmatter (name/description/tools,
  *   plus model if present) followed by a standard imperative body that tells the
  *   agent to fetch its authoritative instructions from the Proofbound CLI via
- *   `lattice agent_prompt --role=<name>`. The shim contains NO role body.
+ *   `lattice agent_prompt --role=<name>`. The five modular REVIEW roles instead
+ *   use the canonical `review_run_start` bootstrap so the host receives exactly
+ *   one mode-selected role body. Every shim contains NO role body.
  *
  *   Keeping the `tools:` frontmatter verbatim preserves each host's read-only
  *   sandbox (e.g. `lattice-review-*` stay read-only). Thinning the body does not
@@ -38,6 +40,7 @@ import {
 import { homedir as osHomedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isModularReviewerRoleId } from './prompt-registry.js';
 
 /**
  * Resolve the user-global Claude agents directory: `<home>/.claude/agents`.
@@ -290,7 +293,9 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
     // Shim filename follows the role name so Claude resolves subagent_type:<name>.
     const shimFile = `${name}.md`;
     const shimPath = join(globalDir, shimFile);
-    const expected = renderAgentShim(frontmatter, name);
+    const expected = isModularReviewerRoleId(name)
+      ? renderReviewerRunBootstrap(frontmatter, name)
+      : renderAgentShim(frontmatter, name);
 
     // Probe lstat independently so a stale symlink / broken link is detected and
     // replaced (a broken symlink reports existsSync=false but lstat succeeds).

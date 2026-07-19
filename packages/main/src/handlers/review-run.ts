@@ -1,4 +1,5 @@
 import { execFileSync } from 'child_process';
+import { hostname } from 'node:os';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import type { ReviewRun, ReviewScopeBinding } from '../core/types.js';
@@ -36,9 +37,29 @@ import {
 } from '../core/prompt-envelope.js';
 import { reviewIncrementalContext } from '../core/review-incremental-context.js';
 
-function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
-  const lockDir = ctx.store.storyFilePath(storyId, 'review-runs.lock');
-  return withMkdirLock(lockDir, fn, { label: 'review-runs metadata' });
+function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
+  const lockDir = ctx.store.storyFilePath(storyId, 'review-metadata-transaction.lock');
+  const localHostname = hostname();
+  return withMkdirLock(lockDir, fn, {
+    label: 'review metadata transaction',
+    deadlineMs: 120_000,
+    staleMs: 10_000,
+    holderInfo: {
+      pid: process.pid,
+      hostname: localHostname,
+      command: `review_run_start for ${storyId}`,
+      acquiredAt: new Date().toISOString(),
+    },
+    classifyExistingLock: ({ holder }) => {
+      if (!holder || holder.hostname !== localHostname) return 'unknown';
+      try {
+        process.kill(holder.pid, 0);
+        return 'active';
+      } catch (error: any) {
+        return error?.code === 'ESRCH' ? 'stale' : 'active';
+      }
+    },
+  });
 }
 
 type ResolvedReviewWorkspace = ReturnType<typeof resolveStoryCommandWorkspace>;
@@ -171,7 +192,11 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         }) ?? undefined;
       }
 
-      return withReviewRunLock(ctx, args.storyId, () => {
+      // One per-story transaction covers both Prompt Envelope and ReviewRun
+      // read-modify-write cycles. The holder PID liveness check prevents a
+      // legitimate >10s large-context assembly from being reclaimed as stale,
+      // which previously allowed a second writer to overwrite one lane.
+      return withReviewMetadataTransactionLock(ctx, args.storyId, () => {
         const data = store.readReviewRuns(args.storyId);
         const nextNum = data.runs.reduce((max, run) => {
           const match = run.reviewRunId.match(/:RR-(\d+)$/);

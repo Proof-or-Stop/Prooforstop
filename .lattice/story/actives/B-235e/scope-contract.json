@@ -264,10 +264,29 @@
       "anchors": [
         "readUnifiedDiff"
       ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required F-006/F-007 regression update: the existing global-agent unit smoke hard-codes agent_prompt shims for every role, so it must assert the five migrated reviewer roles use bootstrap-only global-thin assets while implementer and other non-migrated roles retain their legacy shim contract.",
+      "timestamp": "2026-07-19T09:24:01.177Z",
+      "paths": [
+        "packages/main/src/tasks/global-agents-unit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/global-agents-unit-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5a1c7a728275cd9f54f43d51c06c4b1c54247857",
+      "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
+      "anchors": [
+        "runGlobalAgentsUnitSmoke"
+      ]
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T09:11:08.349Z",
+  "updatedAt": "2026-07-19T09:24:01.177Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -334,6 +353,7 @@
     "packages/main/src/tasks/prompt-token-cost-smoke.ts": "packages/main/src/tasks/prompt-token-cost-smoke.ts",
     "packages/main/src/core/agent-asset-resolution.ts": "packages/main/src/core/agent-asset-resolution.ts",
     "packages/main/src/core/managed-assets.ts": "packages/main/src/core/managed-assets.ts",
-    "packages/main/src/core/scope-diff-pack.ts": "packages/main/src/core/scope-diff-pack.ts"
+    "packages/main/src/core/scope-diff-pack.ts": "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/tasks/global-agents-unit-smoke.ts": "packages/main/src/tasks/global-agents-unit-smoke.ts"
   }
 }

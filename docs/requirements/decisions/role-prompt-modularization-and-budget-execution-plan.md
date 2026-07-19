@@ -1231,9 +1231,10 @@ node scripts/verify-process-fact-contract.mjs
   `review_run_start` 执行其返回的唯一 selected prompt。legacy rollback 由模块化
   正文中的冻结 anchor 加 canonical guide 确定性重建，并以预批准 SHA-256 拒绝
   漂移。这里的“精确”只指 selected legacy role body，不虚称总模型输入
-  byte-exact：full-asset 总输入明确为已绑定 bootstrap 加一个 selected body；
-  runtime-owned/thin host 则直接绑定 selected body。host identity 分别绑定
-  bootstrap digest（若存在）、selected role-body digest 和 host render digest，
+  byte-exact：所有支持的 host mode 总输入都明确为已绑定 bootstrap 加一个
+  selected body；global Claude sync、Codex registry mode 和 project full-asset
+  复用同一 canonical bootstrap renderer。host identity 分别绑定 bootstrap
+  digest、selected role-body digest 和 host render digest，
   从而拒绝 modular+legacy 双正文或 bootstrap/正文替换。
 - incremental eligibility 仍完全由 Story 4 的 impact policy 决定。本 Story
   没有新增“精简即 incremental”的捷径；未知、contract/policy/scope drift

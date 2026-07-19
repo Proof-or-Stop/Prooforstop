@@ -897,8 +897,8 @@ function runConcurrentCliReadOnlyCase(): void {
   }
 }
 
-function runConcurrentReviewerWriteCase(mask: number): void {
-  const root = mkdtempSync(join(tmpdir(), `lattice-reviewer-rollout-mixed-${mask}-`));
+function runConcurrentReviewerWriteCase(mask: number, iteration = 1): void {
+  const root = mkdtempSync(join(tmpdir(), `lattice-reviewer-rollout-mixed-${mask}-${iteration}-`));
   const storyId = 'B-concurrent-reviewers';
   const roles = [
     'lattice-review-behavior',
@@ -1001,12 +1001,12 @@ function runConcurrentReviewerWriteCase(mask: number): void {
     assert.equal(
       store.readPromptEnvelopes(storyId).envelopes.length,
       fullRoles.length,
-      `mixed mask ${mask} persists one envelope for each full-envelope lane only`,
+      `mixed mask ${mask} iteration ${iteration} persists one envelope for each full-envelope lane only`,
     );
     for (const run of runs) {
       const full = rolloutModes[run.lane] === 'full-envelope';
-      assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} ${run.lane} binds its selected rollout representation`);
-      assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} ${run.lane} stores assembled prompt only in full mode`);
+      assert.equal(Boolean(run.envelopeId), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} binds its selected rollout representation`);
+      assert.equal(Boolean(run.assembledPrompt), full, `mixed mask ${mask} iteration ${iteration} ${run.lane} stores assembled prompt only in full mode`);
     }
 
     const evidenceCommands = roles.map((role, index) => {
@@ -1036,14 +1036,14 @@ function runConcurrentReviewerWriteCase(mask: number): void {
     assert.equal(store.readReviewPasses(storyId).passes.length, 3, 'concurrent passes are retained exactly once');
     assert.equal(store.readFindings(storyId).findings.length, 2, 'concurrent findings are retained exactly once');
     const evidence = collectReviewerEvidenceState(store, storyId, root);
-    assert.equal(evidence.invalid.length, 0, `collector accepts every current signed result under mixed mask ${mask}`);
+    assert.equal(evidence.invalid.length, 0, `collector accepts every current signed result under mixed mask ${mask} iteration ${iteration}`);
     assert.deepEqual(
       [...new Set(evidence.valid.map(item => item.agent))].sort(),
       [...roles].sort(),
-      `collector counts every reviewer lane once without overwrite under mixed mask ${mask}`,
+      `collector counts every reviewer lane once without overwrite under mixed mask ${mask} iteration ${iteration}`,
     );
-    assert.equal(canPassReviewGuard({ storyId, store, projectRoot: root }), true, `real REVIEW gate accepts complete evidence under mixed mask ${mask}`);
-    console.log(`${MARKER} MIXED MASK ${mask}: five concurrent legacy/full runs + pass/finding writers preserved gate evidence`);
+    assert.equal(canPassReviewGuard({ storyId, store, projectRoot: root }), true, `real REVIEW gate accepts complete evidence under mixed mask ${mask} iteration ${iteration}`);
+    console.log(`${MARKER} MIXED MASK ${mask} iteration ${iteration}: five concurrent legacy/full runs + pass/finding writers preserved gate evidence`);
   } finally {
     resetConfigCache();
     rmSync(root, { recursive: true, force: true });
@@ -1059,7 +1059,9 @@ function run(): void {
   runConcurrentCliReadOnlyCase();
   runConcurrentReviewerWriteCase(0b11111);
   runConcurrentReviewerWriteCase(0b01010);
-  runConcurrentReviewerWriteCase(0b10101);
+  for (let iteration = 1; iteration <= 20; iteration += 1) {
+    runConcurrentReviewerWriteCase(0b10101, iteration);
+  }
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
 }
 
