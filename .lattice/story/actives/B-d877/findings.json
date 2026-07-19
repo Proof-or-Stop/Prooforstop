@@ -257,6 +257,21 @@
       "_hash": "33abcf7853c7b44d70842029e8e6392213c4ada92eb3a524ac86352d9a1ed418",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d877:F-014",
+      "desc": "packages/main/src/core/mkdir-lock.ts:336-348 (release(), fail-open branch reachable by every withMkdirLock caller that omits requireHolderToken, e.g. process-events.ts/checklist.ts/finding.ts/init-check.ts/review-run.ts/agent-prompt.ts): when releaseLockId===undefined (our own original holder.json write failed at acquire), release() treats `readMkdirLockHolder(lockDir)===null` as proof no successor is present and calls removeEmptyLockDirNonRecursive -> rmdirSync(lockDir). But readMkdirLockHolder also returns null when a successor B has just won mkdirSync(lockDir) (the atomic race) and has NOT YET reached its own writeFileSync(holder.json) a few lines later inside acquireMkdirLock -- B's dir is genuinely empty at that instant, so the non-recursive rmdirSync SUCCEEDS and deletes B's freshly-created lock dir out from under it. B then continues (its writeFileSync throws ENOENT into a missing dir; without requireHolderToken it falls into the same fail-open PROBE catch and returns as if it still holds the lock), so a THIRD process can now mkdirSync the same path and BOTH B and the third process believe they hold the mutex. This is a real improvement over the pre-fix unconditional rmSync (which deleted 100% of the time), and it requires the precondition that OUR OWN original write already failed, so it is a narrow, compound-rare race -- but it is a new angle not covered by the CHK-002d test (which only exercises the ownership-checked releaseLockId!==undefined branch) or by the documented OS-freeze/staleMs known-limitation (this trigger is a write failure, not a time-based stale reclaim). Recommend a follow-up: in the null-holder case, treat `existsSync(lockDir) && readdirSync(lockDir).length>0` differently, or simply never remove non-recursively without re-checking mtime age (dir just created by us vs by a fresh successor).",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T10:50:15.496Z",
+      "reviewRound": "2026-07-19T10:21:15.535Z",
+      "reviewRunId": "B-d877:RR-014",
+      "_hash": "5acb33cb7f21602f0b2496d92ee947abac07c7e00e4413a79297b28174954503",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
