@@ -74,7 +74,7 @@
       "desc": "experiments/role-prompt-ab-replay/README.md:14-22 labels the ledger target as runtime output and documents a command that writes runtime/operator-run.jsonl, but experiments/role-prompt-ab-replay/runtime/ is not gitignored (git check-ignore returns no match). The documented command therefore leaves a clean Story worktree with an untracked 72-row ledger until the operator manually deletes it. Add an experiment-local ignore rule or document an ignored/temp output path so the runnable instructions do not create accidental repository artifacts.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-19T02:11:42.974Z",
@@ -82,7 +82,11 @@
       "reviewRunId": "B-8d4b:RR-003",
       "_hash": "0841279584862ac7eae20446f28478cd514dbdf5a2b65af38926ff7b1ed25343",
       "signatureTag": "edge|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e36af72f74: experiment runtime ledger artifacts are ignored by runtime/.gitignore; owner replay leaves the worktree clean.",
+      "resolvedAt": "2026-07-19T02:37:14.954Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-005",
