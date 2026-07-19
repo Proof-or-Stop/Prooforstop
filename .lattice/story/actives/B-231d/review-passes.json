@@ -52,6 +52,27 @@
         "scanEscalationReason": null
       },
       "_hash": "ba5b158b0001a2763d9425b6629dde788a3b26b30d769e6d52b4aa82ace5c48b"
+    },
+    {
+      "id": "B-231d:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 verificationIntent lanes (CHK-001/002/003 x happy/edge/adversarial) are genuinely exercised by worktree-portability-smoke.js re-run fresh (16/16 checks pass, exit 0); evidence_inspect reports freshness=fresh, 0 staleRefs; validate reports 9/9 covered, 0 missing; no open findings remain.",
+      "createdAt": "2026-07-19T01:11:24.515Z",
+      "reviewRound": "2026-07-19T01:08:03.737Z",
+      "reviewRunId": "B-231d:RR-009",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2dff0445e4dacf3ddd2fac5ffc4735ccf3714277f0a9ac9ff892d6da70cd3df3"
     }
   ]
 }
