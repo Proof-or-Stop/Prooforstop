@@ -366,13 +366,18 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
         // own failed-write orphan OR a SUCCESSOR MID-ACQUIRE (mkdir won the dir but
         // has not yet written holder.json). Removing on null would delete that
         // nascent successor's dir. So on a null holder we NO-OP and let the
-        // stale-reclaim path collect a true orphan within staleMs. We remove ONLY a
-        // legacy PRE-universal-token dir: a holder.json that EXISTS but carries no
-        // lockId (a dir acquired by pre-FIX-D code that could not mint a token).
-        const current = readMkdirLockHolder(lockDir);
-        if (current && !current.lockId) {
-          removeEmptyLockDirNonRecursive(lockDir);
-        }
+        // stale-reclaim path collect a true orphan within staleMs.
+        //
+        // B-d877 R6 (codex R6 LOW): the legacy PRE-universal-token case — a
+        // holder.json that EXISTS but carries no lockId (a dir acquired by pre-FIX-D
+        // code that could not mint a token) — is ALSO a DELIBERATE SAFETY NO-OP.
+        // Safe immediate removal is impossible without ownership identity: we cannot
+        // prove we own that dir, so removing the file-then-dir could destroy a dir a
+        // successor legitimately owns. (The prior code attempted a non-recursive
+        // rmdir here, but that was DEAD-ON-ARRIVAL: the legacy holder.json is still
+        // present, so rmdirSync always hit ENOTEMPTY and swallowed it — the dir never
+        // came out anyway.) So we simply NO-OP and let the stale-reclaim path collect
+        // it within staleMs, exactly like the null-holder case above.
         return;
       }
       // B-d877 R5 FIX 1 (codex R5 HIGH — release TOCTOU): ownership-checked release
@@ -420,6 +425,24 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
         // the candidate BACK into the dir to RESTORE the successor's token, then
         // no-op. If the restore throws (the successor already wrote a fresh
         // holder.json), drop the stray candidate — never delete the successor's dir.
+        //
+        // B-d877 R6 (F-017, quality MED — DELIBERATE safe-side tradeoff): restoring
+        // the successor's token is intentional even though, in a DOUBLY-degenerate
+        // race, it can leak the lock dir. F-017 REQUIRES BOTH the already-documented
+        // stale-reclaim-of-a-LIVE-holder precondition (the cross-host mtime-fallback
+        // KNOWN LIMITATION) AND the successor's OWN release() interleaving in the
+        // token-less window: if B.release() runs after we isolate the token (its
+        // rename hits ENOENT → no-op, so B will not clean up again) but before this
+        // restore, we re-populate the dir with B's now-ORPHANED token → a bounded
+        // false "already running" until staleMs. We choose this over the alternative
+        // — DROPPING the candidate on mismatch — because dropping would DESTROY a
+        // possibly-LIVE successor's token (the exact release TOCTOU codex R5 flagged),
+        // a real correctness bug. Restoring risks only a BOUNDED, SELF-HEALING leak:
+        // the orphaned dir's mtime ages past staleMs and the ordinary stale-reclaim
+        // path collects it; the atomic persist claim (mkdir + holder.json) stays the
+        // double-mint fence, so there is NO correctness loss. CHK-002d4 in
+        // transition-integrity-smoke.ts scripts this interleaving and proves the
+        // orphan is stale-reclaimable.
         try {
           renameSync(candidatePath, join(lockDir, MKDIR_LOCK_HOLDER_FILE));
         } catch {

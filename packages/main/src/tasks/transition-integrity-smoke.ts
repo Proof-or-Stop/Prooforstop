@@ -29,7 +29,7 @@
  * check and exits nonzero on the first failure.
  */
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdtempSync, writeFileSync, mkdirSync, existsSync, rmSync, readFileSync, readdirSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, existsSync, rmSync, readFileSync, readdirSync, renameSync, utimesSync } from 'node:fs';
 import { hostname, tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -883,6 +883,76 @@ async function main(): Promise<void> {
 
     b.release();
     check("successor B released its own lock after A's no-op", !existsSync(lockDir));
+  }
+
+  // ── CHK-002d4 (F-017, quality MED): the mismatch-restore leak is BOUNDED and ───
+  // SELF-HEALING. F-017's doubly-degenerate race: a stale-reclaimed-but-still-alive
+  // holder A's release() interleaves with the LIVE successor B's OWN release() in the
+  // token-less window. No real thread can pause mid-release, so we SCRIPT the two
+  // rename halves of A's release around a REAL b.release():
+  //   (1) A isolates the token (rename holder.json OUT) — A.release() step 1.
+  //   (2) B.release() runs HERE on the now-token-less dir → its rename hits ENOENT →
+  //       no-op (B believes it released and will not clean up again).
+  //   (3) A's mismatch-restore renames the candidate BACK → re-populates the dir with
+  //       B's now-ORPHANED token (the documented bounded leak; false "already running").
+  // Then prove SELF-HEALING: the orphaned dir's mtime ages past a tiny staleMs and the
+  // ordinary stale-reclaim path collects it — a fresh acquire succeeds. No correctness
+  // loss (the atomic mkdir+holder.json persist is the double-mint fence).
+  console.log('\nCHK-002d4 (F-017): mismatch-restore leak is BOUNDED — the orphaned dir is stale-reclaimable (self-healing), no correctness loss');
+  {
+    const fx = makeFixture('B-tisf017', 'DEV', { withWorktree: false });
+    const lockDir = join(fx.root, '.lattice', 'locks', 'transition', 'f017.lock');
+    const parent = join(fx.root, '.lattice', 'locks', 'transition');
+
+    // A acquires, is stale-reclaimed, then LIVE successor B re-acquires a fresh dir.
+    acquireMkdirLock(lockDir, {
+      holderInfo: { pid: 111111, hostname: 'hostA', command: 'holder A', acquiredAt: NOW },
+    });
+    const holderA = readMkdirLockHolder(lockDir);
+    rmSync(lockDir, { recursive: true, force: true });
+    const b = acquireMkdirLock(lockDir, {
+      holderInfo: { pid: 222222, hostname: 'hostB', command: 'holder B', acquiredAt: NOW },
+    });
+    const holderB = readMkdirLockHolder(lockDir);
+    check('F-017 precondition: successor B holds a fresh token != A',
+      !!holderB?.lockId && holderB!.lockId !== holderA!.lockId, JSON.stringify(holderB));
+
+    // (1) A isolates the token: rename B's holder.json OUT (mirrors A.release() step 1,
+    // using A's own release-candidate path so the scripting is faithful).
+    const candidateA = join(parent, `${holderA!.lockId}.${process.pid}.release-candidate`);
+    renameSync(join(lockDir, 'holder.json'), candidateA);
+    check('interleave (1): A isolated the token → lock dir is now token-less',
+      existsSync(lockDir) && !existsSync(join(lockDir, 'holder.json')));
+
+    // (2) B's OWN release() runs in the token-less window → rename ENOENT → no-op.
+    b.release();
+    check('interleave (2): B.release() no-oped on the token-less dir (ENOENT window); dir + candidate untouched',
+      existsSync(lockDir) && !existsSync(join(lockDir, 'holder.json')) && existsSync(candidateA));
+
+    // (3) A's mismatch-restore re-populates the dir with B's now-orphaned token.
+    renameSync(candidateA, join(lockDir, 'holder.json'));
+
+    // (a) The documented BOUNDED LEAK: dir left populated with B's ORPHANED token, and
+    //     B will not clean up again → a false "already running" until staleMs.
+    const orphan = readMkdirLockHolder(lockDir);
+    check("(a) bounded leak: dir left populated with B's ORPHANED token (documented false-busy)",
+      existsSync(lockDir) && orphan?.lockId === holderB!.lockId, JSON.stringify(orphan));
+    const straysF017 = existsSync(parent) ? readdirSync(parent).filter((n) => n.endsWith('.release-candidate')) : [];
+    check('no *.release-candidate stray left after the restore', straysF017.length === 0, JSON.stringify(straysF017));
+
+    // (b) SELF-HEALING: backdate the orphaned dir's mtime past a tiny staleMs override,
+    //     then a normal acquire reclaims it via the ORDINARY stale-reclaim path.
+    const past = new Date(Date.now() - 60_000);
+    utimesSync(lockDir, past, past);
+    const c = acquireMkdirLock(lockDir, {
+      staleMs: 50,
+      holderInfo: { pid: 333333, hostname: 'hostC', command: 'holder C', acquiredAt: NOW },
+    });
+    const holderC = readMkdirLockHolder(lockDir);
+    check('(b) self-healing: orphaned dir was STALE-RECLAIMED — a fresh acquire (staleMs=50) succeeded with a new token',
+      !!holderC?.lockId && holderC!.lockId !== holderB!.lockId, JSON.stringify(holderC));
+    c.release();
+    check('the reclaimer released its own lock cleanly (no residual leak)', !existsSync(lockDir));
   }
 
   console.log('');
