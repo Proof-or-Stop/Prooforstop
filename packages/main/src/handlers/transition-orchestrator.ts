@@ -93,6 +93,8 @@ import {
   runPostDoneLearningSettlement,
 } from './done-effects.js';
 import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
+import { acquireStoryTransitionLock } from '../core/story-transition-lock.js';
+import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 
@@ -406,6 +408,12 @@ async function runStoryTransitionInner(
 ): Promise<TransitionResult> {
   const { store } = ctx;
   let doneMainMergeLock: ReturnType<typeof acquireDoneMainMergeLock> | undefined;
+  // B-d877 CHK-002: per-story transition lock for NON-DONE transitions. Held
+  // across the non-atomic read → gate → persist span so two concurrent
+  // SAME-owner transitions serialize (the owner lease only rejects FOREIGN
+  // sessions). DONE never takes this — it holds the main write lock instead
+  // (acquireDoneMainMergeLock below), so no double-lock. Released in the finally.
+  let transitionLock: AcquiredMkdirLock | undefined;
   // B-0e53: main's commit sha captured AFTER the DONE pre-check autoSyncMain.
   // Outer-scoped so the capture point (end of the DONE pre-check block) and the
   // re-check point (just before store.writeStory persists phase=DONE) both see
@@ -416,6 +424,15 @@ async function runStoryTransitionInner(
   // finally — covering success, guard failure, gate failure, and exceptions.
   let actor: ReturnType<typeof createStoryActor> | undefined;
   try {
+    // B-d877 CHK-002: acquire the per-story transition lock BEFORE readStory so
+    // the read → gate → persist span is atomic against another SAME-owner
+    // transition. A second concurrent attempt blocks here, then re-reads the
+    // committed post-transition state below. DONE is excluded (it serializes via
+    // acquireDoneMainMergeLock instead — see the DONE pre-check block).
+    if (args.phase !== 'DONE') {
+      transitionLock = acquireStoryTransitionLock(store, args.storyId);
+    }
+
     // B-9bd9 CHK-002: meta-story never enters DONE (long-lived cross-story container, only carries findings)
     const metaGuardErr = checkMetaStoryAdvanceGuard(args.storyId, args.phase);
     if (metaGuardErr) {
@@ -813,5 +830,9 @@ async function runStoryTransitionInner(
     // transition (runDonePreMergeGate → actor.send → writeStory →
     // applyDoneMergeEffects), equivalent to the old story-advance.ts scope.
     doneMainMergeLock?.release();
+    // B-d877 CHK-002: release the per-story transition lock on EVERY exit path
+    // (success, guard failure, gate failure, exception) so a throwing
+    // critical section cannot leak it (no deadlock for the next transition).
+    transitionLock?.release();
   }
 }
