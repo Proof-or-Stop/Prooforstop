@@ -68,6 +68,7 @@
 - [Proofbound Lifecycle Proof-Or-Stop Readiness Check](decisions/lattice-lifecycle-readiness-check-execution-plan.md)
 - [Proofbound Workflow Efficiency Baseline](decisions/lattice-workflow-efficiency-baseline.md)
 - [Proof Admissibility Hardening Execution Plan](decisions/proof-admissibility-hardening-execution-plan.md)
+- [Proof-or-Stop Evidence Environment Adapter — Architecture Audit and Execution Plan](decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md) — proposal/audit plan; not implementation evidence.
 - [Proof-or-stop Thin Entrypoint Contract Migration Execution Plan](decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md) — active migration-planning authority; not implementation evidence.
 - [Proof-or-Stop for PINNs: Cross-Domain Claim-Admissibility Execution Plan](decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md)
 - [Proof-or-Stop for Computational Quantum Mechanics: Claim-Admissibility Execution Plan](decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md)
