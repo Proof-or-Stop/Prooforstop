@@ -638,6 +638,152 @@ function bodyHasObjectPropertyNamed(body, propName) {
   return found;
 }
 
+// ── B-956f FIX 2 (R5): TypeChecker-anchored delegation assertions ──
+// codex defeated the includes()/name-match AST assertions three ways: (a) a
+// dead-branch call `if (false) buildMaterialClassificationSnapshot();`, (b) a
+// same-named LOCAL function shadowing the imported one, (c) ProofStory checks
+// scanning the WHOLE FILE instead of the builder body. These helpers build a real
+// ts.Program + TypeChecker and assert that each required delegation is a LIVE
+// (non-dead-branch), NON-NESTED call whose callee SYMBOL resolves to the intended
+// module (not a name match) and whose result is CONSUMED (not a discarded bare
+// statement). ProofStory assertions are scoped to the builder FUNCTION BODY and
+// follow one hop through the local helper the materialClassification property
+// delegates to.
+let _materialProgram;
+let _materialChecker;
+function getMaterialProgram() {
+  if (_materialProgram) return _materialProgram;
+  const configPath = join(root, 'packages/main/tsconfig.json');
+  const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+  const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, join(root, 'packages/main'));
+  const rootFiles = [
+    'packages/main/src/core/review-assurance-floor.ts',
+    'packages/main/src/core/repro-evidence-binding-gate.ts',
+    'packages/main/src/handlers/phase-gates.ts',
+    'packages/main/src/handlers/proofstory.ts',
+    'packages/main/src/core/material-code-policy.ts',
+  ].map((p) => join(root, p));
+  _materialProgram = ts.createProgram(rootFiles, { ...parsed.options, noEmit: true, skipLibCheck: true });
+  _materialChecker = _materialProgram.getTypeChecker();
+  return _materialProgram;
+}
+function materialProgramSourceFile(relPath) {
+  const sf = getMaterialProgram().getSourceFile(join(root, relPath));
+  assert(sf, `${relPath}: source file must be present in the material-code type program`);
+  return sf;
+}
+const FUNCTION_LIKE_KINDS = new Set([
+  ts.SyntaxKind.FunctionDeclaration,
+  ts.SyntaxKind.FunctionExpression,
+  ts.SyntaxKind.ArrowFunction,
+  ts.SyntaxKind.MethodDeclaration,
+  ts.SyntaxKind.Constructor,
+  ts.SyntaxKind.GetAccessor,
+  ts.SyntaxKind.SetAccessor,
+]);
+function isFunctionLike(node) {
+  return FUNCTION_LIKE_KINDS.has(node.kind);
+}
+/** callee identifier text for a CallExpression (Identifier or PropertyAccess). */
+function calleeName(callExpr) {
+  const e = callExpr.expression;
+  if (ts.isIdentifier(e)) return e.text;
+  if (ts.isPropertyAccessExpression(e)) return e.name.text;
+  return undefined;
+}
+/** Resolve the callee's (alias-followed) symbol. */
+function resolveCalleeSymbol(callExpr) {
+  getMaterialProgram();
+  let sym = _materialChecker.getSymbolAtLocation(callExpr.expression);
+  if (!sym) return undefined;
+  if (sym.flags & ts.SymbolFlags.Alias) {
+    try { sym = _materialChecker.getAliasedSymbol(sym); } catch { /* keep original */ }
+  }
+  return sym;
+}
+/** True when the callee symbol resolves to a declaration whose file path includes moduleSubstr. */
+function calleeResolvesToModule(callExpr, moduleSubstr) {
+  const sym = resolveCalleeSymbol(callExpr);
+  const decls = sym?.getDeclarations?.() ?? [];
+  return decls.some((d) => d.getSourceFile().fileName.includes(moduleSubstr));
+}
+/** Resolve a callee identifier to its (local) function-like declaration node, if any. */
+function resolveCalleeFunctionDeclaration(callExpr) {
+  const sym = resolveCalleeSymbol(callExpr);
+  const decls = sym?.getDeclarations?.() ?? [];
+  return decls.find((d) => isFunctionLike(d));
+}
+/** True when node sits inside a provably-dead branch (`if (false)`/`if (0)`, or the dead arm of a literal-conditional). */
+function inProvablyDeadBranch(node) {
+  let cur = node;
+  while (cur.parent) {
+    const parent = cur.parent;
+    if (ts.isIfStatement(parent)) {
+      const cond = parent.expression;
+      const isFalse = cond.kind === ts.SyntaxKind.FalseKeyword || (ts.isNumericLiteral(cond) && Number(cond.text) === 0);
+      const isTrue = cond.kind === ts.SyntaxKind.TrueKeyword || (ts.isNumericLiteral(cond) && Number(cond.text) !== 0 && !Number.isNaN(Number(cond.text)));
+      if (isFalse && cur === parent.thenStatement) return true;
+      if (isTrue && parent.elseStatement && cur === parent.elseStatement) return true;
+    } else if (ts.isConditionalExpression(parent)) {
+      const cond = parent.condition;
+      const isFalse = cond.kind === ts.SyntaxKind.FalseKeyword || (ts.isNumericLiteral(cond) && Number(cond.text) === 0);
+      const isTrue = cond.kind === ts.SyntaxKind.TrueKeyword || (ts.isNumericLiteral(cond) && Number(cond.text) !== 0 && !Number.isNaN(Number(cond.text)));
+      if (isFalse && cur === parent.whenTrue) return true;
+      if (isTrue && cur === parent.whenFalse) return true;
+    }
+    cur = parent;
+  }
+  return false;
+}
+/** True when the call's result is consumed (not a discarded bare `foo();` / `void foo();`). */
+function callResultConsumed(callExpr) {
+  const p = callExpr.parent;
+  if (ts.isExpressionStatement(p)) return false;
+  if (ts.isVoidExpression(p) && p.parent && ts.isExpressionStatement(p.parent)) return false;
+  return true;
+}
+/**
+ * True when the function body contains a LIVE (non-dead-branch), non-nested call to
+ * `name` whose callee symbol resolves to `moduleSubstr`. `requireConsumed` also
+ * demands the call result be used (data-flow, non-vacuous).
+ */
+function functionBodyHasResolvedCall(fnNode, name, moduleSubstr, { requireConsumed = false } = {}) {
+  const body = fnNode && fnNode.body;
+  if (!body) return false;
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    if (isFunctionLike(n)) return; // skip nested function bodies
+    if (ts.isCallExpression(n) && calleeName(n) === name
+        && !inProvablyDeadBranch(n)
+        && calleeResolvesToModule(n, moduleSubstr)
+        && (!requireConsumed || callResultConsumed(n))) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(n, walk);
+  };
+  ts.forEachChild(body, walk);
+  return found;
+}
+/** The initializer expression of the `materialClassification` property inside the builder body (skipping nested functions). */
+function materialClassificationPropertyInitializer(fnNode) {
+  const body = fnNode && fnNode.body;
+  if (!body) return undefined;
+  let init;
+  const walk = (n) => {
+    if (init) return;
+    if (n !== body && isFunctionLike(n)) return; // stay in this builder body
+    if (ts.isPropertyAssignment(n) && ts.isIdentifier(n.name) && n.name.text === 'materialClassification') {
+      init = n.initializer;
+      return;
+    }
+    ts.forEachChild(n, walk);
+  };
+  ts.forEachChild(body, walk);
+  return init;
+}
+
 function listMarkdown(dir) {
   const absDir = join(root, dir);
   assert(existsSync(absDir), `${dir} should exist`);
@@ -3904,24 +4050,24 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     assert(evaluatorText.includes(token), `packages/main/src/core/review-assurance-floor.ts: required review assurance floor token missing: ${token}`);
   }
 
-  // B-956f FIX 2 (codex HIGH — includes()-token assertions are mechanically
-  // vacuous): the floor no longer hard-codes a TS-only whitelist or a literal
-  // "markdown documentation" branch — it DELEGATES per-file classification to the
-  // config-resolved material-code policy via one hash-bound snapshot, and surfaces a
-  // diff-enumeration failure as a hard block. Assert these STRUCTURALLY (on real
-  // call sites inside the function bodies, comments excluded) so removing the real
-  // delegation while leaving the strings in comments makes THIS verifier exit 1.
-  const floorSf = parseSourceFile('packages/main/src/core/review-assurance-floor.ts');
+  // B-956f FIX 2 (R5 — codex defeated the includes()/name-match AST assertions with
+  // dead-branch calls, same-named LOCAL shadows, and whole-file ProofStory scans):
+  // assert via a real ts.Program + TypeChecker that each delegation is a LIVE,
+  // non-nested call whose callee SYMBOL resolves to material-code-policy (not a name
+  // match), with the snapshot builds also DATA-FLOW-checked (result consumed). The
+  // ProofStory assertions are scoped to the builder FUNCTION BODY (not the file) and
+  // follow one hop through the local helper the property delegates to.
+  const MCP = 'material-code-policy';
+  const floorSf = materialProgramSourceFile('packages/main/src/core/review-assurance-floor.ts');
   const floorFn = findFunctionDeclaration(floorSf, 'evaluateReviewAssuranceFloor');
   assert(floorFn && floorFn.body, 'packages/main/src/core/review-assurance-floor.ts: evaluateReviewAssuranceFloor function declaration must exist');
-  const floorCalls = collectCalledNames(floorFn.body);
   assert(
-    floorCalls.has('buildMaterialClassificationSnapshot'),
-    'packages/main/src/core/review-assurance-floor.ts: evaluateReviewAssuranceFloor MUST call buildMaterialClassificationSnapshot (real delegation to the shared material-code classifier, not a comment/import token)',
+    functionBodyHasResolvedCall(floorFn, 'buildMaterialClassificationSnapshot', MCP, { requireConsumed: true }),
+    'packages/main/src/core/review-assurance-floor.ts: evaluateReviewAssuranceFloor MUST make a LIVE call to buildMaterialClassificationSnapshot resolving to material-code-policy whose result is consumed (not a dead-branch / discarded / same-named-local call)',
   );
   assert(
-    floorCalls.has('ensureFreshMaterialClassificationSnapshot'),
-    'packages/main/src/core/review-assurance-floor.ts: evaluateReviewAssuranceFloor MUST call ensureFreshMaterialClassificationSnapshot (hash-bound snapshot freshness validation of a supplied classification)',
+    functionBodyHasResolvedCall(floorFn, 'ensureFreshMaterialClassificationSnapshot', MCP),
+    'packages/main/src/core/review-assurance-floor.ts: evaluateReviewAssuranceFloor MUST call ensureFreshMaterialClassificationSnapshot from material-code-policy (hash-bound snapshot freshness validation of a supplied classification)',
   );
   assert(
     hasDiffEnumerationBlockingBranch(floorFn.body),
@@ -3931,42 +4077,59 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
   const classifyFn = findFunctionDeclaration(floorSf, 'classifyReviewAssuranceFloorPath');
   assert(classifyFn && classifyFn.body, 'packages/main/src/core/review-assurance-floor.ts: classifyReviewAssuranceFloorPath function declaration must exist');
   assert(
-    collectCalledNames(classifyFn.body).has('classifyMaterialCodePath'),
-    'packages/main/src/core/review-assurance-floor.ts: classifyReviewAssuranceFloorPath MUST call classifyMaterialCodePath (delegate to the config-resolved policy, no TS-only whitelist)',
+    functionBodyHasResolvedCall(classifyFn, 'classifyMaterialCodePath', MCP, { requireConsumed: true }),
+    'packages/main/src/core/review-assurance-floor.ts: classifyReviewAssuranceFloorPath MUST make a LIVE call to classifyMaterialCodePath from material-code-policy whose result is consumed (delegate to the config-resolved policy, no TS-only whitelist)',
   );
 
   // The repro-evidence-binding gate consumer: evaluateStoryEvidenceBindingGate must
   // build the snapshot and feed it into the snapshot-required repro classify.
-  const reproSf = parseSourceFile('packages/main/src/core/repro-evidence-binding-gate.ts');
+  const reproSf = materialProgramSourceFile('packages/main/src/core/repro-evidence-binding-gate.ts');
   const reproFn = findFunctionDeclaration(reproSf, 'evaluateStoryEvidenceBindingGate');
   assert(reproFn && reproFn.body, 'packages/main/src/core/repro-evidence-binding-gate.ts: evaluateStoryEvidenceBindingGate function declaration must exist');
-  const reproCalls = collectCalledNames(reproFn.body);
   assert(
-    reproCalls.has('buildMaterialClassificationSnapshot'),
-    'packages/main/src/core/repro-evidence-binding-gate.ts: evaluateStoryEvidenceBindingGate MUST call buildMaterialClassificationSnapshot (shared classifier delegation)',
+    functionBodyHasResolvedCall(reproFn, 'buildMaterialClassificationSnapshot', MCP, { requireConsumed: true }),
+    'packages/main/src/core/repro-evidence-binding-gate.ts: evaluateStoryEvidenceBindingGate MUST make a LIVE call to buildMaterialClassificationSnapshot resolving to material-code-policy whose result is consumed (shared classifier delegation, not a dead-branch / same-named-local call)',
   );
   assert(
-    reproCalls.has('classifyReproFirstRequirement'),
-    'packages/main/src/core/repro-evidence-binding-gate.ts: evaluateStoryEvidenceBindingGate MUST feed the snapshot into classifyReproFirstRequirement (snapshot-required repro classification)',
+    functionBodyHasResolvedCall(reproFn, 'classifyReproFirstRequirement', 'repro-evidence-binding-gate', { requireConsumed: true }),
+    'packages/main/src/core/repro-evidence-binding-gate.ts: evaluateStoryEvidenceBindingGate MUST feed the snapshot into a LIVE classifyReproFirstRequirement call (snapshot-required repro classification)',
   );
 
-  // The ProofStory diagnostic-input builders must POPULATE materialClassification
-  // via the real production snapshot-population delegation.
+  // The ProofStory diagnostic-input builders must POPULATE materialClassification in
+  // the builder BODY with a real delegation to tryBuildMaterialClassificationSnapshotForDiagnostics
+  // (resolved to material-code-policy) — either directly or via one local helper. A
+  // `materialClassification: null` in the builder while the token lingers elsewhere
+  // in the file (codex defeat c) now exits 1.
   for (const [relPath, builderFn] of [
     ['packages/main/src/handlers/phase-gates.ts', 'proofStoryDiagnosticInput'],
     ['packages/main/src/handlers/proofstory.ts', 'diagnosticInput'],
   ]) {
-    const sf = parseSourceFile(relPath);
+    const sf = materialProgramSourceFile(relPath);
     const fn = findFunctionDeclaration(sf, builderFn);
     assert(fn && fn.body, `${relPath}: ${builderFn} function declaration must exist`);
+    const init = materialClassificationPropertyInitializer(fn);
+    const initIsCall = !!init && ts.isCallExpression(init);
     assert(
-      bodyHasObjectPropertyNamed(fn.body, 'materialClassification'),
-      `${relPath}: ${builderFn} MUST populate a materialClassification property on the ProofStory diagnostic input`,
+      initIsCall,
+      `${relPath}: ${builderFn} MUST populate the materialClassification property in its body with a function call (a real delegation, not a null/constant/omitted field)`,
     );
-    assert(
-      collectCalledNames(sf).has('tryBuildMaterialClassificationSnapshotForDiagnostics'),
-      `${relPath}: MUST call tryBuildMaterialClassificationSnapshotForDiagnostics (real production materialClassification population)`,
-    );
+    // Only resolve the delegation when the initializer is actually a call — the
+    // verifier's assert() records failures and CONTINUES, so guard against running
+    // callee resolution on a null/constant initializer (defeat c: `: null`).
+    if (initIsCall) {
+      const TRY = 'tryBuildMaterialClassificationSnapshotForDiagnostics';
+      let delegates = calleeName(init) === TRY && calleeResolvesToModule(init, MCP);
+      if (!delegates) {
+        // One hop: the property calls a local helper that itself delegates to the real
+        // production snapshot-population export.
+        const helperDecl = resolveCalleeFunctionDeclaration(init);
+        delegates = !!helperDecl && functionBodyHasResolvedCall(helperDecl, TRY, MCP, { requireConsumed: true });
+      }
+      assert(
+        delegates,
+        `${relPath}: ${builderFn} materialClassification MUST delegate (directly or via one local helper) to ${TRY} from material-code-policy (real production population, not a whole-file token)`,
+      );
+    }
   }
 
   const doneOracleText = read('packages/main/src/core/done-oracle.ts');

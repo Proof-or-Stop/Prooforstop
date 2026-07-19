@@ -683,11 +683,21 @@ export function preflightMaterialCodeExclusions(
  * B-956f FIX 1 + FIX 3: run the tree-bound exclusion preflight against a SPECIFIC
  * ref — a pinned commit sha from the snapshot builder, or live HEAD for standalone
  * resolution — and throw MaterialCodePolicyError on any level-1 manifest coverage.
- * The verdict is memoized by (resolved tree sha, policyDigest) so the per-retry
- * re-run (FIX 1) and repeated same-sha resolutions do not re-walk the tree; a HEAD
- * move yields a new sha and thus a cache miss (never a stale accept). A
- * no-exclusions policy is a no-op (no git access). Enumeration failure inside the
- * preflight propagates (fail closed) and is never cached.
+ * The verdict is memoized by (resolved tree sha, RECOMPUTED policy digest) so the
+ * per-retry re-run (FIX 1) and repeated same-sha resolutions do not re-walk the
+ * tree; a HEAD move yields a new sha and thus a cache miss (never a stale accept).
+ * A no-exclusions policy is a no-op (no git access). Enumeration failure inside the
+ * preflight propagates (fail closed) and is never cached — so on a non-git root /
+ * pre-first-commit repo / wrapper-root miss WITH exclusions the tracked-file
+ * enumeration throw fails closed, the SAME behavior class as resolveMaterialCodePolicy
+ * (the snapshot builder relies on this: B-956f FIX 1 removes its `if (headRef)` gate).
+ *
+ * B-956f FIX 3 (codex H2 — cache-poison via a forged embedded digest): the supplied
+ * policy's policyDigest is NEVER trusted. The canonical digest is RECOMPUTED from the
+ * policy's actual fields and any mismatch is REJECTED before the cache is consulted,
+ * and the cache is keyed by the recomputed digest only — so a hand-built policy whose
+ * embedded digest was forged to alias another policy's cached verdict cannot slip its
+ * different excludePaths past the preflight.
  */
 export function assertMaterialCodeExclusionsAgainstTree(
   policy: MaterialCodePolicy,
@@ -695,6 +705,18 @@ export function assertMaterialCodeExclusionsAgainstTree(
   ref = 'HEAD',
   trackedFiles?: string[],
 ): void {
+  // B-956f FIX 3: bind trust to the RECOMPUTED digest, not the caller-supplied
+  // field. Recompute from the actual policy fields and reject a forged/mismatched
+  // embedded digest (fail closed) BEFORE any cache lookup or early return.
+  const recomputedDigest = computePolicyDigest(policy);
+  if (recomputedDigest !== policy.policyDigest) {
+    throw new MaterialCodePolicyError(
+      'materialCode.policyDigest',
+      `supplied material-code policy carries an embedded policyDigest ${JSON.stringify(policy.policyDigest)} ` +
+        `that does not match the digest recomputed from its actual fields ${JSON.stringify(recomputedDigest)}; ` +
+        `refusing to trust a policy whose embedded digest was forged to alias a cached exclusion verdict (fail closed)`,
+    );
+  }
   if (policy.excludePaths.length === 0) return;
   const cwd = gitCwd ?? process.cwd();
   let effectiveRef = ref;
@@ -707,7 +729,9 @@ export function assertMaterialCodeExclusionsAgainstTree(
     const sha = ref === 'HEAD' ? currentGitHead(cwd) : ref;
     if (sha) {
       effectiveRef = sha;
-      cacheKey = `${sha} ${policy.policyDigest}`;
+      // B-956f FIX 3: key by the RECOMPUTED digest (== the now-validated embedded
+      // digest) only, so a forged digest can never select a cached row.
+      cacheKey = `${sha} ${recomputedDigest}`;
       const cached = _preflightVerdictCache.get(cacheKey);
       if (cached) {
         throwOnExclusionViolation(cached);
@@ -764,15 +788,30 @@ export interface BuildMaterialClassificationSnapshotOptions {
   changedFiles?: string[];
   headHash?: string;
   materialHash?: string;
-  /**
-   * B-956f FIX 1 — TEST-ONLY seam (production callers never pass this). Invoked
-   * with the captured head sha immediately AFTER capture and BEFORE the pinned-sha
-   * exclusion preflight, so a smoke can deterministically land a commit mid-build
-   * and prove that (a) the preflight binds to the captured sha and (b) the
-   * post-build HEAD-stability validation forces a rebuild against the moved sha.
-   * Undocumented in the public contract; prefixed `__…ForTest`.
-   */
-  __afterHeadCaptureForTest?: (headRef: string | undefined) => void;
+}
+
+/**
+ * B-956f FIX 4 (codex M — test seam in the public production API): the head-capture
+ * hook is NOT part of any public options type and is NEVER passed by production
+ * callers. It lives in a MODULE-PRIVATE slot, installed only via the test-only
+ * setter below, so production call sites carry no optional test callback. Invoked
+ * with the captured head sha immediately AFTER capture and BEFORE the pinned-sha
+ * exclusion preflight, so a smoke can deterministically land a commit mid-build and
+ * prove that (a) the preflight binds to the captured sha and (b) the post-build
+ * HEAD-stability validation forces a rebuild against the moved sha.
+ */
+let _afterHeadCaptureHookForTest: ((headRef: string | undefined) => void) | undefined;
+
+/**
+ * TEST-ONLY: install (or clear with `undefined`) the mid-build head-capture hook.
+ * The language-neutral-gates smoke imports this to exercise the HEAD-move race, and
+ * MUST reset it (`__setAfterHeadCaptureHookForTest(undefined)`) after use. Prefixed
+ * `__…ForTest`; not part of the public snapshot-builder contract.
+ */
+export function __setAfterHeadCaptureHookForTest(
+  hook: ((headRef: string | undefined) => void) | undefined,
+): void {
+  _afterHeadCaptureHookForTest = hook;
 }
 
 interface ChangedDiffEntry {
@@ -972,17 +1011,22 @@ export function buildMaterialClassificationSnapshot(
   // is returned directly.
   for (let attempt = 0; ; attempt++) {
     const headRef = currentGitHead(gitCwd);
-    // TEST-ONLY seam (see BuildMaterialClassificationSnapshotOptions): production
-    // callers never pass this. Fires after sha capture, before the preflight.
-    opts.__afterHeadCaptureForTest?.(headRef);
-    if (headRef) {
-      // Validate config exclusions against the EXACT tree the snapshot will bind
-      // to (the pinned sha), inside every retry attempt — not a racy live-HEAD read
-      // taken outside the loop. A commit that adds a covered level-1 manifest
-      // (backend/go.mod under an excluded backend/) at the captured sha is rejected
-      // here instead of yielding a snapshot bound to the now-invalid policy.
-      assertMaterialCodeExclusionsAgainstTree(policy, gitCwd, headRef);
-    }
+    // TEST-ONLY seam (module-private slot; see __setAfterHeadCaptureHookForTest):
+    // production callers can never pass this. Fires after sha capture, before the
+    // preflight.
+    _afterHeadCaptureHookForTest?.(headRef);
+    // B-956f FIX 1 (codex H3 = quality F-006 = test-coverage F-007 — non-git-root
+    // fail-open): validate config exclusions against the pinned tree on EVERY path,
+    // NOT gated on `if (headRef)`. When headRef is a pinned sha the preflight binds
+    // to the EXACT tree the snapshot will use (a mid-build commit adding a covered
+    // backend/go.mod under an excluded backend/ is rejected here). When NO HEAD
+    // resolves (non-git root, pre-first-commit repo, or wrapper-root miss) a policy
+    // WITH exclusions cannot be validated against a tree that does not exist, so it
+    // FAILS CLOSED through assertMaterialCodeExclusionsAgainstTree's enumeration
+    // throw — the SAME behavior class as resolveMaterialCodePolicy — never a
+    // silently-returned unvalidated snapshot. A no-exclusions policy is a no-op and
+    // still builds (nothing to validate).
+    assertMaterialCodeExclusionsAgainstTree(policy, gitCwd, headRef);
     const snapshot = buildMaterialClassificationSnapshotAtRef(projectRoot, gitCwd, policy, headRef, opts);
     if (!headRef) return snapshot; // non-git tree: nothing to race against
     const liveHead = currentGitHead(gitCwd);

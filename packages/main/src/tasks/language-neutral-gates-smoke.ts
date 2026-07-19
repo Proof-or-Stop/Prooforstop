@@ -75,6 +75,7 @@ import {
   preflightMaterialCodeExclusions,
   resolveMaterialCodePolicy,
   resetMaterialCodePolicyCache,
+  __setAfterHeadCaptureHookForTest,
   MaterialCodePolicyError,
   type MaterialClassificationSnapshot,
 } from '../core/material-code-policy.js';
@@ -953,13 +954,20 @@ check('R4-a: the exclusion preflight binds to the PINNED sha INSIDE the retry lo
     writeFile(root, 'backend/go.mod', 'module example.com/x\n');
     commitAll(root, 'add go.mod under the excluded backend/ mid-build');
   };
-  assert.throws(
-    () => buildMaterialClassificationSnapshot(root, { __afterHeadCaptureForTest: landCoveredManifestOnce }),
-    (err: unknown) => err instanceof MaterialCodePolicyError
-      && err.offendingKey === 'materialCode.excludePaths'
-      && /backend\/go\.mod/.test(err.message),
-    'the pinned-sha preflight rejects the mid-build covered manifest instead of returning a snapshot',
-  );
+  // B-956f FIX 4: the mid-build seam is a MODULE-PRIVATE hook installed via the
+  // test-only setter — NOT a public option on the production snapshot builder.
+  __setAfterHeadCaptureHookForTest(landCoveredManifestOnce);
+  try {
+    assert.throws(
+      () => buildMaterialClassificationSnapshot(root),
+      (err: unknown) => err instanceof MaterialCodePolicyError
+        && err.offendingKey === 'materialCode.excludePaths'
+        && /backend\/go\.mod/.test(err.message),
+      'the pinned-sha preflight rejects the mid-build covered manifest instead of returning a snapshot',
+    );
+  } finally {
+    __setAfterHeadCaptureHookForTest(undefined); // always reset the module-private hook
+  }
   assert.equal(fired, true, 'the mid-build commit seam actually fired (the race window was exercised)');
 });
 
@@ -984,12 +992,93 @@ check('R4-b: the exclusion preflight scales O(files) not O(exclusions × files) 
   );
 });
 
+// ─────────────────── R5 fix-round production-boundary checks ───────────────────
+
+check('R5-a: a non-git root with a covered exclusion FAILS CLOSED through buildMaterialClassificationSnapshot AND a real gate consumer (never a silently-returned unvalidated snapshot)', () => {
+  // Non-git project dir (no tree to validate exclusions against) carrying an
+  // excludePaths policy. codex H3 = quality F-006 = test-coverage F-007: the old
+  // builder gated the tree-bound preflight on `if (headRef)`, so a non-git root
+  // returned an UNVALIDATED snapshot (fail open) while resolveMaterialCodePolicy on
+  // the same dir correctly threw.
+  const root = makeConfigRoot({ materialCode: { excludePaths: ['backend/'] } });
+
+  // (1) The builder now validates on EVERY path: a policy WITH exclusions fails
+  // CLOSED through assertMaterialCodeExclusionsAgainstTree's enumeration throw — the
+  // SAME behavior class as resolveMaterialCodePolicy.
+  assert.throws(
+    () => buildMaterialClassificationSnapshot(root),
+    (err: unknown) => err instanceof MaterialCodePolicyError
+      && err.offendingKey === 'materialCode.excludePaths'
+      && /could not enumerate tracked files/.test(err.message)
+      && /failing closed/.test(err.message),
+    'a non-git root with exclusions fails CLOSED in the builder (no unvalidated snapshot)',
+  );
+  // Consistency: resolveMaterialCodePolicy fails closed on the same dir the same way.
+  assert.throws(
+    () => resolveMaterialCodePolicy(root),
+    (err: unknown) => err instanceof MaterialCodePolicyError && err.offendingKey === 'materialCode.excludePaths',
+    'resolveMaterialCodePolicy fails closed on the same non-git root (same behavior class)',
+  );
+
+  // (2) A REAL gate consumer surfaces a STRUCTURED blocking outcome, not a silent pass.
+  const fakeStore = { readStory: () => null, readChecklist: () => null } as any;
+  let result: ReturnType<typeof evaluateStoryEvidenceBindingGate>;
+  assert.doesNotThrow(() => {
+    result = evaluateStoryEvidenceBindingGate(root, fakeStore, 'B-lng-nongit', { mode: 'warn' });
+  }, 'the repro gate does not throw raw on the non-git fail-closed');
+  assert.equal(result!.ok, false, 'the gate fails closed');
+  assert.equal(result!.blocking, true, 'the failure blocks regardless of reproFirst mode');
+  assert.equal(result!.reasonCode, 'repro_first_material_policy_error', 'distinct material-policy reason code');
+});
+
+check('R5-b: a non-git root with NO exclusions still BUILDS a snapshot (no over-blocking) — only exclusions need a tree to validate against', () => {
+  const root = makeConfigRoot({ materialCode: { addExtensions: ['zig'] } }); // valid config, NO excludePaths
+  let snap: MaterialClassificationSnapshot | undefined;
+  assert.doesNotThrow(() => {
+    snap = buildMaterialClassificationSnapshot(root, { changedFiles: ['src/app.py', 'docs/x.md'] });
+  }, 'a no-exclusions policy on a non-git root builds without throwing (nothing to validate)');
+  assert.ok(snap, 'the snapshot is returned');
+  assert.equal(snap!.files.find((f) => f.path === 'src/app.py')!.materialCode, true, 'a .py under src/ still classifies material');
+  assert.equal(snap!.files.find((f) => f.path === 'docs/x.md')!.materialCode, false, 'a doc stays non-material');
+});
+
+check('R5-c: a hand-built policy whose embedded policyDigest does not match its actual fields is REJECTED before any cached verdict can be aliased (cache-poison closed)', () => {
+  // Warm the preflight verdict cache with a LEGIT policy over a tree where the
+  // exclusion covers NO manifest (clean verdict cached at this HEAD sha). The tree
+  // ALSO carries a real backend/go.mod NOT under the legit exclusion.
+  const root = makeGitConfigRoot(
+    { materialCode: { excludePaths: ['other/'] } },
+    { 'backend/go.mod': 'module example.com/x\n', 'other/readme.txt': 'x\n' },
+  );
+  const legit = resolveMaterialCodePolicy(root); // excludePaths ['other/'] — resolves clean, warms the cache
+  assert.deepEqual(legit.excludePaths, ['other/'], 'the legit policy resolved clean and cached its verdict');
+
+  // Hand-build a FORGED policy: excludePaths ['backend/'] (which DOES cover the real
+  // backend/go.mod) but stamped with the legit policy's UNRELATED embedded digest, so
+  // a digest-keyed cache would alias the legit clean verdict.
+  const forged = { ...legit, excludePaths: ['backend/'] } as typeof legit; // policyDigest still == legit's
+  assert.notDeepEqual(forged.excludePaths, legit.excludePaths, 'forged policy really differs in excludePaths');
+  assert.equal(forged.policyDigest, legit.policyDigest, 'forged policy carries the legit embedded digest (the poison vector)');
+
+  // FIX 3: the builder feeds the forged policy to the tree-bound preflight, which
+  // recomputes the digest from the forged fields, sees the mismatch, and REJECTS
+  // before any cache lookup — the covered backend/go.mod can never slip through on an
+  // aliased clean verdict.
+  assert.throws(
+    () => buildMaterialClassificationSnapshot(root, { policy: forged }),
+    (err: unknown) => err instanceof MaterialCodePolicyError
+      && err.offendingKey === 'materialCode.policyDigest'
+      && /does not match the digest recomputed/.test(err.message),
+    'a forged embedded digest is rejected (no cached-verdict aliasing)',
+  );
+});
+
 for (const root of tempRoots) {
   try { rmSync(root, { recursive: true, force: true }); } catch { /* best effort cleanup */ }
 }
 
 if (failures === 0) {
-  console.log('\nlanguage-neutral-gates smoke passed (29 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks + 2 R4 fix-round production-boundary checks)');
+  console.log('\nlanguage-neutral-gates smoke passed (32 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks + 2 R4 fix-round production-boundary checks + 3 R5 fix-round production-boundary checks)');
 } else {
   console.error(`\nlanguage-neutral-gates smoke FAILED (${failures})`);
   process.exit(1);
