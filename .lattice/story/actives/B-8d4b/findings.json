@@ -283,7 +283,7 @@
       "desc": "experiments/role-prompt-ab-replay/lib/ledger.mjs:362-390 — MEDIUM: O_NOFOLLOW closes only a final-component symlink; the parent runtime subdirectory is still checked by pathname and can be swapped to a symlink after assertNoSymlinkEscape. acquireLedgerLock then creates/writes <target>.lock through that parent before the later realpath/fstat mismatch is checked, so a raced parent can still cause an out-of-namespace write. The static symlink test does not exercise this parent-component TOCTOU.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T02:42:01.556Z",
@@ -291,7 +291,11 @@
       "reviewRunId": "B-8d4b:RR-005",
       "_hash": "2b71b3132d76e43514498ca2726ba3bf467dde247fe06531ff609b465585bd35",
       "signatureTag": "adversarial|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 1623374107: ledger path is a direct runtime JSONL name and operations validate opened parent fd dev/ino/realpath before and after; deterministic parent swap leaves external directory empty.",
+      "resolvedAt": "2026-07-19T02:55:53.851Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-016",
