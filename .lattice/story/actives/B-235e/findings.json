@@ -270,6 +270,30 @@
       "_hash": "4b3f965a9794d87ce634f54c6c83f1fe351b864658b91933d6a47416ad50dfea",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-014",
+      "desc": "doc-code-drift: F012 host-adapter prose is now accurate, but the ABA lock claim/evidence is not. packages/main/src/handlers/review-run.ts:71-78 says two observations of the same dead lockId closes ABA; however classification returns stale before acquireMkdirLock later removes the shared lockDir, so two waiters can still let W1 classify dead A, W2 reclaim A, replacement B acquire, and W1 delete B. The recorded 20-iteration mixed-mask smoke exercises ordinary live contention only and does not force this dead-holder/two-reclaimer/replacement schedule. In addition, this review-run evidence persistence/reclaim semantic is absent from packages/main/src/core/process-fact-levels.ts, packages/main/src/core/process-fact-registry.ts, and scripts/verify-process-fact-contract.mjs despite being gate-consumed review evidence behavior. Existing open F-013 independently identifies the same correctness hole. Add identity-conditional/atomic reclaim plus a deterministic barrier-driven ABA regression, then register and verify the resulting process fact before claiming closure. [HIGH]",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T10:33:41.292Z",
+      "reviewRound": "2026-07-19T10:29:49.068Z",
+      "reviewRunId": "B-235e:RR-027",
+      "_hash": "df4502b58d7785f77abacf32c8c40cf8f26ddab866feac28a42d02ef2871306c",
+      "files": [
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "signatureTag": "missing|ts|code-drift-f012",
+      "signatureTagSource": "auto"
     }
   ]
 }
