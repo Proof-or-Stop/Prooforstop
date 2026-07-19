@@ -2,20 +2,19 @@
   "storyId": "B-6ed2",
   "expected": null,
   "actual": {
-    "command": "LATTICE_SESSION_ID=codex-wa-final node bin/lattice.js done_required_validate --storyId=B-6ed2 --json",
-    "exitCode": null,
-    "stdout": "",
-    "stderr": "[0.1s] done_required_validate timeout budget: maxMs=1520000 source=derived-command-budget\n[0.1s] running done_required_validate...\n[0.5s] validate progress: command 1/2 started packages/main build: npm --prefix packages/main run build timeoutMs=290000\n[21.4s] validate progress: command 1/2 ended packages/main build: code=0 elapsedMs=21046\n[21.7s] validate progress: command 2/2 started root full test suite: npm test timeoutMs=1200000\n[51.7s] validate heartbeat: command 2/2 root full test suite elapsedMs=30084 timeoutMs=1200000\n\n[capture error] command exceeded 60000ms timeout; process group terminated"
+    "command": "git show --numstat --oneline e764c1cd18879e019179954aa61f7fd5e899cf39",
+    "exitCode": 0,
+    "stdout": "e764c1cd18 lattice: record B-6ed2 quorum-submit metadata\n6\t0\t.lattice/story/actives/B-6ed2/process-events.jsonl\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-19T01:05:20.063Z",
+  "capturedAtIso": "2026-07-19T01:15:38.539Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "c560e284f9f096c4ab531f4b6e86eeac70bfbf78",
+  "headHash": "8ae4135b184a75f12caaca38d26d5d8236acb7b4",
   "materialHash": "f252bf09077a093305a648e0a3b015b202889c59f601d48577672473821d297c"
 }
