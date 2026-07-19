@@ -92,7 +92,7 @@
           }
         ]
       },
-      "userSees": "终端逐样本显示 A/B same-input parity、prompt bytes、estimated tokens、digest 与 finding comparison；重复运行核心 digest 相同。",
+      "userSees": "用户运行 replay 时看到：\"Replay: PASS sameInput=true deterministic=true\"，并看到每个 sample/arm 的 bytes、estimatedTokens、promptDigest 和 findingComparison。",
       "files": {
         "modify": [],
         "create": [
