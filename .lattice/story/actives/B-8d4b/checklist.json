@@ -278,9 +278,9 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T02:07:46.020Z",
-      "endTime": "2026-07-19T02:53:25.226Z",
+      "endTime": "2026-07-19T03:04:01.553Z",
       "verificationIntent": {
         "happy": [
           {
@@ -330,23 +330,23 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun evaluates only the hermetic content-addressed fixture with historicalEvidence=false and reports immutable production process fact drift NONE.",
-          "headHash": "065997fecb491451dbcca851ed5ac870c4887b75",
-          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
-          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
-          "timestamp": "2026-07-19T02:53:25.456Z"
+          "note": "Owner isolated sandbox seeds 8 real-shaped pass/finding/ReviewRun/verification/validation/lifecycle/process-event sentinel files, executes 3 copied entrypoints, and proves recursive membership plus literal bytes unchanged.",
+          "headHash": "6393056e59fab2714f54a3679ea8cc01e11b5e46",
+          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
+          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
+          "timestamp": "2026-07-19T03:04:01.786Z"
         },
         {
           "intentRef": "partial-observation-remains-honest",
           "kind": "logic_test",
-          "file": "experiments/role-prompt-ab-replay/run.mjs",
-          "command": "node experiments/role-prompt-ab-replay/run.mjs --json",
+          "file": "experiments/role-prompt-ab-replay/analyze.mjs",
+          "command": "node experiments/role-prompt-ab-replay/analyze.mjs --ledger=runtime/owner-fourth.jsonl --json",
           "result": "pass",
-          "note": "Canonical prompt cost remains INCONCLUSIVE/PROMPT_SNAPSHOT_UNAVAILABLE and recall INCONCLUSIVE/ADJUDICATION_EVIDENCE_UNVERIFIED; no provider/cache zero is invented.",
-          "headHash": "065997fecb491451dbcca851ed5ac870c4887b75",
-          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
-          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
-          "timestamp": "2026-07-19T02:53:25.693Z"
+          "note": "36-attempt owner analysis reports finalProviderInputTokens=null, providerInputAvailability=unavailable and no savings/recall claim.",
+          "headHash": "6393056e59fab2714f54a3679ea8cc01e11b5e46",
+          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
+          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
+          "timestamp": "2026-07-19T03:04:02.199Z"
         },
         {
           "intentRef": "tamper-unreconstructable-fails-inconclusive",
@@ -354,11 +354,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner 47-check rerun rejects data/signature/arm/path/lock tampering while legitimate concurrent Story metadata changes are excluded from immutable production fact drift.",
-          "headHash": "065997fecb491451dbcca851ed5ac870c4887b75",
-          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
-          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
-          "timestamp": "2026-07-19T02:53:25.919Z"
+          "note": "49-check suite rejects data/signature/arm/path/ledger tampering and proves no new .lattice top-level entries or sentinel production evidence changes.",
+          "headHash": "6393056e59fab2714f54a3679ea8cc01e11b5e46",
+          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
+          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
+          "timestamp": "2026-07-19T03:04:02.434Z"
         }
       ]
     }
@@ -648,6 +648,16 @@
       "timestamp": "2026-07-19T03:03:58.749Z",
       "phase": "DEV",
       "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted f8c1b2c73a after independent 49-check isolated-evidence, ledger analysis and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T03:04:01.553Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
       "action": "update",
       "from": "in_progress",
       "to": "done",
