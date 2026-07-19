@@ -500,6 +500,39 @@
         "scanEscalationReason": null
       },
       "_hash": "a56257970a59235a9645d2a1c2cd0176d6e630d41ac8c1655d21110a11dbd938"
+    },
+    {
+      "id": "B-dd81:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final convergence coverage PASS. Current round has exactly one ReviewRun per active lane and this conclusion uses the sole coverage identity RR-028. Post-merge routine validation is a trusted-story-metadata-descendant reuse with PASS, complete 46-command identity, 46 unique labels, every executable digest present, zero required/optional failures, and 47/47 required verification coverage; checklist independently has 47 unique passing evidence refs with no missing/extra/duplicates. DONE-required evidence is PASS for packages/main build and root npm test, both exit 0, bound to materialHash a3464f2a and unchanged storyFilesHash 70e5f70c matching RR-028. Main merge changed only B-955c metadata and CITATION/LICENSE/README/NAV/new decision docs, not Story 2 business source. Delivery, live smoke, and accepted summary are present; no coverage blocker found.",
+      "createdAt": "2026-07-19T01:19:11.271Z",
+      "reviewRound": "2026-07-19T01:17:25.068Z",
+      "reviewRunId": "B-dd81:RR-028",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/delivery-check.json",
+          ".lattice/story/actives/B-dd81/done-required-evidence.json",
+          ".lattice/story/actives/B-dd81/evidence/live-smoke-transcript.json",
+          ".lattice/story/actives/B-dd81/plan.md",
+          ".lattice/story/actives/B-dd81/summary.json",
+          ".lattice/story/actives/B-dd81/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          "CITATION.cff",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "LICENSE",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1e05ee2a575c97af3c4037cf89622346962cc122dd408555edd40069035d522"
     }
   ]
 }
