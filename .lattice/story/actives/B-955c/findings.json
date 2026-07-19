@@ -24,7 +24,7 @@
       "desc": "packages/main/src/core/evidence/environment-contract.ts:793 — HIGH: M5 is described as actual lifecycle Gate integration, but evaluateEvidenceEnvironmentGateProjection is referenced only by the smoke test and no REVIEW/TEST/DONE state-machine consumer invokes it. The new process-fact entry merely names a consumer; it does not make the receipt gate-consumed. WHY: the public support matrix currently upgrades a pure library projection to an implemented lifecycle-control claim, leaving the Story/Release combination gap unchanged.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T00:52:39.470Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-955c:RR-004",
       "_hash": "becf52666b6cb3585e2651c932b81f0be5ca0576d9836040e58f34021ecbd5f8",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: reference search previously found the projection only in the smoke helper. Root cause: no production lifecycle consumer. Fix: evaluateDoneRequiredEvidence now calls validateDoneRequiredEvidenceEnvironmentProjection, which projects every canonical DONE_REQUIRED receipt and invokes evaluateEvidenceEnvironmentGateProjection. Repro test: done-required-validation-smoke exercises this production evaluator; PASS at b31b29b522.",
+      "resolvedAt": "2026-07-19T01:10:15.305Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-955c:F-003",
