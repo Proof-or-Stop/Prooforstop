@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-8d4b",
   "state": "confirmed",
-  "ledgerHash": "sha256:a6de0d3f3c1df1882548a21657d47b9d42cab9bd144cb269513ad7bc10abc259",
+  "ledgerHash": "sha256:df6bf40f75f19d0012cfca90b622d587150c28473b842637ed659a37158147b7",
   "milestones": [
     {
       "id": "M1",
@@ -16,7 +16,11 @@
       "checklistRefs": [
         "CHK-001"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "pinned-ab-contract-and-corpus",
+        "availability-aware-preregistered-boundaries",
+        "contract-corpus-posthoc-tamper-rejected"
+      ],
       "status": "planned"
     },
     {
@@ -31,7 +35,11 @@
       "checklistRefs": [
         "CHK-002"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "same-input-deterministic-readonly-replay",
+        "replay-order-path-and-repeat-invariance",
+        "replay-no-caller-substitution-or-write-path"
+      ],
       "status": "planned"
     },
     {
@@ -46,7 +54,11 @@
       "checklistRefs": [
         "CHK-003"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "isolated-append-only-experiment-ledger",
+        "usage-availability-retry-and-summary-semantics",
+        "experiment-ledger-non-authoritative-and-private"
+      ],
       "status": "planned"
     },
     {
@@ -61,15 +73,19 @@
       "checklistRefs": [
         "CHK-004"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "valid-reconstruction-evaluable-with-zero-production-drift",
+        "partial-observation-remains-honest",
+        "tamper-unreconstructable-fails-inconclusive"
+      ],
       "status": "planned"
     }
   ],
   "createdAt": "2026-07-19T01:37:16.645Z",
-  "updatedAt": "2026-07-19T01:37:21.799Z",
+  "updatedAt": "2026-07-19T01:41:02.445Z",
   "acceptedIntentBinding": {
     "intentCollisionId": "IC-20260719013721",
-    "acceptedInterpretationHash": "sha256:ff31280c103d8eb7a79b0be989759041207b1cf7028910f3b8093edba81a2ac8",
-    "acceptedAt": "2026-07-19T01:37:21.799Z"
+    "acceptedInterpretationHash": "sha256:ae934d0945ef559bc582eb540c982f7b186c22f9d70abcef07734345abdabd80",
+    "acceptedAt": "2026-07-19T01:41:02.445Z"
   }
 }

@@ -39,6 +39,17 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "终端显示 pinned protocol/corpus schema、experimentId、三类六样本 digest、固定重复次数与 adjudicated finding 数量，协议自检为 PASS。",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/corpus.json"
+        ],
+        "test": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ]
       }
     },
     {

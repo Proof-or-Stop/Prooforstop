@@ -4,11 +4,11 @@
   "id": "IC-20260719013721",
   "decision": "pass",
   "status": "accepted",
-  "acceptedInterpretation": "四个里程碑分别对应 Story 3 的预注册合同与 corpus、只读同输入 replay、隔离 usage/finding ledger、fail-closed 与生产证据零漂移；它们完整覆盖 canonical Story 3，且不吸收 Story 4-7 的 incremental、角色迁移或预算 gate 工作。",
-  "acceptedInterpretationHash": "sha256:ff31280c103d8eb7a79b0be989759041207b1cf7028910f3b8093edba81a2ac8",
-  "notes": "PLAN 研究确认现有 lab 静态评分不能充当 adjudicated corpus；将新增 pinned corpus，并复用 pure core measurement/envelope primitives。",
-  "ledgerHashBeforeDecision": "sha256:a6de0d3f3c1df1882548a21657d47b9d42cab9bd144cb269513ad7bc10abc259",
-  "confirmedLedgerHash": "sha256:a6de0d3f3c1df1882548a21657d47b9d42cab9bd144cb269513ad7bc10abc259",
+  "acceptedInterpretation": "更新后的四个里程碑仍一一覆盖 Story 3 的合同/corpus、只读 replay、隔离 ledger、fail-closed/零漂移，并已映射独立 verification-intent 角色给出的 12 条 intent；范围仍排除 Story 4-7。",
+  "acceptedInterpretationHash": "sha256:ae934d0945ef559bc582eb540c982f7b186c22f9d70abcef07734345abdabd80",
+  "notes": "仅增加 verificationIntentRefs，不改变已接受的 Story 3 语义边界。",
+  "ledgerHashBeforeDecision": "sha256:df6bf40f75f19d0012cfca90b622d587150c28473b842637ed659a37158147b7",
+  "confirmedLedgerHash": "sha256:df6bf40f75f19d0012cfca90b622d587150c28473b842637ed659a37158147b7",
   "createdAt": "2026-07-19T01:37:21.798Z",
-  "updatedAt": "2026-07-19T01:37:21.798Z"
+  "updatedAt": "2026-07-19T01:41:02.444Z"
 }
