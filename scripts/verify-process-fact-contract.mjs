@@ -165,6 +165,7 @@ const requiredRuntimeFactSemantics = {
   'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
   'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
+  'runtime:review_run_atomic_persistence_gate': ['runtime-behavior', 'atomic-persistence', 'review-run', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 };
@@ -5234,6 +5235,21 @@ function assertParentRoadmapTotalityRuntime() {
   assert(roleBodyRolloutLevel?.level === 'L4', 'prompt role-body rollout must remain L4');
   for (const token of ['five active REVIEW lanes', 'content-addressed', 'byte-exact legacy role body', 'Every supported host mode binds both', 'total model input explicit', 'Compatibility and retired']) {
     assert(roleBodyRolloutLevel?.rationale.includes(token), `prompt role-body rollout rationale must preserve ${token}`);
+  }
+  const reviewAtomicLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:review_run_atomic_persistence_gate');
+  assert(reviewAtomicLevel?.level === 'L4', 'review-run atomic persistence must remain L4');
+  for (const token of ['bakery-style unique-ticket', 'never-reused UUID ticket path', 'stale reclaim removes only the exact dead acquisition path', 'fixed-path ABA']) {
+    assert(reviewAtomicLevel?.rationale.includes(token), `review-run atomic persistence rationale must preserve ${token}`);
+  }
+  const mkdirLockText = read('packages/main/src/core/mkdir-lock.ts');
+  const reviewRunHandlerText = read('packages/main/src/handlers/review-run.ts');
+  const incrementalSmokeText = read('packages/main/src/tasks/review-incremental-context-smoke.ts');
+  for (const token of ['acquireMkdirTicketLock', '.choosing', '.ticket', 'randomUUID()', 'rmSync(candidate.path']) {
+    assert(mkdirLockText.includes(token), `mkdir ticket lock must preserve identity-conditional reclaim marker ${token}`);
+  }
+  assert(reviewRunHandlerText.includes('withMkdirTicketLock'), 'review_run_start must use the unique-ticket transaction lock');
+  for (const token of ['LOCK ABA:', 'observed-w2', 'observed-w1', 'allow-w2-remove', 'acquired-w2', 'allow-w1-remove']) {
+    assert(incrementalSmokeText.includes(token), `review incremental smoke must preserve deterministic ABA barrier ${token}`);
   }
   const dispatchAuthorityLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:agent_dispatch_role_authority_gate');
   assert(dispatchAuthorityLevel?.level === 'L4', 'typed agent dispatch authority must remain L4');

@@ -1,5 +1,4 @@
 import { execFileSync } from 'child_process';
-import { randomUUID } from 'node:crypto';
 import { hostname } from 'node:os';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
@@ -16,7 +15,7 @@ import {
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
-import { withMkdirLock } from '../core/mkdir-lock.js';
+import { withMkdirLock, withMkdirTicketLock } from '../core/mkdir-lock.js';
 import { loadConfig } from '../core/config.js';
 import {
   readGitStatusLines,
@@ -41,9 +40,7 @@ import { reviewIncrementalContext } from '../core/review-incremental-context.js'
 function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.storyFilePath(storyId, 'review-metadata-transaction.lock');
   const localHostname = hostname();
-  const lockId = randomUUID();
-  let deadHolderCandidate: string | undefined;
-  return withMkdirLock(lockDir, fn, {
+  return withMkdirTicketLock(lockDir, fn, {
     label: 'review metadata transaction',
     deadlineMs: 120_000,
     staleMs: 10_000,
@@ -52,31 +49,14 @@ function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: stri
       hostname: localHostname,
       command: `review_run_start for ${storyId}`,
       acquiredAt: new Date().toISOString(),
-      lockId,
     },
     classifyExistingLock: ({ holder }) => {
-      if (!holder || holder.hostname !== localHostname) {
-        deadHolderCandidate = undefined;
-        return 'unknown';
-      }
+      if (!holder || holder.hostname !== localHostname) return 'unknown';
       try {
         process.kill(holder.pid, 0);
-        deadHolderCandidate = undefined;
         return 'active';
       } catch (error: any) {
-        if (error?.code !== 'ESRCH') {
-          deadHolderCandidate = undefined;
-          return 'active';
-        }
-        // Two observations of the same dead acquisition are required before
-        // reclaim. This closes an ABA race: a waiter can read holder A, then A
-        // releases and B acquires the same path before the waiter checks A's
-        // PID. Removing immediately would delete B's live lock. On the next
-        // poll B has a different lockId and is classified independently.
-        const candidate = holder.lockId ?? `${holder.pid}:${holder.acquiredAt}`;
-        if (deadHolderCandidate === candidate) return 'stale';
-        deadHolderCandidate = candidate;
-        return 'active';
+        return error?.code === 'ESRCH' ? 'stale' : 'active';
       }
     },
   });
@@ -212,10 +192,9 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         }) ?? undefined;
       }
 
-      // One per-story transaction covers both Prompt Envelope and ReviewRun
-      // read-modify-write cycles. The holder PID liveness check prevents a
-      // legitimate >10s large-context assembly from being reclaimed as stale,
-      // which previously allowed a second writer to overwrite one lane.
+      // One per-story unique-ticket transaction covers both Prompt Envelope and
+      // ReviewRun read-modify-write cycles. Stale reclaim removes only the
+      // dead acquisition's UUID path, never a replacement holder's path.
       return withReviewMetadataTransactionLock(ctx, args.storyId, () => {
         const data = store.readReviewRuns(args.storyId);
         const nextNum = data.runs.reduce((max, run) => {

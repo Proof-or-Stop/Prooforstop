@@ -329,10 +329,31 @@
         "agentPromptDescription",
         "renderPromptEntryForHost"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-013/F-014 require a shared atomic identity-conditional stale-lock reclaim primitive; review-run business logic alone cannot safely serialize cross-process ABA recovery.",
+      "timestamp": "2026-07-19T10:38:24.109Z",
+      "paths": [
+        "packages/main/src/core/mkdir-lock.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/mkdir-lock.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d72afc4c848b5b4e36bb0653c61442d22cdbb49e",
+      "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+      "anchors": [
+        "review_metadata_transaction_lock",
+        "atomic_stale_lock_reclaim",
+        "aba_regression_barrier"
+      ]
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T10:24:22.223Z",
+  "updatedAt": "2026-07-19T10:38:24.109Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -405,6 +426,7 @@
     "packages/main/src/tasks/global-agents-init-smoke.ts": "packages/main/src/tasks/global-agents-init-smoke.ts",
     "docs/requirements/decisions/lifecycle-artifact-scope.md": "docs/requirements/decisions/lifecycle-artifact-scope.md",
     "packages/main/src/registry.ts": "packages/main/src/registry.ts",
-    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts"
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts"
   }
 }

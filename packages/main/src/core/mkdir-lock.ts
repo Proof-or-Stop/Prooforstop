@@ -1,4 +1,13 @@
-import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
+import { randomUUID } from 'node:crypto';
+import {
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'fs';
 import { dirname, join } from 'path';
 
 /**
@@ -172,6 +181,14 @@ export interface AcquiredMkdirLock {
   release(): void;
 }
 
+export interface MkdirTicketLockOptions extends MkdirLockOptions {
+  /**
+   * Test/diagnostic barrier invoked after a stale unique ticket has been
+   * classified but before that exact ticket path is removed.
+   */
+  onBeforeStaleTicketRemove?: (ticketPath: string) => void;
+}
+
 /**
  * Acquire `lockDir` via atomic mkdir.
  *
@@ -263,6 +280,153 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
  */
 export function withMkdirLock<T>(lockDir: string, fn: () => T, options: MkdirLockOptions = {}): T {
   const lock = acquireMkdirLock(lockDir, options);
+  try {
+    return fn();
+  } finally {
+    lock.release();
+  }
+}
+
+interface TicketCandidate {
+  path: string;
+  name: string;
+  holder: MkdirLockHolderInfo | null;
+  ageMs: number;
+}
+
+function ticketCandidates(lockDir: string, suffix: '.choosing' | '.ticket', staleMs: number): TicketCandidate[] {
+  let names: string[];
+  try {
+    names = readdirSync(lockDir).filter(name => name.endsWith(suffix));
+  } catch {
+    return [];
+  }
+  return names.flatMap((name): TicketCandidate[] => {
+    const path = join(lockDir, name);
+    try {
+      const ageMs = Date.now() - statSync(path).mtimeMs;
+      let holder: MkdirLockHolderInfo | null = null;
+      try {
+        const parsed = JSON.parse(readFileSync(path, 'utf8')) as MkdirLockHolderInfo;
+        if (
+          Number.isFinite(parsed.pid)
+          && typeof parsed.hostname === 'string'
+          && typeof parsed.command === 'string'
+          && typeof parsed.acquiredAt === 'string'
+        ) holder = parsed;
+      } catch {
+        // A malformed fresh ticket is treated as unknown/live until staleMs.
+      }
+      return [{ path, name, holder, ageMs }];
+    } catch {
+      return [];
+    }
+  });
+}
+
+function removeStaleUniqueTickets(
+  lockDir: string,
+  suffix: '.choosing' | '.ticket',
+  options: MkdirTicketLockOptions,
+  staleMs: number,
+): TicketCandidate[] {
+  const nowMs = Date.now();
+  const active: TicketCandidate[] = [];
+  for (const candidate of ticketCandidates(lockDir, suffix, staleMs)) {
+    const classification = options.classifyExistingLock
+      ? options.classifyExistingLock({
+        lockDir: candidate.path,
+        holder: candidate.holder,
+        ageMs: candidate.ageMs,
+        staleMs,
+        nowMs,
+      })
+      : 'unknown';
+    const stale = classification === 'stale'
+      || (classification === 'unknown' && candidate.ageMs > staleMs);
+    if (!stale) {
+      active.push(candidate);
+      continue;
+    }
+    options.onBeforeStaleTicketRemove?.(candidate.path);
+    // Identity-conditional reclaim: every acquisition owns a never-reused
+    // UUID path. Removing stale A can therefore never remove replacement B.
+    rmSync(candidate.path, { force: true });
+  }
+  return active;
+}
+
+/**
+ * Bakery-style process lock with unique acquisition paths.
+ *
+ * Unlike a fixed mkdir path, stale reclaim removes the exact UUID ticket that
+ * was classified stale. A replacement holder always has another path, so two
+ * reclaimers cannot delete it through an ABA path swap.
+ */
+export function acquireMkdirTicketLock(
+  lockDir: string,
+  options: MkdirTicketLockOptions = {},
+): AcquiredMkdirLock {
+  const deadlineMs = options.deadlineMs ?? DEFAULT_DEADLINE_MS;
+  const staleMs = options.staleMs ?? DEFAULT_STALE_MS;
+  const pollMs = options.pollMs ?? DEFAULT_POLL_MS;
+  const label = options.label ?? 'mkdir ticket';
+  const deadline = Date.now() + deadlineMs;
+  const id = randomUUID();
+  mkdirSync(lockDir, { recursive: true });
+
+  const choosingPath = join(lockDir, `${id}.choosing`);
+  writeFileSync(
+    choosingPath,
+    JSON.stringify(options.holderInfo ?? {
+      pid: process.pid,
+      hostname: 'unknown',
+      command: label,
+      acquiredAt: new Date().toISOString(),
+      lockId: id,
+    }, null, 2) + '\n',
+    { encoding: 'utf8', flag: 'wx' },
+  );
+
+  let ticketPath = '';
+  try {
+    const existingNumbers = ticketCandidates(lockDir, '.ticket', staleMs)
+      .map(candidate => Number(candidate.name.slice(0, candidate.name.indexOf('-'))))
+      .filter(Number.isFinite);
+    const number = (existingNumbers.length > 0 ? Math.max(...existingNumbers) : 0) + 1;
+    ticketPath = join(lockDir, `${String(number).padStart(16, '0')}-${id}.ticket`);
+    renameSync(choosingPath, ticketPath);
+
+    while (true) {
+      const choosing = removeStaleUniqueTickets(lockDir, '.choosing', options, staleMs);
+      const tickets = removeStaleUniqueTickets(lockDir, '.ticket', options, staleMs)
+        .sort((a, b) => a.name.localeCompare(b.name));
+      if (choosing.length === 0 && tickets[0]?.path === ticketPath) break;
+      if (Date.now() > deadline) {
+        throw new Error(`${label} lock timeout after ${deadlineMs}ms`);
+      }
+      sleepSync(pollMs);
+    }
+  } catch (error) {
+    rmSync(choosingPath, { force: true });
+    if (ticketPath) rmSync(ticketPath, { force: true });
+    throw error;
+  }
+
+  return {
+    lockDir: ticketPath,
+    release() {
+      rmSync(ticketPath, { force: true });
+    },
+  };
+}
+
+export function withMkdirTicketLock<T>(
+  lockDir: string,
+  fn: () => T,
+  options: MkdirTicketLockOptions = {},
+): T {
+  const lock = acquireMkdirTicketLock(lockDir, options);
   try {
     return fn();
   } finally {

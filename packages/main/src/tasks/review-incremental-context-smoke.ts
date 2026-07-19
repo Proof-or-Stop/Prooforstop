@@ -50,8 +50,8 @@
  */
 
 import { strict as assert } from 'node:assert';
-import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawn } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -87,6 +87,7 @@ import type {
 /** Marker line printed by the smoke so `lattice validate` output is greppable. */
 const MARKER = 'review-incremental-context-smoke:';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
+const DIST_MKDIR_LOCK_URL = new URL('../core/mkdir-lock.js', import.meta.url).href;
 
 const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
 
@@ -897,6 +898,99 @@ function runConcurrentCliReadOnlyCase(): void {
   }
 }
 
+function sleepSync(ms: number): void {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function waitForPath(path: string, label: string, timeoutMs = 10_000): void {
+  const deadline = Date.now() + timeoutMs;
+  while (!existsSync(path)) {
+    if (Date.now() > deadline) throw new Error(`timeout waiting for ${label}: ${path}`);
+    sleepSync(10);
+  }
+}
+
+function runDeterministicTicketReclaimAbaCase(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-review-lock-aba-'));
+  const lockDir = join(root, 'review-metadata-transaction.lock');
+  const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
+  mkdirSync(lockDir, { recursive: true });
+  writeFileSync(deadTicket, JSON.stringify({
+    pid: -1,
+    hostname: 'barrier-host',
+    command: 'dead A',
+    acquiredAt: '2026-07-19T00:00:00.000Z',
+    lockId: 'dead-a',
+  }) + '\n');
+
+  const childScript = (id: 'w1' | 'w2') => `
+    import { existsSync, writeFileSync } from 'node:fs';
+    import { join } from 'node:path';
+    import { acquireMkdirTicketLock } from ${JSON.stringify(DIST_MKDIR_LOCK_URL)};
+    const root = ${JSON.stringify(root)};
+    const id = ${JSON.stringify(id)};
+    const sleep = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+    const wait = path => { while (!existsSync(path)) sleep(5); };
+    const lock = acquireMkdirTicketLock(join(root, 'review-metadata-transaction.lock'), {
+      deadlineMs: 10000,
+      staleMs: 100,
+      pollMs: 5,
+      holderInfo: {
+        pid: process.pid,
+        hostname: 'barrier-host',
+        command: id,
+        acquiredAt: new Date().toISOString(),
+        lockId: id,
+      },
+      classifyExistingLock: ({ holder }) => holder?.lockId === 'dead-a' ? 'stale' : 'active',
+      onBeforeStaleTicketRemove: ticketPath => {
+        if (!ticketPath.endsWith('dead-a.ticket')) return;
+        writeFileSync(join(root, 'observed-' + id), ticketPath);
+        if (id === 'w2') wait(join(root, 'allow-w2-remove'));
+        else wait(join(root, 'allow-w1-remove'));
+      },
+    });
+    writeFileSync(join(root, 'acquired-' + id), lock.lockDir);
+    wait(join(root, 'release-' + id));
+    lock.release();
+    writeFileSync(join(root, 'done-' + id), 'done');
+  `;
+
+  const children = [
+    spawn(process.execPath, ['--input-type=module', '-e', childScript('w2')], { stdio: 'ignore' }),
+  ];
+  try {
+    waitForPath(join(root, 'observed-w2'), 'W2 observing dead A');
+    children.push(spawn(process.execPath, ['--input-type=module', '-e', childScript('w1')], { stdio: 'ignore' }));
+    waitForPath(join(root, 'observed-w1'), 'W1 observing dead A');
+    writeFileSync(join(root, 'allow-w2-remove'), 'go');
+    waitForPath(join(root, 'acquired-w2'), 'replacement B/W2 acquiring after reclaim');
+    const replacementTicket = readFileSync(join(root, 'acquired-w2'), 'utf8');
+    assert.equal(existsSync(replacementTicket), true, 'replacement B ticket exists before delayed W1 reclaim resumes');
+
+    writeFileSync(join(root, 'allow-w1-remove'), 'go');
+    sleepSync(100);
+    assert.equal(
+      existsSync(replacementTicket),
+      true,
+      'delayed stale reclaimer removes only dead A identity and cannot delete replacement B',
+    );
+    assert.equal(existsSync(join(root, 'acquired-w1')), false, 'W1 cannot overlap replacement B critical section');
+
+    writeFileSync(join(root, 'release-w2'), 'go');
+    waitForPath(join(root, 'acquired-w1'), 'W1 acquiring after B release');
+    writeFileSync(join(root, 'release-w1'), 'go');
+    waitForPath(join(root, 'done-w1'), 'W1 completion');
+    waitForPath(join(root, 'done-w2'), 'W2 completion');
+    console.log(`${MARKER} LOCK ABA: dead A + two reclaimers + replacement B preserves identity and serialization`);
+  } finally {
+    for (const child of children) {
+      if (child.exitCode === null) child.kill('SIGKILL');
+    }
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function runConcurrentReviewerWriteCase(mask: number, iteration = 1): void {
   const root = mkdtempSync(join(tmpdir(), `lattice-reviewer-rollout-mixed-${mask}-${iteration}-`));
   const storyId = 'B-concurrent-reviewers';
@@ -1057,6 +1151,7 @@ function run(): void {
   runIncrementalCases();
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();
+  runDeterministicTicketReclaimAbaCase();
   runConcurrentReviewerWriteCase(0b11111);
   runConcurrentReviewerWriteCase(0b01010);
   for (let iteration = 1; iteration <= 20; iteration += 1) {
@@ -1067,5 +1162,9 @@ function run(): void {
 
 const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
 if (isDirectRun) {
-  run();
+  if (process.argv.includes('--aba-only')) {
+    runDeterministicTicketReclaimAbaCase();
+  } else {
+    run();
+  }
 }
