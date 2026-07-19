@@ -385,6 +385,34 @@
       },
       "readDiagnostics": [],
       "_hash": "e8ebf4561b2ad5967b72e0e1a3844f44a0367a27ac653534b2ccb737b3da6466"
+    },
+    {
+      "id": "B-dd81:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-attestation confirms the newly persisted canonical validation evidence is PASS, records 46 successful configured executions, and changes only closeout validation metadata while the business storyFilesHash remains 70e5f70c; no concept or authority boundary changed.",
+      "createdAt": "2026-07-19T00:46:18.751Z",
+      "reviewRound": "2026-07-19T00:18:12.482Z",
+      "reviewRunId": "B-dd81:RR-023",
+      "writerSessionId": "sess-bbc70cb6a16008e97230e79f211800a2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-dd81/process-events.jsonl",
+          ".lattice/story/actives/B-dd81/test-evidence.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe30a3ecd1eccfc93a2789d2d41861dfa757fb6ed5fbd6ce48f49874e6d31b25"
     }
   ]
 }
