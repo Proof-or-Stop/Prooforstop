@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-03ac:F-001",
+      "desc": "packages/main/src/core/review-incremental-context.ts:256-275 and packages/main/src/core/review-run.ts:649-675 — HIGH: gate-time eligibility recomputation rebuilds reviewBasis from the live findings store, including findings created after the ReviewRun envelope was assembled. After an incremental reviewer records a finding, that finding changes findingDeltas/unresolvedFindings and reviewBasisDigest, so verifyReviewRunPromptEnvelope rejects the same run during later REVIEW/quorum collection. This makes valid negative reviewer evidence self-invalidating and can remove blockers from the admissible evidence set. Freeze basis inputs at ReviewRun start (or exclude current/later run findings) and add a regression proving an incremental run remains admissible after its own finding is persisted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T05:31:02.533Z",
+      "reviewRound": "2026-07-19T05:29:10.580Z",
+      "reviewRunId": "B-03ac:RR-001",
+      "_hash": "404f7c1f7c7b8ee74cf951f3bb1c17f96c765ef1452e50df38ebbce3f0d4a8e2",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
