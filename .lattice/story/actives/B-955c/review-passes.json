@@ -499,6 +499,52 @@
       },
       "readDiagnostics": [],
       "_hash": "0324887ba48e4ab729bb0fe0b8eaeb72ec9fab392243a4db1522842cf321e352"
+    },
+    {
+      "id": "B-955c:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round code-quality/security review passed after the author-controlled metadata translation. Current storyFilesHash and implementation remain identical to the converged 16988f6a57 candidate; no packages/main/src or scripts diff exists after that commit. The translated plan, understanding, and decision preserve the same M0-M5 scope, open M6 manuscript boundary, no-arbitrary-runner rule, fail-closed unsupported distinct-host quorum, and adapter authority separation. Build, EEA tamper/identity/quorum smoke, DONE_REQUIRED full evaluator including Windows and compound-shell identity, Pack, Quantum, process-fact contract, and diff checks all passed. Prior raw Gate revalidation, resolver removal, freshness, executable/shell digest, and direct-completion protections have not regressed.",
+      "createdAt": "2026-07-19T02:07:49.077Z",
+      "reviewRound": "2026-07-19T02:05:01.939Z",
+      "reviewRunId": "B-955c:RR-021",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/decision.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          ".lattice/story/actives/B-955c/understanding.json",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Fresh REVIEW round required after translating author-controlled story metadata to English; review compared translated metadata semantics and hashes against the already-audited converged implementation, then reran all security-sensitive suites."
+      },
+      "_hash": "cb4607670e45eb84721c12416881de452dbdd62ecac10a2142de1e9dca562dd5"
     }
   ]
 }
