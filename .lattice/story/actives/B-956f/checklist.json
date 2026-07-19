@@ -65,7 +65,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "go.mod at repo root classifies material with no path-prefix match and no code extension; same for Cargo.toml, pyproject.toml, pom.xml (level-1 immutable cross-ecosystem manifest set, first hit wins).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Precedence pairs hold: src/design.pptx stays non-material (docs step beats path prefix); README under scripts/ stays non-material while an extensionless shebang script under bin/ is material; src-old/x.py does NOT match a `src/` path entry (segment-aware matching); a story-metadata file under the resolved storyDir is excluded without hardcoding .lattice.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A config excludePaths entry naming go.mod — or a directory entry like backend/ that covers a real backend/go.mod in the actual tree — is rejected (config-resolve rejection plus filesystem-aware transition preflight); a malformed materialCode block (bad extension entry, non-string path) fails CLOSED with a diagnostic naming the offending key instead of silently degrading to the TS-only whitelist.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
