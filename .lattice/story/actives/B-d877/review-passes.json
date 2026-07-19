@@ -155,6 +155,37 @@
         "scanEscalationReason": null
       },
       "_hash": "07e3159bc843dcdcf199ca866066eb2d49f51d6ec8f22d3f4c048e605827b5e8"
+    },
+    {
+      "id": "B-d877:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "R7 delta-only concept-residue sweep: full code delta since round-6 pass RP-004 (headHash 93125e0..c8d094e) is exactly commit 486d3e36e3, touching only mkdir-lock.ts and transition-integrity-smoke.ts (verified via git diff --stat between the two review-run headHashes; no other src file changed). No concept word was deleted or replaced en masse this round (documentation refinement plus one dead-code-path simplification, not a rename or removal). Verified the new mismatch-restore doc comment: the cross-referenced concept (stale-reclaim-of-a-live-holder precondition / cross-host mtime-fallback) traces exactly to story-transition-lock.ts lines 88-93 classifyTransitionLockHolder (different-host holder maps to unknown, falls back to plain mtime staleMs) and to the original F-017 finding text itself, which cites that same location verbatim, not a fabricated or dangling reference, no contradiction with the CORRECTNESS BOUNDARY or KNOWN LIMITATION blocks in story-transition-lock.ts or transition-orchestrator.ts. Verified the legacy token-less no-op comments dead-code claim against the prior code path and removeEmptyLockDirNonRecursive own doc (rmdirSync fails harmlessly on ENOTEMPTY when holder.json is still present), the old removal call was provably always a no-op, so behavior is identical. Grepped for stale residue of the deleted inline removeEmptyLockDirNonRecursive call and old comment phrasing legacy PRE-universal-token, only the new single occurrence found, no orphaned duplicate elsewhere; readMkdirLockHolder and removeEmptyLockDirNonRecursive remain exported and used elsewhere so no dead exports introduced. Rebuilt with tsc and ran transition-integrity-smoke.js: 79 of 79 checks green including the new CHK-002d4 (matches commit message 72 to 79 delta exactly, and matches the checklist CHK-002 verificationEvidence note). No blocker.",
+      "createdAt": "2026-07-19T12:16:04.058Z",
+      "reviewRound": "2026-07-19T12:09:50.724Z",
+      "reviewRunId": "B-d877:RR-019",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/findings.json",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/plan.md",
+          ".lattice/story/actives/B-d877/review-passes.json",
+          ".lattice/story/actives/B-d877/review-runs.json",
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a4a78e0abdb154843e3ee783e2d6ddd99e6aef9aa9a04ebfa687f17ccce9e416"
     }
   ]
 }
