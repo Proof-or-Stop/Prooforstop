@@ -133,7 +133,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "valid-reconstruction-evaluable-with-zero-production-drift",
+            "desc": "A fully reconstructable pinned sample produces an evaluable A/B result with explicit finding-recall and usage dimensions, while before/after canonical snapshots of production pass, finding, ReviewRun, verification, validation and lifecycle evidence are byte-identical and no production process-fact event is appended.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "partial-observation-remains-honest",
+            "desc": "Valid prompt reconstruction with unavailable provider usage can still report assembled-prompt metrics while provider and cache conclusions remain unavailable; partial retry usage is attributed only to its attempt, and missing adjudication evidence, absent provider seed support, or insufficient repetitions constrains only the affected conclusion instead of becoming zero, pass, or a global success claim.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "tamper-unreconstructable-fails-inconclusive",
+            "desc": "Missing/tampered/version-skewed historical inputs, mismatched material or finding digests, cross-arm input drift, incomplete sample floors and invalid recall denominators return explicit INCONCLUSIVE with stable reason codes and no savings/recall claim; injected experiment artifacts and crashes/restarts cannot mutate or be consumed as production pass, finding, ReviewRun, verification, validation, phase-transition or DONE evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
