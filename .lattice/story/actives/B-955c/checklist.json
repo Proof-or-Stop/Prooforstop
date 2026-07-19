@@ -345,6 +345,44 @@
         "test": [
           "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Register a normalized fresh Environment receipt under an approved policy and evaluate its declared claim -> the shared proof surface and Proof Admissibility consume it, then the existing Task/Story/Release Gate consumer applies its own required checks; WHY: proves actual lifecycle integration without adapter-owned decisions.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Configure an approved domain policy that adds stronger evidence requirements -> the Gate enforces the added requirements while retaining every baseline lifecycle requirement; WHY: proves policies may strengthen but never weaken Proof-or-Stop.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Submit a diagnostic-only adapter receipt and a backward-compatible legacy receipt -> both remain observable, but neither gains gating force beyond explicitly admitted scope; WHY: preserves diagnostics and compatibility without accidental authority.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Replace the host brand while keeping subject, invocation, environment semantics, policy, freshness, provenance class, and normalized evidence equivalent -> the Gate decision is unchanged; changing an allowed trust or independence fact may change admissibility with an explicit reason; WHY: precisely bounds host-substitution invariance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Submit a forged producer, stale/replayed binding, or same-producer evidence as independent quorum inputs -> Proof Admissibility and lifecycle Gate consumers fail closed and record the rejection reason; WHY: prevents fabricated independence from completing a lifecycle objective.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Attempt to use an adapter receipt to bypass a missing Task, Story, or Release requirement, downgrade a mandatory check, or write Done directly -> completion remains blocked and no adapter API has direct completion authority; WHY: protects the monotonic Gate invariant.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
