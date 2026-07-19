@@ -602,6 +602,30 @@
         "scanEscalationReason": null
       },
       "_hash": "c3bd04e7958792bbbb652430e5dd36b4fc1fd1c5a59029c5bb774163c5f12780"
+    },
+    {
+      "id": "B-6ed2:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 9 related-drift coverage review passed: all 27/27 must intents have current post-merge PASS evidence at material 13651e6/story f953c86, all three milestones are completed with zero risks and zero waivers. The quorum smoke assertion inventory is a strict superset of the pre-merge 32 checks: 39 current checks retain atomic six-row commit, exact rollback/CAS, shared process-event lock, production CLI dirty refusal, duplicate/idempotent retry, foreign-byte preservation and no-Authority-overclaim assertions, while adding seven reviewer prompt/provider contract checks. Post-merge build, 39/39 smoke, and process-fact contract are PASS; no coverage blocker found.",
+      "createdAt": "2026-07-19T01:43:58.521Z",
+      "reviewRound": "2026-07-19T01:40:42.959Z",
+      "reviewRunId": "B-6ed2:RR-032",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice-codex/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6ed2/checklist.json",
+          ".lattice/story/actives/B-6ed2/test-evidence.json",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5887bf1bd5c35f8e5f7d18dc1e8cfdad18cc7377164c5fbb395aed49c16e86d"
     }
   ]
 }
