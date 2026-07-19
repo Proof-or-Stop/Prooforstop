@@ -278,6 +278,44 @@
         "test": [
           "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Validate the paper-facing architecture section and claim-to-evidence matrix -> each stated contribution is labeled by support level, linked to a concrete implementation/conformance/Gate artifact, and bound to an implementation commit or release; WHY: makes publication claims auditable.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Follow the manuscript handoff instructions from the versioned decision document -> an external paper editor can distinguish the generic contract, implemented reference paths, Gate integration, and future targets without consulting hidden story state; WHY: ensures the deliverable is usable beyond the repository workflow.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Review claims for Lean, Rosetta, AlphaFold, PINN solvers, browsers, databases, CI, Kubernetes, and production deployment -> unimplemented integrations are consistently marked as targets/examples rather than current adapters; WHY: prevents scope inflation at the implementation boundary.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Evaluate the document before and after conformance/Gate evidence is available -> support wording advances only to the level justified by bound evidence and otherwise remains at the lower level; WHY: enforces evidence-dependent claim calibration.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Scan public-facing prose for assertions that Proof-or-Stop currently supports arbitrary environments or completed scientific/deployment adapters -> prohibited overclaims are absent or explicitly qualified; WHY: resists paper-language laundering.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Remove or stale the referenced implementation commit, release binding, conformance result, or M5 Gate evidence -> the support matrix can no longer report the associated higher claim level; WHY: prevents detached documentation from serving as proof.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
