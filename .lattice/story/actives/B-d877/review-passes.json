@@ -245,6 +245,44 @@
         "scanEscalationReason": null
       },
       "_hash": "ec4e438bd52f55108ec058910cc7dc9951d11a33a2ac6777e9a18f42aaa668d1"
+    },
+    {
+      "id": "B-d877:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "R8 merged-state re-verification: ZERO S1 code changed since R7 (RP-006, headHash c8d094e5). Confirmed via git diff c8d094e5..HEAD that all five S1 core files (core/mkdir-lock.ts, core/story-transition-lock.ts, handlers/transition-orchestrator.ts, handlers/worktree.ts, handlers/hints.ts, tasks/transition-integrity-smoke.ts) are byte-identical to what passed R7 (empty diffs). The only event is the main merge (ff08b90570, parents ea1383626c=S1 tip / 7727a7ad67=main tip) bringing in already-DONE stories B-8d4b and B-03ac, which touched two S1-shared files. Verified both files kept BOTH sides intact: (1) handlers/review-run.ts still has S1 R3 FIX B withReviewRunLock relocation (gitignored .lattice/locks/review-run/ path, comment intact) alongside B-8d4b/B-03ac conditional-envelope additions (assembleConditionalReviewPromptEnvelope, reviewIncrementalContext) that replaced only the review_run_start call-site, not the underlying assembleFullPromptEnvelope primitive (still exported/used by prompt-envelope.ts:367, agent-prompt.ts, review-run-smoke.ts, prompt-full-context-envelope-smoke.ts, not a concept deletion). (2) tasks/quorum-submit-smoke.ts still has S1's process-event lock pre-creation, storyRuntimeLockPath call with the B-d877 R3 FIX B doc comment, verified single occurrence, import intact, alongside B-8d4b/B-03ac incremental-review-eligibility smoke additions. No merge-conflict markers found repo-wide, grep for conflict marker tokens in packages/ and .lattice/ returned zero hits. tsc --noEmit on packages/main is clean post-merge. Concept-residue sweep on the merge delta: no concept word was deleted or replaced en masse by this merge from B-d877's perspective; the assembleFullPromptEnvelope rename-at-callsite is B-8d4b/B-03ac's own already-DONE internal change, not an S1 concept, and the base function itself is not deleted. Repo-wide grep for the historical merge-back-to-main-branch misconception phrase and raw-actor (createStoryActor/PHASE_TO_EVENT/getStateName) residue outside the orchestrator found only pre-existing, unrelated, untouched-by-this-delta occurrences (docs/requirements/decisions/done-prepare-automation-execution-plan.md, story-query.ts:720, and legitimate in-orchestrator/in-machine.ts usages), confirmed via git diff c8d094e5..HEAD that neither file changed in this delta. No blocker.",
+      "createdAt": "2026-07-19T13:23:47.553Z",
+      "reviewRound": "2026-07-19T13:18:06.329Z",
+      "reviewRunId": "B-d877:RR-022",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/review-passes.json",
+          ".lattice/story/actives/B-d877/review-runs.json",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-d877/findings.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ca0a1728ca67fd815e77b0c37de34fd9d4968bf2354fec909f1d5adb59ad8cc0"
     }
   ]
 }
