@@ -211,6 +211,38 @@
         "scanEscalationReason": null
       },
       "_hash": "88476275e1a358f38c70b39270a3bfa021e39170813d80e162c88fad83951692"
+    },
+    {
+      "id": "B-231d:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Independently re-audited all v2 command-spec digest / receipt-cwd reconstruction sites in done-required-validation.ts after 6e69d64dde (F-008/F-009/F-010 fix). Confirmed 9 sites all use portable logical cwd (only buildLegacyAbsoluteCwdCommandSpecEnvelope + resolvedCwd provenance use absolute, as allowed). Grepped whole repo for other commandSpec build/compare sites, none touch this envelope. resolvedCwd structurally excluded from digest payload. resolveSharedLockRoot vs getRepoRoot near-duplicate git-common-dir resolution has a materially different bare-repo fallback (resolveSharedLockRoot guarantees a shared root; getRepoRoot does not) so is justified, not lazy duplication - not filed. No as-any, no empty catches, no dead imports. No bridge.ts (I/O isolation n/a). No job/run/provider metadata touched (proof-metadata dual-surface n/a). No README/CLAUDE.md changes. tsc build clean. worktree-portability-smoke.js 29/29 pass. done-required-validation-smoke.js pass. validate-execution-lock-smoke.js (related untouched file) 12/12 pass. git status clean. No new defects found.",
+      "createdAt": "2026-07-19T02:15:05.430Z",
+      "reviewRound": "2026-07-19T02:06:18.939Z",
+      "reviewRunId": "B-231d:RR-015",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/core/worktree-runtime.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/evidence/types.ts",
+          "packages/main/src/core/lifecycle-control/consumption/index.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/repro-intake.ts",
+          "packages/main/src/handlers/repro-intake.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c35bdec77d34bf18a2661dcba38b1e1fd3aec64ea1423055637bdd2c55862463"
     }
   ]
 }
