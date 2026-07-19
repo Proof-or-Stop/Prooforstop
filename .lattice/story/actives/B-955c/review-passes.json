@@ -545,6 +545,64 @@
         "scanEscalationReason": "Fresh REVIEW round required after translating author-controlled story metadata to English; review compared translated metadata semantics and hashes against the already-audited converged implementation, then reran all security-sensitive suites."
       },
       "_hash": "cb4607670e45eb84721c12416881de452dbdd62ecac10a2142de1e9dca562dd5"
+    },
+    {
+      "id": "B-955c:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Fresh-round documentation review after the English story-metadata translation found no blocker. Background, plan, understanding, decision, and checklist consistently state M0-M5 implementation only, keep M6 open pending an external manuscript revision/digest, classify Lean/Rosetta/AlphaFold/PINN/browser/database/CI/Kubernetes/deployment as integration targets, and keep distinct-host producer quorum unsupported/fail-closed until a pinned cryptographic registry exists. Public README and architecture wording remain aligned. git diff --check, EEA smoke, and DONE-required smoke passed on the current material.",
+      "createdAt": "2026-07-19T02:08:58.775Z",
+      "reviewRound": "2026-07-19T02:05:01.939Z",
+      "reviewRunId": "B-955c:RR-022",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/decision.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          ".lattice/story/actives/B-955c/understanding.json",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "679032960f48987e84e197c8681078ebccf70deccaa94f3842568822086c9d70"
+      },
+      "readDiagnostics": [],
+      "_hash": "a1d2d044f0dcf05ec2e5ae69a7dd539e93cd05f8f4b9017e2570ac9a2376b18d"
     }
   ]
 }
