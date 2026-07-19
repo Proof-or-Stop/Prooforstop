@@ -1,22 +1,22 @@
 {
-  "task": "为角色 Prompt 模块化建立隔离、可复算、失败闭合的历史 A/B replay 与 usage 测量工具。",
-  "outcome": "用户运行角色 Prompt A/B replay 后，终端会显示每个固定样本两条 arm 的 bytes、estimated tokens、known dispatch/provider cache 可用性、finding 对比和最终 PASS 或 INCONCLUSIVE；若历史输入无法重建，会明确显示 INCONCLUSIVE，且生产 Story 的 review run、finding、pass 与 lifecycle evidence 数量保持不变。",
+  "task": "Establish an isolated, reproducible, fail-closed historical A/B replay and usage measurement tool for modular role prompts.",
+  "outcome": "After the user runs the role-prompt A/B replay, the terminal shows bytes, estimated tokens, known-dispatch and provider-cache availability, finding comparisons, and a final PASS or INCONCLUSIVE result for both arms of each pinned sample. Unreconstructable historical input is reported as INCONCLUSIVE, while production Story review-run, finding, pass, and lifecycle-evidence counts remain unchanged.",
   "facts": [
-    "Story 1 已固定 Prompt Contract、角色模块边界与测量基线。",
-    "Story 2 的 core/prompt-envelope 已提供纯装配与完整性语义；生产 agent_prompt handler 负责持久化，因此实验不能调用生产写 handler。",
-    "prompt-contracts 与 prompt-measurement 已定义 canonical JSON、digest、bytes、estimated tokens、repetition 与 availability 语义，作为只读参考。",
-    "usage-ledger 已定义 provider-reported 与 unavailable 的规范化语义，作为只读参考；实验 ledger 单独实现且 gateEvidence=false。",
-    "现有历史 lab reviewer 资产缺少三类 seeded/adjudicated critical/high finding ground truth，不能充当有效 corpus。",
-    "provider usage 在离线历史样本中可能不可获得；必须记录 unavailable，真实 dispatch 不是本 Story 的伪造前置。",
-    "独立 scope reviewer 已确认四个 checklist 完整覆盖 Story 3，Story 4-7 与生产 evidence 写入明确排除，0 gap/0 drift。"
+    "Story 1 fixed the Prompt Contract, role-module boundaries, and measurement baseline.",
+    "Story 2 core/prompt-envelope provides pure assembly and completeness semantics; the production agent_prompt handler persists metadata, so the experiment must not call that write handler.",
+    "prompt-contracts and prompt-measurement define canonical JSON, digests, bytes, estimated tokens, repetitions, and availability semantics for read-only reuse.",
+    "usage-ledger defines normalized provider-reported and unavailable semantics for read-only reuse; the experiment ledger is separate and has gateEvidence=false.",
+    "Existing historical lab reviewer assets lack seeded and adjudicated critical/high finding ground truth across the three required classes, so they cannot serve as a valid corpus.",
+    "Provider usage may be unavailable for offline historical samples; it must remain unavailable rather than fabricated, and real dispatch is not a prerequisite that this Story may invent.",
+    "An independent scope review confirmed that four checklist items completely cover Story 3, exclude Stories 4 through 7 and production evidence writes, and introduce zero scope gaps or drift."
   ],
   "constraints": [
-    "实验写入必须与生产 Story evidence 完全隔离，不能写 review pass、finding、review run 或 lifecycle evidence。",
-    "历史 material 和两条 arm 必须固定并以 digest 绑定，同一 pinned 输入可复算测量与 finding 对比。",
-    "不能把 assembled bytes/token estimate 冒充 provider usage；不可见维度必须标 unavailable。",
-    "无法重建历史 material、缺 arm、缺 adjudication 或样本不足时必须 fail closed 为 INCONCLUSIVE。",
-    "Story 3 不启用 incremental policy、不迁移 active/complex roles、不提升预算 gate。",
-    "参考决策文档和 core 源码不在本 Story 修改范围；只读取和复用其已发布语义。"
+    "Experiment writes must remain completely isolated from production Story evidence and must not write review passes, findings, review runs, or lifecycle evidence.",
+    "Historical material and both arms must be pinned by digest so the same input can reproduce measurements and finding comparisons.",
+    "Assembled bytes or token estimates must never be presented as provider usage; unobservable dimensions must remain unavailable.",
+    "Unreconstructable historical material, a missing arm, missing adjudication, or insufficient samples must fail closed as INCONCLUSIVE.",
+    "Story 3 does not enable incremental policy, migrate active or complex roles, or strengthen the budget gate.",
+    "Referenced decision documents and core source files are read-only inputs to this Story; the implementation reuses their published semantics."
   ],
   "unknowns": [],
   "touchpoints": [
@@ -30,5 +30,5 @@
     "experiments/role-prompt-ab-replay/selfcheck.mjs",
     "experiments/role-prompt-ab-replay/README.md"
   ],
-  "timestamp": "2026-07-19T01:46:25.861Z"
+  "timestamp": "2026-07-19T03:47:46.152Z"
 }

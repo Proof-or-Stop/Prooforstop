@@ -1,86 +1,86 @@
 {
   "principles": [
-    "证据不足必须停止结论，不能用静态 prompt 变短替代 finding 召回证明。",
-    "实验事实与生产 lifecycle 事实必须物理和语义隔离。",
-    "复用已有 canonical measurement、envelope 与 usage availability 语义，避免平行协议漂移。",
-    "同一 pinned 输入的两条 arm 除 prompt 形态外保持相同，并可由 digest 重放。"
+    "Stop conclusions when evidence is insufficient; a shorter static prompt is not proof of finding recall.",
+    "Experiment facts and production lifecycle facts must remain physically and semantically isolated.",
+    "Reuse canonical measurement, envelope, and usage-availability semantics to avoid a parallel protocol.",
+    "Keep both arms identical for the same pinned input except for prompt shape, and make both replayable by digest."
   ],
   "drivers": [
-    "Story 3 的验收要求只读历史 material、可复算测量、独立 ledger 和 INCONCLUSIVE。",
-    "现有生产 agent_prompt handler 会写 envelope metadata，不适合历史 replay。",
-    "现有纯 core assembler 和 measurement primitives 已足够支持离线装配。",
-    "现有历史实验缺三类 adjudicated finding corpus，必须新增固定样本。"
+    "Story 3 requires read-only historical material, reproducible measurement, an independent ledger, and explicit INCONCLUSIVE results.",
+    "The production agent_prompt handler writes envelope metadata and is unsuitable for historical replay.",
+    "Existing pure core assemblers and measurement primitives are sufficient for offline assembly.",
+    "Existing historical experiments lack an adjudicated three-class finding corpus, so pinned samples must be added."
   ],
   "options": [
     {
-      "name": "A: experiment-only harness 复用纯 core primitives",
+      "name": "A: experiment-only harness reusing pure core primitives",
       "pros": [
-        "不会暴露新的生产写入口",
-        "最小改动即可证明隔离和确定性",
-        "能够显式记录 provider unavailable"
+        "Exposes no new production write entrypoint",
+        "Proves isolation and determinism with minimal changes",
+        "Records unavailable provider dimensions explicitly"
       ],
       "cons": [
-        "需要固定新的 corpus/adjudication",
-        "真实 provider usage 留待有 dispatch 证据时补充"
+        "Requires a pinned new corpus and adjudication set",
+        "Real provider usage remains unavailable until dispatch evidence exists"
       ]
     },
     {
-      "name": "B: 新增生产 lattice replay CLI 与 handler",
+      "name": "B: new production lattice replay CLI and handler",
       "pros": [
-        "用户入口统一",
-        "未来可扩展 live dispatch"
+        "Provides a unified user entrypoint",
+        "Could later expand to live dispatch"
       ],
       "cons": [
-        "扩大生产 command/policy/process-fact surface",
-        "容易让实验 ledger 被误读为 gate evidence",
-        "本 Story 没有必要承担此复杂度"
+        "Expands the production command, policy, and process-fact surface",
+        "Risks experiment records being mistaken for gate evidence",
+        "Adds complexity that this Story does not need"
       ]
     },
     {
-      "name": "C: 直接调用 Story-aware agent_prompt 重放历史 Story",
+      "name": "C: replay historical Stories through the Story-aware agent_prompt handler",
       "pros": [
-        "完全沿用生产入口"
+        "Reuses the complete production entrypoint"
       ],
       "cons": [
-        "会写生产 prompt-envelope metadata",
-        "依赖 owner/phase/current HEAD，破坏 pinned 历史同输入",
-        "违反实验与生产 evidence 隔离"
+        "Writes production prompt-envelope metadata",
+        "Depends on owner, phase, and current HEAD, breaking pinned same-input replay",
+        "Violates read-only experiment and production-evidence isolation"
       ]
     }
   ],
-  "chosen": "A: experiment-only harness 复用纯 core primitives",
-  "rationale": "A 直接满足当前 Story 的用户价值：可执行、可复算、可审计且失败闭合；它复用已验证的纯装配与测量算法，同时把所有输出限制在 experiments/role-prompt-ab-replay。B 会增加无必要的生产流程事实和维护面，C 则明确违反只读与隔离约束。",
+  "chosen": "A: experiment-only harness reusing pure core primitives",
+  "rationale": "Option A directly delivers executable, reproducible, auditable, fail-closed user value. It reuses validated pure assembly and measurement algorithms while limiting every output to experiments/role-prompt-ab-replay. Option B adds unnecessary production process facts and maintenance surface, while option C violates the read-only isolation constraint.",
   "preMortem": [
     {
-      "scenario": "corpus 看似历史但缺少完整 arm 或 adjudicated findings",
-      "trigger": "样本 manifest 缺 pinned digest、三类标签、seeded critical/high truth 或任一 arm",
-      "consequence": "harness 产生虚假的召回率结论",
-      "mitigation": "启动前机械校验 corpus 完整性，任一缺失即整体 INCONCLUSIVE 且不写成功结论"
+      "scenario": "The corpus appears historical but lacks a complete arm or adjudicated finding set.",
+      "trigger": "A sample manifest omits a pinned digest, one of the three class labels, seeded critical/high truth, or either arm.",
+      "consequence": "The harness reports a false finding-recall result.",
+      "mitigation": "Mechanically validate corpus completeness before execution; any missing field makes the whole affected conclusion INCONCLUSIVE and prevents a success claim."
     },
     {
-      "scenario": "实验运行污染生产 Story evidence",
-      "trigger": "harness 调用 agent_prompt/story finding/review/pass 等写 handler，或写入 docs/story/.lattice story metadata",
-      "consequence": "实验结果影响生命周期门禁",
-      "mitigation": "只 import pure core，限制 output root 到实验目录；自检运行前后 hash/计数生产 evidence 并要求完全不变"
+      "scenario": "An experiment run contaminates production Story evidence.",
+      "trigger": "The harness calls agent_prompt or Story finding, review, or pass write handlers, or writes Story metadata.",
+      "consequence": "Experiment output affects lifecycle gates.",
+      "mitigation": "Import only pure core functions, constrain outputs to the experiment directory, and require production evidence hashes and counts to remain byte-identical before and after selfcheck."
     },
     {
-      "scenario": "把 estimated tokens 当作 provider processed usage",
-      "trigger": "报告聚合不同 availability 层或用 0 代替 unavailable",
-      "consequence": "预算结论失真并错误推动后续迁移",
-      "mitigation": "分列 assembled、known dispatch、provider/cache，缺失值保持 unavailable + reason；分析不得跨层替代"
+      "scenario": "Estimated tokens are presented as provider-processed usage.",
+      "trigger": "The report combines availability layers or replaces unavailable values with zero.",
+      "consequence": "Budget conclusions become false and drive an invalid migration decision.",
+      "mitigation": "Report assembled, known-dispatch, provider, and cache layers separately; retain unavailable plus a reason and never substitute across layers."
     },
     {
-      "scenario": "A/B 两条 arm 实际输入除 prompt 外不一致",
-      "trigger": "task context、runtime、model/contract 或 execution environment digest 不同",
-      "consequence": "finding 差异无法归因于 prompt 模块化",
-      "mitigation": "manifest 固定共享输入与唯一允许变化字段，runner 在执行前做 same-input parity 校验"
+      "scenario": "The A and B arms receive different inputs beyond prompt shape.",
+      "trigger": "Task context, runtime, model, contract, or execution-environment digests differ.",
+      "consequence": "Finding differences cannot be attributed to prompt modularization.",
+      "mitigation": "Pin shared input and the sole allowed difference in the manifest, then enforce same-input parity before execution."
     },
     {
-      "scenario": "重复运行因时间戳或输出顺序产生不同 digest",
-      "trigger": "createdAt、JSON key order、finding order 或 ledger identity 未规范化",
-      "consequence": "用户无法复算，结果不可审计",
-      "mitigation": "使用 pinned timestamp、canonical JSON、稳定排序和 identity-keyed records；selfcheck 连跑两次比较核心 digest"
+      "scenario": "Repeated runs produce different digests because of timestamps or ordering.",
+      "trigger": "createdAt, JSON key order, finding order, or ledger identity is not canonicalized.",
+      "consequence": "Users cannot reproduce or audit the result.",
+      "mitigation": "Use a pinned timestamp, canonical JSON, stable sorting, identity-keyed records, and a selfcheck that compares core digests across two runs."
     }
   ],
-  "timestamp": "2026-07-19T01:36:51.550Z"
+  "timestamp": "2026-07-19T03:47:47.045Z"
 }
