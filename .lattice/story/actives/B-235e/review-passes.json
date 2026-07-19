@@ -621,6 +621,34 @@
         "scanEscalationReason": "Bounded metadata-only re-attestation verified unchanged storyFilesHash/scope, all 48 semantic evidence records, current trusted validation PASS, and the SAFE_INCREMENTAL signed envelope. DONE-required validation changed only lifecycle evidence; no story-owned code changed, so repeating code tests would add no new coverage."
       },
       "_hash": "f8fb191e49040204270341527c151bfe269907d4ca549b6160feb1f8d64fe4d8"
+    },
+    {
+      "id": "B-235e:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Round 16 refreshes the authoritative Prompt Envelope eligibility digest after DONE-time metadata invalidated prior RP-021..024 digests. Since RP-021 only closeout/index/process/metrics/review-pass/test-evidence metadata changed; no source, Prompt, config, docs, contract, scope, environment, or material input changed. RR-056 recomputed incremental/SAFE_INCREMENTAL with ELIGIBLE_NO_MATERIAL_CHANGE and ELIGIBLE_TRUSTED_PRIOR_BINDINGS. No concept or authority blocker found.",
+      "createdAt": "2026-07-19T22:53:29.814Z",
+      "reviewRound": "2026-07-19T22:52:21.293Z",
+      "reviewRunId": "B-235e:RR-056",
+      "envelopeId": "e6d42e1b9de09142e9b8cfef8cb7f7d93a0de76f62b26e36fcb7014f06c1c3f2",
+      "writerSessionId": "sess-725b97bee152890e065410dcd644eaff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8464fc4c6aa0c3ef217efb40c7ad55bdf025888055c5616bd9d5614e524d9dea"
     }
   ]
 }
