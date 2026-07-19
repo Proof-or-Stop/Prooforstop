@@ -196,7 +196,7 @@
           }
         ]
       },
-      "userSees": "对有效样本显示可评估结论；对缺失或篡改材料显示 INCONCLUSIVE(reasonCode)；终端同时显示 production evidence before/after digest identical。",
+      "userSees": "有效样本显示 \"Recall: EVALUABLE\"；缺失或篡改样本显示 \"Recall: INCONCLUSIVE reason=<stable-code>\"；最后显示 \"Production evidence drift: NONE\"。",
       "files": {
         "modify": [
           "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
