@@ -911,6 +911,56 @@
       },
       "readDiagnostics": [],
       "_hash": "9a4e5931f78142fd33e5c3b71b2a827893386b9c691555404775418646b6cde6"
+    },
+    {
+      "id": "B-955c:RP-019",
+      "agent": "lattice-review-quality",
+      "note": "Merged-main quality/security review passed. The only semantic conflict in scripts/verify-process-fact-contract.mjs was resolved additively: the Evidence Environment Gate projection requirement from the Story and the prompt-envelope plus role-eligibility Gate requirements from main are all retained, with matching entries in process-fact levels and registry. The merged Process Fact Contract verifies all three; neither side was weakened or overwritten. Merged-state TypeScript build, EEA security/tamper suite, DONE-required validation and freshness suites, prompt full-context envelope and review-run envelope suites, diff check, and runtime-fact union check passed. The parent-reported full 46-command validation and root npm test are consistent with these focused checks; no blocker found.",
+      "createdAt": "2026-07-19T03:12:34.341Z",
+      "reviewRound": "2026-07-19T03:10:30.771Z",
+      "reviewRunId": "B-955c:RR-029",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": "Fresh merged-main REVIEW required because main introduced prompt-envelope and reviewer-role process facts adjacent to the Story Evidence Environment fact; review compared both merge parents and the resolved merge, then ran focused regressions for both sides."
+      },
+      "_hash": "685ff429dcdce329863d423bddcafcb74a74b5e806043adabcbd7d3a3ff1820a"
     }
   ]
 }
