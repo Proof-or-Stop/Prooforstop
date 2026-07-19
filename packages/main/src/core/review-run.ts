@@ -729,7 +729,15 @@ export function verifyReviewRunPromptEnvelope(
         run.workspaceBinding?.signedWorkspaceRoot || run.workspaceBinding?.metadataRoot || process.cwd(),
         run.storyId,
         run.lane,
-        { excludedReviewRunId: run.reviewRunId, findingsCutoffAt: run.startedAt },
+        {
+          excludedReviewRunId: run.reviewRunId,
+          findingsCutoffAt: run.startedAt,
+          // Recompute the baseline as-of this signed run. Later metadata-only
+          // reviewer passes must not rewrite the priorPassRef of an older run;
+          // doing so made every valid pass stale at DONE after review_pass_set
+          // appended its own metadata commit.
+          passesCutoffAt: run.startedAt,
+        },
       );
     } catch (error) {
       return {
