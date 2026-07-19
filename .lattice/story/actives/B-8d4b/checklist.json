@@ -278,7 +278,7 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-19T02:07:46.020Z",
       "endTime": "2026-07-19T02:53:25.226Z",
       "verificationIntent": {
@@ -622,6 +622,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "F-020/F-021 require cross-field prompt metric binding and correct empty-ledger availability semantics.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:57:28.204Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-018/F-019 require non-vacuous isolated production evidence/process-event no-write proof.",
       "agent": "main"
     }
   ]
