@@ -86,6 +86,21 @@
       "_hash": "b58777437974add1dd008145736a44d9ad93f273ca0457222f686fab219eda56",
       "signatureTag": "missing|unknown|experiments-role-prompt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d4b:F-006",
+      "desc": "experiments/role-prompt-ab-replay/lib/replay.mjs:301-305 and experiments/role-prompt-ab-replay/selfcheck.mjs:255 — MEDIUM: armPrompt hard-codes contract bytes from arm.id instead of arm.promptContract, and selfcheck has no contract-drift assertion. Independent probe changed A.promptContract legacy-full-context.v1→v999: experimentId changed but promptDigestChanged=false and bytesChanged=false. Thus verificationIntent replay-order-path-and-repeat-invariance and its recorded note claim contract drift coverage that does not exist. Assemble bytes from the pinned contract field (or reject unsupported contracts) and add a focused regression.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-19T02:12:02.061Z",
+      "reviewRound": "2026-07-19T02:09:19.210Z",
+      "reviewRunId": "B-8d4b:RR-002",
+      "_hash": "9ed964ab532b5c2e3ab6850e3a75a592a3493fa9373fa66660a5e168cd4a7415",
+      "signatureTag": "edge|unknown|experiments-role-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
