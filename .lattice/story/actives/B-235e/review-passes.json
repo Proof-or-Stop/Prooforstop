@@ -335,6 +335,38 @@
         "scanEscalationReason": null
       },
       "_hash": "449c31bb4d568eca051a3cd5d1d0d8651d9018fb366ad9734906002fd401fbca"
+    },
+    {
+      "id": "B-235e:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Main-merged incremental Prompt Envelope eligibility is authoritative and fail-closed: review_run_start computes it from trusted prior pass, contracts, environment, task semantics, freshness, and versioned impact policy; REVIEW/quorum recompute and reject forged or wrong-mode incremental evidence. The post-merge runtimeLockDirPath smoke regression was fixed in adc2414c4d and the rebuilt full-context smoke passes. Current RR-044 correctly selected full/SAFETY_REQUIRES_FULL; no remaining concept or authority blocker found.",
+      "createdAt": "2026-07-19T21:37:48.967Z",
+      "reviewRound": "2026-07-19T21:34:56.422Z",
+      "reviewRunId": "B-235e:RR-044",
+      "envelopeId": "26dc552b992236d55c057ab84d3275186b6c2fbe0f52ec847917c6e717c24aa6",
+      "writerSessionId": "sess-725b97bee152890e065410dcd644eaff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cec52c882e1faeceec845d3c210fdcd316959b6b1ecde9f0cb9bc6f6f9c69571"
     }
   ]
 }
