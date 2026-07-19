@@ -1,0 +1,424 @@
+{
+  "storyId": "B-956f",
+  "checkedAt": "2026-07-19T15:32:30.079Z",
+  "features": [
+    {
+      "feature": "Config-resolved material-code policy service threaded via hash-bound snapshot to floor + repro + ProofStory triggers",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "8-step precedence chain with non-excludable cross-ecosystem manifests",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Degradation diagnostics produced from buildScopeDiffPack for unsupported languages",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "resolveMaterialCodePolicy(projectRoot) config-resolved policy service",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Immutable classification snapshot format {policyDigest, files:[{path, materialCode, reason}]}",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "ProofStoryDiagnosticInput gains a materialClassification field (proofstory.ts:112)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Repro classification (collectMaterialCodeFiles) gains a snapshot parameter, fixing the dropped-projectRoot call (repro-evidence-binding-gate.ts:83)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Review-assurance floor keeps its existing projectRoot classification path unchanged",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Pure evaluators stay pure; no config reads inside evaluators",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Snapshot currency: snapshot embeds HEAD+materialHash it was computed at; every consuming gate re-checks those hashes at decision time and re-resolves on drift",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "All three consumers (floor, repro, ProofStory) receive the SAME hash-bound snapshot object; none re-derives its own classification",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "8-step precedence chain (first-hit-wins) replaces the flat TS/JS whitelist",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 1: level-1 immutable set (JS set: package.json/lockfiles/tsconfig*/lattice.config.json) plus cross-ecosystem manifest set (go.mod, go.sum, Cargo.toml, Cargo.lock, pyproject.toml, setup.py, setup.cfg, requirements*.txt, Pipfile*, poetry.lock, pom.xml, build.gradle*, settings.gradle*, gradle.properties, Gemfile*, composer.json*) -> material, cannot be excluded/removed by any config key",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 1 two-layer enforcement (a): config-resolve rejects exclusions naming a manifest",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 1 two-layer enforcement (b): filesystem-aware transition preflight walks the actual tree and rejects any exclusion path (incl. directory-level, e.g. backend/) covering a real manifest file",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 1 pattern entries (e.g. requirements*.txt) use the same glob semantics as the resolver contract",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 2: story-metadata exclusion via resolved storyDir (not hardcoded .lattice), reusing isMaterialExcludedPath config awareness",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 3: excludePaths (project config, e.g. experiments/) -> non-material",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 4: Markdown/docs -> non-material",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 5: removeExtensions subtracts from defaults before inclusion",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 6: path prefixes (config paths, generic defaults) -> material only for files with a resolved code extension",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 6: extensionless files under scripts/bin material only if shebang or exec bit; plain-text names (README, LICENSE, INSTALL, COPYING, NOTICE) stay excluded",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 6: for deleted/renamed extensionless files, shebang/exec-bit is read from the git blob of the OLD tree, never the worktree",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 7: resolved extension set (defaults union add minus remove) -> material",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Step 8: default -> non-material",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "materialCode config block gets a strict schema at load time",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Extension entries normalized (leading dot, lowercase)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Path entries are segment-aware (src/ matches src/x.py, never src-old/x.py)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Malformed materialCode entries fail CLOSED with a named-key diagnostic (fixes loadConfig silently swallowing parse errors, config.ts:580-590)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Deterministic dedupe of resolved materialCode entries",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Resolver ships with its own smoke matrix covering malformed-entry shapes",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "semantic_analysis_unavailable diagnostic production moves to parseUnifiedDiff/buildScopeDiffPack (scope-diff-pack.ts:265-315)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Normalized semantic_analysis_unavailable:<ext> entries in the diff-pack result, deduped per extension; TS/JS files produce none",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "No-scope-contract path (scope-contract.ts:459-466 early return) also surfaces semantic_analysis_unavailable diagnostics via the validation orchestration path",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Only mutating validation callers write the deduped, union-typed semantic_analysis_unavailable process event; read-only gate checks emit none",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "concept-analysis (validate-concept.ts:383) returns its OWN separate diagnostic for non-TS/py files it skips, distinct from the buildScopeDiffPack-produced diagnostic",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "No new language parsers; semantic anchors stay TS/JS-only (non-goal)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision.json principles: \"Preserve whitelist direction: unknown and doc formats stay non-material forever\" + constraint \"no new language parsers (semantic anchors stay TS/JS-only)\"; also repro-first-gate-enforce-execution-plan.md out-of-scope register: \"new language parsers\"",
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    },
+    {
+      "feature": "Repo regression at execution time: this repo's classification delta must be exactly the experiments/ exclusion set (2506 files); all manifest/lock/config files provably still material",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:language-neutral-gates-execution-plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+      "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
+      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "docs/requirements/decisions/verification-context-pack.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 38,
+    "covered": 36,
+    "excluded": 1,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "bb750b006b275999dbefef9964bc8d74116ddef4f676d2dc8a07c74be0de3830",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Is real orchestrator-level wiring (resolving the classification snapshot once at the actual runStoryTransition/machine.ts entry point and consuming it from the live XState DEV->REVIEW guard so it governs real production required=true decisions) in scope for this story (W1/B-956f), or is it explicitly deferred to Workstream 3?",
+      "evidence": "language-neutral-gates-execution-plan.md Change A: \"The policy AND the main...HEAD diff classification are resolved ONCE at the transition boundary (machine/transition-orchestrator level, which has projectRoot)\" — stated as part of this story's own Change A. Contrast: repro-first-gate-enforce-execution-plan.md Workstream 3 (sequenced strictly after W1): \"Single hash-bound classification snapshot resolved at runStoryTransition entry; ONE pure DEV->REVIEW evaluator consumed by the XState guard, the compatibility path, AND a fail-closed pre-write recheck (machine.ts:909, :837; transition-orchestrator.ts:550); classifier-driven ProofStory triggers (the original core fix)\". understanding.json unknowns also lists: \"Exact orchestrator call-site shape for resolving the snapshot once per transition (which machine/transition-orchestrator function owns resolution and threads it to all three consumers)\" as unresolved. decision.json constraint \"Ordering binding: this lands before or with the repro-first enforce flip\" and the program Sequencing line \"W1 (now) -> W2 spec story -> W2 implementation -> W3 -> enforce flip\" both suggest the live enforce-flip wiring is W3's job, not W1's — but neither B-956f's own decision.json nor the checklist explicitly states this deferral.",
+      "sourcePointers": [
+        "docs/requirements/decisions/language-neutral-gates-execution-plan.md:16-17 (Change A)",
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md:19-20,25-26,28-29 (Workstream 1 / Workstream 3 / Sequencing)",
+        ".lattice/story/actives/B-956f/understanding.json (unknowns[0])",
+        ".lattice/story/actives/B-956f/decision.json (constraints: \"Ordering binding\")"
+      ]
+    }
+  ]
+}
