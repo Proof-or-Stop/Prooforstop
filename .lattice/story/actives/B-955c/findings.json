@@ -176,7 +176,7 @@
       "desc": "packages/main/src/core/evidence/environment-contract.ts:916 — HIGH: F-001 remains unresolved at the resolver trust boundary. The receipt now carries only an opaque ref, but evaluateEvidenceEnvironmentQuorum accepts an arbitrary caller-supplied EvidenceEnvironmentAttestationResolver, and the only implementation is the smoke test local Map at packages/main/src/tasks/evidence-environment-adapter-smoke.ts:218. A caller can return two invented VerifiedEvidenceEnvironmentProducerIdentity rows and satisfy independence; there is no project-owned pinned-producer registry, Ed25519/public-key/session binding, or revocation check required by the candidate spec at lines 737-753. WHY: moving self-asserted identity from the receipt into an untrusted callback does not make it verifier-owned, so forged distinct-Host quorum is still mechanically possible despite the support claim.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T01:13:49.757Z",
@@ -184,7 +184,11 @@
       "reviewRunId": "B-955c:RR-008",
       "_hash": "a29875f562a3c6f25da54749bb02b23c95d05efc1652ca2b929a81dc385bf6ca",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: b31b29b522 accepted an arbitrary caller EvidenceEnvironmentAttestationResolver, so callback-minted identities could satisfy quorum. Root cause: an injected callback was treated as a verifier-owned trust root without pinned keys, signed session/invocation/subject binding, or revocation. Fix: removed the resolver and verified-identity types from the public/runtime contract; opaque refs never upgrade trust, and distinct-host quorum is explicitly fail-closed unsupported with distinct_host_quorum_unsupported until a project-owned cryptographic registry exists. Regression: a callback-shaped extra property returning invented identities cannot advance quorum; EEA smoke PASS at c0c3eeddde.",
+      "resolvedAt": "2026-07-19T01:28:51.133Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-955c:F-011",
