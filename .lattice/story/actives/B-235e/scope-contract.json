@@ -83,10 +83,30 @@
         "readPromptTemplate",
         "resolvePromptBodyForMode"
       ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required repair from real concurrent REVIEW: full-envelope review_run_start writes prompt-envelopes.json, so REVIEW retention must classify that signed protocol artifact as trusted metadata or all reviewer finding/pass writes fail closed.",
+      "timestamp": "2026-07-19T08:04:44.218Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "68d81245734ce888864a14e36a786539d6cb8097",
+      "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+      "anchors": [
+        "REVIEW_RETENTION_PROTOCOL_METADATA_PATHS",
+        "evaluateReviewRunMetadataRetention"
+      ]
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T07:41:50.357Z",
+  "updatedAt": "2026-07-19T08:04:44.218Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -141,6 +161,7 @@
     "packages/main/templates/agents/lattice-implementer.md": "packages/main/templates/agents/lattice-implementer.md",
     "packages/main/templates/agents/lattice-review-delivery.md": "packages/main/templates/agents/lattice-review-delivery.md",
     "packages/main/templates/agents/lattice-evaluator.md": "packages/main/templates/agents/lattice-evaluator.md",
-    "packages/main/src/core/prompt-measurement.ts": "packages/main/src/core/prompt-measurement.ts"
+    "packages/main/src/core/prompt-measurement.ts": "packages/main/src/core/prompt-measurement.ts",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts"
   }
 }

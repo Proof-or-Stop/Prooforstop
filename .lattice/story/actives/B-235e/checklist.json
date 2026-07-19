@@ -8,7 +8,7 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
         "docs/requirements/decisions/role-separation.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-19T07:24:56.995Z",
       "endTime": "2026-07-19T07:54:44.847Z",
       "verificationIntent": {
@@ -1155,6 +1155,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Accepted business commit ebd778fa4b after all focused smokes, baseline/process verifiers, replay selfcheck, and owner verify_codex passed.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T08:05:19.345Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened after round-1 reviewer findings: real host prompt path, legacy gate binding, REVIEW retention, and verification coverage require repair.",
       "agent": "lattice-implementer"
     }
   ]
