@@ -310,7 +310,7 @@
           }
         ]
       },
-      "userSees": "Valid samples show \"Recall: EVALUABLE\"; missing or tampered samples show \"Recall: INCONCLUSIVE reason=<stable-code>\"; the final line shows \"Production evidence drift: NONE\".",
+      "userSees": "The historical result shows \"Recall: INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED\"; the separate non-historical fixture shows \"Hermetic fixture: EVALUABLE scope=hermetic-selfcheck-only historicalEvidence=false cells=2\"; the final isolation line shows \"Isolated production evidence drift: NONE\".",
       "files": {
         "modify": [
           "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
