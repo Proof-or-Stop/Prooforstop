@@ -75,6 +75,37 @@
         "scanEscalationReason": null
       },
       "_hash": "c94966fdaf28c02231c4878b267efc05a9b8a9892122ee9b8cc8b41c051dce6f"
+    },
+    {
+      "id": "B-235e:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Round-5 fresh docs review passed. Extracted 18 changed exported symbols and compared 8 relevant documentation/baseline/process-fact sections. The canonical plan and process facts now match the actual runtime: renderPromptEntryForHost returns a role-specific body-free review_run_start bootstrap for all five migrated roles; global Claude sync, Codex registry/runtime-owned resolution, and project full-asset rendering reuse that resolver, while review_run_start supplies exactly one selected role body. The docs keep byte-exact limited to the selected legacy role body and do not claim total-input byte identity. The refreshed agent_prompt baseline records bootstrap stdout for the five roles while the independent rollout manifest separately binds immutable legacy/modular bodies and Claude/Codex host identities. Build, proof-or-stop baseline verifier, process-fact verifier, codex-registry-mode, global-agents-init, prompt-registry, runtime-owned-assets, and prompt-token-cost smokes all passed; token output remains explicitly approximate with provider billing unavailable. No documentation blocker found.",
+      "createdAt": "2026-07-19T10:08:55.147Z",
+      "reviewRound": "2026-07-19T10:04:41.626Z",
+      "reviewRunId": "B-235e:RR-022",
+      "envelopeId": "a25b36a9c3e71d898943e70707dd860f05b174fdf7722b9c4846ef391843462d",
+      "writerSessionId": "sess-476100f59d979f9fd34feeeb69b7f272",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/agent-asset-resolution.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3f014b7e9e9127d1b7f8c5be10113f362055a1f2c5292d4ccefb2d50d517ac38"
     }
   ]
 }
