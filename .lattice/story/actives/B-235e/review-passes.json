@@ -291,6 +291,29 @@
         "scanEscalationReason": null
       },
       "_hash": "65876ab4677350774a424632d92832550ee16ce46c923e3fe3d865e0cd1fb50a"
+    },
+    {
+      "id": "B-235e:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh coverage PASS for REVIEW round 2026-07-19T11:51:48.217Z after validation-guard fixture rebind: current semantic mapping is 48 intents to 48 concrete fresh passing evidence with zero missing, duplicates, failures, waivers, or orphans; retired-authority vocabulary guard, reviewer scan-budget guard, and process-fact contract verifier passed; actual CLI review_run_start plus Story-aware agent_prompt barrier preserved two Prompt Envelopes, one signed ReviewRun, and gate validity; masks 31/10 passed and mask21 passed 20/20 concurrent iterations with all five lanes and gate evidence retained. This lane pass does not claim full quorum completion.",
+      "createdAt": "2026-07-19T12:01:24.905Z",
+      "reviewRound": "2026-07-19T11:51:48.217Z",
+      "reviewRunId": "B-235e:RR-042",
+      "envelopeId": "50c0a336968602bf93673b702e3d2c9125fb9e9d5cb8e549bfd106fe0423ffc5",
+      "writerSessionId": "sess-78c1fcc0db71cb224b0d05382e8243ea",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Coverage review used all 48 structured semantic intent/evidence mappings, executed the complete changed guard regressions, actual mixed-producer barrier, process-fact verifier, and full 20-round concurrency stress; relevant changed regions were triaged without claiming entire files were read fully."
+      },
+      "_hash": "ca87f8169263d06bf25b58c2ece13bce2a469e5a95eda0c838345dc742b9ebd7"
     }
   ]
 }
