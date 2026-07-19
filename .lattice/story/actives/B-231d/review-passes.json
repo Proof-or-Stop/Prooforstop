@@ -73,6 +73,36 @@
         "scanEscalationReason": null
       },
       "_hash": "2dff0445e4dacf3ddd2fac5ffc4735ccf3714277f0a9ac9ff892d6da70cd3df3"
+    },
+    {
+      "id": "B-231d:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check for schema v1->v2 bump (F-001..F-004 fix commit 1d98a3a7c6). Repo-wide grep for lattice.command-spec.v1/v2 shows all source construction sites use the exported v2 constant for new envelopes or the LEGACY_V1 constant only inside the intentional migration builder (buildLegacyAbsoluteCwdCommandSpecEnvelope, documented as migration-only). No stray hardcoded v1 literal producing a new envelope. .lattice/story/actives/*/done-required-evidence.json v1 hits are pre-existing legacy evidence from OTHER stories -- exactly what the legacy-acceptance path exists to keep verifying, expected not residue. No leftover absolute-cwd digest comparison: normalizedCommandCwd(absolute) is used only for resolvedCwd provenance and the intentional v1 reconstruction; the v2 digest path uses repoRelativeLogicalCwd/receiptLogicalCwd everywhere (validateRequiredReceiptCoverage, isPackagesMainBuild, validateCommandSpecDigestCoverage). validation-types.ts schema union correctly documents v1|v2. Rebuilt packages/main (tsc clean) and ran both smokes live at current HEAD: worktree-portability-smoke.js (16/16 incl. CHK-001/002/003 + F-001/F-002/F-003 regression checks) and done-required-validation-smoke.js both PASS, confirming v2 emitted for new receipts and legacy v1 still verifies. No new concept-cleanup defect found this round.",
+      "createdAt": "2026-07-19T01:12:31.589Z",
+      "reviewRound": "2026-07-19T01:08:03.737Z",
+      "reviewRunId": "B-231d:RR-010",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-231d/checklist.json",
+          ".lattice/story/actives/B-231d/decision.json",
+          ".lattice/story/actives/B-231d/findings.json",
+          ".lattice/story/actives/B-231d/plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/core/done-required-validation.js",
+          "packages/main/dist/core/validation-types.d.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "963d4723bd52fdb8c6746f753757b4e2e8af3b2a1526eb0a033e226609992310"
     }
   ]
 }
