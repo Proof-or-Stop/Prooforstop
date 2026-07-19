@@ -260,6 +260,37 @@
         "scanEscalationReason": null
       },
       "_hash": "b5635f24a2fbdbf9bb98d4fb6a4565fe5bce20fcf64235eab37869d1d12fae64"
+    },
+    {
+      "id": "B-235e:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "F-015 remains closed: both real metadata producers share the identity-safe transaction lock; the new deterministic ABA barrier is test-only and story-local. Review-evidence eligibility remains fail-closed to the five active canonical reviewer lanes, excluding compatibility and retired roles from REVIEW and quorum evidence.",
+      "createdAt": "2026-07-19T12:00:06.293Z",
+      "reviewRound": "2026-07-19T11:51:48.217Z",
+      "reviewRunId": "B-235e:RR-043",
+      "envelopeId": "9934acdc7609f346776d87a962415c8279c4a2055fae522ef4b8d96c957f04d4",
+      "writerSessionId": "sess-725b97bee152890e065410dcd644eaff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "65876ab4677350774a424632d92832550ee16ce46c923e3fe3d865e0cd1fb50a"
     }
   ]
 }
