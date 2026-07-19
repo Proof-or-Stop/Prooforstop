@@ -46,10 +46,26 @@
       "phase": "DEV",
       "headHash": "6fca1f62685e5465b8146715f0addfcc97165c5a",
       "materialHash": "0d8b9ae73f1110fdfb0efc64258643f9a8670a8e02d1eb795847acac4628b292"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Fix-round R2 consequence: universal ownership-checked release (mkdir-lock) now writes a holder.json token inside every lock dir; the checklist/finding/review-run/init-check locks live under the committed story dir, so an accidental commit while briefly held tracked a transient token that churns each lock cycle. Ignoring **/*.lock/ (managed runtime state, mirrors existing .lattice/locks/ ignore) prevents it. Direct hygiene consequence of the D-fix.",
+      "timestamp": "2026-07-19T04:21:23.478Z",
+      "paths": [
+        ".gitignore"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".gitignore"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "10348fbf3e8ca2cc814a2567b38282a09ff5ccce",
+      "materialHash": "0a0ab8fe07d5cdde204fce5f2253d3c5341c094ec1d44ab59a97211c7b2cb1aa"
     }
   ],
   "createdAt": "2026-07-18T23:51:45.763Z",
-  "updatedAt": "2026-07-19T04:04:49.511Z",
+  "updatedAt": "2026-07-19T04:21:23.478Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -58,6 +74,7 @@
     "packages/main/src/core/story-transition-lock.ts": "packages/main/src/core/story-transition-lock.ts",
     "packages/main/src/tasks/transition-integrity-smoke.ts": "packages/main/src/tasks/transition-integrity-smoke.ts",
     "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
-    "packages/main/src/handlers/hints.ts": "packages/main/src/handlers/hints.ts"
+    "packages/main/src/handlers/hints.ts": "packages/main/src/handlers/hints.ts",
+    ".gitignore": ".gitignore"
   }
 }
