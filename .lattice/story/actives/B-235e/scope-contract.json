@@ -373,10 +373,37 @@
         "legacy_prompt_hash_fixture",
         "process_contract_fingerprint"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These smoke tests are required regression coverage for the prompt-envelope review flow and lifecycle evidence gates; they are intentionally part of this story after the main merge.",
+      "timestamp": "2026-07-19T21:32:32.815Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "4bdd4a331cae856bbf7873154904f3677d3952d7",
+      "materialHash": "875f9c5f685ca175d68bca022de769cc317361d5bcf56852d3af05d916fb2cbd",
+      "anchors": [
+        "prompt_envelope_review_flow",
+        "lifecycle_evidence_gates",
+        "post_merge_regression_coverage"
+      ]
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T11:51:39.798Z",
+  "updatedAt": "2026-07-19T21:32:32.815Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -452,6 +479,10 @@
     "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
-    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts": "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
   }
 }
