@@ -99,6 +99,45 @@
         "scanEscalationReason": null
       },
       "_hash": "085d9ad8404197f2b270e76234f25b6ca28f46a207c08e7ef0d4566500c9b056"
+    },
+    {
+      "id": "B-6ed2:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round-5 incremental docs/process-fact pass: shared process-event writer migration preserves existing event schemas and gate consumers while serializing append boundaries and returning exact byte-span identity. cross-host and dirty-gate keep their prior fact semantics; quorum sole terminal ownership, committed-event duplicate authority, exact rollback, concurrency preservation, and local non-Authority claims remain consistent with both decisions. Focused process-fact contract passes.",
+      "createdAt": "2026-07-19T00:15:47.327Z",
+      "reviewRound": "2026-07-19T00:14:28.161Z",
+      "reviewRunId": "B-6ed2:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/dirty-gate-policy.ts",
+          "packages/main/src/core/process-events.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0fc7bff458f0d81caddae2eacb099e4a26c99280760a91e899439ce07cb8ec54"
+      },
+      "readDiagnostics": [],
+      "_hash": "28205e0b43e8d496bb09917121c263a4933eff96fc5004ef67e402dfcc981efd"
     }
   ]
 }
