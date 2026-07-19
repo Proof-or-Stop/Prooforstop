@@ -42,7 +42,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (17 checks); CHK-002a spawns 2 real concurrent procs: 5/5 double-mint without lock, 1 with. RED red-s1-devfinish-bypass.mjs 4/4 FAIL on baseline -> GREEN.",
+          "headHash": "8dc5877d301a860a7eea2206293d4ba1fedbe246",
+          "materialHash": "9e16d348bcdfdbdcf903c25fa2fb5dc29bb8f7715d08bda0c97cbcdeb054da55",
+          "storyFilesHash": "c7ce229cc6dbbf1eea0da3d5c41acea238e7c3d7d82fa616a79db67989bb9484",
+          "timestamp": "2026-07-19T02:13:30.517Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (17 checks); CHK-002a spawns 2 real concurrent procs: 5/5 double-mint without lock, 1 with. RED red-s1-devfinish-bypass.mjs 4/4 FAIL on baseline -> GREEN.",
+          "headHash": "8dc5877d301a860a7eea2206293d4ba1fedbe246",
+          "materialHash": "9e16d348bcdfdbdcf903c25fa2fb5dc29bb8f7715d08bda0c97cbcdeb054da55",
+          "storyFilesHash": "c7ce229cc6dbbf1eea0da3d5c41acea238e7c3d7d82fa616a79db67989bb9484",
+          "timestamp": "2026-07-19T02:13:30.517Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (17 checks); CHK-002a spawns 2 real concurrent procs: 5/5 double-mint without lock, 1 with. RED red-s1-devfinish-bypass.mjs 4/4 FAIL on baseline -> GREEN.",
+          "headHash": "8dc5877d301a860a7eea2206293d4ba1fedbe246",
+          "materialHash": "9e16d348bcdfdbdcf903c25fa2fb5dc29bb8f7715d08bda0c97cbcdeb054da55",
+          "storyFilesHash": "c7ce229cc6dbbf1eea0da3d5c41acea238e7c3d7d82fa616a79db67989bb9484",
+          "timestamp": "2026-07-19T02:13:30.517Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -91,7 +126,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (17 checks); CHK-002a spawns 2 real concurrent procs: 5/5 double-mint without lock, 1 with. RED red-s1-devfinish-bypass.mjs 4/4 FAIL on baseline -> GREEN.",
+          "headHash": "8dc5877d301a860a7eea2206293d4ba1fedbe246",
+          "materialHash": "9e16d348bcdfdbdcf903c25fa2fb5dc29bb8f7715d08bda0c97cbcdeb054da55",
+          "storyFilesHash": "c7ce229cc6dbbf1eea0da3d5c41acea238e7c3d7d82fa616a79db67989bb9484",
+          "timestamp": "2026-07-19T02:13:30.517Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (17 checks); CHK-002a spawns 2 real concurrent procs: 5/5 double-mint without lock, 1 with. RED red-s1-devfinish-bypass.mjs 4/4 FAIL on baseline -> GREEN.",
+          "headHash": "8dc5877d301a860a7eea2206293d4ba1fedbe246",
+          "materialHash": "9e16d348bcdfdbdcf903c25fa2fb5dc29bb8f7715d08bda0c97cbcdeb054da55",
+          "storyFilesHash": "c7ce229cc6dbbf1eea0da3d5c41acea238e7c3d7d82fa616a79db67989bb9484",
+          "timestamp": "2026-07-19T02:13:30.517Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (17 checks); CHK-002a spawns 2 real concurrent procs: 5/5 double-mint without lock, 1 with. RED red-s1-devfinish-bypass.mjs 4/4 FAIL on baseline -> GREEN.",
+          "headHash": "8dc5877d301a860a7eea2206293d4ba1fedbe246",
+          "materialHash": "9e16d348bcdfdbdcf903c25fa2fb5dc29bb8f7715d08bda0c97cbcdeb054da55",
+          "storyFilesHash": "c7ce229cc6dbbf1eea0da3d5c41acea238e7c3d7d82fa616a79db67989bb9484",
+          "timestamp": "2026-07-19T02:13:30.517Z"
+        }
+      ]
     }
   ],
   "auditLog": [
