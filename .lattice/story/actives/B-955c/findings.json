@@ -62,7 +62,7 @@
       "desc": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md:907-910 requires an exact manuscript artifact path/version plus implementation commit or release digest before M6 is complete, but the repository only names the existing arXiv identifier in README and does not bind a manuscript revision/artifact to the B-955c implementation commit/release; CHK-005 is nevertheless marked done. WHY: the handoff cannot yet satisfy its own audit rule, and an external editor cannot tell which manuscript version contains the calibrated EEA claim. Record the exact manuscript target/version and binding digest, or explicitly leave M6/CHK-005 incomplete and state that current claims are repository-document-only.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-19T00:53:13.058Z",
@@ -70,7 +70,11 @@
       "reviewRunId": "B-955c:RR-003",
       "_hash": "3c44732ef10cf50c61979e2706d7a88e711e0014fbd70a08fb197b7fbe9ebf81",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: no external manuscript revision/path plus implementation digest exists. Root cause: M6 language conflated the repository paper-facing artifact with an external manuscript handoff. Fix: document now names the exact repository artifact, explicitly marks external M6 incomplete, states no external manuscript path/revision/release digest is bound, and limits the external manuscript claim to Level B. CHK-005 covers the repository paper-facing abstraction only; no external Level C claim remains. Documentation audit at b31b29b522 confirms the honest downgrade.",
+      "resolvedAt": "2026-07-19T01:10:24.448Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-955c:F-005",
