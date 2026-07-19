@@ -317,6 +317,31 @@
         "scanEscalationReason": null
       },
       "_hash": "506b2ae23a82089c1ab47d5b6fcb22f763f2ddaa168a694b5b5768cd36698557"
+    },
+    {
+      "id": "B-d877:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-8 merged-state re-verification (ff08b90570 merge touched S1-shared review-run.ts + quorum-submit-smoke.ts; zero S1 code changed). Verified: 6/6 must-intents (CHK-001:happy/edge/adversarial:0, CHK-002:happy/edge/adversarial:0) covered by concrete manual_transcript evidence (transition-integrity-smoke.js, 79 checks) with result=pass, each note tied to a specific behavior. evidence_inspect was stale (7 refs, merge-induced hash drift) -> ran verification_evidence_refresh_stale (6/6 refreshed, no re-execution needed since S1 code unchanged) -> evidence_inspect now fresh (staleRefs:0). Ran lattice validate --story=B-d877 --json twice: first attempt (default 900s budget, host load avg ~20 on 10 cores) aborted at the global watchdog before finishing the 46-command suite. Second attempt (LATTICE_MAX_TIMEOUT_MS=2700000, lower host load) ran to completion: validate reports Verification intent coverage 6/6 covered (0 required missing); 45/46 configured commands passed; command 34/46 quorum-submit-smoke.js (one of the two merge-touched files, NOT a B-d877-owned checklist file) hit its per-command 270000ms budget mid-run (failureKind=infra_failure) while printing only passing checks, no assertion failures. Independently re-ran quorum-submit-smoke.js standalone with no time pressure: completed cleanly in ~7.5min, exit 0, quorum_submit smoke passed (42 checks) -- confirms the validate-suite timeout was a per-command budget/host-contention artifact on this shared machine, not a functional regression, and it does not touch any B-d877 must-intent or checklist-owned file. transition-integrity-smoke.js is a manual_transcript-evidence script and is not wired into validate.commands, so it was unaffected either run. Test-coverage verdict: no gap, no blocker.",
+      "createdAt": "2026-07-19T14:05:16.698Z",
+      "reviewRound": "2026-07-19T13:18:06.329Z",
+      "reviewRunId": "B-d877:RR-024",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1b57697213024df8054b6173319acd4bbee6fb74b085ed944db15b7c2be343f7"
     }
   ]
 }
