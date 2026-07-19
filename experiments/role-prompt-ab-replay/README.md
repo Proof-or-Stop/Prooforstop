@@ -23,12 +23,23 @@ output and should be deleted after inspection.
 
 ## Claim boundary
 
+The authority for each replay sample is the inline `material.content` committed
+inside `corpus.json`, bound by `materialDigest` and the corpus/experiment
+digests. `material.sourceHintPath` is provenance context for a human; it is not
+read, executed, or treated as proof that the hinted file's current or historical
+bytes equal the inline snapshot. The validator requires
+`snapshotAuthority=corpus-json-content-addressed.v1` and
+`snapshotId=<sample id>` so an arbitrary path or label cannot silently become
+the reconstruction authority.
+
 The harness may report exact UTF-8 bytes, logical lines, the canonical offline
 token estimate, content digests, and comparisons against the independently
-adjudicated critical/high findings frozen in `corpus.json`. Provider-processed
-input and cache dimensions are reported only where the historical observation
-actually contains them. Missing dimensions remain `unavailable(reason)`, never
-zero.
+adjudicated critical/high findings frozen in `corpus.json`. The current corpus
+has no committed dispatch/provider receipt plus evidence digest, so every known
+dispatch, provider-processed, output, and cache dimension is
+`unavailable(reason)`, never zero. Both corpus and ledger validators reject an
+available numeric historical metric—including zero—until a future schema binds
+it mechanically to a committed evidence artifact and verified digest.
 
 The harness must not be used to claim production prompt savings, provider cost
 savings, model-quality parity, gate readiness, or Story completion. A missing,

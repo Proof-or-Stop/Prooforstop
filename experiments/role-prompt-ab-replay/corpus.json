@@ -7,9 +7,10 @@
       "class": "simple-bounded-change",
       "task": "Review a bounded documentation-only change for contract consistency.",
       "material": {
-        "sourceKind": "committed-snapshot",
-        "repositoryPath": "experiments/reports/story-review-output-after-production-v1.json",
-        "snapshotRef": "story3-pinned-snapshot/clean-pass-01",
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "experiments/reports/story-review-output-after-production-v1.json",
+        "snapshotId": "clean-pass-01",
         "content": {
           "scope": "one decision document",
           "diff": "Clarify that diagnostic estimates are not provider billing truth.",
@@ -17,14 +18,16 @@
         }
       },
       "tools": ["Read", "Grep"],
-      "materialDigest": "e7365ad14de9184d8d2cbfb24575e2170414e344354db4f9359ff3a6657efa58",
+      "materialDigest": "686c86e9385e977a96ff03a22fadccce0f786a7b08f078ee3aa17fe3e81db986",
       "findingSetDigest": "66ca3f418d5e8fc8c29fbea373c3bb404824073af32f2b9e31b73699a72261dd",
       "observedFindingsByArm": {"A": [], "B": []},
       "providerObservation": {
-        "knownDispatchInputTokens": {"availability": "available", "tokens": 1840, "source": "pinned historical adapter observation"},
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
         "providerProcessedInputTokens": {"availability": "unavailable", "reason": "Provider usage was not captured for this historical sample."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
         "cacheCreationInputTokens": {"availability": "unavailable", "reason": "Provider cache creation was not reported."},
-        "cacheReadInputTokens": {"availability": "unavailable", "reason": "Provider cache reads were not reported."}
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "Provider cache reads were not reported."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
       },
       "oracles": []
     },
@@ -33,9 +36,10 @@
       "class": "simple-bounded-change",
       "task": "Review a stable prompt-registry metadata change with no semantic delta.",
       "material": {
-        "sourceKind": "committed-snapshot",
-        "repositoryPath": "experiments/reports/story-review-structured-v1.json",
-        "snapshotRef": "story3-pinned-snapshot/clean-pass-02",
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "experiments/reports/story-review-structured-v1.json",
+        "snapshotId": "clean-pass-02",
         "content": {
           "scope": "prompt registry metadata",
           "diff": "Normalize a description while preserving role and command contracts.",
@@ -43,15 +47,16 @@
         }
       },
       "tools": ["Read", "Grep"],
-      "materialDigest": "b5619b2c6b69a11c599fe6d54d3df90e275bf0301064042e3518299c035e5bcc",
+      "materialDigest": "119fb690b9a35ce036ca80a0ae396cac44f056b09d88fac7a0af1812ec79a5b3",
       "findingSetDigest": "66ca3f418d5e8fc8c29fbea373c3bb404824073af32f2b9e31b73699a72261dd",
       "observedFindingsByArm": {"A": [], "B": []},
       "providerObservation": {
-        "knownDispatchInputTokens": {"availability": "available", "tokens": 1762, "source": "pinned historical adapter observation"},
-        "providerProcessedInputTokens": {"availability": "available", "tokens": 1901, "source": "pinned provider terminal usage"},
-        "uncachedInputTokens": {"availability": "available", "tokens": 1601, "source": "pinned provider terminal usage"},
-        "cacheCreationInputTokens": {"availability": "available", "tokens": 0, "source": "pinned provider terminal usage"},
-        "cacheReadInputTokens": {"availability": "available", "tokens": 300, "source": "pinned provider terminal usage"}
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "No committed provider cache-creation evidence artifact and digest are bound to this historical sample."},
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "No committed provider cache-read evidence artifact and digest are bound to this historical sample."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
       },
       "oracles": []
     },
@@ -60,9 +65,10 @@
       "class": "multi-round-high-finding",
       "task": "Review a lifecycle change that accepts an unsigned review pass.",
       "material": {
-        "sourceKind": "committed-snapshot",
-        "repositoryPath": "docs/requirements/decisions/review-run-binding-race.md",
-        "snapshotRef": "story3-pinned-snapshot/critical-01",
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "docs/requirements/decisions/review-run-binding-race.md",
+        "snapshotId": "critical-01",
         "content": {
           "scope": "REVIEW to TEST gate",
           "diff": "Accept pass rows without checking the signed ReviewRun binding.",
@@ -70,17 +76,19 @@
         }
       },
       "tools": ["Read", "Grep", "Bash"],
-      "materialDigest": "cdc3ea3ca4caef028a2d6d45a0a0a1edd8475af5f027fa8d5755abe3c87cea84",
+      "materialDigest": "fc08f9de50f5cb29387141b79e7c286b29d263a40881eedb406bc52ed0047e0c",
       "findingSetDigest": "5f5aa8bd6a80703870dc699107ab73fc79fde5ba283bb27dad2233b0382f030c",
       "observedFindingsByArm": {
         "A": [{"oracleId": "F-critical-unsigned-pass", "category": "missing", "sourceBinding": "review-gate", "claimBinding": "signed-current-pass-required"}],
         "B": [{"oracleId": "F-critical-unsigned-pass", "category": "missing", "sourceBinding": "review-gate", "claimBinding": "signed-current-pass-required"}]
       },
       "providerObservation": {
-        "knownDispatchInputTokens": {"availability": "available", "tokens": 4120, "source": "pinned historical adapter observation"},
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
         "providerProcessedInputTokens": {"availability": "unavailable", "reason": "Provider usage was not captured for this historical sample."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
         "cacheCreationInputTokens": {"availability": "unavailable", "reason": "Provider cache creation was not reported."},
-        "cacheReadInputTokens": {"availability": "unavailable", "reason": "Provider cache reads were not reported."}
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "Provider cache reads were not reported."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
       },
       "oracles": [
         {
@@ -99,9 +107,10 @@
       "class": "multi-round-high-finding",
       "task": "Review a prompt-envelope verifier that trusts a caller supplied digest.",
       "material": {
-        "sourceKind": "committed-snapshot",
-        "repositoryPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
-        "snapshotRef": "story3-pinned-snapshot/critical-02",
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "snapshotId": "critical-02",
         "content": {
           "scope": "prompt envelope verification",
           "diff": "Use the caller-provided prompt digest without recomputing bytes.",
@@ -109,18 +118,19 @@
         }
       },
       "tools": ["Read", "Grep", "Bash"],
-      "materialDigest": "26b0abf8af2c424ac367203adc117737f528641972cd8c6e421e0d14398840b1",
+      "materialDigest": "d88dfb108b07b4c90e1e95f049ee6f2f2459aadfd6ee60682b299e0c46120586",
       "findingSetDigest": "9770d091f4fcc19a56e847d1761ff369d279fe8042fac3779a43acbf0791b49a",
       "observedFindingsByArm": {
         "A": [{"oracleId": "F-critical-digest-substitution", "category": "adversarial", "sourceBinding": "prompt-envelope", "claimBinding": "exact-bytes-recomputed"}],
         "B": [{"oracleId": "F-critical-digest-substitution", "category": "adversarial", "sourceBinding": "prompt-envelope", "claimBinding": "exact-bytes-recomputed"}]
       },
       "providerObservation": {
-        "knownDispatchInputTokens": {"availability": "available", "tokens": 4388, "source": "pinned historical adapter observation"},
-        "providerProcessedInputTokens": {"availability": "available", "tokens": 4620, "source": "pinned provider terminal usage"},
-        "uncachedInputTokens": {"availability": "available", "tokens": 4620, "source": "pinned provider terminal usage"},
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
         "cacheCreationInputTokens": {"availability": "unavailable", "reason": "This provider does not report cache creation."},
-        "cacheReadInputTokens": {"availability": "available", "tokens": 0, "source": "pinned provider terminal usage"}
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "No committed provider cache-read evidence artifact and digest are bound to this historical sample."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
       },
       "oracles": [
         {
@@ -139,9 +149,10 @@
       "class": "closeout-reattestation",
       "task": "Review closeout behavior after metadata-only HEAD drift.",
       "material": {
-        "sourceKind": "committed-snapshot",
-        "repositoryPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
-        "snapshotRef": "story3-pinned-snapshot/closeout-01",
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "snapshotId": "closeout-01",
         "content": {
           "scope": "DONE preparation freshness",
           "diff": "Force a full review rerun for headHash-only metadata drift.",
@@ -149,17 +160,19 @@
         }
       },
       "tools": ["Read", "Grep"],
-      "materialDigest": "9e81c29de7563a2d831556ec16743cce8031eb7614d051f09dd08874529d8812",
+      "materialDigest": "949324b103039eb870a418121a9c82da095dbd901868fa53f1f35646b458b7d0",
       "findingSetDigest": "eb1465c910e9a2d91e770a4cc18ea06ce4d4b685ba06a12da7c59a632ada183d",
       "observedFindingsByArm": {
         "A": [{"oracleId": "F-high-metadata-overreview", "category": "edge", "sourceBinding": "freshness-reader", "claimBinding": "headhash-only-advisory"}],
         "B": [{"oracleId": "F-high-metadata-overreview", "category": "edge", "sourceBinding": "freshness-reader", "claimBinding": "headhash-only-advisory"}]
       },
       "providerObservation": {
-        "knownDispatchInputTokens": {"availability": "available", "tokens": 2200, "source": "pinned historical adapter observation"},
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
         "providerProcessedInputTokens": {"availability": "unavailable", "reason": "The crashed attempt had no terminal provider usage event."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
         "cacheCreationInputTokens": {"availability": "unavailable", "reason": "The crashed attempt had no terminal provider usage event."},
-        "cacheReadInputTokens": {"availability": "unavailable", "reason": "The crashed attempt had no terminal provider usage event."}
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "The crashed attempt had no terminal provider usage event."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
       },
       "oracles": [
         {
@@ -178,9 +191,10 @@
       "class": "closeout-reattestation",
       "task": "Review closeout evidence reuse after story-owned material drift.",
       "material": {
-        "sourceKind": "committed-snapshot",
-        "repositoryPath": "docs/requirements/decisions/story-files-hash-material-drift.md",
-        "snapshotRef": "story3-pinned-snapshot/closeout-02",
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "snapshotId": "closeout-02",
         "content": {
           "scope": "delivery and review evidence freshness",
           "diff": "Reuse delivery evidence after storyFilesHash changes.",
@@ -188,18 +202,19 @@
         }
       },
       "tools": ["Read", "Grep"],
-      "materialDigest": "15b7f6afde13e59175ebbca466f7e9900871a6af91af0f931caa06106cb524d0",
+      "materialDigest": "27cd99ef87da918d687bdf896b5800ab180c2cb82d003e536e28570df8587103",
       "findingSetDigest": "13f4db7c79a94564a2685da7ec0e3fffe37815927ab0f25e5b04e675f7305909",
       "observedFindingsByArm": {
         "A": [{"oracleId": "F-high-related-drift-reuse", "category": "adversarial", "sourceBinding": "delivery-check", "claimBinding": "related-drift-reattestation"}],
         "B": [{"oracleId": "F-high-related-drift-reuse", "category": "adversarial", "sourceBinding": "delivery-check", "claimBinding": "related-drift-reattestation"}]
       },
       "providerObservation": {
-        "knownDispatchInputTokens": {"availability": "available", "tokens": 1980, "source": "pinned historical adapter observation"},
-        "providerProcessedInputTokens": {"availability": "available", "tokens": 2048, "source": "pinned provider terminal usage"},
-        "uncachedInputTokens": {"availability": "available", "tokens": 1800, "source": "pinned provider terminal usage"},
-        "cacheCreationInputTokens": {"availability": "available", "tokens": 0, "source": "pinned provider terminal usage"},
-        "cacheReadInputTokens": {"availability": "available", "tokens": 248, "source": "pinned provider terminal usage"}
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "No committed provider cache-creation evidence artifact and digest are bound to this historical sample."},
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "No committed provider cache-read evidence artifact and digest are bound to this historical sample."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
       },
       "oracles": [
         {

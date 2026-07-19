@@ -1099,10 +1099,15 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
 - Claim boundary：本 Story 只证明 pinned 历史观察可被确定性重算并与生产证据
   隔离。它不运行历史代码、不调用 provider，也不宣称生产 Prompt 降幅、provider
   成本下降、模型质量等价、incremental eligibility、角色迁移或 budget
-  enforce-ready。provider/cache 历史观察缺失时保持
-  `unavailable(<reason>)`；任何不可重建、篡改、版本偏移、arm 不对称、样本/
-  重复不足或无效召回 denominator 均为 `INCONCLUSIVE`，不输出 savings/recall
-  claim。Story 的正式完成状态仍以 Lattice lifecycle 的 DONE 证据为准。
+  enforce-ready。当前 snapshot authority 是 `corpus.json` 内联提交并由
+  `materialDigest`/corpus digest 绑定的 `material.content`；
+  `sourceHintPath` 只提供人类 provenance context，不是历史文件内容证明。
+  当前语料未绑定可机械验证的 dispatch/provider receipt 与 evidence digest，
+  因此 known dispatch、provider/output/cache 全部保持
+  `unavailable(<reason>)`，包括 0 也不得伪装成已观测值；任何不可重建、篡改、
+  版本偏移、arm 不对称、样本/重复不足或无效召回 denominator 均为
+  `INCONCLUSIVE`，不输出 savings/recall claim。Story 的正式完成状态仍以
+  Lattice lifecycle 的 DONE 证据为准。
 
 #### Story 4：Incremental eligibility 与 impact policy
 

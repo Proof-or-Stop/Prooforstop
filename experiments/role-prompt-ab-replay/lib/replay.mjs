@@ -107,6 +107,16 @@ function validateAvailability(value, at) {
   throw new ReplayContractError('INVALID_AVAILABILITY', `${at} availability must be available or unavailable`);
 }
 
+function validateHistoricalObservation(value, at) {
+  validateAvailability(value, at);
+  if (value.availability === 'available') {
+    throw new ReplayContractError(
+      'UNBOUND_HISTORICAL_METRIC',
+      `${at} is numeric but this corpus schema has no mechanically verified evidenceRef/evidenceDigest binding`,
+    );
+  }
+}
+
 export function materialDigest(sample) {
   return digest('role-prompt-ab.material.v1', {
     task: sample.task,
@@ -219,12 +229,16 @@ export function validateExperiment(protocol, corpus) {
       throw new ReplayContractError('INVALID_SAMPLE', `${sample.id} task/tools invalid`);
     }
     assertObject(sample.material, 'MATERIAL_MISSING', `${sample.id} material missing`);
-    if (sample.material.sourceKind !== 'committed-snapshot') {
-      throw new ReplayContractError('MUTABLE_MATERIAL', `${sample.id} source must be committed-snapshot`);
+    if (sample.material.sourceKind !== 'inline-corpus-snapshot'
+        || sample.material.snapshotAuthority !== 'corpus-json-content-addressed.v1') {
+      throw new ReplayContractError(
+        'MUTABLE_MATERIAL',
+        `${sample.id} material must use content-addressed inline corpus authority`,
+      );
     }
-    safeRepoPath(sample.material.repositoryPath, `${sample.id}.repositoryPath`);
-    if (typeof sample.material.snapshotRef !== 'string' || !sample.material.snapshotRef.trim()) {
-      throw new ReplayContractError('MATERIAL_MISSING', `${sample.id} snapshotRef missing`);
+    safeRepoPath(sample.material.sourceHintPath, `${sample.id}.sourceHintPath`);
+    if (sample.material.snapshotId !== sample.id) {
+      throw new ReplayContractError('MATERIAL_MISSING', `${sample.id} snapshotId must equal sample id`);
     }
     assertObject(sample.material.content, 'MATERIAL_MISSING', `${sample.id} pinned snapshot content missing`);
     if (typeof sample.materialDigest !== 'string' || sample.materialDigest !== materialDigest(sample)) {
@@ -238,7 +252,23 @@ export function validateExperiment(protocol, corpus) {
       throw new ReplayContractError('FINDING_DIGEST_MISMATCH', `${sample.id} finding-set digest mismatch`);
     }
     assertObject(sample.providerObservation, 'INVALID_AVAILABILITY', `${sample.id} provider observation missing`);
-    for (const [key, observation] of Object.entries(sample.providerObservation)) validateAvailability(observation, `${sample.id}.${key}`);
+    const observationKeys = [
+      'knownDispatchInputTokens',
+      'providerProcessedInputTokens',
+      'uncachedInputTokens',
+      'cacheCreationInputTokens',
+      'cacheReadInputTokens',
+      'outputTokens',
+    ].sort(compareCodePoints);
+    if (canonicalJson(Object.keys(sample.providerObservation).sort(compareCodePoints)) !== canonicalJson(observationKeys)) {
+      throw new ReplayContractError(
+        'INVALID_AVAILABILITY',
+        `${sample.id} provider observation must carry every availability-aware dimension`,
+      );
+    }
+    for (const [key, observation] of Object.entries(sample.providerObservation)) {
+      validateHistoricalObservation(observation, `${sample.id}.${key}`);
+    }
   }
   for (const [className, count] of counts) {
     if (count < minimum) throw new ReplayContractError('SAMPLE_FLOOR_INCOMPLETE', `${className} has ${count}, requires ${minimum}`);

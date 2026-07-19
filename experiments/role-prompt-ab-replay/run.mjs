@@ -16,20 +16,16 @@ function parseArgs(argv) {
   return options;
 }
 
-function unavailable(reason) {
-  return { availability: 'unavailable', reason };
-}
-
 function usageForCell(cell) {
   const observation = cell.providerObservation;
   return {
     assembledPromptTokens: { availability: 'available', tokens: cell.measurement.estimatedTokens, source: 'canonical local replay measurement' },
     knownDispatchInputTokens: observation.knownDispatchInputTokens,
     providerProcessedInputTokens: observation.providerProcessedInputTokens,
-    uncachedInputTokens: observation.uncachedInputTokens ?? unavailable('Historical sample did not separately report uncached input.'),
+    uncachedInputTokens: observation.uncachedInputTokens,
     cacheCreationInputTokens: observation.cacheCreationInputTokens,
     cacheReadInputTokens: observation.cacheReadInputTokens,
-    outputTokens: unavailable('Historical sample did not retain provider output-token usage.'),
+    outputTokens: observation.outputTokens,
   };
 }
 

@@ -142,6 +142,7 @@ export function makeLedgerRecord(input, previousRecordHash = null, supersedesRec
     throw new ReplayContractError('INVALID_LEDGER_RECORD', 'usage dimensions must be exact');
   }
   for (const key of [
+    'knownDispatchInputTokens',
     'providerProcessedInputTokens',
     'uncachedInputTokens',
     'cacheCreationInputTokens',
@@ -149,10 +150,10 @@ export function makeLedgerRecord(input, previousRecordHash = null, supersedesRec
     'outputTokens',
   ]) {
     const dimension = usage[key];
-    if (dimension.availability === 'available' && dimension.source !== 'pinned provider terminal usage') {
+    if (dimension.availability === 'available') {
       throw new ReplayContractError(
-        'INVALID_LEDGER_RECORD',
-        `${key} may be numeric only when bound to a pinned provider terminal usage observation`,
+        'UNBOUND_HISTORICAL_METRIC',
+        `${key} is numeric but the experiment ledger schema carries no verified evidenceRef/evidenceDigest binding`,
       );
     }
   }

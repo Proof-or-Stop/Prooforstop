@@ -80,15 +80,14 @@ async function hashTree(relativePaths) {
 }
 
 function usage(cell, overrides = {}) {
-  const unavailable = reason => ({ availability: 'unavailable', reason });
   return {
     assembledPromptTokens: { availability: 'available', tokens: cell.measurement.estimatedTokens, source: 'selfcheck canonical replay' },
     knownDispatchInputTokens: cell.providerObservation.knownDispatchInputTokens,
     providerProcessedInputTokens: cell.providerObservation.providerProcessedInputTokens,
-    uncachedInputTokens: cell.providerObservation.uncachedInputTokens ?? unavailable('No separate uncached historical dimension.'),
+    uncachedInputTokens: cell.providerObservation.uncachedInputTokens,
     cacheCreationInputTokens: cell.providerObservation.cacheCreationInputTokens,
     cacheReadInputTokens: cell.providerObservation.cacheReadInputTokens,
-    outputTokens: unavailable('No output-token observation in the pinned corpus.'),
+    outputTokens: cell.providerObservation.outputTokens,
     ...overrides,
   };
 }
@@ -192,6 +191,40 @@ try {
     }
   });
 
+  await check('unbound available historical provider or dispatch metrics are rejected', async () => {
+    const dispatch = clone(corpus);
+    dispatch.samples[0].providerObservation.knownDispatchInputTokens = {
+      availability: 'available',
+      tokens: 1,
+      source: 'unbound claim',
+    };
+    await expectCode('UNBOUND_HISTORICAL_METRIC', async () => validateExperiment(protocol, dispatch));
+    const provider = clone(corpus);
+    provider.samples[0].providerObservation.providerProcessedInputTokens = {
+      availability: 'available',
+      tokens: 0,
+      source: 'unbound zero claim',
+    };
+    await expectCode('UNBOUND_HISTORICAL_METRIC', async () => validateExperiment(protocol, provider));
+  });
+
+  await check('inline corpus content is the exact snapshot authority and sourceHintPath is non-authoritative', async () => {
+    for (const sample of corpus.samples) {
+      assert.equal(sample.material.sourceKind, 'inline-corpus-snapshot');
+      assert.equal(sample.material.snapshotAuthority, 'corpus-json-content-addressed.v1');
+      assert.equal(sample.material.snapshotId, sample.id);
+      assert.ok(sample.material.content && typeof sample.material.content === 'object');
+    }
+    const wrongAuthority = clone(corpus);
+    wrongAuthority.samples[0].material.snapshotAuthority = 'repository-path-claim.v1';
+    wrongAuthority.samples[0].materialDigest = materialDigest(wrongAuthority.samples[0]);
+    await expectCode('MUTABLE_MATERIAL', async () => validateExperiment(protocol, wrongAuthority));
+    const missingContent = clone(corpus);
+    delete missingContent.samples[0].material.content;
+    missingContent.samples[0].materialDigest = materialDigest(missingContent.samples[0]);
+    await expectCode('MATERIAL_MISSING', async () => validateExperiment(protocol, missingContent));
+  });
+
   await check('valid replay is deterministic and same-input across arms', () => {
     baseline = replayExperiment({ protocol, corpus });
     const repeated = replayExperiment({ protocol, corpus });
@@ -253,7 +286,7 @@ try {
 
   await check('path traversal and mutable live Story material are rejected', async () => {
     const traversal = clone(corpus);
-    traversal.samples[0].material.repositoryPath = '../.lattice/story/actives/B-8d4b/index.json';
+    traversal.samples[0].material.sourceHintPath = '../.lattice/story/actives/B-8d4b/index.json';
     traversal.samples[0].materialDigest = materialDigest(traversal.samples[0]);
     await expectCode('PATH_ESCAPE', async () => replayExperiment({ protocol, corpus: traversal }));
     const mutable = clone(corpus);
@@ -315,13 +348,16 @@ try {
     await expectCode('PRIVATE_OR_AUTHORITATIVE_FIELD', async () => makeLedgerRecord(poisoned));
   });
 
-  await check('malformed counts are rejected while reported zero remains available', async () => {
+  await check('malformed or unbound numeric metrics are rejected and unavailable is not zero', async () => {
     const negative = inputFor(baseline, firstCell);
     negative.usage.cacheReadInputTokens = { availability: 'available', tokens: -1, source: 'bad' };
     await expectCode('INVALID_LEDGER_RECORD', async () => makeLedgerRecord(negative));
     const zero = inputFor(baseline, firstCell);
     zero.usage.cacheReadInputTokens = { availability: 'available', tokens: 0, source: 'pinned provider terminal usage' };
-    assert.equal(makeLedgerRecord(zero).usage.cacheReadInputTokens.tokens, 0);
+    await expectCode('UNBOUND_HISTORICAL_METRIC', async () => makeLedgerRecord(zero));
+    const unavailable = makeLedgerRecord(inputFor(baseline, firstCell)).usage.cacheReadInputTokens;
+    assert.equal(unavailable.availability, 'unavailable');
+    assert.equal(Object.hasOwn(unavailable, 'tokens'), false);
   });
 
   await check('experiment ledger path cannot escape into production evidence', async () => {
