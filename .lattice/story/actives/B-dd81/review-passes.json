@@ -288,6 +288,35 @@
         "scanEscalationReason": null
       },
       "_hash": "8990b3f18e7603a6e0a581aa9c49cd7ea4daec8d91c7ec0f607b29ee7c0dc579"
+    },
+    {
+      "id": "B-dd81:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review confirms the producer boundary wording change is semantically equivalent: local host verdicts remain REVIEW-only review-pass evidence with productionDoneEligible=false and cannot establish external Authority acceptance or production-grade readiness.",
+      "createdAt": "2026-07-19T00:24:08.767Z",
+      "reviewRound": "2026-07-19T00:18:12.482Z",
+      "reviewRunId": "B-dd81:RR-020",
+      "writerSessionId": "sess-bbc70cb6a16008e97230e79f211800a2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9a0fc3fcd7d25291bf3c236881f86bb51ad03250774b820385481944dc2ca000"
     }
   ]
 }
