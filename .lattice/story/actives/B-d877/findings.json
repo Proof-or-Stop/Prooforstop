@@ -315,6 +315,21 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-19T11:29:41.145Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-d877:F-017",
+      "desc": "packages/main/src/core/mkdir-lock.ts:386-428 (release(), R5 FIX 1 rename-isolate-verify-restore) — the MISMATCH restore path is only proven safe against a SEQUENTIAL old-holder-release-after-successor-fully-settled (CHK-002d/CHK-002d3 both call a.release() to completion before ever touching b.release()). It does NOT cover the TRUE CONCURRENT case: a stale-reclaimed-but-still-alive old holder A calls release() at nearly the same instant the live successor B calls its OWN legitimate release(). Because A.release() also now MUTATES the dir (renameSync(holder.json -> candidate) instead of the pre-round code, which only READ holder.json and did nothing on mismatch), whichever of A/B wins the renameSync race leaves the LOSER a bare ENOENT on its own renameSync(lockDir/holder.json, ...) isolate step (line 391), which the catch at 392-397 treats as an unconditional no-op (\"nothing we own to remove\") and returns WITHOUT removing the dir. If A wins: B silently no-ops (believes it released cleanly, no exception), then A observes MISMATCH and restores B token via renameSync(candidatePath, lockDir/holder.json) at line 424 — leaving the dir occupied by an orphaned, restored token that nobody is actually holding anymore, until staleMs elapses (120s for story-transition-lock.ts / VALIDATION_EXECUTION_LOCK_STALE_MS, or 15s for the transition-cas persist claim), blocking every subsequent story_advance/validate call for that story with a false already-running refusal. I reproduced this deterministically in an isolated scratch script mirroring the exact isolate/verify/restore sequence (renameSync -> readHolderFile -> mismatch -> renameSync-back): B's isolate renameSync throws ENOENT and A's restore leaves lockDir/holder.json populated with B's (now-orphaned) token while the physical dir still exists — matching the leaked-dir failure mode F-016 already flagged as HIGH for a different trigger. This is reachable WITHOUT the documented >staleMs OS-freeze/fencing known-limitation: story-transition-lock.ts:88-93 already documents that its OWN classifier falls back to the plain mtime staleMs check for a cross-host holder (\"a starved foreign holder could in principle be reclaimed\"), so a merely-slow (not frozen) cross-host transition exceeding STORY_TRANSITION_STALE_MS while genuinely still executing is a normal, foreseeable way to put a live A into the reclaimed-but-about-to-release state that this race requires. Pre-round code could not leak this way because its mismatch branch was a pure read with no filesystem mutation. Not covered by CHK-002d/CHK-002d2/CHK-002d3 (all strictly sequential), so it is a genuinely new, unverified gap in the rename-isolate-verify-restore protocol this round introduced.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T11:43:25.552Z",
+      "reviewRound": "2026-07-19T11:29:20.310Z",
+      "reviewRunId": "B-d877:RR-018",
+      "_hash": "4ac35d435102590fc9a1e392b7d680813b0ae5a03757dc619a60a9bcec3f706b",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
