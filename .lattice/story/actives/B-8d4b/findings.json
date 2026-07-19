@@ -340,7 +340,7 @@
       "desc": "experiments/role-prompt-ab-replay/selfcheck.mjs:193-201,758-771 and docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md:1099-1104 — HIGH: the F-014 repair makes concurrency stable by replacing snapshots of production pass/finding/ReviewRun/verification/validation/lifecycle artifacts with hashes of immutable TypeScript source files. That proves implementation files did not change during the process, but it no longer tests the Story acceptance claim that the experiment writes no production evidence or process-fact event; a new `.lattice/story` pass/finding/event write would leave all five source files unchanged and the 47-check selfcheck would still print drift NONE. Preserve concurrency stability without dropping the target: run the replay/selfcheck against an isolated copy/sandbox of the canonical evidence roots, or attribute/filter concurrent external events while asserting the experiment PID/run identity produced no production artifact/event. Update the canonical decision claim or restore mechanically equivalent runtime-evidence proof.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T02:55:23.105Z",
@@ -353,7 +353,11 @@
         "experiments/role-prompt-ab-replay/README.md"
       ],
       "signatureTag": "missing|mjs|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f8c1b2c73a: selfcheck copies ordinary replay, ledger replay and analyze into a sandbox with eight production-shaped sentinel artifacts, then proves recursive membership and literal bytes unchanged with no new .lattice entry.",
+      "resolvedAt": "2026-07-19T03:04:23.172Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-019",
