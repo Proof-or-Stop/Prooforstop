@@ -1,0 +1,71 @@
+{
+  "storyId": "B-dd81",
+  "checkedAt": "2026-07-19T00:52:04.321Z",
+  "headHash": "9ad07f94e59c847bd6aa8f5b4973deed7a0837bb",
+  "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+  "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+  "reviewRound": "2026-07-19T00:18:12.482Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope",
+      "promise": "agent_prompt has a trusted Story-aware full-context assembly path without caller-selected context mode.",
+      "status": "verified",
+      "verifiedBy": "Focused full-context envelope smoke plus source inspection of handler/config boundary.",
+      "evidence": "prompt-full-context-envelope-smoke PASS; handler accepts only role/storyId/format and produces a signed content-addressed audit Envelope when that role is enabled. The repository default legacy markdown observed by live smoke is required by section 12.6 rollback/default behavior, not a failed full-envelope dispatch."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope",
+      "promise": "Task Context, known execution environment and content-addressed Prompt Envelope are defined and tamper/replay protected.",
+      "status": "verified",
+      "verifiedBy": "Canonical validate plus focused envelope/review-run smokes.",
+      "evidence": "lattice validate PASS with 46/46 commands and 47/47 intent coverage; prompt full-context envelope and review-run Prompt Envelope smokes PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope",
+      "promise": "Envelope is bound to signed ReviewRun, HEAD and reviewer pass and consumed by gates.",
+      "status": "verified",
+      "verifiedBy": "Focused review-run and quorum consumer smokes.",
+      "evidence": "review-run Prompt Envelope smoke PASS; quorum_submit smoke 22/22 including replay/tamper, selected-host drift and dispatch-to-gate chains."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope",
+      "promise": "Compatibility and retired evidence cannot satisfy REVIEW, quorum or assurance floor.",
+      "status": "verified",
+      "verifiedBy": "Canonical validation and quorum consumer regression.",
+      "evidence": "quorum_submit smoke proves numerically sufficient compatibility/retired-only receipts cannot authorize quorum; 47/47 evidence includes REVIEW and assurance-floor exclusion intents."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope",
+      "promise": "Per-role feature flags default to byte-exact legacy-full-context and can roll back without weakening gates.",
+      "status": "verified",
+      "verifiedBy": "Focused full-context envelope smoke and live default-config CLI transcript.",
+      "evidence": "prompt full-context envelope smoke proves enabled JSON envelope and per-role exact rollback; live agent_prompt on repository config returns legacy markdown because promptEnvelope roles are absent, exactly matching the documented default. Role migrations and enabling flags belong to Stories 5/6."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Current machine: node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js => PASS; canonical lattice validate => PASS, 46/46 commands and 47/47 required intents."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Current machine live command node bin/lattice.js agent_prompt --role=lattice-review-concept --storyId=B-dd81 --format=json exited 0 and returned byte-exact legacy markdown. This verifies the documented default rollback path because lattice.config has no promptEnvelope role enabled; focused smoke independently exercises the enabled full-envelope JSON response and deterministic envelopeId."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Current machine: node packages/main/dist/tasks/review-run-smoke.js => review-run Prompt Envelope smoke PASS; quorum smoke confirms replay/tamper and selected-host drift fail closed."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Current machine: node packages/main/dist/tasks/quorum-submit-smoke.js => 22/22 PASS, including compatibility/retired exclusion, full-envelope consumer coherence, independent host identity and no authority overclaim."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are met for Story 2. The live-smoke expected prose overstates default-config visibility, but its observed legacy output is the documented safe default; enabling/migrating actual roles is intentionally deferred to Stories 5 and 6. No Story 2 blocker remains."
+  },
+  "_hash": "ed39fa11c09c5b374a61e9d9af97566a39f1a5c98e1f65d084bac217e3e703e6"
+}
