@@ -115,7 +115,10 @@ export interface RoutineValidationIdentityCommand {
   focus: string[];
   /** Digest of process.env plus the command overlay; raw environment values are never stored. */
   effectiveEnvironmentDigest: string;
+  /** Content identity of the configured target executable. */
   executableDigest: string | null;
+  /** Content identity of the actual command shell when shell=true, else null. */
+  shellExecutableDigest?: string | null;
 }
 
 export interface RoutineValidationIdentity {
@@ -155,11 +158,19 @@ export interface RoutineValidationCommandExecution {
 export type DoneRequiredEvidenceStatus = 'PASS' | 'FAIL';
 
 export interface DoneRequiredCommandSpecEnvelope {
-  schema: 'lattice.command-spec.v1';
+  /** v2 digests a repo-relative logical cwd; v1 (legacy) digested an absolute cwd. */
+  schema: 'lattice.command-spec.v1' | 'lattice.command-spec.v2';
   digest: string;
   command: string;
   args: string[];
+  /** Repo-root-relative LOGICAL cwd (v2) / absolute cwd (legacy v1). Digested. */
   cwd: string;
+  /**
+   * Resolved ABSOLUTE physical workspace path where the command ran. Provenance
+   * only — deliberately EXCLUDED from the command-spec digest so it never breaks
+   * cross-worktree/host verification. Absent on legacy v1 receipts.
+   */
+  resolvedCwd?: string;
   shell: boolean;
   env: Record<string, string>;
   timeoutMs: number;
@@ -180,6 +191,12 @@ export interface DoneRequiredCommandReceipt {
   startedAt: string;
   endedAt: string;
   timedOut?: boolean;
+  /** Executor-owned effective environment identity; raw environment values are never stored. */
+  effectiveEnvironmentDigest?: string;
+  /** Executor-owned resolved executable content identity. */
+  executableDigest?: string | null;
+  /** Executor-owned actual shell executable identity; required when shell=true. */
+  shellExecutableDigest?: string | null;
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;

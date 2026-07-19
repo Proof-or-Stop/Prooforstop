@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-231d",
+  "sourceText": "Fix the audit-discovered portability defects: validation lock is per-projectRoot (not shared across worktrees) and the done-required command-spec digest embeds an absolute cwd.",
+  "normalizedOutcome": "The same story serializes validation across worktrees/hosts (one shared lock), and a command-spec digest is identical for the same logical command across worktree roots while legacy receipts still verify.",
+  "acceptanceClaim": "The worktree-portability smoke shows validationExecutionLockPath is root-independent and buildDoneRequiredCommandSpecEnvelope digests are root-independent with legacy receipts still accepted.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:44d4f65f25f22a18b69a46a7c4cc3302c78adb61316e32456b42c887c00630d5",
+  "createdAt": "2026-07-18T22:53:27.039Z",
+  "updatedAt": "2026-07-18T22:53:27.039Z"
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-6ed2",
+  "records": [
+    {
+      "id": "RED-QUORUM-RESIDUE",
+      "trigger": "B-8195 quorum_submit left six gate-consumed host verdict rows dirty before validation",
+      "acceptanceTargetRef": "ACCEPT-QUORUM-ATOMIC",
+      "baselineHeadHash": "866279c9d827697286157f738d5629fb751bacb4",
+      "baselineMaterialHash": "712b323865b536fe774ff1fb0fc9956a04ce0d744305d79144761bb3ae51a330",
+      "observedFailure": "From a clean REVIEW worktree, quorum_submit appended six host_verdict rows without a commit. The following 46-command validation passed every configured command but returned infra failure because canonical evidence persistence found pre-existing dirty process-events.jsonl.",
+      "failureReceiptHash": "9b353469dbffa7a80e5363cc0f5602acfc67e458b1f0d6dd7d28871c11202923",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node packages/main/dist/tasks/quorum-submit-smoke.js",
+      "greenRelation": {
+        "targetRef": "ACCEPT-QUORUM-ATOMIC",
+        "relation": "regression_to_green",
+        "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/quorum-submit-smoke.js"
+      },
+      "note": "Receipt digest binds the previously observed B-8195 terminal sequence; CHK-001 will add a committed executable regression harness before runtime changes.",
+      "createdAt": "2026-07-18T22:22:54.079Z"
+    }
+  ],
+  "createdAt": "2026-07-18T22:22:54.079Z",
+  "updatedAt": "2026-07-18T22:22:54.079Z"
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-231d",
+  "records": [
+    {
+      "id": "RED-20260718225329",
+      "trigger": "behavior-change: validation lock and command-spec digest must be worktree/host portable",
+      "acceptanceTargetRef": "sha256:44d4f65f25f22a18b69a46a7c4cc3302c78adb61316e32456b42c887c00630d5",
+      "baselineHeadHash": "563896ee07c00afa345928ea96ae444b1200416c",
+      "baselineMaterialHash": "712b323865b536fe774ff1fb0fc9956a04ce0d744305d79144761bb3ae51a330",
+      "observedFailure": "validationExecutionLockPath yields different lock files per worktree root; buildDoneRequiredCommandSpecEnvelope yields different digests per root for the same logical command (2/2 assertions fail).",
+      "failingCommand": "node tmp/s2-red/red-s2-portability.mjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/worktree-portability-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:44d4f65f25f22a18b69a46a7c4cc3302c78adb61316e32456b42c887c00630d5",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/worktree-portability-smoke.js"
+      },
+      "note": "RED harness 2/2 fail on baseline.",
+      "createdAt": "2026-07-18T22:53:29.350Z"
+    }
+  ],
+  "createdAt": "2026-07-18T22:53:29.350Z",
+  "updatedAt": "2026-07-18T22:53:29.350Z"
+}

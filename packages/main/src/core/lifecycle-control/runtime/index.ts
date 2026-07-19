@@ -4,6 +4,7 @@ import { buildStoryReadinessReport, type LifecycleReadinessTarget } from '../../
 import { resolveLocalAssuranceStories } from '../../local-assurance-story-projection.js';
 import { mainWriteLockPath, MAIN_WRITE_LOCK_STALE_MS } from '../../main-write-lock.js';
 import { readMkdirLockHolder } from '../../mkdir-lock.js';
+import { validationExecutionLockPath } from '../../validation-execution-lock.js';
 import { getSessionId, readOwnerLease, STALE_LEASE_THRESHOLD_MS, isLeaseStale } from '../../story-owner-lease.js';
 import type { StoryStore } from '../../store.js';
 import type { StoryPhase } from '../../types.js';
@@ -130,8 +131,16 @@ function mainWriteLockStatus(root: string, nowMs: number): RuntimeClosureRow['lo
 }
 
 function validationLockPath(root: string, storyId: string): string {
-  const safe = storyId.replace(/[^A-Za-z0-9_.-]/g, '_').replace(/^_+|_+$/g, '') || 'unknown';
-  return `${root}/.lattice/locks/validation/${safe}.lock`;
+  // Delegate to the canonical shared-root lock path (CHK-001 / F-007). Hand-rolling
+  // `<root>/.lattice/locks/validation/<id>.lock` keyed the status probe off each
+  // worktree's OWN physical root, so a linked worktree reported a genuinely-held
+  // lock as free — silently defeating the cross-worktree lock visibility this story
+  // delivers. validationExecutionLockPath anchors at the shared git-common-dir root.
+  try {
+    return validationExecutionLockPath(root, storyId);
+  } catch {
+    return '';
+  }
 }
 
 function validationLockStatus(

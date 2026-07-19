@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-6ed2",
+  "state": "confirmed",
+  "ledgerHash": "sha256:3b0217487ac84eeb17bea3f013f42091ca89c9a0c032d45b6c88149aa2a545c9",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-NO-REDUNDANT-VALIDATE",
+      "claim": "Production-path RED captures quorum-owned metadata residue and downstream validation refusal.",
+      "doneMeans": "Committed RED harness proves six emitted rows leave process-events dirty and validation refuses false PASS.",
+      "requiredEvidence": [
+        "integration_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-QUORUM-ATOMIC",
+      "claim": "Successful quorum submission atomically persists the complete six-row batch.",
+      "doneMeans": "Local CLI returns six verdicts, one bounded metadata commit, exact bindings, and clean git state.",
+      "requiredEvidence": [
+        "integration_test",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-QUORUM-ROLLBACK",
+      "claim": "Persistence and concurrency failures never leave a partial quorum or damage competing bytes.",
+      "doneMeans": "Adversarial matrix passes for pre-dirty, foreign append, HEAD race, hook/CAS failure, rollback conflict and retry.",
+      "requiredEvidence": [
+        "integration_test",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1",
+        "CHK-003:adversarial:2"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-18T22:21:33.636Z",
+  "updatedAt": "2026-07-18T22:21:35.026Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260718222135",
+    "acceptedInterpretationHash": "sha256:24d0c3bebbfd14a4720a4a2e9ef5cb9ed4b189724cfd0a8bb7a36f4fa702dd4b",
+    "acceptedAt": "2026-07-18T22:21:35.026Z"
+  }
+}

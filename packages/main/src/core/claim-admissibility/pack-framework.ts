@@ -33,6 +33,11 @@ import {
   QUANTUM_RUNTIME_STATUS,
   listQuantumVerifierAdapterDescriptors,
 } from './quantum.js';
+import {
+  CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR_ID,
+  QUANTUM_ENVIRONMENT_DESCRIPTOR_ID,
+  getEvidenceEnvironmentDescriptor,
+} from '../evidence/environment-contract.js';
 
 export const CLAIM_ADMISSIBILITY_PACK_CONTRACT_VERSION = 'lattice.claim_admissibility_pack.v1' as const;
 export const CODE_RUNTIME_CLAIM_ADMISSIBILITY_PACK_ID = 'code-runtime' as const;
@@ -104,6 +109,7 @@ export interface VerifierAdapterDefinition {
   readonly displayName: string;
   readonly description?: string;
   readonly executionBoundary: ClaimAdmissibilityAdapterExecutionBoundary;
+  readonly environmentDescriptorId?: string;
   readonly supportedVerifierVersions: readonly string[];
   readonly supportedOutputVersions?: readonly string[];
   readonly inputClaimSchemaIds?: readonly string[];
@@ -373,6 +379,17 @@ const CODE_RUNTIME_VERIFIER_ADAPTERS = freezeItems<VerifierAdapterDefinition>([
     inputClaimSchemaIds: Object.freeze([CODE_RUNTIME_CLAIM_SCHEMA_ID]),
     outputEvidenceSchemaIds: Object.freeze([CODE_RUNTIME_EVIDENCE_SCHEMA_ID]),
   },
+  {
+    id: 'code-runtime.policy-authorized-local-validation-receipt',
+    version: PROOF_ADMISSIBILITY_VERIFIER_VERSION,
+    displayName: 'Policy-authorized local validation receipt adapter',
+    description: 'Projects receipts from the existing configured validation executor; it exposes no command launcher or caller-selected command endpoint.',
+    executionBoundary: 'local-command-contract',
+    environmentDescriptorId: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR_ID,
+    supportedVerifierVersions: Object.freeze([PROOF_ADMISSIBILITY_VERIFIER_VERSION]),
+    inputClaimSchemaIds: Object.freeze([CODE_RUNTIME_CLAIM_SCHEMA_ID]),
+    outputEvidenceSchemaIds: Object.freeze([CODE_RUNTIME_EVIDENCE_SCHEMA_ID]),
+  },
 ]);
 
 const CODE_RUNTIME_GATE_POLICY_BOUNDARY: GatePolicyBoundary = Object.freeze({
@@ -491,6 +508,7 @@ const QUANTUM_VERIFIER_ADAPTERS = freezeItems<VerifierAdapterDefinition>(
     displayName: adapter.displayName,
     description: adapter.description,
     executionBoundary: adapter.executionBoundary,
+    environmentDescriptorId: QUANTUM_ENVIRONMENT_DESCRIPTOR_ID,
     supportedVerifierVersions: Object.freeze([adapter.version]),
     supportedOutputVersions: adapter.supportedOutputVersions,
     inputClaimSchemaIds: Object.freeze([QUANTUM_CLAIM_SCHEMA_ID]),
@@ -569,6 +587,17 @@ export function validateClaimAdmissibilityPacks(
         packId,
         path: `${adapterPath}.id`,
       });
+      if (adapter.environmentDescriptorId && !getEvidenceEnvironmentDescriptor(adapter.environmentDescriptorId)) {
+        issues.push(blockingIssue(
+          'invalid_pack_descriptor',
+          `Verifier adapter "${adapter.id}" references unknown Evidence Environment descriptor "${adapter.environmentDescriptorId}".`,
+          {
+            packId,
+            path: `${adapterPath}.environmentDescriptorId`,
+            value: adapter.environmentDescriptorId,
+          },
+        ));
+      }
     });
 
     pack.proofSurfaces.forEach((surface, surfaceIndex) => {

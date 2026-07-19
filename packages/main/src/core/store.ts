@@ -913,9 +913,9 @@ export class StoryStore {
 
   // ── Process Events (B-aa48: Phase 3 append-only event log) ──
 
-  appendProcessEvent(storyId: string, event: Omit<ProcessEvent, 'timestamp'>): void {
+  appendProcessEvent(storyId: string, event: Omit<ProcessEvent, 'timestamp'>) {
     const dir = this.storyDir(storyId);
-    appendProcessEventFn(dir, event);
+    return appendProcessEventFn(dir, event);
   }
 
   readProcessEvents(storyId: string): ProcessEvent[] {

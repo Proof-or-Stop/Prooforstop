@@ -27,13 +27,13 @@
  *      smoke assertion enforces this in flow-stability-smoke).
  */
 
-import { appendFileSync, mkdirSync } from 'fs';
-import { dirname, join } from 'path';
+import { join } from 'path';
 import {
   DIRTY_WORKTREE_CATEGORIES,
   type DirtyWorktreeCategory,
   type DirtyWorktreeClassification,
 } from './dirty-worktree.js';
+import { appendProcessEventRecord } from './process-events.js';
 
 export interface DirtyGatePolicyEntry {
   readonly blocking: boolean;
@@ -251,9 +251,7 @@ export function evaluateDirtyGate(
  */
 export function defaultAuditWriter(projectRoot: string, storyDirRel: string, storyId: string): AuditWriter {
   const storyDir = join(projectRoot, storyDirRel, storyId);
-  const filePath = join(storyDir, 'process-events.jsonl');
   return (event: AuditEvent) => {
-    mkdirSync(dirname(filePath), { recursive: true });
-    appendFileSync(filePath, JSON.stringify(event) + '\n', 'utf-8');
+    appendProcessEventRecord(storyDir, event as unknown as Record<string, unknown>);
   };
 }

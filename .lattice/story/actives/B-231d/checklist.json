@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Derive validation lock identity from a canonical shared root",
       "context": "Replace validationExecutionLockPath join(root, ...) with a lock root resolved from the git common dir or canonical metadata root so all worktrees and hosts of the same story share one lock.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
+      "status": "done",
+      "startTime": "2026-07-18T23:29:53.057Z",
+      "endTime": "2026-07-18T23:45:17.520Z",
       "userSees": "validationExecutionLockPath returns the same lock path for two different worktree roots of the same story.",
       "files": {
         "modify": [
@@ -16,7 +16,68 @@
         "test": [
           "packages/main/src/tasks/worktree-portability-smoke.ts"
         ]
-      }
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "validationExecutionLockPath resolves to the same lock path for two different worktree roots of the same story.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "non-git project falls back to projectRoot lock without throwing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "different storyIds still get different locks; plain repo unchanged.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
+          "result": "pass",
+          "note": "Re-verified at HEAD 2eca6544 post F-009/F-010 fix (29/29 checks, exit 0). validationExecutionLockPath returns the identical lock path for mainRoot and a real linked worktree of the same story.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
+          "result": "pass",
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). A non-git temp dir falls back to a lock path rooted at itself without throwing.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
+          "result": "pass",
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). Different storyIds under the same root still resolve to different lock paths; plain-repo lock behavior unchanged.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -35,9 +96,165 @@
           "packages/main/src/tasks/worktree-portability-smoke.ts"
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-18T23:31:46.572Z",
+      "endTime": "2026-07-18T23:45:19.106Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "buildDoneRequiredCommandSpecEnvelope produces the same digest for the same logical command under two different worktree roots.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "legacy old-shape receipt still verifies under the versioned migration.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "genuinely different commands still digest differently.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
+          "result": "pass",
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). buildDoneRequiredCommandSpecEnvelope digests identically for the same logical command under mainRoot and worktreeRoot (schema v2, cwd=.).",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
+          "result": "pass",
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). A legacy schema-v1 absolute-cwd envelope still verifies via validateCommandSpecDigestCoverage under the migration (matchesEnvelope accepts v1 OR v2).",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
+          "result": "pass",
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). Genuinely different commands digest differently; F-002 isolates cwd-only variation (args/shell/env fixed) as a regression guard.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record the resolved physical workspace path as non-digested provenance",
+      "context": "When the command-spec digest switches to a repo-relative logical cwd (CHK-002), the resolved absolute/physical workspace path must still be recorded in the envelope as a separate, NON-digested provenance field, so operators can see where a command actually ran without the physical path affecting cross-host digest equality.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-231d/background.md"
+      ],
+      "userSees": "The command-spec envelope carries the resolved physical cwd as a provenance field that is NOT part of the digest; two roots produce the same digest but each records its own physical provenance.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-required-validation.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-18T23:35:43.262Z",
+      "endTime": "2026-07-18T23:45:21.359Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "the command-spec envelope records the resolved physical cwd as a provenance field that is excluded from the digest.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "two different physical roots yield the same digest but different provenance values.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "altering only the provenance field does not change the digest; altering the logical cwd does.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
+          "result": "pass",
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). envelope.resolvedCwd records the resolved absolute physical workspace path per root (mainRoot vs worktreeRoot).",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
+          "result": "pass",
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). mainRoot and worktreeRoot yield the SAME digest but DIFFERENT resolvedCwd provenance values.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/worktree-portability-smoke.js",
+          "result": "pass",
+          "note": "Re-verified at HEAD 2eca6544 (29/29 checks, exit 0). resolvedCwd differs while digest stays equal (provenance excluded); F-002 shows altering the logical cwd DOES change the digest, confirming isolation of digest-affecting vs provenance-only fields.",
+          "headHash": "2eca65442aebed935fd047dbb03cb7bf4b4a5d36",
+          "materialHash": "fc9a0988ef28f814e44e315e12723511f38a1c239633592ee5020286b0eda041",
+          "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+          "timestamp": "2026-07-19T02:13:17.113Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-18T23:19:45.461Z",
+      "phase": "PLAN",
+      "itemId": "CHK-003",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope reviewer correctly flagged the decision.json-affirmed provenance principle as an in-scope feature with no covering checklist title; add it explicitly.",
+      "addedTitle": "Record the resolved physical workspace path as non-digested provenance",
+      "addedContext": "When the command-spec digest switches to a repo-relative logical cwd (CHK-002), the resolved absolute/physical workspace path must still be recorded in the envelope as a separate, NON-digested provenance field, so operators can see where a command actually ran without the physical path affecting cross-host digest equality."
     }
   ]
 }

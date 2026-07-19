@@ -1,0 +1,631 @@
+{
+  "passes": [
+    {
+      "id": "B-6ed2:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs pass: both changed decision documents accurately describe the implemented clean-baseline, exact rounds x 2 event delta, single immutable metadata commit with normal hooks and HEAD CAS, whole-batch rollback, concurrent-byte preservation, and local non-Authority boundary. Direct handler and process-fact registry diffs match; focused process-fact contract passes.",
+      "createdAt": "2026-07-18T22:42:38.001Z",
+      "reviewRound": "2026-07-18T22:40:29.487Z",
+      "reviewRunId": "B-6ed2:RR-003",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "381632f66a4a475a00b843b6b07faea5d7db30fd6193e2039f890a628b78f83d"
+      },
+      "readDiagnostics": [],
+      "_hash": "6a5310bb4a900aad6111068afc2d14a89989a523975051e47242db4d248352eb"
+    },
+    {
+      "id": "B-6ed2:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 targeted docs pass: incremental decision text accurately assigns quorum_submit sole terminal ownership, documents the CLI generic codex_cli skip, committed-event duplicate authority, and byte-exact rollback preservation. cli-engine and handler changes implement those claims; the focused process-fact contract passes.",
+      "createdAt": "2026-07-18T23:19:33.490Z",
+      "reviewRound": "2026-07-18T23:16:21.943Z",
+      "reviewRunId": "B-6ed2:RR-007",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0fc7bff458f0d81caddae2eacb099e4a26c99280760a91e899439ce07cb8ec54"
+      },
+      "readDiagnostics": [],
+      "_hash": "910dc7c6d86157e80f428b084beea67b2f70865af0ab3b880c4dbb69a7328dbf"
+    },
+    {
+      "id": "B-6ed2:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 targeted coverage re-review PASS. F-002 is fixed: the bounded smoke now drives the current worktree dist through a fixture-local bin/lattice.js production CLI; separately refuses process-events, staged-source, lifecycle-metadata, and untracked-user dirt; binds historical RED ffedfb4eb3 and runs one bounded validation command that returns status=fail, allPass=false, failureKind=infra_failure, disposition=executed, commandExecutions=1 while retaining original FAIL and exact dirty bytes with no false PASS. Fast direct-handler seams remain for foreign append, gate-field tamper, verdict JSON ownership, binary rollback, hook failure/retry, HEAD CAS and rollback conflict. Focused smoke passed 27/27; all 27 must intent refs have PASS evidence and no missing mapping.",
+      "createdAt": "2026-07-18T23:21:30.392Z",
+      "reviewRound": "2026-07-18T23:16:21.943Z",
+      "reviewRunId": "B-6ed2:RR-006",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "085d9ad8404197f2b270e76234f25b6ca28f46a207c08e7ef0d4566500c9b056"
+    },
+    {
+      "id": "B-6ed2:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round-5 incremental docs/process-fact pass: shared process-event writer migration preserves existing event schemas and gate consumers while serializing append boundaries and returning exact byte-span identity. cross-host and dirty-gate keep their prior fact semantics; quorum sole terminal ownership, committed-event duplicate authority, exact rollback, concurrency preservation, and local non-Authority claims remain consistent with both decisions. Focused process-fact contract passes.",
+      "createdAt": "2026-07-19T00:15:47.327Z",
+      "reviewRound": "2026-07-19T00:14:28.161Z",
+      "reviewRunId": "B-6ed2:RR-016",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/dirty-gate-policy.ts",
+          "packages/main/src/core/process-events.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0fc7bff458f0d81caddae2eacb099e4a26c99280760a91e899439ce07cb8ec54"
+      },
+      "readDiagnostics": [],
+      "_hash": "28205e0b43e8d496bb09917121c263a4933eff96fc5004ef67e402dfcc981efd"
+    },
+    {
+      "id": "B-6ed2:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-5 incremental concept PASS: F007/F008 are closed by writer-returned exact append identity plus migration of dirty-gate and cross-host production writers to the same cooperative process-event lock. Timestamp/default semantics and the two-row cross-host batch remain intact; focused quorum smoke passed 32/32 and no blocking concept issue remains in the bounded delta.",
+      "createdAt": "2026-07-19T00:17:54.623Z",
+      "reviewRound": "2026-07-19T00:14:28.161Z",
+      "reviewRunId": "B-6ed2:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-events.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dirty-gate-policy.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6b2993032a39b45caf242d91a3d8e8d325d3ceb220163223d71a0ce97a14b567"
+    },
+    {
+      "id": "B-6ed2:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-5 incremental coverage PASS for F-008. Immutable RED 7ec6e7d7f0 holds .process-events-append.lock and detects defaultAuditWriter writing through it (exit 41 before GREEN). GREEN e95d88cfb8 migrates dirty-gate audit and cross-host verdict batch writers to the shared locked raw/record primitive. Focused smoke passed 32/32, including runtime held-lock audit writer waiting until release and AST production scan reporting zero direct appendFileSync process-events writers outside core/process-events.ts. The prior production CLI, historical RED validation infra_failure/no-false-PASS, exact writer identity, rollback, foreign bytes, hook/retry and HEAD CAS cases all remain green. All 27 verificationIntent refs have at least one PASS evidence row matching current materialHash ab46a128... and storyFilesHash e76dbc98...; no missing/current-identity gap.",
+      "createdAt": "2026-07-19T00:18:32.296Z",
+      "reviewRound": "2026-07-19T00:14:28.161Z",
+      "reviewRunId": "B-6ed2:RR-015",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-events.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dirty-gate-policy.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ae05bc22f4995914217552bf4b8fa56460fd63ac0aefa6a4c6806bf4b2a30766"
+    },
+    {
+      "id": "B-6ed2:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 targeted quality review passed: F-007/F-008 writer identity and all production appenders share the locked raw/record primitive; exact offsets, rollback, cross-host batch, dirty audit timestamp compatibility, and lock contention are covered. Build and focused quorum smoke passed 32/32. AST inventory is a bounded regression guard rather than a formal alias-proof and is non-blocking because current production writers were independently enumerated.",
+      "createdAt": "2026-07-19T00:18:39.147Z",
+      "reviewRound": "2026-07-19T00:14:28.161Z",
+      "reviewRunId": "B-6ed2:RR-014",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-events.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dirty-gate-policy.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a71190082da90b2fba5378741a47f13edfac8c18dde3f05795aed2f0d280752a"
+    },
+    {
+      "id": "B-6ed2:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Round-6 targeted test-contract pass: retired-authority vocabulary guard and process-fact projection pin the identical updated cli-engine structural fingerprint, the superseded fingerprint is absent, and the focused process-fact contract passes. This is test-contract synchronization only; no decision-doc or production semantics changed.",
+      "createdAt": "2026-07-19T00:38:36.555Z",
+      "reviewRound": "2026-07-19T00:37:23.078Z",
+      "reviewRunId": "B-6ed2:RR-020",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8538853ea70f4f5082a5a6165790c8124aea940d67d5526a550e7e2e982d10e3"
+    },
+    {
+      "id": "B-6ed2:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round-6 incremental concept PASS: the only production-independent delta repins the guard and process-fact projection to the mechanically recomputed canonical cli-engine AST fingerprint 48ca6562b11dda8996163ad992cdb2a9f6e19e6073beaf171290d064f1d106e2. cli-engine.ts itself is unchanged; the approved loader remains anchored in runCli with exact argument `file://${initPath}`. Process Fact Contract passed and no safety predicate or executable behavior was weakened.",
+      "createdAt": "2026-07-19T00:38:48.203Z",
+      "reviewRound": "2026-07-19T00:37:23.078Z",
+      "reviewRunId": "B-6ed2:RR-018",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ea62f8daf55e2783a35ac09af1d3755aef6c360bf711a4fd4c28e488e7b8c4bb"
+    },
+    {
+      "id": "B-6ed2:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 fingerprint-sync review passed: commit 38952190 changes only the cli-engine canonical AST pin from 57e34467adfc091cfe86ae9defbe7cb0606283f33f168aa148124dd100f41c89 to 48ca6562b11dda8996163ad992cdb2a9f6e19e6073beaf171290d064f1d106e2 in the guard and process-fact projection, with no production changes. Relocated-loader and path-producer mutation controls remain intact. Focused vocabulary guard and process-fact contract both pass.",
+      "createdAt": "2026-07-19T00:42:06.499Z",
+      "reviewRound": "2026-07-19T00:37:23.078Z",
+      "reviewRunId": "B-6ed2:RR-017",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ca47cb70b9d321c3f8c0a34e99ec52e6d04173cb9fdbe170463354c90a017db5"
+    },
+    {
+      "id": "B-6ed2:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-6 two-file fingerprint-sync coverage PASS. Parsed the prior formal validate receipt: exactly 46 configured commands, 45 PASS and sole FAIL command[2] retired-authority-vocabulary-guard; failure text reports the registered cli-engine dynamic-loader positive control rejected only because actual canonical AST fingerprint was 48ca6562... while the allow pin was old. Commit 38952190ab changes exactly two lines in two guard/projection files, replacing the same old 64-hex pin with 48ca6562...; no assertion, scan path, positive/negative control, count, or behavior was removed. Focused retired-authority vocabulary guard now PASS (builds=743, cacheHits=2, fullAnalysis=1185, astCandidates=458, reachability=34). Process-fact contract PASS. Milestone freshness is separate and currently blocked because storyFilesHash moved e76dbc98 -> ebc74cf8 after the pin files entered story-owned material; main flow must refresh/re-run verification evidence before closeout, but this is not a coverage defect in the two-line guard repair.",
+      "createdAt": "2026-07-19T00:42:23.159Z",
+      "reviewRound": "2026-07-19T00:37:23.078Z",
+      "reviewRunId": "B-6ed2:RR-019",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c912cc7b948cd34afbac8de7c5ebf3180625ea396816a4368f6d175c2ad954d3"
+    },
+    {
+      "id": "B-6ed2:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 minimal incremental concept review PASS. review_incremental_context reports scopeChanged=false and changedFiles=(none) since prior concept PASS B-6ed2:RP-009; only Lattice checklist/phase/review metadata advanced. No conceptual contract, implementation, or story-owned source change requires re-review. Existing focused evidence remains the applicable basis: quorum atomic-close smoke 32/32 plus process-fact contract and flow-stability checks. No new blocker.",
+      "createdAt": "2026-07-19T00:50:23.736Z",
+      "reviewRound": "2026-07-19T00:49:06.810Z",
+      "reviewRunId": "B-6ed2:RR-021",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "20c9b36412fef6c15ec76dedea8ce180b8ac6884f6e566f3a604f7b1b39a975a"
+    },
+    {
+      "id": "B-6ed2:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Incremental round-7 quality re-review: review_incremental_context reports scopeChanged=false and changedFiles=[] relative to prior PASS B-6ed2:RP-010. Reused the prior quality analysis and existing focused quorum smoke evidence (32/32 PASS); no code reread or test rerun was warranted. No high/critical quality blocker found.",
+      "createdAt": "2026-07-19T00:51:32.663Z",
+      "reviewRound": "2026-07-19T00:49:06.810Z",
+      "reviewRunId": "B-6ed2:RR-022",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e09730101538582979faebc7fa62b646fb3124bd1c70f7842bf4767bf4383941"
+    },
+    {
+      "id": "B-6ed2:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 minimal incremental re-review: review_incremental_context reports scopeChanged=false and changedFiles=[] since prior PASS B-6ed2:RP-011. Reused the established 3/3 milestone coverage and existing focused quorum smoke evidence (32/32 PASS); no tests rerun and no new coverage blocker found.",
+      "createdAt": "2026-07-19T00:51:34.877Z",
+      "reviewRound": "2026-07-19T00:49:06.810Z",
+      "reviewRunId": "B-6ed2:RR-023",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "f92f0876529a4caa9cf932e9f496073f8e604e37eab1df132ec7186057a1ee61"
+    },
+    {
+      "id": "B-6ed2:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Round 7 minimal incremental docs re-review: review_incremental_context reports scopeChanged=false and changedFiles=[]; prior PASS B-6ed2:RP-008 remains applicable. No documentation blocker.",
+      "createdAt": "2026-07-19T00:51:36.887Z",
+      "reviewRound": "2026-07-19T00:49:06.810Z",
+      "reviewRunId": "B-6ed2:RR-024",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "cd6109f84357d38b18425da7caff29754491a4e272d1322b81a7e8eecf2d2761"
+    },
+    {
+      "id": "B-6ed2:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Incremental round-8 re-attestation PASS. review_incremental_context since RP-012 lists exactly 7 paths: CITATION.cff, LICENSE, README.md, docs/requirements/NAV.md, and three decisions plans. Git history shows these arrived through c560e284 merge-main plus closeout metadata commits; no packages/main business-code path changed. session_brief classifies the drift as whole-tree materialHash drift with UNCHANGED story-owned files (storyFilesHash unchanged). B-6ed2 atomic quorum semantics are unchanged. Reused formal validation 46/46 PASS and DONE-required 2/2 PASS; no test rerun warranted.",
+      "createdAt": "2026-07-19T01:20:11.648Z",
+      "reviewRound": "2026-07-19T01:18:54.867Z",
+      "reviewRunId": "B-6ed2:RR-025",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "CITATION.cff",
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "LICENSE",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "3f3dd9968f42de149e15e5bcc1997decd68b7e2adac3518ad9e1d1c452de1e82"
+      },
+      "readDiagnostics": [],
+      "_hash": "3bdb42eb70ca40de54690680f19598fb0a54926f6fb4bb875911ede70a28d4d8"
+    },
+    {
+      "id": "B-6ed2:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Incremental round-8 docs re-attestation from RP-015: inspected exactly the 7 files reported by review_incremental_context. They originate from main commits 23600eb563, d438938382, and 9031dc0a3c and contain only Apache-2.0/CITATION public-release metadata, README/NAV updates, and unrelated decision-plan prose. No B-6ed2 quorum_submit behavior, atomic six-row persistence contract, tests, summary, transcript, delivery evidence, or product promise changed; prior closeout receipts remain applicable. No docs blocker.",
+      "createdAt": "2026-07-19T01:20:22.590Z",
+      "reviewRound": "2026-07-19T01:18:54.867Z",
+      "reviewRunId": "B-6ed2:RR-026",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "CITATION.cff",
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "LICENSE",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "3f3dd9968f42de149e15e5bcc1997decd68b7e2adac3518ad9e1d1c452de1e82"
+      },
+      "readDiagnostics": [],
+      "_hash": "803c271d53a5e32b318663f2ab2188d8e8e78329cb17050e76b51e5e6c0e2ce4"
+    },
+    {
+      "id": "B-6ed2:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Incremental closeout re-attestation from RP-014: exactly 7 changed files, all main-merge documentation; no packages/main/src, packages/main/tests, scripts, package.json or lockfile change. Story-owned implementation/test set and storyFilesHash remain unchanged. Reuse accepted 3/3 milestones plus fresh formal validation 46/46 and DONE-required 2/2; no new coverage blocker and no test rerun warranted.",
+      "createdAt": "2026-07-19T01:20:24.407Z",
+      "reviewRound": "2026-07-19T01:18:54.867Z",
+      "reviewRunId": "B-6ed2:RR-027",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "CITATION.cff",
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "LICENSE",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "3f3dd9968f42de149e15e5bcc1997decd68b7e2adac3518ad9e1d1c452de1e82"
+      },
+      "readDiagnostics": [],
+      "_hash": "80b0fa263d8c21f66e25ac1ef9c1de4da5bd8cc7627f72b71998b042e6fb7ae5"
+    },
+    {
+      "id": "B-6ed2:RP-019",
+      "agent": "lattice-review-quality",
+      "note": "Incremental round-8 quality re-attestation: since prior PASS RP-013, the only material diff is 7 main-merge documentation/release files; no B-6ed2 business/runtime/test source changed. Evidence inspection confirms current storyFilesHash ebc74cf8134a8d12c18f7b25129525ccf71eeccae4f48894731407239b7c8e12 matches fresh story-owned validation evidence; whole-tree material drift is advisory. Reused formal validate 46/46 PASS and DONE-required 2/2 PASS; no tests or corpus scan rerun. No quality blocker.",
+      "createdAt": "2026-07-19T01:20:39.199Z",
+      "reviewRound": "2026-07-19T01:18:54.867Z",
+      "reviewRunId": "B-6ed2:RR-028",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "CITATION.cff",
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "LICENSE",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "3f3dd9968f42de149e15e5bcc1997decd68b7e2adac3518ad9e1d1c452de1e82"
+      },
+      "readDiagnostics": [],
+      "_hash": "3d9786e30f7428ca61a30e1083f0227790b727453209376b504ca9c7f4edb98d"
+    },
+    {
+      "id": "B-6ed2:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Round 9 related-drift concept review: merge eddff4ec35 preserves the exact union of both quorum smoke parents (39 unique checks, none dropped), leaves B-6ed2 quorum/process-event production paths unchanged, and adds prompt-envelope Store/process-fact contracts orthogonally. The post-merge 39/39 quorum smoke, build, and process-fact contract evidence therefore support both atomic six-row behavior and the new reviewer/prompt contract; no concept residue or blocker found.",
+      "createdAt": "2026-07-19T01:43:10.971Z",
+      "reviewRound": "2026-07-19T01:40:42.959Z",
+      "reviewRunId": "B-6ed2:RR-031",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice-codex/agents/lattice-review-concept.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-review-concept.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "27383f39d362dbc9c24ad5f5d7e624382b1e7aa2c3ac4a991909479474644c5b"
+    },
+    {
+      "id": "B-6ed2:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Round 9 bounded docs/delivery consistency review: merge eddff4ec35 changed no decision docs or prompt assets; summary evidence commit e764c1cd18 remains exactly six additions in only process-events.jsonl, so the six-row single-commit atomic quorum promise is not contradicted. Delivery freshness is stale after merge and must be re-signed, but the claims themselves remain consistent.",
+      "createdAt": "2026-07-19T01:43:17.581Z",
+      "reviewRound": "2026-07-19T01:40:42.959Z",
+      "reviewRunId": "B-6ed2:RR-029",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6ed2/summary.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6ed2/delivery-check.json",
+          ".lattice/story/actives/B-6ed2/evidence/live-smoke-transcript.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f86e1cbc20336d0f5c3c914c802adaa908083afa8dcbb24cc5e9204db6dcbcea"
+    },
+    {
+      "id": "B-6ed2:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 related-drift quality review found no blocker. Merge conflict resolution preserved the union of both quorum smoke assertion sets (32 and 22 parent checks, 39 unique merged checks, zero lost); final imports/bootstrap compile under the reused build PASS, and the bounded transaction inspection confirms shared process-event locking, exact append/verdict byte identities, immutable CAS commit, exact owned-span rollback, foreign-byte preservation, and quorum-specific terminal-event suppression remain intact. Reused quorum smoke 39/39 and process-fact contract PASS.",
+      "createdAt": "2026-07-19T01:43:27.194Z",
+      "reviewRound": "2026-07-19T01:40:42.959Z",
+      "reviewRunId": "B-6ed2:RR-030",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-events.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts",
+          "packages/main/src/core/auto-commit-metadata.ts",
+          "packages/main/src/core/dirty-gate-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c3bd04e7958792bbbb652430e5dd36b4fc1fd1c5a59029c5bb774163c5f12780"
+    },
+    {
+      "id": "B-6ed2:RP-023",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 9 related-drift coverage review passed: all 27/27 must intents have current post-merge PASS evidence at material 13651e6/story f953c86, all three milestones are completed with zero risks and zero waivers. The quorum smoke assertion inventory is a strict superset of the pre-merge 32 checks: 39 current checks retain atomic six-row commit, exact rollback/CAS, shared process-event lock, production CLI dirty refusal, duplicate/idempotent retry, foreign-byte preservation and no-Authority-overclaim assertions, while adding seven reviewer prompt/provider contract checks. Post-merge build, 39/39 smoke, and process-fact contract are PASS; no coverage blocker found.",
+      "createdAt": "2026-07-19T01:43:58.521Z",
+      "reviewRound": "2026-07-19T01:40:42.959Z",
+      "reviewRunId": "B-6ed2:RR-032",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice-codex/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6ed2/checklist.json",
+          ".lattice/story/actives/B-6ed2/test-evidence.json",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5887bf1bd5c35f8e5f7d18dc1e8cfdad18cc7377164c5fbb395aed49c16e86d"
+    }
+  ]
+}

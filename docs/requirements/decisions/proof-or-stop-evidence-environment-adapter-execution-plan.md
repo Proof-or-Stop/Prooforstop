@@ -1,6 +1,6 @@
 # Proof-or-Stop Evidence Environment Adapter — Architecture Audit and Execution Plan
 
-Status: proposal / audit passed at round 5 by independent Claude CLI and agy CLI reviews; no runtime change is authorized by this document  
+Status: implemented reference contract in Story B-955c; architecture proposal previously passed round-5 independent Claude CLI and agy CLI review
 Date: 2026-07-19  
 Audit trail: draft → Claude CLI R1 `APPROVE-WITH-CHANGES` + agy CLI R1 `REJECTED / Needs Revision` → R2 agy CLI `PASS` + Claude CLI `APPROVE-WITH-CHANGES` → R3 agy CLI `PASS` + Claude CLI `CONDITIONAL PASS` → R4 both `CONDITIONAL/PARTIAL` → R5 Claude CLI `PASS` + agy CLI `PASS` with no required edits  
 Scope: formalize the host-neutral evidence-production boundary, define a generic adapter contract, prove reference-path substitutability, and calibrate the paper claim
@@ -42,6 +42,39 @@ host-neutral evidence-production and observation boundary with:
 4. host-substitution invariance;
 5. fail-closed admissibility.
 
+### 1.1 Implemented support boundary (B-955c)
+
+The repository now implements the generic contract in
+`packages/main/src/core/evidence/environment-contract.ts` and exposes a
+conformance command:
+
+```bash
+npm --prefix packages/main run test:evidence-environment-adapter
+```
+
+Implemented now:
+
+| Capability | Support | Evidence |
+|---|---|---|
+| Versioned descriptor, invocation, receipt, normalized envelope, canonical digests, and read-only registry | Implemented | `environment-contract.ts`; conformance smoke |
+| Code-runtime reference path | Implemented as a projection of existing policy-authorized DONE-required/routine-validation identities and receipts | `projectDoneRequiredReceiptToEnvironment`; no new process launcher or public command endpoint |
+| Quantum reference path | Implemented as read-receipt-only projection after the existing Quantum normalizer accepts the receipt | `projectQuantumReceiptToEnvironment`; Quantum smoke |
+| Proof Admissibility / Gate projection | Implemented in the existing DONE_REQUIRED lifecycle consumer; raw invocation/receipt input is revalidated before the shared proof-surface evaluator runs | `evaluateDoneRequiredEvidence` → `validateDoneRequiredEvidenceEnvironmentProjection` → `evaluateEvidenceEnvironmentGateProjection`; DONE-required smoke |
+| Windows implicit-shell identity | Implemented for the DONE-required path: actual `shell:true` is recorded, target executable identity remains separate, and `ComSpec`/`cmd.exe` content identity is bound as `shellExecutableDigest` by the shared producer/consumer constructor | DONE-required platform-injected regression; validation-evidence-reuse smoke |
+| Compound shell identity | Implemented conditionally: exact command/args/cwd/policy are bound by the CommandSpec digest and the actual shell executable is mandatory; target `executableDigest` may be `null` only when `shell:true` has no single resolvable target executable | DONE-required full-evaluator compound-shell positive and tampered-shell regressions |
+| Host-substitution invariant | Mechanically covered for policy-equivalent normalized inputs | EEA conformance smoke |
+| Producer independence | **Unsupported / fail-closed.** Receipts may reserve an opaque attestation reference, but the implementation exposes no injectable resolver and has no project-owned pinned-key/revocation registry. Distinct-host quorum always returns `distinct_host_quorum_unsupported`; repeated references additionally return `same_producer_not_independent` | EEA conformance smoke |
+
+This implementation does **not** add an arbitrary runner, a second evidence
+store, an adapter-owned lifecycle transition, production authority, or a generic
+third-party execution service. The code-runtime path projects receipts already
+produced by configured validation policy; the Quantum path never executes a
+solver.
+
+Integration targets—not current adapters—remain Lean, Rosetta, AlphaFold, PINN
+solvers, browsers, databases, CI systems, Kubernetes, and production deployment
+environments.
+
 ## 2. Why this abstraction matters
 
 The current software-focused statement is:
@@ -60,7 +93,7 @@ This creates three distinct portability claims:
 | Property | Question answered | Current maturity |
 |---|---|---|
 | Host-neutral | Does switching Claude, Codex, or another execution host change core Gate semantics? | Implemented architecture and host-facing paths; provider-execution breadth and cross-vendor quorum remain bounded, as stated in `README.md` and `docs/requirements/decisions/host-overflow.md` |
-| Environment-neutral | Can compiler, formal checker, browser, solver, CI, database, or deployment observation enter through one evidence protocol? | Architectural skeleton exists; generic contract and conformance proof remain to be completed |
+| Environment-neutral | Can compiler, formal checker, browser, solver, CI, database, or deployment observation enter through one evidence protocol? | Generic contract and two bounded reference projections are implemented; named third-party environments remain integration targets |
 | Domain-portable | Can software, mathematics, PINN, quantum, or biology define domain-specific claims and evidence requirements? | Pack framework exists; the code-runtime Pack is a declarative reference to the mature existing runtime, Quantum is local/read-only, and PINN is primarily a design contract |
 
 Evidence Environment fills the second row. It connects the existing host-neutral
@@ -78,7 +111,7 @@ architecture.
 | External proof surfaces already resolve through verifier adapter identity | `ExternalSurfaceDefinition.verifierAdapterId` in the Evidence Platform architecture | EEA can refine this extension point rather than replace it |
 | Claim-admissibility Packs already declare schemas, verifier adapters, Gate policies, and benchmarks | `docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md` and `packages/main/src/core/claim-admissibility/pack-framework.ts` | Domain semantics remain Pack-owned |
 | Adapter execution boundaries already distinguish declaration, receipt reading, and local command contracts | `ClaimAdmissibilityAdapterExecutionBoundary` in `pack-framework.ts` | EEA generalizes an existing boundary vocabulary |
-| Existing command identity has two relevant surfaces: DONE-required `lattice.command-spec.v1` binds command, args, cwd, declared shell mode, declared environment overlay, and timeout; routine-validation identity additionally binds `effectiveEnvironmentDigest` and `executableDigest`. Both currently record declared rather than actual Windows shell mode | `packages/main/src/core/done-required-validation.ts`, `validation-evidence-reuse.ts`, `validation-command-environment.ts`, and `validation-executor.ts` | The local-command reference path should reuse the existing effective-environment canonicalization and executable identity while closing the actual-shell gap; it must not create a third incompatible identity scheme |
+| Existing command identity has two relevant surfaces: the current DONE-required `lattice.command-spec.v2` binds command, args, repo-relative logical cwd, actual shell mode, declared environment overlay, and timeout while recording absolute `resolvedCwd` as non-digested provenance; legacy `lattice.command-spec.v1`, whose digest bound an absolute cwd, remains accepted only for pre-existing receipts. Routine-validation identity additionally binds `effectiveEnvironmentDigest`, target `executableDigest`, and conditional actual `shellExecutableDigest`. Windows implicit-shell execution is recorded as `shell:true` and binds `ComSpec`/`cmd.exe` content identity | `packages/main/src/core/done-required-validation.ts`, `validation-evidence-reuse.ts`, `validation-command-environment.ts`, and `validation-executor.ts` | The local-command reference path reuses the existing effective-environment and executable identity scheme; the v2 logical/physical cwd split preserves cross-worktree portability without discarding execution provenance, while richer shell version/login/init posture remains future work |
 | Quantum adapters are currently `read-receipt-only` | `packages/main/src/core/claim-admissibility/quantum.ts` | A non-executing scientific reference path already exists |
 | Generic command-backed domain verifier execution and generic Pack Gate integration remain pending | Claim-admissibility Pack framework M3 command-backed execution and M4 generic Gate integration | The paper must not describe all domain integrations as implemented |
 
@@ -206,7 +239,10 @@ session, legacy/external Authority-derived identity, or equivalent verifier-owne
 attestation.
 Caller-supplied `hostId`, provider, session, key, or trust strings are provenance
 claims only and cannot satisfy an independence policy. Missing or unverifiable
-producer attestation fails closed.
+producer attestation fails closed. The current implementation has no trusted
+producer registry and therefore treats every distinct-Host quorum request as
+unsupported; an arbitrary callback is never accepted as a verifier-owned trust
+root.
 
 ### I2. Authority separation
 
@@ -276,13 +312,12 @@ The environment used to compute invocation identity must be the environment
 actually used to execute or observe. A descriptor that hashes one environment
 but launches another is invalid.
 
-For command-backed execution, identity includes the effective process
-environment plus the shell mode and, when a shell is used, its executable,
-version or implementation identity, and login/init-file posture. Local execution
-should prefer `shell:false`. A `shell:true` reference path requires a conformance
-test that the environment identity supplied to the child matches the recorded
-identity; a hypothetical profile-file drift is a test target, not an assumed
-property of every shell.
+For the implemented command-backed path, identity includes the effective process
+environment, actual shell mode, target executable content digest, and—when a
+shell is used—the resolved shell executable content digest. It does not bind
+shell version metadata, login/init-file posture, or launch switches. Local
+execution should prefer `shell:false`. Richer shell posture is a future
+versioned-schema target, not evidence supplied by the current receipt.
 
 ### I6. Fail closed
 
@@ -417,18 +452,19 @@ interface EvidenceEnvironmentCommandSpecBase {
   cwd: string;
   processEnvironmentOverlay: Record<string, string>;
   processEnvironmentDigest: string;
-  executableDigest: string | null;
   timeoutMs: number;
 }
 
 type EvidenceEnvironmentCommandSpec =
   | (EvidenceEnvironmentCommandSpecBase & {
       shell: false;
-      shellIdentityDigest?: never;
+      executableDigest: string;
+      shellExecutableDigest?: never;
     })
   | (EvidenceEnvironmentCommandSpecBase & {
       shell: true;
-      shellIdentityDigest: string;
+      executableDigest: string | null;
+      shellExecutableDigest: string;
     });
 
 interface EvidenceEnvironmentInvocationRequest {
@@ -484,25 +520,29 @@ The schema keeps the current command vocabulary (`command`, `args`, `cwd`,
 rather than silently replaced. `processEnvironmentOverlay` is the non-secret
 configured overlay required for reproducibility. `processEnvironmentDigest`
 binds the effective environment actually supplied to execution without
-persisting ambient secret values in the public envelope. `shellIdentityDigest`
+persisting ambient secret values in the public envelope. `shellExecutableDigest`
 is forbidden when `shell:false` and required when `shell:true`. Secret-bearing
 identity requires a
 policy-approved redacted or keyed-digest scheme; raw secrets must not be stored
 in receipts.
 
-`executableDigest` reuses the existing routine-validation meaning: digest the
-resolved executable file when a stable local executable can be resolved, else
-record `null` and let policy decide whether unresolved executable identity is
-admissible. It is distinct from `shellIdentityDigest`, which identifies the
-actual shell wrapper when one is used.
+`executableDigest` reuses the existing routine-validation meaning. Direct
+execution (`shell:false`) requires a non-null resolved target-executable content
+digest. Shell execution (`shell:true`) requires the actual
+`shellExecutableDigest`; its target `executableDigest` is included when one
+executable resolves, but may be `null` for a compound command with no single
+target executable. In that case the exact command text, args, cwd, shell mode,
+environment overlay, timeout, and policy remain bound by the CommandSpec and
+invocation digests.
 
-`shellIdentityDigest` is computed over a canonical payload containing the actual
-shell executable, implementation/version identity, launch mode
-(`login`/`non-login`/`unknown`), and init-file policy digest. Before constructing
-the discriminated command spec, the adapter resolves the **actual** execution
-mode. Thus Windows implicit-shell execution is represented as `shell:true` with
-a required shell identity even when the original configuration requested
-`shell:false`.
+The implemented `shellExecutableDigest` proves only resolved shell executable
+content identity. It does **not** prove shell implementation/version metadata,
+login/non-login launch mode, command-line switches, or init-file policy.
+Those richer posture bindings require a future versioned schema. Before
+constructing the current command spec, the adapter resolves the **actual**
+execution mode. Thus Windows implicit-shell execution is represented as
+`shell:true` with a required `ComSpec`/`cmd.exe` executable digest even when the
+original configuration requested `shell:false`.
 
 `ProofProducerBoundary` is reused from the shared Proof Admissibility registry.
 `EvidenceEnvironmentTrustClass` is a closed, registry-owned baseline enum; a
@@ -577,22 +617,29 @@ versioned compatibility migration.
 
 ### 9.2 Existing command-spec to EEA mapping
 
-The existing `lattice.command-spec.v1` envelope remains a compatibility input;
-it is not byte-identical to the EEA invocation command spec.
+The current DONE-required envelope is `lattice.command-spec.v2`. It digests a
+repo-relative logical `cwd` so the same command identity is portable across
+worktrees and hosts, and records the absolute physical `resolvedCwd` separately
+as non-digested provenance. `lattice.command-spec.v1`, whose digest included an
+absolute cwd, remains accepted only as a legacy compatibility input. Neither
+version is byte-identical to the EEA invocation command spec.
 
 | Existing command identity surface | EEA command spec | Rule |
 |---|---|---|
 | DONE-required `command` | `command` | Exact |
 | DONE-required `args` | `args` | Exact ordered array |
-| DONE-required `cwd` | `cwd` | Same canonical path semantics |
+| DONE-required v2 logical `cwd` | `cwd` | Map the repo-relative logical cwd through the EEA canonical resolver; do not substitute the physical worktree path |
+| DONE-required v2 `resolvedCwd` | receipt provenance only | Preserve as observed absolute execution provenance; exclude it from the DONE-required command-spec digest and do not promote it into portable EEA command identity |
+| Legacy DONE-required v1 absolute `cwd` | `cwd` | Accept only when verifying a pre-existing v1 receipt, then map through the compatibility resolver; never emit v1 for new evidence |
 | DONE-required `env` | `processEnvironmentOverlay` | Rename the declared non-secret overlay |
 | routine-validation `effectiveEnvironmentDigest` | `processEnvironmentDigest` | Reuse or versionedly reconcile the existing effective-environment canonicalization; do not introduce an unrelated third digest |
-| routine-validation `executableDigest` | `executableDigest` | Reuse resolved-executable content identity and its `null` semantics |
+| routine-validation `executableDigest` | `executableDigest` | Required and non-null for `shell:false`; for `shell:true`, include when one target resolves and allow `null` only when the command has no single target executable |
 | DONE-required/routine declared `shell` | `shell` | Resolve from actual execution, not configuration alone |
-| — | `shellIdentityDigest` | Required when actual `shell:true`; forbidden otherwise |
+| routine-validation `shellExecutableDigest` | `shellExecutableDigest` | Required when actual `shell:true`; forbidden otherwise; resolved shell executable content only |
 | DONE-required `timeoutMs` | `timeoutMs` | Exact |
 
-M2 must implement one versioned canonical resolver and must not reuse the
+M2 must implement one versioned canonical resolver and must not reuse either
+the current `lattice.command-spec.v2` digest or the legacy
 `lattice.command-spec.v1` digest as an EEA invocation digest. For effective
 environment identity it must either reuse the existing
 `validationIdentityDigest(effectiveValidationCommandEnvironment(...))` semantics
@@ -604,11 +651,13 @@ routine-validation identity, and the derived EEA mapping remain independently
 verifiable; callers cannot submit only the derived fields and claim that either
 legacy identity verification passed.
 
-Current Windows execution is a known identity gap: `validation-executor.ts`
-enables a shell when `process.platform === 'win32'` even when the configured
-command has `shell:false`, while the legacy result/command envelope can retain
-the declared mode. M3a must derive EEA shell identity from actual execution, and
-M4 must include a Windows implicit-shell regression case.
+The Windows identity gap is closed for the DONE-required reference path:
+`validation-executor.ts` records the actual implicit `shell:true` result,
+and the shared routine/DONE identity constructor resolves and hashes
+`ComSpec`/`cmd.exe`. Producer and consumer use the same constructor. A
+platform-injected regression with a synthetic `cmd.exe` proves stable
+environment, shell-mode, and executable identity without requiring a Windows
+test host.
 
 ## 10. Executable implementation plan
 
@@ -703,7 +752,7 @@ Acceptance:
   expired windows under the active policy;
 - remote and externally attested receipts reject missing, unknown, revoked, or
   invalid producer attestations;
-- a project-owned pinned-producer registry introduced by M2, or a separately
+- a future project-owned pinned-producer registry, or a separately
   configured legacy/external Authority trust service, owns signer authorization,
   public-key binding, session binding, and revocation state; the adapter may
   verify against that source but cannot write or elevate it. The M2 registry
@@ -711,6 +760,10 @@ Acceptance:
   `authority-signing.ts` and the strict shape/public-key binding lessons in
   `receipt-bundle.ts`; it is a new trust-policy registry, not a claim that either
   existing module already provides producer authorization or revocation.
+
+This pinned-producer registry is **not implemented in B-955c**. Consequently
+the public contract does not accept a caller-supplied resolver and distinct-host
+quorum is fail-closed unsupported.
 
 The existing `ActorTrustRegistry` remains the evidence-quality registry for
 logical actor ids and revoked actor-id strings. It is not sufficient for
@@ -857,8 +910,13 @@ Acceptance:
   fresh evidence;
 - equivalent trusted inputs yield the same Gate result when independence is not
   required;
-- a distinct-Host policy accepts only separately attested producers and rejects
-  duplicated, caller-renamed, same-key, or same-session evidence.
+- the current implementation never accepts producers for a distinct-Host
+  policy and returns `distinct_host_quorum_unsupported`;
+- only a future project-owned pinned-key registry with signed
+  producer/session/invocation/subject binding and revocation checks may enable
+  distinct-Host acceptance; that future path must reject duplicated,
+  caller-renamed, same-producer, same-lineage, same-key, or same-session
+  evidence.
 
 ### M6 — Paper claim and evidence package
 
@@ -877,6 +935,16 @@ The manuscript path must be named before this milestone can be considered
 complete. If the manuscript is outside this repository, record the exact
 artifact path/version and the implementation commit or release digest to which
 the claims bind.
+
+Current B-955c status: **M6 is not complete for the external manuscript**. The
+paper-facing material in this repository is the versioned architecture artifact
+`docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md`
+at the eventual B-955c merge/release commit. No external manuscript path,
+revision, or immutable release digest containing this text is currently bound.
+Therefore this repository may report the implemented mechanism and tests, but
+the existing external manuscript must remain at Level B until an explicit
+revision handoff records its artifact version and the final implementation
+release digest.
 
 ## 11. Paper claim ladder
 
@@ -910,6 +978,11 @@ Allowed after M5 and fresh conformance evidence:
 > evidence for the shared Proof Admissibility service while lifecycle authority
 > remains exclusively with Proof-or-Stop Gates.
 
+B-955c demonstrates this level inside the repository through the real
+DONE_REQUIRED evaluator. This is **not yet an external-manuscript claim**:
+without the M6 artifact/version/release binding above, manuscript prose remains
+at Level B.
+
 ### Level D — Domain adapter supported
 
 Allowed only per implemented and tested adapter:
@@ -933,13 +1006,16 @@ Kubernetes merely because Levels A–C exist.
 
 ### Host-neutrality statement
 
-> Host identity contributes provenance and may satisfy explicit independence
+> Host identity contributes provenance but, in the current implementation,
+> cannot satisfy explicit independence
 > policies, but it does not otherwise alter Gate semantics. Under equivalent
 > subject, invocation, environment, policy, trust, and freshness bindings,
 > semantically equivalent evidence from substitutable hosts yields the same Gate
-> decision. When a policy requires Host independence, each producer identity
-> must be bound to a separately verified key, session, or trusted attestation;
-> provider labels alone are not evidence of independence.
+> decision. A future Host-independence implementation must bind each producer
+> identity to a separately verified pinned key, signed session/invocation/
+> subject binding, and revocation state. Until that registry exists, the quorum
+> API fails closed as unsupported; provider labels or injected callbacks are
+> never evidence of independence.
 
 ### Cross-domain statement
 
@@ -950,15 +1026,35 @@ Kubernetes merely because Levels A–C exist.
 
 ### Calibrated implementation statement
 
-Until M1–M5 are complete, use:
+For the B-955c implementation, use:
 
-> The current system implements the underlying host-neutral Evidence Platform,
-> Proof Admissibility, Pack, command-identity, and receipt-reading primitives.
-> The generic Evidence Environment contract and its broader domain integrations
-> are the subject of the present architecture plan.
+> Proof-or-Stop implements a generic Evidence Environment Adapter contract,
+> bounded code-runtime and Quantum receipt projections, and a tested projection
+> into its existing Proof Admissibility consumer. The code-runtime projection
+> reuses configured validation evidence and does not expose an arbitrary command
+> runner; the Quantum projection is receipt-only. Lean, Rosetta, AlphaFold, PINN
+> solvers, browsers, databases, CI, Kubernetes, and production deployment
+> remain integration targets rather than completed adapters.
 
-After M1–M5, replace it with an evidence-bound support matrix; do not replace it
-with an unqualified “supports arbitrary environments” claim.
+Do not replace this evidence-bound statement with an unqualified “supports
+arbitrary environments” claim.
+
+### Manuscript handoff (pending M6)
+
+No external manuscript revision has yet been bound to B-955c. A future external
+manuscript change must cite a repository commit or release that
+contains all of the following together:
+
+1. `environment-contract.ts`;
+2. the `test:evidence-environment-adapter` script and passing transcript;
+3. the `runtime:evidence_environment_gate_projection` process-fact entry;
+4. this support matrix.
+
+Until that handoff exists, the external manuscript remains at Level B; M6 is
+open. If any future bound artifact is absent or stale relative to the cited
+commit, the manuscript must fall back to the lower claim justified by the
+remaining evidence. The manuscript must not infer support for a named
+environment from an example in this document.
 
 ## 13. Threats and design risks
 
@@ -971,7 +1067,7 @@ with an unqualified “supports arbitrary environments” claim.
 | Arbitrary command execution | Generic adapter becomes an RCE/secrets boundary | Reuse allowlisted executors; no arbitrary shell; explicit network/fs/env policy |
 | Unsafe caching | Old or different-environment receipt reused | Full identity key; temporal/stochastic non-cache defaults |
 | Host-brand special cases | Gate result changes because provider string changes | Host-substitution conformance suite |
-| False host equivalence | Quorum independence erased or forged with renamed provider strings | Condition substitution on trust class and explicit independence policy; require separately verified producer attestations |
+| False host equivalence | Quorum independence erased or forged with renamed provider strings | Current implementation rejects all distinct-host quorum as unsupported; future enablement requires a project-owned pinned-key, session-bound, revocation-aware registry |
 | Descriptor trust escalation | An untrusted Pack registers itself as executable or high-trust | Separate registration from execution authority; policy-owned provenance and trust classification |
 | Shell/environment identity drift | A command is identified under one process/shell context and runs under another | Prefer `shell:false`; bind effective process environment and shell identity; conformance-test supported shell paths |
 | Paper outruns implementation | Lean/Rosetta/AlphaFold shown as supported | Claim ladder and per-adapter support matrix |
@@ -989,8 +1085,9 @@ The architecture is paper-ready only when:
 5. all identity, stale, unsafe, checker-error, and authority-bypass cases fail
    closed;
 6. host substitution passes under equivalent policy inputs;
-7. distinct-host quorum remains distinct, binds each producer to separately
-   verified attestation, and cannot be satisfied by caller-renamed substitution;
+7. distinct-host quorum either binds every producer to a project-owned,
+   pinned-key, signed-session and revocation-checked attestation, or remains
+   explicitly unsupported and fail-closed (the current implementation);
 8. adapter outputs enter the shared Evidence Platform and Proof Admissibility
    path rather than a parallel store;
 9. no adapter directly mutates lifecycle or claims production completion;

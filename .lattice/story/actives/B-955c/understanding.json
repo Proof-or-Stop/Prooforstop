@@ -1,0 +1,33 @@
+{
+  "task": "Implement the Proof-or-Stop Evidence Environment Adapter contract, reference paths, admissibility integration, lifecycle Gate consumption, and an auditable paper-facing description.",
+  "outcome": "The user runs npm --prefix packages/main run test:evidence-environment-adapter and sees evidence environment adapter smoke passed. Documentation states that Proof-or-Stop implements the generic EEA contract, code-runtime local receipt projection, Quantum receipt-only projection, and DONE_REQUIRED Gate consumption, while Lean, Rosetta, AlphaFold, and other external environments remain integration targets.",
+  "facts": [
+    "Proof Admissibility already owns proof-surface, claim, consumer, and producer-boundary semantics.",
+    "ClaimAdmissibilityPack already declares code-runtime and Quantum verifier adapters; Quantum is receipt-only.",
+    "The local reference path reuses DONE-required receipts and command identity from the policy-authorized validation executor; it adds no launcher.",
+    "Gate integration reuses the done-required-evidence proof surface and DONE_REQUIRED consumer rather than creating a parallel lifecycle Gate.",
+    "The audited execution plan defines milestones M0 through M6 and six safety invariants."
+  ],
+  "constraints": [
+    "An adapter may produce observations or receipts but cannot decide Done or mutate lifecycle state.",
+    "Every Gate-consumed fact must be registered in the process-fact registry.",
+    "Caller-provided host or provider strings cannot establish independent producers or quorum.",
+    "External or remote receipts without verifiable attestation must fail closed; distinct-host quorum remains unsupported until a pinned cryptographic registry exists.",
+    "Existing code-runtime and Quantum Pack behavior must remain backward compatible.",
+    "Do not implement or claim Lean, Rosetta, AlphaFold, PINN solver, or other target adapters."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/evidence/environment-contract.ts",
+    "packages/main/src/core/claim-admissibility/pack-framework.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+    "packages/main/package.json",
+    "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+    "docs/evidence/evidence-platform-architecture.md",
+    "README.md"
+  ],
+  "timestamp": "2026-07-19T02:02:29.570Z"
+}
