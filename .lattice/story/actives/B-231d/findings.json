@@ -26,7 +26,7 @@
       "desc": "CHK-003:adversarial:0 (altering only the provenance field does not change the digest; altering the logical cwd does) is only half-proven. worktree-portability-smoke.ts check #10 (lines 170-174) proves the provenance-invariance half by comparing envMain vs envWorktree, but in that pair the digested cwd field is identical (both compute repoRelativeLogicalCwd against a command with cwd=.) -- only resolvedCwd differs, so it never isolates a logical-cwd change. The only place a differing cwd is exercised is CHK-002:adversarial:0 (check #6, lines 124-128), which changes args (test vs run/build) AND cwd (. vs packages/main) simultaneously, so it cannot attribute the digest change to cwd specifically. No assertion anywhere builds two envelopes with identical command/args/shell/env and ONLY a different cwd, then checks the digests differ. A regression that silently dropped cwd from commandSpecDigestPayload (done-required-validation.ts lines 139-146) would pass all 10 current smoke checks undetected.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-18T23:52:06.818Z",
@@ -38,7 +38,10 @@
         "packages/main/src/core/done-required-validation.ts"
       ],
       "signatureTag": "missing|ts|adversarial-altering-provenance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 1d98a3a7c6: worktree-portability-smoke adds a digest check isolating a logical-cwd-only mutation (command/args/shell/env fixed, only cwd varies -> digest differs), so a drop-cwd-from-digest regression is now caught (16 checks total).",
+      "resolvedAt": "2026-07-19T00:17:10.592Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-231d:F-003",
