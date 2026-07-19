@@ -8,6 +8,14 @@
 
 **Proof-or-Stop** is an evidence-gated control layer that lets coding agents run an unattended development loop — *plan → execute → review → reflect → done* — where every step forward is admitted only on **mechanically verifiable evidence bound to the current code state**, never on the agent's word. If the evidence isn't there, the loop repairs or stops. The point isn't that an agent *can* run unattended — plenty of frameworks do that. The point is that what an unattended run marks "done" comes with a **mechanically checkable merge-readiness claim** — evidence a reviewer or merge policy can act on.
 
+The host-neutral evidence boundary is formalized as the **Evidence Environment
+Adapter (EEA)** contract: an Agent proposes, an Environment observes, Proof
+Admissibility evaluates, and the existing Gate decides. The current
+implementation includes the generic contract plus bounded code-runtime and
+Quantum receipt projections. It does not expose an arbitrary runner; Lean,
+Rosetta, AlphaFold, PINN solvers, browsers, databases, CI, Kubernetes, and
+production deployment remain integration targets.
+
 ## Loop Engineering
 
 ```

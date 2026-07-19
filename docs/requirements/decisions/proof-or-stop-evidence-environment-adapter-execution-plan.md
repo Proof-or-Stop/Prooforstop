@@ -1,6 +1,6 @@
 # Proof-or-Stop Evidence Environment Adapter — Architecture Audit and Execution Plan
 
-Status: proposal / audit passed at round 5 by independent Claude CLI and agy CLI reviews; no runtime change is authorized by this document  
+Status: implemented reference contract in Story B-955c; architecture proposal previously passed round-5 independent Claude CLI and agy CLI review
 Date: 2026-07-19  
 Audit trail: draft → Claude CLI R1 `APPROVE-WITH-CHANGES` + agy CLI R1 `REJECTED / Needs Revision` → R2 agy CLI `PASS` + Claude CLI `APPROVE-WITH-CHANGES` → R3 agy CLI `PASS` + Claude CLI `CONDITIONAL PASS` → R4 both `CONDITIONAL/PARTIAL` → R5 Claude CLI `PASS` + agy CLI `PASS` with no required edits  
 Scope: formalize the host-neutral evidence-production boundary, define a generic adapter contract, prove reference-path substitutability, and calibrate the paper claim
@@ -42,6 +42,37 @@ host-neutral evidence-production and observation boundary with:
 4. host-substitution invariance;
 5. fail-closed admissibility.
 
+### 1.1 Implemented support boundary (B-955c)
+
+The repository now implements the generic contract in
+`packages/main/src/core/evidence/environment-contract.ts` and exposes a
+conformance command:
+
+```bash
+npm --prefix packages/main run test:evidence-environment-adapter
+```
+
+Implemented now:
+
+| Capability | Support | Evidence |
+|---|---|---|
+| Versioned descriptor, invocation, receipt, normalized envelope, canonical digests, and read-only registry | Implemented | `environment-contract.ts`; conformance smoke |
+| Code-runtime reference path | Implemented as a projection of existing policy-authorized DONE-required/routine-validation identities and receipts | `projectDoneRequiredReceiptToEnvironment`; no new process launcher or public command endpoint |
+| Quantum reference path | Implemented as read-receipt-only projection after the existing Quantum normalizer accepts the receipt | `projectQuantumReceiptToEnvironment`; Quantum smoke |
+| Proof Admissibility / Gate projection | Implemented as a monotonic projection into the existing registered proof-surface evaluator | `evaluateEvidenceEnvironmentGateProjection`; `runtime:evidence_environment_gate_projection` |
+| Host-substitution invariant | Mechanically covered for policy-equivalent normalized inputs | EEA conformance smoke |
+| Producer independence | Fail-closed for absent/unverified attestations and duplicate lineage, key, or session identity | EEA conformance smoke |
+
+This implementation does **not** add an arbitrary runner, a second evidence
+store, an adapter-owned lifecycle transition, production authority, or a generic
+third-party execution service. The code-runtime path projects receipts already
+produced by configured validation policy; the Quantum path never executes a
+solver.
+
+Integration targets—not current adapters—remain Lean, Rosetta, AlphaFold, PINN
+solvers, browsers, databases, CI systems, Kubernetes, and production deployment
+environments.
+
 ## 2. Why this abstraction matters
 
 The current software-focused statement is:
@@ -60,7 +91,7 @@ This creates three distinct portability claims:
 | Property | Question answered | Current maturity |
 |---|---|---|
 | Host-neutral | Does switching Claude, Codex, or another execution host change core Gate semantics? | Implemented architecture and host-facing paths; provider-execution breadth and cross-vendor quorum remain bounded, as stated in `README.md` and `docs/requirements/decisions/host-overflow.md` |
-| Environment-neutral | Can compiler, formal checker, browser, solver, CI, database, or deployment observation enter through one evidence protocol? | Architectural skeleton exists; generic contract and conformance proof remain to be completed |
+| Environment-neutral | Can compiler, formal checker, browser, solver, CI, database, or deployment observation enter through one evidence protocol? | Generic contract and two bounded reference projections are implemented; named third-party environments remain integration targets |
 | Domain-portable | Can software, mathematics, PINN, quantum, or biology define domain-specific claims and evidence requirements? | Pack framework exists; the code-runtime Pack is a declarative reference to the mature existing runtime, Quantum is local/read-only, and PINN is primarily a design contract |
 
 Evidence Environment fills the second row. It connects the existing host-neutral
@@ -950,15 +981,32 @@ Kubernetes merely because Levels A–C exist.
 
 ### Calibrated implementation statement
 
-Until M1–M5 are complete, use:
+For the B-955c implementation, use:
 
-> The current system implements the underlying host-neutral Evidence Platform,
-> Proof Admissibility, Pack, command-identity, and receipt-reading primitives.
-> The generic Evidence Environment contract and its broader domain integrations
-> are the subject of the present architecture plan.
+> Proof-or-Stop implements a generic Evidence Environment Adapter contract,
+> bounded code-runtime and Quantum receipt projections, and a tested projection
+> into its existing Proof Admissibility consumer. The code-runtime projection
+> reuses configured validation evidence and does not expose an arbitrary command
+> runner; the Quantum projection is receipt-only. Lean, Rosetta, AlphaFold, PINN
+> solvers, browsers, databases, CI, Kubernetes, and production deployment
+> remain integration targets rather than completed adapters.
 
-After M1–M5, replace it with an evidence-bound support matrix; do not replace it
-with an unqualified “supports arbitrary environments” claim.
+Do not replace this evidence-bound statement with an unqualified “supports
+arbitrary environments” claim.
+
+### Manuscript handoff
+
+An external manuscript change must cite a repository commit or release that
+contains all of the following together:
+
+1. `environment-contract.ts`;
+2. the `test:evidence-environment-adapter` script and passing transcript;
+3. the `runtime:evidence_environment_gate_projection` process-fact entry;
+4. this support matrix.
+
+If any bound artifact is absent or stale relative to the cited commit, the
+manuscript must fall back to the architecture-only Level-A claim. The manuscript
+must not infer support for a named environment from an example in this document.
 
 ## 13. Threats and design risks
 

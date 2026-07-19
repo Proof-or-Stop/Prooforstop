@@ -154,6 +154,7 @@ const requiredProcessFactSemantics = {
   parent_roadmap_evaluate: ['schema-contract', 'verification-policy'],
 };
 const requiredRuntimeFactSemantics = {
+  'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 };
