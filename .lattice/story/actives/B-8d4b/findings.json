@@ -93,7 +93,7 @@
       "desc": "experiments/role-prompt-ab-replay/lib/replay.mjs:135-179,308-320 and experiments/role-prompt-ab-replay/corpus.json:93-143 — HIGH: finding recall is marked EVALUABLE from corpus-authored observedFindingsByArm rows, but neither those rows nor adjudication.evidenceRef are bound to a verified output/evidence digest; validation only checks nonblank strings, and two machine evidenceRefs name files that do not exist. Because README says no model dispatch occurs, the harness can self-populate both arms as detecting every oracle and then self-report Recall: EVALUABLE. This violates the fail-closed/independent-adjudication intent; unbound observations must be INCONCLUSIVE or carry mechanically verified result/adjudication artifacts and digests.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T02:11:59.911Z",
@@ -101,7 +101,11 @@
       "reviewRunId": "B-8d4b:RR-002",
       "_hash": "b58777437974add1dd008145736a44d9ad93f273ca0457222f686fab219eda56",
       "signatureTag": "missing|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e36af72f74 and 6cf3fc7c47: nonexistent/self-authored adjudication references were removed; real finding v1 hashes are mechanically verified, but absent reviewer outputs keep canonical recall INCONCLUSIVE.",
+      "resolvedAt": "2026-07-19T02:37:20.003Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-006",
