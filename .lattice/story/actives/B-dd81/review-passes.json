@@ -317,6 +317,33 @@
         "scanEscalationReason": null
       },
       "_hash": "9a0fc3fcd7d25291bf3c236881f86bb51ad03250774b820385481944dc2ca000"
+    },
+    {
+      "id": "B-dd81:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review PASS for narrow round-8 drift: commit 712f72fc53 only replaces the retired phrase production completion with the semantically equivalent external Authority acceptance or production-grade readiness in the host-verdict producer boundary; it preserves that local REVIEW assurance never proves external/production readiness and changes no allowed claim or consumer. Independent build, retired-authority vocabulary guard, proof-admissibility smoke, and proof-admissibility-hardening smoke all pass. All 47 verificationIntent refs have 47 unique current passing evidence rows, no missing/extra/duplicates, bound to storyFilesHash 70e5f70c.",
+      "createdAt": "2026-07-19T00:24:33.373Z",
+      "reviewRound": "2026-07-19T00:18:12.482Z",
+      "reviewRunId": "B-dd81:RR-022",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7365ff0bab8abc94d4549a3776c6e19ecf6c851b0e5f325af9b8830dfaf55c21"
     }
   ]
 }
