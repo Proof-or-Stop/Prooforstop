@@ -233,7 +233,7 @@
       "desc": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md:901-902 still states as M5 acceptance that a distinct-Host policy accepts separately attested producers, while the support matrix (line 65), I1 (lines 241-244), README, architecture doc, and current evaluateEvidenceEnvironmentQuorum implementation explicitly reject every distinct-host quorum as distinct_host_quorum_unsupported until a pinned registry exists. WHY: this leaves the same normative document claiming both supported acceptance and fail-closed unsupported behavior, so reviewers can incorrectly count producer independence as implemented. Rewrite the M5 bullet to require unsupported/fail-closed now and separately state the future acceptance condition after the pinned-key/session/revocation registry exists.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-19T01:32:25.141Z",
@@ -241,7 +241,11 @@
       "reviewRunId": "B-955c:RR-011",
       "_hash": "997ce3188910685308b611117dcc410f299e586330b30394934f51a731feaa2a",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: M5 acceptance still said current distinct-Host policy accepts separately attested producers, contradicting the implemented unsupported Gate. Root cause: future cryptographic-registry acceptance language remained in the current milestone. Fix: M5 now requires current distinct-Host policy to return distinct_host_quorum_unsupported and states separately that only a future project-owned pinned-key, signed producer/session/invocation/subject and revocation-checked registry may enable acceptance. Docs drift and explicit stale-phrase scan PASS at 9576d35896.",
+      "resolvedAt": "2026-07-19T01:43:06.021Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-955c:F-014",
