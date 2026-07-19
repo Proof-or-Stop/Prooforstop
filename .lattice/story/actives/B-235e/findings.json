@@ -417,6 +417,21 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-019",
+      "desc": "packages/main/src/handlers/review-run.ts:207 — review_run_start still calls reviewIncrementalContext with findingsCutoffAt only, while verifyReviewRunPromptEnvelope now recomputes with passesCutoffAt=run.startedAt. A same-lane pass written after startedAt but before this producer-side eligibility read can therefore be selected into the new envelope, then excluded by the verifier, making a freshly created run immediately invalid. Thread passesCutoffAt: startedAt into the producer call as well and add a deterministic barrier regression that inserts a later pass between startedAt capture and eligibility assembly; also define/test the equal-millisecond boundary because the current passTime > cutoff comparison still admits a pass created later in the same timestamp tick.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T23:58:54.801Z",
+      "reviewRound": "2026-07-19T23:55:41.162Z",
+      "reviewRunId": "B-235e:RR-068",
+      "_hash": "ea694ac657be2108cebecfa022aff9579b415909d96af9fc055c93661f4dfbf6",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
