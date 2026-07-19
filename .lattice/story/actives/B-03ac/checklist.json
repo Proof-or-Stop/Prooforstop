@@ -321,6 +321,77 @@
           "packages/main/src/tasks/review-run-smoke.ts",
           "packages/main/src/tasks/quorum-submit-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "incremental-context-readonly-gate-neutral",
+            "desc": "Calling review_incremental_context changes no files, process events, Story metadata, review evidence, phases, guards, receipts, floor, quorum, or DONE outcome; it remains advisory until trusted assembly consumes the result.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "reviewer-authoritative-read-and-escalate",
+            "desc": "An incremental reviewer can read referenced current authoritative material and request full context with a recorded reason without accepting an incomplete basis.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "budget-observation-separated-from-correctness",
+            "desc": "Measurement records incremental and full sizes plus budget status while eligibility and escalation remain correctness decisions and violations stay separately auditable.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "oversize-incremental-forces-full",
+            "desc": "An incremental context exceeding its budget escalates to full without truncating required evidence or authorizing an incremental pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "oversize-full-remains-correctness-path",
+            "desc": "When safety requires full but full exceeds ordinary budget, correct full context remains available, the violation is recorded, and baseline or enforce convergence is blocked without incremental fallback.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "full-cheaper-readonly-regression",
+            "desc": "When incremental is equal or larger, full is selected with FULL_CHEAPER_OR_EQUAL and repeated advisory calls remain deterministic and gate-neutral.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "budget-gaming-cannot-change-mode",
+            "desc": "Manipulated estimator metadata, caller sizes, omitted sections, compression claims, or budget values cannot override safety, erase a violation, or convert required full into incremental.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "readonly-command-cannot-smuggle-evidence",
+            "desc": "Arguments cannot write passes, findings, scope acknowledgements, envelopes, receipts, host verdicts, quorum, or transitions; repeated and concurrent calls do not alter gates.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "unsupported-paths-and-stale-evidence-full",
+            "desc": "A campaign proves stale or untrusted evidence, public contracts, docs, private implementation, policy, authority, command, dynamic, parse-failure, and unknown-impact cases always select full while only proven bounded cases select incremental.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
