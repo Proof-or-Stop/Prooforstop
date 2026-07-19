@@ -91,6 +91,17 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "终端逐样本显示 A/B same-input parity、prompt bytes、estimated tokens、digest 与 finding comparison；重复运行核心 digest 相同。",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs"
+        ],
+        "test": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ]
       }
     },
     {
