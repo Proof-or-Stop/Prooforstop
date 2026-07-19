@@ -219,7 +219,99 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "preregistered-per-role-replay-matrix",
+            "desc": "Before execution, freeze at least two historical Stories from each required class, the five reviewer roles, legacy-full/modular-full/modular-incremental arms, model/tool/material envelope, run order or seed support, at least three repetitions per applicable cell, and an independent adjudicated finding oracle.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "seeded-critical-high-quality-gate",
+            "desc": "Per role and applicable Story, every critical seeded finding is detected and no independently confirmed systematic high-severity miss occurs; findings match by stable semantic category plus source/claim binding rather than wording.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "incremental-context-reduction-50",
+            "desc": "For every eligible role/sample cell with valid comparable measurements, modular incremental context input tokens are reported against modular full context and demonstrate at least 50 percent reduction; non-eligible cells are not used in the denominator.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "assembled-prompt-per-role-40-target",
+            "desc": "Actual dispatched assembled-prompt tokens are reported separately for all five roles and compared with each role baseline; the initial target is at least 40 percent reduction, with target misses reported honestly rather than averaged away.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "inconclusive-on-insufficient-quality-evidence",
+            "desc": "Missing historical material, invalid or empty seeded denominator, arm asymmetry, fewer than required samples/repetitions, version drift, ambiguous high miss, or unavailable independent adjudication yields INCONCLUSIVE and no claim that recall is preserved.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "honest-provider-usage-availability",
+            "desc": "Input, output, cache-read, cache-creation, uncached, latency, and provider-processed usage are reported per host and role when observed; unsupported or zero-but-unobserved fields are unavailable(reason), not fabricated zero or inferred from assembled size.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "seed-and-order-limitations-recorded",
+            "desc": "Provider seed support, controllable sampling parameters, run order, retries, failures, and model/contract versions are recorded; lack of deterministic seed does not invalidate the protocol but prevents deterministic claims beyond repeated adjudicated evidence.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "false-positive-and-command-misuse-guard",
+            "desc": "Per-role replay reports independently adjudicated false positives and reviewer command misuse; prompt reduction is not accepted as quality-equivalent when either materially increases even if seeded recall and token targets pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "denominator-seed-erasure-detected",
+            "desc": "Deleting, relabeling, downgrading, duplicating, or excluding a seeded critical/high finding or an applicable failed cell after results are known invalidates the replay result and produces INCONCLUSIVE.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "cache-and-gross-token-gaming-rejected",
+            "desc": "Gross tokens, cache hits, estimator output, or aggregated wave totals cannot substitute for actual per-role assembled input and provider usage; cache categories remain separated so savings cannot be overstated.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "experiment-production-evidence-isolated",
+            "desc": "Replay runs are read-only or sandboxed and their findings, passes, receipts, usage, and ReviewRun IDs cannot satisfy production Story review gates, floor, quorum, delivery, or DONE evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "cherry-pick-reconstruction-tamper-inconclusive",
+            "desc": "Selecting only successful repetitions, changing historical material, mixing model/contract versions, reordering arms after observation, or using unequal task/tool envelopes is detected from the manifest and forces INCONCLUSIVE for affected savings and recall claims.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
