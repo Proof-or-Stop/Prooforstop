@@ -73,7 +73,7 @@
       "desc": "NEW regression (R2 fix-round side effect, unfixed second consumer of the same root cause): the R2 fix converted MaterialCodePolicyError into a structured ok:false outcome ONLY inside evaluateReviewAssuranceFloor (review-assurance-floor.ts:767-798), but readMaterialCodeConfig fail-closed-on-non-ENOENT (material-code-policy.ts:373-388) is shared low-level infrastructure ALSO reached, unprotected, by the repro-first evidence-binding gate: evaluateStoryEvidenceBindingGate (repro-evidence-binding-gate.ts:378, `buildMaterialClassificationSnapshot(projectRoot)` with no try/catch) and classifyReproFirstRequirement (repro-evidence-binding-gate.ts:116, `ensureFreshMaterialClassificationSnapshot`->`materialClassificationSnapshotStale` which ALSO throws per FIX 2). Confirmed LIVE against this worktrees rebuilt dist: a fixture git repo whose only lattice.config.json defect is a JSON syntax error (trailing comma, no materialCode key) makes `getGuardFailureReason(storyId, store, \"PLAN\", root)` and `getGuardFailureReason(storyId, store, \"DEV\", root)` (dist/core/machine.js, src at packages/main/src/core/machine.ts:1002, the repro-gate calls at lines 1054 and 1102) throw MaterialCodePolicyError UNCAUGHT -- the exact same function (`machine.ts getGuardFailureReason`) the R2 commit message explicitly names as now safe (\"5 no-try/catch DONE-readiness callers (machine.ts canFinishGuard/getGuardFailureReason...) receive a named gate failure instead of an uncaught crash\"). The fix only protects the LATER review-assurance-floor section of that function (used for the DONE target phase); the EARLIER repro-first-gate section (used for PLAN/DEV target phases, machine.ts:1054/1102) is untouched. Production call graph: transition-orchestrator.ts:585 `throw resolveGuardFailure(actor, args.storyId, store, args.phase, ctx.root)` -> phase-gates.ts:186 resolveGuardFailure -> phase-gates.ts:192 unwrapped `getGuardFailureReason(...)` call -- so any `lattice story_advance --phase=PLAN` or `--phase=DEV` on a story whose lattice.config.json has ANY non-ENOENT read/parse error (or now also an excludePaths/materialCode violation, since resolveMaterialCodePolicy itself throws for those, material-code-policy.ts:424-452) throws out of resolveGuardFailure as a raw MaterialCodePolicyError instead of the intended clean \"Cannot enter PLAN/DEV: ...\" guard message -- it is only caught by the CLIs generic top-level catch-all (cli-engine.ts ~1484), losing the [reason_code] tagging convention every other guard failure uses. Also unprotected: story-create.ts:125/1018/1076 (renderReproFirstStoryCreatePreflight -> buildMaterialClassificationSnapshot, no try/catch) used during story_create. Repro (built dist, same one CLI loads): node -e with buildMaterialClassificationSnapshot(root) and getGuardFailureReason(id,fakeStore,\"PLAN\",root) both throw for a repo whose only defect is a trailing-comma JSON error in lattice.config.json. This directly fails the rounds own adversarial ask (\"verify BOTH: no silent defaults AND no uncaught throw\") for the repro-first-gate half of the same root-cause fix.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T18:27:18.267Z",
@@ -81,7 +81,9 @@
       "reviewRunId": "B-956f:RR-008",
       "_hash": "ba3d03c59da4387ef414b434297ea6be0a0232c5490d0151a3565321e5962a10",
       "signatureTag": "adversarial|unknown|regression-round-side",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-19T19:06:39.674Z",
+      "resolutionType": "fixed"
     }
   ]
 }
