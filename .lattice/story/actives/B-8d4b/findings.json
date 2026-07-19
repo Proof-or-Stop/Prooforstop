@@ -201,6 +201,21 @@
       "resolvedAt": "2026-07-19T02:37:44.354Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8d4b:F-011",
+      "desc": "experiments/role-prompt-ab-replay/protocol.json:79-85 still declares inputLayers.assembledPrompt=locally-recomputed, while the same governing protocol marks both arm prompt snapshots unavailable and replay.mjs:529-535 returns PROMPT_SNAPSHOT_UNAVAILABLE with null bytes/lines/tokens/digest for every canonical cell. README and the canonical decision correctly say prompt cost is INCONCLUSIVE, so this frozen protocol field is the remaining contradictory claim. Change it to an availability-aware value matching the canonical output and add validation so the protocol cannot regress to claiming local recomputation without bound prompt bytes.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T02:39:58.664Z",
+      "reviewRound": "2026-07-19T02:36:39.599Z",
+      "reviewRunId": "B-8d4b:RR-007",
+      "_hash": "f516287a8c6a961ce285e00f1c3549158f0b4ba0f2e5960bbb791a7f71c2069e",
+      "signatureTag": "edge|unknown|experiments-role-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
