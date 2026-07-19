@@ -209,6 +209,31 @@
         "scanEscalationReason": null
       },
       "_hash": "6ec20567163cf39f96a6c0f146e5c338441981cca556da5b89eeaaac75d107ba"
+    },
+    {
+      "id": "B-235e:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh coverage PASS on corrected implementer commit f367111ba1/current REVIEW head: actual CLI review_run_start plus Story-aware agent_prompt deterministic stale-ticket barrier preserved exactly two Prompt Envelopes, one signed ReviewRun, non-overlapping critical sections, and verifyReviewRunPromptEnvelope gate validity; semantic coverage mapping is 48 intents to 48 concrete passing evidence with zero missing, duplicates, failures, waivers, or orphans; masks 31 and 10 passed and mask 21 passed 20/20 concurrent stress iterations with all five lanes and gate evidence retained. This lane pass does not claim full quorum completion.",
+      "createdAt": "2026-07-19T11:07:42.879Z",
+      "reviewRound": "2026-07-19T11:02:56.636Z",
+      "reviewRunId": "B-235e:RR-038",
+      "envelopeId": "e3886b4b874eacd0339018bcfc1dbda180811b8441d1732b4be1963ec5bdc503",
+      "writerSessionId": "sess-78c1fcc0db71cb224b0d05382e8243ea",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Story-level coverage review used all 48 structured semantic verificationIntent/evidence mappings, focused diff inspection, the actual mixed-producer deterministic CLI regression, signed-envelope gate verification, and the complete 20-round concurrency stress command; relevant regions were triaged without claiming entire files were read fully."
+      },
+      "_hash": "bba0fd122221465fec585e36e79e94c8a0597bec1aee55d2f5ce2ca10aceb852"
     }
   ]
 }
