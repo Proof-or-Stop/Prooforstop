@@ -94,7 +94,7 @@
       "title": "Build a read-only historical-material replay harness",
       "context": "Load immutable historical material without changing current Story state; replay both arms from the same pinned input and deterministically recompute prompt bytes, estimated tokens, content digests and finding comparisons.",
       "relatedDocs": [
-        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
         "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
       ],
       "status": "done",
@@ -129,7 +129,7 @@
           }
         ]
       },
-      "userSees": "用户运行 replay 时看到：\"Replay: PASS sameInput=true deterministic=true\"，并看到每个 sample/arm 的 bytes、estimatedTokens、promptDigest 和 findingComparison。",
+      "userSees": "When the user runs replay, the terminal shows \"Replay: PASS sameInput=true deterministic=true\" plus bytes, estimatedTokens, promptDigest, and findingComparison for each sample and arm.",
       "files": {
         "modify": [],
         "create": [
