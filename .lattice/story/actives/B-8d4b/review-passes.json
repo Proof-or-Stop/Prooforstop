@@ -207,6 +207,42 @@
         "scanEscalationReason": null
       },
       "_hash": "af747df57e64b187ea2a3dff7ec80ff038abbed2a56364973d70489aeb4537d0"
+    },
+    {
+      "id": "B-8d4b:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-6 concept review PASS: compared against prior accepted pass 4ff6d77 and found no changes under docs, experiments, packages, scripts, config, or package files; only Lattice-owned Story metadata/evidence changed. The English understanding, decision, checklist user-visible text, and refreshed scope coverage preserve the prior task, exclusions, fail-closed boundaries, and four-checklist intent. Current ReviewRun retains the same storyFilesHash 3b4f0b0 and scope/diff binding e84204c/9e08889 as RR-020. Re-ran the 49-check selfcheck with exit 0 and canonical replay remains prompt/recall INCONCLUSIVE with no fabricated provider usage.",
+      "createdAt": "2026-07-19T03:51:36.612Z",
+      "reviewRound": "2026-07-19T03:50:19.464Z",
+      "reviewRunId": "B-8d4b:RR-024",
+      "writerSessionId": "sess-582f49a50504746237e21d3db45549a4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/scope-check.json",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b15a80775fdcc1f65f59d0d4f9467fc579db070151d8b0f9d2078e2b4c5ad37a"
     }
   ]
 }
