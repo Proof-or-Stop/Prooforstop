@@ -544,6 +544,33 @@
         "scanEscalationReason": null
       },
       "_hash": "27383f39d362dbc9c24ad5f5d7e624382b1e7aa2c3ac4a991909479474644c5b"
+    },
+    {
+      "id": "B-6ed2:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Round 9 bounded docs/delivery consistency review: merge eddff4ec35 changed no decision docs or prompt assets; summary evidence commit e764c1cd18 remains exactly six additions in only process-events.jsonl, so the six-row single-commit atomic quorum promise is not contradicted. Delivery freshness is stale after merge and must be re-signed, but the claims themselves remain consistent.",
+      "createdAt": "2026-07-19T01:43:17.581Z",
+      "reviewRound": "2026-07-19T01:40:42.959Z",
+      "reviewRunId": "B-6ed2:RR-029",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-6ed2/summary.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-6ed2/delivery-check.json",
+          ".lattice/story/actives/B-6ed2/evidence/live-smoke-transcript.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f86e1cbc20336d0f5c3c914c802adaa908083afa8dcbb24cc5e9204db6dcbcea"
     }
   ]
 }
