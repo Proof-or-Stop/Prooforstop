@@ -96,6 +96,20 @@
       "_hash": "d1e2147b25be81cc8568039a3d0d1d5a0ce5da914cb5b2756a773f9a6e45b0b8",
       "signatureTag": "missing|unknown|host-codex-required",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-231d:F-006",
+      "desc": "[host-B codex] done-required-validation.ts:~405 absolute cwd anchored at SHARED root breaks for sub-paths inside a worktree: <main>/packages/main -> packages/main but <wt>/.worktrees/B-231d/packages/main -> .worktrees/B-231d/packages/main (digests differ). Fix: relativize an in-workspace absolute cwd against the WORKTREE's OWN projectRoot (both -> packages/main); absolute-outside-workspace stays an inherent limit. Also worktree-portability-smoke.ts:203 reuses the main absolute path for BOTH envelopes (tautological) - test corresponding absolute paths in DIFFERENT worktrees.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-19T01:12:48.889Z",
+      "reviewRound": "2026-07-19T01:08:03.737Z",
+      "_hash": "4b38b540c74deb7ffed4c9c68bf38f75f6517f3f8cf2f789f564d5c07841f8a6",
+      "signatureTag": "missing|unknown|host-codex-required",
+      "signatureTagSource": "auto"
     }
   ]
 }
