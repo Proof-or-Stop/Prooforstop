@@ -76,6 +76,21 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-19T03:17:46.289Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-d877:F-004",
+      "desc": "concept-cleanup: packages/main/src/handlers/hints.ts:176-178 devFinishHint (registered for the dev_finish command at hints.ts:254, fired unconditionally by cli-engine.ts decorateResult on every plain-text `dev_finish` CLI call) still carries the pre-B-d877 raw-actor-era assumption that dev_finish is the terminal/merge step: it returns literally `\\u2192 Worktree \\u5df2\\u5408\\u5e76\\u56de\\u672c\\u5730 main\\u3002\\u53ef\\u4ee5\\u5f00\\u59cb\\u4e0b\\u4e00\\u4e2a story\\uff1b...` (\"Worktree has been merged back to local main. You can start the next story...\"). Post-fix, dev_finish (worktree.ts:1000) only advances DEV\\u2192REVIEW via runStoryTransition and its OWN result text says `Worktree preserved: ${wtPath}` + `Run code review in the worktree; after review passes, advance to TEST` \\u2014 nothing is merged and the worktree is explicitly kept. So a live `dev_finish` invocation now prints a directly self-contradictory two-line combo (\\\"Worktree preserved...\\\" immediately followed by the hint \\\"Worktree already merged back to main, start the next story\\\"), and an operator following the hint would skip the mandatory REVIEW step this exact story exists to enforce. There is no corresponding hint registered for `dev_merge` (the function that ACTUALLY performs the git merge) \\u2014 grep -n dev_merge packages/main/src/handlers/hints.ts returns nothing \\u2014 strongly suggesting this hint text was originally meant for dev_merge and was mis-keyed under dev_finish. This is the same conceptual family already identified and fixed in the sibling dev_merge precondition message by round-1 finding F-002 (dev_finish assumed to land in / complete TEST), but was missed here. Not exercised by transition-integrity-smoke.ts, which calls handlers.dev_finish(...) directly and bypasses the CLI decorateResult/hint layer entirely.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T03:24:34.770Z",
+      "reviewRound": "2026-07-19T03:17:18.443Z",
+      "reviewRunId": "B-d877:RR-004",
+      "_hash": "8c57224eb2acabd2ebc779d6145c52e24ab25b6b5de18af0b6f9f11fd3972f8b",
+      "signatureTag": "missing|unknown|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
