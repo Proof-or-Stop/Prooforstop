@@ -72,6 +72,40 @@
         "scanEscalationReason": null
       },
       "_hash": "c0a80302e1d1041bb9a9f85aefebd3315ffe2adbf41c2fb9d5436edb32feff9c"
+    },
+    {
+      "id": "B-956f:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept-residue check on fix commit 1292c240fb. No new concept deletion/replacement introduced. (a) All consumers (review-assurance-floor.ts classifyReviewAssuranceFloorPath, repro-evidence-binding-gate.ts collectMaterialCodeFiles/classifyReproFirstRequirement, proofstory.ts trigger predicate via materialClassification, scope-diff-pack.ts collectSemanticAnalysisUnavailable, validate-concept.ts analyzeDeletedSymbols) delegate solely to resolveMaterialCodePolicy/classifyMaterialCodePath in material-code-policy.ts; grepped for duplicate extension-list constants (MATERIAL_CODE_EXTENSIONS/CODE_EXTENSIONS/DEFAULT_CODE_EXTENSIONS) and found only the single canonical DEFAULT_CODE_EXTENSIONS in material-code-policy.ts; no builder re-grew its own list. (b) diagnosticOnly design is documented consistently everywhere it appears: ProofStoryTriggerReason.diagnosticOnly field comment in types.ts, the pushTrigger call sites plus the enforceableTriggers filter and hardeningLevel computation in proofstory.ts classifyTriggers/evaluateProofStoryDiagnostics, and the FIX-G comments at all 5 diagnostic-input builders (machine.ts, phase-gates.ts, handlers/proofstory.ts, handlers/story-review.ts x2); no comment claims an enforce effect the code does not have; smoke check FIX-G explicitly asserts enforce outcomes stay byte-identical. (c) grepped for hintless/config-blind/TS-only residue: remaining hits describe current, still-true design constraints (the hintless pure classifier still exists and is correctly documented; config-blind is described only as removed history in comments/plan/background, and collectMaterialCodeFiles's snapshot parameter is compile-time required with no exported config-blind overload any caller could regress to). Also rebuilt dist (tsc clean), ran language-neutral-gates-smoke.js (18/18 pass), concept-gate-scope-smoke.js (pass), and tmp/w1-red/red-language-degradation.cjs (11/11 pass) to confirm the claimed evidence holds. readManifest covers everything read for this round.",
+      "createdAt": "2026-07-19T17:25:15.292Z",
+      "reviewRound": "2026-07-19T17:18:25.831Z",
+      "reviewRunId": "B-956f:RR-005",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "188b0930fbbfad6fa3c27ec7ddf31ff5378d7b90cc7b5f2e40cbb07969a49f44"
     }
   ]
 }
