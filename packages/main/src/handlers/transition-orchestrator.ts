@@ -408,11 +408,14 @@ async function runStoryTransitionInner(
 ): Promise<TransitionResult> {
   const { store } = ctx;
   let doneMainMergeLock: ReturnType<typeof acquireDoneMainMergeLock> | undefined;
-  // B-d877 CHK-002: per-story transition lock for NON-DONE transitions. Held
-  // across the non-atomic read → gate → persist span so two concurrent
-  // SAME-owner transitions serialize (the owner lease only rejects FOREIGN
-  // sessions). DONE never takes this — it holds the main write lock instead
-  // (acquireDoneMainMergeLock below), so no double-lock. Released in the finally.
+  // B-d877 CHK-002 + Finding 2: per-story transition lock taken for EVERY phase
+  // (including DONE). Held across the non-atomic read → gate → persist span so two
+  // concurrent SAME-owner transitions serialize (the owner lease only rejects
+  // FOREIGN sessions). DONE ALSO takes acquireDoneMainMergeLock, but this
+  // transition lock is acquired FIRST (fixed ordering transitionLock →
+  // doneMainMergeLock) so a DONE and a concurrent same-story NON-DONE transition
+  // (e.g. a rollback) mutually exclude. NON-DONE only takes this lock, so the
+  // ordering is total → no circular wait. Released in the finally.
   let transitionLock: AcquiredMkdirLock | undefined;
   // B-0e53: main's commit sha captured AFTER the DONE pre-check autoSyncMain.
   // Outer-scoped so the capture point (end of the DONE pre-check block) and the
@@ -424,14 +427,15 @@ async function runStoryTransitionInner(
   // finally — covering success, guard failure, gate failure, and exceptions.
   let actor: ReturnType<typeof createStoryActor> | undefined;
   try {
-    // B-d877 CHK-002: acquire the per-story transition lock BEFORE readStory so
-    // the read → gate → persist span is atomic against another SAME-owner
-    // transition. A second concurrent attempt blocks here, then re-reads the
-    // committed post-transition state below. DONE is excluded (it serializes via
-    // acquireDoneMainMergeLock instead — see the DONE pre-check block).
-    if (args.phase !== 'DONE') {
-      transitionLock = acquireStoryTransitionLock(ctx.root, args.storyId);
-    }
+    // B-d877 CHK-002 + Finding 2: acquire the per-story transition lock BEFORE
+    // readStory so the read → gate → persist span is atomic against another
+    // SAME-owner transition. A second concurrent attempt blocks here, then
+    // re-reads the committed post-transition state below. This now runs for ALL
+    // phases (including DONE); for DONE it is acquired BEFORE
+    // acquireDoneMainMergeLock (see the DONE pre-check block) — a fixed lock
+    // ordering that makes a DONE and a concurrent same-story rollback mutually
+    // exclude without any circular wait.
+    transitionLock = acquireStoryTransitionLock(ctx.root, args.storyId);
 
     // B-9bd9 CHK-002: meta-story never enters DONE (long-lived cross-story container, only carries findings)
     const metaGuardErr = checkMetaStoryAdvanceGuard(args.storyId, args.phase);
@@ -520,6 +524,12 @@ async function runStoryTransitionInner(
       // acquireDoneMainMergeLock's lock-path mkdir uses the projectRoot fallback
       // when not inside a story worktree, so pass the resolved gitCwd so the
       // mkdir target is the real main repo root in wrapper-root layouts.
+      //
+      // B-d877 Finding 2: the per-story `transitionLock` was already acquired at
+      // the top of this try (for EVERY phase). Acquiring the DONE main-merge lock
+      // here — strictly AFTER the transition lock — fixes the ordering
+      // (transitionLock → doneMainMergeLock). Since a NON-DONE transition only
+      // ever holds `transitionLock`, this ordering is total and cannot deadlock.
       doneMainMergeLock = acquireDoneMainMergeLock(args.storyId, doneGitCwd);
       const doneWorktree = detectDoneStoryWorktreeContext();
       if (doneWorktree) {

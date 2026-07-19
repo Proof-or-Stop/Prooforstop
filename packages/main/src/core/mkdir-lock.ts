@@ -1,5 +1,6 @@
 import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
 import { dirname, join } from 'path';
+import { randomUUID } from 'crypto';
 
 /**
  * B-6812 CHK-001: shared mkdir-based advisory lock primitive.
@@ -238,22 +239,49 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
   // Record holder metadata inside the freshly-acquired lock dir so a later
   // blocked caller can describe who holds it. Best-effort: a write failure
   // (read-only fs, etc.) must not fail the acquire — the lock is already held.
+  //
+  // B-d877 Finding 1(a): when holderInfo is provided we mint a unique per-acquire
+  // `lockId` (randomUUID) and persist it in holder.json, then capture it in the
+  // release() closure below. This makes release OWNERSHIP-CHECKED: if this holder
+  // is stale-reclaimed (dir removed by a waiter) and a NEW holder acquires, our
+  // later release() must NOT delete the successor's dir. `releaseLockId` is only
+  // set AFTER a successful holder.json write; if the write fails we leave it
+  // undefined and fall back to the back-compat unconditional removal so the lock
+  // dir can never leak.
+  let releaseLockId: string | undefined;
   if (options.holderInfo) {
+    const ourLockId = options.holderInfo.lockId ?? randomUUID();
+    const holderToWrite: MkdirLockHolderInfo = { ...options.holderInfo, lockId: ourLockId };
     try {
       writeFileSync(
         join(lockDir, MKDIR_LOCK_HOLDER_FILE),
-        JSON.stringify(options.holderInfo, null, 2) + '\n',
+        JSON.stringify(holderToWrite, null, 2) + '\n',
         'utf-8',
       );
+      releaseLockId = ourLockId;
     } catch {
-      /* PROBE: holder.json is descriptive metadata only — acquire still succeeded. */
+      /* PROBE: holder.json is descriptive metadata only — acquire still succeeded;
+         release falls back to unconditional removal (back-compat). */
     }
   }
 
   return {
     lockDir,
     release() {
-      rmSync(lockDir, { recursive: true, force: true });
+      // BACK-COMPAT: no holderInfo/lockId was written for this acquire (bare lock,
+      // or the holder.json write failed) — keep the original unconditional remove.
+      if (releaseLockId === undefined) {
+        rmSync(lockDir, { recursive: true, force: true });
+        return;
+      }
+      // Ownership-checked release: only remove the dir if WE still hold it.
+      // A stale-reclaim + new-holder acquire replaces holder.json with a
+      // different lockId (or removes it entirely); in either case this release
+      // is a no-op so a successor's lock is never deleted.
+      const current = readMkdirLockHolder(lockDir);
+      if (current?.lockId === releaseLockId) {
+        rmSync(lockDir, { recursive: true, force: true });
+      }
     },
   };
 }

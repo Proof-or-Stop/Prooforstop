@@ -1087,9 +1087,18 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         );
       }
 
-      // Must be in TEST or a later phase
+      // B-d877 Finding 3: dev_merge only performs the TEST→DONE merge, so the
+      // story must already be in TEST (or DONE). Post-diff, dev_finish lands the
+      // story in REVIEW (not TEST) — code review runs there and the reviewer
+      // advances REVIEW→TEST once it passes; dev_merge no longer follows directly
+      // from dev_finish. The old message ("dev_finish first to enter TEST") was
+      // stale and pointed at the wrong step.
       if (story.phase !== 'TEST' && story.phase !== 'DONE') {
-        throw new Error(`Story ${args.storyId} is currently in phase ${story.phase}; you need to dev_finish first to enter TEST`);
+        throw new Error(
+          `Story ${args.storyId} is currently in phase ${story.phase}; ` +
+          `dev_merge only completes the TEST→DONE merge. Finish code review in REVIEW ` +
+          `and advance the story to TEST (story_advance TEST) before calling dev_merge.`,
+        );
       }
 
       // B-d877 CHK-001: advance TEST→DONE through the canonical transition

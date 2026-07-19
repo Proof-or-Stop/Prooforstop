@@ -1,6 +1,12 @@
 import { hostname } from 'os';
 import { join } from 'path';
-import { acquireMkdirLock, type AcquiredMkdirLock, type MkdirLockOptions } from './mkdir-lock.js';
+import {
+  acquireMkdirLock,
+  type AcquiredMkdirLock,
+  type ExistingMkdirLockState,
+  type ExistingMkdirLockSnapshot,
+  type MkdirLockOptions,
+} from './mkdir-lock.js';
 import { LATTICE_DIR } from './lattice-paths.js';
 
 /**
@@ -35,9 +41,21 @@ import { LATTICE_DIR } from './lattice-paths.js';
  * validation lock which roots at the same project root, transitions across
  * worktrees of the same story), not merely in-process callers.
  *
- * DONE transitions must NOT take this lock: they already hold the unified main
- * write lock (`acquireDoneMainMergeLock`) across the same span, so the
- * orchestrator only acquires this for `args.phase !== 'DONE'` (no double-lock).
+ * B-d877 Finding 2: ALL phases (including DONE) now UNIFORMLY acquire this
+ * per-story transition lock. A DONE and a concurrent SAME-story NON-DONE
+ * transition (e.g. a rollback) previously took DIFFERENT locks (DONE serialized
+ * only on `acquireDoneMainMergeLock`) and thus did not mutually exclude. The
+ * orchestrator now takes this lock for every phase; for DONE it acquires this
+ * lock BEFORE `acquireDoneMainMergeLock` (fixed ordering transitionLock →
+ * doneMainMergeLock). A NON-DONE transition only ever takes this lock, so the
+ * ordering is total and there is no circular wait / deadlock.
+ *
+ * B-d877 Finding 1(b): the acquire passes a `classifyExistingLock` callback so a
+ * live-but-CPU-starved holder is never mis-reclaimed as stale mid-transition. A
+ * same-host holder whose recorded pid is still alive is classified `active`
+ * (never reclaimed regardless of mtime/starvation); a same-host holder whose pid
+ * is dead (kill → ESRCH) is `stale` (reclaimed); anything else (no holder /
+ * different host) is `unknown` and falls back to the mtime staleMs check.
  */
 
 /** Lock-directory root (relative to the project root) for per-story transition locks. */
@@ -57,6 +75,42 @@ const STORY_TRANSITION_DEADLINE_MS = 180_000;
 /** Sanitize a story id into a safe single lock-file segment (mirrors validation-execution-lock). */
 function sanitizeLockSegment(value: string): string {
   return value.replace(/[^A-Za-z0-9_.-]/g, '_').replace(/^_+|_+$/g, '') || 'unknown';
+}
+
+/**
+ * B-d877 Finding 1(b): liveness classifier for an existing transition lock.
+ *
+ * A live-but-CPU-starved holder can outlive the 120s mtime staleMs while merely
+ * starved (not dead); the default mtime check would then wrongly reclaim it and
+ * BOTH transitions would run (double-mint). This classifier consults the recorded
+ * holder pid/hostname instead of mtime alone:
+ *  - same host + pid alive (`process.kill(pid, 0)` does not throw, or throws
+ *    EPERM → the process EXISTS but is not signalable by us) → `active`
+ *    (NEVER reclaimed, regardless of starvation);
+ *  - same host + pid dead (`process.kill` throws ESRCH) → `stale` (reclaimed);
+ *  - no holder / different hostname / any other errno → `unknown` (the acquire
+ *    falls back to the mtime staleMs check).
+ */
+export function classifyTransitionLockHolder(
+  snapshot: ExistingMkdirLockSnapshot,
+): ExistingMkdirLockState {
+  const holder = snapshot.holder;
+  // No readable holder metadata, or a different host: we cannot probe liveness
+  // locally, so defer to the mtime staleMs heuristic.
+  if (!holder || holder.hostname !== hostname()) return 'unknown';
+  if (!Number.isInteger(holder.pid) || holder.pid <= 0) return 'unknown';
+  try {
+    // Signal 0 performs error checking without delivering a signal: success means
+    // the process exists and we may signal it → the holder is alive.
+    process.kill(holder.pid, 0);
+    return 'active';
+  } catch (e: any) {
+    // ESRCH = no such process → the holder crashed → reclaim as stale.
+    if (e && e.code === 'ESRCH') return 'stale';
+    // EPERM (and any other errno) means the process EXISTS but we may not signal
+    // it → treat as ALIVE so a live holder is never reclaimed mid-transition.
+    return 'active';
+  }
 }
 
 export interface StoryTransitionLockOptions {
@@ -93,6 +147,7 @@ export function acquireStoryTransitionLock(
     deadlineMs: options.deadlineMs ?? STORY_TRANSITION_DEADLINE_MS,
     staleMs: options.staleMs ?? STORY_TRANSITION_STALE_MS,
     label: `story transition (${storyId})`,
+    classifyExistingLock: classifyTransitionLockHolder,
     holderInfo: {
       pid: process.pid,
       hostname: hostname(),

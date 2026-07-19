@@ -15,14 +15,21 @@
  *   CHK-002 — same-owner concurrent transitions are serialized by a per-story
  *   transition lock: two concurrent DEV→REVIEW attempts produce exactly one
  *   review round and one phase_transition event; a transition that throws
- *   mid-critical-section releases the lock (no deadlock); DONE keeps using only
- *   the main write lock (no double-lock).
+ *   mid-critical-section releases the lock (no deadlock). B-d877 Finding 2: DONE
+ *   now UNIFORMLY takes the per-story transition lock too (acquired BEFORE the
+ *   main merge lock; fixed ordering), so a DONE and a concurrent same-story
+ *   rollback mutually exclude and DONE must not self-deadlock or leak the lock.
+ *
+ *   B-d877 Finding 1 — the mkdir lock is safe held across a transition: a LIVE
+ *   same-host holder is never stale-reclaimed by a waiter even past staleMs
+ *   (pid-liveness classifier), and release() is OWNERSHIP-CHECKED so a
+ *   stale-reclaimed holder's late release cannot delete a successor's lock dir.
  *
  * Builds a temp git repo + real git worktree for each fixture. Prints ✓/✗ per
  * check and exits nonzero on the first failure.
  */
 import { execFileSync, spawn } from 'node:child_process';
-import { mkdtempSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,6 +38,7 @@ import { StoryStore } from '../core/store.js';
 import { createWorktreeHandlers } from '../handlers/worktree.js';
 import { runStoryTransition } from '../handlers/transition-orchestrator.js';
 import { acquireStoryTransitionLock, storyTransitionLockPath } from '../core/story-transition-lock.js';
+import { acquireMkdirLock, readMkdirLockHolder } from '../core/mkdir-lock.js';
 
 const NOW = '2026-07-18T00:00:00.000Z';
 
@@ -112,6 +120,23 @@ async function waitForCondition(cond: () => boolean, timeoutMs: number, pollMs =
   }
 }
 
+/**
+ * B-d877 Finding 4 (F-001): run `fn` with process.cwd() pinned to `dir`, then
+ * restore the previous cwd. The DONE path calls detectDoneStoryWorktreeContext()
+ * / acquireDoneMainMergeLock() with the default `invocationCwd = process.cwd()`;
+ * pinning it to the fixture's own root makes the dev_merge-delegation comparison
+ * deterministic (it no longer leaks the smoke's invoking cwd/branch).
+ */
+async function withCwd<T>(dir: string, fn: () => Promise<T>): Promise<T> {
+  const prev = process.cwd();
+  process.chdir(dir);
+  try {
+    return await fn();
+  } finally {
+    process.chdir(prev);
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // CHK-002 worker mode: this file re-invokes itself as a child process so two
 // genuinely concurrent OS processes race the SAME story's DEV→REVIEW transition.
@@ -175,17 +200,26 @@ async function main(): Promise<void> {
   // (modulo the embedded storyId) and never bypass-writes phase=DONE.
   console.log('\nCHK-001b: dev_merge TEST→DONE delegates to runStoryTransition (second door closed)');
   {
+    // B-d877 Finding 4 (F-001): pin process.cwd() to each fixture's own root so
+    // the DONE path's detectDoneStoryWorktreeContext()/acquireDoneMainMergeLock()
+    // resolve against the fixture — not the (variable) directory the smoke was
+    // launched from. Both fixtures are structurally identical, so the failure
+    // text is deterministic and no longer leaks the invoking cwd/branch.
     const fa = makeFixture('B-tismrga', 'TEST');
     const handlers = createWorktreeHandlers({ root: fa.root, store: fa.store, scanRoot: join(fa.root, 'packages/main') } as any);
     let errA: string | null = null;
-    try { await handlers.dev_merge({ storyId: fa.storyId }); } catch (e: any) { errA = String(e?.message ?? e); }
+    await withCwd(fa.root, async () => {
+      try { await handlers.dev_merge({ storyId: fa.storyId }); } catch (e: any) { errA = String(e?.message ?? e); }
+    });
 
     const fb = makeFixture('B-tismrgb', 'TEST');
     let errB: string | null = null;
-    try {
-      await runStoryTransition({ root: fb.root, store: fb.store, scanRoot: join(fb.root, 'packages/main') } as any,
-        { storyId: fb.storyId, phase: 'DONE' as any });
-    } catch (e: any) { errB = String(e?.message ?? e); }
+    await withCwd(fb.root, async () => {
+      try {
+        await runStoryTransition({ root: fb.root, store: fb.store, scanRoot: join(fb.root, 'packages/main') } as any,
+          { storyId: fb.storyId, phase: 'DONE' as any });
+      } catch (e: any) { errB = String(e?.message ?? e); }
+    });
 
     check('dev_merge reached the orchestrator DONE gate (threw a DONE-path error)', errA !== null,
       errA ? '' : 'dev_merge did not throw — it may have bypass-written DONE');
@@ -233,13 +267,21 @@ async function main(): Promise<void> {
     w1.stdout!.on('data', (d) => { out1 += d.toString(); });
     w2.stdout!.on('data', (d) => { out2 += d.toString(); });
 
-    // Both workers ready and parked on the barrier, then release them together.
-    await waitForCondition(() => existsSync(ready1) && existsSync(ready2), 10000);
-    writeFileSync(barrier, 'go');
-    await Promise.all([
+    // B-d877 Finding 5: register the exit-promise listeners BEFORE releasing the
+    // barrier. A worker can win the lock and exit almost immediately after `go`;
+    // if the exit listener were attached only AFTER writeFileSync(barrier), that
+    // early exit event would be missed and Promise.all would hang until timeout.
+    // `child_process` exit is emitted asynchronously, but attaching the listener
+    // up-front guarantees it is observed regardless of how fast the child exits.
+    const exited = Promise.all([
       new Promise<void>((res) => w1.on('exit', () => res())),
       new Promise<void>((res) => w2.on('exit', () => res())),
     ]);
+
+    // Both workers ready and parked on the barrier, then release them together.
+    await waitForCondition(() => existsSync(ready1) && existsSync(ready2), 10000);
+    writeFileSync(barrier, 'go');
+    await exited;
 
     const parse = (s: string) => { try { return JSON.parse(s.trim().split('\n').filter(Boolean).pop() || '{}'); } catch { return {}; } };
     const r1 = parse(out1);
@@ -259,8 +301,8 @@ async function main(): Promise<void> {
       pt.filter((e) => e.toPhase === 'REVIEW').length === 1, JSON.stringify(pt.map((e) => e.toPhase)));
   }
 
-  // ── CHK-002b: lock is released on throw (no deadlock) + DONE never locks ────
-  console.log('\nCHK-002b: a throwing critical section releases the lock; DONE uses only the main write lock');
+  // ── CHK-002b: lock released on throw (no deadlock); DONE uniformly locks ─────
+  console.log('\nCHK-002b: a throwing critical section releases the lock; DONE uniformly takes + releases the transition lock (Finding 2)');
   {
     const fx = makeFixture('B-tislock', 'DEV', { withWorktree: false });
 
@@ -292,16 +334,103 @@ async function main(): Promise<void> {
     } catch { reacquired = false; }
     check('lock released after the throwing critical section (no deadlock)', reacquired);
 
-    // DONE must NOT take the per-story transition lock (it holds the main write
-    // lock instead). A DONE transition attempt must never create transition.lock.
+    // B-d877 Finding 2: DONE now UNIFORMLY acquires the per-story transition lock
+    // (BEFORE acquireDoneMainMergeLock; fixed lock ordering). The DONE attempt
+    // must NOT self-deadlock on the two locks, and must release the transition
+    // lock on every exit path (the finally). A pinned cwd keeps the DONE path
+    // deterministic. We time the attempt to prove it returns promptly rather than
+    // hanging on a lock-ordering deadlock.
     const fd = makeFixture('B-tisdone', 'TEST');
-    try {
-      await runStoryTransition({ root: fd.root, store: fd.store, scanRoot: join(fd.root, 'packages/main') } as any,
-        { storyId: fd.storyId, phase: 'DONE' as any });
-    } catch { /* expected to block at a DONE gate */ }
-    check('DONE transition never created the per-story transition lock (no double-lock)',
+    const doneStart = Date.now();
+    await withCwd(fd.root, async () => {
+      try {
+        await runStoryTransition({ root: fd.root, store: fd.store, scanRoot: join(fd.root, 'packages/main') } as any,
+          { storyId: fd.storyId, phase: 'DONE' as any });
+      } catch { /* expected to block at a DONE gate */ }
+    });
+    const doneElapsed = Date.now() - doneStart;
+    check('DONE transition did not self-deadlock on the two locks (returned promptly)',
+      doneElapsed < 60000, `elapsed=${doneElapsed}ms`);
+    check('DONE released the per-story transition lock after uniform acquisition (not leaked)',
       !existsSync(storyTransitionLockPath(fd.root, fd.storyId)),
       storyTransitionLockPath(fd.root, fd.storyId));
+    // The lock is acquirable again immediately after DONE finishes/aborts, which
+    // also proves DONE did not leave the transition lock held.
+    let postDoneAcq = false;
+    try {
+      const l = acquireStoryTransitionLock(fd.root, fd.storyId, { deadlineMs: 1500, staleMs: 100000 });
+      l.release();
+      postDoneAcq = true;
+    } catch { postDoneAcq = false; }
+    check('transition lock is free after a DONE attempt (uniform acquire released it)', postDoneAcq);
+  }
+
+  // ── CHK-002c: a LIVE same-host holder is NOT stale-reclaimed past staleMs ────
+  console.log('\nCHK-002c: a LIVE same-host holder is not stale-reclaimed by a waiter even past staleMs (Finding 1b)');
+  {
+    const fx = makeFixture('B-tislive', 'DEV', { withWorktree: false });
+    // This process IS a live same-host holder: its holder.json records THIS pid on
+    // THIS hostname, so classifyTransitionLockHolder returns 'active'.
+    const held = acquireStoryTransitionLock(fx.root, fx.storyId, { staleMs: 100, deadlineMs: 900 });
+    const t0 = Date.now();
+    let waiterThrew = false;
+    try {
+      // A waiter with a SHORT staleMs (100ms): the mtime-only heuristic would
+      // reclaim the holder after 100ms, but the live-pid classifier keeps it
+      // 'active', so the waiter must NEVER reclaim → it times out at the deadline.
+      const w = acquireStoryTransitionLock(fx.root, fx.storyId, { staleMs: 100, deadlineMs: 900 });
+      w.release();
+    } catch { waiterThrew = true; }
+    const elapsed = Date.now() - t0;
+    check('waiter polled past staleMs before giving up (proves the stale window elapsed)',
+      elapsed >= 100, `elapsed=${elapsed}ms`);
+    check('a live same-host holder is NOT stale-reclaimed → the waiter timed out (no double-acquire)',
+      waiterThrew, `elapsed=${elapsed}ms`);
+    held.release();
+    // With the live holder gone, a fresh acquire succeeds promptly.
+    let reacq = false;
+    try {
+      const l = acquireStoryTransitionLock(fx.root, fx.storyId, { deadlineMs: 1500, staleMs: 100000 });
+      l.release();
+      reacq = true;
+    } catch { reacq = false; }
+    check('after the live holder releases, the lock is acquirable again', reacq);
+  }
+
+  // ── CHK-002d: ownership-checked release never deletes a successor's lock ─────
+  console.log('\nCHK-002d: ownership-checked release does not delete a successor\'s lock after a stale-reclaim (Finding 1a)');
+  {
+    const fx = makeFixture('B-tisown', 'DEV', { withWorktree: false });
+    const lockDir = join(fx.root, '.lattice', 'locks', 'transition', 'ownership.lock');
+
+    // Holder A acquires (mints unique lockId_A in holder.json).
+    const a = acquireMkdirLock(lockDir, {
+      holderInfo: { pid: 111111, hostname: 'hostA', command: 'holder A', acquiredAt: NOW },
+    });
+    const holderA = readMkdirLockHolder(lockDir);
+    check('holder A wrote a unique lockId to holder.json', !!holderA?.lockId, JSON.stringify(holderA));
+
+    // Simulate a stale-reclaim: a waiter removes A's dir, then a NEW holder B
+    // acquires the SAME dir with a fresh lockId_B.
+    rmSync(lockDir, { recursive: true, force: true });
+    const b = acquireMkdirLock(lockDir, {
+      holderInfo: { pid: 222222, hostname: 'hostB', command: 'holder B', acquiredAt: NOW },
+    });
+    const holderB = readMkdirLockHolder(lockDir);
+    check('successor B holds the lock with a DIFFERENT lockId',
+      !!holderB?.lockId && holderB!.lockId !== holderA!.lockId, JSON.stringify(holderB));
+
+    // A (unaware it was reclaimed) now releases. Ownership-checked release must be
+    // a NO-OP: it must not delete B's dir.
+    a.release();
+    check("original holder A's release() did NOT delete the successor's lock dir", existsSync(lockDir));
+    const stillB = readMkdirLockHolder(lockDir);
+    check("successor B's holder.json survived A's release()",
+      stillB?.lockId === holderB!.lockId, JSON.stringify(stillB));
+
+    // B can still release its own lock (ownership matches → dir removed).
+    b.release();
+    check('successor B can release its own lock after the ownership-checked no-op', !existsSync(lockDir));
   }
 
   console.log('');
