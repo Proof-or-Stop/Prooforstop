@@ -1,6 +1,6 @@
 {
   "storyId": "B-8d4b",
-  "checkedAt": "2026-07-19T03:49:58.353Z",
+  "checkedAt": "2026-07-19T03:53:27.636Z",
   "features": [
     {
       "feature": "Provide a read-only replay harness for pinned historical material",
@@ -38,8 +38,8 @@
       "source": "decisions:decisions/role-prompt-modularization-and-budget-execution-plan.md"
     },
     {
-      "feature": "Record assembled prompt measurements",
-      "covered_by": "CHK-003",
+      "feature": "Record assembled prompt measurements only when historical prompt snapshots are available and bound",
+      "covered_by": "CHK-002/CHK-003/CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/role-prompt-modularization-and-budget-execution-plan.md"
@@ -73,21 +73,21 @@
       "source": "decisions:decisions/role-prompt-modularization-and-budget-execution-plan.md"
     },
     {
-      "feature": "Recompute bytes, estimated tokens, digests, and finding comparisons deterministically for the same pinned input",
-      "covered_by": "CHK-002",
+      "feature": "Recompute bytes, estimated tokens, digests, and finding comparisons deterministically for the same pinned input when required evidence exists",
+      "covered_by": "CHK-002/CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/role-prompt-modularization-and-budget-execution-plan.md"
     },
     {
-      "feature": "Return explicit INCONCLUSIVE when material, adjudication, usage, or comparison evidence is insufficient",
+      "feature": "Return explicit INCONCLUSIVE when historical material, prompt snapshots, adjudication, usage, or comparison evidence is insufficient",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/role-prompt-modularization-and-budget-execution-plan.md"
     },
     {
-      "feature": "Do not write review pass, finding, ReviewRun, verification, validation, or lifecycle evidence",
+      "feature": "Prove the experiment cannot write review pass, finding, ReviewRun, verification, validation, or lifecycle evidence",
       "covered_by": "CHK-002/CHK-004",
       "status": "covered",
       "excluded_by": null,
@@ -115,10 +115,10 @@
       "source": "decisions:decisions/role-prompt-modularization-and-budget-execution-plan.md"
     },
     {
-      "feature": "Do not claim production prompt savings, provider cost reduction, or model-quality equivalence from unavailable historical evidence",
+      "feature": "Do not claim historical prompt savings, historical finding recall, provider cost reduction, or model-quality equivalence without bound historical evidence",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "decision.json fail-closed claim boundary and Story 3 canonical implementation-status section",
+      "excluded_by": "Story 3 fail-closed claim boundary; hermetic fixture is explicitly non-historical",
       "source": "decisions:decisions/role-prompt-modularization-and-budget-execution-plan.md"
     }
   ],
@@ -259,7 +259,7 @@
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-07-19T03:09:14.657Z",
-  "_hash": "af61f77a36bc24bec6a330d4d69f2540f58e2cf56fdde8ef12b2f5c73888608c",
+  "reviewRound": "2026-07-19T03:50:19.464Z",
+  "_hash": "95ef3e8cd022b1d2e5f2534753b53b7cda33dfefdad568f5e4a9c52138abb109",
   "openQuestions": []
 }
