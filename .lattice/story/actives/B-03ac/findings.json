@@ -62,7 +62,7 @@
       "desc": "packages/main/src/handlers/review-run.ts:79-219 — HIGH: review_run_start exposes only storyId/agent/lane/reviewedIntentRefs and never accepts or forwards reviewerEscalationReason to assembleConditionalReviewPromptEnvelope. The required reviewer flow cannot request a new full-context run with a recorded reason when an incremental reviewBasis is incomplete. The smoke proves only the pure assembler branch, while `review_run_start --help` confirms there is no product/CLI path.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T05:32:07.108Z",
@@ -70,7 +70,11 @@
       "reviewRunId": "B-03ac:RR-002",
       "_hash": "ceffba059abbb22a8d00f885a3f3b61ce92b492fce33e55772e60ecff901b049",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of F-002; the same production reviewerEscalationReason CLI-to-signed-run fix and built-CLI regression in 5f7ec42a83 resolves it.",
+      "resolvedAt": "2026-07-19T06:15:50.237Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-03ac:F-005",
