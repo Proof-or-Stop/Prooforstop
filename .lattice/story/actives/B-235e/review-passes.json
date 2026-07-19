@@ -770,6 +770,23 @@
         "scanEscalationReason": null
       },
       "_hash": "cb0edac6b6ec921d3990cee07457d10c6d5d4a74405858fb5157185fd44de085"
+    },
+    {
+      "id": "B-235e:RP-032",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 17 convergence re-attestation 1 PASS: fresh authoritative ReviewRun RR-063 and Prompt Envelope 1c04670 select SAFE_INCREMENTAL (6505 vs 31563 bytes); story-owned material and scope remain unchanged (storyFilesHash 645080887673ae8bfef02e5dde7704eceb40b9a0d87e52802ac616849e5e6c51); current mapping is 48 intents to 48 concrete passing evidence with zero missing, duplicates, failures, waivers, or orphans; latest validation is PASS via trusted-story-metadata-descendant reuse. This is the first same-round convergence receipt only and does not claim the required second re-attestation, full quorum, or DONE.",
+      "createdAt": "2026-07-19T22:59:52.041Z",
+      "reviewRound": "2026-07-19T22:57:57.775Z",
+      "reviewRunId": "B-235e:RR-063",
+      "envelopeId": "1c04670e244ec196ab155e3523979fa3070d3ea0c6f79f743bfe99def35f2977",
+      "writerSessionId": "sess-78c1fcc0db71cb224b0d05382e8243ea",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "First bounded same-round convergence re-attestation verified a new signed eligibility/envelope binding, unchanged storyFilesHash/scope, all 48 semantic evidence records, and current validation PASS. No story-owned code changed."
+      },
+      "_hash": "4bd589cd5abbe706531d01011e87171c80dc293845f205c2df49729cb46b38db"
     }
   ]
 }
