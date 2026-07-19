@@ -110,6 +110,21 @@
       "_hash": "4b38b540c74deb7ffed4c9c68bf38f75f6517f3f8cf2f789f564d5c07841f8a6",
       "signatureTag": "missing|unknown|host-codex-required",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-231d:F-007",
+      "desc": "quality: packages/main/src/core/lifecycle-control/runtime/index.ts:132-150 validationLockPath()/validationLockStatus() reimplement the validation-lock path formula ad hoc (${root}/.lattice/locks/validation/<id>.lock) instead of calling the now-portable validationExecutionLockPath()/resolveSharedLockRoot() from validation-execution-lock.ts. Before this diff both formulas were byte-identical (root-anchored); after this diff the canonical path is shared-git-common-dir-anchored while this duplicate stays worktree-root-anchored, so for any linked story worktree the two diverge (reproduced: canonical=<repo>/.lattice/locks/validation/B-port.lock vs duplicate=<repo>/.worktrees/B-port/.lattice/locks/validation/B-port.lock). The duplicate feeds RuntimeClosureRow.locks.validationLock, which is a BLOCKING gate (line 282: locks.validationLock===\"active\" pushes a blocking issue) consumed by lifecycle_check/dashboard/transition-orchestrator.ts. Since the real lock is now created at the shared root (via validationExecutionLockPath, the fixed function used by the actual lock-acquisition path at line 272 of validation-execution-lock.ts), this status check will always report the validation lock as free when invoked from a linked worktree, even while a validation is genuinely running/held elsewhere in the same story — silently defeating the cross-worktree lock-visibility this story is meant to deliver. Fix: replace the ad hoc formula with the exported validationExecutionLockPath(root, storyId).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T01:17:04.448Z",
+      "reviewRound": "2026-07-19T01:08:03.737Z",
+      "reviewRunId": "B-231d:RR-008",
+      "_hash": "be214f4818946eceb7268114acabe73cbd10b6a50a6a9cdfa92a6a6b169e31e0",
+      "signatureTag": "missing|unknown|quality-packages-main",
+      "signatureTagSource": "auto"
     }
   ]
 }
