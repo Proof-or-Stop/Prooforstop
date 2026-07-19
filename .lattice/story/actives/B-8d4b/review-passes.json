@@ -170,6 +170,43 @@
       },
       "readDiagnostics": [],
       "_hash": "034960a3d7fd3e481d94daadc291fc8b1c0beb3d4f748886d89d0c42d8853854"
+    },
+    {
+      "id": "B-8d4b:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 quality re-review found the English planning metadata semantically equivalent to the prior Chinese metadata, scope evidence complete, and no business implementation drift. Current storyFilesHash and scope hashes match the prior clean quality round; selfcheck remains 49/49 and reverse replay remains fail-closed.",
+      "createdAt": "2026-07-19T03:51:28.183Z",
+      "reviewRound": "2026-07-19T03:50:19.464Z",
+      "reviewRunId": "B-8d4b:RR-021",
+      "writerSessionId": "sess-f7a2a0f533e1e60cdc80160470ffbf35",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/scope-check.json",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-experiment-protocol.md",
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "af747df57e64b187ea2a3dff7ec80ff038abbed2a56364973d70489aeb4537d0"
     }
   ]
 }
