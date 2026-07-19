@@ -15,7 +15,7 @@
         "happy": [
           {
             "id": "pinned-ab-contract-and-corpus",
-            "desc": "A versioned, canonical experiment contract pins the A/B arm definitions, exact same-input material envelope, model and controllable sampling settings, estimator and contract versions, run order, at least three repetitions per applicable cell, three required historical sample classes with at least two samples each, and a pre-adjudicated stable finding set before any result is recorded; rerunning the same contract yields the same experiment identity and corpus digests.",
+            "desc": "A versioned, canonical experiment contract pins the A/B arm definitions, exact same-input material envelope, model and controllable sampling settings, estimator and contract versions, run order, at least three repetitions per applicable cell, three required historical sample classes with at least two samples each, and a pre-adjudicated stable finding set before any result is recorded; every seeded critical/high finding pins stable ID/category/severity/trigger plus independent machine or human adjudication evidence, matching uses normalized semantic category plus source/claim binding rather than wording, all critical findings must be detected, suspected systematic high misses require rerun and independent adjudication, and natural new findings or false positives are non-self-authenticating; rerunning the same contract yields the same experiment identity and corpus digests.",
             "type": "logic",
             "requiredIn": "balanced",
             "priority": "must"
