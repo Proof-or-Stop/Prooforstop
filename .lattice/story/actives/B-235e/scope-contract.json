@@ -350,10 +350,33 @@
         "atomic_stale_lock_reclaim",
         "aba_regression_barrier"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "TEST exposed Story-owned guard regressions: repin the closeout structural fingerprint and update the reviewer scan fixture to the current legacy prompt hash so the full validation contract passes.",
+      "timestamp": "2026-07-19T11:51:39.798Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "4d9eb9ffde8eb3e8254aed666e75b944446178e0",
+      "materialHash": "7aef176f110a60a3941845a1d23b06b1387f52e50e482c3ec270083245261b07",
+      "anchors": [
+        "validation_guard_regression",
+        "legacy_prompt_hash_fixture",
+        "process_contract_fingerprint"
+      ]
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T10:38:24.109Z",
+  "updatedAt": "2026-07-19T11:51:39.798Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -427,6 +450,8 @@
     "docs/requirements/decisions/lifecycle-artifact-scope.md": "docs/requirements/decisions/lifecycle-artifact-scope.md",
     "packages/main/src/registry.ts": "packages/main/src/registry.ts",
     "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
-    "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts"
+    "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
   }
 }
