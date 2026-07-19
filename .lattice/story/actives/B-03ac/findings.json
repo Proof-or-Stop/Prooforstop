@@ -138,7 +138,7 @@
       "desc": "packages/main/src/handlers/review-run.ts:193-227 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:190-197 — HIGH: reviewer-requested full escalation is only unit-tested by passing reviewerEscalationReason directly to the assembler. The production review_run_start path never accepts or supplies that field, and there is no follow-up escalation command that mints a new reason-bound full ReviewRun. A reviewer served incremental context therefore cannot exercise reviewer-basis-incomplete-escalates or reviewer-authoritative-read-and-escalate in the real CLI/gate chain.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T05:34:12.333Z",
@@ -146,7 +146,11 @@
       "reviewRunId": "B-03ac:RR-003",
       "_hash": "4f8d519c57b27e43860b9fa69c49458acb25cb345f326c3878a8929dfb9c3813",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of F-002; production review_run_start escalation input, signed binding, replay verification and built-CLI integration were added in 5f7ec42a83.",
+      "resolvedAt": "2026-07-19T06:15:53.406Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-03ac:F-009",
