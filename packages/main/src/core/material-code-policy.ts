@@ -294,11 +294,23 @@ interface MaterialCodePolicyCacheEntry {
 
 let _defaultPolicyCache: MaterialCodePolicy | undefined;
 const _policyCacheByRoot = new Map<string, MaterialCodePolicyCacheEntry>();
+/**
+ * B-956f FIX 3 (codex MED — preflight O(exclusions × trackedFiles)): memoize the
+ * tree-bound exclusion preflight verdict by (resolved tree sha, policyDigest). The
+ * verdict is a pure function of the committed tree (content-addressed sha) and the
+ * resolved policy patterns, so the same (sha, policyDigest) always yields the same
+ * verdict — a HEAD move produces a NEW sha (cache miss → re-verify), never a stale
+ * accept. This makes the per-retry re-run from FIX 1 and repeated same-sha
+ * resolutions cheap. Only cached on the git-enumerated path (never for an explicit
+ * trackedFiles override, and never a fail-closed enumeration throw).
+ */
+const _preflightVerdictCache = new Map<string, MaterialCodeExclusionPreflightResult>();
 
 /** Reset the resolved-policy cache (tests). */
 export function resetMaterialCodePolicyCache(): void {
   _defaultPolicyCache = undefined;
   _policyCacheByRoot.clear();
+  _preflightVerdictCache.clear();
 }
 
 interface RawMaterialCodeConfig {
@@ -422,41 +434,40 @@ function readMaterialCodeConfig(projectRoot: string): { signature: string; raw: 
  * deep-frozen — mutation attempts throw.
  */
 export function resolveMaterialCodePolicy(projectRoot?: string): MaterialCodePolicy {
+  const policy = resolveMaterialCodePolicyConfigOnly(projectRoot);
+  // B-956f FIX 1 (codex HIGH): config parsing/caching is now SEPARATE from the
+  // tree-bound preflight. For standalone direct consumers (scope-diff-pack,
+  // validate-concept, the floor's no-snapshot policy path) validate config
+  // exclusions against LIVE HEAD here. The snapshot builder instead pins the sha
+  // (capture-once) and runs the SAME preflight against THAT sha inside its
+  // stability loop, so a snapshot is never bound to a tree the accepted policy was
+  // not validated against. Enumeration failure inside the preflight throws (fail
+  // closed); on a non-git root with exclusions this fails closed via the throw.
+  assertMaterialCodeExclusionsAgainstTree(policy, projectRoot);
+  return policy;
+}
+
+/**
+ * B-956f FIX 1 (codex HIGH — separate config parsing/caching from the tree-bound
+ * preflight): resolve ONLY the config-derived policy (parse + build + digest +
+ * config-key immutability rejection + content-signature cache). No filesystem/git
+ * access happens here — the tree-bound exclusion preflight is a SEPARATE concern
+ * (`assertMaterialCodeExclusionsAgainstTree`) so a caller that pins a specific sha
+ * (the classification-snapshot builder) can run it against THAT sha rather than a
+ * racy live HEAD read taken before the sha was captured.
+ */
+function resolveMaterialCodePolicyConfigOnly(projectRoot?: string): MaterialCodePolicy {
   if (projectRoot === undefined) {
     if (!_defaultPolicyCache) _defaultPolicyCache = deepFreeze(buildMaterialCodePolicy({}));
     return _defaultPolicyCache;
   }
-
   const { signature, raw } = readMaterialCodeConfig(projectRoot);
   const cached = _policyCacheByRoot.get(projectRoot);
-  const cacheHit = Boolean(cached && cached.configSignature === signature);
   // The config-signature cache safely memoizes the config parse + policy build +
   // digest, which depend ONLY on the config file content. It is frozen once.
-  const policy = cacheHit ? cached!.policy : deepFreeze(buildMaterialCodePolicy(raw));
-
-  // B-956f FIX 4 (codex MED — cache skips preflight): the filesystem-aware
-  // exclusion preflight walks the TRACKED TREE (git ls-tree), which can change
-  // WITHOUT the config signature changing — e.g. committing backend/go.mod AFTER a
-  // successful resolve. The config-signature cache must therefore NOT short-circuit
-  // it. Re-run the preflight on EVERY resolution so acceptance is bound to CURRENT
-  // tree identity, not only config identity. Cost is one `git ls-tree` pass and it
-  // is a no-op when excludePaths is empty (the classifier/CX4 FIX E design already
-  // pays this only for exclusion-carrying configs); rebuilding a tracked-tree hash
-  // for a cache key would cost the same ls-tree, so re-running is the cheap-correct
-  // choice. Enumeration failure inside preflight throws (fail closed).
-  if (policy.excludePaths.length > 0) {
-    const preflight = preflightMaterialCodeExclusions(policy, projectRoot);
-    if (!preflight.ok) {
-      const detail = preflight.violations
-        .map((violation) => `${JSON.stringify(violation.entry)} covers ${violation.manifest}`)
-        .join('; ');
-      throw new MaterialCodePolicyError(
-        'materialCode.excludePaths',
-        `exclusion covers real level-1 immutable runtime/build manifest(s) in the tracked tree: ${detail}`,
-      );
-    }
-  }
-  if (!cacheHit) _policyCacheByRoot.set(projectRoot, { configSignature: signature, policy });
+  if (cached && cached.configSignature === signature) return cached.policy;
+  const policy = deepFreeze(buildMaterialCodePolicy(raw));
+  _policyCacheByRoot.set(projectRoot, { configSignature: signature, policy });
   return policy;
 }
 
@@ -634,23 +645,90 @@ export function preflightMaterialCodeExclusions(
 ): MaterialCodeExclusionPreflightResult {
   if (policy.excludePaths.length === 0) return { ok: true, violations: [] };
   const files = trackedFiles ?? listTrackedFiles(gitCwd, ref);
+
+  // B-956f FIX 3 (codex MED — O(exclusions × trackedFiles) → O(files + exclusions ×
+  // candidates)): enumerate + normalize the tree ONCE and prefilter to the tiny set
+  // of immutable-manifest CANDIDATES (files whose basename is a level-1 manifest and
+  // are NOT structurally non-material at step 0), with the manifest basenames in a
+  // Set and the name-glob patterns precompiled once. Only that small candidate set
+  // is then compared against each exclusion entry — the old code re-scanned EVERY
+  // tracked file (basename + glob) once per exclusion entry (9.6s at 50k files × 20
+  // exclusions). Precedence is unchanged: a candidate is exactly a file the
+  // classifier treats as a level-1 manifest (step 1) and does not skip at step 0.
+  const basenameSet = new Set(policy.immutableManifestBasenames); // already lowercased
+  const patternRegexes = policy.immutableManifestPatterns.map(
+    (pattern) => new RegExp(`^${pattern.split('*').map(escapeRegExp).join('[^/]*')}$`, 'i'),
+  );
+  const candidates: string[] = [];
+  for (const file of files) {
+    const path = normalizeMaterialPath(file);
+    const base = baseName(path).toLowerCase();
+    if (!basenameSet.has(base) && !patternRegexes.some((rx) => rx.test(base))) continue;
+    if (isStructurallyNonMaterialArtifactPath(path)) continue;
+    candidates.push(path);
+  }
+
   const violations: Array<{ entry: string; manifest: string }> = [];
   for (const entry of policy.excludePaths) {
-    for (const file of files) {
-      const path = normalizeMaterialPath(file);
-      // B-956f FIX 4: skip manifests that are structurally non-material at step 0
-      // (dist/package.json, node_modules/**, runtime artifacts) BEFORE applying
-      // immutable-manifest protection — they are not the project's level-1
-      // manifest, so excluding their directory is legitimate. This matches the
-      // classifier's precedence (step 0 runs before the level-1 rule).
-      if (isStructurallyNonMaterialArtifactPath(path)) continue;
-      if (!isImmutableManifestName(policy, baseName(path))) continue;
-      if (matchesScopePathEntry(entry, path)) {
-        violations.push({ entry, manifest: path });
+    for (const manifest of candidates) {
+      if (matchesScopePathEntry(entry, manifest)) {
+        violations.push({ entry, manifest });
       }
     }
   }
   return { ok: violations.length === 0, violations };
+}
+
+/**
+ * B-956f FIX 1 + FIX 3: run the tree-bound exclusion preflight against a SPECIFIC
+ * ref — a pinned commit sha from the snapshot builder, or live HEAD for standalone
+ * resolution — and throw MaterialCodePolicyError on any level-1 manifest coverage.
+ * The verdict is memoized by (resolved tree sha, policyDigest) so the per-retry
+ * re-run (FIX 1) and repeated same-sha resolutions do not re-walk the tree; a HEAD
+ * move yields a new sha and thus a cache miss (never a stale accept). A
+ * no-exclusions policy is a no-op (no git access). Enumeration failure inside the
+ * preflight propagates (fail closed) and is never cached.
+ */
+export function assertMaterialCodeExclusionsAgainstTree(
+  policy: MaterialCodePolicy,
+  gitCwd: string | undefined,
+  ref = 'HEAD',
+  trackedFiles?: string[],
+): void {
+  if (policy.excludePaths.length === 0) return;
+  const cwd = gitCwd ?? process.cwd();
+  let effectiveRef = ref;
+  let cacheKey: string | undefined;
+  if (!trackedFiles) {
+    // Pin the ref to a concrete tree sha so the cache key is HEAD-move-safe and the
+    // ls-tree enumeration targets the exact same commit. A non-git tree yields no
+    // sha; we then run the preflight against the raw ref so it fails closed via the
+    // enumeration throw (an unresolvable tree with exclusions cannot be accepted).
+    const sha = ref === 'HEAD' ? currentGitHead(cwd) : ref;
+    if (sha) {
+      effectiveRef = sha;
+      cacheKey = `${sha} ${policy.policyDigest}`;
+      const cached = _preflightVerdictCache.get(cacheKey);
+      if (cached) {
+        throwOnExclusionViolation(cached);
+        return;
+      }
+    }
+  }
+  const verdict = preflightMaterialCodeExclusions(policy, cwd, effectiveRef, trackedFiles);
+  if (cacheKey) _preflightVerdictCache.set(cacheKey, verdict);
+  throwOnExclusionViolation(verdict);
+}
+
+function throwOnExclusionViolation(verdict: MaterialCodeExclusionPreflightResult): void {
+  if (verdict.ok) return;
+  const detail = verdict.violations
+    .map((violation) => `${JSON.stringify(violation.entry)} covers ${violation.manifest}`)
+    .join('; ');
+  throw new MaterialCodePolicyError(
+    'materialCode.excludePaths',
+    `exclusion covers real level-1 immutable runtime/build manifest(s) in the tracked tree: ${detail}`,
+  );
 }
 
 /**
@@ -686,6 +764,15 @@ export interface BuildMaterialClassificationSnapshotOptions {
   changedFiles?: string[];
   headHash?: string;
   materialHash?: string;
+  /**
+   * B-956f FIX 1 — TEST-ONLY seam (production callers never pass this). Invoked
+   * with the captured head sha immediately AFTER capture and BEFORE the pinned-sha
+   * exclusion preflight, so a smoke can deterministically land a commit mid-build
+   * and prove that (a) the preflight binds to the captured sha and (b) the
+   * post-build HEAD-stability validation forces a rebuild against the moved sha.
+   * Undocumented in the public contract; prefixed `__…ForTest`.
+   */
+  __afterHeadCaptureForTest?: (headRef: string | undefined) => void;
 }
 
 interface ChangedDiffEntry {
@@ -864,21 +951,38 @@ export function buildMaterialClassificationSnapshot(
   projectRoot?: string,
   opts: BuildMaterialClassificationSnapshotOptions = {},
 ): MaterialClassificationSnapshot {
-  const policy = opts.policy ?? resolveMaterialCodePolicy(projectRoot);
+  // B-956f FIX 1 (codex HIGH): config-only policy resolution — NO live-HEAD
+  // preflight here (that ran before the sha was captured and could bind a snapshot
+  // to a tree the policy was never validated against). The tree-bound exclusion
+  // preflight runs against the PINNED sha inside the loop below instead.
+  const policy = opts.policy ?? resolveMaterialCodePolicyConfigOnly(projectRoot);
   const gitCwd = opts.gitCwd ?? projectRoot ?? process.cwd();
 
   // B-956f FIX 1 (codex HIGH — HEAD-move race): capture HEAD as ONE immutable
-  // commit sha, run ALL diff/hint enumeration against that exact sha, then
-  // POST-VALIDATE that live HEAD still equals the captured sha. On a mismatch a
-  // commit landed mid-build, so the enumerated set and the embedded hashes may
-  // disagree — rebuild against the new sha (bounded retries). If no stable
-  // snapshot is reached, throw the named freshness diagnostic (fail closed). This
-  // is the ONLY builder, so every consumer/refresh/rebuild path (the floor,
-  // ensureFreshMaterialClassificationSnapshot, the diagnostics builder) inherits
-  // the post-validation — no path returns an unvalidated snapshot. Outside a git
-  // tree there is no HEAD to move, so the single build is returned directly.
+  // commit sha, run the tree-bound exclusion preflight AND all diff/hint
+  // enumeration against that exact sha, then POST-VALIDATE that live HEAD still
+  // equals the captured sha. On a mismatch a commit landed mid-build, so the
+  // enumerated set and the embedded hashes may disagree — rebuild against the new
+  // sha (bounded retries). If no stable snapshot is reached, throw the named
+  // freshness diagnostic (fail closed). This is the ONLY builder, so every
+  // consumer/refresh/rebuild path (the floor, ensureFreshMaterialClassificationSnapshot,
+  // the diagnostics builder) inherits both the pinned-sha preflight and the
+  // post-validation — no path returns an unvalidated snapshot. Outside a git tree
+  // there is no HEAD to move and no tracked manifest to hide, so the single build
+  // is returned directly.
   for (let attempt = 0; ; attempt++) {
     const headRef = currentGitHead(gitCwd);
+    // TEST-ONLY seam (see BuildMaterialClassificationSnapshotOptions): production
+    // callers never pass this. Fires after sha capture, before the preflight.
+    opts.__afterHeadCaptureForTest?.(headRef);
+    if (headRef) {
+      // Validate config exclusions against the EXACT tree the snapshot will bind
+      // to (the pinned sha), inside every retry attempt — not a racy live-HEAD read
+      // taken outside the loop. A commit that adds a covered level-1 manifest
+      // (backend/go.mod under an excluded backend/) at the captured sha is rejected
+      // here instead of yielding a snapshot bound to the now-invalid policy.
+      assertMaterialCodeExclusionsAgainstTree(policy, gitCwd, headRef);
+    }
     const snapshot = buildMaterialClassificationSnapshotAtRef(projectRoot, gitCwd, policy, headRef, opts);
     if (!headRef) return snapshot; // non-git tree: nothing to race against
     const liveHead = currentGitHead(gitCwd);
@@ -973,7 +1077,12 @@ export function materialClassificationSnapshotStale(
   const gitCwd = args.gitCwd ?? snapshot.gitCwd;
   const projectRoot = args.projectRoot ?? snapshot.projectRoot;
   if (computePolicyDigest(snapshot.policy) !== snapshot.policyDigest) return true;
-  if (resolveMaterialCodePolicy(projectRoot).policyDigest !== snapshot.policyDigest) return true;
+  // B-956f FIX 1: compare against the CONFIG-resolved digest only. The digest is a
+  // pure function of config, and the tree-bound preflight is validated at build/
+  // resolve time — re-running it in this hot freshness path would re-walk the tree
+  // on every consumer check. A malformed config still fails closed here (the throw
+  // originates in readMaterialCodeConfig, inside the config-only resolver).
+  if (resolveMaterialCodePolicyConfigOnly(projectRoot).policyDigest !== snapshot.policyDigest) return true;
   if (!snapshot.headHash || !snapshot.materialHash) return true;
   const liveHead = args.headHash ?? currentGitHead(gitCwd);
   const liveMaterial = args.materialHash ?? currentMaterialHash(gitCwd, 'HEAD', projectRoot);

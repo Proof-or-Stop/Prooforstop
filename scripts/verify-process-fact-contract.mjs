@@ -3,6 +3,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import ts from 'typescript';
 
 const root = process.cwd();
 const failures = [];
@@ -536,6 +537,105 @@ function read(relPath) {
   assert(existsSync(absPath), `${relPath} should exist`);
   if (!existsSync(absPath)) return '';
   return readFileSync(absPath, 'utf8');
+}
+
+// ── B-956f FIX 2: STRUCTURAL (AST-anchored) source assertions ──
+// codex HIGH: `evaluatorText.includes(token)` passes when a token appears only in
+// a comment/import/unused wrapper — commenting out the real delegation while
+// keeping the strings kept the verifier green. These helpers parse the TypeScript
+// (comments are NOT AST nodes) and assert on REAL call sites inside a specific
+// function body, so a commented-out delegation makes the verifier exit 1.
+const _sourceFileCache = new Map();
+function parseSourceFile(relPath) {
+  if (_sourceFileCache.has(relPath)) return _sourceFileCache.get(relPath);
+  const sf = ts.createSourceFile(relPath, read(relPath), ts.ScriptTarget.Latest, /* setParentNodes */ true, ts.ScriptKind.TS);
+  _sourceFileCache.set(relPath, sf);
+  return sf;
+}
+
+/** Locate a top-level function declaration by name; returns the ts.FunctionDeclaration node or undefined. */
+function findFunctionDeclaration(sf, name) {
+  let found;
+  const visit = (node) => {
+    if (found) return;
+    if (ts.isFunctionDeclaration(node) && node.name && node.name.text === name) {
+      found = node;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  ts.forEachChild(sf, visit);
+  return found;
+}
+
+/** Set of identifier/property callee names for every CallExpression inside a subtree. */
+function collectCalledNames(node) {
+  const names = new Set();
+  const walk = (n) => {
+    if (ts.isCallExpression(n)) {
+      const e = n.expression;
+      if (ts.isIdentifier(e)) names.add(e.text);
+      else if (ts.isPropertyAccessExpression(e)) names.add(e.name.text);
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return names;
+}
+
+/** True when some PropertyAccessExpression with the given member name appears in a subtree. */
+function subtreeReferencesProperty(node, propName) {
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isPropertyAccessExpression(n) && n.name.text === propName) { found = true; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** True when a subtree contains an object-literal property `ok: false`. */
+function subtreeReturnsFalseOk(node) {
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isPropertyAssignment(n) && ts.isIdentifier(n.name) && n.name.text === 'ok'
+        && n.initializer.kind === ts.SyntaxKind.FalseKeyword) { found = true; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** True when a function body contains an `if (…diffEnumerationError…)` whose branch returns ok:false. */
+function hasDiffEnumerationBlockingBranch(body) {
+  let ok = false;
+  const walk = (n) => {
+    if (ok) return;
+    if (ts.isIfStatement(n)
+        && subtreeReferencesProperty(n.expression, 'diffEnumerationError')
+        && subtreeReturnsFalseOk(n.thenStatement)) {
+      ok = true;
+      return;
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(body);
+  return ok;
+}
+
+/** True when a function body contains an object-literal property with the given name. */
+function bodyHasObjectPropertyNamed(body, propName) {
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    const isNamed = (name) => (ts.isIdentifier(name) || ts.isStringLiteral(name)) && name.text === propName;
+    if ((ts.isPropertyAssignment(n) || ts.isShorthandPropertyAssignment(n)) && isNamed(n.name)) { found = true; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(body);
+  return found;
 }
 
 function listMarkdown(dir) {
@@ -3797,19 +3897,76 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     'REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND = 2',
     'three-round-two-hosts-or-degraded-single-host',
     'assuranceLevel',
-    // B-956f FIX 2: the floor no longer hard-codes a TS-only whitelist or a literal
-    // "markdown documentation" branch — it DELEGATES per-file classification to the
-    // config-resolved material-code policy via one hash-bound snapshot (docs-only
-    // formats are non-material through the classifier), and surfaces a diff
-    // enumeration failure as a hard block.
-    'buildMaterialClassificationSnapshot',
-    'classifyReviewAssuranceFloorPath',
-    'diffEnumerationError',
     'evaluateHostVerdictRounds',
     'review_escalation_fallback',
     'reviewEscalationFallbackRecordFromEvent',
   ]) {
     assert(evaluatorText.includes(token), `packages/main/src/core/review-assurance-floor.ts: required review assurance floor token missing: ${token}`);
+  }
+
+  // B-956f FIX 2 (codex HIGH — includes()-token assertions are mechanically
+  // vacuous): the floor no longer hard-codes a TS-only whitelist or a literal
+  // "markdown documentation" branch — it DELEGATES per-file classification to the
+  // config-resolved material-code policy via one hash-bound snapshot, and surfaces a
+  // diff-enumeration failure as a hard block. Assert these STRUCTURALLY (on real
+  // call sites inside the function bodies, comments excluded) so removing the real
+  // delegation while leaving the strings in comments makes THIS verifier exit 1.
+  const floorSf = parseSourceFile('packages/main/src/core/review-assurance-floor.ts');
+  const floorFn = findFunctionDeclaration(floorSf, 'evaluateReviewAssuranceFloor');
+  assert(floorFn && floorFn.body, 'packages/main/src/core/review-assurance-floor.ts: evaluateReviewAssuranceFloor function declaration must exist');
+  const floorCalls = collectCalledNames(floorFn.body);
+  assert(
+    floorCalls.has('buildMaterialClassificationSnapshot'),
+    'packages/main/src/core/review-assurance-floor.ts: evaluateReviewAssuranceFloor MUST call buildMaterialClassificationSnapshot (real delegation to the shared material-code classifier, not a comment/import token)',
+  );
+  assert(
+    floorCalls.has('ensureFreshMaterialClassificationSnapshot'),
+    'packages/main/src/core/review-assurance-floor.ts: evaluateReviewAssuranceFloor MUST call ensureFreshMaterialClassificationSnapshot (hash-bound snapshot freshness validation of a supplied classification)',
+  );
+  assert(
+    hasDiffEnumerationBlockingBranch(floorFn.body),
+    'packages/main/src/core/review-assurance-floor.ts: evaluateReviewAssuranceFloor MUST have a diffEnumerationError blocking branch that returns an ok:false outcome (an unenumerable diff hard-blocks, never a silent empty change set)',
+  );
+  // The exported per-path classifier itself must delegate to the pure 8-step chain.
+  const classifyFn = findFunctionDeclaration(floorSf, 'classifyReviewAssuranceFloorPath');
+  assert(classifyFn && classifyFn.body, 'packages/main/src/core/review-assurance-floor.ts: classifyReviewAssuranceFloorPath function declaration must exist');
+  assert(
+    collectCalledNames(classifyFn.body).has('classifyMaterialCodePath'),
+    'packages/main/src/core/review-assurance-floor.ts: classifyReviewAssuranceFloorPath MUST call classifyMaterialCodePath (delegate to the config-resolved policy, no TS-only whitelist)',
+  );
+
+  // The repro-evidence-binding gate consumer: evaluateStoryEvidenceBindingGate must
+  // build the snapshot and feed it into the snapshot-required repro classify.
+  const reproSf = parseSourceFile('packages/main/src/core/repro-evidence-binding-gate.ts');
+  const reproFn = findFunctionDeclaration(reproSf, 'evaluateStoryEvidenceBindingGate');
+  assert(reproFn && reproFn.body, 'packages/main/src/core/repro-evidence-binding-gate.ts: evaluateStoryEvidenceBindingGate function declaration must exist');
+  const reproCalls = collectCalledNames(reproFn.body);
+  assert(
+    reproCalls.has('buildMaterialClassificationSnapshot'),
+    'packages/main/src/core/repro-evidence-binding-gate.ts: evaluateStoryEvidenceBindingGate MUST call buildMaterialClassificationSnapshot (shared classifier delegation)',
+  );
+  assert(
+    reproCalls.has('classifyReproFirstRequirement'),
+    'packages/main/src/core/repro-evidence-binding-gate.ts: evaluateStoryEvidenceBindingGate MUST feed the snapshot into classifyReproFirstRequirement (snapshot-required repro classification)',
+  );
+
+  // The ProofStory diagnostic-input builders must POPULATE materialClassification
+  // via the real production snapshot-population delegation.
+  for (const [relPath, builderFn] of [
+    ['packages/main/src/handlers/phase-gates.ts', 'proofStoryDiagnosticInput'],
+    ['packages/main/src/handlers/proofstory.ts', 'diagnosticInput'],
+  ]) {
+    const sf = parseSourceFile(relPath);
+    const fn = findFunctionDeclaration(sf, builderFn);
+    assert(fn && fn.body, `${relPath}: ${builderFn} function declaration must exist`);
+    assert(
+      bodyHasObjectPropertyNamed(fn.body, 'materialClassification'),
+      `${relPath}: ${builderFn} MUST populate a materialClassification property on the ProofStory diagnostic input`,
+    );
+    assert(
+      collectCalledNames(sf).has('tryBuildMaterialClassificationSnapshotForDiagnostics'),
+      `${relPath}: MUST call tryBuildMaterialClassificationSnapshotForDiagnostics (real production materialClassification population)`,
+    );
   }
 
   const doneOracleText = read('packages/main/src/core/done-oracle.ts');

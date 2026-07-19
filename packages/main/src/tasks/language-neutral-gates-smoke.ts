@@ -927,12 +927,69 @@ check('R3-d: the snapshot is pinned to ONE HEAD sha; after a HEAD move (amend) i
   assert.equal(materialClassificationSnapshotStale(refreshed), false, 'the rebuilt snapshot is internally consistent and current');
 });
 
+// ─────────────────── R4 fix-round production-boundary checks ───────────────────
+
+check('R4-a: the exclusion preflight binds to the PINNED sha INSIDE the retry loop — a covered go.mod committed mid-build (after sha capture) is REJECTED, not returned as a snapshot', () => {
+  // Base tree: excludePaths:["backend/"] over backend/main.go ONLY (no manifest),
+  // so config-only resolution AND the first-attempt pinned-sha preflight both pass
+  // clean. The bug (codex HIGH): the old builder ran the preflight against LIVE HEAD
+  // before the sha was captured / outside the loop, so a commit landing mid-build
+  // yielded a snapshot bound to the NEW sha carrying the now-invalid policy.
+  const root = makeGitConfigRoot(
+    { materialCode: { excludePaths: ['backend/'] } },
+    { 'backend/main.go': 'package main\n' },
+  );
+  // One-shot seam: on the FIRST head capture, land a NEW commit adding backend/go.mod
+  // (a level-1 manifest) UNDER the excluded backend/. This moves HEAD, so the
+  // post-build validation forces a rebuild; the SECOND attempt captures the moved
+  // sha and the in-loop preflight run against THAT pinned sha sees the covered
+  // manifest and rejects. A live-HEAD-only or once-before-the-loop preflight would
+  // instead return a snapshot bound to the invalid policy.
+  let fired = false;
+  const landCoveredManifestOnce = (headRef: string | undefined): void => {
+    if (fired) return;
+    fired = true;
+    void headRef;
+    writeFile(root, 'backend/go.mod', 'module example.com/x\n');
+    commitAll(root, 'add go.mod under the excluded backend/ mid-build');
+  };
+  assert.throws(
+    () => buildMaterialClassificationSnapshot(root, { __afterHeadCaptureForTest: landCoveredManifestOnce }),
+    (err: unknown) => err instanceof MaterialCodePolicyError
+      && err.offendingKey === 'materialCode.excludePaths'
+      && /backend\/go\.mod/.test(err.message),
+    'the pinned-sha preflight rejects the mid-build covered manifest instead of returning a snapshot',
+  );
+  assert.equal(fired, true, 'the mid-build commit seam actually fired (the race window was exercised)');
+});
+
+check('R4-b: the exclusion preflight scales O(files) not O(exclusions × files) — a tens-of-thousands-file tree resolves well under a generous bound (a future O(n×m) regression trips this)', () => {
+  const policy = resolveMaterialCodePolicy(); // default policy: excludePaths empty
+  // 20 non-covering exclusion entries + tens of thousands of tracked files, of
+  // which only a handful are manifests. The prefiltered candidate set is tiny, so
+  // the compare is O(files + exclusions × candidates), not O(files × exclusions).
+  const excludePaths = Array.from({ length: 20 }, (_, i) => `vendored-${i}/`);
+  const bigPolicy = { ...policy, excludePaths } as typeof policy;
+  const files: string[] = [];
+  for (let i = 0; i < 30000; i++) files.push(`src/module-${i}/impl.ts`);
+  // Real manifests, none under any vendored-* exclusion → verdict must stay clean.
+  files.push('go.mod', 'package.json', 'backend/go.mod', 'services/api/pyproject.toml');
+  const started = Date.now();
+  const verdict = preflightMaterialCodeExclusions(bigPolicy, '/unused-no-git', 'HEAD', files);
+  const elapsedMs = Date.now() - started;
+  assert.equal(verdict.ok, true, 'no exclusion covers a manifest, so the tree resolves clean');
+  assert.ok(
+    elapsedMs < 1000,
+    `preflight over ${files.length} files with ${excludePaths.length} exclusions must stay well under 1s (was ${elapsedMs}ms); an O(files × exclusions) regression would exceed this`,
+  );
+});
+
 for (const root of tempRoots) {
   try { rmSync(root, { recursive: true, force: true }); } catch { /* best effort cleanup */ }
 }
 
 if (failures === 0) {
-  console.log('\nlanguage-neutral-gates smoke passed (27 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks)');
+  console.log('\nlanguage-neutral-gates smoke passed (29 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks + 2 R4 fix-round production-boundary checks)');
 } else {
   console.error(`\nlanguage-neutral-gates smoke FAILED (${failures})`);
   process.exit(1);
