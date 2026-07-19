@@ -106,6 +106,38 @@
         "scanEscalationReason": null
       },
       "_hash": "188b0930fbbfad6fa3c27ec7ddf31ff5378d7b90cc7b5f2e40cbb07969a49f44"
+    },
+    {
+      "id": "B-956f:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (R2 fix round): validate --story=B-956f --json shows 12/12 must-intents covered, all fresh (headSha e99b252); evidence_inspect freshness=fresh, staleRefs=0. Verified the FIX-ROUND smoke growth (12->18 checks) is load-bearing and integration-true: in an isolated git worktree add --detach copy, (1) removed the FIX-E preflight call from resolveMaterialCodePolicy -> CHK-002/adversarial correctly FAILED; (2) removed materialClassification population from the production proofStoryDiagnosticInput builder in handlers/phase-gates.ts -> FIX-G correctly FAILED; (3) skipped the OLD-tree mode read in oldTreeScriptSignal -> FIX-B correctly FAILED. Restored each mutation via git checkout, rebuilt, confirmed 18/18 GREEN each time. Smoke ran 5x deterministic and RED harness ran 3x GREEN. Confirmed R1 findings F-001/F-002 are genuinely fixed by these same production entry points. No test-coverage gaps found.",
+      "createdAt": "2026-07-19T17:40:23.968Z",
+      "reviewRound": "2026-07-19T17:18:25.831Z",
+      "reviewRunId": "B-956f:RR-006",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "663e91e5927c07efed6908bc3e25dca232aa7f79e79662dd173e07e55baa403b"
     }
   ]
 }
