@@ -234,6 +234,32 @@
         "scanEscalationReason": "Story-level coverage review used all 48 structured semantic verificationIntent/evidence mappings, focused diff inspection, the actual mixed-producer deterministic CLI regression, signed-envelope gate verification, and the complete 20-round concurrency stress command; relevant regions were triaged without claiming entire files were read fully."
       },
       "_hash": "bba0fd122221465fec585e36e79e94c8a0597bec1aee55d2f5ce2ca10aceb852"
+    },
+    {
+      "id": "B-235e:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Fresh docs/process-fact review passed on c02e3cfacd. The guard rebinds match the established prompt architecture: validation fixtures hash the real frozen legacy role body, and reviewer scan-budget guards treat migrated host files as body-free review_run_start bootstraps instead of falsely requiring role-body vocabulary in host assets. The mixed-writer test barrier is now an internal NODE_ENV=test-only switch with a fixed story-local barrier path and operation-derived w1/w2 identity, so it adds no public config or arbitrary-path contract. No process-fact wording changed beyond the expected source fingerprint rebind, and the existing L4 shared-writer/identity-safe serialization semantics remain accurate. Build, actual mixed-writer ABA smoke, process-fact verifier, reviewer-scan-budget guard, and retired-authority vocabulary guard all passed. No documentation/process-fact blocker found.",
+      "createdAt": "2026-07-19T11:55:50.922Z",
+      "reviewRound": "2026-07-19T11:51:48.217Z",
+      "reviewRunId": "B-235e:RR-041",
+      "envelopeId": "c562aadcf9512af73cfc32f6c68966e499dc5091471b761b2ea3d12f924d51a4",
+      "writerSessionId": "sess-476100f59d979f9fd34feeeb69b7f272",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b5635f24a2fbdbf9bb98d4fb6a4565fe5bce20fcf64235eab37869d1d12fae64"
     }
   ]
 }
