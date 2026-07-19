@@ -57,6 +57,35 @@
         "scanEscalationReason": null
       },
       "_hash": "afdb4580c30ffa4095e147bb1d574e0d10bf097c8b609f0bdb510faaf310105f"
+    },
+    {
+      "id": "B-03ac:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Final current-round review after b06d3dcc56 found no semantic regression. Duplicate fixture identities now fail closed in both base and current snapshots across same-field, cross _id/id/name alias, prepend/append, and ordering variants before Map/digest comparison; this only narrows incremental eligibility. The documentation-only correction accurately limits Story 4 audit fields to conditionally assembled review-run envelopes and omits absent optional fields. The full final diff retains correctness-first selection, model-relevant TaskContext binding, signed escalation, frozen finding basis, and the single shared REVIEW/quorum verifier. Focused incremental, quorum, envelope, and process-fact checks passed.",
+      "createdAt": "2026-07-19T06:39:52.202Z",
+      "reviewRound": "2026-07-19T06:38:01.826Z",
+      "reviewRunId": "B-03ac:RR-009",
+      "writerSessionId": "sess-48ac39ea866f7469fdfd80f0ad19d79c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9c9e8903f3fd0181f7ba973ffb5622550ce1632f5c324d44d876162506de6688"
     }
   ]
 }
