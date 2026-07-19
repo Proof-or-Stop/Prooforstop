@@ -133,6 +133,34 @@
         "scanEscalationReason": null
       },
       "_hash": "6d19dbadf6241a79c385bf7789f9412aa2e53d43e9c58ad9003732d7d555370d"
+    },
+    {
+      "id": "B-235e:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Fresh docs/process-fact review passed on corrected implementer commit f367111ba1. Production Prompt Envelope writers are exactly review_run_start and Story-aware agent_prompt; both use the shared identity-safe review metadata ticket lock, and review_run_start no longer nests the legacy fixed-path envelope lock. The lifecycle contract and L4 process fact accurately describe serialized Prompt Envelope metadata while preserving the authority boundary: agent_prompt story-dispatch envelopes remain audit-only and cannot mint REVIEW evidence. The deterministic ABA regression now invokes the actual CLI handlers concurrently, preserves both review-run and story-dispatch envelopes, persists one signed ReviewRun, and passes verifyReviewRunPromptEnvelope after the second writer appends. Build, mixed-writer ABA-only smoke, process-fact verifier, and prompt baseline verifier passed. Wording is scoped to concurrent read-modify-write serialization and identity-safe stale reclaim, not cross-file crash-atomic commit. No documentation/process-fact blocker found.",
+      "createdAt": "2026-07-19T11:04:33.825Z",
+      "reviewRound": "2026-07-19T11:02:56.636Z",
+      "reviewRunId": "B-235e:RR-036",
+      "envelopeId": "afba52edc200dadc61f9f68930d001af30f4324b931885ab5df2ee685a28e266",
+      "writerSessionId": "sess-476100f59d979f9fd34feeeb69b7f272",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7d0967e843c671a9a8dfc940c1e31c783163d5844ee50620b28b704443c78976"
     }
   ]
 }
