@@ -197,6 +197,26 @@
       "_hash": "e929c19a9021d0821976f0d349731699f1820c5d618c0af795cb39d70d0de3ac",
       "signatureTag": "adversarial|unknown|adversarial-repro-fence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d877:F-011",
+      "desc": "lattice validate does NOT currently pass, contradicting this round's premise. validate.commands[33] (node packages/main/dist/tasks/quorum-submit-smoke.js), part of the SAME validate suite that produced the fresh headHash=32c692758861/materialHash=0a0ab8fe07... evidence recorded for all 6 CHK-001/CHK-002 must-priority intents, fails deterministically with `quorum_submit refuses: worktree/index must be clean before the atomic verdict batch; pre-existing bytes were left untouched: D .lattice/story/actives/B-quorum-smoke/review-passes.lock/holder.json` at the check `worktree-local CLI commits the exact quorum batch through the production entrypoint` (quorum-submit-smoke.ts:690). Root cause: this story's R2 fix (mkdir-lock.ts, universal ownership-checked release, commit da8445c461) made EVERY acquireMkdirLock call ALWAYS write a holder.json token inside the lock dir, including the checklist/finding/review-run/init-check lock family that lives INSIDE the committed story directory (previously an invisible empty mkdir/rmdir with no file). quorum-submit-smoke.ts's own synthetic fixture .gitignore (line 138: only .lattice/autopilot-verdicts/, .lattice/activity.jsonl, .lattice/locks/) does not exclude these in-story-dir *.lock/ dirs the way this dev repo's ROOT .gitignore was ad-hoc patched to (commits 32c692758861/87b66fa49a, applied only to THIS worktree, not shipped as a durable code fix or propagated to the test fixture). recordReviewerPasses() commits the story tree while a review-passes.lock/holder.json is transiently present, then a later release() rmSyncs it, leaving a D (deleted) diff that trips the strict clean-worktree check quorum_submit itself enforces. Reproduced deterministically 3/3 in the story worktree AND 1/1 in a from-scratch `git worktree add --detach` isolated copy with an independent `npm run build` (ruling out shared-worktree/other-lane contamination): `node packages/main/dist/tasks/quorum-submit-smoke.js` fails identically both times with git status clean immediately before each run. This matches codex round-3 cross-host finding #4 (already surfaced in this round's adversarial transcript) but is not yet tracked as a lattice finding_add; recording independently since it directly bears on evidence trustworthiness for verification-coverage: the recorded per-intent \"pass\" evidence for CHK-001/CHK-002 comes from a code state whose OVERALL `lattice validate` run fails, so this story cannot legitimately be considered validate-clean or proceed toward TEST/DONE on the current HEAD. Fix: relocate checklist/finding/review-run/init-check lock dirs to the shared `.lattice/locks/` runtime root (matching how this same round already fixed the story-transition-lock's own git-tracked-story-dir hazard via resolveSharedLockRoot), or make holder.json writes conditional/excluded from every git/scope/material consumer including test fixtures.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-19T04:44:27.095Z",
+      "reviewRound": "2026-07-19T04:21:25.153Z",
+      "reviewRunId": "B-d877:RR-009",
+      "_hash": "3548da928c876a8f5c8dc434e8064415db3c007eefe26a909fc84730facb0cd1",
+      "files": [
+        "packages/main/src/core/mkdir-lock.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        ".gitignore"
+      ],
+      "signatureTag": "missing|ts|lattice-validate-currently",
+      "signatureTagSource": "auto"
     }
   ]
 }
