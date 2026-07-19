@@ -119,7 +119,7 @@
       "desc": "packages/main/src/handlers/quorum-submit.ts:509-556 [HIGH] F005/F006 are narrowed but the write-before gate is still a TOCTOU check, not an atomic boundary. A foreign append can land after assertExactQuorumAppend/eventStart (lines 509-514) and before submitLocalVerdict appends its row (515-528). The post-write prefix check compares only bytes before eventStart, so it accepts that prefix, then treats the foreign row at eventStart as the owned record (551-556). Validation fails, rollback deletes the foreign bytes at that absolute offset and leaves the actual generated host_verdict row behind—the exact foreign-data-loss + dirty-residue outcome this story forbids. The new between-row regression appends after afterVerdictWrite, so the next pre-write gate catches it before another verdict is written and does not cover this window. Make append ownership atomic/returned by the writer or capture a pre-write byte snapshot and identify/remove the actual generated append without claiming intervening foreign bytes; add a deterministic regression by wrapping appendProcessEvent to insert a foreign row immediately before the host_verdict append. RED/GREEN commits 7356ae0c/67b0e2da and focused 30/30 do not currently exercise this race.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-18T23:36:24.702Z",
@@ -127,7 +127,11 @@
       "reviewRunId": "B-6ed2:RR-009",
       "_hash": "64395247490e139279927ca93c3c5f1b536114b4f9fb44d521de6cb9603e61a7",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "rootCause: quorum previously inferred append ownership across a separate pre-write check, leaving a TOCTOU window where a foreign row could occupy the guessed offset. fix: 55f6d658 made appendProcessEvent return writer-owned start/end/eventBytes under the process-event lock; e95d88cf then moved every remaining production process-events writer onto the same locked raw/record primitives, eliminating the non-cooperative gap. REDs: 1f5cbb39 and 7ec6e7d7. verification: static incremental review confirms exact writer identity, timestamp preservation and atomic cross-host batch bytes; current focused quorum-submit-smoke PASS 32/32 including shared-lock production writer guard and writer-boundary rollback.",
+      "resolvedAt": "2026-07-19T00:17:44.430Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6ed2:F-008",
