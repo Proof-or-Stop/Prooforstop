@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { lstat, mkdir, readFile, readdir, rm, symlink } from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import {
   EXPERIMENT_ROOT,
   canonicalJson,
@@ -278,6 +279,22 @@ try {
     assert.equal(row.privacy.contentStored, false);
     assert.equal(row.experimentId, baseline.experimentId);
     assert.equal(row.promptDigest, firstCell.measurement.promptDigest);
+  });
+
+  await check('normal usage-ledger and process-fact consumers do not admit experiment rows', async () => {
+    const row = makeLedgerRecord(inputFor(baseline, firstCell));
+    const normalLedger = await import(pathToFileURL(
+      path.join(repoRoot, 'packages/main/dist/core/usage-ledger/record.js'),
+    ).href);
+    const normalValidation = normalLedger.validateUsageLedgerRecord(row);
+    assert.equal(normalValidation.ok, false);
+    const [factRegistry, factLevels] = await Promise.all([
+      readFile(path.join(repoRoot, 'packages/main/src/core/process-fact-registry.ts'), 'utf8'),
+      readFile(path.join(repoRoot, 'packages/main/src/core/process-fact-levels.ts'), 'utf8'),
+    ]);
+    assert.equal(factRegistry.includes('proofbound.role-prompt-ab.experiment-ledger.v1'), false);
+    assert.equal(factLevels.includes('proofbound.role-prompt-ab.experiment-ledger.v1'), false);
+    assert.equal(factRegistry.includes('experiments/role-prompt-ab-replay/runtime'), false);
   });
 
   await check('forged authority and production Story references are rejected', async () => {
