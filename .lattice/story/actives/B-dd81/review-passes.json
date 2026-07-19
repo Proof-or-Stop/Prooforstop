@@ -413,6 +413,33 @@
         "scanEscalationReason": null
       },
       "_hash": "fe30a3ecd1eccfc93a2789d2d41861dfa757fb6ed5fbd6ce48f49874e6d31b25"
+    },
+    {
+      "id": "B-dd81:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS for canonical validation artifact and refreshed scope binding. test-evidence.json is executed PASS with complete routine identity: 46 configured commands, 46 unique labels, every executable digest present, requiredFailureCount=0 and optionalFailureCount=0; embedded verifier output reports 46 passing configured commands and no failures. Verification coverage is 47/47 required and covered with missingRequired=0, matching 47 unique checklist evidence refs with no missing/extra/duplicates. Validation materialHash 55ae5317 and storyFilesHash 70e5f70c match ReviewRun RR-025; business storyFilesHash is unchanged. The new run is bound to current HEAD 4b90cb8 and the runtime-normalized current scope/diff binding.",
+      "createdAt": "2026-07-19T00:46:31.084Z",
+      "reviewRound": "2026-07-19T00:18:12.482Z",
+      "reviewRunId": "B-dd81:RR-025",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/plan.md",
+          ".lattice/story/actives/B-dd81/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e6ad440b32ea290a7460018760ddd1a4c89961531a8678000427af02fa334c08"
     }
   ]
 }
