@@ -84,6 +84,21 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-19T19:06:39.674Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-956f:F-006",
+      "desc": "packages/main/src/core/material-code-policy.ts:960-994 (buildMaterialClassificationSnapshot) + :436-449 (resolveMaterialCodePolicy split): the R4 FIX-1 config/tree split introduces a NEW fail-open regression for buildMaterialClassificationSnapshot — the tree-bound exclusion preflight (assertMaterialCodeExclusionsAgainstTree) is now only invoked `if (headRef)` inside the retry loop (line ~987); when currentGitHead(gitCwd) returns undefined (non-git projectRoot, pre-first-commit repo, or any wrapper-root/gitCwd resolution failure), the preflight is SKIPPED ENTIRELY and the snapshot is returned silently with the un-validated policy, instead of failing closed. This regresses from R3 behavior, where buildMaterialClassificationSnapshot called the OLD resolveMaterialCodePolicy(projectRoot) which ran preflightMaterialCodeExclusions synchronously and unconditionally (ref defaulted to HEAD, independent of later currentGitHead success) before the retry loop even started, so a non-git/unresolvable root with a covered exclusion always threw fail-closed. Empirically reproduced against the built HEAD dist: resolveMaterialCodePolicy(nonGitDirWithExcludePaths=[backend/]+realBackend/go.mod) still throws MaterialCodePolicyError as expected, but buildMaterialClassificationSnapshot(sameDir) returns a snapshot with NO throw and policy.excludePaths still containing [backend/] unvalidated. This directly affects the three production consumers of buildMaterialClassificationSnapshot that this story exists to protect: repro-evidence-binding-gate.ts:418 (evaluateStoryEvidenceBindingGate — the exact repro-first PLAN/DEV gate CHK-001 adversarial intent targets: \"cannot regress to the config-blind call... fails closed\"), story-create.ts:133 (STORY_INTAKE repro-first classification), and review-assurance-floor.ts:774 (the floor own snapshot-build path). None of the 29 language-neutral-gates-smoke checks (including R4-a/R4-b) exercise buildMaterialClassificationSnapshot on a root where currentGitHead fails with a policy excludePaths entry covering a real level-1 manifest, so this gap is untested. This violates the story background/plan invariant that the level-1 immutable manifest set is protected by TWO enforcement layers (config-resolve rejection + filesystem-aware transition preflight) for every consumer — the second layer is now conditionally bypassable for the snapshot-based consumers.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T20:10:53.532Z",
+      "reviewRound": "2026-07-19T20:03:47.320Z",
+      "reviewRunId": "B-956f:RR-015",
+      "_hash": "2ae6caad7487d1abaada8a634c6522685fe7480a9c076a9662dced9386407fed",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
