@@ -649,6 +649,23 @@
         "scanEscalationReason": null
       },
       "_hash": "8464fc4c6aa0c3ef217efb40c7ad55bdf025888055c5616bd9d5614e524d9dea"
+    },
+    {
+      "id": "B-235e:RP-026",
+      "agent": "lattice-review-docs",
+      "note": "Fresh DONE-bound docs re-attestation passed on authoritative Prompt Envelope d82ec91 at HEAD 661f48a188. The runtime independently classified this run incremental/SAFE_INCREMENTAL with ELIGIBLE_NO_MATERIAL_CHANGE and ELIGIBLE_TRUSTED_PRIOR_BINDINGS, changedFiles=[], affectedContracts=[], impactedFiles=[], findingDeltas=[], and unresolvedFindings=[]. The prior docs pass RP-022 remains the trusted semantic basis; only validation, escalation, and lifecycle metadata changed. Step 1 extracted 0 new code symbols and Step 2 compared 0 additional documentation paragraphs. No implementation, public interface, process-fact wording, or decision-document promise changed, so no docs blocker or edit is justified.",
+      "createdAt": "2026-07-19T22:53:48.616Z",
+      "reviewRound": "2026-07-19T22:52:21.293Z",
+      "reviewRunId": "B-235e:RR-058",
+      "envelopeId": "d82ec9140534d09dbb3da949a3524ce67b376287e665b3b4aad78e3a7d345bb9",
+      "writerSessionId": "sess-476100f59d979f9fd34feeeb69b7f272",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9926caf4c822b2be92b4a23daf1e24aaaf7fac903cf11863807c2b579bd3b96a"
     }
   ]
 }
