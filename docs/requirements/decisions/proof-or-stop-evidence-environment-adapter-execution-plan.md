@@ -110,7 +110,7 @@ architecture.
 | External proof surfaces already resolve through verifier adapter identity | `ExternalSurfaceDefinition.verifierAdapterId` in the Evidence Platform architecture | EEA can refine this extension point rather than replace it |
 | Claim-admissibility Packs already declare schemas, verifier adapters, Gate policies, and benchmarks | `docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md` and `packages/main/src/core/claim-admissibility/pack-framework.ts` | Domain semantics remain Pack-owned |
 | Adapter execution boundaries already distinguish declaration, receipt reading, and local command contracts | `ClaimAdmissibilityAdapterExecutionBoundary` in `pack-framework.ts` | EEA generalizes an existing boundary vocabulary |
-| Existing command identity has two relevant surfaces: DONE-required `lattice.command-spec.v1` binds command, args, cwd, declared shell mode, declared environment overlay, and timeout; routine-validation identity additionally binds `effectiveEnvironmentDigest` and `executableDigest`. Both currently record declared rather than actual Windows shell mode | `packages/main/src/core/done-required-validation.ts`, `validation-evidence-reuse.ts`, `validation-command-environment.ts`, and `validation-executor.ts` | The local-command reference path should reuse the existing effective-environment canonicalization and executable identity while closing the actual-shell gap; it must not create a third incompatible identity scheme |
+| Existing command identity has two relevant surfaces: DONE-required `lattice.command-spec.v1` binds command, args, cwd, actual shell mode, declared environment overlay, and timeout; routine-validation identity additionally binds `effectiveEnvironmentDigest`, target `executableDigest`, and conditional actual `shellExecutableDigest`. Windows implicit-shell execution is recorded as `shell:true` and binds `ComSpec`/`cmd.exe` content identity | `packages/main/src/core/done-required-validation.ts`, `validation-evidence-reuse.ts`, `validation-command-environment.ts`, and `validation-executor.ts` | The local-command reference path reuses the existing effective-environment and executable identity scheme; richer shell version/login/init posture remains future work |
 | Quantum adapters are currently `read-receipt-only` | `packages/main/src/core/claim-admissibility/quantum.ts` | A non-executing scientific reference path already exists |
 | Generic command-backed domain verifier execution and generic Pack Gate integration remain pending | Claim-admissibility Pack framework M3 command-backed execution and M4 generic Gate integration | The paper must not describe all domain integrations as implemented |
 
@@ -311,13 +311,12 @@ The environment used to compute invocation identity must be the environment
 actually used to execute or observe. A descriptor that hashes one environment
 but launches another is invalid.
 
-For command-backed execution, identity includes the effective process
-environment plus the shell mode and, when a shell is used, its executable,
-version or implementation identity, and login/init-file posture. Local execution
-should prefer `shell:false`. A `shell:true` reference path requires a conformance
-test that the environment identity supplied to the child matches the recorded
-identity; a hypothetical profile-file drift is a test target, not an assumed
-property of every shell.
+For the implemented command-backed path, identity includes the effective process
+environment, actual shell mode, target executable content digest, and—when a
+shell is used—the resolved shell executable content digest. It does not bind
+shell version metadata, login/init-file posture, or launch switches. Local
+execution should prefer `shell:false`. Richer shell posture is a future
+versioned-schema target, not evidence supplied by the current receipt.
 
 ### I6. Fail closed
 
@@ -459,11 +458,11 @@ interface EvidenceEnvironmentCommandSpecBase {
 type EvidenceEnvironmentCommandSpec =
   | (EvidenceEnvironmentCommandSpecBase & {
       shell: false;
-      shellIdentityDigest?: never;
+      shellExecutableDigest?: never;
     })
   | (EvidenceEnvironmentCommandSpecBase & {
       shell: true;
-      shellIdentityDigest: string;
+      shellExecutableDigest: string;
     });
 
 interface EvidenceEnvironmentInvocationRequest {
@@ -519,7 +518,7 @@ The schema keeps the current command vocabulary (`command`, `args`, `cwd`,
 rather than silently replaced. `processEnvironmentOverlay` is the non-secret
 configured overlay required for reproducibility. `processEnvironmentDigest`
 binds the effective environment actually supplied to execution without
-persisting ambient secret values in the public envelope. `shellIdentityDigest`
+persisting ambient secret values in the public envelope. `shellExecutableDigest`
 is forbidden when `shell:false` and required when `shell:true`. Secret-bearing
 identity requires a
 policy-approved redacted or keyed-digest scheme; raw secrets must not be stored
@@ -528,16 +527,17 @@ in receipts.
 `executableDigest` reuses the existing routine-validation meaning: digest the
 resolved executable file when a stable local executable can be resolved, else
 record `null` and let policy decide whether unresolved executable identity is
-admissible. It is distinct from `shellIdentityDigest`, which identifies the
-actual shell wrapper when one is used.
+admissible. It is distinct from `shellExecutableDigest`, which is the content
+digest of the resolved actual shell executable when one is used.
 
-`shellIdentityDigest` is computed over a canonical payload containing the actual
-shell executable, implementation/version identity, launch mode
-(`login`/`non-login`/`unknown`), and init-file policy digest. Before constructing
-the discriminated command spec, the adapter resolves the **actual** execution
-mode. Thus Windows implicit-shell execution is represented as `shell:true` with
-a required shell identity even when the original configuration requested
-`shell:false`.
+The implemented `shellExecutableDigest` proves only resolved shell executable
+content identity. It does **not** prove shell implementation/version metadata,
+login/non-login launch mode, command-line switches, or init-file policy.
+Those richer posture bindings require a future versioned schema. Before
+constructing the current command spec, the adapter resolves the **actual**
+execution mode. Thus Windows implicit-shell execution is represented as
+`shell:true` with a required `ComSpec`/`cmd.exe` executable digest even when the
+original configuration requested `shell:false`.
 
 `ProofProducerBoundary` is reused from the shared Proof Admissibility registry.
 `EvidenceEnvironmentTrustClass` is a closed, registry-owned baseline enum; a
@@ -624,7 +624,7 @@ it is not byte-identical to the EEA invocation command spec.
 | routine-validation `effectiveEnvironmentDigest` | `processEnvironmentDigest` | Reuse or versionedly reconcile the existing effective-environment canonicalization; do not introduce an unrelated third digest |
 | routine-validation `executableDigest` | `executableDigest` | Reuse resolved-executable content identity and its `null` semantics |
 | DONE-required/routine declared `shell` | `shell` | Resolve from actual execution, not configuration alone |
-| — | `shellIdentityDigest` | Required when actual `shell:true`; forbidden otherwise |
+| routine-validation `shellExecutableDigest` | `shellExecutableDigest` | Required when actual `shell:true`; forbidden otherwise; resolved shell executable content only |
 | DONE-required `timeoutMs` | `timeoutMs` | Exact |
 
 M2 must implement one versioned canonical resolver and must not reuse the
@@ -898,8 +898,13 @@ Acceptance:
   fresh evidence;
 - equivalent trusted inputs yield the same Gate result when independence is not
   required;
-- a distinct-Host policy accepts only separately attested producers and rejects
-  duplicated, caller-renamed, same-key, or same-session evidence.
+- the current implementation never accepts producers for a distinct-Host
+  policy and returns `distinct_host_quorum_unsupported`;
+- only a future project-owned pinned-key registry with signed
+  producer/session/invocation/subject binding and revocation checks may enable
+  distinct-Host acceptance; that future path must reject duplicated,
+  caller-renamed, same-producer, same-lineage, same-key, or same-session
+  evidence.
 
 ### M6 — Paper claim and evidence package
 

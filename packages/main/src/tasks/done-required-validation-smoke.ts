@@ -33,17 +33,19 @@ const STORY_ID = 'B-ac25';
 // DONE-required producer and consumer must bind the same ComSpec executable and
 // effective environment instead of emitting evidence that can never validate.
 {
-  const { root } = fixture([
+  const { root, store } = fixture([
     { label: 'windows implicit shell', command: 'node', args: ['-e', 'process.exit(0)'] },
   ]);
   try {
     const cmdExe = join(root, 'cmd.exe');
+    const nodeExe = join(root, 'node.exe');
     writeFileSync(cmdExe, 'synthetic windows command shell\n', 'utf8');
+    writeFileSync(nodeExe, 'synthetic windows target executable\n', 'utf8');
     const policy = resolveDoneRequiredPolicy(root);
     const processEnvironment = {
       PATH: root,
       ComSpec: 'cmd.exe',
-      PATHEXT: '.EXE;.CMD',
+      PATHEXT: '.exe;.cmd',
     };
     const producer = buildDoneRequiredExecutionIdentity({
       projectRoot: root,
@@ -58,6 +60,7 @@ const STORY_ID = 'B-ac25';
       platform: 'win32',
     });
     assert.equal(producer.commands[0]?.shell, true, 'win32 command identity must record implicit shell=true');
+    assert.equal(producer.commands[0]?.executableDigest?.length, 64, 'win32 identity must hash the target node.exe');
     assert.equal(producer.commands[0]?.shellExecutableDigest?.length, 64, 'win32 identity must hash the resolved ComSpec executable');
     assert.equal(producer.digest, consumer.digest, 'DONE-required producer and consumer must share win32 shell identity');
     assert.equal(producer.commands[0]?.effectiveEnvironmentDigest, consumer.commands[0]?.effectiveEnvironmentDigest);
@@ -71,6 +74,41 @@ const STORY_ID = 'B-ac25';
       cwd: root,
     });
     assert.equal(commandSpec.shell, true, 'DONE-required receipt command spec must retain actual win32 implicit shell mode');
+    const h = hashes(root);
+    const commandIdentity = producer.commands[0]!;
+    const receipt: DoneRequiredCommandReceipt = {
+      label: command.label,
+      command: command.command,
+      args: command.args,
+      commandSpec,
+      shell: true,
+      cwd: root,
+      status: 'PASS',
+      exitCode: 0,
+      durationMs: 1,
+      outputDigest: 'windows-shaped-output',
+      outputTail: '',
+      startedAt: new Date().toISOString(),
+      endedAt: new Date().toISOString(),
+      effectiveEnvironmentDigest: commandIdentity.effectiveEnvironmentDigest,
+      executableDigest: commandIdentity.executableDigest,
+      shellExecutableDigest: commandIdentity.shellExecutableDigest,
+      ...(h.headHash ? { headHash: h.headHash } : {}),
+      ...(h.materialHash ? { materialHash: h.materialHash } : {}),
+      ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
+    };
+    writeDoneEvidence(root, store, [receipt]);
+    const evaluation = evaluateDoneRequiredEvidence({
+      projectRoot: root,
+      storyId: STORY_ID,
+      store,
+      gitCwd: root,
+      executionIdentityContext: {
+        processEnvironment,
+        platform: 'win32',
+      },
+    });
+    assert.equal(evaluation.ok, true, `Windows-shaped full DONE evaluator must pass: ${evaluation.reasons.join(', ')}`);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
