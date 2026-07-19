@@ -242,6 +242,36 @@
       "_hash": "997ce3188910685308b611117dcc410f299e586330b30394934f51a731feaa2a",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-955c:F-014",
+      "desc": "packages/main/src/core/done-required-validation.ts:526-530,695-700 — HIGH: F-012 remains open end-to-end. On Windows runValidationCommand now correctly reports the actual implicit shell as result.shell=true, and the producer persists receipt.shell=true, but validateRequiredReceiptCoverage still derives expectedShell only from the configured command.shell (normally false). Every ordinary structured Windows DONE-required command therefore fails with receipt-shell-mismatch before the new dual executable identity can pass. The added platform seam test only compares buildDoneRequiredExecutionIdentity outputs and constructs a CommandSpec; it never evaluates a Windows-shaped receipt through validateRequiredReceiptCoverage/evaluateDoneRequiredEvidence, so this regression is not detected. Make receipt coverage consume the same actual execution identity/platform seam and add an end-to-end Windows-shaped evaluator case preserving non-shell configuration intent while binding target executableDigest plus actual shellExecutableDigest.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-19T01:32:39.086Z",
+      "reviewRound": "2026-07-19T01:28:32.809Z",
+      "reviewRunId": "B-955c:RR-010",
+      "_hash": "9901188bdf543b61936ffb784669e44a8a1687c6e532933536db6b80996f6099",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-955c:F-015",
+      "desc": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md:448-467,517-540 defines the implemented Windows shell binding as shellIdentityDigest over shell executable, implementation/version, launch mode, and init-file policy, while current code exposes shellExecutableDigest and hashes only the resolved shell executable content; line 113 also still says both identity surfaces currently record declared rather than actual Windows shell mode, contradicting the new support matrix and lines 642-648. WHY: the paper contract overstates the epistemic content of the implemented Windows evidence and simultaneously calls the closed gap open. Align the normative schema/name and identity semantics with shellExecutableDigest, explicitly scope richer shell/version/launch/init identity as future work, and update the stale repository-audit row.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T01:32:39.837Z",
+      "reviewRound": "2026-07-19T01:28:32.809Z",
+      "reviewRunId": "B-955c:RR-011",
+      "_hash": "c08db36b03256075be757c794a7b8e589edcd6a7df58e3c7e1fe817924ac07b7",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
