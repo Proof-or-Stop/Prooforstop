@@ -233,7 +233,7 @@
       "desc": "packages/main/src/core/review-incremental-context.ts:262-264 — HIGH adversarial bypass remains in F-007 repair: fixtureCaseClosure constructs prior/current Maps from case keys but never rejects duplicate _id/id/name keys. An attacker can add an unbound duplicate case before the unchanged original case with the same key; Map construction overwrites the unbound entry with the later unchanged original, the digest comparison sees no change, and closure returns true. This violates the requirement that every added/changed fixture case carry a current Story-scoped intentRef. Reject duplicate keys or evaluate every case occurrence, and add a real fixture regression for duplicate-key ordering.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T06:21:41.746Z",
@@ -241,7 +241,11 @@
       "reviewRunId": "B-03ac:RR-007",
       "_hash": "fac8074e7ee2b7da8063ece4978375b2fe87d7b5a5fa040bcfca9d20605c368d",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b06d3dcc56: before and after fixture case sets reject duplicate canonical keys and cross _id/id/name alias ambiguity before Map comparison; prepend, append, reordered and integrated committed fixture variants all select full. Quorum 42/42 and final npm test exit 0.",
+      "resolvedAt": "2026-07-19T06:38:07.180Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
