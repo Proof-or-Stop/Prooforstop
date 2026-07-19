@@ -83,6 +83,44 @@
         "test": [
           "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Create a supported-version Environment Descriptor, Invocation Request, and Receipt with subject, environment, invocation, command/executable, policy, and provenance identities -> schema validation succeeds and canonical normalization is byte-stable across repeated runs; WHY: proves the generic contract is identity-bound and reproducible.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Serialize then deserialize a valid contract envelope -> all security, isolation, reproducibility, trust, temporal, and epistemic-scope fields retain their meaning and the normalized digest is unchanged; WHY: guards evidence portability across hosts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Validate the minimum supported descriptor/request/receipt and a maximal envelope with permitted optional metadata and reordered object keys -> both normalize deterministically without inventing omitted trust claims; WHY: covers schema boundaries and canonicalization.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Submit an unknown major contract version or unsupported environment kind -> validation fails closed with a structured reason and produces no admissible receipt; WHY: prevents silent semantic drift.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Alter subject, invocation, environment, executable, shell mode, policy identity, or receipt payload after binding -> validation detects every mismatch and rejects admissibility; WHY: prevents replay and identity substitution.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject unrecognized fields that claim elevated trust, independence, reproducibility, or gate authority -> normalization cannot upgrade the epistemic scope and validation fails or confines the fields as specified; WHY: blocks privilege escalation through extensibility.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
