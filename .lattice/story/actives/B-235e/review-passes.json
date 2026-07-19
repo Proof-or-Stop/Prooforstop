@@ -314,6 +314,27 @@
         "scanEscalationReason": "Coverage review used all 48 structured semantic intent/evidence mappings, executed the complete changed guard regressions, actual mixed-producer barrier, process-fact verifier, and full 20-round concurrency stress; relevant changed regions were triaged without claiming entire files were read fully."
       },
       "_hash": "ca87f8169263d06bf25b58c2ece13bce2a469e5a95eda0c838345dc742b9ebd7"
+    },
+    {
+      "id": "B-235e:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed guard fixture rebinding and Prompt Envelope eligibility/fail-closed behavior. Test-only reviewer-metadata barriers are constrained to NODE_ENV=test plus an internal enable flag, canonical story-local barrier paths, and operation-derived writer identities. Legacy guard ReviewRuns bind the real frozen legacy role-body hash rather than an empty prompt; body-free host bootstraps are checked for review_run_start while canonical role bodies retain bounded-search vocabulary checks. Current build, retired-authority vocabulary guard, reviewer scan-budget guard, closeout trust, full-context envelope, review-run envelope, process-fact verifier, actual mixed-producer ABA, and the complete 20-iteration incremental eligibility/concurrency matrix all passed. No blocking quality issue found.",
+      "createdAt": "2026-07-19T12:02:12.008Z",
+      "reviewRound": "2026-07-19T11:51:48.217Z",
+      "reviewRunId": "B-235e:RR-040",
+      "envelopeId": "842e9e41f23b9ee643cb3b0e59519b2baa2746627f6a1810de007b9e439393e5",
+      "writerSessionId": "sess-61e583213cb095be130628a3b1ad47cd",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "449c31bb4d568eca051a3cd5d1d0d8651d9018fb366ad9734906002fd401fbca"
     }
   ]
 }
