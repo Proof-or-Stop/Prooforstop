@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-235e",
+  "state": "candidate",
+  "ledgerHash": "sha256:8911181c5309673452fba20229a25d7e06741587e76768a75b2de415c541fdaa",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "STORY5-ACTIVE-ROLES",
+      "claim": "All five active reviewer roles use modular prompt assets with independent rollback, while retired channel remains excluded.",
+      "doneMeans": "Concept, quality, test-coverage, behavior, and docs have role-specific migrated paths, legacy fallback tests pass, and no active channel migration path exists.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test",
+        "docs"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "STORY5-ENVELOPE-ASSEMBLY",
+      "claim": "Reviewer dispatch selects trusted full or mechanically eligible incremental Prompt Envelopes and fails closed on drift.",
+      "doneMeans": "Full/incremental assembly, ReviewRun binding, drift escalation, and authoritative read escape paths pass adversarial integration tests.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test",
+        "adversarial_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "STORY5-AB-BUDGET",
+      "claim": "Preregistered per-role replay proves quality-equivalent reductions or reports INCONCLUSIVE without overclaiming.",
+      "doneMeans": "Each role has seeded finding comparison and token accounting; incremental context reduction is at least 50%, assembled prompt target is reported, and insufficient evidence yields INCONCLUSIVE.",
+      "requiredEvidence": [
+        "replay",
+        "usage_measurement",
+        "review"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "STORY5-GATE-PRESERVATION",
+      "claim": "Migration preserves reviewer permissions, signatures, pass admissibility, legacy reads, and rollback safety.",
+      "doneMeans": "Authority/signature/process-fact verifiers, old-pass reads, per-role rollback, baseline diff approval, and relevant documentation all pass.",
+      "requiredEvidence": [
+        "security_test",
+        "integration_test",
+        "review",
+        "docs"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-19T07:04:56.495Z",
+  "updatedAt": "2026-07-19T07:04:56.495Z"
+}

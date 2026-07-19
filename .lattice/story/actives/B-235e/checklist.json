@@ -1,0 +1,54 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Migrate the five active reviewer role prompts behind independent rollback flags",
+      "context": "Move concept, quality, test-coverage, behavior, and docs to modular role assets; retired channel must remain excluded and legacy-full-context must remain readable.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/decisions/role-separation.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Assemble trusted full or eligible incremental reviewer Prompt Envelopes",
+      "context": "Reuse Story 2 full-envelope provenance and Story 4 fail-closed eligibility; contract, policy, scope, freshness, or authority drift must deterministically select full.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/decisions/review-run-binding-race.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Prove per-role quality and input reduction with preregistered replay",
+      "context": "Use Story 3 replay/usage harness; require seeded critical/high detection or mark INCONCLUSIVE, report per-role assembled tokens, and require at least 50% incremental-context reduction with a 40% initial assembled-prompt target.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/host-run-usage.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Preserve reviewer authority and verify rollback, compatibility, and process contracts",
+      "context": "Run role-by-role baseline diff, approval, feature-flag rollback, old-pass compatibility, signature/permission gates, adversarial drift escalation, and documentation synchronization.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
