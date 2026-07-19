@@ -436,9 +436,9 @@
         "docs/requirements/decisions/review-run-binding-race.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T05:00:20.689Z",
-      "endTime": "2026-07-19T05:19:18.226Z",
+      "endTime": "2026-07-19T06:14:01.934Z",
       "userSees": "A valid run prints Prompt Envelope <id> bound to ReviewRun <id>; a mismatch prints an explicit incremental envelope binding rejection and awards no REVIEW or quorum credit.",
       "files": {
         "modify": [
@@ -918,6 +918,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "F-001/F-002/F-004/F-008 repaired; snapshot and production escalation integration pass.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T06:14:01.934Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001/F-009 repaired; incremental tamper/wrong-mode collector and quorum chain pass.",
       "agent": "lattice-implementer"
     }
   ]
