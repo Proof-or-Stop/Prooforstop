@@ -2,19 +2,19 @@
   "storyId": "B-235e",
   "expected": "User sees \"role=lattice-review-concept rollout=full-envelope\" for an enabled role and \"role=lattice-review-quality rollout=legacy-full-context legacyBytesRestored=true\" after independently rolling back only quality; \"lattice-review-channel\" is absent from active roles.",
   "actual": {
-    "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+    "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
     "exitCode": 0,
-    "stdout": "✓ prompt registry smoke passed: 16 agents rendered for claude and codex\n"
+    "stdout": "prompt full-context envelope smoke: PASS\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-19T12:05:56.531Z",
+  "capturedAtIso": "2026-07-19T22:27:44.580Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "2508bb3b869acc0768725042bb49c5d2264ff78d",
-  "materialHash": "7aef176f110a60a3941845a1d23b06b1387f52e50e482c3ec270083245261b07"
+  "headHash": "2db79abc1f67c668f3c78a214b79ca3679dc99bb",
+  "materialHash": "f108b0b3a21990e18ad252ed56fe66097a3250374cb6305855612191011e424c"
 }
