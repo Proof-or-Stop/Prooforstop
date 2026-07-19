@@ -1,0 +1,70 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Config-resolved material-code policy service threaded via a hash-bound snapshot",
+      "context": "Add resolveMaterialCodePolicy(projectRoot) and a HEAD+materialHash-bound classification snapshot passed into all three consumers: review-assurance floor, repro classification (collectMaterialCodeFiles gains the snapshot; fixes the dropped-projectRoot call), and the ProofStory diagnostic input. Pure evaluators stay pure.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "An identical bug story flips required=true across floor + repro + ProofStory triggers, all driven by one classification snapshot; project materialCode config reaches all three consumers.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/proofstory.ts"
+        ],
+        "create": [
+          "packages/main/src/core/material-code-policy.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Eight-step precedence chain with non-excludable cross-ecosystem manifests and strict resolver",
+      "context": "Replace the flat whitelist with the 8-step precedence chain: level-1 immutable runtime/build-config names (JS set + go.mod/Cargo.toml/pyproject.toml/pom.xml/gradle/etc.) that no config key can exclude, enforced by config-resolve rejection AND a filesystem-aware transition preflight; storyDir-aware metadata exclusion; excludePaths; docs; removeExtensions; code-extension-gated path prefixes with shebang/exec-bit rule for extensionless scripts; resolved extension set; default non-material. Strict config resolver: normalized extensions, segment-aware paths, fail-closed on malformed.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-956f/background.md"
+      ],
+      "userSees": "go.mod at repo root classifies material with no extension/prefix; excludePaths naming a manifest is rejected; src/design.pptx stays non-material; src-old/ does not match src/.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Degradation diagnostics produced by buildScopeDiffPack for unsupported languages",
+      "context": "Emit normalized semantic_analysis_unavailable diagnostics from parseUnifiedDiff/buildScopeDiffPack (scope-diff-pack.ts:265-315) and from the no-scope-contract path; mutating callers write the deduped, union-typed process event. Semantic anchors stay TS/JS-only (no new parsers).",
+      "relatedDocs": [
+        ".lattice/story/actives/B-956f/background.md"
+      ],
+      "userSees": "A no-contract story with a material .go file surfaces exactly one semantic_analysis_unavailable degradation event.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/validate-concept.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
