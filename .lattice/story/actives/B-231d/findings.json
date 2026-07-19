@@ -60,6 +60,25 @@
       "resolvedReason": "Fixed in 1d98a3a7c6: repoRelativeLogicalCwd anchors an absolute in-repo cwd at the shared git-common-dir root (symlink-safe via sharedRootInProjectSpace, mapping workspace root to canonical '.'), so absolute-cwd commands are now root-independent too; relative '.'/subdir stay portable. Smoke adds an absolute-cwd portability check.",
       "resolvedAt": "2026-07-19T00:17:12.188Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-231d:F-004",
+      "desc": "All 9 must-priority verificationEvidence records (CHK-001/002/003 x happy/edge/adversarial) are STALE per `lattice evidence_inspect`: freshness=stale, staleRefs=9, reason=\"evidence storyFilesHash does not match current story-owned file state\". The recorded evidence (headHash eba28273c2..., materialHash 7de37fd5..., timestamp 2026-07-18T23:45:06Z) predates fix commit 1d98a3a7c6 (F-001/F-002/F-003, 2026-07-19T00:15:30Z) which rewrote both done-required-validation.ts and worktree-portability-smoke.ts (the shared test file for all 3 checklist items). The smoke content itself is now genuinely correct (rebuilt+ran live: 16/16 pass, F-002 isolates ONLY the logical cwd with command/args/shell/env held fixed, F-001/F-003 exercise real cross-root receipt coverage and absolute-cwd normalization) -- but the checklist verificationEvidence notes still say \"(10 checks, exit 0)\" and are bound to the pre-fix commit/materialHash/storyFilesHash, so this evidence will not survive the DONE-required evidence-freshness gate. Re-run node packages/main/dist/tasks/worktree-portability-smoke.js against current HEAD and re-record verification evidence for all 9 intentRefs via verification_evidence_add/verification_evidence_batch_add before DONE.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-19T00:24:30.052Z",
+      "reviewRound": "2026-07-19T00:16:28.435Z",
+      "reviewRunId": "B-231d:RR-006",
+      "_hash": "b3436646d3fd23ca39c31fd791ab9bdaacac646e82e62531377a1bc34b8965c8",
+      "files": [
+        "packages/main/src/tasks/worktree-portability-smoke.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "missing|ts|priority-verificationevidence-records",
+      "signatureTagSource": "auto"
     }
   ]
 }
