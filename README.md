@@ -12,7 +12,9 @@ The host-neutral evidence boundary is formalized as the **Evidence Environment
 Adapter (EEA)** contract: an Agent proposes, an Environment observes, Proof
 Admissibility evaluates, and the existing Gate decides. The current
 implementation includes the generic contract plus bounded code-runtime and
-Quantum receipt projections. It does not expose an arbitrary runner; Lean,
+Quantum receipt projections; the existing DONE_REQUIRED lifecycle evaluator
+consumes the code-runtime projection after revalidating its raw bindings. It
+does not expose an arbitrary runner; Lean,
 Rosetta, AlphaFold, PINN solvers, browsers, databases, CI, Kubernetes, and
 production deployment remain integration targets.
 

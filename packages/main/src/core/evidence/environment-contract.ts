@@ -13,7 +13,6 @@ import {
 } from '../proof-admissibility.js';
 import type {
   DoneRequiredCommandReceipt,
-  RoutineValidationIdentity,
 } from '../validation-types.js';
 import {
   QUANTUM_CLAIM_ADMISSIBILITY_VERIFIER_VERSION,
@@ -70,6 +69,7 @@ export type EvidenceEnvironmentReasonCode =
   | 'environment_mismatch'
   | 'adapter_mismatch'
   | 'invocation_mismatch'
+  | 'digest_mismatch'
   | 'command_spec_mismatch'
   | 'policy_mismatch'
   | 'producer_mismatch'
@@ -80,6 +80,11 @@ export type EvidenceEnvironmentReasonCode =
   | 'unsafe_isolation'
   | 'forbidden_execution'
   | 'checker_error'
+  | 'receipt_failed'
+  | 'receipt_timeout'
+  | 'receipt_cancelled'
+  | 'receipt_unavailable'
+  | 'quorum_cardinality_missing'
   | 'direct_completion_authority'
   | 'diagnostic_only_non_gate';
 
@@ -140,18 +145,30 @@ export interface EvidenceEnvironmentInvocationRequest {
   readonly commandSpec?: EvidenceEnvironmentCommandSpec;
 }
 
-export interface EvidenceEnvironmentProducerAttestation {
+export interface VerifiedEvidenceEnvironmentProducerIdentity {
+  readonly attestationRef: string;
   readonly producerId: string;
   readonly lineageId: string;
   readonly keyId: string;
   readonly sessionId: string;
-  readonly verificationSource: 'verifier-owned-attestation-registry';
-  readonly signatureVerified: boolean;
   readonly trustClass: EvidenceEnvironmentTrustClass;
+  readonly verifiedAt: string;
+}
+
+export interface EvidenceEnvironmentAttestationResolver {
+  readonly resolve: (
+    attestationRef: string,
+    context: {
+      readonly descriptorId: string;
+      readonly invocationDigest: string;
+      readonly subjectDigest: string;
+    },
+  ) => VerifiedEvidenceEnvironmentProducerIdentity | undefined;
 }
 
 export interface EvidenceEnvironmentReceipt {
   readonly receiptVersion: typeof EVIDENCE_ENVIRONMENT_RECEIPT_VERSION;
+  readonly receiptDigest: string;
   readonly invocationId: string;
   readonly invocationDigest: string;
   readonly subjectDigest: string;
@@ -165,7 +182,8 @@ export interface EvidenceEnvironmentReceipt {
   readonly observedAt: string;
   readonly completedAt: string;
   readonly commandSpecDigest?: string;
-  readonly producerAttestation?: EvidenceEnvironmentProducerAttestation;
+  /** Opaque reference only. Identity/trust fields are resolved outside the receipt. */
+  readonly producerAttestationRef?: string;
   readonly isolation: {
     readonly kind: EvidenceEnvironmentDescriptor['isolation'];
     readonly identityVerified: boolean;
@@ -196,7 +214,7 @@ export interface NormalizedEvidenceEnvironmentEnvelope {
   readonly freshnessDeadline: string;
   readonly trustClass: EvidenceEnvironmentTrustClass;
   readonly reproducibilityClass: EvidenceEnvironmentReproducibilityClass;
-  readonly producerAttestation?: EvidenceEnvironmentProducerAttestation;
+  readonly verifiedProducerIdentity?: VerifiedEvidenceEnvironmentProducerIdentity;
   readonly commandSpecDigest?: string;
   readonly semanticDigest: string;
   readonly policyInputDigest: string;
@@ -272,6 +290,7 @@ const INVOCATION_KEYS = new Set([
 
 const RECEIPT_KEYS = new Set([
   'receiptVersion',
+  'receiptDigest',
   'invocationId',
   'invocationDigest',
   'subjectDigest',
@@ -285,7 +304,7 @@ const RECEIPT_KEYS = new Set([
   'observedAt',
   'completedAt',
   'commandSpecDigest',
-  'producerAttestation',
+  'producerAttestationRef',
   'isolation',
   'diagnostics',
 ]);
@@ -454,6 +473,12 @@ export function digestEvidenceEnvironmentCommandSpec(spec: EvidenceEnvironmentCo
   return digestCanonicalJson(spec);
 }
 
+export function digestEvidenceEnvironmentReceipt(
+  receipt: Omit<EvidenceEnvironmentReceipt, 'receiptDigest'>,
+): string {
+  return digestCanonicalJson(receipt);
+}
+
 function policyInput(
   descriptor: EvidenceEnvironmentDescriptor,
   invocation: EvidenceEnvironmentInvocationRequest,
@@ -490,12 +515,29 @@ export function normalizeEvidenceEnvironmentReceipt(
   invocation: EvidenceEnvironmentInvocationRequest,
   receipt: EvidenceEnvironmentReceipt,
   now = new Date(),
+  options: {
+    readonly registry?: EvidenceEnvironmentRegistry;
+    readonly attestationResolver?: EvidenceEnvironmentAttestationResolver;
+  } = {},
 ): EvidenceEnvironmentNormalizationResult {
   const reasons: EvidenceEnvironmentReasonCode[] = [...validateEnvironmentDescriptor(descriptor)];
+  const registry = options.registry ?? DEFAULT_ENVIRONMENT_REGISTRY;
+  const registeredDescriptor = registry.resolve(descriptor.id);
+  if (!registeredDescriptor) {
+    reasons.push('unknown_environment_descriptor');
+  } else if (digestCanonicalJson(registeredDescriptor) !== digestCanonicalJson(descriptor)) {
+    reasons.push('environment_mismatch');
+  }
   if (!invocation || typeof invocation !== 'object' || !receipt || typeof receipt !== 'object') return failure('bad_shape');
   if (!hasOnlyKeys(invocation, INVOCATION_KEYS) || !hasOnlyKeys(receipt, RECEIPT_KEYS)) reasons.push('unexpected_field');
   if (invocation.contractVersion !== EVIDENCE_ENVIRONMENT_CONTRACT_VERSION) reasons.push('unsupported_contract_version');
   if (receipt.receiptVersion !== EVIDENCE_ENVIRONMENT_RECEIPT_VERSION) reasons.push('unsupported_receipt_version');
+  const unsignedReceipt = { ...receipt } as Record<string, unknown>;
+  delete unsignedReceipt.receiptDigest;
+  if (!isNonEmpty(receipt.receiptDigest)
+    || receipt.receiptDigest !== digestEvidenceEnvironmentReceipt(
+      unsignedReceipt as unknown as Omit<EvidenceEnvironmentReceipt, 'receiptDigest'>,
+    )) reasons.push('digest_mismatch');
   if (!isNonEmpty(invocation.invocationId) || !isNonEmpty(invocation.invocationDigest)
     || !isNonEmpty(invocation.claimId) || !isNonEmpty(invocation.subject?.digest)
     || !isNonEmpty(invocation.policyId) || !isNonEmpty(invocation.policyDigest) || !isNonEmpty(invocation.inputDigest)
@@ -546,21 +588,26 @@ export function normalizeEvidenceEnvironmentReceipt(
   }
   if (descriptor.mode === 'read-receipt-only' && invocation.commandSpec) reasons.push('forbidden_execution');
   if (receipt.status === 'error') reasons.push('checker_error');
-  if (descriptor.trustClass === 'external-attested') {
-    if (!receipt.producerAttestation) reasons.push('producer_attestation_missing');
-    else if (receipt.producerAttestation.signatureVerified !== true) reasons.push('producer_attestation_invalid');
-  }
-  if (receipt.producerAttestation && receipt.producerAttestation.trustClass !== descriptor.trustClass) {
-    reasons.push('producer_mismatch');
-  }
-  if (receipt.producerAttestation && (
-    receipt.producerAttestation.verificationSource !== 'verifier-owned-attestation-registry'
-    || !isNonEmpty(receipt.producerAttestation.keyId)
-    || !isNonEmpty(receipt.producerAttestation.sessionId)
-    || !isNonEmpty(receipt.producerAttestation.lineageId)
-  )) reasons.push('producer_attestation_invalid');
-  if (receipt.producerAttestation && receipt.producerAttestation.signatureVerified !== true) {
-    reasons.push('producer_attestation_invalid');
+  let verifiedProducerIdentity: VerifiedEvidenceEnvironmentProducerIdentity | undefined;
+  if (receipt.producerAttestationRef) {
+    verifiedProducerIdentity = options.attestationResolver?.resolve(receipt.producerAttestationRef, {
+      descriptorId: descriptor.id,
+      invocationDigest: invocation.invocationDigest,
+      subjectDigest: invocation.subject.digest,
+    });
+    if (!verifiedProducerIdentity
+      || verifiedProducerIdentity.attestationRef !== receipt.producerAttestationRef
+      || verifiedProducerIdentity.trustClass !== descriptor.trustClass
+      || !isNonEmpty(verifiedProducerIdentity.producerId)
+      || !isNonEmpty(verifiedProducerIdentity.lineageId)
+      || !isNonEmpty(verifiedProducerIdentity.keyId)
+      || !isNonEmpty(verifiedProducerIdentity.sessionId)
+      || !isIsoDate(verifiedProducerIdentity.verifiedAt)) {
+      reasons.push('producer_attestation_invalid');
+      verifiedProducerIdentity = undefined;
+    }
+  } else if (descriptor.trustClass === 'external-attested') {
+    reasons.push('producer_attestation_missing');
   }
   if (reasons.length > 0) return failure(...reasons);
 
@@ -587,7 +634,7 @@ export function normalizeEvidenceEnvironmentReceipt(
     freshnessDeadline: invocation.freshnessDeadline,
     trustClass: descriptor.trustClass,
     reproducibilityClass: descriptor.reproducibilityClass,
-    ...(receipt.producerAttestation ? { producerAttestation: Object.freeze({ ...receipt.producerAttestation }) } : {}),
+    ...(verifiedProducerIdentity ? { verifiedProducerIdentity: Object.freeze({ ...verifiedProducerIdentity }) } : {}),
     ...(receipt.commandSpecDigest ? { commandSpecDigest: receipt.commandSpecDigest } : {}),
     policyInputDigest: digestCanonicalJson(semantic),
     boundary: Object.freeze({
@@ -614,7 +661,6 @@ export function projectDoneRequiredReceiptToEnvironment(
     readonly policyDigest: string;
     readonly requestedAt: string;
     readonly freshnessDeadline: string;
-    readonly routineIdentity: RoutineValidationIdentity;
   },
 ): {
   readonly descriptor: EvidenceEnvironmentDescriptor;
@@ -623,14 +669,8 @@ export function projectDoneRequiredReceiptToEnvironment(
 } {
   if (!receipt.commandSpec) throw new Error('command_spec_mismatch: DONE-required receipt must carry lattice.command-spec.v1');
   if (receipt.commandSpec.shell) throw new Error('command_spec_mismatch: EEA reference path requires shell=false');
-  const identityCommand = input.routineIdentity.commands.find((command) => (
-    command.command === receipt.command
-    && JSON.stringify(command.args) === JSON.stringify(receipt.args)
-    && command.cwd === receipt.cwd
-    && command.shell === false
-  ));
-  if (!identityCommand || !identityCommand.executableDigest) {
-    throw new Error('command_spec_mismatch: matching routine-validation execution identity is required');
+  if (!isNonEmpty(receipt.effectiveEnvironmentDigest) || !isNonEmpty(receipt.executableDigest)) {
+    throw new Error('command_spec_mismatch: executor-owned effective environment and executable identities are required');
   }
   const commandSpec: EvidenceEnvironmentCommandSpec = Object.freeze({
     commandId: receipt.commandSpec.digest,
@@ -638,8 +678,8 @@ export function projectDoneRequiredReceiptToEnvironment(
     args: Object.freeze([...receipt.args]),
     cwd: receipt.cwd,
     shell: false,
-    processEnvironmentDigest: identityCommand.effectiveEnvironmentDigest,
-    executableDigest: identityCommand.executableDigest,
+    processEnvironmentDigest: receipt.effectiveEnvironmentDigest,
+    executableDigest: receipt.executableDigest,
     timeoutMs: receipt.commandSpec.timeoutMs,
     outputLimitBytes: 12_000,
     network: 'policy-bound',
@@ -664,7 +704,7 @@ export function projectDoneRequiredReceiptToEnvironment(
     ...unsignedInvocation,
     invocationDigest: digestEvidenceEnvironmentInvocation(unsignedInvocation),
   });
-  const environmentReceipt: EvidenceEnvironmentReceipt = Object.freeze({
+  const unsignedReceipt: Omit<EvidenceEnvironmentReceipt, 'receiptDigest'> = {
     receiptVersion: EVIDENCE_ENVIRONMENT_RECEIPT_VERSION,
     invocationId: input.invocationId,
     invocationDigest: invocation.invocationDigest,
@@ -681,6 +721,10 @@ export function projectDoneRequiredReceiptToEnvironment(
     commandSpecDigest: digestEvidenceEnvironmentCommandSpec(commandSpec),
     isolation: Object.freeze({ kind: 'process', identityVerified: true, network: 'policy-bound' }),
     diagnostics: Object.freeze([`exitCode=${receipt.exitCode}`, `durationMs=${receipt.durationMs}`]),
+  };
+  const environmentReceipt: EvidenceEnvironmentReceipt = Object.freeze({
+    ...unsignedReceipt,
+    receiptDigest: digestEvidenceEnvironmentReceipt(unsignedReceipt),
   });
   return Object.freeze({ descriptor: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR, invocation, receipt: environmentReceipt });
 }
@@ -721,10 +765,7 @@ export function projectQuantumReceiptToEnvironment(input: {
   if (!outputDigest) throw new Error('quantum_receipt_invalid: output digest is required after normalization');
   const observedAt = input.observedAt ?? normalizedQuantum.receipt.observedAt;
   if (!observedAt) throw new Error('quantum_receipt_invalid: observedAt is required for the EEA temporal envelope');
-  return Object.freeze({
-    descriptor,
-    invocation: (() => {
-      const unsigned: Omit<EvidenceEnvironmentInvocationRequest, 'invocationDigest'> = {
+  const unsignedInvocation: Omit<EvidenceEnvironmentInvocationRequest, 'invocationDigest'> = {
       contractVersion: EVIDENCE_ENVIRONMENT_CONTRACT_VERSION,
       invocationId: input.invocationId,
       claimId: input.claimId,
@@ -736,28 +777,15 @@ export function projectQuantumReceiptToEnvironment(input: {
       requestedAt: input.requestedAt,
       freshnessDeadline: input.freshnessDeadline,
       inputDigest,
-      };
-      return Object.freeze({ ...unsigned, invocationDigest: digestEvidenceEnvironmentInvocation(unsigned) });
-    })(),
-    receipt: Object.freeze({
+  };
+  const invocation: EvidenceEnvironmentInvocationRequest = Object.freeze({
+    ...unsignedInvocation,
+    invocationDigest: digestEvidenceEnvironmentInvocation(unsignedInvocation),
+  });
+  const unsignedReceipt: Omit<EvidenceEnvironmentReceipt, 'receiptDigest'> = {
       receiptVersion: EVIDENCE_ENVIRONMENT_RECEIPT_VERSION,
       invocationId: input.invocationId,
-      invocationDigest: (() => {
-        const unsigned: Omit<EvidenceEnvironmentInvocationRequest, 'invocationDigest'> = {
-          contractVersion: EVIDENCE_ENVIRONMENT_CONTRACT_VERSION,
-          invocationId: input.invocationId,
-          claimId: input.claimId,
-          subject: { type: 'quantum-computation', id: input.subjectId, digest: input.subjectDigest },
-          environmentDescriptorId: descriptor.id,
-          adapterId: descriptor.adapterId,
-          policyId: input.policyId,
-          policyDigest: input.policyDigest,
-          requestedAt: input.requestedAt,
-          freshnessDeadline: input.freshnessDeadline,
-          inputDigest,
-        };
-        return digestEvidenceEnvironmentInvocation(unsigned);
-      })(),
+      invocationDigest: invocation.invocationDigest,
       subjectDigest: input.subjectDigest,
       environmentDescriptorId: descriptor.id,
       adapterId: descriptor.adapterId,
@@ -769,17 +797,28 @@ export function projectQuantumReceiptToEnvironment(input: {
       observedAt,
       completedAt: input.completedAt,
       isolation: Object.freeze({ kind: 'receipt-only', identityVerified: true, network: 'denied' }),
-    }),
+  };
+  const receipt: EvidenceEnvironmentReceipt = Object.freeze({
+    ...unsignedReceipt,
+    receiptDigest: digestEvidenceEnvironmentReceipt(unsignedReceipt),
+  });
+  return Object.freeze({
+    descriptor,
+    invocation,
+    receipt,
   });
 }
 
 export interface EvidenceEnvironmentGateProjectionInput {
-  readonly envelope: NormalizedEvidenceEnvironmentEnvelope;
+  readonly descriptorId: string;
+  readonly invocation: EvidenceEnvironmentInvocationRequest;
+  readonly receipt: EvidenceEnvironmentReceipt;
   readonly artifactKind: string;
   readonly consumer: ArtifactConsumerKind;
   readonly claim: ClaimKind;
   readonly checks: AdmissibilityChecks;
   readonly additionalPolicyRequirements?: readonly boolean[];
+  readonly now?: Date;
 }
 
 export interface EvidenceEnvironmentGateProjection {
@@ -794,13 +833,50 @@ export function evaluateEvidenceEnvironmentGateProjection(
   input: EvidenceEnvironmentGateProjectionInput,
 ): EvidenceEnvironmentGateProjection {
   const reasons: (AdmissibilityReasonCode | EvidenceEnvironmentReasonCode)[] = [];
-  if (input.envelope.boundary.completionEligible !== false
-    || input.envelope.boundary.createsLifecycleGate !== false
-    || input.envelope.boundary.createsStorage !== false) {
-    reasons.push('direct_completion_authority');
+  const descriptor = DEFAULT_ENVIRONMENT_REGISTRY.resolve(input.descriptorId);
+  const boundary = Object.freeze({
+    observationOnly: true as const,
+    createsStorage: false as const,
+    createsLifecycleGate: false as const,
+    completionEligible: false as const,
+  });
+  if (!descriptor) {
+    return Object.freeze({
+      decision: 'stop',
+      allowed: false,
+      reasons: Object.freeze(['unknown_environment_descriptor'] as const),
+      policyInputDigest: '',
+      boundary,
+    });
   }
-  if (input.envelope.status !== 'pass') reasons.push(input.envelope.status === 'error' ? 'checker_error' : 'bad_shape');
-  if (input.envelope.trustClass === 'diagnostic-only') reasons.push('diagnostic_only_non_gate');
+  const normalized = normalizeEvidenceEnvironmentReceipt(
+    descriptor,
+    input.invocation,
+    input.receipt,
+    input.now ?? new Date(),
+    { registry: DEFAULT_ENVIRONMENT_REGISTRY },
+  );
+  if (!normalized.ok) {
+    return Object.freeze({
+      decision: 'stop',
+      allowed: false,
+      reasons: normalized.reasons,
+      policyInputDigest: '',
+      boundary,
+    });
+  }
+  const envelope = normalized.envelope;
+  if (envelope.status !== 'pass') {
+    const statusReason: Record<Exclude<EvidenceEnvironmentReceiptStatus, 'pass'>, EvidenceEnvironmentReasonCode> = {
+      fail: 'receipt_failed',
+      error: 'checker_error',
+      timeout: 'receipt_timeout',
+      cancelled: 'receipt_cancelled',
+      unavailable: 'receipt_unavailable',
+    };
+    reasons.push(statusReason[envelope.status]);
+  }
+  if (envelope.trustClass === 'diagnostic-only') reasons.push('diagnostic_only_non_gate');
   if (input.additionalPolicyRequirements?.some((satisfied) => !satisfied)) reasons.push('clause_not_bound');
 
   const admissibility = evaluateProofAdmissibility({
@@ -811,7 +887,7 @@ export function evaluateEvidenceEnvironmentGateProjection(
       ...input.checks,
       contractVersion: PROOF_ADMISSIBILITY_CONTRACT_VERSION,
       verifierVersion: PROOF_ADMISSIBILITY_VERIFIER_VERSION,
-      semanticDigestValid: Boolean(input.envelope.semanticDigest),
+      semanticDigestValid: Boolean(envelope.semanticDigest),
       subjectMatches: input.checks.subjectMatches,
       environmentDescriptorValid: true,
       environmentReceiptValid: true,
@@ -825,28 +901,60 @@ export function evaluateEvidenceEnvironmentGateProjection(
     decision: allowed ? 'advance' : 'stop',
     allowed,
     reasons: unique,
-    policyInputDigest: input.envelope.policyInputDigest,
-    boundary: input.envelope.boundary,
+    policyInputDigest: envelope.policyInputDigest,
+    boundary: envelope.boundary,
   });
 }
 
 export function evaluateEvidenceEnvironmentQuorum(
-  envelopes: readonly NormalizedEvidenceEnvironmentEnvelope[],
+  input: {
+    readonly items: readonly {
+      readonly descriptorId: string;
+      readonly invocation: EvidenceEnvironmentInvocationRequest;
+      readonly receipt: EvidenceEnvironmentReceipt;
+    }[];
+    readonly attestationResolver: EvidenceEnvironmentAttestationResolver;
+    readonly requiredCount?: number;
+    readonly now?: Date;
+  },
 ): {
   readonly independent: boolean;
   readonly reasons: readonly EvidenceEnvironmentReasonCode[];
 } {
   const reasons: EvidenceEnvironmentReasonCode[] = [];
+  const requiredCount = input.requiredCount ?? 2;
   const lineages = new Set<string>();
   const keys = new Set<string>();
   const sessions = new Set<string>();
-  for (const envelope of envelopes) {
-    const attestation = envelope.producerAttestation;
+  if (!Number.isInteger(requiredCount) || requiredCount < 2 || input.items.length < requiredCount) {
+    reasons.push('quorum_cardinality_missing');
+  }
+  for (const item of input.items) {
+    const descriptor = DEFAULT_ENVIRONMENT_REGISTRY.resolve(item.descriptorId);
+    if (!descriptor) {
+      reasons.push('unknown_environment_descriptor');
+      continue;
+    }
+    const normalized = normalizeEvidenceEnvironmentReceipt(
+      descriptor,
+      item.invocation,
+      item.receipt,
+      input.now ?? new Date(),
+      {
+        registry: DEFAULT_ENVIRONMENT_REGISTRY,
+        attestationResolver: input.attestationResolver,
+      },
+    );
+    if (!normalized.ok) {
+      reasons.push(...normalized.reasons);
+      continue;
+    }
+    const envelope = normalized.envelope;
+    const attestation = envelope.verifiedProducerIdentity;
     if (!attestation) {
       reasons.push('producer_attestation_missing');
       continue;
     }
-    if (!attestation.signatureVerified) reasons.push('producer_attestation_invalid');
     if (lineages.has(attestation.lineageId)
       || keys.has(attestation.keyId)
       || sessions.has(attestation.sessionId)) reasons.push('same_producer_not_independent');
@@ -855,5 +963,5 @@ export function evaluateEvidenceEnvironmentQuorum(
     sessions.add(attestation.sessionId);
   }
   const unique = Object.freeze([...new Set(reasons)]);
-  return Object.freeze({ independent: unique.length === 0, reasons: unique });
+  return Object.freeze({ independent: unique.length === 0 && input.items.length >= requiredCount, reasons: unique });
 }

@@ -180,6 +180,10 @@ export interface DoneRequiredCommandReceipt {
   startedAt: string;
   endedAt: string;
   timedOut?: boolean;
+  /** Executor-owned effective environment identity; raw environment values are never stored. */
+  effectiveEnvironmentDigest?: string;
+  /** Executor-owned resolved executable content identity. */
+  executableDigest?: string | null;
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;

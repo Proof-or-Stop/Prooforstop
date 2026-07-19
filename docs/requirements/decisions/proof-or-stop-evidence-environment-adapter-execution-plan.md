@@ -59,9 +59,9 @@ Implemented now:
 | Versioned descriptor, invocation, receipt, normalized envelope, canonical digests, and read-only registry | Implemented | `environment-contract.ts`; conformance smoke |
 | Code-runtime reference path | Implemented as a projection of existing policy-authorized DONE-required/routine-validation identities and receipts | `projectDoneRequiredReceiptToEnvironment`; no new process launcher or public command endpoint |
 | Quantum reference path | Implemented as read-receipt-only projection after the existing Quantum normalizer accepts the receipt | `projectQuantumReceiptToEnvironment`; Quantum smoke |
-| Proof Admissibility / Gate projection | Implemented as a monotonic projection into the existing registered proof-surface evaluator | `evaluateEvidenceEnvironmentGateProjection`; `runtime:evidence_environment_gate_projection` |
+| Proof Admissibility / Gate projection | Implemented in the existing DONE_REQUIRED lifecycle consumer; raw invocation/receipt input is revalidated before the shared proof-surface evaluator runs | `evaluateDoneRequiredEvidence` → `validateDoneRequiredEvidenceEnvironmentProjection` → `evaluateEvidenceEnvironmentGateProjection`; DONE-required smoke |
 | Host-substitution invariant | Mechanically covered for policy-equivalent normalized inputs | EEA conformance smoke |
-| Producer independence | Fail-closed for absent/unverified attestations and duplicate lineage, key, or session identity | EEA conformance smoke |
+| Producer independence | Receipt carries only an opaque attestation reference; a verifier-owned resolver outside the receipt supplies verified identity, and quorum fails closed for unresolved identity, insufficient cardinality, or duplicate lineage/key/session | EEA conformance smoke |
 
 This implementation does **not** add an arbitrary runner, a second evidence
 store, an adapter-owned lifecycle transition, production authority, or a generic
@@ -909,6 +909,16 @@ complete. If the manuscript is outside this repository, record the exact
 artifact path/version and the implementation commit or release digest to which
 the claims bind.
 
+Current B-955c status: **M6 is not complete for the external manuscript**. The
+paper-facing material in this repository is the versioned architecture artifact
+`docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md`
+at the eventual B-955c merge/release commit. No external manuscript path,
+revision, or immutable release digest containing this text is currently bound.
+Therefore this repository may report the implemented mechanism and tests, but
+the existing external manuscript must remain at Level B until an explicit
+revision handoff records its artifact version and the final implementation
+release digest.
+
 ## 11. Paper claim ladder
 
 ### Level A — Architecture defined
@@ -940,6 +950,11 @@ Allowed after M5 and fresh conformance evidence:
 > Heterogeneous Evidence Environments can produce normalized, identity-bound
 > evidence for the shared Proof Admissibility service while lifecycle authority
 > remains exclusively with Proof-or-Stop Gates.
+
+B-955c demonstrates this level inside the repository through the real
+DONE_REQUIRED evaluator. This is **not yet an external-manuscript claim**:
+without the M6 artifact/version/release binding above, manuscript prose remains
+at Level B.
 
 ### Level D — Domain adapter supported
 
@@ -994,9 +1009,10 @@ For the B-955c implementation, use:
 Do not replace this evidence-bound statement with an unqualified “supports
 arbitrary environments” claim.
 
-### Manuscript handoff
+### Manuscript handoff (pending M6)
 
-An external manuscript change must cite a repository commit or release that
+No external manuscript revision has yet been bound to B-955c. A future external
+manuscript change must cite a repository commit or release that
 contains all of the following together:
 
 1. `environment-contract.ts`;
@@ -1004,9 +1020,11 @@ contains all of the following together:
 3. the `runtime:evidence_environment_gate_projection` process-fact entry;
 4. this support matrix.
 
-If any bound artifact is absent or stale relative to the cited commit, the
-manuscript must fall back to the architecture-only Level-A claim. The manuscript
-must not infer support for a named environment from an example in this document.
+Until that handoff exists, the external manuscript remains at Level B; M6 is
+open. If any future bound artifact is absent or stale relative to the cited
+commit, the manuscript must fall back to the lower claim justified by the
+remaining evidence. The manuscript must not infer support for a named
+environment from an example in this document.
 
 ## 13. Threats and design risks
 

@@ -25,6 +25,7 @@ import {
 } from '../core/validation-executor.js';
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
+import { buildRoutineValidationIdentity } from '../core/validation-evidence-reuse.js';
 
 const STORY_ID = 'B-ac25';
 
@@ -133,6 +134,18 @@ function doneRow(rows: DoneCheckRow[], id: string): DoneCheckRow {
 
 function baseReceipt(root: string, overrides: Partial<DoneRequiredCommandReceipt>): DoneRequiredCommandReceipt {
   const h = hashes(root);
+  const policy = resolveDoneRequiredPolicy(root);
+  const identity = buildRoutineValidationIdentity({
+    projectRoot: root,
+    sourceKind: 'configured',
+    sourceInputs: policy.commands,
+    commands: policy.commands,
+    profile: 'done-required',
+    verificationPolicyInputs: {
+      policyHash: policy.policyHash,
+      commandSetHash: policy.commandSetHash,
+    },
+  }).commands[0];
   const receipt: DoneRequiredCommandReceipt = {
     label: 'synthetic',
     command: 'node',
@@ -145,6 +158,8 @@ function baseReceipt(root: string, overrides: Partial<DoneRequiredCommandReceipt
     outputTail: '',
     startedAt: new Date().toISOString(),
     endedAt: new Date().toISOString(),
+    effectiveEnvironmentDigest: identity?.effectiveEnvironmentDigest,
+    executableDigest: identity?.executableDigest,
     ...(h.headHash ? { headHash: h.headHash } : {}),
     ...(h.materialHash ? { materialHash: h.materialHash } : {}),
     ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
@@ -594,6 +609,22 @@ function assertDoneRequiredBlocked(
       },
     }]);
     assertDoneRequiredBlocked(root, store, /command-spec-digest-mismatch\[0\]/, 'tampered CommandSpec digest must block');
+
+    writeDoneEvidence(root, store, [baseReceipt(root, { effectiveEnvironmentDigest: 'forged-environment' })]);
+    assertDoneRequiredBlocked(
+      root,
+      store,
+      /effective-environment-digest-mismatch\[0\]/,
+      'DONE_REQUIRED lifecycle consumer must reject forged Environment execution identity',
+    );
+
+    writeDoneEvidence(root, store, [baseReceipt(root, { executableDigest: 'forged-executable' })]);
+    assertDoneRequiredBlocked(
+      root,
+      store,
+      /executable-digest-mismatch\[0\]/,
+      'DONE_REQUIRED lifecycle consumer must reject forged executable identity',
+    );
 
     writeDoneEvidence(root, store);
     const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });

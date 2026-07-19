@@ -31,9 +31,30 @@
     "packages/main/src/**/.omx/**"
   ],
   "scopeChangeReason": "Initialize DEV scope from reviewed PLAN for delegated lattice implementation",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Verified REVIEW findings require wiring the Evidence Environment projection into the existing DONE-required lifecycle consumer and binding executor-owned environment identity.",
+      "timestamp": "2026-07-19T00:55:26.560Z",
+      "paths": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "53ad392fcf0accf723c45706969da91b456d3260",
+      "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf"
+    }
+  ],
   "createdAt": "2026-07-19T00:32:46.036Z",
-  "updatedAt": "2026-07-19T00:32:46.036Z",
+  "updatedAt": "2026-07-19T00:55:26.560Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -54,6 +75,9 @@
     "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts": "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts",
     "docs/story/**": "docs/story/**",
     "tests/fixtures/**": "tests/fixtures/**",
-    "packages/main/src/**/.omx/**": "**/.omx/**"
+    "packages/main/src/**/.omx/**": "**/.omx/**",
+    "packages/main/src/core/done-required-validation.ts": "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/validation-types.ts": "packages/main/src/core/validation-types.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts"
   }
 }

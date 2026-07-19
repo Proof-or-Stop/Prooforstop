@@ -9,6 +9,7 @@ import {
   createEvidenceEnvironmentRegistry,
   digestEvidenceEnvironmentCommandSpec,
   digestEvidenceEnvironmentInvocation,
+  digestEvidenceEnvironmentReceipt,
   evaluateEvidenceEnvironmentGateProjection,
   evaluateEvidenceEnvironmentQuorum,
   listEvidenceEnvironmentDescriptors,
@@ -16,9 +17,10 @@ import {
   projectDoneRequiredReceiptToEnvironment,
   projectQuantumReceiptToEnvironment,
   type EvidenceEnvironmentCommandSpec,
+  type EvidenceEnvironmentAttestationResolver,
   type EvidenceEnvironmentInvocationRequest,
-  type EvidenceEnvironmentProducerAttestation,
   type EvidenceEnvironmentReceipt,
+  type VerifiedEvidenceEnvironmentProducerIdentity,
 } from '../core/evidence/environment-contract.js';
 import type { DoneRequiredCommandReceipt } from '../core/validation-types.js';
 import {
@@ -63,8 +65,8 @@ const invocation: EvidenceEnvironmentInvocationRequest = {
   invocationDigest: digestEvidenceEnvironmentInvocation(unsignedInvocation),
 };
 
-function receipt(attestation?: EvidenceEnvironmentProducerAttestation): EvidenceEnvironmentReceipt {
-  return {
+function receipt(attestationRef?: string): EvidenceEnvironmentReceipt {
+  const unsigned: Omit<EvidenceEnvironmentReceipt, 'receiptDigest'> = {
     receiptVersion: EVIDENCE_ENVIRONMENT_RECEIPT_VERSION,
     invocationId: invocation.invocationId,
     invocationDigest: invocation.invocationDigest,
@@ -79,9 +81,10 @@ function receipt(attestation?: EvidenceEnvironmentProducerAttestation): Evidence
     observedAt: '2026-07-19T00:00:01.000Z',
     completedAt: '2026-07-19T00:00:02.000Z',
     commandSpecDigest: digestEvidenceEnvironmentCommandSpec(commandSpec),
-    ...(attestation ? { producerAttestation: attestation } : {}),
+    ...(attestationRef ? { producerAttestationRef: attestationRef } : {}),
     isolation: { kind: 'process', identityVerified: true, network: 'policy-bound' },
   };
+  return { ...unsigned, receiptDigest: digestEvidenceEnvironmentReceipt(unsigned) };
 }
 
 {
@@ -194,35 +197,44 @@ function expectBlock(
 }
 
 {
-  const firstAttestation: EvidenceEnvironmentProducerAttestation = {
+  const firstAttestation: VerifiedEvidenceEnvironmentProducerIdentity = {
+    attestationRef: 'attestation:codex',
     producerId: 'codex-host',
     lineageId: 'lineage-codex',
     keyId: 'key-codex',
     sessionId: 'session-codex',
-    verificationSource: 'verifier-owned-attestation-registry',
-    signatureVerified: true,
     trustClass: 'local-runtime-owned',
+    verifiedAt: '2026-07-19T00:00:00.000Z',
   };
-  const secondAttestation: EvidenceEnvironmentProducerAttestation = {
+  const secondAttestation: VerifiedEvidenceEnvironmentProducerIdentity = {
+    attestationRef: 'attestation:claude',
     producerId: 'claude-host',
     lineageId: 'lineage-claude',
     keyId: 'key-claude',
     sessionId: 'session-claude',
-    verificationSource: 'verifier-owned-attestation-registry',
-    signatureVerified: true,
     trustClass: 'local-runtime-owned',
+    verifiedAt: '2026-07-19T00:00:00.000Z',
+  };
+  const attestationRows = new Map<string, VerifiedEvidenceEnvironmentProducerIdentity>([
+    [firstAttestation.attestationRef, firstAttestation],
+    [secondAttestation.attestationRef, secondAttestation],
+  ]);
+  const attestationResolver: EvidenceEnvironmentAttestationResolver = {
+    resolve: (ref) => attestationRows.get(ref),
   };
   const first = normalizeEvidenceEnvironmentReceipt(
     CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR,
     invocation,
-    receipt(firstAttestation),
+    receipt(firstAttestation.attestationRef),
     new Date('2026-07-19T00:30:00.000Z'),
+    { attestationResolver },
   );
   const second = normalizeEvidenceEnvironmentReceipt(
     CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR,
     invocation,
-    receipt(secondAttestation),
+    receipt(secondAttestation.attestationRef),
     new Date('2026-07-19T00:30:00.000Z'),
+    { attestationResolver },
   );
   assert.equal(first.ok, true);
   assert.equal(second.ok, true);
@@ -232,8 +244,9 @@ function expectBlock(
   const forged = normalizeEvidenceEnvironmentReceipt(
     CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR,
     invocation,
-    receipt({ ...firstAttestation, signatureVerified: false }),
+    receipt('attestation:caller-invented'),
     new Date('2026-07-19T00:30:00.000Z'),
+    { attestationResolver },
   );
   assert.equal(forged.ok, false, 'caller-declared producer identity cannot self-attest');
   if (forged.ok) throw new Error('forged producer unexpectedly normalized');
@@ -249,49 +262,173 @@ function expectBlock(
     hashTupleFresh: true,
   };
   const firstGate = evaluateEvidenceEnvironmentGateProjection({
-    envelope: first.envelope,
+    descriptorId: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR.id,
+    invocation,
+    receipt: receipt(),
     artifactKind: 'done-required-evidence',
     consumer: 'DONE_REQUIRED',
     claim: 'done-readiness',
     checks,
+    now: new Date('2026-07-19T00:30:00.000Z'),
   });
   const secondGate = evaluateEvidenceEnvironmentGateProjection({
-    envelope: second.envelope,
+    descriptorId: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR.id,
+    invocation,
+    receipt: receipt(),
     artifactKind: 'done-required-evidence',
     consumer: 'DONE_REQUIRED',
     claim: 'done-readiness',
     checks,
+    now: new Date('2026-07-19T00:30:00.000Z'),
   });
   assert.equal(firstGate.decision, 'advance', firstGate.reasons.join(', '));
   assert.equal(secondGate.decision, firstGate.decision);
 
   const weakened = evaluateEvidenceEnvironmentGateProjection({
-    envelope: first.envelope,
+    descriptorId: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR.id,
+    invocation,
+    receipt: receipt(),
     artifactKind: 'done-required-evidence',
     consumer: 'DONE_REQUIRED',
     claim: 'done-readiness',
     checks,
     additionalPolicyRequirements: [false],
+    now: new Date('2026-07-19T00:30:00.000Z'),
   });
   assert.equal(weakened.decision, 'stop', 'adapter cannot bypass baseline lifecycle requirements');
 
-  assert.equal(evaluateEvidenceEnvironmentQuorum([first.envelope, second.envelope]).independent, true);
+  const unknownDescriptorGate = evaluateEvidenceEnvironmentGateProjection({
+    descriptorId: 'unregistered.evil',
+    invocation,
+    receipt: receipt(),
+    artifactKind: 'done-required-evidence',
+    consumer: 'DONE_REQUIRED',
+    claim: 'done-readiness',
+    checks,
+    now: new Date('2026-07-19T00:30:00.000Z'),
+  });
+  assert.equal(unknownDescriptorGate.decision, 'stop');
+  assert.ok(unknownDescriptorGate.reasons.includes('unknown_environment_descriptor'));
+
+  const forgedInvocation = clone(invocation) as any;
+  forgedInvocation.subject.digest = 'forged-subject';
+  const forgedInvocationGate = evaluateEvidenceEnvironmentGateProjection({
+    descriptorId: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR.id,
+    invocation: forgedInvocation,
+    receipt: receipt(),
+    artifactKind: 'done-required-evidence',
+    consumer: 'DONE_REQUIRED',
+    claim: 'done-readiness',
+    checks,
+    now: new Date('2026-07-19T00:30:00.000Z'),
+  });
+  assert.equal(forgedInvocationGate.decision, 'stop');
+  assert.ok(forgedInvocationGate.reasons.includes('invocation_mismatch'));
+
+  const forgedReceipt = clone(receipt()) as any;
+  forgedReceipt.outputDigest = 'forged-output';
+  const forgedReceiptGate = evaluateEvidenceEnvironmentGateProjection({
+    descriptorId: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR.id,
+    invocation,
+    receipt: forgedReceipt,
+    artifactKind: 'done-required-evidence',
+    consumer: 'DONE_REQUIRED',
+    claim: 'done-readiness',
+    checks,
+    now: new Date('2026-07-19T00:30:00.000Z'),
+  });
+  assert.equal(forgedReceiptGate.decision, 'stop');
+  assert.ok(forgedReceiptGate.reasons.includes('digest_mismatch'));
+
+  const expiredGate = evaluateEvidenceEnvironmentGateProjection({
+    descriptorId: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR.id,
+    invocation,
+    receipt: receipt(),
+    artifactKind: 'done-required-evidence',
+    consumer: 'DONE_REQUIRED',
+    claim: 'done-readiness',
+    checks,
+    now: new Date('2026-07-19T02:00:00.000Z'),
+  });
+  assert.equal(expiredGate.decision, 'stop');
+  assert.ok(expiredGate.reasons.includes('stale_receipt'));
+
+  const statusReasons = {
+    fail: 'receipt_failed',
+    error: 'checker_error',
+    timeout: 'receipt_timeout',
+    cancelled: 'receipt_cancelled',
+    unavailable: 'receipt_unavailable',
+  } as const;
+  for (const [status, expectedReason] of Object.entries(statusReasons)) {
+    const changed = clone(receipt()) as any;
+    changed.status = status;
+    delete changed.receiptDigest;
+    changed.receiptDigest = digestEvidenceEnvironmentReceipt(changed);
+    const statusGate = evaluateEvidenceEnvironmentGateProjection({
+      descriptorId: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR.id,
+      invocation,
+      receipt: changed,
+      artifactKind: 'done-required-evidence',
+      consumer: 'DONE_REQUIRED',
+      claim: 'done-readiness',
+      checks,
+      now: new Date('2026-07-19T00:30:00.000Z'),
+    });
+    assert.equal(statusGate.decision, 'stop', `${status} must stop`);
+    assert.ok(statusGate.reasons.includes(expectedReason), `${status} -> ${statusGate.reasons.join(', ')}`);
+  }
+
+  const quorumItem = (attestationRef: string) => ({
+    descriptorId: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR.id,
+    invocation,
+    receipt: receipt(attestationRef),
+  });
+  assert.equal(evaluateEvidenceEnvironmentQuorum({
+    items: [quorumItem(firstAttestation.attestationRef), quorumItem(secondAttestation.attestationRef)],
+    attestationResolver,
+    now: new Date('2026-07-19T00:30:00.000Z'),
+  }).independent, true);
+  const sameProducer = {
+    ...secondAttestation,
+    attestationRef: 'attestation:same-producer',
+    lineageId: firstAttestation.lineageId,
+    keyId: firstAttestation.keyId,
+    sessionId: firstAttestation.sessionId,
+  };
+  attestationRows.set(sameProducer.attestationRef, sameProducer);
   const sameLineage = normalizeEvidenceEnvironmentReceipt(
     CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR,
     invocation,
-    receipt({
-      ...secondAttestation,
-      lineageId: firstAttestation.lineageId,
-      keyId: firstAttestation.keyId,
-      sessionId: firstAttestation.sessionId,
-    }),
+    receipt(sameProducer.attestationRef),
     new Date('2026-07-19T00:30:00.000Z'),
+    { attestationResolver },
   );
   assert.equal(sameLineage.ok, true);
   if (!sameLineage.ok) throw new Error('same-lineage fixture should normalize before quorum evaluation');
-  const quorum = evaluateEvidenceEnvironmentQuorum([first.envelope, sameLineage.envelope]);
+  const quorum = evaluateEvidenceEnvironmentQuorum({
+    items: [quorumItem(firstAttestation.attestationRef), quorumItem(sameProducer.attestationRef)],
+    attestationResolver,
+    now: new Date('2026-07-19T00:30:00.000Z'),
+  });
   assert.equal(quorum.independent, false);
   assert.ok(quorum.reasons.includes('same_producer_not_independent'));
+  assert.equal(evaluateEvidenceEnvironmentQuorum({
+    items: [],
+    attestationResolver,
+  }).independent, false);
+  assert.ok(evaluateEvidenceEnvironmentQuorum({
+    items: [quorumItem(firstAttestation.attestationRef)],
+    attestationResolver,
+    now: new Date('2026-07-19T00:30:00.000Z'),
+  }).reasons.includes('quorum_cardinality_missing'));
+  const unverifiedQuorum = evaluateEvidenceEnvironmentQuorum({
+    items: [quorumItem('attestation:missing-1'), quorumItem('attestation:missing-2')],
+    attestationResolver,
+    now: new Date('2026-07-19T00:30:00.000Z'),
+  });
+  assert.equal(unverifiedQuorum.independent, false);
+  assert.ok(unverifiedQuorum.reasons.includes('producer_attestation_invalid'));
   console.log('host substitution and distinct-producer quorum: PASS');
 }
 
@@ -318,6 +455,8 @@ function expectBlock(
     outputTail: 'build passed',
     startedAt: '2026-07-19T00:00:01.000Z',
     endedAt: '2026-07-19T00:00:02.000Z',
+    effectiveEnvironmentDigest: 'env:sha256:done',
+    executableDigest: 'exe:sha256:done',
   };
   const projected = projectDoneRequiredReceiptToEnvironment(doneReceipt, {
     invocationId: 'done-invocation',
@@ -327,27 +466,6 @@ function expectBlock(
     policyDigest: 'policy:sha256:done',
     requestedAt: '2026-07-19T00:00:00.000Z',
     freshnessDeadline: '2026-07-19T01:00:00.000Z',
-    routineIdentity: {
-      schema: 'lattice.routine-validation-identity',
-      version: 1,
-      digest: 'identity:sha256:done',
-      source: { kind: 'configured', inputDigest: 'source:sha256:done', entrypointDigest: null },
-      commands: [{
-        label: 'build',
-        command: 'npm',
-        args: ['--prefix', 'packages/main', 'run', 'build'],
-        cwd: '/repo',
-        shell: false,
-        timeoutMs: 60_000,
-        optional: false,
-        focus: [],
-        effectiveEnvironmentDigest: 'env:sha256:done',
-        executableDigest: 'exe:sha256:done',
-      }],
-      invocation: { full: null, focus: null, profile: 'done' },
-      verificationPolicyDigest: 'policy:sha256:done',
-      runtime: { platform: 'linux', arch: 'x64', node: 'v24' },
-    },
   });
   assert.equal(projected.descriptor.mode, 'execute-local');
   assert.equal(projected.invocation.commandSpec?.policyAuthorized, true);
@@ -429,11 +547,14 @@ function expectBlock(
   if (injected.ok) throw new Error('receipt-only command injection unexpectedly normalized');
   assert.ok(injected.reasons.includes('forbidden_execution'));
   const gate = evaluateEvidenceEnvironmentGateProjection({
-    envelope: result.envelope,
+    descriptorId: quantum.descriptor.id,
+    invocation: quantum.invocation,
+    receipt: quantum.receipt,
     artifactKind: 'done-required-evidence',
     consumer: 'DONE_REQUIRED',
     claim: 'done-readiness',
     checks: {},
+    now: new Date('2026-07-19T00:30:00.000Z'),
   });
   assert.equal(gate.decision, 'stop', 'diagnostic-only Quantum receipt cannot gain lifecycle Gate force');
   console.log('quantum read-receipt-only projection: PASS');

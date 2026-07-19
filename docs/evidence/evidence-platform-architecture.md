@@ -40,9 +40,17 @@ owners; no `.lattice/evidence` sibling store or adapter-owned Done state exists.
 Current bounded reference projections are:
 
 - code-runtime: projects existing configured DONE-required/routine-validation
-  command identity and receipts; it does not add a command launcher;
+  command identity and receipts; `evaluateDoneRequiredEvidence` revalidates the
+  registered descriptor, invocation/receipt digests, freshness, and current
+  effective-environment/executable identity before the existing DONE_REQUIRED
+  consumer can advance; it does not add a command launcher;
 - Quantum: reads only receipts already accepted by the existing Quantum
   normalizer and never runs a solver.
+
+An environment receipt may contain only an opaque producer-attestation
+reference. Verified producer lineage, key, session, and trust class come from a
+verifier-owned resolver outside the receipt. Caller-written host labels,
+identity strings, or booleans cannot create trusted or independent evidence.
 
 Lean, Rosetta, AlphaFold, PINN solvers, browsers, databases, CI, Kubernetes, and
 production deployment are integration targets, not implemented adapters.
