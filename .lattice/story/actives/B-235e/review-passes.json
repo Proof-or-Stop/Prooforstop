@@ -538,6 +538,34 @@
         "scanEscalationReason": "Metadata-only re-attestation verified unchanged storyFilesHash and scope binding, all 48 refreshed semantic evidence records, current SAFE_INCREMENTAL signed envelope, and focused full/mixed-producer regressions; no story-owned code changed, so repeating the immediately prior 20-round stress would add cost without new coverage."
       },
       "_hash": "42e9c730b667e9dfcf2590e5467b72989972d5d8422330d9245dfa5c939c4a0f"
+    },
+    {
+      "id": "B-235e:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Round 15 is metadata-only since RP-017: DONE-required, validation, delivery, live-smoke, lifecycle, process, and reviewer-receipt artifacts changed, with no source, Prompt, config, or documentation delta. RR-053 mechanically selected incremental/SAFE_INCREMENTAL from RP-017 with ELIGIBLE_NO_MATERIAL_CHANGE and trusted prior bindings. No concept, role-authority, or eligibility-policy change requires renewed full review; no blocker found.",
+      "createdAt": "2026-07-19T22:46:11.319Z",
+      "reviewRound": "2026-07-19T22:44:59.941Z",
+      "reviewRunId": "B-235e:RR-053",
+      "envelopeId": "ce81f85fbca15e87efcdff28f88e30a76afe242dba39bc6c3437e2dea7bc4ac0",
+      "writerSessionId": "sess-725b97bee152890e065410dcd644eaff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a82fe2654c542120ab0cb65da0e13024fdceb14985a0e4869083421846291f12"
     }
   ]
 }
