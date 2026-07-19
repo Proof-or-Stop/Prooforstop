@@ -32,7 +32,20 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees registry validation report \"default environment descriptor registry: PASS\" and deterministic normalized envelope digests.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/index.ts"
+        ],
+        "create": [
+          "packages/main/src/core/evidence/environment-contract.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
