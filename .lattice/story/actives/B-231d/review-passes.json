@@ -243,6 +243,30 @@
         "scanEscalationReason": null
       },
       "_hash": "c35bdec77d34bf18a2661dcba38b1e1fd3aec64ea1423055637bdd2c55862463"
+    },
+    {
+      "id": "B-231d:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-010 verified closed: validateCommandSpecDigestCoverage cross-root now reconstructs from receiptLogicalCwd, not absolute-cwd re-anchored on the verifying root. Live pre/post-fix bite test in an isolated scratch worktree confirms the new F-009/F-010 smoke checks are non-vacuous (pre-fix build fails F-009 with command-spec-digest-mismatch; post-fix build passes all 29). All 9 must verificationIntent lanes (CHK-001/002/003 x happy/edge/adversarial) covered by concrete manual_transcript evidence re-recorded at current HEAD; evidence_inspect freshness=fresh (0 stale refs). Full validate suite (46/46 commands) passed. All 10 findings F-001..F-010 resolved/verified, no open findings.",
+      "createdAt": "2026-07-19T02:18:27.796Z",
+      "reviewRound": "2026-07-19T02:06:18.939Z",
+      "reviewRunId": "B-231d:RR-017",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "380200ff26bdf8c6f3b066546e0dc7dbf807e0b4f65c6b1b1599d4e303899d05"
     }
   ]
 }
