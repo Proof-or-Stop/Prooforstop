@@ -4,11 +4,11 @@
   "title": "Route dev_finish and dev_merge through runStoryTransition and mutex same-owner transitions",
   "description": "dev_finish/dev_merge (handlers/worktree.ts:997,1061) write story.phase directly, bypassing runStoryTransition: no review round is minted, no phase_transition process-event is appended, and the event is mislabeled TEST. Same-owner concurrent transitions are also not serialized (transition-orchestrator.ts:425->660 non-atomic; ownership-gate.ts:282). Make both handlers delegate to runStoryTransition and hold a per-story transition lock across read->gate->persist.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-07-18T13:46:34.043Z",
   "startedAt": "2026-07-18T13:46:34.043Z",
-  "endedAt": null,
+  "endedAt": "2026-07-19T15:16:50.093Z",
   "events": [
     {
       "phase": "INIT",
@@ -198,12 +198,16 @@
       "user": "Harmonygo",
       "sessionId": "main-agent-s2s1-stable-f93ff408f3",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-19T15:16:50.093Z",
+      "branch": "story/B-d877",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d877",
-    "branch": "story/B-d877",
-    "createdAt": "2026-07-18T13:57:04.115Z"
-  },
   "currentReviewRound": "2026-07-19T13:18:06.329Z"
 }
