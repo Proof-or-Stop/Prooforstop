@@ -126,15 +126,15 @@
         },
         {
           "intentRef": "eligibility-freshness-reader-binding",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
-          "note": "Smoke asserts canonical metadata-only and related-story freshness classifications.",
-          "headHash": "25dd684ef5041e747663d26c1c32a954f35f7bf2",
+          "note": "CLI-shaped smoke transcript shows canonical metadata-only and related-story freshness classes, with no raw-hash reinterpretation.",
+          "headHash": "6d1862359f84ecf00580eebf4ce245a8ff674fc4",
           "materialHash": "9d0d48a24ebe4848ca4d1517ec4f3b6bddee008667ba4cf90e1060a84de1f8c8",
           "storyFilesHash": "98128442d5ab7f172d616b9bc07e785ee097c13991e735c1572fab5d29f241d2",
-          "timestamp": "2026-07-19T04:55:36.059Z"
+          "timestamp": "2026-07-19T04:55:49.161Z"
         },
         {
           "intentRef": "eligibility-forced-full-contract-policy",
@@ -174,15 +174,15 @@
         },
         {
           "intentRef": "eligibility-caller-cannot-force-incremental",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
-          "note": "Eligibility API accepts only authoritative store/git inputs and exposes no force/contextMode override.",
-          "headHash": "25dd684ef5041e747663d26c1c32a954f35f7bf2",
+          "note": "Executable advisory path exposes no caller force/contextMode input and deterministically emits authoritative full fallback for untrusted evidence.",
+          "headHash": "6d1862359f84ecf00580eebf4ce245a8ff674fc4",
           "materialHash": "9d0d48a24ebe4848ca4d1517ec4f3b6bddee008667ba4cf90e1060a84de1f8c8",
           "storyFilesHash": "98128442d5ab7f172d616b9bc07e785ee097c13991e735c1572fab5d29f241d2",
-          "timestamp": "2026-07-19T04:55:36.059Z"
+          "timestamp": "2026-07-19T04:55:49.161Z"
         },
         {
           "intentRef": "eligibility-raw-hash-forgery-rejected",
