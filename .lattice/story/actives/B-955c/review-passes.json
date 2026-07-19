@@ -434,6 +434,71 @@
       },
       "readDiagnostics": [],
       "_hash": "c13189404e5108a2ab64ed3af8a185ff9f67f60655684148328be185bddeadee"
+    },
+    {
+      "id": "B-955c:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final convergence coverage review found no blocker. Compound shell positive evidence passes the complete DONE evaluator with target executableDigest null only for a multi-command shell and a mandatory shellExecutableDigest; tampered shell identity fails closed. Windows target and actual shell dual identity remains covered, all 36 intents map one-to-one, and build, EEA, DONE-required, validation reuse, pack, Quantum, process-fact, and diff-check regressions passed.",
+      "createdAt": "2026-07-19T01:59:02.210Z",
+      "reviewRound": "2026-07-19T01:54:45.274Z",
+      "reviewRunId": "B-955c:RR-019",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/package.json",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c7b8cc2cbf05dafd7ab1003cb0f53b9c09464ff55f4ce9345a99cd0ba9769c16"
+      },
+      "readDiagnostics": [],
+      "_hash": "0324887ba48e4ab729bb0fe0b8eaeb72ec9fab392243a4db1522842cf321e352"
     }
   ]
 }
