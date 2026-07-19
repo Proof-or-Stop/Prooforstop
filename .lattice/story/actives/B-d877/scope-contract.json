@@ -14,15 +14,33 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Fix-round R1 for codex HIGH finding: the ownership-blind release() that deletes a successor's lock after stale-reclaim lives in the shared mkdir-lock primitive. Fixing it (release re-reads holder.json and rmSyncs only when the minted lockId matches) requires editing mkdir-lock.ts. Direct, minimal, in-family consequence of the transition-mutex soundness fix; back-compatible for all other callers.",
+      "timestamp": "2026-07-19T03:17:09.519Z",
+      "paths": [
+        "packages/main/src/core/mkdir-lock.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/mkdir-lock.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e715e95b17afa9b9c8d6bf21ae62551e8d816946",
+      "materialHash": "340d4635ab4fb2ff7b7a4682b0c316bd0bdb23bd1ca724866bdb33c5109d4656"
+    }
+  ],
   "createdAt": "2026-07-18T23:51:45.763Z",
-  "updatedAt": "2026-07-18T23:51:45.763Z",
+  "updatedAt": "2026-07-19T03:17:09.519Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
     "packages/main/src/handlers/worktree.ts": "packages/main/src/handlers/worktree.ts",
     "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
     "packages/main/src/core/story-transition-lock.ts": "packages/main/src/core/story-transition-lock.ts",
-    "packages/main/src/tasks/transition-integrity-smoke.ts": "packages/main/src/tasks/transition-integrity-smoke.ts"
+    "packages/main/src/tasks/transition-integrity-smoke.ts": "packages/main/src/tasks/transition-integrity-smoke.ts",
+    "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts"
   }
 }
