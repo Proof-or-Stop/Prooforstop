@@ -1,4 +1,5 @@
 import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs';
+import { hostname } from 'os';
 import { dirname, join } from 'path';
 import { randomUUID } from 'crypto';
 
@@ -110,6 +111,15 @@ export interface MkdirLockOptions {
    * default mtime stale check.
    */
   classifyExistingLock?: (snapshot: ExistingMkdirLockSnapshot) => ExistingMkdirLockState;
+  /**
+   * B-d877 R2 FIX D: require a persisted ownership token. When true, a failure to
+   * write `holder.json` at acquire FAILS the acquire (the just-created lock dir is
+   * removed and an error is thrown) instead of proceeding in the token-less
+   * back-compat mode. Callers whose `release()` MUST be ownership-checked (the
+   * per-story transition lock) set this so the lock is never in a state where a
+   * late release could unconditionally delete a successor's dir.
+   */
+  requireHolderToken?: boolean;
 }
 
 /**
@@ -237,39 +247,70 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
   }
 
   // Record holder metadata inside the freshly-acquired lock dir so a later
-  // blocked caller can describe who holds it. Best-effort: a write failure
-  // (read-only fs, etc.) must not fail the acquire — the lock is already held.
+  // blocked caller can describe who holds it.
   //
-  // B-d877 Finding 1(a): when holderInfo is provided we mint a unique per-acquire
-  // `lockId` (randomUUID) and persist it in holder.json, then capture it in the
-  // release() closure below. This makes release OWNERSHIP-CHECKED: if this holder
-  // is stale-reclaimed (dir removed by a waiter) and a NEW holder acquires, our
-  // later release() must NOT delete the successor's dir. `releaseLockId` is only
-  // set AFTER a successful holder.json write; if the write fails we leave it
-  // undefined and fall back to the back-compat unconditional removal so the lock
-  // dir can never leak.
+  // B-d877 R2 FIX D: ALWAYS mint a unique per-acquire `lockId` (randomUUID) and
+  // persist it in holder.json, then capture it in the release() closure below.
+  // This makes release OWNERSHIP-CHECKED for EVERY caller — not just holderInfo
+  // callers: if this holder is stale-reclaimed (dir removed by a waiter) and a NEW
+  // holder acquires, our later release() must NOT delete the successor's dir.
+  //
+  // Token provenance:
+  //  - holderInfo provided → merge our minted lockId into it.
+  //  - no holderInfo → write a MINIMAL but fully-valid holder.json (pid / hostname
+  //    / command / acquiredAt / lockId). It MUST carry the four descriptive fields
+  //    so readMkdirLockHolder can re-validate and return the token on release; a
+  //    token-only file would parse back as null → release would never match → leak.
+  //
+  // `releaseLockId` is only set AFTER a successful holder.json write. On write
+  // failure:
+  //  - default (fail-open) → leave it undefined and fall back to the back-compat
+  //    UNCONDITIONAL removal so the lock dir can never leak (ownership unprovable).
+  //  - requireHolderToken=true (fail-closed) → a token-less state is unacceptable,
+  //    so remove the just-created dir and FAIL the acquire.
+  const ourLockId = options.holderInfo?.lockId ?? randomUUID();
+  const holderToWrite: MkdirLockHolderInfo = options.holderInfo
+    ? { ...options.holderInfo, lockId: ourLockId }
+    : {
+        pid: process.pid,
+        hostname: hostname(),
+        command: label,
+        acquiredAt: new Date().toISOString(),
+        lockId: ourLockId,
+      };
   let releaseLockId: string | undefined;
-  if (options.holderInfo) {
-    const ourLockId = options.holderInfo.lockId ?? randomUUID();
-    const holderToWrite: MkdirLockHolderInfo = { ...options.holderInfo, lockId: ourLockId };
-    try {
-      writeFileSync(
-        join(lockDir, MKDIR_LOCK_HOLDER_FILE),
-        JSON.stringify(holderToWrite, null, 2) + '\n',
-        'utf-8',
+  try {
+    writeFileSync(
+      join(lockDir, MKDIR_LOCK_HOLDER_FILE),
+      JSON.stringify(holderToWrite, null, 2) + '\n',
+      'utf-8',
+    );
+    releaseLockId = ourLockId;
+  } catch (writeErr: any) {
+    if (options.requireHolderToken) {
+      // Fail-closed: cannot prove ownership on release, so do not proceed
+      // token-less. Remove the dir we just created so the lock does not leak,
+      // then fail the acquire.
+      try {
+        rmSync(lockDir, { recursive: true, force: true });
+      } catch {
+        /* best-effort cleanup — the throw below still surfaces the failure. */
+      }
+      throw new Error(
+        `${label} lock: failed to persist required ownership token (holder.json): ${writeErr?.message ?? writeErr}`,
       );
-      releaseLockId = ourLockId;
-    } catch {
-      /* PROBE: holder.json is descriptive metadata only — acquire still succeeded;
-         release falls back to unconditional removal (back-compat). */
     }
+    /* PROBE: holder.json is descriptive metadata only — acquire still succeeded;
+       release falls back to unconditional removal (back-compat). */
   }
 
   return {
     lockDir,
     release() {
-      // BACK-COMPAT: no holderInfo/lockId was written for this acquire (bare lock,
-      // or the holder.json write failed) — keep the original unconditional remove.
+      // BACK-COMPAT / fail-open: the holder.json write failed AND the caller did
+      // NOT require a token — keep the original unconditional remove so the lock
+      // can never leak. requireHolderToken callers never reach here token-less
+      // because a failed write threw at acquire.
       if (releaseLockId === undefined) {
         rmSync(lockDir, { recursive: true, force: true });
         return;

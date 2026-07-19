@@ -691,6 +691,24 @@ async function runStoryTransitionInner(
     if (args.phase === 'REVIEW') {
       story.currentReviewRound = now;
     }
+    // B-d877 R2 FIX A: compare-and-swap fence at the persist boundary. Re-read the
+    // story from disk RIGHT BEFORE writing the new phase/review-round (this covers
+    // BOTH the non-DONE persist and the DONE persist — they share this one
+    // writeStory). If another transition already advanced the phase away from the
+    // `oldPhase` our FSM guard validated (a stale-reclaimed lock, a cross-host
+    // reclaim, or a TOCTOU delete of the lock dir), ABORT before persisting so a
+    // double-mint (duplicate review round / duplicate phase_transition event) is
+    // impossible. The transition lock is an advisory contention fast-path; THIS
+    // CAS is the AUTHORITATIVE correctness guarantee and does not depend on the
+    // lock having held.
+    const persistedBeforeWrite = store.readStory(args.storyId);
+    if ((persistedBeforeWrite.phase as string) !== oldPhase) {
+      throw new Error(
+        `concurrent transition already advanced ${args.storyId} ` +
+        `(expected fromPhase ${oldPhase}, found ${persistedBeforeWrite.phase}); ` +
+        `aborting to prevent double-mint`,
+      );
+    }
     store.writeStory(args.storyId, story);
     const transitionGitCwd = resolveGitCwd({
       store,

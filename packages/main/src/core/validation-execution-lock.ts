@@ -1,8 +1,9 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
+import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { existsSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { hostname } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import {
   acquireMkdirLock,
   type AcquiredMkdirLock,
@@ -29,6 +30,37 @@ interface ValidationLockHeartbeatInfo {
 
 function sanitizeLockSegment(value: string): string {
   return value.replace(/[^A-Za-z0-9_.-]/g, '_').replace(/^_+|_+$/g, '') || 'unknown';
+}
+
+/**
+ * B-d877 R2 FIX B: resolve the DURABLE SHARED lock root for `root`.
+ *
+ * Runtime locks anchored here (a) survive story-worktree removal — DONE deletes
+ * the worktree, but the lock lives at the main repo root — and (b) are IDENTICAL
+ * whether resolved from a story worktree or the main checkout, so cross-worktree
+ * and cross-invocation operations for the same story contend on ONE mutex instead
+ * of one-lock-per-worktree.
+ *
+ * The parent of `git rev-parse --path-format=absolute --git-common-dir` is the
+ * main repository root and is shared by every linked worktree (this mirrors
+ * `partial-done-recovery.ts` `resolveMainRepoRoot`). FAIL-OPEN: a non-git or
+ * unreadable `root` falls back to the resolved `root` itself, byte-identical to
+ * the previous project-root anchoring for plain repos / hermetic temp fixtures.
+ */
+export function resolveSharedLockRoot(root: string): string {
+  const base = String(root ?? '').trim();
+  if (!base) return base;
+  try {
+    const commonDir = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], {
+      cwd: base,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (!commonDir) return resolve(base);
+    return resolve(dirname(commonDir));
+  } catch {
+    return resolve(base);
+  }
 }
 
 function currentContextOwns(lockKey: string): boolean {

@@ -7,6 +7,7 @@ import {
   type ExistingMkdirLockSnapshot,
   type MkdirLockOptions,
 } from './mkdir-lock.js';
+import { resolveSharedLockRoot } from './validation-execution-lock.js';
 import { LATTICE_DIR } from './lattice-paths.js';
 
 /**
@@ -77,19 +78,41 @@ function sanitizeLockSegment(value: string): string {
   return value.replace(/[^A-Za-z0-9_.-]/g, '_').replace(/^_+|_+$/g, '') || 'unknown';
 }
 
+/** Best-effort start time of THIS process (ms epoch). Mirrors validation-execution-lock. */
+function currentProcessStartTimeMs(): number {
+  return Math.floor(Date.now() - (process.uptime() * 1000));
+}
+
 /**
- * B-d877 Finding 1(b): liveness classifier for an existing transition lock.
+ * True when two process start times are "the same" within a tolerance, OR when
+ * either is unavailable (an older holder recorded none, or a live foreign pid
+ * whose start time we cannot portably read) — in which case we conservatively
+ * treat them as matching so a genuinely-live holder is never reclaimed. Mirrors
+ * validation-execution-lock's `sameProcessStart`.
+ */
+function sameProcessStart(a: number | undefined, b: number | undefined): boolean {
+  if (a === undefined || b === undefined) return true;
+  return Math.abs(a - b) <= 2000;
+}
+
+/**
+ * B-d877 Finding 1(b) + R2 FIX C: liveness classifier for an existing transition
+ * lock, hardened against PID REUSE and ambiguous errno.
  *
  * A live-but-CPU-starved holder can outlive the 120s mtime staleMs while merely
  * starved (not dead); the default mtime check would then wrongly reclaim it and
  * BOTH transitions would run (double-mint). This classifier consults the recorded
- * holder pid/hostname instead of mtime alone:
- *  - same host + pid alive (`process.kill(pid, 0)` does not throw, or throws
- *    EPERM → the process EXISTS but is not signalable by us) → `active`
- *    (NEVER reclaimed, regardless of starvation);
+ * holder pid/hostname/start-time instead of mtime alone:
+ *  - different host / no holder / unreadable pid → `unknown` (fall back to mtime);
  *  - same host + pid dead (`process.kill` throws ESRCH) → `stale` (reclaimed);
- *  - no holder / different hostname / any other errno → `unknown` (the acquire
- *    falls back to the mtime staleMs check).
+ *  - same host + `process.kill` throws an errno OTHER than ESRCH/EPERM → `unknown`
+ *    (that errno is NOT proof of liveness — defer to mtime rather than blindly
+ *    asserting `active`);
+ *  - same host + pid alive (kill ok, or EPERM = exists-but-not-signalable) AND —
+ *    when it is THIS process's pid and both start times are known — the recorded
+ *    `processStartTimeMs` matches the live start time → `active` (never reclaimed);
+ *  - same host + THIS pid alive but a DIFFERENT recorded start time → `stale`: the
+ *    pid was RECYCLED by a new incarnation, so the original holder is gone.
  */
 export function classifyTransitionLockHolder(
   snapshot: ExistingMkdirLockSnapshot,
@@ -99,18 +122,37 @@ export function classifyTransitionLockHolder(
   // locally, so defer to the mtime staleMs heuristic.
   if (!holder || holder.hostname !== hostname()) return 'unknown';
   if (!Number.isInteger(holder.pid) || holder.pid <= 0) return 'unknown';
+
+  let alive = false;
   try {
     // Signal 0 performs error checking without delivering a signal: success means
-    // the process exists and we may signal it → the holder is alive.
+    // the process exists and we may signal it → alive (pending the reuse check).
     process.kill(holder.pid, 0);
-    return 'active';
+    alive = true;
   } catch (e: any) {
     // ESRCH = no such process → the holder crashed → reclaim as stale.
     if (e && e.code === 'ESRCH') return 'stale';
-    // EPERM (and any other errno) means the process EXISTS but we may not signal
-    // it → treat as ALIVE so a live holder is never reclaimed mid-transition.
-    return 'active';
+    // EPERM = the process EXISTS but we may not signal it → alive.
+    if (e && e.code === 'EPERM') {
+      alive = true;
+    } else {
+      // Any OTHER errno is NOT proof of liveness — fall back to the mtime
+      // staleMs heuristic instead of blindly asserting `active`.
+      return 'unknown';
+    }
   }
+  if (!alive) return 'unknown';
+
+  // PID-reuse guard: only computable for THIS process's pid (we cannot portably
+  // read a foreign pid's start time). When the recorded holder is our own pid but
+  // a DIFFERENT start time, the pid was recycled → the original holder is gone.
+  if (
+    holder.pid === process.pid &&
+    !sameProcessStart(holder.processStartTimeMs, currentProcessStartTimeMs())
+  ) {
+    return 'stale';
+  }
+  return 'active';
 }
 
 export interface StoryTransitionLockOptions {
@@ -121,16 +163,38 @@ export interface StoryTransitionLockOptions {
 }
 
 /**
- * Resolve the per-story transition lock directory path under the project root's
- * gitignored `.lattice/locks/transition/`. NOT under the story metadata dir.
+ * Resolve the per-story transition lock directory path under the DURABLE SHARED
+ * root's gitignored `.lattice/locks/transition/`. NOT under the story metadata
+ * dir.
+ *
+ * B-d877 R2 FIX B: anchor at `resolveSharedLockRoot(root)` (git-common-dir based),
+ * exactly like the validation execution lock. `root` may be a story WORKTREE that
+ * DONE later removes; resolving to the shared main-repo root makes the lock (a)
+ * SURVIVE worktree removal and (b) IDENTICAL from every worktree/main root, so
+ * cross-worktree / cross-invocation transitions for the same story contend on ONE
+ * mutex. FAIL-OPEN: a non-git / unreadable root falls back to the resolved root.
  */
 export function storyTransitionLockPath(root: string, storyId: string): string {
   const projectRoot = String(root ?? '').trim();
   const id = String(storyId ?? '').trim();
   if (!projectRoot) throw new Error('storyTransitionLockPath: root is required');
   if (!id) throw new Error('storyTransitionLockPath: storyId is required');
-  return join(projectRoot, STORY_TRANSITION_LOCKS_REL, `${sanitizeLockSegment(id)}.lock`);
+  const sharedRoot = resolveSharedLockRoot(projectRoot);
+  return join(sharedRoot, STORY_TRANSITION_LOCKS_REL, `${sanitizeLockSegment(id)}.lock`);
 }
+
+/**
+ * B-d877 R2 FIX E: canonical transition-lock dirs currently held IN THIS PROCESS.
+ *
+ * The mkdir lock polls with a SYNCHRONOUS `Atomics.wait`. If a transition holds
+ * this lock across an `await` (releasing the event loop) and a SECOND same-process
+ * transition for the SAME story tries to acquire, that synchronous poll would
+ * block the event loop so the first transition can NEVER run its release → a full
+ * acquire-deadline (~180s) deadlock. A same-process re-entrant transition for one
+ * story is itself a self-deadlock bug, so `acquireStoryTransitionLock` fails FAST
+ * when the canonical lock dir is already in this set (see below).
+ */
+const heldTransitionLockDirs = new Set<string>();
 
 /**
  * Acquire the per-story transition lock. Returns an { lockDir, release } handle;
@@ -143,17 +207,50 @@ export function acquireStoryTransitionLock(
   options: StoryTransitionLockOptions = {},
 ): AcquiredMkdirLock {
   const lockDir = storyTransitionLockPath(root, storyId);
+  // B-d877 R2 FIX E: in-process fail-fast guard — never enter the blocking mkdir
+  // poll for a lock this very process already holds (that would deadlock the event
+  // loop on the synchronous `Atomics.wait`).
+  if (heldTransitionLockDirs.has(lockDir)) {
+    throw new Error(
+      `in-process concurrent transition for ${storyId} would deadlock the event loop ` +
+      `on the synchronous lock; transitions must be serialized per process`,
+    );
+  }
   const opts: MkdirLockOptions = {
     deadlineMs: options.deadlineMs ?? STORY_TRANSITION_DEADLINE_MS,
     staleMs: options.staleMs ?? STORY_TRANSITION_STALE_MS,
     label: `story transition (${storyId})`,
     classifyExistingLock: classifyTransitionLockHolder,
+    // B-d877 R2 FIX D: require a persisted ownership token so release() is ALWAYS
+    // ownership-checked (never a token-less unconditional removal that could delete
+    // a successor's lock after a stale-reclaim). The transition lock is thus never
+    // in the token-less state.
+    requireHolderToken: true,
     holderInfo: {
       pid: process.pid,
       hostname: hostname(),
       command: `story transition for ${storyId}`,
       acquiredAt: new Date().toISOString(),
+      // B-d877 R2 FIX C: record the process start time so the liveness classifier
+      // can tell a genuinely-live holder from a REUSED pid.
+      processStartTimeMs: currentProcessStartTimeMs(),
     },
   };
-  return acquireMkdirLock(lockDir, opts);
+  const inner = acquireMkdirLock(lockDir, opts);
+  // Register in-process ownership only AFTER a successful acquire, so a failed
+  // acquire (timeout / requireHolderToken failure) never leaves a phantom entry
+  // that would wrongly trip the in-process guard for the next attempt.
+  heldTransitionLockDirs.add(lockDir);
+  let released = false;
+  return {
+    lockDir: inner.lockDir,
+    release() {
+      if (released) return;
+      released = true;
+      // Clear the in-process guard FIRST so a subsequent same-process transition
+      // can acquire, then release the on-disk (ownership-checked) mkdir lock.
+      heldTransitionLockDirs.delete(lockDir);
+      inner.release();
+    },
+  };
 }

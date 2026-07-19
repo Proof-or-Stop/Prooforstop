@@ -30,15 +30,20 @@
  */
 import { execFileSync, spawn } from 'node:child_process';
 import { mkdtempSync, writeFileSync, mkdirSync, existsSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { hostname, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { StoryStore } from '../core/store.js';
 import { createWorktreeHandlers } from '../handlers/worktree.js';
 import { runStoryTransition } from '../handlers/transition-orchestrator.js';
-import { acquireStoryTransitionLock, storyTransitionLockPath } from '../core/story-transition-lock.js';
+import {
+  acquireStoryTransitionLock,
+  classifyTransitionLockHolder,
+  storyTransitionLockPath,
+} from '../core/story-transition-lock.js';
 import { acquireMkdirLock, readMkdirLockHolder } from '../core/mkdir-lock.js';
+import type { ExistingMkdirLockSnapshot } from '../core/mkdir-lock.js';
 
 const NOW = '2026-07-18T00:00:00.000Z';
 
@@ -365,36 +370,191 @@ async function main(): Promise<void> {
     check('transition lock is free after a DONE attempt (uniform acquire released it)', postDoneAcq);
   }
 
-  // ── CHK-002c: a LIVE same-host holder is NOT stale-reclaimed past staleMs ────
-  console.log('\nCHK-002c: a LIVE same-host holder is not stale-reclaimed by a waiter even past staleMs (Finding 1b)');
+  // ── CHK-002c: liveness classifier — live holder kept, dead / reused pid / other ─
+  // B-d877 R2 FIX C + FIX E: a same-process second acquire now FAILS FAST (in-process
+  // deadlock guard, exercised in CHK-002f), so the "live holder not reclaimed" and
+  // "reused pid reclaimed" behaviors are proven at the classifier level here — the
+  // exact unit a cross-process waiter consults before reclaiming.
+  console.log('\nCHK-002c: liveness classifier keeps a live holder, reclaims a dead/reused pid, defers on other host/errno (Finding 1b + FIX C)');
   {
-    const fx = makeFixture('B-tislive', 'DEV', { withWorktree: false });
-    // This process IS a live same-host holder: its holder.json records THIS pid on
-    // THIS hostname, so classifyTransitionLockHolder returns 'active'.
-    const held = acquireStoryTransitionLock(fx.root, fx.storyId, { staleMs: 100, deadlineMs: 900 });
+    const snap = (holder: Record<string, unknown> | null, ageMs = 999_999): ExistingMkdirLockSnapshot => ({
+      lockDir: '/tmp/does-not-matter.lock',
+      holder: holder as any,
+      ageMs,
+      staleMs: 100,
+      nowMs: Date.now(),
+    });
+    const start = Math.floor(Date.now() - (process.uptime() * 1000));
+
+    // Live same-host holder (THIS pid) — 'active' even with ageMs far past staleMs.
+    check('a LIVE same-host holder (this pid) classifies active regardless of mtime age',
+      classifyTransitionLockHolder(snap({
+        pid: process.pid, hostname: hostname(), command: 'story transition', acquiredAt: NOW,
+        lockId: 'x', processStartTimeMs: start,
+      })) === 'active');
+
+    // Live pid but MISMATCHED processStartTimeMs → reused pid → 'stale'/reclaimable.
+    check('a live pid with a MISMATCHED processStartTimeMs classifies stale (pid reuse)',
+      classifyTransitionLockHolder(snap({
+        pid: process.pid, hostname: hostname(), command: 'story transition', acquiredAt: NOW,
+        lockId: 'x', processStartTimeMs: start - 3_600_000,
+      })) === 'stale');
+
+    // Dead same-host pid (kill → ESRCH) → 'stale'.
+    check('a dead same-host pid classifies stale (ESRCH)',
+      classifyTransitionLockHolder(snap({
+        pid: 2_147_480_000, hostname: hostname(), command: 'story transition', acquiredAt: NOW, lockId: 'x',
+      })) === 'stale');
+
+    // Different host → 'unknown' (defer to mtime).
+    check('a different-host holder classifies unknown (defer to mtime)',
+      classifyTransitionLockHolder(snap({
+        pid: process.pid, hostname: `${hostname()}-elsewhere`, command: 'story transition', acquiredAt: NOW, lockId: 'x',
+      })) === 'unknown');
+
+    // No holder metadata → 'unknown'.
+    check('a missing holder classifies unknown (defer to mtime)', classifyTransitionLockHolder(snap(null)) === 'unknown');
+  }
+
+  // ── CHK-002c2: canonical shared lock root — worktree root === main root ──────
+  // B-d877 R2 FIX B: the lock is anchored at the git-common-dir-based shared root,
+  // so it survives DONE worktree removal and is identical from every worktree.
+  console.log('\nCHK-002c2: the transition lock path is identical from the worktree root and the main/common root (FIX B)');
+  {
+    const fx = makeFixture('B-tiscanon', 'DEV');
+    const fromMain = storyTransitionLockPath(fx.root, fx.storyId);
+    const fromWorktree = storyTransitionLockPath(fx.wtAbs, fx.storyId);
+    check('lock path resolved from the worktree root === from the main root (git-common-dir anchored)',
+      fromMain === fromWorktree, `main=${fromMain} worktree=${fromWorktree}`);
+    check('the canonical lock path lives under .lattice/locks/transition/, not any worktree/story dir',
+      fromMain.includes(`${'.lattice'}/locks/transition/`) &&
+      !fromMain.includes('/.worktrees/') && !fromMain.includes('/story/actives/'),
+      fromMain);
+  }
+
+  // ── CHK-002c3: in-process fail-fast guard (FIX E) ───────────────────────────
+  console.log('\nCHK-002c3: a second same-process acquire of the same story\'s lock fails FAST — no ~180s event-loop deadlock (FIX E)');
+  {
+    const fx = makeFixture('B-tisinproc', 'DEV', { withWorktree: false });
+    const held = acquireStoryTransitionLock(fx.root, fx.storyId);
     const t0 = Date.now();
-    let waiterThrew = false;
+    let fastErr: string | null = null;
     try {
-      // A waiter with a SHORT staleMs (100ms): the mtime-only heuristic would
-      // reclaim the holder after 100ms, but the live-pid classifier keeps it
-      // 'active', so the waiter must NEVER reclaim → it times out at the deadline.
-      const w = acquireStoryTransitionLock(fx.root, fx.storyId, { staleMs: 100, deadlineMs: 900 });
+      const w = acquireStoryTransitionLock(fx.root, fx.storyId);
       w.release();
-    } catch { waiterThrew = true; }
+    } catch (e: any) { fastErr = String(e?.message ?? e); }
     const elapsed = Date.now() - t0;
-    check('waiter polled past staleMs before giving up (proves the stale window elapsed)',
-      elapsed >= 100, `elapsed=${elapsed}ms`);
-    check('a live same-host holder is NOT stale-reclaimed → the waiter timed out (no double-acquire)',
-      waiterThrew, `elapsed=${elapsed}ms`);
+    check('second same-process acquire threw FAST (no blocking poll)', fastErr !== null && elapsed < 2000, `elapsed=${elapsed}ms`);
+    check('the in-process guard error names the deadlock hazard',
+      !!fastErr && /in-process concurrent transition/.test(fastErr), fastErr ?? 'no throw');
     held.release();
-    // With the live holder gone, a fresh acquire succeeds promptly.
+    // After release the in-process guard is cleared → re-acquire succeeds.
     let reacq = false;
     try {
       const l = acquireStoryTransitionLock(fx.root, fx.storyId, { deadlineMs: 1500, staleMs: 100000 });
       l.release();
       reacq = true;
     } catch { reacq = false; }
-    check('after the live holder releases, the lock is acquirable again', reacq);
+    check('after the holder releases, the same-process guard is cleared (re-acquirable)', reacq);
+  }
+
+  // ── CHK-002c4: CAS-at-persist is the correctness fence, not the lock (FIX A) ─
+  // Prove that even with the lock NOT serializing anything, a transition whose
+  // pre-persist re-read observes an already-advanced phase ABORTS instead of
+  // double-minting. A probe run discovers the exact CAS re-read index so every
+  // gate/guard read still sees the true DEV pre-state.
+  console.log('\nCHK-002c4: CAS-at-persist aborts a stale second persist even with the lock bypassed (FIX A — correctness fence)');
+  {
+    // Probe: a normal DEV→REVIEW commit on an identical fixture; capture the index
+    // of the readStory(storyId) immediately before the FIRST writeStory(storyId).
+    const probe = makeFixture('B-tiscasp', 'DEV', { withWorktree: false });
+    let probeReads = 0;
+    let casReadIndex = -1;
+    const probeStore = new Proxy(probe.store, {
+      get(target, prop) {
+        if (prop === 'readStory') {
+          return (id: string) => {
+            if (id === probe.storyId) probeReads += 1;
+            return (target as any).readStory(id);
+          };
+        }
+        if (prop === 'writeStory') {
+          return (id: string, data: unknown) => {
+            if (id === probe.storyId && casReadIndex === -1) casReadIndex = probeReads;
+            return (target as any).writeStory(id, data);
+          };
+        }
+        const v = Reflect.get(target as any, prop, target);
+        return typeof v === 'function' ? v.bind(target) : v;
+      },
+    }) as unknown as StoryStore;
+    await runStoryTransition({ store: probeStore, root: probe.root, scanRoot: probe.root } as any,
+      { storyId: probe.storyId, phase: 'REVIEW' as any });
+    check('probe transition committed REVIEW (the winner persists)',
+      probe.store.readStory(probe.storyId).phase === 'REVIEW');
+    check('probe discovered the pre-persist CAS re-read index', casReadIndex > 0, `casReadIndex=${casReadIndex}`);
+
+    // Victim: identical fresh fixture at DEV. Inject the "concurrent winner already
+    // advanced" ONLY at the CAS re-read (index === casReadIndex): the initial read
+    // and all gate/guard reads see DEV (so the FSM guard passes), but the pre-persist
+    // re-read observes REVIEW. The transition lock is acquired yet serializes nothing
+    // here (single transition), so the CAS ALONE — not the lock, not the guard —
+    // rejects the stale persist.
+    const victim = makeFixture('B-tiscasv', 'DEV', { withWorktree: false });
+    let victimReads = 0;
+    const victimStore = new Proxy(victim.store, {
+      get(target, prop) {
+        if (prop === 'readStory') {
+          return (id: string) => {
+            const s = (target as any).readStory(id);
+            if (id === victim.storyId) {
+              victimReads += 1;
+              if (victimReads === casReadIndex) return { ...s, phase: 'REVIEW' };
+            }
+            return s;
+          };
+        }
+        const v = Reflect.get(target as any, prop, target);
+        return typeof v === 'function' ? v.bind(target) : v;
+      },
+    }) as unknown as StoryStore;
+    let casErr: string | null = null;
+    try {
+      await runStoryTransition({ store: victimStore, root: victim.root, scanRoot: victim.root } as any,
+        { storyId: victim.storyId, phase: 'REVIEW' as any });
+    } catch (e: any) { casErr = String(e?.message ?? e); }
+    check('victim transition threw the CAS abort (not a lock/guard error)',
+      !!casErr && /concurrent transition already advanced/.test(casErr), casErr ?? 'no throw');
+    const afterVictim = victim.store.readStory(victim.storyId);
+    check('victim did NOT persist — exactly one of the two transitions committed', afterVictim.phase === 'DEV', `phase=${afterVictim.phase}`);
+    const victimPt = phaseTransitionEvents(victim.store, victim.storyId);
+    check('victim appended no phase_transition (no double-mint)', victimPt.length === 0, `count=${victimPt.length}`);
+  }
+
+  // ── CHK-002c5: universal ownership-checked release for a NO-holderInfo caller ─
+  console.log('\nCHK-002c5: a caller passing NO holderInfo still gets a lockId + ownership-checked release (FIX D — universal release)');
+  {
+    const fx = makeFixture('B-tisnoinfo', 'DEV', { withWorktree: false });
+    const lockDir = join(fx.root, '.lattice', 'locks', 'transition', 'noinfo.lock');
+
+    // Acquire with NO holderInfo — pre-fix this wrote no holder.json and released
+    // unconditionally; post-fix it mints a lockId and writes a minimal holder.json.
+    const a = acquireMkdirLock(lockDir, {});
+    const holderA = readMkdirLockHolder(lockDir);
+    check('no-holderInfo acquire still minted a lockId in holder.json', !!holderA?.lockId, JSON.stringify(holderA));
+
+    // Simulate a stale-reclaim + successor: remove A's dir, B acquires (still no holderInfo).
+    rmSync(lockDir, { recursive: true, force: true });
+    const b = acquireMkdirLock(lockDir, {});
+    const holderB = readMkdirLockHolder(lockDir);
+    check('successor B (no holderInfo) minted a DIFFERENT lockId',
+      !!holderB?.lockId && holderB!.lockId !== holderA!.lockId, JSON.stringify(holderB));
+
+    // A (unaware it was reclaimed) releases — ownership-checked → must be a NO-OP.
+    a.release();
+    check("no-holderInfo holder A's release did NOT delete the successor's lock", existsSync(lockDir));
+    b.release();
+    check('successor B released its own lock after the ownership-checked no-op', !existsSync(lockDir));
   }
 
   // ── CHK-002d: ownership-checked release never deletes a successor's lock ─────
