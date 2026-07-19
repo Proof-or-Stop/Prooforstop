@@ -81,7 +81,7 @@
       "desc": "packages/main/src/core/impact-classification-policy.ts:75-87 — MEDIUM: the pure-fixture branch runs before status rejection and ignores changedFileStatus, so a declared fixture with status D/R/C is emitted as ELIGIBLE_PURE_STORY_FIXTURE. Reproduction against dist with changedFileStatus={tests/case.fixture.json:D} returned eligible=true. This contradicts the registry/verification intent that rename and deletion must fail closed; current rename smoke covers only a non-declared src path.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T05:32:10.182Z",
@@ -89,7 +89,11 @@
       "reviewRunId": "B-03ac:RR-002",
       "_hash": "340c530ae7a3d833d1f7ce2d644305f57e81288f4e01522332ff4c2f2c3098bf",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 5f7ec42a83: declared fixture delete, rename and copy statuses are rejected before eligibility, with D/R/C and parse-unavailable policy regressions passing.",
+      "resolvedAt": "2026-07-19T06:15:50.978Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-03ac:F-006",
