@@ -272,6 +272,28 @@
         "scanEscalationReason": null
       },
       "_hash": "ca47cb70b9d321c3f8c0a34e99ec52e6d04173cb9fdbe170463354c90a017db5"
+    },
+    {
+      "id": "B-6ed2:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-6 two-file fingerprint-sync coverage PASS. Parsed the prior formal validate receipt: exactly 46 configured commands, 45 PASS and sole FAIL command[2] retired-authority-vocabulary-guard; failure text reports the registered cli-engine dynamic-loader positive control rejected only because actual canonical AST fingerprint was 48ca6562... while the allow pin was old. Commit 38952190ab changes exactly two lines in two guard/projection files, replacing the same old 64-hex pin with 48ca6562...; no assertion, scan path, positive/negative control, count, or behavior was removed. Focused retired-authority vocabulary guard now PASS (builds=743, cacheHits=2, fullAnalysis=1185, astCandidates=458, reachability=34). Process-fact contract PASS. Milestone freshness is separate and currently blocked because storyFilesHash moved e76dbc98 -> ebc74cf8 after the pin files entered story-owned material; main flow must refresh/re-run verification evidence before closeout, but this is not a coverage defect in the two-line guard repair.",
+      "createdAt": "2026-07-19T00:42:23.159Z",
+      "reviewRound": "2026-07-19T00:37:23.078Z",
+      "reviewRunId": "B-6ed2:RR-019",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli-engine.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c912cc7b948cd34afbac8de7c5ebf3180625ea396816a4368f6d175c2ad954d3"
     }
   ]
 }
