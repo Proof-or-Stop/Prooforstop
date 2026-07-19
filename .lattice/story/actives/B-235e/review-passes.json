@@ -787,6 +787,34 @@
         "scanEscalationReason": "First bounded same-round convergence re-attestation verified a new signed eligibility/envelope binding, unchanged storyFilesHash/scope, all 48 semantic evidence records, and current validation PASS. No story-owned code changed."
       },
       "_hash": "4bd589cd5abbe706531d01011e87171c80dc293845f205c2df49729cb46b38db"
+    },
+    {
+      "id": "B-235e:RP-033",
+      "agent": "lattice-review-concept",
+      "note": "Round 17 second same-round convergence re-attestation. Since RP-029 only process-event and other reviewer-pass metadata changed. RR-064 independently recomputed current Prompt Envelope eligibility from RP-029 and selected incremental/SAFE_INCREMENTAL with ELIGIBLE_NO_MATERIAL_CHANGE and ELIGIBLE_TRUSTED_PRIOR_BINDINGS. Same review round, current HEAD, unchanged material/source/prompt/config/docs/contracts; no concept or authority blocker found.",
+      "createdAt": "2026-07-19T23:01:31.551Z",
+      "reviewRound": "2026-07-19T22:57:57.775Z",
+      "reviewRunId": "B-235e:RR-064",
+      "envelopeId": "a0b7ac606de12934293f949d577147a1967b30084a3cb25a3e094e23e2a91883",
+      "writerSessionId": "sess-725b97bee152890e065410dcd644eaff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "48e4982632a898516462282acc318c432e2c8de551c0a2b8108535f01b5c9b6f"
     }
   ]
 }
