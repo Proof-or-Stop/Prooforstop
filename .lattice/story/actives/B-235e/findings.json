@@ -76,7 +76,7 @@
       "desc": "CHK-004 edge intent mixed-role-rollback-gate-equivalence is still not exercised at the gate boundary. prompt-registry-smoke iterates all 32 mode maps but only asserts resolvePromptEnvelopeRolloutMode returns the requested body mode; it never starts mixed legacy/modular ReviewRuns or submits their passes/findings to admission, collector, assurance-floor, receipt, quorum, delivery, or DONE consumers. The new five-role concurrent test uses all five roles in full-envelope mode only. A regression that rejects legacy-mode evidence or changes gate behavior under one mixed mask would still pass every cited assertion, so the verificationEvidence note that all mixed states preserve gate semantics is not substantiated.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T08:41:15.432Z",
@@ -89,7 +89,11 @@
         "packages/main/src/tasks/quorum-submit-smoke.ts"
       ],
       "signatureTag": "missing|ts|edge-intent-mixed",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7644eaacc5. review-incremental-context-smoke passed real masks 31, 10, and 21 through dispatch, ReviewRun admission, legacy/full envelope distinction, concurrent pass/finding collection, collector uniqueness, and canPassReviewGuard; quorum-submit-smoke passed mixed collector to REVIEW gate to quorum admission (43 checks).",
+      "resolvedAt": "2026-07-19T09:11:46.482Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-005",
