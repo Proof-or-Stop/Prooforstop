@@ -317,6 +317,43 @@
         "scanEscalationReason": null
       },
       "_hash": "d9e94b9a24a7362e7467dfe3b57efdce565d9c3868ce7e98a8904e628b0b150e"
+    },
+    {
+      "id": "B-8d4b:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 quality recheck confirms F-026 metadata now matches the exact 49-check fail-closed transcript, no experiments/docs/packages/scripts business files changed since the prior pass, and current story/scope hashes remain unchanged from the clean implementation round.",
+      "createdAt": "2026-07-19T03:55:05.696Z",
+      "reviewRound": "2026-07-19T03:53:52.508Z",
+      "reviewRunId": "B-8d4b:RR-026",
+      "writerSessionId": "sess-f7a2a0f533e1e60cdc80160470ffbf35",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/scope-check.json",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-experiment-protocol.md",
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cbabcba82fea72199ab1aefd9cfa1a392890740125ca7e348ba9904fb36015fb"
     }
   ]
 }
