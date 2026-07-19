@@ -97,6 +97,35 @@
         "scanEscalationReason": null
       },
       "_hash": "4892fde2b1285280cd957fe6274c99802748d9d023c7dab2d028ca12490dfd5c"
+    },
+    {
+      "id": "B-d877:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "R6 verification: F-013 doc-consistency fix confirmed. transition-orchestrator.ts:752-757 now reads (verified in file) that the atomic persist claim prevents double-mint under the practical threat model, and explicitly cross-refs the KNOWN LIMITATION note immediately below (OS-freeze residual) — no more contradiction with the unqualified impossible claim. Grepped repo for the old unqualified phrase; only remaining hit is the historical F-013 finding description text in findings.json (audit trail, not residue). Residue sweep of mkdir-lock.ts release() rewrite (atomic renameSync isolation, match/mismatch restore branches, ownedAuxFiles removal before non-recursive dir remove) and validation-execution-lock.ts ownedAuxFiles threading (heartbeat.json): comments internally consistent, no dangling references to prior read-then-remove approach, no duplicate old heartbeat-cleanup logic. Checked other acquireMkdirLock call sites (story-transition-lock.ts, main-write-lock.ts, transition-orchestrator.ts persist claim) — none write aux files inside their lock dirs so ownedAuxFiles omission there is correct. Rebuilt (tsc) and ran transition-integrity-smoke.js (CHK-002d/d2/d3 all green) and validate-progress-heartbeat-smoke.js (green) to confirm claims. No blocker.",
+      "createdAt": "2026-07-19T11:35:23.481Z",
+      "reviewRound": "2026-07-19T11:29:20.310Z",
+      "reviewRunId": "B-d877:RR-016",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/findings.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/tasks/mkdir-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "54109843bf5ac39ebf945ba70a11ecb39ae0acd8ee3d83e78c45b533e07cbaba"
     }
   ]
 }
