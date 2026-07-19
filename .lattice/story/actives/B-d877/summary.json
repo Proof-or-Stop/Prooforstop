@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d877",
+  "changes": "packages/main/src/handlers/worktree.ts: dev_finish/dev_merge now delegate to runStoryTransition (raw-actor phase writes removed; messages corrected). packages/main/src/handlers/transition-orchestrator.ts: uniform per-story transition lock for ALL phases + ATOMIC mkdir persist-claim across the synchronous re-read->write (the authoritative double-mint fence; IDEA->PLAN checklist write moved inside it). packages/main/src/core/story-transition-lock.ts (new): advisory git-common-dir-anchored transition lock with liveness classifier and in-process fail-fast guard. packages/main/src/core/mkdir-lock.ts: universal ownership-checked release via atomic rename-verify-restore + ownedAuxFiles cleanup + requireHolderToken fail-closed. Per-story runtime locks (checklist/finding/review-run/init-check/prompt-envelopes/process-events) relocated from committed story metadata to gitignored .lattice/locks/. hints.ts + dev_start/dev_merge texts corrected. transition-integrity-smoke.ts: 79 checks incl. real two-process races.",
+  "usage": "Normal lifecycle: lattice story_advance --storyId=B-x --phase=REVIEW (or the dormant dev_finish/dev_merge handlers) — transitions now mint exactly one review round and one phase_transition event even under same-owner concurrency; concurrent attempt aborts with 'concurrent transition already advancing/advanced'. Verify with: node packages/main/dist/tasks/transition-integrity-smoke.js",
+  "expectedOutcome": "dev_finish/dev_merge route through the canonical runStoryTransition orchestrator (review round minted, phase_transition event carries the real target, no TEST mislabel), and two concurrent same-owner transitions from the same phase produce exactly one committed transition with the loser aborting cleanly.",
+  "actualTranscript": "transition-integrity smoke: 79/79 checks deterministic (5x) - dev_finish lands REVIEW with a minted review round and correct phase_transition event; dev_merge delegates TEST->DONE; two REAL concurrent processes racing DEV->REVIEW with the advisory lock BYPASSED yield exactly one commit (atomic mkdir persist-claim aborts the loser). heartbeat + quorum smokes green; RED harness GREEN; lattice validate PASS 6/6 must intents. 7 cross-host review rounds converged: R7 all 4 lanes PASS (genuine codex host-B + 3 claude lanes), quorum full-3x2.",
+  "outcomeDiff": "No difference — expected and actual match on every assertion; the sole scoped-out residual is documented, not observed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The atomic persist-claim uses a time-based stale reclaim (staleMs=15000), so it is not an absolute mutex against a holder OS-frozen (SIGSTOP-class) longer than staleMs mid-persist; mitigated by the fully-synchronous persist section and documented in-code as KNOWN LIMITATION. A doubly-degenerate concurrent-release race can leave a bounded self-healing lock-dir leak (collected by stale reclaim; smoke CHK-002d4 proves boundedness). Full fencing-token hardening (monotonic generation checked at commit + crash->explicit recovery) is deliberately deferred to a tracked follow-up story.",
+  "pitfalls": "7 cross-host review rounds were needed: the mutex went through three architectures (held mkdir lock -> read-then-write CAS -> atomic mkdir persist-claim) because a filesystem advisory lock alone cannot be a correctness fence — genuine codex host-B and the quality lane repeatedly REPRODUCED double-mints the other lanes missed. Universal lockId tokens initially dirtied git-tracked story dirs (holder.json committed mid-hold broke quorum-submit-smoke clean-tree; fix = relocate locks to .lattice/locks/ + gitignore **/*.lock/). Non-recursive release initially leaked dirs containing heartbeat.json (ownedAuxFiles fix). scope_contract_acknowledge --paths=a,b,c stores ONE comma-joined string — ack files individually. summary_set requires changes/usage/limitations/pitfalls too, JSON form works.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 635528
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 139697
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 42006276
+    },
+    "DEV": {
+      "count": 7,
+      "durationMs": 14284349
+    },
+    "REVIEW": {
+      "count": 7,
+      "durationMs": 24396510
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 80502
+    }
+  },
+  "totalDurationMs": 81543645,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-19T12:25:37.689Z",
+  "updatedAt": "2026-07-19T12:25:37.689Z"
+}
