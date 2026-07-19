@@ -1,0 +1,45 @@
+{
+  "passes": [
+    {
+      "id": "B-235e:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Fresh third-round docs review passed. The large-diff incremental-context smoke verifies review metadata no longer changes the material diff scope. The execution plan now truthfully distinguishes physical full-asset bootstrap files from the single selected package role body, and defines exact legacy preservation as the selected legacy role body rather than total model input. Baseline verifier, process-fact contract verifier, and replay selfcheck all pass; all five replay roles remain explicitly INCONCLUSIVE with provider usage dimensions unavailable, so no unsupported budget or quality claim is made. No documentation blocker found.",
+      "createdAt": "2026-07-19T09:15:28.746Z",
+      "reviewRound": "2026-07-19T09:11:23.938Z",
+      "reviewRunId": "B-235e:RR-015",
+      "envelopeId": "106106740ff3a939a8dfc5b3d950eda85e637d1753ef8e8b18f049b1ab3977d9",
+      "writerSessionId": "sess-476100f59d979f9fd34feeeb69b7f272",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-behavior.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6011e50330740a0bdd8ca85679f28566d03d33c275bdef7f28fd73e36a1cb50b"
+    }
+  ]
+}
