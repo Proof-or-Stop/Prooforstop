@@ -367,6 +367,46 @@
         "scanEscalationReason": null
       },
       "_hash": "cec52c882e1faeceec845d3c210fdcd316959b6b1ecde9f0cb9bc6f6f9c69571"
+    },
+    {
+      "id": "B-235e:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Fresh docs review after main-merge eligibility rebind passed. The prompt smoke fixture now supplies canonical runtimeLockDirPath via storyRuntimeLockPath, so Story-aware full-envelope coverage exercises the current authoritative runtime lock API without changing eligibility policy. Existing docs and process facts remain accurate: unsafe or main-related drift selects full context, only mechanically eligible bounded deltas select incremental context, and lock artifacts remain runtime metadata rather than model-input task semantics. Build, full-context Prompt Envelope smoke, actual mixed-writer ABA smoke, process-fact verifier, and 16-role proof-or-stop prompt baseline all passed. No documentation change is justified for this fixture-only correction.",
+      "createdAt": "2026-07-19T21:39:07.642Z",
+      "reviewRound": "2026-07-19T21:34:56.422Z",
+      "reviewRunId": "B-235e:RR-047",
+      "envelopeId": "1aede4d7824e36c1097b178b3b0b18a5a1ae9039f97770fb3e995284624f8daa",
+      "writerSessionId": "sess-476100f59d979f9fd34feeeb69b7f272",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "24b733efe94daedf3f0cf6092e0e67384ef9e3b0b84344ba646eb9e34d607fcb"
+      },
+      "readDiagnostics": [],
+      "_hash": "6d1710ae8becdfe42065d3818fc09e86be0c3b3678fa45a06a3325a861140584"
     }
   ]
 }
