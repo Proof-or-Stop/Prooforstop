@@ -288,9 +288,9 @@
         "docs/requirements/decisions/review-run-binding-race.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T07:32:27.466Z",
-      "endTime": "2026-07-19T09:10:30.089Z",
+      "endTime": "2026-07-19T09:45:06.184Z",
       "verificationIntent": {
         "happy": [
           {
@@ -406,11 +406,11 @@
           "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
-          "note": "Real five-role mask 31 dispatch and signed ReviewRun flow passed: each active lane minted a current full-envelope run, then concurrent pass/finding collection preserved unique valid gate evidence.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:30.245Z"
+          "note": "Real five-role mask 31 dispatch and signed ReviewRun flow passed with each active lane minting a current full-envelope run and concurrent collection preserving unique gate evidence.",
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:06.597Z"
         },
         {
           "intentRef": "eligible-role-incremental-envelope",
@@ -419,10 +419,10 @@
           "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
           "result": "pass",
           "note": "Five-role full/incremental assembler matrix passed mechanically eligible bounded delta assembly and exact reviewBasis, freshness, role, and digest binding.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:30.391Z"
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:06.987Z"
         },
         {
           "intentRef": "drift-selects-full-per-role",
@@ -431,10 +431,10 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Drift matrix passed deterministic full selection and stable reason codes for unsafe categories and stale evidence.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:30.545Z"
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:07.353Z"
         },
         {
           "intentRef": "incremental-read-through-and-escalation",
@@ -443,10 +443,10 @@
           "command": "node packages/main/dist/tasks/review-run-smoke.js",
           "result": "pass",
           "note": "Review-run smoke transcript exposes selected rollout/body/context/reason/budget and verifies explicit reviewer-requested-full creates a distinct trusted selection.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:30.708Z"
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:07.733Z"
         },
         {
           "intentRef": "prior-pass-lane-signature-freshness",
@@ -455,10 +455,10 @@
           "command": "node packages/main/dist/tasks/review-run-smoke.js",
           "result": "pass",
           "note": "Review-run baseline checks passed same-lane signed current-round and freshness requirements while respecting binding-race PASS semantics.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:30.881Z"
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:08.077Z"
         },
         {
           "intentRef": "semantic-render-vs-metadata-drift",
@@ -467,10 +467,10 @@
           "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
           "result": "pass",
           "note": "Envelope smoke passed semantic/render digest invalidation and integrity reconstruction against the selected mode-aware role body.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:31.111Z"
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:08.394Z"
         },
         {
           "intentRef": "correctness-before-budget-selection",
@@ -479,10 +479,10 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Safety-before-cost, FULL_CHEAPER_OR_EQUAL, incremental oversize, and full budget-violation separation checks passed.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:31.310Z"
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:08.737Z"
         },
         {
           "intentRef": "legacy-pass-never-upgraded",
@@ -491,10 +491,10 @@
           "command": "node packages/main/dist/tasks/review-run-smoke.js",
           "result": "pass",
           "note": "Legacy envelope-less pass remains legacy-full-context and is not upgraded into an incremental baseline.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:31.468Z"
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:09.055Z"
         },
         {
           "intentRef": "caller-cannot-force-role-incremental",
@@ -503,10 +503,10 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Caller-controlled force/context fields remain unavailable and unsafe inputs mechanically select full.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:31.626Z"
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:09.433Z"
         },
         {
           "intentRef": "envelope-signature-digest-tamper-rejected",
@@ -515,10 +515,10 @@
           "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
           "result": "pass",
           "note": "Prompt Envelope body, contract, context, run, hash, and signature tamper cases are rejected by integrity consumers.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:31.782Z"
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:09.788Z"
         },
         {
           "intentRef": "mixed-mode-role-substitution-rejected",
@@ -527,10 +527,10 @@
           "command": "node packages/main/dist/tasks/review-run-smoke.js",
           "result": "pass",
           "note": "Mode-aware role-body identity prevents modular/legacy and cross-role substitution in start and gate reconstruction.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:31.940Z"
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:10.110Z"
         },
         {
           "intentRef": "concurrent-run-snapshot-race-fails-closed",
@@ -539,10 +539,10 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Eight concurrent real CLI calls passed read-only neutrality and snapshot-safe deterministic selection without hybrid evidence.",
-          "headHash": "b24c8d428469e1601f8423fb31a09ee11f0b587f",
-          "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
-          "storyFilesHash": "abd57933ceac4013d6c240c2e17fc7c8fc36ca297977e20f77fa05c79a3f4f9e",
-          "timestamp": "2026-07-19T09:10:32.100Z"
+          "headHash": "509525479e8f84d95a78c2f580fd4abb923b2120",
+          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
+          "timestamp": "2026-07-19T09:45:10.444Z"
         }
       ]
     },
