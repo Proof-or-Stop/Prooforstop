@@ -59,7 +59,20 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"code-runtime execute-local: PASS\" and \"quantum read-receipt-only: PASS\" without any new arbitrary command endpoint.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
+          "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
