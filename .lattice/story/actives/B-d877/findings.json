@@ -272,6 +272,21 @@
       "_hash": "5acb33cb7f21602f0b2496d92ee947abac07c7e00e4413a79297b28174954503",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d877:F-015",
+      "desc": "packages/main/src/tasks/transition-integrity-smoke.ts:253 (APPEND_HELPERS = new Set([\"appendRawProcessEventBytes\",\"appendProcessEventRecord\"])) omits the third exported free function from core/process-events.ts, `appendProcessEvent` (process-events.ts:64-70, also exported with a now-mandatory lockDir param). The CHK-002c8 AST regression guard (appendHelperMissingRelocatedLock, same file :263-293) only walks CallExpressions whose callee identifier is in APPEND_HELPERS, so a future production file that imports and calls the bare `appendProcessEvent` directly (not via StoryStore.appendProcessEvent, which already threads runtimeLockDirPath correctly) would NOT be flagged by CHK-002c8 even if it passes a hardcoded/non-relocated lockDir string -- the guard's own referencesRelocatedResolver check would never run for that call site. TypeScript's now-mandatory 3rd parameter still prevents an outright missing argument, but not a wrong-but-present one, which is exactly the class of regression CHK-002c8 (\"codex #3 regression guard\") and the commit message (\"process-events lockDir is now MANDATORY so no writer regresses\") claim is covered. No current call site is affected (grepped: only process-events.ts internal forwarding and store.ts's aliased-import call site exist today), so this is not a live bug, but it is a real completeness gap in a guard whose stated purpose is exhaustive writer coverage. Fix: add 'appendProcessEvent' to APPEND_HELPERS.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T10:50:28.532Z",
+      "reviewRound": "2026-07-19T10:21:15.535Z",
+      "reviewRunId": "B-d877:RR-014",
+      "_hash": "5c7a64ef69bef80b417dc0fbf1b29eee8be47ad12ac1d8dbe1448f8c4b80c87b",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
