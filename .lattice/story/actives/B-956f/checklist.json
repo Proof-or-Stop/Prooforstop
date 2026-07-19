@@ -110,7 +110,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A no-scope-contract story with exactly one material .go file surfaces exactly one deduped semantic_analysis_unavailable process event during validate (the no-contract early-return path scope-contract.ts:459-466 no longer bypasses diagnostics).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildScopeDiffPack produces normalized `semantic_analysis_unavailable: <ext>` entries: multiple non-TS files of the same extension dedupe to one entry per extension; TS/JS files produce none (semantic anchors stay TS/JS-only, no new parsers).",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Diagnostic production and event emission stay separated: buildScopeDiffPack (pure) only returns diagnostics and a read-only gate check emits no process event — only the mutating validation caller writes the deduped union-typed event, so repeated read-only checks cannot spam or suppress degradation events.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
