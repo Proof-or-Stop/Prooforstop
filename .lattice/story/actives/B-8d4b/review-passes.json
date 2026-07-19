@@ -31,6 +31,39 @@
         "scanEscalationReason": null
       },
       "_hash": "6e41f6fe7afb5bc59fada470e2c2f90f74bb00b155bf2d3703dbf47a6451f019"
+    },
+    {
+      "id": "B-8d4b:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Fifth-round concept review PASS: a4b3a20ce6 now recursively snapshots the entire isolated sandbox .lattice tree, including directory membership, raw file bytes and symlink targets; sibling-Story pass and separate usage-artifact mutation bites both change the same detector. The copied replay/ledger/analyze entrypoints leave the full production-evidence tree byte-identical. Canonical prompt cost and finding recall remain INCONCLUSIVE, provider/dispatch/cache dimensions remain unavailable rather than zero, and hermetic fixtures remain explicitly non-historical. F-022 through F-025 resolutions match the implementation and 49-check selfcheck exits zero.",
+      "createdAt": "2026-07-19T03:10:28.594Z",
+      "reviewRound": "2026-07-19T03:09:14.657Z",
+      "reviewRunId": "B-8d4b:RR-020",
+      "writerSessionId": "sess-582f49a50504746237e21d3db45549a4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "012659edaa6bea8e1230ad3fb183d59a0e723d4df3f3da85286038ba0aa78281"
     }
   ]
 }
