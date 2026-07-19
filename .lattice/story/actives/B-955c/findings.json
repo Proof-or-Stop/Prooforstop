@@ -284,6 +284,21 @@
       "resolvedAt": "2026-07-19T01:43:09.097Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-955c:F-016",
+      "desc": "packages/main/src/core/evidence/environment-contract.ts:641-656 and packages/main/src/core/validation-evidence-reuse.ts:128-149 [high] Final integration breaks existing policy-authorized compound shell commands. resolveDoneRequiredPolicy intentionally parses a string containing shell metacharacters (for example `node -e \"process.exit(0)\" && node -e \"process.exit(0)\"`) as one shell:true command. buildRoutineValidationIdentity then tries to resolve the entire compound command as a target executable, yielding executableDigest:null while correctly hashing /bin/sh. projectDoneRequiredReceiptToEnvironment unconditionally requires a non-empty target executableDigest, so a PASS receipt from this supported policy throws command_spec_mismatch and the production DONE_REQUIRED Gate can never pass. Repro against 9576d35896 produced shell=true, a valid shellExecutableDigest, executableDigest:null, then `executor-owned effective environment and executable identities are required`. WHY: the EEA lifecycle integration must not make an existing valid DONE policy permanently uncompletable. Either reject compound-shell policies at configuration time with an explicit unsupported error, or define a shell-command identity that binds the exact command text/CommandSpec plus shell executable without pretending there is one target executable; add a full evaluator regression for the chosen contract.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T01:45:20.141Z",
+      "reviewRound": "2026-07-19T01:42:44.743Z",
+      "reviewRunId": "B-955c:RR-015",
+      "_hash": "a5dd90f8d5eadd2de026878b2f061da8b6dc5a43474ea56f592033a69f8bb9d2",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
