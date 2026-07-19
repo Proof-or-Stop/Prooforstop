@@ -401,6 +401,45 @@
       },
       "readDiagnostics": [],
       "_hash": "3bdb42eb70ca40de54690680f19598fb0a54926f6fb4bb875911ede70a28d4d8"
+    },
+    {
+      "id": "B-6ed2:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Incremental round-8 docs re-attestation from RP-015: inspected exactly the 7 files reported by review_incremental_context. They originate from main commits 23600eb563, d438938382, and 9031dc0a3c and contain only Apache-2.0/CITATION public-release metadata, README/NAV updates, and unrelated decision-plan prose. No B-6ed2 quorum_submit behavior, atomic six-row persistence contract, tests, summary, transcript, delivery evidence, or product promise changed; prior closeout receipts remain applicable. No docs blocker.",
+      "createdAt": "2026-07-19T01:20:22.590Z",
+      "reviewRound": "2026-07-19T01:18:54.867Z",
+      "reviewRunId": "B-6ed2:RR-026",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "CITATION.cff",
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "LICENSE",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "3f3dd9968f42de149e15e5bcc1997decd68b7e2adac3518ad9e1d1c452de1e82"
+      },
+      "readDiagnostics": [],
+      "_hash": "803c271d53a5e32b318663f2ab2188d8e8e78329cb17050e76b51e5e6c0e2ce4"
     }
   ]
 }
