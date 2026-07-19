@@ -518,6 +518,26 @@
         "scanEscalationReason": null
       },
       "_hash": "a63ebe03578a7219dec9ca9e66aa46ba30ac790cf0a6348c1b6f8b20a06a6d3f"
+    },
+    {
+      "id": "B-235e:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 14 bounded metadata-refresh coverage PASS: story-owned material is unchanged from round 13 (storyFilesHash 645080887673ae8bfef02e5dde7704eceb40b9a0d87e52802ac616849e5e6c51 and scope binding unchanged), so the prior full 20/20 stress result remains applicable without an unnecessary rerun; current mapping is 48 intents to 48 refreshed concrete passing evidence with zero missing, duplicates, failures, waivers, or orphans; current signed ReviewRun selected SAFE_INCREMENTAL (6505 vs 31563 bytes); prompt full-context smoke and actual mixed CLI producer ABA/gate verification both passed. The prior validate FAIL recorded missing coverage before refresh; owner must rerun validate in TEST, and this lane pass does not claim validation or full quorum completion.",
+      "createdAt": "2026-07-19T22:24:57.789Z",
+      "reviewRound": "2026-07-19T22:22:54.891Z",
+      "reviewRunId": "B-235e:RR-050",
+      "envelopeId": "c8fbb05fa3eefcb1c394c80382807987c8702b8c307db5fb6c6e2f9dfbc59970",
+      "writerSessionId": "sess-78c1fcc0db71cb224b0d05382e8243ea",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": "Metadata-only re-attestation verified unchanged storyFilesHash and scope binding, all 48 refreshed semantic evidence records, current SAFE_INCREMENTAL signed envelope, and focused full/mixed-producer regressions; no story-owned code changed, so repeating the immediately prior 20-round stress would add cost without new coverage."
+      },
+      "_hash": "42e9c730b667e9dfcf2590e5467b72989972d5d8422330d9245dfa5c939c4a0f"
     }
   ]
 }
