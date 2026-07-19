@@ -172,6 +172,54 @@ async function runConcurrencyWorker(): Promise<void> {
   process.exit(0);
 }
 
+/**
+ * Spawn TWO genuinely-concurrent OS processes that both drive the SAME story's
+ * DEV→REVIEW transition through the REAL `runStoryTransition`, released together
+ * by a barrier so they race the persist boundary. `extraEnv` is merged into both
+ * children (e.g. LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1 to bypass the
+ * advisory lock and prove the atomic persist claim alone serializes them).
+ * Returns each worker's parsed JSON result ({ ok, phase } | { ok:false, err }).
+ */
+async function raceTwoReviewWorkers(
+  fx: Fixture,
+  extraEnv: Record<string, string> = {},
+): Promise<{ r1: any; r2: any }> {
+  const tag = Math.random().toString(36).slice(2, 8);
+  const barrier = join(fx.root, `GO-${tag}`);
+  const ready1 = join(fx.root, `ready1-${tag}`);
+  const ready2 = join(fx.root, `ready2-${tag}`);
+  const selfPath = fileURLToPath(import.meta.url);
+  const spawnWorker = (readyFile: string) => spawn(process.execPath, [selfPath], {
+    env: {
+      ...process.env,
+      TIS_WORKER: '1',
+      TIS_ROOT: fx.root,
+      TIS_STORY: fx.storyId,
+      TIS_BARRIER: barrier,
+      TIS_READY: readyFile,
+      ...extraEnv,
+    },
+    stdio: ['ignore', 'pipe', 'inherit'],
+  });
+  const w1 = spawnWorker(ready1);
+  const w2 = spawnWorker(ready2);
+  let out1 = '';
+  let out2 = '';
+  w1.stdout!.on('data', (d) => { out1 += d.toString(); });
+  w2.stdout!.on('data', (d) => { out2 += d.toString(); });
+  // Attach exit listeners BEFORE releasing the barrier (Finding 5): a worker can
+  // win and exit almost immediately, so the listener must already be registered.
+  const exited = Promise.all([
+    new Promise<void>((res) => w1.on('exit', () => res())),
+    new Promise<void>((res) => w2.on('exit', () => res())),
+  ]);
+  await waitForCondition(() => existsSync(ready1) && existsSync(ready2), 10000);
+  writeFileSync(barrier, 'go');
+  await exited;
+  const parse = (s: string) => { try { return JSON.parse(s.trim().split('\n').filter(Boolean).pop() || '{}'); } catch { return {}; } };
+  return { r1: parse(out1), r2: parse(out2) };
+}
+
 async function main(): Promise<void> {
   console.log('transition-integrity smoke (B-d877)\n');
 
@@ -250,47 +298,7 @@ async function main(): Promise<void> {
   console.log('\nCHK-002a: two concurrent same-owner DEV→REVIEW transitions → exactly one round + one event');
   {
     const fx = makeFixture('B-tisconc', 'DEV', { withWorktree: false });
-    const barrier = join(fx.root, 'GO');
-    const ready1 = join(fx.root, 'ready1');
-    const ready2 = join(fx.root, 'ready2');
-    const selfPath = fileURLToPath(import.meta.url);
-    const spawnWorker = (readyFile: string) => spawn(process.execPath, [selfPath], {
-      env: {
-        ...process.env,
-        TIS_WORKER: '1',
-        TIS_ROOT: fx.root,
-        TIS_STORY: fx.storyId,
-        TIS_BARRIER: barrier,
-        TIS_READY: readyFile,
-      },
-      stdio: ['ignore', 'pipe', 'inherit'],
-    });
-    const w1 = spawnWorker(ready1);
-    const w2 = spawnWorker(ready2);
-    let out1 = '';
-    let out2 = '';
-    w1.stdout!.on('data', (d) => { out1 += d.toString(); });
-    w2.stdout!.on('data', (d) => { out2 += d.toString(); });
-
-    // B-d877 Finding 5: register the exit-promise listeners BEFORE releasing the
-    // barrier. A worker can win the lock and exit almost immediately after `go`;
-    // if the exit listener were attached only AFTER writeFileSync(barrier), that
-    // early exit event would be missed and Promise.all would hang until timeout.
-    // `child_process` exit is emitted asynchronously, but attaching the listener
-    // up-front guarantees it is observed regardless of how fast the child exits.
-    const exited = Promise.all([
-      new Promise<void>((res) => w1.on('exit', () => res())),
-      new Promise<void>((res) => w2.on('exit', () => res())),
-    ]);
-
-    // Both workers ready and parked on the barrier, then release them together.
-    await waitForCondition(() => existsSync(ready1) && existsSync(ready2), 10000);
-    writeFileSync(barrier, 'go');
-    await exited;
-
-    const parse = (s: string) => { try { return JSON.parse(s.trim().split('\n').filter(Boolean).pop() || '{}'); } catch { return {}; } };
-    const r1 = parse(out1);
-    const r2 = parse(out2);
+    const { r1, r2 } = await raceTwoReviewWorkers(fx);
     const successes = [r1, r2].filter((r) => r.ok).length;
     check('exactly one concurrent transition succeeded (the other serialized behind the lock)',
       successes === 1, `r1=${JSON.stringify(r1)} r2=${JSON.stringify(r2)}`);
@@ -555,6 +563,85 @@ async function main(): Promise<void> {
     check("no-holderInfo holder A's release did NOT delete the successor's lock", existsSync(lockDir));
     b.release();
     check('successor B released its own lock after the ownership-checked no-op', !existsSync(lockDir));
+  }
+
+  // ── CHK-002c6: the ATOMIC PERSIST CLAIM alone prevents a double-mint (FIX A) ─
+  // Round-3 reviewers flagged that the CHK-002c4 CAS proof was a single-process
+  // Proxy mock. This is the load-bearing correctness proof: TWO REAL node
+  // processes race the SAME DEV→REVIEW persist with the advisory transition lock
+  // BYPASSED (LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1). Nothing serializes
+  // them EXCEPT the atomic mkdir persist claim — so if that claim were not atomic,
+  // both would persist (double review round / double phase_transition). Exactly
+  // one must commit; the other must abort with the concurrent-transition error.
+  console.log('\nCHK-002c6: two REAL concurrent processes, advisory lock BYPASSED → the atomic persist claim alone yields exactly one commit (FIX A)');
+  {
+    const fx = makeFixture('B-tisatomic', 'DEV', { withWorktree: false });
+    const { r1, r2 } = await raceTwoReviewWorkers(fx, { LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK: '1' });
+    const results = [r1, r2];
+    const successes = results.filter((r) => r.ok).length;
+    check('with the advisory lock bypassed, exactly one concurrent transition committed (atomic claim serialized the persist)',
+      successes === 1, `r1=${JSON.stringify(r1)} r2=${JSON.stringify(r2)}`);
+    // With the advisory lock BYPASSED, the winner still prevents a double-mint via
+    // one of THREE valid interleavings — all of which yield exactly one commit
+    // (already proven by successes===1 / one-review-round / count===1 below):
+    //   (a) the loser hits the atomic claim while the winner holds it → failFast:
+    //       "concurrent transition already advancing … double-mint";
+    //   (b) the loser acquires the claim AFTER the winner committed and its
+    //       under-claim re-read sees REVIEW: "concurrent transition already
+    //       advanced … found REVIEW … double-mint";
+    //   (c) the winner COMMITS before the loser even reads the story, so the loser's
+    //       whole transition is REVIEW→REVIEW and it aborts at the FSM guard:
+    //       "Cannot transition from REVIEW to REVIEW" (no "advanc"/"double-mint").
+    // Accept ANY of the three — the load-bearing correctness proof is the
+    // single-commit / single-round / single-event assertions, not the exact text.
+    const loser = results.find((r) => !r.ok);
+    const loserErr = String(loser?.err ?? '');
+    check('the losing transition aborted via a double-mint-prevention path (atomic claim or FSM guard)',
+      !!loser && (/concurrent transition already advanc/.test(loserErr) || /Cannot transition from REVIEW to REVIEW/.test(loserErr)),
+      JSON.stringify(loser));
+
+    const after = fx.store.readStory(fx.storyId);
+    check('landed in REVIEW with exactly one minted currentReviewRound (no double-mint under the atomic claim)',
+      after.phase === 'REVIEW' && typeof (after as any).currentReviewRound === 'string' && (after as any).currentReviewRound.length > 0,
+      `phase=${after.phase} round=${(after as any).currentReviewRound}`);
+    const pt = phaseTransitionEvents(fx.store, fx.storyId);
+    check('exactly one phase_transition event appended by the atomic-claim winner (no double-mint)', pt.length === 1, `count=${pt.length}`);
+    check('the single event\'s toPhase is REVIEW', pt.filter((e) => e.toPhase === 'REVIEW').length === 1, JSON.stringify(pt.map((e) => e.toPhase)));
+  }
+
+  // ── CHK-002c7: relocated per-story runtime locks live under .lattice/locks/ ──
+  // B-d877 R3 FIX B: the checklist / finding / review-run / init-check /
+  // prompt-envelope / process-event locks moved OUT of the git-tracked story dir
+  // (`.lattice/story/actives/<id>/…lock`, whose transient holder.json failed
+  // quorum-submit-smoke's clean-tree gate) INTO the gitignored shared
+  // `.lattice/locks/<category>/` prefix. Assert every relocated lock resolves
+  // under `.lattice/locks/` and NEVER under `.lattice/story/actives/`.
+  console.log('\nCHK-002c7: relocated runtime locks resolve under .lattice/locks/, not under .lattice/story/actives/<id>/ (FIX B)');
+  {
+    const fx = makeFixture('B-tisreloc', 'DEV');
+    const relocations: Array<[string, string]> = [
+      ['checklist', 'checklist'],
+      ['finding', 'review-passes'],
+      ['review-run', 'review-runs'],
+      ['init-check', 'init-check'],
+      ['prompt-envelopes', 'prompt-envelopes'],
+      ['process-events', 'process-events-append'],
+    ];
+    for (const [category, name] of relocations) {
+      const p = fx.store.runtimeLockDirPath(fx.storyId, category, name);
+      check(`${category}/${name} lock is under .lattice/locks/, not the story dir`,
+        p.includes(`${'.lattice'}/locks/${category}/`) &&
+        p.endsWith(`.lock`) &&
+        !p.includes('/story/actives/'),
+        p);
+    }
+    // The relocated path is anchored at the shared root, so it is identical from
+    // the worktree root and the main root (survives worktree removal, one mutex).
+    const fromMain = fx.store.runtimeLockDirPath(fx.storyId, 'finding', 'review-passes');
+    const wtStore = new StoryStore(fx.wtAbs);
+    const fromWt = wtStore.runtimeLockDirPath(fx.storyId, 'finding', 'review-passes');
+    check('a relocated lock path is identical from the worktree root and the main root (shared, git-common-dir anchored)',
+      fromMain === fromWt, `main=${fromMain} worktree=${fromWt}`);
   }
 
   // ── CHK-002d: ownership-checked release never deletes a successor's lock ─────

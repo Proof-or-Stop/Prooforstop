@@ -23,6 +23,26 @@ import { LATTICE_DIR } from './lattice-paths.js';
  * commits, then re-reads the committed state (and its guard correctly refuses a
  * second advance from the already-advanced phase).
  *
+ * ── CORRECTNESS BOUNDARY (B-d877 R3 FIX D — subsumes F-009) ────────────────────
+ * This transition lock is a BEST-EFFORT ADVISORY CONTENTION-REDUCER, NOT the
+ * correctness guarantee. Its job is to keep two concurrent transitions from
+ * doing redundant gate work in parallel; it does NOT by itself make the
+ * phase-persist atomic. The AUTHORITATIVE guarantee against a double-mint is the
+ * ATOMIC PERSIST CLAIM in transition-orchestrator.ts (R3 FIX A): right before it
+ * writes the new phase, the orchestrator acquires an atomic `mkdir` claim
+ * (`.lattice/locks/transition-cas/<id>.claim`), RE-READS the on-disk phase under
+ * that claim, and aborts unless it still equals the expected `oldPhase`. `mkdir`
+ * is atomic on POSIX, so exactly one concurrent writer wins the claim; the loser
+ * throws immediately. Because that claim — not this advisory lock — gates the
+ * write, ANY mis-classification or stale-reclaim of THIS lock (e.g. F-009: the
+ * PID-reuse start-time check can only fire for the waiter's OWN pid, since a
+ * foreign pid's start time is not portably readable, so a starved foreign holder
+ * could in principle be reclaimed and both transitions could proceed here) can
+ * ONLY cause redundant gate work — NEVER a double-mint. This lock therefore does
+ * not need a heartbeat or a perfectly-sound liveness classifier; the atomic claim
+ * subsumes the liveness concern. A false-reclaim wastes a little CPU; it cannot
+ * corrupt the phase.
+ *
  * LOCK LOCATION — the lock MUST live OUTSIDE the story's committed/scanned
  * metadata dir. An earlier revision rooted it at `<storyDir>/transition.lock/`,
  * i.e. inside `.lattice/story/actives/<id>/`; the scope gate running in the SAME
@@ -207,6 +227,18 @@ export function acquireStoryTransitionLock(
   options: StoryTransitionLockOptions = {},
 ): AcquiredMkdirLock {
   const lockDir = storyTransitionLockPath(root, storyId);
+  // B-d877 R3: TEST-ONLY bypass of this ADVISORY contention-reducer. When
+  // `LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1`, acquire returns a no-op
+  // handle without touching the on-disk lock or the in-process guard. This is SAFE
+  // BY CONSTRUCTION: correctness against a double-mint is guaranteed by FIX A's
+  // ATOMIC PERSIST CLAIM in transition-orchestrator.ts (see the CORRECTNESS
+  // BOUNDARY note above / FIX D), NOT by this lock. Disabling it only removes
+  // contention reduction (transitions may do redundant gate work in parallel) —
+  // never correctness. transition-integrity-smoke sets it to prove the atomic claim
+  // ALONE serializes two genuinely-concurrent persists into exactly one.
+  if (process.env.LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK === '1') {
+    return { lockDir, release() { /* no-op: advisory lock bypassed for test */ } };
+  }
   // B-d877 R2 FIX E: in-process fail-fast guard — never enter the blocking mkdir
   // poll for a lock this very process already holds (that would deadlock the event
   // loop on the synchronous `Atomics.wait`).

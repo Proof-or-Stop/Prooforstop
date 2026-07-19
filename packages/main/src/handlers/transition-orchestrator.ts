@@ -41,7 +41,8 @@
 
 import { execFileSync } from 'child_process';
 import { realpathSync } from 'fs';
-import { relative } from 'path';
+import { hostname } from 'os';
+import { join, relative } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
@@ -96,7 +97,9 @@ import {
 } from './done-effects.js';
 import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
 import { acquireStoryTransitionLock } from '../core/story-transition-lock.js';
-import type { AcquiredMkdirLock } from '../core/mkdir-lock.js';
+import { acquireMkdirLock, type AcquiredMkdirLock } from '../core/mkdir-lock.js';
+import { resolveSharedLockRoot, sanitizeLockSegment } from '../core/validation-execution-lock.js';
+import { LATTICE_DIR } from '../core/lattice-paths.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import {
@@ -725,25 +728,64 @@ async function runStoryTransitionInner(
     if (args.phase === 'REVIEW') {
       story.currentReviewRound = now;
     }
-    // B-d877 R2 FIX A: compare-and-swap fence at the persist boundary. Re-read the
-    // story from disk RIGHT BEFORE writing the new phase/review-round (this covers
-    // BOTH the non-DONE persist and the DONE persist — they share this one
-    // writeStory). If another transition already advanced the phase away from the
-    // `oldPhase` our FSM guard validated (a stale-reclaimed lock, a cross-host
-    // reclaim, or a TOCTOU delete of the lock dir), ABORT before persisting so a
-    // double-mint (duplicate review round / duplicate phase_transition event) is
-    // impossible. The transition lock is an advisory contention fast-path; THIS
-    // CAS is the AUTHORITATIVE correctness guarantee and does not depend on the
-    // lock having held.
-    const persistedBeforeWrite = store.readStory(args.storyId);
-    if ((persistedBeforeWrite.phase as string) !== oldPhase) {
+    // B-d877 R3 FIX A: ATOMIC persist claim — the AUTHORITATIVE correctness fence.
+    //
+    // The R2 fence was a plain read-then-write ("re-read phase, then writeStory"):
+    // two concurrent transitions could BOTH re-read the still-`oldPhase` on-disk
+    // state before EITHER wrote, pass the check, and both persist → double-mint
+    // (duplicate review round / duplicate phase_transition event). The advisory
+    // transition lock reduces contention but does NOT itself make this window
+    // atomic (a mis-classified/stale-reclaimed advisory lock can let two writers
+    // reach here concurrently). So the write is instead gated by an ATOMIC `mkdir`
+    // CLAIM: `mkdir` of a fresh dir is atomic on POSIX, so exactly ONE concurrent
+    // writer creates the claim and the loser throws IMMEDIATELY (failFastIfHeld).
+    // Under the claim we RE-READ the on-disk phase and abort unless it still equals
+    // `oldPhase`, then writeStory — making the persist atomically conditional on
+    // `oldPhase`. The claim is held ONLY across re-read → write (milliseconds), so a
+    // short staleMs (15s) + failFast is safe and a crashed holder's claim
+    // self-reclaims in 15s. This covers BOTH the non-DONE and DONE persist (they
+    // share this one writeStory). The advisory transition lock and the in-process
+    // fail-fast guard remain as contention reducers; THIS atomic claim — not the
+    // lock — is what makes a double-mint impossible.
+    const persistClaimPath = join(
+      resolveSharedLockRoot(ctx.root),
+      LATTICE_DIR, 'locks', 'transition-cas',
+      `${sanitizeLockSegment(args.storyId)}.claim`,
+    );
+    let persistClaim: AcquiredMkdirLock;
+    try {
+      persistClaim = acquireMkdirLock(persistClaimPath, {
+        failFastIfHeld: true,
+        staleMs: 15000,
+        requireHolderToken: true,
+        holderInfo: {
+          pid: process.pid,
+          hostname: hostname(),
+          command: `transition persist claim ${args.storyId} ${oldPhase}->${args.phase}`,
+          acquiredAt: new Date().toISOString(),
+        },
+      });
+    } catch (claimErr: any) {
+      // The claim is held → a concurrent transition is persisting this same story.
       throw new Error(
-        `concurrent transition already advanced ${args.storyId} ` +
-        `(expected fromPhase ${oldPhase}, found ${persistedBeforeWrite.phase}); ` +
-        `aborting to prevent double-mint`,
+        `concurrent transition already advancing ${args.storyId} from ${oldPhase}; ` +
+        `aborting to prevent double-mint (${String(claimErr?.message ?? claimErr)})`,
       );
     }
-    store.writeStory(args.storyId, story);
+    try {
+      const persistedBeforeWrite = store.readStory(args.storyId);
+      if ((persistedBeforeWrite.phase as string) !== oldPhase) {
+        throw new Error(
+          `concurrent transition already advanced ${args.storyId} ` +
+          `(expected fromPhase ${oldPhase}, found ${persistedBeforeWrite.phase}); ` +
+          `aborting to prevent double-mint`,
+        );
+      }
+      store.writeStory(args.storyId, story);
+    } finally {
+      // Release only across the re-read→write critical section (milliseconds).
+      persistClaim.release();
+    }
     if (!transitionGitCwd) {
       transitionGitCwd = resolveGitCwd({
         store,

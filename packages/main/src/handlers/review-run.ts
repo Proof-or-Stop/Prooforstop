@@ -36,7 +36,9 @@ import {
 } from '../core/prompt-envelope.js';
 
 function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
-  const lockDir = ctx.store.storyFilePath(storyId, 'review-runs.lock');
+  // B-d877 R3 FIX B: relocate out of the git-tracked story dir to the gitignored
+  // shared `.lattice/locks/review-run/<id>-review-runs.lock`.
+  const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
   return withMkdirLock(lockDir, fn, { label: 'review-runs metadata' });
 }
 
@@ -213,7 +215,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
               hostRenderHost: dispatchBinding.binding.hostRenderHost,
             },
           });
-          withMkdirLock(store.storyFilePath(args.storyId, 'prompt-envelopes.lock'), () => {
+          withMkdirLock(store.runtimeLockDirPath(args.storyId, 'prompt-envelopes', 'prompt-envelopes'), () => {
             const envelopeData = store.readPromptEnvelopes(args.storyId);
             const existingEnvelope = envelopeData.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
             if (existingEnvelope && !verifyPromptEnvelopeIntegrity(existingEnvelope)) {

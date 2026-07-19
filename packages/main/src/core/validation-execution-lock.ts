@@ -28,8 +28,45 @@ interface ValidationLockHeartbeatInfo {
   heartbeatAt: string;
 }
 
-function sanitizeLockSegment(value: string): string {
+export function sanitizeLockSegment(value: string): string {
   return value.replace(/[^A-Za-z0-9_.-]/g, '_').replace(/^_+|_+$/g, '') || 'unknown';
+}
+
+/**
+ * B-d877 R3 FIX B: resolve a per-story RUNTIME lock dir under the DURABLE shared
+ * root's gitignored `.lattice/locks/<category>/`, NEVER under the git-tracked
+ * story metadata dir (`.lattice/story/actives/<id>/`).
+ *
+ * The universal-lockId change (R2 FIX D) writes a `holder.json` inside EVERY
+ * acquired lock dir. When such a lock lived inside the story dir (e.g.
+ * `<storyDir>/review-passes.lock/`), a `git add -A` that ran while the lock was
+ * held committed that transient `holder.json`; releasing the lock then deleted
+ * it, leaving a `D …/review-passes.lock/holder.json` dirty entry that
+ * deterministically failed the clean-tree preflight (quorum-submit-smoke).
+ *
+ * Anchoring at `resolveSharedLockRoot(root)` (git-common-dir based) — exactly
+ * like the validation execution lock and the per-story transition lock — makes
+ * the lock (a) live under the ALREADY-gitignored `.lattice/locks/` prefix, (b)
+ * survive story-worktree removal, and (c) resolve IDENTICALLY from every
+ * worktree/main root so cross-worktree callers contend on ONE mutex. The lock
+ * file name embeds BOTH the sanitized story id and the logical `<name>` so
+ * distinct per-story locks (checklist / review-passes / review-runs /
+ * init-check / prompt-envelopes / process-events append) never collide in the
+ * shared category dir. FAIL-OPEN: a non-git / unreadable root falls back to
+ * `root` verbatim.
+ */
+export function storyRuntimeLockPath(
+  root: string,
+  category: string,
+  storyId: string,
+  name: string,
+): string {
+  const projectRoot = String(root ?? '').trim();
+  const id = String(storyId ?? '').trim();
+  if (!projectRoot) throw new Error('storyRuntimeLockPath: root is required');
+  if (!id) throw new Error('storyRuntimeLockPath: storyId is required');
+  const sharedRoot = resolveSharedLockRoot(projectRoot);
+  return join(sharedRoot, LATTICE_DIR, 'locks', category, `${sanitizeLockSegment(id)}-${name}.lock`);
 }
 
 function currentContextOwns(lockKey: string): boolean {

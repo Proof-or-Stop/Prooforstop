@@ -989,7 +989,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         `→ cd ${worktreePath} to enter the worktree for development; run all lattice commands in this directory`,
         `→ sub agent should not use isolation:"worktree", run directly in the main agent's worktree`,
         `→ checklist_get(${args.storyId}) to view pending development items`,
-        `→ After development completes, call dev_finish(${args.storyId}) to merge back to the main branch`,
+        `→ After development completes, call dev_finish(${args.storyId}) to advance DEV→REVIEW for code review (the worktree is preserved; the merge to main happens later via dev_merge at TEST→DONE)`,
         nodeModulesWarning || '',
         parallelWarning || '',
         metadataProtectionWarning || '',
