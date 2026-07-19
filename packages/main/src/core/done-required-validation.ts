@@ -167,14 +167,40 @@ export function buildDoneRequiredCommandSpecEnvelope(
   command: ValidationCommand,
   executed?: Pick<ValidationCommandResult, 'command' | 'args' | 'shell' | 'cwd'>,
 ): DoneRequiredCommandSpecEnvelope {
-  const spec = {
-    command: executed?.command ?? command.command,
-    args: [...(executed?.args ?? command.args)],
-    cwd: repoRelativeLogicalCwd(projectRoot, executed?.cwd ?? command.cwd),
+  const cwd = executed?.cwd ?? command.cwd;
+  return buildV2CommandSpecEnvelopeFromLogicalCwd(
+    // Derive the portable logical cwd by relativizing against projectRoot. Correct
+    // at WRITE time, where projectRoot is the worktree the command actually ran in.
+    repoRelativeLogicalCwd(projectRoot, cwd),
     // Non-digested provenance: the real absolute workspace path the command ran
     // in. commandSpecDigestPayload intentionally omits it so it never affects
     // the portable digest (CHK-003).
-    resolvedCwd: normalizedCommandCwd(projectRoot, executed?.cwd ?? command.cwd),
+    normalizedCommandCwd(projectRoot, cwd),
+    command,
+    executed,
+  );
+}
+
+/**
+ * Core v2 envelope builder keyed on an EXPLICIT already-resolved logical cwd
+ * (repo-root-relative, worktree/host portable). Callers that reconstruct an
+ * expected v2 digest to VERIFY a receipt written under a DIFFERENT root must pass
+ * the receipt's STORED logical cwd here — NOT an absolute physical cwd re-anchored
+ * against the current projectRoot, which would embed the verifying root and break
+ * cross-worktree comparison (F-009). `resolvedCwd` is non-digested provenance, so
+ * it never affects the digest or `matchesEnvelope` (CHK-003).
+ */
+function buildV2CommandSpecEnvelopeFromLogicalCwd(
+  logicalCwd: string,
+  resolvedCwd: string,
+  command: ValidationCommand,
+  executed?: Pick<ValidationCommandResult, 'command' | 'args' | 'shell' | 'cwd'>,
+): DoneRequiredCommandSpecEnvelope {
+  const spec = {
+    command: executed?.command ?? command.command,
+    args: [...(executed?.args ?? command.args)],
+    cwd: logicalCwd,
+    resolvedCwd,
     shell: executed ? executed.shell === true : command.shell === true,
     env: sortedStringRecord(command.env),
     timeoutMs: resolveCommandTimeoutMs(command),
@@ -568,7 +594,22 @@ export function validateCommandSpecDigestCoverage(
       ...(receipt.shell ? { shell: true } : {}),
       cwd: receipt.cwd,
     };
-    const expectedNew = buildDoneRequiredCommandSpecEnvelope(projectRoot, command, executedShape);
+    // v2 reconstruction MUST use the receipt's STORED portable logical cwd
+    // (receiptLogicalCwd — the same helper validateRequiredReceiptCoverage uses),
+    // NOT receipt.cwd re-normalized against the current projectRoot. The receipt's
+    // top-level cwd is an ABSOLUTE physical worktree path; re-anchoring it via the
+    // verifying projectRoot embeds THIS root's location (e.g. '.worktrees/<id>'),
+    // so a cross-worktree receipt that validateRequiredReceiptCoverage correctly
+    // ACCEPTS would be wrongly rejected here as command-spec-digest-mismatch (F-009).
+    // resolvedCwd is non-digested provenance and does not affect the digest/match.
+    const expectedNew = buildV2CommandSpecEnvelopeFromLogicalCwd(
+      receiptLogicalCwd(projectRoot, receipt),
+      normalizedCommandCwd(projectRoot, receipt.cwd),
+      command,
+      executedShape,
+    );
+    // The LEGACY v1 branch keeps absolute-cwd reconstruction — that IS correct for
+    // v1 receipts, which digested an absolute cwd and were never cross-root portable.
     const expectedLegacy = buildLegacyAbsoluteCwdCommandSpecEnvelope(projectRoot, command, executedShape);
 
     const matchesEnvelope = (candidate: DoneRequiredCommandSpecEnvelope): boolean =>

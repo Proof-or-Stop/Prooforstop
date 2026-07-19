@@ -32,6 +32,14 @@
  *            (documented inherent limitation), never anchored at the shared root.
  *   F-007    the lifecycle-control runtime status probe resolves the SAME shared-root
  *            validation lock path across two worktrees (no worktree-local divergence).
+ *   F-009    validateCommandSpecDigestCoverage reconstructs the expected v2 digest
+ *            from the receipt's STORED logical cwd (not receipt.cwd re-anchored on the
+ *            current root), so a worktree-written receipt passes digest-COVERAGE under
+ *            the main root; a receipt with a forged/inconsistent cwd is still rejected.
+ *   F-010    the AGGREGATE cross-root path (BOTH validateRequiredReceiptCoverage AND
+ *            validateCommandSpecDigestCoverage, which evaluateDoneRequiredEvidence
+ *            requires) accepts the worktree-written receipt from the main root, and
+ *            still rejects a genuinely-different logical cwd (receipt-cwd-mismatch).
  *
  * Prints ✓/✗ per check; exits non-zero on the first failure; final line
  * "worktree-portability smoke passed".
@@ -404,6 +412,100 @@ try {
     'F-001 genuinely different logical cwd still reports receipt-cwd-mismatch across roots',
     wrongCwdReasons.some((reason) => reason.startsWith('receipt-cwd-mismatch')),
     JSON.stringify(wrongCwdReasons),
+  );
+
+  // ── F-009/F-010: cross-root FULL command-spec digest-COVERAGE + aggregate ────
+  // validateRequiredReceiptCoverage (F-001, above) accepted a cross-worktree
+  // receipt, but validateCommandSpecDigestCoverage RE-normalized receipt.cwd
+  // against the verifying projectRoot and wrongly rejected the SAME receipt as
+  // command-spec-digest-mismatch. evaluateDoneRequiredEvidence needs BOTH paths,
+  // so cross-root DONE-required verification stayed broken and the earlier smoke
+  // (which never called digest-coverage cross-root) gave false confidence.
+  // The receipt is built under the WORKTREE root and verified from the MAIN root.
+  const digestSuiteCommand: ValidationCommand = { label: 'suite', command: 'npm', args: ['test'], cwd: '.', shell: false, env: {} };
+  const worktreeReceiptSpec = buildDoneRequiredCommandSpecEnvelope(worktreeRoot, digestSuiteCommand, {
+    command: 'npm', args: ['test'], shell: false, cwd: worktreeRoot,
+  });
+  const worktreeWrittenReceipt: DoneRequiredCommandReceipt = {
+    label: 'suite',
+    command: 'npm',
+    args: ['test'],
+    cwd: worktreeRoot, // ABSOLUTE physical path of the writing worktree (root A)
+    commandSpec: worktreeReceiptSpec,
+    shell: false,
+    status: 'PASS',
+    exitCode: 0,
+    durationMs: 1,
+    outputDigest: 'x',
+    outputTail: '',
+    startedAt: '1970-01-01T00:00:00.000Z',
+    endedAt: '1970-01-01T00:00:00.001Z',
+  };
+  const crossRootDigestCoverage = validateCommandSpecDigestCoverage(
+    { receipts: [worktreeWrittenReceipt] }, mainRoot, [digestSuiteCommand],
+  );
+  check(
+    'F-009 worktree-written receipt passes command-spec digest-COVERAGE under the main root (no command-spec-digest-mismatch)',
+    crossRootDigestCoverage.valid === true
+      && !crossRootDigestCoverage.reasons.some((reason) => reason.startsWith('command-spec-digest-mismatch')),
+    JSON.stringify(crossRootDigestCoverage),
+  );
+  // The aggregate evaluateDoneRequiredEvidence requires BOTH coverage paths; prove
+  // the cross-root receipt is accepted by BOTH (receipt-coverage AND digest-coverage)
+  // from the main root — exactly the aggregate's cross-root acceptance decision.
+  const crossRootReceiptCoverage = validateRequiredReceiptCoverage(
+    { receipts: [worktreeWrittenReceipt] }, mainRoot, [digestSuiteCommand],
+  );
+  check(
+    'F-010 aggregate cross-root: BOTH receipt-coverage AND digest-coverage accept the worktree-written receipt under the main root',
+    crossRootReceiptCoverage.length === 0 && crossRootDigestCoverage.valid === true,
+    `receiptCoverage=${JSON.stringify(crossRootReceiptCoverage)} digestValid=${crossRootDigestCoverage.valid}`,
+  );
+
+  // Negative 1 (digest still has teeth): a v2 receipt whose stored logical cwd is
+  // FORGED — swapped to '.' AFTER the digest was computed for 'packages/main'. The
+  // fix trusts spec.cwd for reconstruction, but the recomputed digest no longer
+  // matches the intact stored digest, so a silently-swapped cwd field is rejected.
+  const honestSubSpec = buildDoneRequiredCommandSpecEnvelope(
+    worktreeRoot,
+    { label: 'suite', command: 'npm', args: ['test'], cwd: 'packages/main', shell: false, env: {} },
+    { command: 'npm', args: ['test'], shell: false, cwd: join(worktreeRoot, 'packages', 'main') },
+  );
+  const forgedCwdReceipt: DoneRequiredCommandReceipt = {
+    ...worktreeWrittenReceipt,
+    cwd: join(worktreeRoot, 'packages', 'main'),
+    commandSpec: { ...honestSubSpec, cwd: '.' }, // cwd field swapped, digest left intact
+  };
+  const forgedCoverage = validateCommandSpecDigestCoverage(
+    { receipts: [forgedCwdReceipt] }, mainRoot, [digestSuiteCommand],
+  );
+  check(
+    'F-009 a receipt with a FORGED logical cwd (digest no longer matches the swapped cwd) is still rejected (command-spec-digest-mismatch)',
+    forgedCoverage.valid === false
+      && forgedCoverage.reasons.some((reason) => reason.startsWith('command-spec-digest-mismatch')),
+    JSON.stringify(forgedCoverage),
+  );
+
+  // Negative 2 (aggregate still has teeth): a receipt whose logical cwd HONESTLY
+  // differs from the policy (ran in packages/main, policy wants '.') is internally
+  // digest-consistent (digest-coverage valid), yet the AGGREGATE still REJECTS it
+  // because validateRequiredReceiptCoverage reports receipt-cwd-mismatch cross-root.
+  const honestSubReceipt: DoneRequiredCommandReceipt = {
+    ...worktreeWrittenReceipt,
+    cwd: join(worktreeRoot, 'packages', 'main'),
+    commandSpec: honestSubSpec,
+  };
+  const honestSubDigest = validateCommandSpecDigestCoverage(
+    { receipts: [honestSubReceipt] }, mainRoot, [digestSuiteCommand],
+  );
+  const honestSubReceiptCoverage = validateRequiredReceiptCoverage(
+    { receipts: [honestSubReceipt] }, mainRoot, [digestSuiteCommand],
+  );
+  check(
+    'F-010 a genuinely-different logical cwd is internally digest-consistent yet the AGGREGATE still rejects it (receipt-cwd-mismatch)',
+    honestSubDigest.valid === true
+      && honestSubReceiptCoverage.some((reason) => reason.startsWith('receipt-cwd-mismatch')),
+    `digest=${JSON.stringify(honestSubDigest)} receiptCoverage=${JSON.stringify(honestSubReceiptCoverage)}`,
   );
 
   cleanupAll();
