@@ -293,6 +293,30 @@
       },
       "readDiagnostics": [],
       "_hash": "fd5e35d60e7b74ac02cc1cbcdba9ae80344ea73c4a857f2be115c18a383f7f7a"
+    },
+    {
+      "id": "B-8d4b:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round-7 docs review confirms F-026 is resolved: translated CHK-001/002/004 userSees and understanding outcome now match current fail-closed selfcheck semantics; historical prompt cost and recall remain INCONCLUSIVE, only the hermetic fixture is EVALUABLE with historicalEvidence=false, and canonical docs/business implementation are unchanged.",
+      "createdAt": "2026-07-19T03:54:40.607Z",
+      "reviewRound": "2026-07-19T03:53:52.508Z",
+      "reviewRunId": "B-8d4b:RR-025",
+      "writerSessionId": "sess-b9a6de1a476a204be31251f5a1a12144",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d9e94b9a24a7362e7467dfe3b57efdce565d9c3868ce7e98a8904e628b0b150e"
     }
   ]
 }
