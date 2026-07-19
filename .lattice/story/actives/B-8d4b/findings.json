@@ -216,6 +216,21 @@
       "_hash": "f516287a8c6a961ce285e00f1c3549158f0b4ba0f2e5960bbb791a7f71c2069e",
       "signatureTag": "edge|unknown|experiments-role-prompt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d4b:F-012",
+      "desc": "experiments/role-prompt-ab-replay/README.md:43-48 describes the exact lattice-finding-integrity-v1 signed-field boundary but omits signatureVersion from the fields it says are hashed. replay.mjs:138-149 includes finding.signatureVersion as the eighth colon-joined hash input. Since the paragraph explicitly distinguishes signature-covered fields from outer corpus-digest-only metadata, include signatureVersion in the signed list so operators do not treat the version discriminator as unsigned.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T02:41:01.561Z",
+      "reviewRound": "2026-07-19T02:36:39.599Z",
+      "reviewRunId": "B-8d4b:RR-007",
+      "_hash": "46226f44e9332742790e8132b0e9dfebc774ef56a5fe93f5bd1e912fb2c77af2",
+      "signatureTag": "missing|unknown|experiments-role-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
