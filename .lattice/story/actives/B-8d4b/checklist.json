@@ -187,9 +187,9 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T02:07:37.953Z",
-      "endTime": "2026-07-19T02:08:57.252Z",
+      "endTime": "2026-07-19T02:35:17.658Z",
       "verificationIntent": {
         "happy": [
           {
@@ -238,11 +238,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun verifies chained experiment-only identity records, opt-in runtime confinement and gateEvidence=false; separate owner ledger run produced 36 attempts and was removed after analysis.",
-          "headHash": "4dec564053da3a00dbee4373e63f58266a33070d",
-          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
-          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
-          "timestamp": "2026-07-19T02:08:57.557Z"
+          "note": "Owner rerun verifies experiment-only chained records, exact identity binding, runtime confinement and gateEvidence=false; fd-backed serialized append prevents concurrent chain corruption.",
+          "headHash": "7d734cdbf929ef20e5a8fc348ed734b50e2aaa30",
+          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
+          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
+          "timestamp": "2026-07-19T02:35:18.374Z"
         },
         {
           "intentRef": "usage-availability-retry-and-summary-semantics",
@@ -250,11 +250,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun covers unavailable-not-zero, distinct crash/retry attempts, terminal supersession, one terminal per attempt, no double counting and ledger-chain tamper rejection.",
-          "headHash": "4dec564053da3a00dbee4373e63f58266a33070d",
-          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
-          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
-          "timestamp": "2026-07-19T02:08:57.895Z"
+          "note": "Owner rerun covers unavailable-not-zero, distinct crash/retry attempts, terminal supersession, one terminal disposition per attempt, no estimate double counting, concurrent serialization and chain tamper rejection.",
+          "headHash": "7d734cdbf929ef20e5a8fc348ed734b50e2aaa30",
+          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
+          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
+          "timestamp": "2026-07-19T02:35:19.132Z"
         },
         {
           "intentRef": "experiment-ledger-non-authoritative-and-private",
@@ -262,11 +262,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun rejects authority/Story/review/raw prompt/transcript/tool args/credentials and mechanically proves normal usage-ledger plus process-fact consumers do not admit experiment rows.",
-          "headHash": "4dec564053da3a00dbee4373e63f58266a33070d",
-          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
-          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
-          "timestamp": "2026-07-19T02:08:58.334Z"
+          "note": "Owner rerun rejects forged authority/Story/review refs, raw prompt/transcript/tool args/credentials, malformed stored rows and rehashed privacy injection; normal usage-ledger and process-fact consumers reject experiment rows.",
+          "headHash": "7d734cdbf929ef20e5a8fc348ed734b50e2aaa30",
+          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
+          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
+          "timestamp": "2026-07-19T02:35:19.766Z"
         }
       ]
     },
@@ -498,6 +498,16 @@
       "timestamp": "2026-07-19T02:35:08.831Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner independently reran the repaired 43-check fail-closed harness and bound fresh evidence without promoting unavailable historical metrics.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:35:17.658Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "in_progress",
       "to": "done",
