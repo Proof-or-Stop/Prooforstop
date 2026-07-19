@@ -225,6 +225,21 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-19T05:30:19.834Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-d877:F-012",
+      "desc": "adversarial-repro: packages/main/src/handlers/transition-orchestrator.ts:703-714 (IDEA->PLAN store.writeChecklist(args.checklist)) sits BEFORE the R4 atomic persist claim (:750-788) and is NOT protected by it. The claim (and its docstring in story-transition-lock.ts:24-40, e.g. \"ANY mis-classification or stale-reclaim of THIS [advisory] lock ... can ONLY cause redundant gate work -- NEVER a double-mint\") only guards story.phase / currentReviewRound / the phase_transition event; writeChecklist runs unconditionally on args.checklist for BOTH racers before either reaches the claim, so under an advisory-lock bypass (LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK=1, or a genuine defeat of the advisory lock such as the residual PID-reuse gap previously tracked as F-009/F-005) the checklist.json actually persisted on disk is simply whichever process's writeChecklist ran last -- INDEPENDENT of which process wins the atomic claim and actually persists phase=PLAN. Reproduced with two real concurrent OS processes racing runStoryTransition with phase set to PLAN for the same fixture story with DIFFERENT checklist payloads (advisory lock bypassed): in 10/15 rounds the checklist.json content on disk came from the LOSING transition (the one whose phase-write the atomic claim correctly rejected with the error text concurrent transition already advanc...), while story.phase correctly reflected only the winner. So a caller who legitimately wins the phase-mint race can end up with a PERSISTED CHECKLIST THAT IS NOT THE ONE IT SUBMITTED, silently, with no error surfaced -- a real state-corruption sibling to the double-mint bug this story closes, just outside the claim's protected span. Contrast with the DONE path: its analogous pre-claim side effect (captureMilestoneCloseoutSnapshotFromStore at :692) IS safe because acquireDoneMainMergeLock (:544) is a REAL (non-advisory) mkdir lock acquired well before actor.send/closeoutCapture, so a second concurrent DONE attempt cannot reach that code at all; PLAN has no equivalent real lock -- only the advisory transitionLock, which this same round explicitly documents as best-effort/non-authoritative. Recommend either widening the atomic claim to cover the writeChecklist branch too (re-read+compare oldPhase before writing checklist, same pattern as the phase persist), or moving the writeChecklist call to occur only after the claim confirms this transition is the actual winner.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T05:43:52.923Z",
+      "reviewRound": "2026-07-19T05:30:00.772Z",
+      "reviewRunId": "B-d877:RR-011",
+      "_hash": "c6c261571836f9028fc495f89e7c16c50a72d46751b3f6b32ba3bd392d50031d",
+      "signatureTag": "adversarial|unknown|adversarial-repro-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
