@@ -4,12 +4,9 @@ import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, readlink
 import { tmpdir } from 'os';
 import { basename, dirname, join, relative, isAbsolute, resolve, sep } from 'path';
 import type { HandlerContext } from './context.js';
-import { collectContext, PHASE_TO_EVENT } from './context.js';
+import { collectContext } from './context.js';
 import {
-  createStoryActor,
-  getGuardFailureReason,
   getScopeAntiExpansionGuardFailureReason,
-  getStateName,
 } from '../core/machine.js';
 import { buildScopeDiscardDigestEntry, normalizeBoundaryArray, scopeFreezeBackgroundTerms } from '../core/scope-anti-expansion.js';
 import type { StoryPhase } from '../core/types.js';
@@ -23,6 +20,12 @@ import {
 } from '../core/story-metadata-protection.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { refContainsStoryMetadata } from '../core/safe-init-commit.js';
+// B-d877 CHK-001: the canonical single door for any lifecycle phase-write.
+// dev_finish / dev_merge delegate their phase advance here so the review round
+// is minted, the phase_transition process-event is appended, and every gate /
+// hook fires — instead of driving a raw XState actor and writing story.phase
+// directly (which bypassed all of that and mislabeled the event 'TEST').
+import { runStoryTransition } from './transition-orchestrator.js';
 
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice/core';
 
@@ -994,7 +997,7 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       ].filter(Boolean).join('\n');
     },
 
-    dev_finish(args: { storyId: string }): string {
+    async dev_finish(args: { storyId: string }): Promise<string> {
       const story = store.readStory(args.storyId);
 
       if (!story.worktree) {
@@ -1028,37 +1031,29 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         );
       }
 
-      // Advance to TEST (if currently in DEV)
+      // B-d877 CHK-001: advance DEV→REVIEW through the canonical transition
+      // orchestrator. DEV's CODE_REVIEW target is REVIEW (not TEST). Delegating
+      // ONLY the lifecycle phase-write here mints the currentReviewRound, appends
+      // the material/story-files-bound phase_transition process-event, and runs
+      // every scope/ProofStory gate + phase-change hook. The previous raw-actor
+      // send + direct story.phase write skipped all of that and mislabeled the
+      // story.events entry 'TEST'. The worktree preconditions above and the
+      // worktree-specific result text below are unchanged.
       if (story.phase === 'DEV') {
-        const actor = createStoryActor(args.storyId, store, story.phase, root);
-        actor.start();
-        actor.send({ type: 'CODE_REVIEW' });
-        const newState = getStateName(actor);
-        actor.stop();
-
-        if (newState === 'DEV') {
-          // guard failed, give the reason
-          const reason = getGuardFailureReason(args.storyId, store, 'TEST', root);
-          throw new Error(`Cannot advance to TEST: ${reason || 'checklist not all completed'}`);
-        }
-
-        story.phase = newState as StoryPhase;
-        if (!story.events) story.events = [];
-        story.events.push(collectContext('TEST', 'advance'));
-        store.writeStory(args.storyId, story);
+        await runStoryTransition(ctx, { storyId: args.storyId, phase: 'REVIEW' });
       }
 
+      const finalPhase = store.readStory(args.storyId).phase;
       const results: string[] = [
-        `✓ Story ${args.storyId} development complete, entered TEST`,
-        `Worktree preserved for testing: ${wtPath}`,
-        `→ Run tests in the worktree`,
-        `→ After all tests pass, call dev_merge(${args.storyId}) to merge back to the main branch`,
+        `✓ Story ${args.storyId} development complete, advanced to ${finalPhase}`,
+        `Worktree preserved: ${wtPath}`,
+        `→ Run code review in the worktree; after review passes, advance to TEST`,
       ];
 
       return results.join('\n');
     },
 
-    dev_merge(args: { storyId: string }): string {
+    async dev_merge(args: { storyId: string }): Promise<string> {
       const story = store.readStory(args.storyId);
 
       if (!story.worktree) {
@@ -1066,11 +1061,6 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       }
 
       const wtPath = resolveWorktreePath(story.worktree.path);
-      const { branch } = story.worktree;
-      // B-2856: top-of-repo git ops (merge / branch -d / worktree remove /
-      // rev-parse) must run from the resolved gitRoot in wrapper-root layouts;
-      // null/unresolved → `root` fallback (plain repos unchanged).
-      const gitRoot = resolveStoryGitRoot(args.storyId);
 
       // Check whether the worktree exists
       if (!existsSync(wtPath)) {
@@ -1102,71 +1092,26 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
         throw new Error(`Story ${args.storyId} is currently in phase ${story.phase}; you need to dev_finish first to enter TEST`);
       }
 
-      // Try advancing to DONE (gate checks that tests pass + bugs are fixed)
-      if (story.phase === 'TEST') {
-        const actor = createStoryActor(args.storyId, store, story.phase, root);
-        actor.start();
-        actor.send({ type: 'FINISH' });
-        const newState = getStateName(actor);
-        actor.stop();
-
-        if (newState === 'TEST') {
-          const reason = getGuardFailureReason(args.storyId, store, 'DONE', root);
-          throw new Error(`Cannot merge: ${reason || 'tests did not all pass or there are unfixed bugs'}`);
-        }
-
-        story.phase = newState as StoryPhase;
-        if (!story.events) story.events = [];
-        story.events.push(collectContext('DONE', 'advance'));
-      }
-
-      const mainBranch = git('rev-parse --abbrev-ref HEAD', gitRoot);
+      // B-d877 CHK-001: advance TEST→DONE through the canonical transition
+      // orchestrator instead of a raw XState actor. This closes the second bypass
+      // door: no lifecycle phase-write happens outside runStoryTransition. The
+      // orchestrator's DONE path (applyDoneMergeEffects) is the SOLE owner of the
+      // real git merge back to main + worktree cleanup + branch delete + story
+      // record cleanup — the exact work this handler used to inline. Delegating
+      // here performs that merge EXACTLY ONCE (no double-merge) and appends the
+      // phase_transition process-event the raw actor skipped. The worktree
+      // preconditions above are preserved.
       const results: string[] = [];
-
-      // B-5fa4 CHK-003: warn about unpushed commits before cleanup
-      const unpushed = checkUnpushedCommits(wtPath, branch);
-      if (unpushed.warning) {
-        results.push(unpushed.warning);
+      if (story.phase === 'TEST') {
+        const transition = await runStoryTransition(ctx, { storyId: args.storyId, phase: 'DONE' });
+        if (transition.doneChecklistPrefix.trim()) results.push(transition.doneChecklistPrefix.trim());
+        results.push(`✓ Story ${args.storyId} merged and completed (DONE)`);
+        if (transition.doneMergeReport.trim()) results.push(transition.doneMergeReport.trim());
+      } else {
+        results.push(`✓ Story ${args.storyId} is already DONE`);
       }
 
-      // B-9177 CHK-002: serialize the story→main merge + worktree cleanup +
-      // branch delete critical section under the unified main write lock, mirroring
-      // the live equivalent `applyDoneMergeEffects` (which already holds the lock
-      // across the same span). NOTE: `dev_merge` is currently DORMANT/legacy — it
-      // is NOT in the CLI command registry and is only reachable in-process — but
-      // it is wrapped here for defense-in-depth and so the CHK-003 coverage guard
-      // sees consistent locking of every main-mutating path. Reentrant variant.
-      withReentrantMainWriteLock(gitRoot, () => {
-        // Merge into the main branch
-        try {
-          git(`merge ${branch} --no-ff -m "merge: ${args.storyId} ${story.title}"`, gitRoot);
-          results.push(`✓ Branch ${branch} has been merged into ${mainBranch}`);
-        } catch (e: any) {
-          throw new Error(
-            `Merge conflict, please resolve manually:\ngit merge ${branch}\n${e.stderr || e.message}`
-          );
-        }
-
-        // Clean up worktree (B-0975: retry transient Permission denied locks on Windows)
-        worktreeRemoveWithRetry(wtPath, { cwd: gitRoot });
-        results.push(`✓ Worktree ${wtPath} cleaned up`);
-
-        // Delete branch
-        try {
-          git(`branch -d ${branch}`, gitRoot);
-          results.push(`✓ Branch ${branch} deleted`);
-        } catch {
-          results.push(`⚠ Branch ${branch} not deleted (may have unmerged commits)`);
-        }
-      }, { label: 'dev_merge (dormant/legacy)' });
-
-      // Clean up story records
-      story.worktree = undefined;
-      story.endedAt = new Date().toISOString();
-      store.writeStory(args.storyId, story);
-      results.push(`✓ Story ${args.storyId} completed (DONE)`);
-
-      return results.join('\n');
+      return results.filter(Boolean).join('\n');
     },
 
     /** Discard story: callable at any phase, forcibly cleans up worktree and branch */
