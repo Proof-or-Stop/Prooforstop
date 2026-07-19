@@ -116,7 +116,7 @@
       "desc": "quality-cleanup: packages/main/src/core/mkdir-lock.ts:270-285 (release()) — the ownership-checked release only protects callers that pass holderInfo (main-write-lock.ts:205, validation-execution-lock.ts:249, story-transition-lock.ts:158). The scope-contract for this fix round explicitly records the change as \"back-compatible for all other callers\" (.lattice/story/actives/B-d877/scope-contract.json:20), which means every OTHER real, shipped caller of the SAME shared primitive still takes the old unconditional-rm branch at mkdir-lock.ts:273-276 (releaseLockId stays undefined because no holderInfo is ever passed) and therefore remains exposed to the identical delete-successor race this round exists to close: packages/main/src/handlers/checklist.ts:100-102 (withChecklistLock, checklist.lock), packages/main/src/handlers/finding.ts:82-84 (withReviewPassLock, review-passes.lock), packages/main/src/handlers/review-run.ts:26-28 (withReviewRunLock, review-runs.lock), and packages/main/src/handlers/init-check.ts:64-66 (withInitCheckLock, init-check.lock) all call withMkdirLock with only a {label} option — no holderInfo, no classifyExistingLock — so they use the DEFAULT staleMs=10000ms/mtime-only reclaim (mkdir-lock.ts:164) with NO liveness check at all. Concretely: if holder A (e.g. a checklist_update call) is legitimately slow past 10s under host load (this review reproduced host load average 36-57 causing multi-second scheduling delays on this very machine while probing CHK-002a), a waiting caller B will mtime-stale-reclaim A's checklist.lock dir and acquire it; when A eventually finishes and calls release(), release() unconditionally rmSyncs the dir — deleting B's still-active lock out from under it, opening the door to a third caller C acquiring concurrently with B and both writing checklist.json/review-passes.json/etc. at once (lost-update / corrupted metadata), i.e. the exact bug class the commit message attributes to \"codex HIGH\" and claims to close at the primitive level, but which this diff only closes for the 3 opted-in callers, not these 4 real production ones.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T03:31:47.726Z",
@@ -124,7 +124,9 @@
       "reviewRunId": "B-d877:RR-005",
       "_hash": "a709c80259ee36787df8ba0c5c64936c7a7f4ef8dfd5ed25a996f4077ec42791",
       "signatureTag": "adversarial|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-19T04:21:46.110Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-d877:F-007",
