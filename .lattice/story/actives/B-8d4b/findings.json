@@ -440,7 +440,7 @@
       "desc": "experiments/role-prompt-ab-replay/selfcheck.mjs:199-203,294-301 — HIGH: the isolated no-write proof still snapshots only .lattice/story/actives/B-sentinel plus the root process-events file, then checks only the top-level .lattice names. It does not snapshot the complete .lattice/story evidence root as the decision document claims. Independent repro using the same snapshot algorithm created .lattice/story/actives/B-forged/review-passes.json after the baseline; snapshotEqual remained true and topLevelLattice remained [process-events.jsonl,story]. Therefore a new pass/finding/ReviewRun artifact under another Story is invisible and CHK-004 can still print drift NONE. Snapshot/compare the entire isolated .lattice/story tree (and other governed evidence roots) or explicitly assert the recursive inventory so any new sibling artifact fails.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T03:05:38.304Z",
@@ -448,7 +448,11 @@
       "reviewRunId": "B-8d4b:RR-014",
       "_hash": "708748dd81d77dbbb66a504ee42d576d21a634c36e7ee6fc5ba868da4c9403f8",
       "signatureTag": "missing|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a4b3a20ce6: isolated proof recursively snapshots the entire sandbox .lattice tree including directory membership, raw bytes and symlink targets; sibling Story pass and independent usage-artifact mutation bites both detect drift.",
+      "resolvedAt": "2026-07-19T03:09:22.778Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-024",
