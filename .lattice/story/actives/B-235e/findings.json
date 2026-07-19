@@ -210,6 +210,30 @@
       "_hash": "74d9ec9fde27a58d96af9dc40745b3b4075f6ac0abb52314889405bc0473eb25",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-011",
+      "desc": "Codex registry/global-thin/runtime-owned still resolves the migrated reviewer package template as the host prompt, so the host can preload the complete selected role body before the bootstrap calls review_run_start and returns that same body again. renderLatticeCodexAdapterManifest continues to describe promptMode=registry as direct package-registry resolution, checkPromptRegistry validates renderPromptEntryForHost (the full template), and no registry resolver applies renderReviewerRunBootstrap for the five migrated roles. The new reviewerHostRenderIdentity instead synthesizes a bootstrapDigest/hostRenderDigest without changing or proving the actual registry render, while codex-registry-mode-smoke only asserts those computed digests. This leaves the no-duplication requirement mechanically unimplemented for Codex thin/runtime-owned modes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T09:48:36.417Z",
+      "reviewRound": "2026-07-19T09:45:44.847Z",
+      "reviewRunId": "B-235e:RR-019",
+      "_hash": "d21b8a08e2fb4305d96e97e95db65a807e11560fbfdf2e8a17b11fc797fc579a",
+      "files": [
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts",
+        "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+        "packages/main/src/handlers/agent-prompt.ts",
+        "packages/main/src/registry.ts",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "signatureTag": "doc-promise-undelivered|ts|codex-registry-global",
+      "signatureTagSource": "auto"
     }
   ]
 }
