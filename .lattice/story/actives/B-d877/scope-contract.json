@@ -94,10 +94,170 @@
       "phase": "DEV",
       "headHash": "788d8af648cbb98fe3c4eb40473f75088c9f78f9",
       "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "R3 codex#4/F-011 lock relocation: packages/main/src/core/dirty-gate-policy.ts threads the shared-root storyRuntimeLockPath so this caller's mkdir-lock dir moves out of committed story metadata into gitignored .lattice/locks/; smoke green.",
+      "timestamp": "2026-07-19T05:29:41.407Z",
+      "paths": [
+        "packages/main/src/core/dirty-gate-policy.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/dirty-gate-policy.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ef0fd4e7270588ec039c9d848b826f2f69fa2dde",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "R3 codex#4/F-011 lock relocation: packages/main/src/core/process-events.ts threads the shared-root storyRuntimeLockPath so this caller's mkdir-lock dir moves out of committed story metadata into gitignored .lattice/locks/; smoke green.",
+      "timestamp": "2026-07-19T05:29:42.125Z",
+      "paths": [
+        "packages/main/src/core/process-events.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/process-events.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ef0fd4e7270588ec039c9d848b826f2f69fa2dde",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "R3 codex#4/F-011 lock relocation: packages/main/src/core/store.ts threads the shared-root storyRuntimeLockPath so this caller's mkdir-lock dir moves out of committed story metadata into gitignored .lattice/locks/; smoke green.",
+      "timestamp": "2026-07-19T05:29:43.202Z",
+      "paths": [
+        "packages/main/src/core/store.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/store.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ef0fd4e7270588ec039c9d848b826f2f69fa2dde",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "R3 codex#4/F-011 lock relocation: packages/main/src/core/validation-execution-lock.ts threads the shared-root storyRuntimeLockPath so this caller's mkdir-lock dir moves out of committed story metadata into gitignored .lattice/locks/; smoke green.",
+      "timestamp": "2026-07-19T05:29:43.770Z",
+      "paths": [
+        "packages/main/src/core/validation-execution-lock.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/validation-execution-lock.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ef0fd4e7270588ec039c9d848b826f2f69fa2dde",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "R3 codex#4/F-011 lock relocation: packages/main/src/handlers/agent-prompt.ts threads the shared-root storyRuntimeLockPath so this caller's mkdir-lock dir moves out of committed story metadata into gitignored .lattice/locks/; smoke green.",
+      "timestamp": "2026-07-19T05:29:44.435Z",
+      "paths": [
+        "packages/main/src/handlers/agent-prompt.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/agent-prompt.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ef0fd4e7270588ec039c9d848b826f2f69fa2dde",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "R3 codex#4/F-011 lock relocation: packages/main/src/handlers/checklist.ts threads the shared-root storyRuntimeLockPath so this caller's mkdir-lock dir moves out of committed story metadata into gitignored .lattice/locks/; smoke green.",
+      "timestamp": "2026-07-19T05:29:45.008Z",
+      "paths": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ef0fd4e7270588ec039c9d848b826f2f69fa2dde",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "R3 codex#4/F-011 lock relocation: packages/main/src/handlers/finding.ts threads the shared-root storyRuntimeLockPath so this caller's mkdir-lock dir moves out of committed story metadata into gitignored .lattice/locks/; smoke green.",
+      "timestamp": "2026-07-19T05:29:45.669Z",
+      "paths": [
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ef0fd4e7270588ec039c9d848b826f2f69fa2dde",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "R3 codex#4/F-011 lock relocation: packages/main/src/handlers/init-check.ts threads the shared-root storyRuntimeLockPath so this caller's mkdir-lock dir moves out of committed story metadata into gitignored .lattice/locks/; smoke green.",
+      "timestamp": "2026-07-19T05:29:46.438Z",
+      "paths": [
+        "packages/main/src/handlers/init-check.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/init-check.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ef0fd4e7270588ec039c9d848b826f2f69fa2dde",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "R3 codex#4/F-011 lock relocation: packages/main/src/handlers/review-run.ts threads the shared-root storyRuntimeLockPath so this caller's mkdir-lock dir moves out of committed story metadata into gitignored .lattice/locks/; smoke green.",
+      "timestamp": "2026-07-19T05:29:47.803Z",
+      "paths": [
+        "packages/main/src/handlers/review-run.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/review-run.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ef0fd4e7270588ec039c9d848b826f2f69fa2dde",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "R3 codex#4/F-011 lock relocation: packages/main/src/tasks/quorum-submit-smoke.ts threads the shared-root storyRuntimeLockPath so this caller's mkdir-lock dir moves out of committed story metadata into gitignored .lattice/locks/; smoke green.",
+      "timestamp": "2026-07-19T05:29:48.535Z",
+      "paths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ef0fd4e7270588ec039c9d848b826f2f69fa2dde",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
     }
   ],
   "createdAt": "2026-07-18T23:51:45.763Z",
-  "updatedAt": "2026-07-19T05:28:14.118Z",
+  "updatedAt": "2026-07-19T05:29:48.535Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -108,6 +268,16 @@
     "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
     "packages/main/src/handlers/hints.ts": "packages/main/src/handlers/hints.ts",
     ".gitignore": ".gitignore",
-    "packages/main/src/core/dirty-gate-policy.ts,packages/main/src/core/process-events.ts,packages/main/src/core/store.ts,packages/main/src/core/validation-execution-lock.ts,packages/main/src/handlers/agent-prompt.ts,packages/main/src/handlers/checklist.ts,packages/main/src/handlers/finding.ts,packages/main/src/handlers/init-check.ts,packages/main/src/handlers/review-run.ts,packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/core/dirty-gate-policy.ts,packages/main/src/core/process-events.ts,packages/main/src/core/store.ts,packages/main/src/core/validation-execution-lock.ts,packages/main/src/handlers/agent-prompt.ts,packages/main/src/handlers/checklist.ts,packages/main/src/handlers/finding.ts,packages/main/src/handlers/init-check.ts,packages/main/src/handlers/review-run.ts,packages/main/src/tasks/quorum-submit-smoke.ts"
+    "packages/main/src/core/dirty-gate-policy.ts,packages/main/src/core/process-events.ts,packages/main/src/core/store.ts,packages/main/src/core/validation-execution-lock.ts,packages/main/src/handlers/agent-prompt.ts,packages/main/src/handlers/checklist.ts,packages/main/src/handlers/finding.ts,packages/main/src/handlers/init-check.ts,packages/main/src/handlers/review-run.ts,packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/core/dirty-gate-policy.ts,packages/main/src/core/process-events.ts,packages/main/src/core/store.ts,packages/main/src/core/validation-execution-lock.ts,packages/main/src/handlers/agent-prompt.ts,packages/main/src/handlers/checklist.ts,packages/main/src/handlers/finding.ts,packages/main/src/handlers/init-check.ts,packages/main/src/handlers/review-run.ts,packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/core/dirty-gate-policy.ts": "packages/main/src/core/dirty-gate-policy.ts",
+    "packages/main/src/core/process-events.ts": "packages/main/src/core/process-events.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/validation-execution-lock.ts": "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/agent-prompt.ts": "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/init-check.ts": "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/handlers/review-run.ts": "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts"
   }
 }
