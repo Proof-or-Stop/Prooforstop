@@ -99,7 +99,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-19T02:07:27.042Z",
-      "endTime": "2026-07-19T02:53:19.762Z",
+      "endTime": "2026-07-19T03:03:55.573Z",
       "verificationIntent": {
         "happy": [
           {
@@ -144,14 +144,14 @@
         {
           "intentRef": "same-input-deterministic-readonly-replay",
           "kind": "integration_test",
-          "file": "experiments/role-prompt-ab-replay/run.mjs",
-          "command": "node experiments/role-prompt-ab-replay/run.mjs --json",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner normal/reverse reruns share experimentId 330d7937e85ea9e2ac50cb9c2cabc4ff60239695fb28677075fe6755b35fe152 and canonical historical metrics stay fail-closed.",
-          "headHash": "3ef78ee792f7f8052cfe90be25e7aedc842c0cf7",
-          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
-          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
-          "timestamp": "2026-07-19T02:53:19.971Z"
+          "note": "Owner 49-check rerun and copied ordinary replay preserve deterministic same-input 36-cell behavior with unavailable historical metrics fail-closed.",
+          "headHash": "207a7f0b34f9e66da2113d5f089ab71bf9808cb8",
+          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
+          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
+          "timestamp": "2026-07-19T03:03:55.934Z"
         },
         {
           "intentRef": "replay-order-path-and-repeat-invariance",
@@ -159,11 +159,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner 47-check rerun covers order/repeat/path/object invariance and meaningful digest divergence.",
-          "headHash": "3ef78ee792f7f8052cfe90be25e7aedc842c0cf7",
-          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
-          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
-          "timestamp": "2026-07-19T02:53:20.144Z"
+          "note": "Order/repeat/path/object invariance and meaningful digest divergence remain covered.",
+          "headHash": "207a7f0b34f9e66da2113d5f089ab71bf9808cb8",
+          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
+          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
+          "timestamp": "2026-07-19T03:03:56.199Z"
         },
         {
           "intentRef": "replay-no-caller-substitution-or-write-path",
@@ -171,11 +171,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun rejects caller substitutions and now requires exact unique A/B arms and outputs in the hermetic evaluator.",
-          "headHash": "3ef78ee792f7f8052cfe90be25e7aedc842c0cf7",
-          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
-          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
-          "timestamp": "2026-07-19T02:53:20.418Z"
+          "note": "Caller substitution/path attacks remain rejected; isolated copied entrypoints create no production evidence or process-event writes.",
+          "headHash": "207a7f0b34f9e66da2113d5f089ab71bf9808cb8",
+          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
+          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
+          "timestamp": "2026-07-19T03:03:56.445Z"
         }
       ]
     },
