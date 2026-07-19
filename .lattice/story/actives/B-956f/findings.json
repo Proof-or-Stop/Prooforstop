@@ -48,6 +48,21 @@
       "_hash": "a2451da51ee3846d23f7d315ecf29c6eb0d9435a0668955c99a2fcc75eab6721",
       "signatureTag": "adversarial|unknown|regression-round-side",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-956f:F-004",
+      "desc": "Maintainability/perf: packages/main/src/handlers/phase-gates.ts:414-425 runScopeTransitionGate calls result = runScopeGate(storyId, ctx.store, ctx.root, undefined, gitCwd) (line 416), which internally calls buildScopeDiffPack (scope-contract.ts:477, runScopeGate) whenever a scope contract already exists for the story, and then UNCONDITIONALLY calls buildScopeDiffPack(ctx.root, undefined, gitCwd) again (line 423) purely to build the semantic_analysis_unavailable degradation event via emitSemanticDegradationEvent (line 424). For any story with an existing scope contract (the common in-flight case), this recomputes the full main...HEAD unified diff plus TypeScript AST anchor parsing for every hunk TWICE per transition attempt instead of reusing the diffPack runScopeGate already built (runScopeGate does not currently return/expose its diffPack to the caller). Not a correctness bug -- both computations observe the same git state within one call -- but a real, avoidable doubling of an expensive git+AST computation on every DEV->REVIEW/REVIEW->TEST/TEST->DONE-adjacent scope transition for stories with a scope contract, introduced by this diff (this duplication pattern did not exist on main).",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T17:42:35.785Z",
+      "reviewRound": "2026-07-19T17:18:25.831Z",
+      "reviewRunId": "B-956f:RR-004",
+      "_hash": "7cbacf483682491a62218395faeb7a0c39476572f6747e8177427058144de58a",
+      "signatureTag": "missing|unknown|maintainability-perf-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
