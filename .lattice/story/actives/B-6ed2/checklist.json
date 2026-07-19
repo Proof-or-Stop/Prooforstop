@@ -435,11 +435,11 @@
           "kind": "logic_test",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Process Fact Contract verified after shared raw/record process-event writer migration.",
-          "headHash": "e95d88cfb8c65ac9ab764d8945a633aeecb57801",
-          "materialHash": "ab46a12885447134418f9be302b03a93910d2ea71f9f4b73fe75e29af619813d",
-          "storyFilesHash": "e76dbc98fc7b52b2d223d6ec36ac077773246edd06ce8091145da365159b7575",
-          "timestamp": "2026-07-19T00:13:40.035Z"
+          "note": "Process Fact Contract verified the same exact cli-engine fingerprint projection after the guard-only repin.",
+          "headHash": "38952190ab743c342567c52b6f9b28ed5d531f13",
+          "materialHash": "ff433a6939f5e0ddc355aeb3067dea6107bde47fb063d514c88c6babcc0da5e1",
+          "storyFilesHash": "ebc74cf8134a8d12c18f7b25129525ccf71eeccae4f48894731407239b7c8e12",
+          "timestamp": "2026-07-19T00:36:42.663Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -466,13 +466,13 @@
         {
           "intentRef": "CHK-003:edge:2",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
-          "note": "flow stability smoke PASS; defaultAuditWriter preserves fixed timestamps, per-category rows, and dirty-gate decisions through the shared record primitive.",
-          "headHash": "e95d88cfb8c65ac9ab764d8945a633aeecb57801",
-          "materialHash": "ab46a12885447134418f9be302b03a93910d2ea71f9f4b73fe75e29af619813d",
-          "storyFilesHash": "e76dbc98fc7b52b2d223d6ec36ac077773246edd06ce8091145da365159b7575",
-          "timestamp": "2026-07-19T00:13:40.035Z"
+          "note": "Retired authority vocabulary guard PASS after exact cli-engine fingerprint repin to 48ca6562; registered runCli/file://${initPath} loader anchor remains unchanged.",
+          "headHash": "38952190ab743c342567c52b6f9b28ed5d531f13",
+          "materialHash": "ff433a6939f5e0ddc355aeb3067dea6107bde47fb063d514c88c6babcc0da5e1",
+          "storyFilesHash": "ebc74cf8134a8d12c18f7b25129525ccf71eeccae4f48894731407239b7c8e12",
+          "timestamp": "2026-07-19T00:36:42.663Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
