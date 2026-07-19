@@ -51,7 +51,9 @@ import {
 } from '../core/done-oracle.js';
 import {
   runScopeGate,
+  emitSemanticDegradationEvent,
 } from './scope-contract.js';
+import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { renderScopeCheckResult } from '../core/scope-contract.js';
 import {
   evaluateDoneIntentEquivalence,
@@ -391,6 +393,15 @@ export function runScopeTransitionGate(
   try {
     const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
     result = runScopeGate(storyId, ctx.store, ctx.root, undefined, gitCwd);
+    // B-956f: emit the language-neutral semantic-degradation event regardless of
+    // whether a scope contract exists. The no-contract early return in
+    // runScopeGate must NOT bypass diagnostics, so a pure-.go/.rs/.py story still
+    // surfaces exactly one deduped semantic_analysis_unavailable event during the
+    // mutating transition validation. Best-effort: never blocks the transition.
+    try {
+      const diffPack = buildScopeDiffPack(ctx.root, undefined, gitCwd);
+      emitSemanticDegradationEvent(ctx.store, storyId, diffPack);
+    } catch { /* degradation diagnostics are advisory; never block the transition */ }
   } catch (e) {
     // B-6bfd CHK-006 fail-closed: readScopeContract throws when an existing
     // scope-contract.json is corrupt/unreadable (vs. null for a genuinely

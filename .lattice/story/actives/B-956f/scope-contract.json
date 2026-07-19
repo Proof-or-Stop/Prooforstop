@@ -18,9 +18,106 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Plan v4 in-scope repo-config change: the agreed experiments/ exclusion in the materialCode block (CHK-002 acceptance requires the classification delta to be exactly the experiments/ set).",
+      "timestamp": "2026-07-19T16:15:58.785Z",
+      "paths": [
+        "lattice.config.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "lattice.config.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "cfe6aca6f3d2f24ff007dd939f32c024440e44e6",
+      "materialHash": "c23b711f7506966e518f62dc2bc52ed7a33bf82b0499318bff9a38244425acb8"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "ProofStoryDiagnosticInput gains the materialClassification field (CHK-001 threading); type lives in types.ts.",
+      "timestamp": "2026-07-19T16:15:59.368Z",
+      "paths": [
+        "packages/main/src/core/types.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/types.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "cfe6aca6f3d2f24ff007dd939f32c024440e44e6",
+      "materialHash": "c23b711f7506966e518f62dc2bc52ed7a33bf82b0499318bff9a38244425acb8"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Consequential caller: threads the classification snapshot into gate evaluation per CHK-001 single-snapshot constraint.",
+      "timestamp": "2026-07-19T16:15:59.910Z",
+      "paths": [
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "cfe6aca6f3d2f24ff007dd939f32c024440e44e6",
+      "materialHash": "c23b711f7506966e518f62dc2bc52ed7a33bf82b0499318bff9a38244425acb8"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CHK-003: runScopeTransitionGate emits the deduped semantic degradation event on both contract and no-contract paths (the mutating caller).",
+      "timestamp": "2026-07-19T16:16:00.581Z",
+      "paths": [
+        "packages/main/src/handlers/scope-contract.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/scope-contract.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "cfe6aca6f3d2f24ff007dd939f32c024440e44e6",
+      "materialHash": "c23b711f7506966e518f62dc2bc52ed7a33bf82b0499318bff9a38244425acb8"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Consequential caller of the changed classifier signature; minimal adaptation, no behavior change.",
+      "timestamp": "2026-07-19T16:16:01.135Z",
+      "paths": [
+        "packages/main/src/handlers/story-create.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/story-create.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "cfe6aca6f3d2f24ff007dd939f32c024440e44e6",
+      "materialHash": "c23b711f7506966e518f62dc2bc52ed7a33bf82b0499318bff9a38244425acb8"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Existing smoke updated for the required-snapshot signature of collectMaterialCodeFiles (CHK-001 removes the config-blind path).",
+      "timestamp": "2026-07-19T16:16:01.755Z",
+      "paths": [
+        "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "cfe6aca6f3d2f24ff007dd939f32c024440e44e6",
+      "materialHash": "c23b711f7506966e518f62dc2bc52ed7a33bf82b0499318bff9a38244425acb8"
+    }
+  ],
   "createdAt": "2026-07-19T15:24:53.100Z",
-  "updatedAt": "2026-07-19T15:24:53.100Z",
+  "updatedAt": "2026-07-19T16:16:01.755Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -31,6 +128,12 @@
     "packages/main/src/core/scope-diff-pack.ts": "packages/main/src/core/scope-diff-pack.ts",
     "packages/main/src/handlers/validate-concept.ts": "packages/main/src/handlers/validate-concept.ts",
     "packages/main/src/core/material-code-policy.ts": "packages/main/src/core/material-code-policy.ts",
-    "packages/main/src/tasks/language-neutral-gates-smoke.ts": "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+    "packages/main/src/tasks/language-neutral-gates-smoke.ts": "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/phase-gates.ts": "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/scope-contract.ts": "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/handlers/story-create.ts": "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts": "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
   }
 }

@@ -1211,6 +1211,10 @@ export type ProcessEventType =
   | 'guard_session_check'
   | 'phase_transition'
   | 'human_confirmation'
+  // B-956f: language-neutral degradation signal — a material-code diff in a
+  // language without semantic anchors (non-TS/JS) surfaced by the mutating
+  // scope-transition validation caller (deduped per extension).
+  | 'semantic_analysis_unavailable'
   | 'validation_terminal';
 
 export type ProcessEvent = {
@@ -1897,6 +1901,13 @@ export interface ScopeDiffPack {
   anchorParserVersion?: string;
   anchorArtifactVersion?: string;
   astAnchorMode?: 'off' | 'warn' | 'enforce';
+  /**
+   * B-956f: normalized, deduped extensions (one per extension, no leading dot,
+   * sorted) of MATERIAL-code files in the diff that receive NO semantic anchor
+   * analysis (semantic anchors stay TS/JS-only, no new parsers). TS/JS files
+   * produce none. Derived diagnostic; NOT part of diffPackHash.
+   */
+  semanticAnalysisUnavailable?: string[];
 }
 
 export interface ScopeDeclarationAnchor {

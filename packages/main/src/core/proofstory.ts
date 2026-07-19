@@ -66,6 +66,7 @@ import {
   evidenceIsStaleCovering,
   type MilestoneStatusCurrentEvidenceBinding,
 } from './milestone-status.js';
+import type { MaterialClassificationSnapshot } from './material-code-policy.js';
 
 export const ORIGINAL_INTENT_SNAPSHOT_SCHEMA_VERSION = 'proofstory.original_intent_snapshot.v1';
 export const MILESTONE_LEDGER_SCHEMA_VERSION = 'proofstory.milestone_ledger.v1';
@@ -133,6 +134,14 @@ export interface ProofStoryDiagnosticInput {
    * (backward-compatible: base coverage semantics are unchanged).
    */
   currentEvidenceBinding?: MilestoneStatusCurrentEvidenceBinding | null;
+  /**
+   * B-956f: shared, hash-bound material-code classification snapshot (the SAME
+   * object the review-assurance floor and repro gate consume). The trigger
+   * predicate reads it so that a language-neutral material-code diff (e.g. a
+   * pure .go/.py/.rs story) is a behavior-change / red-evidence signal exactly
+   * like a .ts diff. Absent = backward-compatible text-only classification.
+   */
+  materialClassification?: MaterialClassificationSnapshot | null;
 }
 
 export interface BuildProofStoryContractArgs {
@@ -623,6 +632,18 @@ function countStructuralRows(text: string): number {
     .length;
 }
 
+/**
+ * B-956f: true when the shared classification snapshot reports at least one
+ * material-code file in the diff. A language-neutral material-code change is a
+ * behavior-change / red-evidence signal for the ProofStory trigger predicate,
+ * independent of the request text's language.
+ */
+export function materialClassificationHasMaterialCode(
+  snapshot: MaterialClassificationSnapshot | null | undefined,
+): boolean {
+  return (snapshot?.files ?? []).some((file) => file.materialCode);
+}
+
 function hasBehaviorChangeSignal(input: ProofStoryDiagnosticInput, text: string): boolean {
   const explicitBehaviorChange = /\b(?:behavior change|behaviour change|behavior-changing|behaviour-changing)\b/i.test(text)
     || /\b(?:change(?:s|d|ing)?|alter(?:s|ed|ing)?)\b[^\n.]{0,80}\bbehaviou?r\b/i.test(text);
@@ -686,7 +707,8 @@ function classifyTriggers(input: ProofStoryDiagnosticInput): { hardeningLevel: P
 
   const ambiguity = /\b(?:ambiguous|ambiguity|unclear|unknown|maybe|or\b|choose|decision|scope|multi-path|interpretation)\b/i.test(text);
   const userImpact = /\b(?:user|ui|browser|cli|command|observable|behavior|behaviour|workflow|product)\b/i.test(text);
-  const behaviorChange = hasBehaviorChangeSignal(input, text);
+  const materialCodePresent = materialClassificationHasMaterialCode(input.materialClassification);
+  const behaviorChange = hasBehaviorChangeSignal(input, text) || materialCodePresent;
   if (ambiguity || userImpact || behaviorChange || hasMultiDeliverable) {
     pushTrigger(
       triggers,

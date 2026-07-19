@@ -51,6 +51,26 @@ export interface ReproFirstPreflightConfig {
   mode?: 'off' | 'warn' | 'enforce';
 }
 
+/**
+ * B-956f: project-level material-code classification overrides. Resolved
+ * strictly (fail-closed) by core/material-code-policy.ts — malformed entries
+ * throw a diagnostic naming the offending key. Level-1 runtime/build manifests
+ * stay non-excludable: an excludePaths/paths entry naming (or, via the
+ * filesystem-aware preflight, covering) a manifest is rejected.
+ */
+export interface MaterialCodeConfig {
+  /** Extra code extensions to treat as material (normalized: leading dot, lowercase). */
+  addExtensions?: string[];
+  /** Extensions to subtract from the default code set. */
+  removeExtensions?: string[];
+  /** Segment-aware non-material path exclusions (e.g. experiments/). */
+  excludePaths?: string[];
+  /** Extra code-extension-gated material path prefixes. */
+  paths?: string[];
+  /** Override the default documentation/binary (non-material) extension set. */
+  docExtensions?: string[];
+}
+
 export interface ProofStoryConfig {
   /** PLAN/INIT_CHECK/REVIEW rollback DEV admission ProofStory gate. Defaults to observe. */
   devGateMode?: 'observe' | 'warn' | 'enforce';
@@ -148,6 +168,8 @@ export interface LatticeConfig {
    * binding; enforce turns the same diagnostic into a lifecycle block.
    */
   reproFirstPreflight?: ReproFirstPreflightConfig;
+  /** B-956f: language-neutral material-code classification overrides. */
+  materialCode?: MaterialCodeConfig;
   proofStory?: ProofStoryConfig;
   lifecycleControl?: LifecycleControlConfig;
   /**

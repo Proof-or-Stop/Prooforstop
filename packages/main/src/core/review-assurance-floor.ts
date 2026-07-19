@@ -1,5 +1,10 @@
 import { execFileSync } from 'child_process';
-import { currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from './evidence-freshness.js';
+import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
+import {
+  classifyMaterialCodePath,
+  resolveMaterialCodePolicy,
+  type MaterialClassificationSnapshot,
+} from './material-code-policy.js';
 import {
   evaluateHostVerdictRounds,
   type HostVerdictRound,
@@ -133,6 +138,12 @@ export interface EvaluateReviewAssuranceFloorArgs {
   changedFiles?: string[];
   materialHash?: string;
   storyFilesHash?: string;
+  /**
+   * B-956f: shared hash-bound classification snapshot. When supplied, per-file
+   * classification reuses its embedded policy so the floor observes the SAME
+   * language-neutral policy as the repro + ProofStory consumers.
+   */
+  materialClassification?: MaterialClassificationSnapshot;
 }
 
 export type ReviewAssuranceGuidanceSource = 'review-escalation' | 'review-assurance-floor';
@@ -466,59 +477,23 @@ function normalizePath(value: string): string {
   return value.replace(/\\/g, '/').replace(/^\.\/+/, '');
 }
 
-function fileName(path: string): string {
-  const parts = normalizePath(path).split('/');
-  return parts[parts.length - 1]?.toLowerCase() ?? '';
-}
-
-function hasExtension(path: string, extensions: readonly string[]): boolean {
-  const lower = path.toLowerCase();
-  return extensions.some(ext => lower.endsWith(ext));
-}
-
-function isPackageOrRuntimeConfigPath(path: string): boolean {
-  const name = fileName(path);
-  return (
-    name === 'package.json' ||
-    name === 'package-lock.json' ||
-    name === 'pnpm-lock.yaml' ||
-    name === 'yarn.lock' ||
-    name === 'bun.lockb' ||
-    name === 'tsconfig.json' ||
-    name.startsWith('tsconfig.') ||
-    name === 'lattice.config.json'
-  );
-}
-
-export function classifyReviewAssuranceFloorPath(path: string, projectRoot?: string): ReviewAssuranceFloorChangedFile {
-  const normalized = normalizePath(path);
-  const lower = normalized.toLowerCase();
-
-  if (!normalized) {
-    return { path: normalized, materialCode: false, reason: 'empty path' };
-  }
-  if (isMaterialExcludedPath(normalized, projectRoot)) {
-    return { path: normalized, materialCode: false, reason: 'lattice runtime/story metadata' };
-  }
-  if (hasExtension(lower, ['.md', '.mdx'])) {
-    return { path: normalized, materialCode: false, reason: 'markdown documentation' };
-  }
-  if (
-    lower.startsWith('packages/main/src/') ||
-    lower.startsWith('packages/main/tests/') ||
-    lower.startsWith('packages/main/test/') ||
-    lower.startsWith('scripts/') ||
-    lower.startsWith('bin/')
-  ) {
-    return { path: normalized, materialCode: true, reason: 'source/runtime/test/script path' };
-  }
-  if (isPackageOrRuntimeConfigPath(lower)) {
-    return { path: normalized, materialCode: true, reason: 'package/runtime config path' };
-  }
-  if (hasExtension(lower, ['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts', '.mjs', '.cjs', '.sh'])) {
-    return { path: normalized, materialCode: true, reason: 'code or script extension' };
-  }
-  return { path: normalized, materialCode: false, reason: 'non-code project material' };
+/**
+ * Classify a single path for the review-assurance floor. Language-neutral
+ * (B-956f): delegates per-file classification to the config-resolved
+ * material-code policy's 8-step precedence chain. When a shared classification
+ * snapshot is supplied its embedded policy is reused (all consumers observe ONE
+ * policy); otherwise the policy is resolved from projectRoot (or the built-in
+ * defaults when projectRoot is absent, e.g. the RED harness). The exported shape
+ * (`ReviewAssuranceFloorChangedFile`) is unchanged for existing callers.
+ */
+export function classifyReviewAssuranceFloorPath(
+  path: string,
+  projectRoot?: string,
+  snapshot?: MaterialClassificationSnapshot,
+): ReviewAssuranceFloorChangedFile {
+  const policy = snapshot?.policy ?? resolveMaterialCodePolicy(projectRoot);
+  const classified = classifyMaterialCodePath(policy, path, { projectRoot: snapshot?.projectRoot ?? projectRoot });
+  return { path: classified.path, materialCode: classified.materialCode, reason: classified.reason };
 }
 
 function listChangedFiles(gitCwd: string): { files: string[]; error?: string } {
@@ -785,7 +760,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
     ...overrides,
   });
   const listed = args.changedFiles ? { files: args.changedFiles } : listChangedFiles(gitCwd);
-  const changedFiles = listed.files.map(path => classifyReviewAssuranceFloorPath(path, args.projectRoot));
+  const changedFiles = listed.files.map(path => classifyReviewAssuranceFloorPath(path, args.projectRoot, args.materialClassification));
   const materialCodePaths = changedFiles
     .filter(file => file.materialCode)
     .map(file => file.path);

@@ -24,6 +24,11 @@
 import { execSync } from 'node:child_process';
 import ts from 'typescript';
 import { DEFAULT_BASE } from './validate-shared.js';
+import {
+  classifyMaterialCodePath,
+  materialPathExtension,
+  resolveMaterialCodePolicy,
+} from '../core/material-code-policy.js';
 
 export interface ConceptResidual {
   symbol: string;
@@ -41,6 +46,13 @@ export interface ConceptCheckResult {
   deletedSymbols: string[];
   residuals: ConceptResidual[];
   diagnostics?: string[];
+  /**
+   * B-956f (spec Change D): concept-analysis's own DISTINCT skip diagnostic —
+   * names material-code non-TS/py source files concept analysis does not parse.
+   * Independent of `diagnostics` (fail-closed parse errors) and of scope-diff
+   * pack semantic_analysis_unavailable events; never fails the gate.
+   */
+  skipDiagnostics?: string[];
   recommendation: 'skip concept LLM reviewer' | 'dispatch lattice-review-concept';
 }
 
@@ -139,6 +151,14 @@ interface DeclarationIdentity {
 interface DeletedSymbolAnalysis {
   symbols: string[];
   diagnostics: string[];
+  /**
+   * B-956f (spec Change D): concept-analysis's OWN, DISTINCT skip channel —
+   * material-code files in a language concept analysis does not parse (non-TS/py,
+   * e.g. .go/.rs). Kept strictly separate from `diagnostics` (which are
+   * fail-closed parse errors) so a language skip never fails the gate, and never
+   * conflated with scope-diff-pack's semantic_analysis_unavailable events.
+   */
+  skipDiagnostics: string[];
 }
 
 const DIFF_SOURCE_DIAGNOSTICS = new WeakMap<DiffFileSources[], string[]>();
@@ -825,11 +845,37 @@ function collectPythonDeclarations(file: string, sourceText: string): { declarat
   return { declarations, diagnostics };
 }
 
+function isConceptAnalyzablePath(path: string): boolean {
+  return PYTHON_DECLARATION_EXTENSION.test(path)
+    || TYPESCRIPT_DECLARATION_EXTENSION.test(path)
+    || JAVASCRIPT_DECLARATION_EXTENSION.test(path);
+}
+
 export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
   const removed = new Map<string, DeclarationIdentity[]>();
   const added = new Map<string, number>();
   const reconstructed = diffFileSources(diff);
   const diagnostics: string[] = [...(DIFF_SOURCE_DIAGNOSTICS.get(reconstructed) ?? [])];
+  const skipped = new Set<string>();
+  // Language-neutral (B-956f): resolve the material-code policy once so the skip
+  // channel names ONLY material-code files in a source language concept analysis
+  // cannot parse (non-TS/py) — not docs, and not manifests without a code
+  // extension (go.mod, package.json). Fails soft: a malformed policy (surfaced
+  // fail-closed by the floor/repro gates) yields no skip diagnostics here.
+  let policy: ReturnType<typeof resolveMaterialCodePolicy> | undefined;
+  try {
+    policy = resolveMaterialCodePolicy();
+  } catch {
+    policy = undefined;
+  }
+  const noteSkip = (path: string): void => {
+    if (!path || path === '/dev/null' || isConceptAnalyzablePath(path)) return;
+    if (!policy) return;
+    const ext = materialPathExtension(path);
+    if (!ext || !policy.codeExtensions.includes(ext)) return;
+    if (!classifyMaterialCodePath(policy, path).materialCode) return;
+    skipped.add(path.replace(/\\/g, '/'));
+  };
   for (const file of reconstructed) {
     const collectSide = (path: string, source: string) => {
       if (PYTHON_DECLARATION_EXTENSION.test(path)) {
@@ -843,6 +889,8 @@ export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
       }
       return { declarations: [], diagnostics: [] };
     };
+    noteSkip(file.newPath);
+    if (!file.copy) noteSkip(file.oldPath);
     const oldSide = file.copy
       ? { declarations: [], diagnostics: [] }
       : collectSide(file.oldPath, file.oldSource);
@@ -866,11 +914,20 @@ export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
     const survivorCount = added.get(key) ?? 0;
     for (const declaration of declarations.slice(survivorCount)) symbols.push(declaration.name);
   }
-  return { symbols: [...new Set(symbols)].sort(), diagnostics: [...new Set(diagnostics)].sort() };
+  return {
+    symbols: [...new Set(symbols)].sort(),
+    diagnostics: [...new Set(diagnostics)].sort(),
+    skipDiagnostics: [...skipped].sort().map((path) => `concept-analysis skipped ${path} (non-TS/py source; deleted-symbol analysis unsupported)`),
+  };
 }
 
 export function scanDeletedSymbols(diff: string): string[] {
   return analyzeDeletedSymbols(diff).symbols;
+}
+
+/** B-956f: the DISTINCT concept-analysis skip diagnostic channel for a diff. */
+export function conceptSkipDiagnostics(diff: string): string[] {
+  return analyzeDeletedSymbols(diff).skipDiagnostics;
 }
 
 // ── residual grep ──
@@ -989,6 +1046,10 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
   }
 
   const analysis = analyzeDeletedSymbols(diff);
+  // B-956f: the concept skip channel is its OWN diagnostic, surfaced alongside
+  // every outcome without ever being conflated with the fail-closed parse
+  // `diagnostics` (a language skip must not fail the gate).
+  const skip = analysis.skipDiagnostics.length > 0 ? { skipDiagnostics: analysis.skipDiagnostics } : {};
   if (analysis.diagnostics.length > 0) {
     return {
       provider: 'lattice-concept',
@@ -997,6 +1058,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
       deletedSymbols: analysis.symbols,
       residuals: [],
       diagnostics: analysis.diagnostics,
+      ...skip,
       recommendation: 'dispatch lattice-review-concept',
     };
   }
@@ -1008,6 +1070,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
       summary: `no deleted exports in ${base}...HEAD`,
       deletedSymbols: [],
       residuals: [],
+      ...skip,
       recommendation: 'skip concept LLM reviewer',
     };
   }
@@ -1021,6 +1084,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
       summary: `${symbols.length} symbol(s) deleted, no residual references`,
       deletedSymbols: symbols,
       residuals: [],
+      ...skip,
       recommendation: 'skip concept LLM reviewer',
     };
   }
@@ -1038,6 +1102,7 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
     summary: `${symbols.length} symbol(s) deleted, ${residuals.length} residual reference(s) found`,
     deletedSymbols: symbols,
     residuals,
+    ...skip,
     recommendation,
   };
 }

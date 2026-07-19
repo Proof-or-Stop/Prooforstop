@@ -26,6 +26,7 @@ import {
   classifyReproFirstRequirement,
   resolveReproFirstPreflightMode,
 } from '../core/repro-evidence-binding-gate.js';
+import { buildMaterialClassificationSnapshot } from '../core/material-code-policy.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 
@@ -121,7 +122,8 @@ function renderReproFirstStoryCreatePreflight(args: {
     endedAt: null,
     events: [],
   } as StoryInfo;
-  const classification = classifyReproFirstRequirement(candidateStory, args.checklist);
+  const snapshot = buildMaterialClassificationSnapshot(args.projectRoot);
+  const classification = classifyReproFirstRequirement(candidateStory, args.checklist, snapshot);
   if (!classification.required) return '';
   const bypassReason = args.bypassReason?.trim();
   if (bypassReason) {

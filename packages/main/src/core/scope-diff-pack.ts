@@ -18,6 +18,11 @@ import ts from 'typescript';
 import type { ScopeDiffHunk, ScopeDiffPack } from './types.js';
 import { readChangedFiles } from './scope-contract.js';
 import { loadConfig } from './config.js';
+import {
+  classifyMaterialCodePath,
+  materialPathExtension,
+  resolveMaterialCodePolicy,
+} from './material-code-policy.js';
 
 export const SCOPE_ANCHOR_PARSER_VERSION = `typescript-${ts.versionMajorMinor}-ast-v1` as const;
 export const SCOPE_ANCHOR_ARTIFACT_VERSION = 'lattice.scope-anchor.v1' as const;
@@ -494,6 +499,52 @@ function readUnifiedDiff(gitCwd: string): string {
   return parts.join('\n');
 }
 
+/**
+ * B-956f: normalized, deduped extensions (no leading dot, sorted) of MATERIAL
+ * code files in the diff that receive no TS/JS semantic anchor analysis. TS/JS
+ * hunks never carry the `unsupported_file_type` fallback, so they produce none.
+ * Docs/binary changes are excluded via the material-code policy. Pure: derived
+ * from the hunks + policy, writes no events. Fails soft — a malformed policy
+ * config (surfaced fail-closed by the floor/repro gates) yields no diagnostics
+ * here rather than throwing inside every read-only diff-pack build.
+ */
+export function collectSemanticAnalysisUnavailable(
+  metadataRoot: string,
+  hunks: readonly ScopeDiffHunk[],
+): string[] {
+  let policy;
+  try {
+    policy = resolveMaterialCodePolicy(metadataRoot);
+  } catch {
+    return [];
+  }
+  const extensions = new Set<string>();
+  for (const hunk of hunks) {
+    if (hunk.parseFallback !== 'unsupported_file_type') continue;
+    if (!classifyMaterialCodePath(policy, hunk.path, { projectRoot: metadataRoot }).materialCode) continue;
+    const ext = materialPathExtension(hunk.path).replace(/^\./, '') || '<no-extension>';
+    extensions.add(ext);
+  }
+  return [...extensions].sort();
+}
+
+export interface SemanticDegradationEvent {
+  type: 'semantic_analysis_unavailable';
+  extensions: string[];
+}
+
+/**
+ * Pure builder for the union-typed degradation process event. Returns null when
+ * there is nothing to report so a mutating caller emits at most one deduped
+ * event and read-only callers can skip emission entirely.
+ */
+export function buildSemanticDegradationEvent(
+  pack: Pick<ScopeDiffPack, 'semanticAnalysisUnavailable'>,
+): SemanticDegradationEvent | null {
+  const extensions = [...new Set(pack.semanticAnalysisUnavailable ?? [])].sort();
+  return extensions.length > 0 ? { type: 'semantic_analysis_unavailable', extensions } : null;
+}
+
 export function buildScopeDiffPack(
   metadataRoot: string,
   now = new Date().toISOString(),
@@ -525,8 +576,12 @@ export function buildScopeDiffPack(
     } : {}),
     astAnchorMode: astMode,
   };
+  // Derived degradation diagnostic — computed AFTER the digest so it never
+  // perturbs diffPackHash (backward-compatible with signed scope artifacts).
+  const semanticAnalysisUnavailable = collectSemanticAnalysisUnavailable(metadataRoot, packWithoutHash.hunks);
   return {
     ...packWithoutHash,
     diffPackHash: digestScopeDiffPack(packWithoutHash),
+    ...(semanticAnalysisUnavailable.length > 0 ? { semanticAnalysisUnavailable } : {}),
   };
 }

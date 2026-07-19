@@ -1,7 +1,11 @@
 import { listArtifacts, readArtifact, verifyArtifactDigest } from './evidence/artifact-store.js';
 import { loadConfig } from './config.js';
 import { buildProofAdmissibilityDiagnostic } from './proof-admissibility-gates.js';
-import { classifyReviewAssuranceFloorPath } from './review-assurance-floor.js';
+import {
+  buildMaterialClassificationSnapshot,
+  classifyDeclaredPaths,
+  type MaterialClassificationSnapshot,
+} from './material-code-policy.js';
 import type {
   EvidenceArtifact,
   RegressionMatrixReviewPayload,
@@ -68,19 +72,26 @@ export function resolveReproFirstPreflightMode(projectRoot?: string): ReproFirst
 }
 
 /**
- * B-8628: collect the checklist's declared files that are MATERIAL CODE, reusing
- * the canonical review-assurance-floor classifier (.ts/.js/.sh/scripts/package.json
- * = material; .md/metadata = not). Single source of truth for "writes code".
+ * B-8628 / B-956f: collect the checklist's declared files that are MATERIAL CODE
+ * using the shared, config-resolved classification snapshot (language-neutral:
+ * .ts/.js/.py/.rs/.go/… + cross-ecosystem manifests = material; docs/metadata =
+ * not). The snapshot parameter is REQUIRED (compile-time fail-closed) so this
+ * path can never regress to the old config-blind call that dropped projectRoot
+ * and silently classified non-JS code as non-material.
  */
-function collectMaterialCodeFiles(checklist: ChecklistData | null | undefined): string[] {
+function collectMaterialCodeFiles(
+  checklist: ChecklistData | null | undefined,
+  snapshot: MaterialClassificationSnapshot,
+): string[] {
   if (!checklist) return [];
-  return checklist.items
-    .flatMap(item => [
-      ...(item.files?.modify ?? []),
-      ...(item.files?.create ?? []),
-      ...(item.files?.test ?? []),
-    ])
-    .filter(path => classifyReviewAssuranceFloorPath(path).materialCode);
+  const declared = checklist.items.flatMap(item => [
+    ...(item.files?.modify ?? []),
+    ...(item.files?.create ?? []),
+    ...(item.files?.test ?? []),
+  ]);
+  return classifyDeclaredPaths(snapshot, declared)
+    .filter(entry => entry.materialCode)
+    .map(entry => entry.path);
 }
 
 /**
@@ -95,8 +106,9 @@ function collectMaterialCodeFiles(checklist: ChecklistData | null | undefined): 
 export function classifyReproFirstRequirement(
   story: StoryInfo | null | undefined,
   checklist: ChecklistData | null | undefined,
+  snapshot: MaterialClassificationSnapshot,
 ): ReproFirstRequirementClassification {
-  const materialFiles = collectMaterialCodeFiles(checklist);
+  const materialFiles = collectMaterialCodeFiles(checklist, snapshot);
   if ((story?.type === 'bug' || story?.type === 'feature') && materialFiles.length > 0) {
     return {
       required: true,
@@ -357,7 +369,8 @@ export function evaluateStoryEvidenceBindingGate(
     checklist = null;
   }
 
-  const classification = classifyReproFirstRequirement(story, checklist);
+  const snapshot = buildMaterialClassificationSnapshot(projectRoot);
+  const classification = classifyReproFirstRequirement(story, checklist, snapshot);
   if (!classification.required) {
     return resultFor({
       ok: true,

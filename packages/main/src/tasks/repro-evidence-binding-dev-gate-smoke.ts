@@ -31,6 +31,7 @@ import {
   evaluateStoryEvidenceBindingGate,
   type ReproFirstPreflightMode,
 } from '../core/repro-evidence-binding-gate.js';
+import { buildMaterialClassificationSnapshot } from '../core/material-code-policy.js';
 import {
   createProbe,
   createStoryFromRepro,
@@ -444,8 +445,9 @@ await check('B-8628 classifyReproFirstRequirement: material-code bug/feature req
     ({ type, priority, riskSignals }) as unknown as Parameters<typeof classifyReproFirstRequirement>[0];
   const cl = (...files: string[]) =>
     ({ items: [{ files: { modify: files, create: [], test: [] } }] }) as unknown as Parameters<typeof classifyReproFirstRequirement>[1];
+  const snap = buildMaterialClassificationSnapshot();
   const expect = (name: string, s: ReturnType<typeof story>, files: string[], want: boolean) => {
-    const r = classifyReproFirstRequirement(s, cl(...files));
+    const r = classifyReproFirstRequirement(s, cl(...files), snap);
     assert.equal(r.required, want, `${name}: required ${r.required} !== ${want} (reason=${r.reason})`);
   };
   // exempt (cannot have a reproduce-the-failure red test)
@@ -460,8 +462,8 @@ await check('B-8628 classifyReproFirstRequirement: material-code bug/feature req
   // safety net (high/critical + code-verifiable risk, even without files)
   expect('high-risk no-file', story('bug', 'high', [{ category: 'State Machine/Gate', matched: 'machine.ts' }]), [], true);
   // reason codes
-  assert.equal(classifyReproFirstRequirement(story('bug'), cl('packages/main/src/x.ts')).reason, 'code_verifiable_behavior_change');
-  assert.equal(classifyReproFirstRequirement(story('bug'), cl('docs/g.md')).reason, 'bypass_eligible_no_files');
+  assert.equal(classifyReproFirstRequirement(story('bug'), cl('packages/main/src/x.ts'), snap).reason, 'code_verifiable_behavior_change');
+  assert.equal(classifyReproFirstRequirement(story('bug'), cl('docs/g.md'), snap).reason, 'bypass_eligible_no_files');
 });
 
 await check('story_create enforce blocks high-risk code-verifiable classifier without binding before persistence', async () => {
