@@ -1213,6 +1213,12 @@ export async function runCli(opts?: {
     // caller), using the exact `isReadOnlyCommand` predicate the hook gates use,
     // so no post-command process-event surface can bypass the contract.
     if (isReadOnlyCommand(entry.command, argsObject)) return;
+    // quorum_submit owns one exact immutable process-events transaction inside
+    // its handler. A generic post-handler codex_cli append would make that
+    // canonical commit dirty again (and would mutate pre-dirty refusal bytes).
+    // Activity telemetry still records the invocation; the L4 command evidence
+    // is the committed host_verdict batch itself.
+    if (entry.command === 'quorum_submit') return;
     const storyId = storyIdFromArgs(argsObject, activeStory, { command: entry.command, projectRoot: root });
     if (!storyId) return;
     const closeCanonicalTerminal = (entry.success || entry.canonicalFailure === true)

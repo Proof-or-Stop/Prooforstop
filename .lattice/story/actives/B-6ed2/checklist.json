@@ -8,9 +8,153 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-18T23:15:19.691Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Production-path RED: in a clean real story worktree with current signed reviewer passes, invoke the worktree-local CLI quorum_submit and assert exactly six current-round host_verdict rows are appended while .lattice/story/actives/B-6ed2/process-events.jsonl remains a tracked dirty path; record before/after HEAD, byte length, row identities and git status so the failure is the real handler path, not a mocked helper.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Immediately cross the real validation persistence boundary after that RED and assert validation executes but refuses canonical PASS persistence because the quorum residue pre-existed its transaction; no PASS receipt, validation_terminal PASS, or clean-tree claim may be produced.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Prove the RED is deterministic from a clean baseline: repeating the fixture setup yields the same six-row causal delta and dirty process-events path without unrelated source/config changes.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect all six emitted rows and prove they bind the intended three rounds by two distinct hosts to the current material/story-files/prompt/validation identity; duplicate or stale rows do not count toward the observed batch.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Seed process-events.jsonl with unrelated pre-existing bytes before quorum_submit and prove neither quorum_submit nor the following validate launders those bytes into a trusted commit or accepts PASS.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject a concurrent foreign append between quorum emission and the next persistence boundary and prove exact-byte/HEAD checks expose the race; no false PASS and no partial trusted quorum are accepted.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Assert the RED harness fails if it uses the global/main runtime, a fake store, direct handler-only shortcut, or fewer than six exact host_verdict rows, preserving production-path authority.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git show --numstat --oneline e764c1cd18",
+          "result": "pass",
+          "note": "Immutable production transcript shows the successful quorum_submit transaction committed exactly six additions in only process-events.jsonl.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "27-check bounded production-entry integration binds historical RED ffedfb4eb3 and proves dirty validation executes once but returns infra_failure with no false PASS.",
+          "headHash": "8d7b031bfa3cf6209cd16095acf1fd854230ffa5",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:24.346Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git show --stat --oneline ffedfb4eb3",
+          "result": "pass",
+          "note": "Immutable RED commit records the beforeHead equals afterHead failure before atomic closeout.",
+          "headHash": "8d7b031bfa3cf6209cd16095acf1fd854230ffa5",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:24.903Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +164,190 @@
         "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-18T23:15:29.429Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "From a clean index/worktree and stable HEAD, quorum_submit appends the bounded six-row three-round-by-two-host verdict batch and creates exactly one local commit whose diff contains only that invocation causal delta in the canonical process-events.jsonl; output reports the commit SHA and the worktree is clean afterward.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The committed six rows retain their signed reviewer-run, round, distinct-host, current materialHash/storyFilesHash, promptDigest and validationDigest bindings, and the assurance evaluator counts a complete 3x2 quorum only after the commit succeeds.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The transaction snapshots entry HEAD, index status, canonical file identity and exact before-bytes; immediately before staging/commit it rechecks HEAD and content and stages only the exact process-events path, never broad-add semantics.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A repeated identical quorum_submit after the successful commit is idempotent: it does not append another six rows or create a no-op/duplicate commit, and reports the already-satisfied/refused disposition without changing quorum count.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A failed first attempt that fully rolls back can be retried from the restored baseline and then produces one six-row commit, with neither duplicate residue nor stale transaction state.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Any pre-existing dirty/staged source, config, user file, lifecycle metadata, or process-events bytes causes refusal before durable verdict persistence; none of that dirt is staged or committed and no quorum is newly counted.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A foreign append or byte mutation after emission but before commit fails the exact-content/CAS check; rollback removes only the command causal six rows, preserves competing bytes verbatim, and leaves no partial quorum or PASS-equivalent assurance.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "HEAD movement between baseline capture and commit fails closed before commit; the moved HEAD is preserved, no commit is attributed to quorum_submit, and all six generated rows disappear together.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Commit-hook rejection or git commit failure is not bypassed with no-verify; the index is restored and all six generated verdict rows are rolled back atomically, so assurance remains incomplete.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "If rollback itself detects a CAS/content conflict, it must not overwrite or truncate foreign bytes; surface a structured rollback-conflict/infra failure and ensure no subset of the six rows can satisfy the 3x2 gate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main 39/39 run preserves exact 3x2 binding and countability assertions after semantic conflict resolution.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:3",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:4",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Worktree-local node bin/lattice.js production entry creates one exact six-row commit and clean process-events; all adversarial transaction cases pass.",
+          "headHash": "83516258075a90d646730b1c0271c69363eb8d7b",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:35.534Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,9 +357,190 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/requirements/decisions/session-ownership-and-write-leases.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-07-18T23:15:38.991Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A focused regression drives the worktree-local quorum_submit production CLI from clean signed current-round reviewer passes and asserts one atomic six-row commit, clean post-state, complete 3x2 local-review-quorum, and no Authority/production completion overclaim.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Because atomic quorum persistence is gate-consumed semantics, the process-fact registry and verify-process-fact-contract projection explicitly bind quorum_submit, host_verdict/local-review-quorum, atomic persistence/refusal behavior and its gate consumer; the runtime-fact registry remains unchanged unless an actual environment fact is introduced.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression covers duplicate submission after success: no duplicate rows or commit are created and the already-complete quorum remains exactly three rounds by two distinct hosts.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression covers idempotent retry after a fully rolled-back infra failure: retry succeeds once, produces exactly six durable rows, and does not inherit partial state from the failed attempt.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Process-fact contract/vocabulary fingerprint tests are updated together with registry semantics and pass alongside the focused quorum test, without weakening unrelated receipt, validation, review, or Authority facts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression seeds pre-dirty process-events metadata and separately unrelated staged/user dirt; quorum_submit refuses both before a trusted commit, preserves bytes/index, and cannot make the assurance gate PASS.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression injects a foreign append/content mutation during the transaction; CAS failure preserves foreign bytes and yields zero durable generated rows or a structured rollback conflict, never a partial countable quorum.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression forces commit-hook/git commit failure without bypassing hooks; exact rollback restores file and index baseline, emits no quorum commit, and leaves the gate incomplete.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression forces rollback conflict and asserts fail-closed diagnostics expose both primary and rollback failure while refusing to overwrite competing content or count any subset of the six verdicts.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Regression moves HEAD at the pre-commit boundary and asserts CAS refusal, no generated commit, all-or-none verdict durability, and no validation/review receipt is synthesized to mask the failure.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main 39/39 run preserves foreign-byte concurrency and zero-partial-quorum assertions.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:3",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:4",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+          "headHash": "1a2a9f708681650d747c55233e717b9ffd23a0c0",
+          "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+          "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+          "timestamp": "2026-07-19T01:41:30.692Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "27-check matrix covers full-event tamper, JSON byte ownership, committed duplicate authority, binary Buffer rollback, CLI pre-dirt and validation no-false-PASS.",
+          "headHash": "13fff637fb2adff819ef465d9162a03a9e2317cf",
+          "materialHash": "d0807cfbd0cb8c4dfb774a77c2577fe049606a93a6719dc93a96dad024005bee",
+          "storyFilesHash": "5b2fa070efff18ee7d13c0e58c3d59e176d41c43f5aae1d0b74b065564c7b67f",
+          "timestamp": "2026-07-18T23:15:42.749Z"
+        }
+      ]
     }
   ]
 }

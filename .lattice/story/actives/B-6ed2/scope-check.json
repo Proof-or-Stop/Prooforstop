@@ -1,0 +1,215 @@
+{
+  "storyId": "B-6ed2",
+  "checkedAt": "2026-07-18T22:20:21.498Z",
+  "features": [
+    {
+      "feature": "Reproduce the production-path quorum residue from a clean real story worktree as exactly six current-round host_verdict rows with before/after HEAD, bytes, identities and git status.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-6ed2/background.md; checklist CHK-001 happy"
+    },
+    {
+      "feature": "Cross the real validation persistence boundary after the RED and refuse canonical PASS, validation_terminal PASS, or a clean-tree claim for pre-existing quorum dirt.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-6ed2/understanding.json; checklist CHK-001 happy"
+    },
+    {
+      "feature": "Keep the RED deterministic and production-authoritative: worktree-local runtime, real CLI handler path, no fake store/direct helper/global-main runtime, and exactly six rows.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-001 edge/adversarial"
+    },
+    {
+      "feature": "Bind the observed six verdicts to three rounds, two distinct hosts, current signed reviewer runs, material/story-files, prompt and validation identities; stale or duplicate rows do not count.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-001 edge"
+    },
+    {
+      "feature": "Commit the quorum-owned six-row causal delta as one exact local metadata transaction and leave the repository clean while reporting the commit SHA.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "scope-boundary.json; checklist CHK-002 happy"
+    },
+    {
+      "feature": "Do not let the assurance evaluator count the 3x2 quorum until the exact commit succeeds.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md Key Insights; checklist CHK-002 happy"
+    },
+    {
+      "feature": "Snapshot and recheck entry HEAD, index state, canonical file identity, exact before-bytes and expected content immediately before staging; stage only process-events.jsonl and never use broad-add semantics.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json option A; checklist CHK-002 edge"
+    },
+    {
+      "feature": "Refuse all pre-existing dirty or staged source, config, user, lifecycle metadata and process-event bytes before durable verdict persistence without staging, committing or laundering them.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json constraints; checklist CHK-002 adversarial"
+    },
+    {
+      "feature": "On foreign append or byte mutation, fail exact-content CAS, remove only command-owned rows when safe, preserve competing bytes verbatim, and never accept partial assurance.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json preMortem; checklist CHK-002 adversarial"
+    },
+    {
+      "feature": "On HEAD movement, preserve the moved HEAD, create no quorum-attributed commit, and remove all generated verdict rows together.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 adversarial"
+    },
+    {
+      "feature": "On hook rejection or git commit failure, do not bypass hooks, restore index and exact file baseline, and leave assurance incomplete.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 adversarial"
+    },
+    {
+      "feature": "If rollback encounters a CAS/content conflict, preserve foreign content, expose structured primary plus rollback failure, and prevent any subset from satisfying the gate.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 adversarial; CHK-003 adversarial"
+    },
+    {
+      "feature": "A repeated successful submission is idempotent and creates neither duplicate rows nor a no-op commit.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision.json duplicate-retry preMortem; checklist CHK-002 edge"
+    },
+    {
+      "feature": "A fully rolled-back failed attempt can be retried once from the restored baseline without residue or stale transaction state.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-002 edge"
+    },
+    {
+      "feature": "Focused regression covers success, duplicate submission, pre-dirty paths, foreign mutation, HEAD race, commit-hook failure, rollback conflict and idempotent retry through the worktree-local production CLI.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-003 happy/edge/adversarial"
+    },
+    {
+      "feature": "Register atomic quorum persistence and refusal as gate-consumed process facts and update the process-fact contract and vocabulary fingerprints without weakening unrelated facts.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding.json touchpoints; checklist CHK-003 happy/edge"
+    },
+    {
+      "feature": "Keep host_verdict and local-review-quorum evidence local and non-authority; never claim Authority or production completion.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "review-assurance-floor-execution-plan.md; proof-admissibility-hardening-execution-plan.md; checklist CHK-003 happy"
+    },
+    {
+      "feature": "Keep runtime-fact registry unchanged unless the implementation introduces a real environment fact.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist CHK-003 happy"
+    },
+    {
+      "feature": "Begin with a committed production-path RED and use focused tests before any expensive full-suite validation.",
+      "covered_by": "CHK-001,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "background.md Conversational Texture; understanding.json constraints"
+    },
+    {
+      "feature": "General validation reuse, DONE-required timeout/receipt policy, validation heap sizing and vocabulary-guard memory isolation.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly owned by other convergence workstreams; this story changes only quorum verdict persistence.",
+      "source": "scope-boundary.json; workflow-convergence-failure-remediation-execution-plan.md"
+    },
+    {
+      "feature": "Candidate routing, unattended/remote host execution, dispatch, owner identity, release publication and remote writes.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Independent workstreams and remote operations are outside this focused correctness fix.",
+      "source": "scope-boundary.json; execution-boundary.json"
+    },
+    {
+      "feature": "host_run usage-ledger binding.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Owned by B-1be5.",
+      "source": "scope-boundary.json"
+    },
+    {
+      "feature": "Broad metadata allowlists or validate-side acceptance of dirty verdict-shaped rows.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rejected because path/text-shaped dirt could be laundered; verifier admission remains strict.",
+      "source": "background.md; decision.json option B"
+    },
+    {
+      "feature": "Manual host commit as the operational solution.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Rejected because it is non-atomic, memory-dependent and already caused the observed wasted validation run.",
+      "source": "decision.json option C"
+    },
+    {
+      "feature": "Destructive cleanup, hook bypass, push, publish, release creation, stashing or unrelated user-file mutation.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit execution boundary and generated-metadata safety policy forbid these operations.",
+      "source": "execution-boundary.json; done-prepare-generated-metadata-auto-closeout-execution-plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-6ed2/background.md",
+      ".lattice/story/actives/B-6ed2/checklist.json",
+      ".lattice/story/actives/B-6ed2/decision.json",
+      ".lattice/story/actives/B-6ed2/execution-boundary.json",
+      ".lattice/story/actives/B-6ed2/scope-boundary.json",
+      ".lattice/story/actives/B-6ed2/scope-freeze-check.json",
+      ".lattice/story/actives/B-6ed2/understanding.json",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/story-lifecycle.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 25,
+    "covered": 19,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7455a30fb73a9b392d4431abbf54ca638b0538c4f437af8387c2bac5603e4a86",
+  "openQuestions": []
+}

@@ -1,0 +1,46 @@
+{
+  "storyId": "B-6ed2",
+  "checkedAt": "2026-07-19T02:03:29.235Z",
+  "headHash": "96ec212ab9648ca464d62aa1170ed77900ba51e7",
+  "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+  "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6",
+  "reviewRound": "2026-07-19T01:40:42.959Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "promise": "Quorum closeout must not leave generated host-verdict metadata dirty or force a later validation failure.",
+      "status": "verified",
+      "verifiedBy": "Current-material B-6ed2 formal validation and post-merge production-path quorum smoke",
+      "evidence": "After merge eddff4ec35, routine validation passed 46/46 at material 13651e6db3e6 and post-merge quorum smoke passed 39/39; the accepted e764c1cd18 transaction remains the exact six-row single-file proof."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "A 3x2 quorum submission must persist six signed host verdicts with auditable review-assurance evidence.",
+      "status": "verified",
+      "verifiedBy": "Current round-9 reviewer receipts, current-material quorum and DONE pre-check",
+      "evidence": "DONE pre-check reports full-3x2 review escalation and floor satisfied for material 13651e6db3e6 and storyFilesHash f953c8620231; current quorum is present."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh live-smoke transcript records successful command exit after main merge; the production-path residue regression remains covered on current material."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Post-merge quorum smoke passed 39/39 and the accepted production transaction e764c1cd18 contains exactly six additions in one process-events.jsonl file."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Formal routine validation passed all 46 commands on current material; DONE-required validation passed build plus root suite, 2/2, at 2026-07-19T02:02:58.403Z."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery remains complete after merge eddff4ec35: current-material review and quorum are fresh, post-merge smoke is 39/39, routine validation is 46/46, DONE-required is 2/2, and the exact six-row atomic closeout promise has no unresolved blocker."
+  },
+  "_hash": "c3a48e4890ab5c8af29825d4a444c50e5eb56709ec0bf4e7e5343f0b18551e3e"
+}
