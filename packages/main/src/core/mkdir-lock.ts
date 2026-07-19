@@ -438,12 +438,17 @@ export function withMkdirTicketLock<T>(
 
 export const REVIEW_METADATA_TICKET_LOCK_DIR = 'review-metadata-transaction.lock';
 
-function reviewMetadataBarrierConfig(): { root: string; id: string } | null {
+function reviewMetadataBarrierConfig(
+  lockDir: string,
+  operation: string,
+): { root: string; id: 'w1' | 'w2' } | null {
   if (process.env.NODE_ENV !== 'test') return null;
-  const root = process.env.LATTICE_TEST_REVIEW_METADATA_BARRIER_ROOT;
-  const id = process.env.LATTICE_TEST_REVIEW_METADATA_BARRIER_ID;
-  if (!root || !id || !/^[a-z0-9-]+$/i.test(id)) return null;
-  return { root, id };
+  if (process.env.LATTICE_INTERNAL_REVIEW_METADATA_BARRIER !== 'enabled') return null;
+  const id = operation.startsWith('review_run_start') ? 'w2'
+    : operation.startsWith('agent_prompt') ? 'w1'
+      : null;
+  if (!id) return null;
+  return { root: join(dirname(lockDir), '.review-metadata-test-barrier'), id };
 }
 
 function waitForReviewMetadataBarrier(path: string): void {
@@ -466,7 +471,7 @@ export function acquireReviewMetadataTicketLock(
   overrides: Pick<MkdirTicketLockOptions, 'onBeforeStaleTicketRemove' | 'pollMs'> = {},
 ): AcquiredMkdirLock {
   const localHostname = hostname();
-  const barrier = reviewMetadataBarrierConfig();
+  const barrier = reviewMetadataBarrierConfig(lockDir, operation);
   const callerBeforeStaleRemove = overrides.onBeforeStaleTicketRemove;
   return acquireMkdirTicketLock(lockDir, {
     label: 'review metadata transaction',
@@ -504,7 +509,7 @@ export function withReviewMetadataTicketLock<T>(
   overrides: Pick<MkdirTicketLockOptions, 'onBeforeStaleTicketRemove' | 'pollMs'> = {},
 ): T {
   const lock = acquireReviewMetadataTicketLock(lockDir, operation, overrides);
-  const barrier = reviewMetadataBarrierConfig();
+  const barrier = reviewMetadataBarrierConfig(lockDir, operation);
   try {
     if (barrier) {
       writeFileSync(join(barrier.root, `acquired-${barrier.id}`), lock.lockDir);

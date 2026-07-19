@@ -28,7 +28,11 @@ import {
   normalizeReviewerReadManifest,
 } from '../core/reviewer-read-evidence.js';
 import { signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
-import { signReviewRun } from '../core/review-run.js';
+import { hashReviewPrompt, signReviewRun } from '../core/review-run.js';
+import {
+  PROMPT_ENVELOPE_ROLLOUT_VERSION,
+  resolvePromptRoleBody,
+} from '../core/prompt-role-contract-registry.js';
 import {
   createScopeCheckHandlers,
   verifyScopeCheckSignature,
@@ -58,6 +62,15 @@ const guardedPromptFiles = [
   '.lattice-codex/agents/lattice-review-scope-plan.md',
   '.lattice-codex/agents/lattice-review-behavior.md',
 ] as const;
+
+// Active modular reviewers keep their selected role body only in the package
+// registry. Host files are intentionally body-free review_run_start bootstraps,
+// so the bounded-search vocabulary is checked in the canonical template rather
+// than falsely required in these two entrypoints.
+const bodyFreeReviewerBootstrapFiles = new Set<string>([
+  '.claude/agents/lattice-review-behavior.md',
+  '.lattice-codex/agents/lattice-review-behavior.md',
+]);
 
 // Unconditional broad-scan instructions that must never return without
 // escalation wording on the same line.
@@ -254,6 +267,10 @@ function initReviewEvidenceStore() {
   assert.ok(materialHash, 'review handler fixture has materialHash');
   const startedAt = '2026-07-10T11:02:00.000Z';
   store.writeStory(storyId, story);
+  const promptHash = hashReviewPrompt(resolvePromptRoleBody(agent, {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [agent]: 'legacy-full-context' },
+  }).body);
   store.writeReviewRuns(storyId, {
     runs: [{
       reviewRunId,
@@ -264,8 +281,8 @@ function initReviewEvidenceStore() {
       startedAt,
       headHash,
       materialHash,
-      promptHash: '',
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, ''),
+      promptHash,
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, promptHash),
     }],
   });
   return { root, store, storyId, agent, reviewRunId };
@@ -660,9 +677,15 @@ function main(): void {
   for (const file of guardedPromptFiles) {
     const content = readRel(file);
     violations.push(...scanFile(file, content));
-    for (const phrase of requiredPhrases) {
-      if (!content.includes(phrase)) {
-        missing.push(`${file}: missing required phrase "${phrase}"`);
+    if (bodyFreeReviewerBootstrapFiles.has(file)) {
+      if (!content.includes('review_run_start')) {
+        missing.push(`${file}: body-free reviewer bootstrap must call review_run_start`);
+      }
+    } else {
+      for (const phrase of requiredPhrases) {
+        if (!content.includes(phrase)) {
+          missing.push(`${file}: missing required phrase "${phrase}"`);
+        }
       }
     }
     assert.doesNotMatch(content, /“|”/, `${file}: JSON examples must use ASCII double quotes`);

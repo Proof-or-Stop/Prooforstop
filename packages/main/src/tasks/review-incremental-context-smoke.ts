@@ -917,12 +917,12 @@ function runDeterministicTicketReclaimAbaCase(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-review-lock-aba-'));
   const storyId = 'B-mixed-writer-aba';
   const round = '2026-07-19T00:00:00.000Z';
-  const barrierRoot = join(root, 'barriers');
+  const barrierRoot = join(root, '.lattice/story/actives', storyId, '.review-metadata-test-barrier');
   const lockDir = join(root, '.lattice/story/actives', storyId, 'review-metadata-transaction.lock');
   const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
   const children: ReturnType<typeof spawn>[] = [];
   try {
-    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\nbarriers/\n');
+    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: '.',
       rootDir: 'src',
@@ -994,22 +994,21 @@ function runDeterministicTicketReclaimAbaCase(): void {
       acquiredAt: '2026-07-19T00:00:00.000Z',
       lockId: 'dead-a',
     }) + '\n');
-    const childEnv = (id: 'w1' | 'w2', agent: string, sessionId: string) => ({
+    const childEnv = (agent: string, sessionId: string) => ({
       ...process.env,
       NODE_ENV: 'test',
       LATTICE_PROJECT_ROOT: root,
       LATTICE_ACTIVITY_SOURCE: 'codex',
       LATTICE_AGENT: agent,
       LATTICE_SESSION_ID: sessionId,
-      LATTICE_TEST_REVIEW_METADATA_BARRIER_ROOT: barrierRoot,
-      LATTICE_TEST_REVIEW_METADATA_BARRIER_ID: id,
+      LATTICE_INTERNAL_REVIEW_METADATA_BARRIER: 'enabled',
     });
     children.push(spawn(process.execPath, [
       DIST_CLI_PATH, '--root', root, 'review_run_start',
       JSON.stringify({ storyId, agent: 'lattice-review-quality' }),
     ], {
       cwd: root,
-      env: childEnv('w2', 'lattice-review-quality', 'concurrent-lattice-review-quality'),
+      env: childEnv('lattice-review-quality', 'concurrent-lattice-review-quality'),
       stdio: 'ignore',
     }));
     waitForPath(join(barrierRoot, 'observed-w2'), 'W2 observing dead A');
@@ -1018,7 +1017,7 @@ function runDeterministicTicketReclaimAbaCase(): void {
       JSON.stringify({ storyId, role: 'lattice-review-docs', format: 'json' }),
     ], {
       cwd: root,
-      env: childEnv('w1', 'main', 'mixed-owner'),
+      env: childEnv('main', 'mixed-owner'),
       stdio: 'ignore',
     }));
     waitForPath(join(barrierRoot, 'observed-w1'), 'W1 observing dead A');
