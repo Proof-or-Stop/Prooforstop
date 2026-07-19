@@ -554,9 +554,9 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
         "docs/host-run-usage.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T07:35:27.519Z",
-      "endTime": null,
+      "endTime": "2026-07-19T07:39:03.673Z",
       "verificationIntent": {
         "happy": [
           {
@@ -658,7 +658,153 @@
         "test": [
           "experiments/role-prompt-ab-replay/selfcheck.mjs"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "preregistered-per-role-replay-matrix",
+          "kind": "docs_check",
+          "file": "experiments/role-prompt-ab-replay/README.md",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Story 5 campaign protocol is versioned and content-addressed for five roles, three arms, three repetitions, pinned ordering and exact body digests; selfcheck passed.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:03.913Z"
+        },
+        {
+          "intentRef": "seeded-critical-high-quality-gate",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Quality evaluator requires verified seeded critical/high adjudication and returns INCONCLUSIVE for every role when those inputs are absent.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:04.104Z"
+        },
+        {
+          "intentRef": "incremental-context-reduction-50",
+          "kind": "manual_transcript",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Campaign output does not fabricate a 50 percent context reduction because exact historical per-role envelopes are unavailable; affected role rows explicitly report INCONCLUSIVE.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:04.277Z"
+        },
+        {
+          "intentRef": "assembled-prompt-per-role-40-target",
+          "kind": "manual_transcript",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Campaign reports exact legacy/modular role-body token observations but refuses to claim the 40 percent assembled target without exact assembled dispatch snapshots.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:04.442Z"
+        },
+        {
+          "intentRef": "inconclusive-on-insufficient-quality-evidence",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Missing envelopes, reviewer outputs, independent adjudication, or provider receipts deterministically yields per-role INCONCLUSIVE reason codes.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:04.603Z"
+        },
+        {
+          "intentRef": "honest-provider-usage-availability",
+          "kind": "manual_transcript",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Provider usage and cache fields render unavailable with a reason instead of fabricated zero.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:04.763Z"
+        },
+        {
+          "intentRef": "seed-and-order-limitations-recorded",
+          "kind": "docs_check",
+          "file": "experiments/role-prompt-ab-replay/README.md",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Campaign manifest and README record repetition, order, seed support limitations, pinned versions, and evidence gaps.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:04.913Z"
+        },
+        {
+          "intentRef": "false-positive-and-command-misuse-guard",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Quality-equivalence acceptance remains unavailable without adjudicated false-positive and command-misuse observations.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:05.089Z"
+        },
+        {
+          "intentRef": "denominator-seed-erasure-detected",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Manifest and oracle denominator mutation checks reject erased, relabeled, duplicated, or downgraded applicable evidence.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:05.278Z"
+        },
+        {
+          "intentRef": "cache-and-gross-token-gaming-rejected",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Role-aware report separates body, context, assembled, provider, and cache measures and rejects aggregate substitution.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:05.441Z"
+        },
+        {
+          "intentRef": "experiment-production-evidence-isolated",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Production evidence isolation checks prove campaign findings, passes, usage, and run identifiers cannot satisfy Story gates.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:05.613Z"
+        },
+        {
+          "intentRef": "cherry-pick-reconstruction-tamper-inconclusive",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck rejects body substitution, repetition cherry-picking, arm/order mutation, cross-role mismatch, and digest reconstruction tamper.",
+          "headHash": "72e436914fd17a3f4994d14aa8d654c3a5add9ff",
+          "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+          "storyFilesHash": "01af554838d004056c87d14e7cf7349ce58e78c0b2b64159689041302da72844",
+          "timestamp": "2026-07-19T07:39:05.777Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -833,6 +979,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "CHK-002 commit accepted; implementer started the role-aware preregistered replay campaign.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T07:39:03.673Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Accepted business commit 72e436914f; Story 3 corpus stayed frozen and role-aware campaign selfcheck passed 50 checks with honest per-role INCONCLUSIVE outcomes.",
       "agent": "lattice-implementer"
     }
   ]
