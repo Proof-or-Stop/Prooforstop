@@ -1141,6 +1141,56 @@
       },
       "readDiagnostics": [],
       "_hash": "1f258d14e5caa0f90899c5018b89a093f66d211f0833a15b78fa5ab16c067ebe"
+    },
+    {
+      "id": "B-955c:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Round 9 concept review found no blocker in EEA compatibility with portable DONE-required identities. Portable v2 removes only physical worktree-root variance from the policy command digest while retaining logical/executed cwd checks; current environment and executable identities remain independently re-derived and checked before EEA projection. EEA then binds the stored receipt, portable command ID, physical receipt cwd, environment identity, executable identity, subject, policy, timing, and output. Legacy v1 migration does not silently grant admissibility because missing EEA execution identities still fail closed. Build, worktree portability, EEA, and DONE-required integration smokes pass.",
+      "createdAt": "2026-07-19T03:16:56.584Z",
+      "reviewRound": "2026-07-19T03:15:15.271Z",
+      "reviewRunId": "B-955c:RR-036",
+      "writerSessionId": "sess-3f7565f7f61d53a3ee9fed5bca52533e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b332d10cc73616442bc854c4da5f193b6709b8503f1d9ab1026666ace7f8fe68"
+      },
+      "readDiagnostics": [],
+      "_hash": "2e64a19b05a96e5e4fbd6c83c86e0f2a2d97d253d2fcd533ed5577399851e534"
     }
   ]
 }
