@@ -236,7 +236,7 @@
       "desc": "Codex registry/global-thin/runtime-owned still resolves the migrated reviewer package template as the host prompt, so the host can preload the complete selected role body before the bootstrap calls review_run_start and returns that same body again. renderLatticeCodexAdapterManifest continues to describe promptMode=registry as direct package-registry resolution, checkPromptRegistry validates renderPromptEntryForHost (the full template), and no registry resolver applies renderReviewerRunBootstrap for the five migrated roles. The new reviewerHostRenderIdentity instead synthesizes a bootstrapDigest/hostRenderDigest without changing or proving the actual registry render, while codex-registry-mode-smoke only asserts those computed digests. This leaves the no-duplication requirement mechanically unimplemented for Codex thin/runtime-owned modes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T09:48:36.417Z",
@@ -253,7 +253,11 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
       "signatureTag": "doc-promise-undelivered|ts|codex-registry-global",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a260249f64; Codex registry/runtime-owned/global-thin paths resolve canonical bootstrap-only bytes and current Codex smokes plus review pass.",
+      "resolvedAt": "2026-07-19T11:08:43.305Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-012",
