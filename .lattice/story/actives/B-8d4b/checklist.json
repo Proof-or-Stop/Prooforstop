@@ -187,9 +187,9 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T02:07:37.953Z",
-      "endTime": "2026-07-19T02:35:17.658Z",
+      "endTime": "2026-07-19T02:53:22.286Z",
       "verificationIntent": {
         "happy": [
           {
@@ -238,11 +238,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun verifies experiment-only chained records, exact identity binding, runtime confinement and gateEvidence=false; fd-backed serialized append prevents concurrent chain corruption.",
-          "headHash": "7d734cdbf929ef20e5a8fc348ed734b50e2aaa30",
-          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
-          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
-          "timestamp": "2026-07-19T02:35:18.374Z"
+          "note": "Owner rerun verifies append-only experiment records under a direct runtime JSONL path, live-owner mutual exclusion and serialized chain writes.",
+          "headHash": "33a8d47d0f766d9993acf3d16efa2fd01d2730b7",
+          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
+          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
+          "timestamp": "2026-07-19T02:53:22.597Z"
         },
         {
           "intentRef": "usage-availability-retry-and-summary-semantics",
@@ -250,11 +250,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun covers unavailable-not-zero, distinct crash/retry attempts, terminal supersession, one terminal disposition per attempt, no estimate double counting, concurrent serialization and chain tamper rejection.",
-          "headHash": "7d734cdbf929ef20e5a8fc348ed734b50e2aaa30",
-          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
-          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
-          "timestamp": "2026-07-19T02:35:19.132Z"
+          "note": "Owner rerun proves dead stale lock recovery, live lock exclusion, distinct crash/retry identities, terminal reconciliation and unavailable-not-zero.",
+          "headHash": "33a8d47d0f766d9993acf3d16efa2fd01d2730b7",
+          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
+          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
+          "timestamp": "2026-07-19T02:53:22.883Z"
         },
         {
           "intentRef": "experiment-ledger-non-authoritative-and-private",
@@ -262,11 +262,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun rejects forged authority/Story/review refs, raw prompt/transcript/tool args/credentials, malformed stored rows and rehashed privacy injection; normal usage-ledger and process-fact consumers reject experiment rows.",
-          "headHash": "7d734cdbf929ef20e5a8fc348ed734b50e2aaa30",
-          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
-          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
-          "timestamp": "2026-07-19T02:35:19.766Z"
+          "note": "Owner rerun rejects authority/privacy/schema attacks and proves runtime parent replacement leaves the external directory empty.",
+          "headHash": "33a8d47d0f766d9993acf3d16efa2fd01d2730b7",
+          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
+          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
+          "timestamp": "2026-07-19T02:53:23.103Z"
         }
       ]
     },
@@ -578,6 +578,16 @@
       "timestamp": "2026-07-19T02:53:19.762Z",
       "phase": "DEV",
       "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted implementer commit 1623374107 after independent 47-check, replay-order and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:53:22.286Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "in_progress",
       "to": "done",
