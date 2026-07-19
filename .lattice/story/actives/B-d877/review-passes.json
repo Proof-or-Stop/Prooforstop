@@ -31,6 +31,41 @@
         "scanEscalationReason": null
       },
       "_hash": "aa25950464530a4ac99f06a0f2f0f44fced76f78ab369bd70037d438d14d72da"
+    },
+    {
+      "id": "B-d877:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 F-008 verified fixed: worktree.ts:992 dev_start text now says advance DEV→REVIEW, worktree preserved, merge happens later via dev_merge at TEST→DONE. Final sweep of worktree.ts/hints.ts/transition-orchestrator.ts + repo-wide grep for the misconception phrase family (merge back to the main branch / merges back / merged back / dev_finish...enter TEST / raw-actor createStoryActor/PHASE_TO_EVENT/getStateName residue): none found. Remaining Cannot enter TEST strings in guard-utils.ts/phase-gates.ts/machine.ts are the unrelated REVIEW→TEST validation gate. Comments at worktree.ts:1094 and :1108 are accurate historical/explanatory text describing the fix, not residue. No concept deletion/replacement blocker this round.",
+      "createdAt": "2026-07-19T05:33:05.774Z",
+      "reviewRound": "2026-07-19T05:30:00.772Z",
+      "reviewRunId": "B-d877:RR-010",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/findings.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          ".lattice/story/actives/B-d877/review-runs.json",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6e91ce3899a84cf551775891836065e4988904599d6b488310aecfc3aeca16d0"
     }
   ]
 }
