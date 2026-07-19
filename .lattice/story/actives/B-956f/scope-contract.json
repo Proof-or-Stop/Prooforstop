@@ -114,10 +114,58 @@
       "phase": "DEV",
       "headHash": "cfe6aca6f3d2f24ff007dd939f32c024440e44e6",
       "materialHash": "c23b711f7506966e518f62dc2bc52ed7a33bf82b0499318bff9a38244425acb8"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Fix-round quality F-002: populate ProofStoryDiagnosticInput.materialClassification at the existing diagnostic-input builder (machine.ts:129) — diagnostic-only, enforce outcomes byte-identical.",
+      "timestamp": "2026-07-19T17:08:33.537Z",
+      "paths": [
+        "packages/main/src/core/machine.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/machine.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "3fa0c93ba3ae72e7c1d2545488db653c7a9091ac",
+      "materialHash": "7d15691599b90395cb80a08dd4b84627d351792340d7703045070dfeba861b84"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Fix-round quality F-002: populate materialClassification at the existing builder (handlers/proofstory.ts:92); diagnostic-only.",
+      "timestamp": "2026-07-19T17:08:34.063Z",
+      "paths": [
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "3fa0c93ba3ae72e7c1d2545488db653c7a9091ac",
+      "materialHash": "7d15691599b90395cb80a08dd4b84627d351792340d7703045070dfeba861b84"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Fix-round quality F-002: shared snapshot + populate materialClassification at both existing builder sites (:250,:764); diagnostic-only.",
+      "timestamp": "2026-07-19T17:08:34.631Z",
+      "paths": [
+        "packages/main/src/handlers/story-review.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/story-review.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "3fa0c93ba3ae72e7c1d2545488db653c7a9091ac",
+      "materialHash": "7d15691599b90395cb80a08dd4b84627d351792340d7703045070dfeba861b84"
     }
   ],
   "createdAt": "2026-07-19T15:24:53.100Z",
-  "updatedAt": "2026-07-19T16:16:01.755Z",
+  "updatedAt": "2026-07-19T17:08:34.631Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -134,6 +182,9 @@
     "packages/main/src/handlers/phase-gates.ts": "packages/main/src/handlers/phase-gates.ts",
     "packages/main/src/handlers/scope-contract.ts": "packages/main/src/handlers/scope-contract.ts",
     "packages/main/src/handlers/story-create.ts": "packages/main/src/handlers/story-create.ts",
-    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts": "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts": "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/story-review.ts": "packages/main/src/handlers/story-review.ts"
   }
 }

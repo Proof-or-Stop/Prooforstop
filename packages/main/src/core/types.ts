@@ -2108,6 +2108,16 @@ export interface ProofStoryTriggerReason {
     | 'scope-shrinkage'
     | 'high-assurance'
     | 'done-equivalence';
+  /**
+   * B-956f FIX G: true when the trigger fired ONLY from the production
+   * materialClassification snapshot (language-neutral material-code presence in
+   * the diff), not from request text/type. Diagnostic-only triggers surface in
+   * reports and contracts but MUST NOT create or expand enforce-blocking gaps
+   * until the program's language-neutral enforce flip (Workstream 3) — gap
+   * creation filters them out, keeping every enforce outcome unchanged for
+   * existing (e.g. TS) projects.
+   */
+  diagnosticOnly?: boolean;
 }
 
 export interface ProofStoryAcceptanceBinding {

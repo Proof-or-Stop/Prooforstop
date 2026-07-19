@@ -32,6 +32,7 @@ import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
 import { evaluateProofStoryDiagnostics, renderProofStoryDiagnosticReport } from '../core/proofstory.js';
+import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
 
 // B-7c05 CHK-004: RENDER-ONLY brief projection of the story_review result.
@@ -114,6 +115,13 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       const cl = store.readChecklist(args.storyId);
 
       const config = loadConfig(ctx.root);
+
+      // B-956f FIX G: ONE production materialClassification snapshot per
+      // story_review evaluation, shared by both ProofStory diagnostic-input
+      // sites below (advisory issues + review prompt). Resolution failures
+      // yield undefined — the field is DIAGNOSTIC; a broken policy/config
+      // surfaces through the fail-closed resolve/floor/repro consumers.
+      const materialClassification = tryBuildMaterialClassificationSnapshotForDiagnostics(ctx.root);
 
       const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; message: string; legacyEvidenceWithoutIntent?: boolean; repairCommand?: string }> = [];
       const info: Array<{ type: string; message: string }> = [];
@@ -240,6 +248,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
           redEvidence: store.readRedEvidence(args.storyId),
           spikeEvidence: store.readProofStorySpikes(args.storyId),
           summary: store.readSummary(args.storyId),
+          materialClassification,
         }, 'observe');
         for (const proofGap of proofStoryReport.gaps) {
           issues.push({
@@ -744,6 +753,7 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
                 redEvidence: store.readRedEvidence(args.storyId),
                 spikeEvidence: store.readProofStorySpikes(args.storyId),
                 summary: store.readSummary(args.storyId),
+                materialClassification,
               }, 'observe');
               return `\n---\nProofStory Diagnostics (advisory only):\n${renderProofStoryDiagnosticReport(report)}\nReviewer note: prompt text and this advisory section do not satisfy gates; only CLI-written artifacts and signed review evidence do.`;
             } catch (e) {

@@ -17,14 +17,20 @@
  * whitelist).
  *
  * Purity contract: the classifier is a pure function of (policy, path, hints).
- * Only `resolveMaterialCodePolicy` reads config and only
- * `buildMaterialClassificationSnapshot` touches git/the filesystem; the pure
- * evaluators consume the resulting snapshot and re-check its embedded
- * head/material hashes at decision time rather than re-reading config.
+ * Only `resolveMaterialCodePolicy` reads config (content-signature-keyed cache
+ * + filesystem exclusion preflight, both fail-closed) and only the snapshot
+ * boundary (`buildMaterialClassificationSnapshot` / `classifyDeclaredPaths`
+ * hint building) touches git/the filesystem; consumers route received
+ * snapshots through `ensureFreshMaterialClassificationSnapshot`, which
+ * re-checks the embedded head/material hashes AND the policyDigest against
+ * live config at decision time and re-resolves on drift. Snapshots and
+ * resolved policies are deep-frozen — mutation attempts throw.
  */
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
-import { loadConfig } from './config.js';
+import { closeSync, openSync, readFileSync, readSync, statSync } from 'fs';
+import { join } from 'path';
+import { LATTICE_CONFIG_FILENAME } from './config.js';
 import {
   currentGitHead,
   currentMaterialHash,
@@ -113,6 +119,36 @@ export const PLAIN_TEXT_BASENAMES: readonly string[] = [
   'readme', 'license', 'licence', 'install', 'copying', 'notice', 'authors',
   'changelog', 'contributing', 'codeowners',
 ];
+
+/**
+ * Step-0 structural generated/vendored directory segments (CX4 FIX D).
+ * Segment-aware and STRUCTURAL (never config-driven): a manifest under any of
+ * these directories (node_modules/pkg/package.json, dist/package.json) is a
+ * dependency's or a build output's file, not the project's own level-1
+ * runtime/build manifest. Evaluated BEFORE step 1, so no config key can reach
+ * (and therefore weaken) level-1 immutability for first-party manifests.
+ */
+export const STRUCTURAL_ARTIFACT_DIR_SEGMENTS: readonly string[] = [
+  'node_modules', 'dist', 'build', 'coverage', '.git',
+];
+
+function isStructuralArtifactPath(path: string): boolean {
+  const segments = normalizeMaterialPath(path).split('/');
+  // Directory segments only (never the basename): a FILE named `dist` or
+  // `build.gradle` is not a vendored directory.
+  return segments.slice(0, -1).some((segment) => STRUCTURAL_ARTIFACT_DIR_SEGMENTS.includes(segment.toLowerCase()));
+}
+
+/** Recursively freeze an object graph (CX4 FIX A): compiled output is strict-mode ESM, so any mutation attempt on a frozen snapshot/policy throws a TypeError. */
+function deepFreeze<T>(value: T): T {
+  if (value !== null && typeof value === 'object' && !Object.isFrozen(value)) {
+    Object.freeze(value);
+    for (const key of Object.keys(value as object)) {
+      deepFreeze((value as Record<string, unknown>)[key]);
+    }
+  }
+  return value;
+}
 
 export interface MaterialCodePolicy {
   schemaVersion: typeof MATERIAL_CODE_POLICY_SCHEMA_VERSION;
@@ -227,12 +263,18 @@ function isPlainTextName(name: string): boolean {
 
 // ── config resolution (fail-closed) ──
 
-let _policyCache: MaterialCodePolicy | undefined;
-const _policyCacheByRoot = new Map<string, MaterialCodePolicy>();
+interface MaterialCodePolicyCacheEntry {
+  /** sha256 of the raw config file content ('absent' when no config file). */
+  configSignature: string;
+  policy: MaterialCodePolicy;
+}
+
+let _defaultPolicyCache: MaterialCodePolicy | undefined;
+const _policyCacheByRoot = new Map<string, MaterialCodePolicyCacheEntry>();
 
 /** Reset the resolved-policy cache (tests). */
 export function resetMaterialCodePolicyCache(): void {
-  _policyCache = undefined;
+  _defaultPolicyCache = undefined;
   _policyCacheByRoot.clear();
 }
 
@@ -296,36 +338,88 @@ function computePolicyDigest(policy: Omit<MaterialCodePolicy, 'policyDigest'>): 
 }
 
 /**
+ * Read the RAW materialCode config block plus a content signature for the cache
+ * key. Reads lattice.config.json DIRECTLY (not via loadConfig): loadConfig
+ * caches per-root forever and swallows parse errors — both wrong at this
+ * fail-closed, drift-sensitive boundary (CX4 FIX A: "re-resolve" must actually
+ * reload config; a malformed config file must fail CLOSED, never silently
+ * degrade to defaults).
+ */
+function readMaterialCodeConfig(projectRoot: string): { signature: string; raw: RawMaterialCodeConfig } {
+  const configPath = join(projectRoot, LATTICE_CONFIG_FILENAME);
+  let content: string;
+  try {
+    content = readFileSync(configPath, 'utf8');
+  } catch {
+    return { signature: 'absent', raw: {} }; // no config file → defaults
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(content);
+  } catch (err) {
+    throw new MaterialCodePolicyError(
+      LATTICE_CONFIG_FILENAME,
+      `config file is not valid JSON (${err instanceof Error ? err.message : String(err)}); material-code policy fails closed instead of degrading to defaults`,
+    );
+  }
+  const signature = createHash('sha256').update(content).digest('hex');
+  const block = parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)
+    ? (parsed as { materialCode?: unknown }).materialCode
+    : undefined;
+  if (block === undefined) return { signature, raw: {} };
+  if (typeof block !== 'object' || block === null || Array.isArray(block)) {
+    throw new MaterialCodePolicyError('materialCode', `expected an object, got ${Array.isArray(block) ? 'array' : typeof block}`);
+  }
+  return { signature, raw: block as RawMaterialCodeConfig };
+}
+
+/**
  * Resolve the material-code policy for a project root. FAILS CLOSED: malformed
- * materialCode config throws a MaterialCodePolicyError naming the offending key
- * rather than silently degrading to the TS-only whitelist. An excludePaths /
- * paths entry that names a level-1 immutable manifest is rejected here (the
- * config-resolve half of the two-layer immutability enforcement).
+ * materialCode config (or an unparseable config file) throws a
+ * MaterialCodePolicyError naming the offending key rather than silently
+ * degrading to the TS-only whitelist. An excludePaths / paths entry that names
+ * a level-1 immutable manifest is rejected here, and the filesystem-aware
+ * exclusion preflight ALSO runs here (CX4 FIX E) — the config-resolve boundary
+ * is a production path, so `excludePaths: ["backend/"]` covering a real
+ * backend/go.mod rejects at resolution, not only in a test harness.
+ *
+ * The per-root cache is keyed by the config file's content signature (CX4
+ * FIX A): a config edit invalidates the cache, so re-resolution actually
+ * reloads config instead of echoing a stale policy. The resolved policy is
+ * deep-frozen — mutation attempts throw.
  */
 export function resolveMaterialCodePolicy(projectRoot?: string): MaterialCodePolicy {
-  const cacheKey = projectRoot ?? '';
   if (projectRoot === undefined) {
-    if (_policyCache) return _policyCache;
-  } else if (_policyCacheByRoot.has(cacheKey)) {
-    return _policyCacheByRoot.get(cacheKey)!;
+    if (!_defaultPolicyCache) _defaultPolicyCache = deepFreeze(buildMaterialCodePolicy({}));
+    return _defaultPolicyCache;
   }
 
-  let raw: RawMaterialCodeConfig = {};
-  if (projectRoot !== undefined) {
-    let block: unknown;
-    try {
-      block = (loadConfig(projectRoot) as { materialCode?: unknown }).materialCode;
-    } catch {
-      block = undefined; // config load failure → defaults (no materialCode overrides present)
-    }
-    if (block !== undefined) {
-      if (typeof block !== 'object' || block === null || Array.isArray(block)) {
-        throw new MaterialCodePolicyError('materialCode', `expected an object, got ${Array.isArray(block) ? 'array' : typeof block}`);
-      }
-      raw = block as RawMaterialCodeConfig;
+  const { signature, raw } = readMaterialCodeConfig(projectRoot);
+  const cached = _policyCacheByRoot.get(projectRoot);
+  if (cached && cached.configSignature === signature) return cached.policy;
+
+  const policy = buildMaterialCodePolicy(raw);
+  // CX4 FIX E: the filesystem-aware exclusion preflight runs INSIDE production
+  // resolution. Enumeration failure inside preflight throws (fail closed).
+  if (policy.excludePaths.length > 0) {
+    const preflight = preflightMaterialCodeExclusions(policy, projectRoot);
+    if (!preflight.ok) {
+      const detail = preflight.violations
+        .map((violation) => `${JSON.stringify(violation.entry)} covers ${violation.manifest}`)
+        .join('; ');
+      throw new MaterialCodePolicyError(
+        'materialCode.excludePaths',
+        `exclusion covers real level-1 immutable runtime/build manifest(s) in the tracked tree: ${detail}`,
+      );
     }
   }
+  deepFreeze(policy);
+  _policyCacheByRoot.set(projectRoot, { configSignature: signature, policy });
+  return policy;
+}
 
+/** Build (and validate) a policy from a raw materialCode config block. */
+function buildMaterialCodePolicy(raw: RawMaterialCodeConfig): MaterialCodePolicy {
   const addExtensions = normalizeExtensionList(raw.addExtensions, 'materialCode.addExtensions');
   const removeExtensions = normalizeExtensionList(raw.removeExtensions, 'materialCode.removeExtensions');
   const docExtensions = raw.docExtensions === undefined
@@ -376,11 +470,7 @@ export function resolveMaterialCodePolicy(projectRoot?: string): MaterialCodePol
     pathPrefixes,
     codeExtensions,
   };
-  const policy: MaterialCodePolicy = { ...withoutDigest, policyDigest: computePolicyDigest(withoutDigest) };
-
-  if (projectRoot === undefined) _policyCache = policy;
-  else _policyCacheByRoot.set(cacheKey, policy);
-  return policy;
+  return { ...withoutDigest, policyDigest: computePolicyDigest(withoutDigest) };
 }
 
 // ── the 8-step precedence chain (pure) ──
@@ -412,10 +502,16 @@ export function classifyMaterialCodePath(
   const name = baseName(path);
   const ext = materialPathExtension(path);
 
-  // Step 0 (structural): vendored/runtime artifacts (node_modules, dist, …) are
-  // never your material — checked before the immutable-manifest rule so a
-  // dependency's manifest is not misclassified. This is a STRUCTURAL exclusion,
-  // not a config-key exclusion, so it does not weaken level-1 immutability.
+  // Step 0 (structural): generated/vendored artifact directories and lattice
+  // runtime artifacts are never your material — checked BEFORE the
+  // immutable-manifest rule so a dependency's or a build output's manifest
+  // (node_modules/pkg/package.json, dist/package.json — CX4 FIX D) is not
+  // misclassified as the project's level-1 manifest. Both checks are
+  // STRUCTURAL exclusions, not config-key exclusions, so they cannot be used
+  // to weaken level-1 immutability.
+  if (isStructuralArtifactPath(path)) {
+    return { path, materialCode: false, reason: 'generated/vendored artifact directory (non-source)' };
+  }
   if (isMaterialExcludedRuntimeArtifactPath(path)) {
     return { path, materialCode: false, reason: 'runtime/build artifact (non-source)' };
   }
@@ -494,6 +590,7 @@ export function preflightMaterialCodeExclusions(
   ref = 'HEAD',
   trackedFiles?: string[],
 ): MaterialCodeExclusionPreflightResult {
+  if (policy.excludePaths.length === 0) return { ok: true, violations: [] };
   const files = trackedFiles ?? listTrackedFiles(gitCwd, ref);
   const violations: Array<{ entry: string; manifest: string }> = [];
   for (const entry of policy.excludePaths) {
@@ -508,18 +605,28 @@ export function preflightMaterialCodeExclusions(
   return { ok: violations.length === 0, violations };
 }
 
+/**
+ * FAIL CLOSED (quality F-001 / CX4 FIX E): a tree-enumeration failure throws a
+ * named diagnostic — it never degrades to an empty file list, which would
+ * silently turn the exclusion preflight into ok:true while a real level-1
+ * manifest stays hidden under an excluded directory.
+ */
 function listTrackedFiles(gitCwd: string, ref: string): string[] {
+  let raw: string;
   try {
-    const raw = execFileSync('git', ['ls-tree', '-r', '--name-only', ref], {
+    raw = execFileSync('git', ['ls-tree', '-r', '--name-only', ref], {
       cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
       maxBuffer: 64 * 1024 * 1024,
     });
-    return raw.split('\n').map((line) => line.trim()).filter(Boolean);
-  } catch {
-    return [];
+  } catch (err) {
+    throw new MaterialCodePolicyError(
+      'materialCode.excludePaths',
+      `filesystem exclusion preflight could not enumerate tracked files (git ls-tree -r ${ref} in ${gitCwd}): ${err instanceof Error ? err.message : String(err)}; failing closed`,
+    );
   }
+  return raw.split('\n').map((line) => line.trim()).filter(Boolean);
 }
 
 // ── hash-bound classification snapshot ──
@@ -533,24 +640,75 @@ export interface BuildMaterialClassificationSnapshotOptions {
   materialHash?: string;
 }
 
-function listMainToHeadDiff(gitCwd: string): string[] {
+interface ChangedDiffEntry {
+  path: string;
+  /** Where extensionless shebang/exec hints must be read for this entry. */
+  hintSource: 'current' | 'old-tree';
+}
+
+/**
+ * Enumerate the main...HEAD diff with IDENTITY PRESERVED (CX4 FIX B):
+ * `--name-status -z --find-renames` yields explicit D rows for deletions and
+ * old/new path pairs for renames, so a deleted or renamed-away script keeps a
+ * classifiable OLD-tree identity. `--name-only` loses both (a deleted
+ * executable, shebang-free bin/tool classified non-material).
+ */
+function listMainToHeadDiffEntries(gitCwd: string): ChangedDiffEntry[] {
+  let raw: string;
   try {
-    const raw = execFileSync('git', ['diff', '--name-only', 'main...HEAD'], {
+    raw = execFileSync('git', ['diff', '--name-status', '-z', '--find-renames', 'main...HEAD'], {
       cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
       maxBuffer: 64 * 1024 * 1024,
-    }).trim();
-    return raw ? raw.split('\n').map((line) => line.trim()).filter(Boolean) : [];
+    });
   } catch {
     return [];
   }
+  const tokens = raw.split('\u0000');
+  const entries: ChangedDiffEntry[] = [];
+  const seen = new Set<string>();
+  const push = (rawPath: string | undefined, hintSource: 'current' | 'old-tree'): void => {
+    if (!rawPath) return;
+    const path = normalizeMaterialPath(rawPath);
+    if (!path || seen.has(path)) return;
+    seen.add(path);
+    entries.push({ path, hintSource });
+  };
+  let index = 0;
+  while (index < tokens.length) {
+    const status = tokens[index++];
+    if (!status) continue; // trailing/empty token
+    const kind = status[0]!.toUpperCase();
+    if (kind === 'R' || kind === 'C') {
+      const oldPath = tokens[index++];
+      const newPath = tokens[index++];
+      push(newPath, 'current');
+      // A rename REMOVES the old path — classify it from the OLD tree. A copy
+      // (C) leaves the old path untouched, so only renames add the old side.
+      if (kind === 'R') push(oldPath, 'old-tree');
+    } else {
+      push(tokens[index++], kind === 'D' ? 'old-tree' : 'current');
+    }
+  }
+  return entries;
+}
+
+/** merge-base of main...HEAD — the OLD tree the triple-dot diff is computed against. */
+function diffBaseRef(gitCwd: string): string {
+  try {
+    const base = execFileSync('git', ['merge-base', 'main', 'HEAD'], {
+      cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (base) return base;
+  } catch { /* fall back to main */ }
+  return 'main';
 }
 
 /**
- * Read the shebang/executable signal for an extensionless file. Prefers the git
- * blob (works for deleted/renamed files whose worktree copy is gone — CX3-10);
- * falls back to the worktree only when the blob is unavailable.
+ * Read the shebang/executable signal for an extensionless file still present
+ * on the CURRENT side of the diff (added/modified/rename-target). Prefers the
+ * git blob/mode at HEAD; falls back to the main blob when HEAD is unavailable.
  */
 function extensionlessScriptSignal(gitCwd: string, path: string): boolean {
   // Executable bit at HEAD.
@@ -575,10 +733,62 @@ function extensionlessScriptSignal(gitCwd: string, path: string): boolean {
 }
 
 /**
- * Build an immutable, hash-bound classification snapshot for the main...HEAD
- * diff. Embeds the HEAD + materialHash it was computed at so consumers can
- * detect drift and re-resolve. Best-effort git access: outside a git tree the
- * file set is empty and the hashes are undefined, but the resolved policy (the
+ * Shebang/exec signal for a DELETED or RENAMED-AWAY extensionless file, read
+ * ENTIRELY from the OLD tree (CX4 FIX B): `git ls-tree <base> -- <path>` gives
+ * the historical file MODE (a shebang-free executable is still a script) and
+ * `git show <base>:<path>` gives the old blob's shebang. Neither HEAD nor the
+ * worktree carries this identity any more.
+ */
+function oldTreeScriptSignal(gitCwd: string, baseRef: string, path: string): boolean {
+  try {
+    const meta = execFileSync('git', ['ls-tree', baseRef, '--', path], {
+      cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (meta.split(/\s+/)[0] === '100755') return true;
+  } catch { /* not present at base */ }
+  try {
+    const blob = execFileSync('git', ['show', `${baseRef}:${path}`], {
+      cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], maxBuffer: 1024 * 1024,
+    });
+    return blob.startsWith('#!');
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Shebang/exec signal for a DECLARED extensionless path (CX4 FIX C): declared
+ * checklist files may be outside the diff, so hints are built from the WORKING
+ * TREE at the snapshot boundary (exec bit + `#!` prefix), falling back to the
+ * git blob signal for paths not (yet) present on disk. The hintless pure
+ * classifier is never invoked for a path that could carry hints.
+ */
+function workingTreeScriptSignal(gitCwd: string, path: string): boolean {
+  const abs = join(gitCwd, path);
+  try {
+    const stats = statSync(abs);
+    if (stats.isFile()) {
+      if ((stats.mode & 0o111) !== 0) return true;
+      const fd = openSync(abs, 'r');
+      try {
+        const head = Buffer.alloc(2);
+        const read = readSync(fd, head, 0, 2, 0);
+        return read === 2 && head[0] === 0x23 && head[1] === 0x21; // '#!'
+      } finally {
+        closeSync(fd);
+      }
+    }
+  } catch { /* not in the worktree — fall back to the git blob signal */ }
+  return extensionlessScriptSignal(gitCwd, path);
+}
+
+/**
+ * Build an immutable (deep-frozen — mutation attempts throw, CX4 FIX A),
+ * hash-bound classification snapshot for the main...HEAD diff. Embeds the HEAD
+ * + materialHash + policyDigest it was computed at so consumers can detect
+ * drift and re-resolve. Deleted and renamed-away files keep their OLD-tree
+ * identity (CX4 FIX B). Best-effort git access: outside a git tree the file
+ * set is empty and the hashes are undefined, but the resolved policy (the
  * load-bearing part for declared-file classification) is always present.
  */
 export function buildMaterialClassificationSnapshot(
@@ -589,17 +799,24 @@ export function buildMaterialClassificationSnapshot(
   const gitCwd = opts.gitCwd ?? projectRoot ?? process.cwd();
   const headHash = opts.headHash ?? currentGitHead(gitCwd);
   const materialHash = opts.materialHash ?? currentMaterialHash(gitCwd, 'HEAD', projectRoot);
-  const changedFiles = opts.changedFiles ?? listMainToHeadDiff(gitCwd);
+  const entries: ChangedDiffEntry[] = opts.changedFiles
+    ? opts.changedFiles
+      .map((rawPath) => ({ path: normalizeMaterialPath(rawPath), hintSource: 'current' as const }))
+      .filter((entry) => entry.path.length > 0)
+    : listMainToHeadDiffEntries(gitCwd);
+  let cachedBaseRef: string | undefined;
+  const baseRef = (): string => (cachedBaseRef ??= diffBaseRef(gitCwd));
 
-  const files: MaterialClassificationSnapshotFile[] = changedFiles.map((rawPath) => {
-    const path = normalizeMaterialPath(rawPath);
+  const files: MaterialClassificationSnapshotFile[] = entries.map(({ path, hintSource }) => {
     const ext = materialPathExtension(path);
     const underPrefix = !ext && policy.pathPrefixes.some((prefix) => matchesScopePathEntry(prefix, path));
-    const shebangOrExecutable = underPrefix ? extensionlessScriptSignal(gitCwd, path) : undefined;
+    const shebangOrExecutable = underPrefix
+      ? (hintSource === 'old-tree' ? oldTreeScriptSignal(gitCwd, baseRef(), path) : extensionlessScriptSignal(gitCwd, path))
+      : undefined;
     return classifyMaterialCodePath(policy, path, { projectRoot, shebangOrExecutable });
   });
 
-  return {
+  return deepFreeze({
     schemaVersion: MATERIAL_CLASSIFICATION_SNAPSHOT_SCHEMA_VERSION,
     policyDigest: policy.policyDigest,
     policy,
@@ -609,7 +826,7 @@ export function buildMaterialClassificationSnapshot(
     ...(projectRoot !== undefined ? { projectRoot } : {}),
     files,
     generatedAt: new Date().toISOString(),
-  };
+  });
 }
 
 export interface SnapshotFreshnessArgs {
@@ -620,9 +837,16 @@ export interface SnapshotFreshnessArgs {
 }
 
 /**
- * True when the snapshot's embedded HEAD or materialHash differs from the live
- * tree at decision time (long validations / concurrent commits). A snapshot
- * with no embedded hash is treated as stale (never silently consumed).
+ * True when the snapshot can no longer be consumed as-is (CX4 FIX A):
+ *   - the embedded policyDigest no longer matches the embedded policy bytes
+ *     (a mutated snapshot — defense in depth behind the deep freeze), or
+ *   - the policy re-resolved from LIVE config has a different digest (config
+ *     drift between build and consumption; the content-signature-keyed cache
+ *     makes this a REAL reload, not a stale-cache echo), or
+ *   - the embedded HEAD or materialHash differs from the live tree at decision
+ *     time (long validations / concurrent commits). A snapshot with no
+ *     embedded hash is treated as stale (never silently consumed).
+ * A malformed live config THROWS here (fail closed at consumption).
  */
 export function materialClassificationSnapshotStale(
   snapshot: MaterialClassificationSnapshot,
@@ -630,17 +854,22 @@ export function materialClassificationSnapshotStale(
 ): boolean {
   const gitCwd = args.gitCwd ?? snapshot.gitCwd;
   const projectRoot = args.projectRoot ?? snapshot.projectRoot;
+  if (computePolicyDigest(snapshot.policy) !== snapshot.policyDigest) return true;
+  if (resolveMaterialCodePolicy(projectRoot).policyDigest !== snapshot.policyDigest) return true;
+  if (!snapshot.headHash || !snapshot.materialHash) return true;
   const liveHead = args.headHash ?? currentGitHead(gitCwd);
   const liveMaterial = args.materialHash ?? currentMaterialHash(gitCwd, 'HEAD', projectRoot);
-  if (!snapshot.headHash || !snapshot.materialHash) return true;
   if (liveHead && snapshot.headHash !== liveHead) return true;
   if (liveMaterial && snapshot.materialHash !== liveMaterial) return true;
   return false;
 }
 
 /**
- * Return the snapshot unchanged when it is still current, else re-resolve and
- * rebuild. Consumers thread the result so all three observe ONE fresh object.
+ * The validated consumption entry (CX4 FIX A): return the snapshot unchanged
+ * when it is still current, else re-resolve (a REAL config reload through the
+ * signature-keyed cache) and rebuild. EVERY consumer entry point — the floor,
+ * classifyReproFirstRequirement/collectMaterialCodeFiles, and the ProofStory
+ * diagnostic-input builders — routes a received snapshot through here.
  */
 export function ensureFreshMaterialClassificationSnapshot(
   snapshot: MaterialClassificationSnapshot,
@@ -655,13 +884,53 @@ export function ensureFreshMaterialClassificationSnapshot(
 }
 
 /**
- * Classify a set of declared paths against a shared snapshot's policy. Consumers
- * MUST route declared-file classification through the shared snapshot rather
- * than re-deriving from raw paths with a config-blind classifier.
+ * Classify a set of declared paths against a shared snapshot. Consumers MUST
+ * route declared-file classification through the shared snapshot rather than
+ * re-deriving from raw paths with a config-blind classifier. CX4 FIX C:
+ *   - a declared path the snapshot already classified is reused VERBATIM (its
+ *     classification carried old-tree/exec-bit hints the pure classifier
+ *     cannot re-derive — a changed bin/deploy must never flip between the
+ *     snapshot and this call);
+ *   - a declared path absent from the diff gets filesystem/blob hints (exec
+ *     bit + shebang from the working tree) built at this snapshot boundary —
+ *     the hintless pure classifier is never called for a path that could
+ *     carry hints.
  */
 export function classifyDeclaredPaths(
   snapshot: MaterialClassificationSnapshot,
   paths: readonly string[],
 ): MaterialClassification[] {
-  return paths.map((path) => classifyMaterialCodePath(snapshot.policy, path, { projectRoot: snapshot.projectRoot }));
+  const bySnapshotPath = new Map(snapshot.files.map((file) => [file.path, file]));
+  return paths.map((rawPath) => {
+    const path = normalizeMaterialPath(rawPath);
+    const fromSnapshot = bySnapshotPath.get(path);
+    if (fromSnapshot) {
+      return { path: fromSnapshot.path, materialCode: fromSnapshot.materialCode, reason: fromSnapshot.reason };
+    }
+    const ext = materialPathExtension(path);
+    const underPrefix = !ext && snapshot.policy.pathPrefixes.some((prefix) => matchesScopePathEntry(prefix, path));
+    const shebangOrExecutable = underPrefix ? workingTreeScriptSignal(snapshot.gitCwd, path) : undefined;
+    return classifyMaterialCodePath(snapshot.policy, path, { projectRoot: snapshot.projectRoot, shebangOrExecutable });
+  });
+}
+
+/**
+ * B-956f FIX G helper for the ProofStory diagnostic-input builders: build the
+ * production materialClassification snapshot (fresh by construction — the
+ * hash-bound build IS the FIX A freshness contract for producers). Returns
+ * undefined instead of throwing: materialClassification is a DIAGNOSTIC field,
+ * and a policy/config failure must surface through the fail-closed
+ * resolve/floor/repro consumers — never by crashing a gate evaluation that
+ * only reports diagnostics (which would itself change enforce outcomes).
+ */
+export function tryBuildMaterialClassificationSnapshotForDiagnostics(
+  projectRoot?: string,
+  gitCwd?: string,
+): MaterialClassificationSnapshot | undefined {
+  if (!projectRoot) return undefined;
+  try {
+    return buildMaterialClassificationSnapshot(projectRoot, { ...(gitCwd ? { gitCwd } : {}) });
+  } catch {
+    return undefined;
+  }
 }

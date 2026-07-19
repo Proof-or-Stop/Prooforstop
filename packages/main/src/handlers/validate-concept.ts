@@ -851,7 +851,7 @@ function isConceptAnalyzablePath(path: string): boolean {
     || JAVASCRIPT_DECLARATION_EXTENSION.test(path);
 }
 
-export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
+export function analyzeDeletedSymbols(diff: string, projectRoot?: string): DeletedSymbolAnalysis {
   const removed = new Map<string, DeclarationIdentity[]>();
   const added = new Map<string, number>();
   const reconstructed = diffFileSources(diff);
@@ -860,11 +860,15 @@ export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
   // Language-neutral (B-956f): resolve the material-code policy once so the skip
   // channel names ONLY material-code files in a source language concept analysis
   // cannot parse (non-TS/py) — not docs, and not manifests without a code
-  // extension (go.mod, package.json). Fails soft: a malformed policy (surfaced
-  // fail-closed by the floor/repro gates) yields no skip diagnostics here.
+  // extension (go.mod, package.json). CX4 FIX F: `projectRoot` is threaded from
+  // the caller (checkConcept passes deps.projectRoot) so PROJECT CONFIG is
+  // honored — a configured-nonmaterial experiments/model.rs must not be
+  // reported as skipped-material. Fails soft: a malformed policy (surfaced
+  // fail-closed by the resolve/floor/repro gates) yields no skip diagnostics
+  // here.
   let policy: ReturnType<typeof resolveMaterialCodePolicy> | undefined;
   try {
-    policy = resolveMaterialCodePolicy();
+    policy = resolveMaterialCodePolicy(projectRoot);
   } catch {
     policy = undefined;
   }
@@ -873,7 +877,7 @@ export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
     if (!policy) return;
     const ext = materialPathExtension(path);
     if (!ext || !policy.codeExtensions.includes(ext)) return;
-    if (!classifyMaterialCodePath(policy, path).materialCode) return;
+    if (!classifyMaterialCodePath(policy, path, projectRoot !== undefined ? { projectRoot } : {}).materialCode) return;
     skipped.add(path.replace(/\\/g, '/'));
   };
   for (const file of reconstructed) {
@@ -921,13 +925,13 @@ export function analyzeDeletedSymbols(diff: string): DeletedSymbolAnalysis {
   };
 }
 
-export function scanDeletedSymbols(diff: string): string[] {
-  return analyzeDeletedSymbols(diff).symbols;
+export function scanDeletedSymbols(diff: string, projectRoot?: string): string[] {
+  return analyzeDeletedSymbols(diff, projectRoot).symbols;
 }
 
 /** B-956f: the DISTINCT concept-analysis skip diagnostic channel for a diff. */
-export function conceptSkipDiagnostics(diff: string): string[] {
-  return analyzeDeletedSymbols(diff).skipDiagnostics;
+export function conceptSkipDiagnostics(diff: string, projectRoot?: string): string[] {
+  return analyzeDeletedSymbols(diff, projectRoot).skipDiagnostics;
 }
 
 // ── residual grep ──
@@ -1045,7 +1049,9 @@ export function checkConcept(deps: CheckConceptDeps): ConceptCheckResult {
     };
   }
 
-  const analysis = analyzeDeletedSymbols(diff);
+  // CX4 FIX F: thread deps.projectRoot (the CONFIG root, distinct from gitCwd)
+  // so the skip channel honors the project's materialCode config in production.
+  const analysis = analyzeDeletedSymbols(diff, projectRoot);
   // B-956f: the concept skip channel is its OWN diagnostic, surfaced alongside
   // every outcome without ever being conflated with the fail-closed parse
   // `diagnostics` (a language skip must not fail the gate).

@@ -61,6 +61,7 @@ import {
   type ProofStoryDiagnosticInput,
 } from '../core/proofstory.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
+import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
 import { evaluateValidationEvidenceAdmissibility, type ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
 
 type ScopeLifecycleRow = {
@@ -107,7 +108,26 @@ function currentProofStoryEvidenceBinding(store: StoryStore, storyId: string, ro
   }
 }
 
-function proofStoryDiagnosticInput(store: StoryStore, storyId: string, root?: string): ProofStoryDiagnosticInput {
+/**
+ * B-956f FIX G: production materialClassification for the gate diagnostic
+ * input. Resolution failures yield undefined — the field is DIAGNOSTIC and a
+ * broken policy/config surfaces through the fail-closed resolve/floor/repro
+ * consumers, never by breaking a phase gate.
+ */
+function proofStoryMaterialClassification(store: StoryStore, storyId: string, root?: string) {
+  if (!root) return undefined;
+  let gitCwd: string | undefined;
+  try {
+    gitCwd = resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+  } catch {
+    gitCwd = undefined;
+  }
+  return tryBuildMaterialClassificationSnapshotForDiagnostics(root, gitCwd);
+}
+
+// Exported for the language-neutral-gates smoke (B-956f FIX H): the smoke
+// drives THIS production builder and asserts materialClassification arrives.
+export function proofStoryDiagnosticInput(store: StoryStore, storyId: string, root?: string): ProofStoryDiagnosticInput {
   let checklist: ChecklistData;
   try {
     checklist = store.readChecklist(storyId);
@@ -130,6 +150,7 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string, root?: st
     spikeEvidence: store.readProofStorySpikes(storyId),
     summary: store.readSummary(storyId),
     currentEvidenceBinding: currentProofStoryEvidenceBinding(store, storyId, root),
+    materialClassification: proofStoryMaterialClassification(store, storyId, root),
   };
 }
 
@@ -315,7 +336,7 @@ export async function runReviewToTestPreflightGate(
   runReviewLoopGate(storyId, store);
   const proofStoryMode = configuredProofStoryMode(ctx, 'reviewGateMode');
   if (proofStoryMode !== 'observe') {
-    const proofStoryReport = evaluateReviewCompleteness(proofStoryDiagnosticInput(store, storyId), proofStoryMode);
+    const proofStoryReport = evaluateReviewCompleteness(proofStoryDiagnosticInput(store, storyId, ctx.root), proofStoryMode);
     const renderedProofStory = renderProofStoryRows(
       'ProofStory REVIEW completeness',
       proofStoryReport.mode,

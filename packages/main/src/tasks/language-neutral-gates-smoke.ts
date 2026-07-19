@@ -38,11 +38,30 @@
  *     adversarial — skip channel and scope-diff channel stay DISTINCT; no file is
  *                   double-reported as analyzed and skipped.
  *
+ * FIX-ROUND checks (cross-host review round 1 — the smoke is re-pointed at
+ * PRODUCTION entry points, no helper-only tautologies):
+ *   FIX-A — stale/config-drifted snapshots rejected + re-resolved by the REAL
+ *           consumers (floor + repro); deep-frozen snapshots refuse mutation.
+ *   FIX-B — deleted / renamed-away extensionless scripts keep their OLD-tree
+ *           identity (--find-renames + old-tree mode/blob).
+ *   FIX-C — declared paths reuse the snapshot verbatim; off-diff bin/
+ *           executables carry working-tree hints into classifyReproFirstRequirement.
+ *   FIX-D — node_modules/dist/build/coverage manifests structurally excluded
+ *           at step 0, before (and never weakening) level-1 immutability.
+ *   FIX-E — the fs exclusion preflight fires INSIDE resolveMaterialCodePolicy
+ *           (production) and FAILS CLOSED on enumeration failure or a
+ *           malformed JSON config file (in CHK-002/adversarial).
+ *   FIX-F — conceptSkipDiagnostics/checkConcept thread projectRoot so project
+ *           config is honored.
+ *   FIX-G — the production phase-gates diagnostic-input builder populates
+ *           materialClassification; enforce outcomes stay byte-identical
+ *           (diagnostic-only trigger consumption).
+ *
  * Prints ✓/✗ per check and exits nonzero on the first failure.
  */
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { chmodSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
@@ -78,6 +97,7 @@ import {
   checkConcept,
   conceptSkipDiagnostics,
 } from '../handlers/validate-concept.js';
+import { proofStoryDiagnosticInput } from '../handlers/phase-gates.js';
 import { resetConfigCache } from '../core/config.js';
 import type { ProcessEvent } from '../core/types.js';
 
@@ -103,29 +123,64 @@ function writeFile(root: string, rel: string, content: string): void {
   mkdirSync(dirname(abs), { recursive: true });
   writeFileSync(abs, content);
 }
-/** Temp git repo whose `feature` HEAD adds `changed` files on top of a `main` base. */
-function makeGitRepo(base: Record<string, string>, changed: Record<string, string>): string {
-  const root = mkdtempSync(join(tmpdir(), 'lattice-lng-'));
+/** Empty temp git repo on branch `main` (no commits yet). */
+function initRepo(prefix = 'lattice-lng-'): string {
+  const root = mkdtempSync(join(tmpdir(), prefix));
   tempRoots.push(root);
   git(root, ['init', '-q']);
   git(root, ['config', 'user.email', 'smoke@test']);
   git(root, ['config', 'user.name', 'smoke']);
   git(root, ['checkout', '-q', '-b', 'main']);
-  writeFile(root, 'README.md', '# base\n');
-  for (const [p, c] of Object.entries(base)) writeFile(root, p, c);
-  git(root, ['add', '-A']);
-  git(root, ['commit', '-q', '-m', 'base']);
-  git(root, ['checkout', '-q', '-b', 'feature']);
-  for (const [p, c] of Object.entries(changed)) writeFile(root, p, c);
-  git(root, ['add', '-A']);
-  git(root, ['commit', '-q', '-m', 'change']);
   return root;
 }
-/** Temp project dir with a lattice.config.json (fresh policy/config caches). */
+function commitAll(root: string, message: string): void {
+  git(root, ['add', '-A']);
+  git(root, ['commit', '-q', '-m', message]);
+}
+/** Temp git repo whose `feature` HEAD adds `changed` files on top of a `main` base. */
+function makeGitRepo(base: Record<string, string>, changed: Record<string, string>): string {
+  const root = initRepo();
+  writeFile(root, 'README.md', '# base\n');
+  for (const [p, c] of Object.entries(base)) writeFile(root, p, c);
+  commitAll(root, 'base');
+  git(root, ['checkout', '-q', '-b', 'feature']);
+  for (const [p, c] of Object.entries(changed)) writeFile(root, p, c);
+  commitAll(root, 'change');
+  return root;
+}
+/**
+ * Temp project dir with a lattice.config.json but NO git tree (fresh
+ * policy/config caches). Note: an excludePaths-carrying config in a non-git
+ * root now FAILS CLOSED at resolution (FIX E) — use makeGitConfigRoot for
+ * fixtures that must resolve.
+ */
 function makeConfigRoot(config: unknown): string {
   const root = mkdtempSync(join(tmpdir(), 'lattice-lngcfg-'));
   tempRoots.push(root);
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify(config, null, 2));
+  resetConfigCache();
+  resetMaterialCodePolicyCache();
+  return root;
+}
+/**
+ * GIT-BACKED project root whose `main` base commit carries lattice.config.json
+ * (+ base files); when `changed` is non-empty a `feature` HEAD adds them. The
+ * production resolve-time exclusion preflight (FIX E) can enumerate this tree.
+ */
+function makeGitConfigRoot(
+  config: unknown,
+  base: Record<string, string> = {},
+  changed: Record<string, string> = {},
+): string {
+  const root = initRepo('lattice-lngcfg-');
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify(config, null, 2));
+  for (const [p, c] of Object.entries(base)) writeFile(root, p, c);
+  commitAll(root, 'base');
+  if (Object.keys(changed).length > 0) {
+    git(root, ['checkout', '-q', '-b', 'feature']);
+    for (const [p, c] of Object.entries(changed)) writeFile(root, p, c);
+    commitAll(root, 'change');
+  }
   resetConfigCache();
   resetMaterialCodePolicyCache();
   return root;
@@ -210,9 +265,6 @@ check('CHK-001/edge: floor + repro + ProofStory consume ONE snapshot; a stale-ha
   const report = evaluateProofStoryDiagnostics(proofStoryInput(snap));
   assert.equal(report.triggerReasons.some((t) => t.code === 'red_evidence_required'), true, 'ProofStory flips red_evidence_required via the shared snapshot');
 
-  // The exact SAME object was handed to all three consumers.
-  assert.ok(Object.is(snap, snap));
-
   // A fresh snapshot is NOT stale and ensureFresh returns the identical object.
   assert.equal(materialClassificationSnapshotStale(snap), false, 'freshly built snapshot is current');
   assert.ok(Object.is(ensureFreshMaterialClassificationSnapshot(snap), snap), 'a current snapshot is reused, not rebuilt');
@@ -235,8 +287,10 @@ check('CHK-001/adversarial: repro classification requires the snapshot and route
   void _snapshotParamIsRequired;
 
   // Project config reaches the repro gate through the snapshot's policy: a file
-  // under an excludePaths entry is non-material even though its extension is code.
-  const root = makeConfigRoot({ materialCode: { excludePaths: ['experiments/'] } });
+  // under an excludePaths entry is non-material even though its extension is
+  // code. GIT-BACKED root: the production resolve-time preflight (FIX E) walks
+  // the tracked tree, and the repro consumer freshness-checks the snapshot.
+  const root = makeGitConfigRoot({ materialCode: { excludePaths: ['experiments/'] } });
   const snap = buildMaterialClassificationSnapshot(root, { changedFiles: [] });
   const [excluded, included] = classifyDeclaredPaths(snap, ['experiments/model.py', 'src/core/model.py']);
   assert.equal(excluded.materialCode, false, 'project excludePaths reaches repro classification via the shared snapshot');
@@ -285,8 +339,9 @@ check('CHK-002/edge: precedence pairs (docs>prefix, README vs shebang script, se
   assert.equal(classifyMaterialCodePath(customPolicy, '.lattice/story/actives/B-1/story.json', { projectRoot: customRoot }).materialCode, false, 'the default .lattice story metadata stays excluded too');
 });
 
-check('CHK-002/adversarial: manifest exclusion rejected at resolve AND fs preflight; malformed config fails closed', () => {
-  // (a) config-resolve rejection: excludePaths naming a level-1 manifest.
+check('CHK-002/adversarial: manifest exclusion rejected at resolve AND by the PRODUCTION fs preflight; enumeration + malformed config fail closed', () => {
+  // (a) config-resolve rejection: excludePaths naming a level-1 manifest
+  // (basename rule fires before the tree walk, so no git tree is needed).
   const excludeRoot = makeConfigRoot({ materialCode: { excludePaths: ['go.mod'] } });
   assert.throws(
     () => resolveMaterialCodePolicy(excludeRoot),
@@ -294,17 +349,42 @@ check('CHK-002/adversarial: manifest exclusion rejected at resolve AND fs prefli
     'excludePaths naming go.mod is rejected at config-resolve naming the key',
   );
 
-  // (b) filesystem-aware preflight: a directory entry covering a real manifest.
-  resetMaterialCodePolicyCache();
-  const dirRoot = makeConfigRoot({ materialCode: { excludePaths: ['backend/'] } });
-  const dirPolicy = resolveMaterialCodePolicy(dirRoot); // 'backend/' passes basename resolve
-  const preflight = preflightMaterialCodeExclusions(dirPolicy, dirRoot, 'HEAD', ['backend/go.mod', 'backend/main.go', 'README.md']);
+  // (b) FIX E: the filesystem-aware preflight fires INSIDE the production
+  // resolveMaterialCodePolicy — a directory exclusion covering a real tracked
+  // manifest rejects at RESOLUTION.
+  const dirRoot = makeGitConfigRoot(
+    { materialCode: { excludePaths: ['backend/'] } },
+    { 'backend/go.mod': 'module example.com/x\n', 'backend/main.go': 'package main\n' },
+  );
+  assert.throws(
+    () => resolveMaterialCodePolicy(dirRoot),
+    (err: unknown) => err instanceof MaterialCodePolicyError && err.offendingKey === 'materialCode.excludePaths' && /backend\/go\.mod/.test(err.message),
+    'backend/ hiding a real tracked backend/go.mod rejects at production resolution',
+  );
+  // The same config over a tree with NO covered manifest resolves fine.
+  const okRoot = makeGitConfigRoot(
+    { materialCode: { excludePaths: ['backend/'] } },
+    { 'backend/main.go': 'package main\n' },
+  );
+  const okPolicy = resolveMaterialCodePolicy(okRoot);
+  assert.deepEqual(okPolicy.excludePaths, ['backend/'], 'a non-covering directory exclusion survives resolution');
+
+  // (b2) FAIL CLOSED (quality F-001): tracked-file enumeration failure (no git
+  // tree) throws a named diagnostic — never []→ok:true.
+  const nonGitRoot = makeConfigRoot({ materialCode: { excludePaths: ['backend/'] } });
+  assert.throws(
+    () => resolveMaterialCodePolicy(nonGitRoot),
+    (err: unknown) => err instanceof MaterialCodePolicyError && /could not enumerate tracked files/.test(err.message) && /failing closed/.test(err.message),
+    'enumeration failure fails CLOSED with a named diagnostic',
+  );
+
+  // (b3) unit-level preflight matrix with an explicit tracked-file list.
+  const preflight = preflightMaterialCodeExclusions(okPolicy, okRoot, 'HEAD', ['backend/go.mod', 'backend/main.go', 'README.md']);
   assert.equal(preflight.ok, false, 'backend/ covering backend/go.mod is rejected by the fs preflight');
   assert.deepEqual(preflight.violations, [{ entry: 'backend/', manifest: 'backend/go.mod' }]);
-  // A tree with NO covered manifest passes the preflight.
-  assert.equal(preflightMaterialCodeExclusions(dirPolicy, dirRoot, 'HEAD', ['backend/main.go']).ok, true, 'backend/ with no manifest inside passes');
+  assert.equal(preflightMaterialCodeExclusions(okPolicy, okRoot, 'HEAD', ['backend/main.go']).ok, true, 'backend/ with no manifest inside passes');
 
-  // (c) malformed materialCode block fails CLOSED naming the offending key.
+  // (c) malformed materialCode blocks fail CLOSED naming the offending key.
   const badArrayRoot = makeConfigRoot({ materialCode: { addExtensions: 'ts' } });
   assert.throws(
     () => resolveMaterialCodePolicy(badArrayRoot),
@@ -322,6 +402,19 @@ check('CHK-002/adversarial: manifest exclusion rejected at resolve AND fs prefli
     () => resolveMaterialCodePolicy(badBlockRoot),
     (err: unknown) => err instanceof MaterialCodePolicyError && err.offendingKey === 'materialCode',
     'a non-object materialCode block fails closed naming the key',
+  );
+
+  // (c2) FIX E adversarial: an UNPARSEABLE lattice.config.json fails CLOSED
+  // (parse error → MaterialCodePolicyError), never a silent default policy.
+  const badJsonRoot = mkdtempSync(join(tmpdir(), 'lattice-lngcfg-'));
+  tempRoots.push(badJsonRoot);
+  writeFileSync(join(badJsonRoot, 'lattice.config.json'), '{ "materialCode": { invalid');
+  resetConfigCache();
+  resetMaterialCodePolicyCache();
+  assert.throws(
+    () => resolveMaterialCodePolicy(badJsonRoot),
+    (err: unknown) => err instanceof MaterialCodePolicyError && err.offendingKey === 'lattice.config.json' && /fails closed/.test(err.message),
+    'a malformed JSON config file fails closed naming the file',
   );
 });
 
@@ -433,12 +526,202 @@ check('CHK-004/adversarial: skip channel and scope-diff channel stay DISTINCT; n
   assert.equal(analysis.skipDiagnostics[0]!.includes('src/core/auth.go'), true, 'the .go file is only in the skip channel');
 });
 
+// ─────────────────────── fix-round production wiring ───────────────────────
+
+check('FIX-A/adversarial: config-drifted snapshot rejected + re-resolved by REAL consumers (floor + repro); frozen snapshot refuses mutation', () => {
+  const root = makeGitConfigRoot(
+    { materialCode: { excludePaths: ['src/'] } },
+    { 'legacy/keep.ts': 'export const keep = 1;\n' },
+    { 'src/app.py': 'print(1)\n' },
+  );
+  const staleSnap = buildMaterialClassificationSnapshot(root);
+  // Under the OLD config the diffed src/app.py is excluded (the codex repro:
+  // a stale policy whose exclusion covered src/).
+  assert.equal(staleSnap.files.find((f) => f.path === 'src/app.py')!.materialCode, false, 'old policy excludes src/app.py');
+
+  // (1) deep-freeze (FIX A): mutating the snapshot, its policy, or its files THROWS.
+  assert.throws(() => { (staleSnap.policy.excludePaths as string[]).push('lib/'); }, TypeError, 'policy mutation throws');
+  assert.throws(() => { (staleSnap.files as unknown[]).pop(); }, TypeError, 'files mutation throws');
+  assert.throws(() => { (staleSnap as { materialHash?: string }).materialHash = 'forged'; }, TypeError, 'hash forgery throws');
+
+  // (2) config drift WITHOUT any commit: head/materialHash alone still look
+  // "fresh" — the policyDigest-vs-live-config check catches it (and the
+  // signature-keyed cache makes re-resolve a REAL config reload).
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ materialCode: {} }, null, 2));
+  assert.equal(materialClassificationSnapshotStale(staleSnap), true, 'policy drift marks the snapshot stale');
+
+  // (3) REAL consumer 1 — the floor re-resolves; src/app.py is material now.
+  const floor = evaluateReviewAssuranceFloor({
+    projectRoot: root,
+    changedFiles: ['src/app.py'],
+    materialHash: 'deadbeef',
+    materialClassification: staleSnap,
+  });
+  assert.deepEqual(floor.materialCodePaths, ['src/app.py'], 'the floor NEVER consumes the stale exclusion — it re-resolves');
+
+  // (4) REAL consumer 2 — repro classification re-resolves.
+  const checklist = { items: [{ files: { modify: ['src/app.py'], create: [], test: [] } }] } as any;
+  const cls = classifyReproFirstRequirement({ type: 'bug', priority: 'medium', riskSignals: [] } as any, checklist, staleSnap);
+  assert.equal(cls.required, true, 'the repro gate NEVER consumes the stale exclusion — it re-resolves');
+
+  // (5) head drift: a commit after build is detected and re-resolution
+  // includes the new material file.
+  const snap2 = buildMaterialClassificationSnapshot(root);
+  assert.equal(materialClassificationSnapshotStale(snap2), false, 'freshly rebuilt snapshot is current');
+  writeFile(root, 'src/extra.py', 'print(2)\n');
+  commitAll(root, 'more');
+  assert.equal(materialClassificationSnapshotStale(snap2), true, 'a commit after build marks the snapshot stale');
+  const refreshed = ensureFreshMaterialClassificationSnapshot(snap2);
+  assert.ok(!Object.is(refreshed, snap2), 'a stale snapshot is re-resolved into a new object');
+  assert.equal(refreshed.files.some((f) => f.path === 'src/extra.py' && f.materialCode), true, 're-resolution sees the new material file');
+});
+
+check('FIX-B/adversarial: deleted exec-bit-only script and renamed-away shebang script classify material from the OLD tree (--find-renames)', () => {
+  const root = initRepo();
+  writeFile(root, 'src/base.ts', 'export const base = 1;\n');
+  writeFile(root, 'bin/tool', 'echo hi\n'); // NO shebang — executable bit only
+  chmodSync(join(root, 'bin/tool'), 0o755);
+  writeFile(root, 'scripts/runner', '#!/bin/sh\necho r\n'); // shebang, no exec bit
+  commitAll(root, 'base');
+  git(root, ['checkout', '-q', '-b', 'feature']);
+  rmSync(join(root, 'bin/tool'));
+  git(root, ['mv', 'scripts/runner', 'scripts/renamed-runner']);
+  commitAll(root, 'change');
+
+  const snap = buildMaterialClassificationSnapshot(root);
+  const byPath = new Map(snap.files.map((f) => [f.path, f]));
+
+  const deleted = byPath.get('bin/tool');
+  assert.ok(deleted, 'the DELETED bin/tool keeps its identity in the snapshot');
+  assert.equal(deleted!.materialCode, true, 'deleted exec-bit-only script is material via the OLD-tree file MODE');
+  assert.equal(deleted!.reason, 'extensionless shebang/executable script');
+
+  const renamedOld = byPath.get('scripts/runner');
+  assert.ok(renamedOld, 'the rename OLD path appears in the snapshot (--find-renames pairs parsed)');
+  assert.equal(renamedOld!.materialCode, true, 'renamed-away shebang script is material via the OLD-tree blob');
+
+  const renamedNew = byPath.get('scripts/renamed-runner');
+  assert.ok(renamedNew && renamedNew.materialCode === true, 'the rename NEW path classifies material too');
+});
+
+check('FIX-C/adversarial: declared paths reuse the snapshot VERBATIM; off-diff bin/ executables carry working-tree hints into the REAL repro consumer', () => {
+  const root = initRepo();
+  writeFile(root, 'src/base.ts', 'export const base = 1;\n');
+  writeFile(root, 'bin/oldtool', 'echo unchanged\n'); // exec-bit script OUTSIDE the diff
+  chmodSync(join(root, 'bin/oldtool'), 0o755);
+  commitAll(root, 'base');
+  git(root, ['checkout', '-q', '-b', 'feature']);
+  writeFile(root, 'bin/deploy', 'echo deploy\n'); // exec-bit script IN the diff
+  chmodSync(join(root, 'bin/deploy'), 0o755);
+  commitAll(root, 'change');
+
+  const snap = buildMaterialClassificationSnapshot(root);
+  const inDiff = snap.files.find((f) => f.path === 'bin/deploy');
+  assert.ok(inDiff && inDiff.materialCode === true, 'the changed bin/deploy executable is material in the snapshot');
+
+  // Verbatim reuse: the declared classification IS the snapshot classification
+  // (no hintless re-derivation that would flip a changed executable).
+  const [reused] = classifyDeclaredPaths(snap, ['bin/deploy']);
+  assert.deepEqual(
+    reused,
+    { path: inDiff!.path, materialCode: inDiff!.materialCode, reason: inDiff!.reason },
+    'declared-path classification reuses the snapshot entry verbatim',
+  );
+
+  // Off-diff declared path: hints come from the working tree at the snapshot
+  // boundary — the hintless pure classifier is never used for it.
+  const [offDiff] = classifyDeclaredPaths(snap, ['bin/oldtool']);
+  assert.equal(offDiff!.materialCode, true, 'an off-diff bin/ executable gets working-tree exec-bit hints');
+
+  // The REAL consumer: classifyReproFirstRequirement flips for bin/ executables.
+  const mkChecklist = (file: string) => ({ items: [{ files: { modify: [file], create: [], test: [] } }] }) as any;
+  const bug = { type: 'bug', priority: 'medium', riskSignals: [] } as any;
+  assert.equal(classifyReproFirstRequirement(bug, mkChecklist('bin/deploy'), snap).required, true, 'repro-first flips for the in-diff bin/deploy (no snapshot/classifier divergence)');
+  assert.equal(classifyReproFirstRequirement(bug, mkChecklist('bin/oldtool'), snap).required, true, 'repro-first flips for the off-diff bin/oldtool via working-tree hints');
+});
+
+check('FIX-D/adversarial: node_modules/dist/build/coverage manifests structurally excluded at step 0; first-party manifests stay immutable material', () => {
+  const policy = resolveMaterialCodePolicy();
+  for (const p of ['node_modules/pkg/package.json', 'dist/package.json', 'build/go.mod', 'coverage/pyproject.toml', 'node_modules/pkg/index.js', 'packages/x/dist/cli.js']) {
+    const c = classifyMaterialCodePath(policy, p);
+    assert.equal(c.materialCode, false, `${p} must NOT classify material`);
+    assert.equal(c.reason, 'generated/vendored artifact directory (non-source)', `${p} excluded structurally at step 0`);
+  }
+  // First-party manifests/sources are untouched (structural rule cannot weaken level 1).
+  assert.equal(classifyMaterialCodePath(policy, 'package.json').materialCode, true, 'root package.json stays level-1 material');
+  assert.equal(classifyMaterialCodePath(policy, 'backend/go.mod').materialCode, true, 'a first-party nested manifest stays material');
+  assert.equal(classifyMaterialCodePath(policy, 'build.gradle').materialCode, true, 'build.gradle is a manifest basename, not a dir segment');
+  assert.equal(classifyMaterialCodePath(policy, 'src/dist.ts').materialCode, true, 'a file basename matching a segment name is not excluded');
+});
+
+check('FIX-F: concept skip classification honors project config (configured-nonmaterial experiments/ never reported skipped-material)', () => {
+  const root = makeGitConfigRoot({ materialCode: { excludePaths: ['experiments/'] } });
+  const diff = [
+    fileDiff('experiments/model.rs', 'fn old() {}\n', 'fn newer() {}\n'),
+    fileDiff('svc/handler.go', 'package svc\n', 'package svc\nfunc H() {}\n'),
+  ].join('\n');
+  const skip = conceptSkipDiagnostics(diff, root);
+  assert.equal(skip.some((d) => d.includes('svc/handler.go')), true, 'a real non-TS source file is still reported skipped');
+  assert.equal(skip.some((d) => d.includes('experiments/model.rs')), false, 'the configured-nonmaterial file is NOT reported (projectRoot threaded)');
+
+  // The production entry (checkConcept) threads deps.projectRoot the same way.
+  const result = checkConcept({ projectRoot: root, gitDiffReader: () => diff, grepReader: () => '' });
+  assert.equal((result.skipDiagnostics ?? []).some((d) => d.includes('experiments/model.rs')), false, 'checkConcept honors the project config');
+  assert.equal((result.skipDiagnostics ?? []).some((d) => d.includes('svc/handler.go')), true, 'checkConcept still reports the real skip');
+});
+
+check('FIX-G: the PRODUCTION phase-gates builder populates materialClassification; enforce outcomes stay byte-identical (diagnostic-only)', () => {
+  const repo = makeGitRepo({ 'src/base.ts': 'export const base = 1;\n' }, { 'src/core/auth.go': 'package core\n' });
+  const neutralStory = {
+    storyId: 'B-lng-g', name: 'tidy sample', title: 'tidy sample', description: 'tidy sample files',
+    type: 'chore', priority: 'medium', riskSignals: [],
+  };
+  const nullReader = (): null => null;
+  const fakeStore = {
+    readStory: () => neutralStory,
+    readChecklist: () => ({ items: [] }),
+    readOriginalIntentSnapshot: nullReader,
+    readMilestoneLedger: nullReader,
+    readProofStorySlicePlan: nullReader,
+    readProofStoryParentLedgerRollup: nullReader,
+    readProofStoryContract: nullReader,
+    readIntentCollision: nullReader,
+    readScopeContract: nullReader,
+    readScopeShrinkageDecision: nullReader,
+    readRedEvidence: nullReader,
+    readProofStorySpikes: nullReader,
+    readSummary: nullReader,
+  } as any;
+
+  // Drive the REAL production diagnostic-input builder (handlers/phase-gates.ts).
+  const input = proofStoryDiagnosticInput(fakeStore, 'B-lng-g', repo);
+  assert.ok(input.materialClassification, 'the production builder POPULATES materialClassification');
+  assert.equal(materialClassificationHasMaterialCode(input.materialClassification), true, 'the populated snapshot sees the material .go diff');
+
+  // The trigger flips language-neutrally, marked diagnostic-only…
+  const enforced = evaluateProofStoryDiagnostics(input, 'enforce');
+  const red = enforced.triggerReasons.find((t) => t.code === 'red_evidence_required');
+  assert.ok(red, 'red_evidence_required flips via the production-populated snapshot');
+  assert.equal(red!.diagnosticOnly, true, 'the material-driven trigger is diagnostic-only until the program enforce flip');
+
+  // …and the ENFORCE outcome is byte-identical with and without the field
+  // (FIX G constraint: no enforce outcome change for existing projects).
+  const baseline = evaluateProofStoryDiagnostics({ ...input, materialClassification: null }, 'enforce');
+  assert.equal(enforced.blocking, baseline.blocking, 'enforce blocking unchanged');
+  assert.deepEqual(
+    enforced.gaps.map((g) => g.code).sort(),
+    baseline.gaps.map((g) => g.code).sort(),
+    'enforce gap set unchanged by the populated snapshot',
+  );
+  assert.equal(enforced.hardeningLevel, baseline.hardeningLevel, 'hardening level unchanged');
+});
+
 for (const root of tempRoots) {
   try { rmSync(root, { recursive: true, force: true }); } catch { /* best effort cleanup */ }
 }
 
 if (failures === 0) {
-  console.log('\nlanguage-neutral-gates smoke passed (12 checks / 12 verificationIntent lanes)');
+  console.log('\nlanguage-neutral-gates smoke passed (18 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks)');
 } else {
   console.error(`\nlanguage-neutral-gates smoke FAILED (${failures})`);
   process.exit(1);

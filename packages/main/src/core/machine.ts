@@ -48,6 +48,7 @@ import {
   type ProofStoryDiagnosticInput,
 } from './proofstory.js';
 import { readTrustedProofStoryScopeArtifacts } from './closeout-trust.js';
+import { tryBuildMaterialClassificationSnapshotForDiagnostics } from './material-code-policy.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -126,7 +127,24 @@ function projectScopeFreezeChecklist(store: StoryStore, storyId: string): ScopeF
   }
 }
 
-function proofStoryDiagnosticInput(store: StoryStore, storyId: string): ProofStoryDiagnosticInput {
+/**
+ * B-956f FIX G: production materialClassification for a diagnostic-input
+ * builder. Resolution failures yield undefined (the field is DIAGNOSTIC; a
+ * broken policy/config surfaces through the fail-closed resolve/floor/repro
+ * consumers, never by breaking a transition guard).
+ */
+function proofStoryMaterialClassification(store: StoryStore, storyId: string, projectRoot?: string) {
+  if (!projectRoot) return undefined;
+  let gitCwd: string | undefined;
+  try {
+    gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
+  } catch {
+    gitCwd = undefined;
+  }
+  return tryBuildMaterialClassificationSnapshotForDiagnostics(projectRoot, gitCwd);
+}
+
+function proofStoryDiagnosticInput(store: StoryStore, storyId: string, projectRoot?: string): ProofStoryDiagnosticInput {
   let checklist;
   try {
     checklist = store.readChecklist(storyId);
@@ -148,6 +166,7 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string): ProofSto
     redEvidence: store.readRedEvidence(storyId),
     spikeEvidence: store.readProofStorySpikes(storyId),
     summary: store.readSummary(storyId),
+    materialClassification: proofStoryMaterialClassification(store, storyId, projectRoot),
   };
 }
 
@@ -155,7 +174,7 @@ function proofStoryDevGateFailure(store: StoryStore, projectRoot: string | undef
   if (!projectRoot) return null;
   const mode = loadConfig(projectRoot).proofStory?.devGateMode ?? 'observe';
   if (mode !== 'enforce') return null;
-  const report = evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId), 'enforce');
+  const report = evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId, projectRoot), 'enforce');
   if (!report.blocking) return null;
   return `Cannot enter DEV: ProofStory DEV gate is enforce and required intent artifacts are incomplete.\n${renderProofStoryDiagnosticReport(report)}`;
 }

@@ -2,6 +2,7 @@ import { execFileSync } from 'child_process';
 import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import {
   classifyMaterialCodePath,
+  ensureFreshMaterialClassificationSnapshot,
   resolveMaterialCodePolicy,
   type MaterialClassificationSnapshot,
 } from './material-code-policy.js';
@@ -760,7 +761,17 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
     ...overrides,
   });
   const listed = args.changedFiles ? { files: args.changedFiles } : listChangedFiles(gitCwd);
-  const changedFiles = listed.files.map(path => classifyReviewAssuranceFloorPath(path, args.projectRoot, args.materialClassification));
+  // CX4 FIX A: a supplied snapshot is validated at THIS consumer entry point —
+  // embedded HEAD/materialHash against the live tree AND policyDigest against
+  // live config — and re-resolved on drift. A stale snapshot whose policy no
+  // longer matches config (codex repro: an excluded src/) is never consumed.
+  const materialClassification = args.materialClassification
+    ? ensureFreshMaterialClassificationSnapshot(args.materialClassification, {
+      gitCwd,
+      ...(args.projectRoot !== undefined ? { projectRoot: args.projectRoot } : {}),
+    })
+    : undefined;
+  const changedFiles = listed.files.map(path => classifyReviewAssuranceFloorPath(path, args.projectRoot, materialClassification));
   const materialCodePaths = changedFiles
     .filter(file => file.materialCode)
     .map(file => file.path);

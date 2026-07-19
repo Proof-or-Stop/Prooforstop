@@ -4,6 +4,7 @@ import { buildProofAdmissibilityDiagnostic } from './proof-admissibility-gates.j
 import {
   buildMaterialClassificationSnapshot,
   classifyDeclaredPaths,
+  ensureFreshMaterialClassificationSnapshot,
   type MaterialClassificationSnapshot,
 } from './material-code-policy.js';
 import type {
@@ -108,7 +109,12 @@ export function classifyReproFirstRequirement(
   checklist: ChecklistData | null | undefined,
   snapshot: MaterialClassificationSnapshot,
 ): ReproFirstRequirementClassification {
-  const materialFiles = collectMaterialCodeFiles(checklist, snapshot);
+  // CX4 FIX A: this consumer entry point validates the received snapshot's
+  // embedded HEAD/materialHash against the live tree and its policyDigest
+  // against live config, re-resolving on drift — a stale or config-drifted
+  // snapshot is never consumed as-is.
+  const fresh = ensureFreshMaterialClassificationSnapshot(snapshot);
+  const materialFiles = collectMaterialCodeFiles(checklist, fresh);
   if ((story?.type === 'bug' || story?.type === 'feature') && materialFiles.length > 0) {
     return {
       required: true,
