@@ -184,7 +184,7 @@
       "title": "Record dispatch usage and finding measurements in an isolated experiment ledger",
       "context": "Capture assembled prompt, known dispatch input, provider-reported usage/cache availability, contract/model versions, attempts and experiment findings in append-only experiment artifacts that cannot satisfy review pass, finding, ReviewRun, verification or lifecycle gates.",
       "relatedDocs": [
-        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
       ],
       "status": "done",
@@ -219,7 +219,7 @@
           }
         ]
       },
-      "userSees": "用户查看分析时看到：\"Experiment ledger: PASS gateEvidence=false attempts=<n>\"；缺失 provider/cache 字段显示 \"unavailable(<reason>)\"，不会显示为 0。",
+      "userSees": "The analysis shows \"Experiment ledger: PASS gateEvidence=false attempts=<n>\"; unavailable provider or cache fields show \"unavailable(<reason>)\" rather than zero.",
       "files": {
         "modify": [],
         "create": [
