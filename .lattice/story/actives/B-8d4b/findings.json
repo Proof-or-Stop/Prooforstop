@@ -5,7 +5,7 @@
       "desc": "experiments/role-prompt-ab-replay/lib/replay.mjs:301-305 and protocol.json:14-23 — The two A/B arms are not pinned legacy/modular role-prompt bytes or a verified prompt-envelope reconstruction; armPrompt synthesizes one short label sentence per arm. `node experiments/role-prompt-ab-replay/run.mjs --json` therefore reports 1279 vs 1292 bytes for critical-01, measuring the labels plus shared JSON rather than either real role contract. This can validate harness determinism but cannot constitute a role-prompt A/B assembled-input measurement. Bind each arm to exact committed prompt/envelope bytes plus digest/contract version, or classify the arm metric itself INCONCLUSIVE and rename the artifact as a framework selfcheck.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T02:11:19.790Z",
@@ -19,7 +19,11 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
       "signatureTag": "spec-boundary|mjs|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e36af72f74: canonical arms no longer synthesize placeholder prompt bytes; missing historical snapshots return PROMPT_SNAPSHOT_UNAVAILABLE and no prompt savings claim. Hermetic bytes are isolated selfcheck-only.",
+      "resolvedAt": "2026-07-19T02:37:00.283Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-002",
