@@ -356,6 +356,21 @@
       "_hash": "6f02743d3f056698f0dbee91c3d18b20617bda80cc477d22cd9814500d4432b5",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-955c:F-020",
+      "desc": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md:620-643 versus packages/main/src/core/evidence/environment-contract.ts:657-688 — F-017/F-018 wording is now correct (v2 current, v1 legacy, logical cwd portable, resolvedCwd physical provenance), but the EEA projection still assigns commandSpec.cwd from receipt.cwd, i.e. the absolute physical worktree path, and hashes it into invocationDigest. Independent repro with an identical v2 CommandSpec (logical cwd dot, identical commandSpec digest) changed only physical receipt.cwd/resolvedCwd from /root-a to /root-b; projected EEA cwd changed accordingly and invocation digests differed (b4afd13... versus 3a1d49f...). Thus the paper current host/worktree-portable mapping is not yet true end-to-end, even though the ordinary EEA smoke passes because it tests only one root. This independently confirms concept-lane F-019. Map v2 EEA identity from receipt.commandSpec.cwd, retain physical cwd/resolvedCwd only as non-portable provenance, define the legacy-v1 compatibility mapping explicitly, and add cross-root digest equality plus physical-provenance/tamper regressions. M6 remains open, named external adapters remain integration targets, and distinct-host quorum remains unsupported; those boundaries were not changed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T03:27:57.093Z",
+      "reviewRound": "2026-07-19T03:23:39.690Z",
+      "reviewRunId": "B-955c:RR-038",
+      "_hash": "717c4249180f711ebae6e90c8850e3daf342bdf04b6946579ae8bdd47eb6b375",
+      "signatureTag": "adversarial|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
