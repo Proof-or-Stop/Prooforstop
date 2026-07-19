@@ -134,6 +134,25 @@
       "resolvedReason": "Fixed in f39ef9f967: F-005 digest executed.cwd + coverage compares logical vs policy; F-006 anchor logical cwd at projectRoot (in-workspace absolute portable, out-of-workspace documented limit), deleted shared-root anchoring; F-007 lifecycle-control validationLockPath delegates to exported validationExecutionLockPath. Smoke now 25/25 incl. corresponding-abs-path portability, executed-cwd, and lifecycle-lock-visibility checks.",
       "resolvedAt": "2026-07-19T01:28:48.684Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-231d:F-008",
+      "desc": "NEW cross-root blocker: validateCommandSpecDigestCoverage defeats the v2 portable cwd in the aggregate DONE-required gate. For a receipt created in worktree A with commandSpec.cwd=. and receipt.cwd=<absolute A>, verification under main/root B makes buildDoneRequiredCommandSpecEnvelope(B,... receipt.cwd=A) normalize the executed cwd to .worktrees/<id> rather than ., so matchesEnvelope rejects the valid stored v2 envelope with command-spec-digest-mismatch. validateRequiredReceiptCoverage passes that same receipt, but validateDoneRequiredEvidence appends both validator results and therefore still fails it. Repro after build: construct a v2 receipt with buildDoneRequiredCommandSpecEnvelope(worktreeRoot, cmd, executed cwd=worktreeRoot), then call validateCommandSpecDigestCoverage(receipt, mainRoot, [cmd]); observed valid=false and command-spec-digest-mismatch while validateRequiredReceiptCoverage returns []. The 25-check smoke only calls receipt coverage for its cross-root case and never calls digest coverage or the aggregate gate, so it misses the regression.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T01:35:59.438Z",
+      "reviewRound": "2026-07-19T01:28:28.627Z",
+      "reviewRunId": "B-231d:RR-014",
+      "_hash": "f7efc10ef279cdf18d8e301842b14960c986225ef56fd49fd5ac9c8e00e075c9",
+      "files": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/tasks/worktree-portability-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|cross-root-digest-reconstruction",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
