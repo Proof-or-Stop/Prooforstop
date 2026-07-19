@@ -51,7 +51,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "same-input-deterministic-readonly-replay",
+            "desc": "For every valid historical sample the harness reconstructs immutable material once, feeds byte-identical pinned task/material/tool/model inputs to both A and B arms except for the pre-registered prompt-contract difference, and deterministically recomputes canonical prompt bytes, estimated tokens, content digests and adjudicated finding comparisons without modifying the source material or current Story state.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "replay-order-path-and-repeat-invariance",
+            "desc": "Repeated execution, reversed pre-registered arm order, repository-relative POSIX path normalization and semantically equivalent object insertion order preserve per-cell input/prompt digests and computed measurements; meaningful byte, model, tool, contract or material changes produce different digests instead of colliding or being silently normalized.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "replay-no-caller-substitution-or-write-path",
+            "desc": "The replay entrypoint rejects caller-supplied precomputed digests, finding outcomes, production evidence paths, mutable live-Story material, path traversal/symlink escape and mixed-arm inputs; filesystem snapshots and command probes prove the read-only harness cannot write review pass, finding, ReviewRun, verification, phase or lifecycle artifacts.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
