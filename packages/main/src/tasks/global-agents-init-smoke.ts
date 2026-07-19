@@ -9,13 +9,13 @@
  *
  * Covers:
  *   (a) fresh claude-marker project: project has 0 `.claude/agents/*.md`;
- *       global `$HOME/.claude/agents` has 16 THIN-SHIM regular files, each with
- *       `tools:` frontmatter + a body containing `lattice agent_prompt` and NO
- *       role body.
- *   (b) `lattice agent_prompt --role=<name>` output is byte-equal to the
- *       registry body for that role (asserted against readPromptRegistry, the
- *       same source the Codex manifest resolves) — the CLI process only appends
- *       the generic print-time trailing newline.
+ *       global `$HOME/.claude/agents` has 16 regular files. Five migrated
+ *       reviewers contain only the canonical review_run_start bootstrap; the
+ *       other roles retain the agent_prompt thin shim. No shim contains a
+ *       migrated reviewer role body.
+ *   (b) `lattice agent_prompt --role=<name>` returns the same actual Claude
+ *       registry render: bootstrap for the five migrated reviewers, package
+ *       body for ordinary roles.
  *   (c) `--upgrade` migration: 16 managed removed, user file kept, normal init
  *       only warns (no delete).
  *   (d) idempotency: re-running init reports synced=0 (all shims already ok).
@@ -30,7 +30,11 @@ import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, re
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
+import {
+  isModularReviewerRoleId,
+  readPromptRegistry,
+  renderPromptEntryForHost,
+} from '../core/prompt-registry.js';
 import { listManagedAgentBasenames, resolveAgentTemplateDir } from '../core/global-agents.js';
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -86,9 +90,14 @@ function listProjectAgentMd(root: string): string[] {
       const content = readFileSync(shimPath, 'utf8');
       // tools sandbox preserved
       assert.match(content, /^tools:/m, `${basename} shim must keep tools: frontmatter`);
-      // CLI-fetch body present
-      assert.match(content, /lattice agent_prompt --role=/, `${basename} shim body must reference lattice agent_prompt`);
-      assert.match(content, /thin pointer/, `${basename} shim body must declare it is a thin pointer`);
+      const role = basename.replace(/\.md$/, '');
+      if (isModularReviewerRoleId(role)) {
+        assert.match(content, /lattice review_run_start/, `${basename} must use the canonical reviewer bootstrap`);
+        assert.doesNotMatch(content, /agent_prompt --role=/, `${basename} must not preload a role body through agent_prompt`);
+      } else {
+        assert.match(content, /lattice agent_prompt --role=/, `${basename} shim body must reference lattice agent_prompt`);
+        assert.match(content, /thin pointer/, `${basename} shim body must declare it is a thin pointer`);
+      }
       // No role body content (load-bearing slice / role-specific prose) leaked
       assert.doesNotMatch(content, /<!-- lattice:start -->/, `${basename} shim must NOT contain the role body slice`);
     }
@@ -103,7 +112,7 @@ function listProjectAgentMd(root: string): string[] {
   const snapshot = readPromptRegistry();
   assert.equal(snapshot.agents.length, 16, 'registry must expose 16 roles');
   for (const entry of snapshot.agents) {
-    const body = readPromptTemplate(entry);
+    const expected = renderPromptEntryForHost(entry, 'claude');
     const cliOut = execFileSync(process.execPath, [cliPath, 'agent_prompt', `--role=${entry.agentId}`], {
       cwd: packageRoot,
       encoding: 'utf8',
@@ -112,7 +121,7 @@ function listProjectAgentMd(root: string): string[] {
     // The CLI print layer appends exactly one trailing newline to a string
     // result; strip a single trailing newline before the byte-equality check.
     const normalized = cliOut.endsWith('\n') ? cliOut.slice(0, -1) : cliOut;
-    assert.equal(normalized, body, `agent_prompt --role=${entry.agentId} must be byte-equal to the registry body`);
+    assert.equal(normalized, expected, `agent_prompt --role=${entry.agentId} must equal the actual Claude registry render`);
   }
 }
 
@@ -165,4 +174,4 @@ function listProjectAgentMd(root: string): string[] {
   }
 }
 
-console.log('PASS global-agents-init-smoke (fresh thin-shims / byte-equal agent_prompt / --upgrade migration / idempotent)');
+console.log('PASS global-agents-init-smoke (fresh reviewer bootstraps + ordinary shims / registry agent_prompt / --upgrade migration / idempotent)');

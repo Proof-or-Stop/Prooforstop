@@ -3,14 +3,12 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  isModularReviewerRoleId,
   readPromptRegistry,
   renderPromptEntryForHost,
   type PromptHost,
   type PromptRegistryEntry,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
-import { renderReviewerRunBootstrapForTemplate } from './global-agents.js';
 
 export type AgentAssetResolutionMode = 'runtime-owned' | 'pinned-runtime' | 'full-asset' | 'debug-override';
 export type AgentAssetStatus = 'absent' | 'matches-runtime' | 'stale' | 'override';
@@ -133,10 +131,7 @@ function listMarkdownFiles(dir: string): string[] {
 function expectedByFile(registry: PromptRegistrySnapshot, host: PromptHost): Map<string, { entry: PromptRegistryEntry; content: string; hash: string }> {
   const result = new Map<string, { entry: PromptRegistryEntry; content: string; hash: string }>();
   for (const entry of registry.agents) {
-    const hostTemplate = renderPromptEntryForHost(entry, host);
-    const content = isModularReviewerRoleId(entry.agentId)
-      ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file)
-      : hostTemplate;
+    const content = renderPromptEntryForHost(entry, host);
     result.set(entry.file, { entry, content, hash: sha256(content) });
   }
   return result;

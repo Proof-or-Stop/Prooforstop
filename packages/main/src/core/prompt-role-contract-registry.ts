@@ -13,15 +13,12 @@ import {
   isModularReviewerRoleId,
   readPromptRegistry,
   readPromptTemplate,
+  renderPromptEntryForHost,
   renderPromptForHost,
   resolvePromptTemplateBody,
   type PromptHost,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
-import {
-  extractTemplateFrontmatter,
-  renderReviewerRunBootstrap,
-} from './global-agents.js';
 
 export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
 export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
@@ -148,9 +145,7 @@ export function reviewerHostRenderIdentity(
   const packageTemplate = resolvePromptTemplateBody(entry, rolloutMode);
   const source = reviewerHostRenderSource(projectRoot, host, entry.file);
   const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
-  const canonicalTemplate = renderPromptForHost(readPromptTemplate(entry), host);
-  const { frontmatter, name } = extractTemplateFrontmatter(canonicalTemplate, entry.file);
-  const bootstrap = renderReviewerRunBootstrap(frontmatter, name);
+  const bootstrap = renderPromptEntryForHost(entry, host);
   const bootstrapDigest = domainSeparatedDigest(`reviewer-${host}-bootstrap.raw-utf8.v1`, bootstrap);
   if (source === 'full-asset') {
     assertExactHostAsset(

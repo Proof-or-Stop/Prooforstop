@@ -27,7 +27,11 @@ import {
 } from '../init-assets.js';
 import { runCodexAdapterChecks, renderCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { reviewerHostRenderIdentity } from '../core/prompt-role-contract-registry.js';
-import { isModularReviewerRoleId, readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
+import {
+  readPromptRegistry,
+  readPromptTemplate,
+  renderPromptEntryForHost,
+} from '../core/prompt-registry.js';
 import { renderReviewerRunBootstrapForTemplate } from '../core/global-agents.js';
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -56,14 +60,8 @@ function seedCodexNativeHooks(root: string): void {
 function seedLegacyPrompts(root: string): void {
   const registry = readPromptRegistry();
   for (const entry of registry.agents) {
-    const source = readFileSync(entry.sourcePath, 'utf8');
-    const codexSource = renderCodexAgentContent(source);
-    writeText(root, `.claude/agents/${entry.file}`, isModularReviewerRoleId(entry.agentId)
-      ? renderReviewerRunBootstrapForTemplate(source, entry.file)
-      : source);
-    writeText(root, `.lattice-codex/agents/${entry.file}`, isModularReviewerRoleId(entry.agentId)
-      ? renderReviewerRunBootstrapForTemplate(codexSource, entry.file)
-      : codexSource);
+    writeText(root, `.claude/agents/${entry.file}`, renderPromptEntryForHost(entry, 'claude'));
+    writeText(root, `.lattice-codex/agents/${entry.file}`, renderPromptEntryForHost(entry, 'codex'));
   }
 }
 
@@ -131,6 +129,10 @@ try {
   assert.equal(checkById(thin, 'manifest').status, 'pass');
   assert.equal(checkById(thin, 'prompt-registry').status, 'pass');
   assert.equal(thin.checks.some(check => check.id === 'agents-mirror'), false);
+  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
+  const actualCodexRegistryPrompt = renderPromptEntryForHost(entry, 'codex');
+  assert.match(actualCodexRegistryPrompt, /review_run_start/, 'registry mode returns the reviewer bootstrap');
+  assert.doesNotMatch(actualCodexRegistryPrompt, /proofbound:modular-role-body:v1/, 'registry mode never preloads the role body');
   const identity = reviewerHostRenderIdentity(thinRoot, 'lattice-review-quality', 'codex');
   assert.equal(identity.host, 'codex');
   assert.equal(identity.source, 'package-registry');
@@ -146,6 +148,9 @@ try {
   writeText(globalThinRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'global-thin' }, null, 2)}\n`);
   const codexIdentity = reviewerHostRenderIdentity(globalThinRoot, 'lattice-review-quality', 'codex');
   const claudeIdentity = reviewerHostRenderIdentity(globalThinRoot, 'lattice-review-quality', 'claude');
+  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
+  assert.match(renderPromptEntryForHost(entry, 'codex'), /review_run_start/);
+  assert.match(renderPromptEntryForHost(entry, 'claude'), /review_run_start/);
   assert.equal(codexIdentity.source, 'package-registry');
   assert.equal(claudeIdentity.source, 'package-registry');
   assert.equal(codexIdentity.bootstrapDigest?.length, 64);

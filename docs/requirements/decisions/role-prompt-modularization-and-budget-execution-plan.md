@@ -1233,7 +1233,10 @@ node scripts/verify-process-fact-contract.mjs
   漂移。这里的“精确”只指 selected legacy role body，不虚称总模型输入
   byte-exact：所有支持的 host mode 总输入都明确为已绑定 bootstrap 加一个
   selected body；global Claude sync、Codex registry mode 和 project full-asset
-  复用同一 canonical bootstrap renderer。host identity 分别绑定 bootstrap
+  复用同一 canonical bootstrap renderer。package registry 的实际
+  `renderPromptEntryForHost` resolver 对五个迁移角色直接返回 bootstrap-only
+  bytes，而不是只在 identity 中合成 digest；`review_run_start` 随后只补一个
+  selected body。host identity 分别绑定 bootstrap
   digest、selected role-body digest 和 host render digest，
   从而拒绝 modular+legacy 双正文或 bootstrap/正文替换。
 - incremental eligibility 仍完全由 Story 4 的 impact policy 决定。本 Story

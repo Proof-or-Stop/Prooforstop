@@ -1982,7 +1982,7 @@ async function collectPromptStateFromSource({
   promptOutputCollector,
   canonicalizeTemplateRelPath = false,
 } = {}) {
-  const { readPromptRegistry } = await loadBuiltRegistry();
+  const { readPromptRegistry, renderPromptEntryForHost } = await loadBuiltRegistry();
   const {
     PROMPT_ENVELOPE_ROLLOUT_VERSION,
     resolvePromptRoleBody,
@@ -1997,13 +1997,14 @@ async function collectPromptStateFromSource({
 
   for (const entry of snapshot.agents) {
     const content = resolvePromptRoleBody(entry.agentId, rolloutConfig, snapshot).body;
+    const expectedAgentPrompt = renderPromptEntryForHost(entry, 'claude');
     const stdout = promptOutputCollector
-      ? promptOutputCollector(entry, content)
+      ? promptOutputCollector(entry, expectedAgentPrompt)
       : runAgentPrompt(entry.agentId);
     const stdoutText = stdout.toString('utf8');
     const normalized = normalizeCliPrint(stdoutText);
-    if (normalized !== content) {
-      throw new Error(`agent_prompt output does not match registry body for ${entry.agentId}`);
+    if (normalized !== expectedAgentPrompt) {
+      throw new Error(`agent_prompt output does not match the actual registry host render for ${entry.agentId}`);
     }
     roleEntries.push({
       role: entry.agentId,

@@ -283,10 +283,32 @@
       "anchors": [
         "runGlobalAgentsUnitSmoke"
       ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required F-010/F-011 host-path closure: Codex registry and runtime-owned initialization render the five migrated reviewer assets through init-assets, while the fresh init smoke must assert bootstrap-only bytes for those five and preserve agent_prompt shims for the other eleven roles.",
+      "timestamp": "2026-07-19T09:53:25.074Z",
+      "paths": [
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/tasks/global-agents-init-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/tasks/global-agents-init-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "211b2c0f543513e7bd7c44042e3b92c021bac01f",
+      "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+      "anchors": [
+        "renderCodexAgentAsset",
+        "runGlobalAgentsInitSmoke"
+      ]
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T09:24:01.177Z",
+  "updatedAt": "2026-07-19T09:53:25.074Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -354,6 +376,8 @@
     "packages/main/src/core/agent-asset-resolution.ts": "packages/main/src/core/agent-asset-resolution.ts",
     "packages/main/src/core/managed-assets.ts": "packages/main/src/core/managed-assets.ts",
     "packages/main/src/core/scope-diff-pack.ts": "packages/main/src/core/scope-diff-pack.ts",
-    "packages/main/src/tasks/global-agents-unit-smoke.ts": "packages/main/src/tasks/global-agents-unit-smoke.ts"
+    "packages/main/src/tasks/global-agents-unit-smoke.ts": "packages/main/src/tasks/global-agents-unit-smoke.ts",
+    "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
+    "packages/main/src/tasks/global-agents-init-smoke.ts": "packages/main/src/tasks/global-agents-init-smoke.ts"
   }
 }

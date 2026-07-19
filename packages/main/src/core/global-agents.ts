@@ -40,7 +40,17 @@ import {
 import { homedir as osHomedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { isModularReviewerRoleId } from './prompt-registry.js';
+import {
+  extractTemplateFrontmatter,
+  isModularReviewerRoleId,
+  renderReviewerRunBootstrap,
+} from './prompt-registry.js';
+export {
+  buildReviewerRunBootstrapBody,
+  extractTemplateFrontmatter,
+  renderReviewerRunBootstrap,
+  renderReviewerRunBootstrapForTemplate,
+} from './prompt-registry.js';
 
 /**
  * Resolve the user-global Claude agents directory: `<home>/.claude/agents`.
@@ -143,51 +153,6 @@ export function listManagedAgentBasenames(
  * whether inline `tools: A, B` or a multi-line YAML list) so the host's
  * mechanical role sandbox is preserved exactly.
  */
-export function extractTemplateFrontmatter(
-  raw: string,
-  file: string,
-): { frontmatter: string; name: string } {
-  // Normalize CRLF so delimiter detection is line-ending agnostic.
-  const text = raw.replace(/\r\n/g, '\n');
-  const lines = text.split('\n');
-  if (lines[0]?.trim() !== '---') {
-    throw new Error(
-      `Proofbound agent template ${file} is missing YAML frontmatter (must start with '---'). ` +
-        `Cannot generate a Claude thin-shim without a frontmatter block.`,
-    );
-  }
-  let endIdx = -1;
-  for (let i = 1; i < lines.length; i++) {
-    if (lines[i].trim() === '---') {
-      endIdx = i;
-      break;
-    }
-  }
-  if (endIdx === -1) {
-    throw new Error(
-      `Proofbound agent template ${file} has an unterminated frontmatter block (no closing '---').`,
-    );
-  }
-  const frontmatterLines = lines.slice(1, endIdx);
-  const frontmatter = frontmatterLines.join('\n');
-
-  // Parse `name:` — the first top-level (non-indented) `name:` key wins.
-  let name = '';
-  for (const line of frontmatterLines) {
-    const m = /^name:\s*(.+?)\s*$/.exec(line);
-    if (m) {
-      name = m[1].replace(/^["']|["']$/g, '').trim();
-      break;
-    }
-  }
-  if (!name) {
-    throw new Error(
-      `Proofbound agent template ${file} frontmatter has no 'name:' field; cannot register a subagent_type.`,
-    );
-  }
-  return { frontmatter, name };
-}
-
 /**
  * Build the standard imperative shim body. The body intentionally contains NO
  * role prompt content — it points the agent at the Proofbound CLI single source of
@@ -216,23 +181,6 @@ export function renderAgentShim(frontmatter: string, role: string): string {
  * role instructions, so exactly one selected role body reaches the reviewer:
  * frozen legacy bytes or the assembled full/incremental envelope.
  */
-export function buildReviewerRunBootstrapBody(role: string): string {
-  return [
-    'Proofbound selects this reviewer role body at runtime.',
-    `FIRST run: \`lattice review_run_start '{"storyId":"<storyId from dispatch>","agent":"${role}"}'\`.`,
-    'Follow only the exact prompt returned by that command; this bootstrap intentionally contains no role body.',
-  ].join('\n');
-}
-
-export function renderReviewerRunBootstrap(frontmatter: string, role: string): string {
-  return `---\n${frontmatter}\n---\n${buildReviewerRunBootstrapBody(role)}\n`;
-}
-
-export function renderReviewerRunBootstrapForTemplate(raw: string, file: string): string {
-  const { frontmatter, name } = extractTemplateFrontmatter(raw, file);
-  return renderReviewerRunBootstrap(frontmatter, name);
-}
-
 /**
  * Generate a thin shim into the global agents dir for every `*.md` template.
  *

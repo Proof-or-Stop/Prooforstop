@@ -289,6 +289,60 @@ export function readPromptTemplate(entry: PromptRegistryEntry): string {
   return readFileSync(entry.sourcePath, 'utf8');
 }
 
+export function extractTemplateFrontmatter(
+  raw: string,
+  file: string,
+): { frontmatter: string; name: string } {
+  const lines = raw.replace(/\r\n/g, '\n').split('\n');
+  if (lines[0]?.trim() !== '---') {
+    throw new Error(
+      `Proofbound agent template ${file} is missing YAML frontmatter (must start with '---'). ` +
+        'Cannot generate a host bootstrap without a frontmatter block.',
+    );
+  }
+  const endIdx = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
+  if (endIdx === -1) {
+    throw new Error(
+      `Proofbound agent template ${file} has an unterminated frontmatter block (no closing '---').`,
+    );
+  }
+  const frontmatterLines = lines.slice(1, endIdx);
+  const frontmatter = frontmatterLines.join('\n');
+  let name = '';
+  for (const line of frontmatterLines) {
+    const match = /^name:\s*(.+?)\s*$/.exec(line);
+    if (!match) continue;
+    name = match[1].replace(/^["']|["']$/g, '').trim();
+    break;
+  }
+  if (!name) {
+    throw new Error(
+      `Proofbound agent template ${file} frontmatter has no 'name:' field; cannot register a subagent_type.`,
+    );
+  }
+  return { frontmatter, name };
+}
+
+export function buildReviewerRunBootstrapBody(role: string): string {
+  return [
+    'Proofbound selects this reviewer role body at runtime.',
+    `FIRST run: \`lattice review_run_start '{"storyId":"<storyId from dispatch>","agent":"${role}"}'\`.`,
+    'Follow only the exact prompt returned by that command; this bootstrap intentionally contains no role body.',
+  ].join('\n');
+}
+
+export function renderReviewerRunBootstrap(frontmatter: string, role: string): string {
+  return `---\n${frontmatter}\n---\n${buildReviewerRunBootstrapBody(role)}\n`;
+}
+
+export function renderReviewerRunBootstrapForTemplate(raw: string, file: string): string {
+  const { frontmatter, name } = extractTemplateFrontmatter(raw, file);
+  return renderReviewerRunBootstrap(frontmatter, name);
+}
+
 export function renderPromptEntryForHost(entry: PromptRegistryEntry, host: PromptHost): string {
-  return renderPromptForHost(readPromptTemplate(entry), host);
+  const hostTemplate = renderPromptForHost(readPromptTemplate(entry), host);
+  return isModularReviewerRoleId(entry.agentId)
+    ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file)
+    : hostTemplate;
 }

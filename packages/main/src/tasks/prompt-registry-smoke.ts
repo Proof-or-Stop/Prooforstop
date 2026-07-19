@@ -36,10 +36,6 @@ import {
   reviewerHostRenderIdentity,
 } from '../core/prompt-role-contract-registry.js';
 import { renderCodexAgentContent } from '../init-assets.js';
-import {
-  extractTemplateFrontmatter,
-  renderReviewerRunBootstrap,
-} from '../core/global-agents.js';
 
 const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
@@ -89,12 +85,21 @@ for (const entry of registry.agents) {
   const source = readFileSync(entry.sourcePath, 'utf8');
   const sourceHash = createHash('sha256').update(source).digest('hex');
   assert.equal(entry.templateHash, sourceHash, `${entry.file} template hash matches source`);
-  assert.equal(renderPromptEntryForHost(entry, 'claude'), source, `${entry.file} claude render matches template`);
-  assert.equal(
-    renderPromptEntryForHost(entry, 'codex'),
-    renderCodexAgentContent(source),
-    `${entry.file} codex render matches legacy transform`,
-  );
+  const expectedClaude = MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])
+    ? renderPromptEntryForHost(entry, 'claude')
+    : source;
+  const expectedCodex = renderPromptEntryForHost(entry, 'codex');
+  if (MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
+    assert.match(expectedClaude, /review_run_start/, `${entry.file} Claude registry render is bootstrap-only`);
+    assert.match(expectedCodex, /review_run_start/, `${entry.file} Codex registry render is bootstrap-only`);
+    assert.doesNotMatch(expectedClaude, /proofbound:modular-role-body:v1/, `${entry.file} Claude registry excludes role body`);
+    assert.doesNotMatch(expectedCodex, /proofbound:modular-role-body:v1/, `${entry.file} Codex registry excludes role body`);
+  } else {
+    assert.equal(expectedClaude, source, `${entry.file} Claude render matches template`);
+  }
+  if (!MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
+    assert.equal(expectedCodex, renderCodexAgentContent(source), `${entry.file} Codex render matches legacy transform`);
+  }
   if (loadBearingPromptFiles.has(entry.file)) {
     assert.equal(extractLatticeBlock(source), LOAD_BEARING_LATTICE_PROMPT_SLICE, `${entry.file} uses canonical load-bearing prompt slice`);
     for (const phrase of requiredSafetyPhrases) {
@@ -108,23 +113,10 @@ for (const entry of registry.agents) {
   }
   const claudeMirrorPath = join(projectRoot, '.claude', 'agents', entry.file);
   if (existsSync(claudeMirrorPath)) {
-    const expectedClaude = MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])
-      ? (() => {
-        const parsed = extractTemplateFrontmatter(source, entry.file);
-        return renderReviewerRunBootstrap(parsed.frontmatter, parsed.name);
-      })()
-      : source;
     assert.equal(readFileSync(claudeMirrorPath, 'utf8'), expectedClaude, `${entry.file} .claude asset matches its canonical host input`);
   }
   const codexMirrorPath = join(projectRoot, '.lattice-codex', 'agents', entry.file);
   if (existsSync(codexMirrorPath)) {
-    const codexSource = renderCodexAgentContent(source);
-    const expectedCodex = MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])
-      ? (() => {
-        const parsed = extractTemplateFrontmatter(codexSource, entry.file);
-        return renderReviewerRunBootstrap(parsed.frontmatter, parsed.name);
-      })()
-      : codexSource;
     assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .lattice-codex asset matches its canonical host input`);
   }
   material.update(`${entry.file}\0${entry.templateHash}\0${entry.bytes}\n`);

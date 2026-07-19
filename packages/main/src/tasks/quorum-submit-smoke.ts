@@ -25,8 +25,7 @@ import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js
 import { resetSessionIdForTest, resolveSessionIdentity } from '../core/owner-session.js';
 import { computePromptEnvelopeId } from '../core/prompt-envelope.js';
 import { PROMPT_ENVELOPE_ROLLOUT_VERSION } from '../core/prompt-role-contract-registry.js';
-import { isModularReviewerRoleId, readPromptRegistry, renderPromptEntryForHost, type PromptHost } from '../core/prompt-registry.js';
-import { renderReviewerRunBootstrapForTemplate } from '../core/global-agents.js';
+import { readPromptRegistry, renderPromptEntryForHost, type PromptHost } from '../core/prompt-registry.js';
 import { StoryStore } from '../core/store.js';
 import { listVerdicts, summarizeVerdicts } from '../core/verdicts.js';
 import { createMainRegistry } from '../registry.js';
@@ -176,9 +175,7 @@ function makeFixture(
     for (const lane of REVIEW_LANES) {
       const entry = promptRegistry.agents.find(candidate => candidate.agentId === lane)!;
       const hostTemplate = renderPromptEntryForHost(entry, selectedHost);
-      write(root, `${assetDir}/${entry.file}`, isModularReviewerRoleId(entry.agentId)
-        ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file)
-        : hostTemplate);
+      write(root, `${assetDir}/${entry.file}`, hostTemplate);
     }
   }
   write(root, 'README.md', 'quorum submit smoke\n');
