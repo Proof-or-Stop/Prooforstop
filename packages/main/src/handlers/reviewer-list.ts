@@ -37,6 +37,7 @@ import type { HandlerContext } from './context.js';
 import type { StoryInfo, ChecklistData, DecisionData, StoryEvent } from '../core/types.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { REVIEW_RUN_LANES, isReviewRunLane } from '../core/review-run.js';
+import { isPromptRoleEligibleForReviewEvidence } from '../core/prompt-role-contract-registry.js';
 
 export interface ActiveReviewer {
   /** reviewer short name: concept / quality / test-coverage / behavior / docs / channel */
@@ -63,6 +64,7 @@ function reviewerLaneShortName(lane: string): string {
 
 function supportedForceReviewerNames(): string {
   return REVIEW_RUN_LANES
+    .filter(isPromptRoleEligibleForReviewEvidence)
     .map((lane) => `${reviewerLaneShortName(lane)} (${lane})`)
     .join(', ');
 }
@@ -70,9 +72,9 @@ function supportedForceReviewerNames(): string {
 export function normalizeForceReviewerName(value: string): string {
   const raw = String(value).trim();
   if (!raw) return '';
-  if (isReviewRunLane(raw)) return reviewerLaneShortName(raw);
+  if (isReviewRunLane(raw) && isPromptRoleEligibleForReviewEvidence(raw)) return reviewerLaneShortName(raw);
   const lane = `lattice-review-${raw}`;
-  if (isReviewRunLane(lane)) return raw;
+  if (isReviewRunLane(lane) && isPromptRoleEligibleForReviewEvidence(lane)) return raw;
   throw new Error(
     `reviewer_list: forceReviewer "${raw}" is not supported by review_run_start. Supported reviewers: ${supportedForceReviewerNames()}`,
   );

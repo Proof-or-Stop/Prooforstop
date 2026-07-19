@@ -1,0 +1,155 @@
+{
+  "storyId": "B-03ac",
+  "checkedAt": "2026-07-19T04:49:27.252Z",
+  "features": [
+    {
+      "feature": "Extend the existing review_incremental_context fact source while preserving read-only, advisory, gate-neutral behavior",
+      "covered_by": "CHK-001, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#9-incremental-review-design"
+    },
+    {
+      "feature": "Compute a versioned ImpactClassificationPolicy, canonical freshness binding, deterministic digest, and stable reason codes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#9.1-9.5"
+    },
+    {
+      "feature": "Require a current integrity-verified same-lane prior pass with complete material, storyFiles, scope, policy, contract, environment, assembler, launcher, and command bindings",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#9.1"
+    },
+    {
+      "feature": "Permit v1 incremental only for metadata-only/no-material drift accepted by the canonical freshness reader and pure fixture deltas with complete files.test and Story-scoped intentRef closure",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#9.3-9.5"
+    },
+    {
+      "feature": "Fail closed to full for unknown, stale, public contract, schema, protocol, authority, permission, policy, command, gate, dependency, build entry, docs, private implementation, dynamic reference, parse failure, rename, or incomplete impact closure",
+      "covered_by": "CHK-001, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#9.1-9.4"
+    },
+    {
+      "feature": "Assemble a bounded reviewBasis from current claims, invariants, findings, impacted intents, contracts, changed and impacted files, scope acknowledgement, and authoritative references",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#9.2"
+    },
+    {
+      "feature": "Allow incremental reviewers to read current authoritative material and request a reasoned full-context rerun when the basis is incomplete",
+      "covered_by": "CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#9.2-9.4"
+    },
+    {
+      "feature": "Decide correctness mode before cost, select full with FULL_CHEAPER_OR_EQUAL when appropriate, and record budget violations without downgrading required full context",
+      "covered_by": "CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#9.4"
+    },
+    {
+      "feature": "Bind every incremental Prompt Envelope to exact Story, HEAD, round, lane, signed ReviewRun, prior pass, policy, eligibility, freshness, file, reviewBasis, and context digests",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#9.6"
+    },
+    {
+      "feature": "Reuse the existing ReviewRun/pass admissibility chain so wrongly served, stale, mismatched, or tampered incremental evidence cannot satisfy REVIEW, receipts, readiness, assurance floor, or quorum",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#6.1-and-9.6"
+    },
+    {
+      "feature": "Prevent main, implementer, compatibility aliases, request payloads, caller flags, or prompt prose from forcing incremental or supplying authoritative envelope fields",
+      "covered_by": "CHK-001, CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#5.4-and-6.1"
+    },
+    {
+      "feature": "Preserve legacy passes as legacy-full-context in their original round without allowing them to establish a new incremental baseline",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#12.6"
+    },
+    {
+      "feature": "Register gate-consumed eligibility and envelope semantics in the process-fact registry and contract verifier with adversarial compatibility tests",
+      "covered_by": "CHK-001, CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#6.1-and-12"
+    },
+    {
+      "feature": "Migrate concept, quality, test-coverage, behavior, and docs reviewer prompts and dispatch assembly",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly reserved for ordered Story 5; Story 4 provides eligibility only and does not migrate role prompts or default dispatch",
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-5"
+    },
+    {
+      "feature": "Migrate story-init, scope-plan, implementer, delivery, and evaluator complex roles",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly reserved for ordered Story 6",
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-6"
+    },
+    {
+      "feature": "Isolate legacy assets and raise prompt budget governance from observe to warn",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly reserved for ordered Story 7; Story 4 only records budget interaction for correctness mode selection",
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-7"
+    },
+    {
+      "feature": "Treat docs-only or private implementation changes as incremental in v1",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Current docs routing and semantic/call indexes cannot prove repository-complete impact closure; v1 intentionally fails these categories closed to full",
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#9.3"
+    },
+    {
+      "feature": "Enable enforce-mode budget governance or invent a budget waiver authority",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Enforce is a conditional follow-up after Story 7 evidence; the accepted plan forbids fabricating an approval authority",
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#conditional-budget-enforce-follow-up"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 18,
+    "covered": 13,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "2b36324067ae2c3a01d4ac00312aba7c0a0a5bc43975c70f5794f8a176e2f67e",
+  "openQuestions": []
+}

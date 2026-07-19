@@ -1,0 +1,22 @@
+{
+  "task": "Route dev_finish/dev_merge through runStoryTransition and serialize same-owner concurrent transitions.",
+  "outcome": "No registered command advances a story's phase outside runStoryTransition (review round minted, phase_transition event, correct label); concurrent same-owner transitions yield exactly one review round.",
+  "facts": [
+    "dev_finish (worktree.ts:997) and dev_merge (:1061) write story.phase directly, skipping orchestrator effects and mislabeling the event TEST",
+    "runStoryTransition (transition-orchestrator.ts:364) mints review round + phase_transition (:655-690)",
+    "owner lease rejects only foreign sessions (ownership-gate.ts:282), non-atomic read->persist (:425->660)"
+  ],
+  "constraints": [
+    "worktree preconditions (clean tree, auto-add) preserved",
+    "DONE transition already holds main write lock; only non-DONE needs the new mutex"
+  ],
+  "unknowns": [
+    "lock primitive: reuse validation-execution-lock vs new story-transition-lock"
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/worktree.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/story-transition-lock.ts"
+  ],
+  "timestamp": "2026-07-18T23:51:22.827Z"
+}

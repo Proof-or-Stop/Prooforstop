@@ -1,0 +1,88 @@
+{
+  "principles": [
+    "Review authority stays in review_run_start and signed ReviewRun facts.",
+    "One canonical full assembler and one role eligibility truth source feed every consumer.",
+    "Legacy compatibility is explicit, bounded, and cannot silently satisfy new gates.",
+    "No-Story Prompt bytes are invariant."
+  ],
+  "drivers": [
+    "Prevent caller-spliced or forged Story context.",
+    "Reject replay across HEAD, round and ReviewRun.",
+    "Keep provider retry accounting unchanged.",
+    "Exclude compatibility and retired roles from REVIEW, assurance and quorum.",
+    "Leave a clean full-context foundation for later incremental Stories."
+  ],
+  "options": [
+    {
+      "name": "A: ReviewRun-owned envelope assembly",
+      "pros": [
+        "Uses the existing signed review authority and locks",
+        "Can persist envelope before signing run and fail closed on orphan/missing pairs",
+        "Keeps caller inputs narrow and deterministic",
+        "Allows downstream pass/gate checks to reuse one envelopeId"
+      ],
+      "cons": [
+        "Requires coordinated type, store, signature and gate migrations",
+        "Needs bounded legacy classification"
+      ]
+    },
+    {
+      "name": "B: Caller requests agent_prompt then supplies promptHash to review_run_start",
+      "pros": [
+        "Smaller initial handler change",
+        "Matches the current optional promptHash shape"
+      ],
+      "cons": [
+        "Caller can splice context or choose stale material",
+        "Duplicates authority between agent_prompt and review_run_start",
+        "Cannot prove Task Context came from trusted Story facts"
+      ]
+    },
+    {
+      "name": "C: Persist envelopes only as diagnostic sidecars",
+      "pros": [
+        "Lowest gate migration cost",
+        "Useful for observation"
+      ],
+      "cons": [
+        "Does not prevent replay or forged review evidence",
+        "Fails the Story 2 security objective"
+      ]
+    }
+  ],
+  "chosen": "A: ReviewRun-owned envelope assembly",
+  "rationale": "The only design that makes the envelope authoritative without creating a second signer is to assemble and persist it inside review_run_start, bind envelopeId into the signed ReviewRun, and make review passes and gates verify that same current pair. agent_prompt Story-aware output remains a trusted read path, not an alternate evidence writer.",
+  "preMortem": [
+    {
+      "scenario": "A caller-injected field reaches the assembler and forges Task Context",
+      "trigger": "CLI schema or internal handler accepts contextMode, envelope, hashes, round or payload",
+      "consequence": "The main Agent can mint apparently canonical review input",
+      "mitigation": "Strict allowlist role/storyId/format and runtime rejection of unknown or authority-bearing fields; adversarial injection smoke"
+    },
+    {
+      "scenario": "An old envelope is replayed after code or review state changes",
+      "trigger": "Envelope verification checks signature shape but not current HEAD/round/ReviewRun/storyFiles binding",
+      "consequence": "Stale review pass is accepted for new material",
+      "mitigation": "Recompute envelopeId and assert exact current ReviewRun, HEAD, round, material and storyFiles at every evidence consumer"
+    },
+    {
+      "scenario": "Retired or compatibility roles still unlock gates",
+      "trigger": "One consumer uses AGENT_DISPATCH_REGISTRY lane membership without the frozen role eligibility projection",
+      "consequence": "REVIEW, assurance floor or quorum passes with ineligible evidence",
+      "mitigation": "Shared resolvePromptRoleEligibility predicate at run creation and collector, with all downstream gates consuming filtered state plus verifier tests"
+    },
+    {
+      "scenario": "Envelope work changes existing role-body bytes",
+      "trigger": "Story-aware renderer is accidentally applied to role-only agent_prompt or templates",
+      "consequence": "All existing adapters drift and Story 1 baseline breaks",
+      "mitigation": "Separate role-only legacy path and require all 16 hash/byte baselines plus rollback exactness on every build"
+    },
+    {
+      "scenario": "Retry accounting forks identity",
+      "trigger": "Envelope adds call/attempt fields or reviewer retry mints provider call identity again",
+      "consequence": "Usage attribution becomes ambiguous",
+      "mitigation": "Keep usage-ledger IDs outside Envelope and assert same ledgerCallId/fresh attemptId with existing mintRetryAttempt"
+    }
+  ],
+  "timestamp": "2026-07-18T20:09:38.335Z"
+}

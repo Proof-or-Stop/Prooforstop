@@ -1,0 +1,347 @@
+{
+  "passes": [
+    {
+      "id": "B-d877:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 6/6 verificationIntent (CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial) covered by fresh manual_transcript evidence bound to current materialHash; ran transition-integrity-smoke.js directly (19/19 checks pass); confirmed CHK-001 non-tautologically by reading worktree.ts dev_finish/dev_merge (both call runStoryTransition) and the smoke assertions (phase==REVIEW, currentReviewRound minted, phase_transition toPhase==REVIEW, no TEST-mislabeled event, dev_merge byte-identical-failure delegation proof); confirmed CHK-002 mutex non-tautologically via adversarial mutation: temporarily disabled the transitionLock acquisition in transition-orchestrator.ts, rebuilt, and reran CHK-002a 3x - both concurrent real child-process transitions succeeded every time (double-mint reproduced), then restored the source, rebuilt, reconfirmed 19/19 clean and git status clean; full lattice validate also passed (allPass=true, Verification intent coverage 6/6, no stale refs). No blocker findings.",
+      "createdAt": "2026-07-19T02:54:58.832Z",
+      "reviewRound": "2026-07-19T02:27:46.689Z",
+      "reviewRunId": "B-d877:RR-003",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/index.json",
+          ".lattice/story/actives/B-d877/red-evidence.json",
+          ".lattice/story/actives/B-d877/review.json",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-d877/original-intent-snapshot.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          ".lattice/story/actives/B-d877/proofstory.json",
+          ".lattice/story/actives/B-d877/scope-check.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "aa25950464530a4ac99f06a0f2f0f44fced76f78ab369bd70037d438d14d72da"
+    },
+    {
+      "id": "B-d877:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 F-008 verified fixed: worktree.ts:992 dev_start text now says advance DEV→REVIEW, worktree preserved, merge happens later via dev_merge at TEST→DONE. Final sweep of worktree.ts/hints.ts/transition-orchestrator.ts + repo-wide grep for the misconception phrase family (merge back to the main branch / merges back / merged back / dev_finish...enter TEST / raw-actor createStoryActor/PHASE_TO_EVENT/getStateName residue): none found. Remaining Cannot enter TEST strings in guard-utils.ts/phase-gates.ts/machine.ts are the unrelated REVIEW→TEST validation gate. Comments at worktree.ts:1094 and :1108 are accurate historical/explanatory text describing the fix, not residue. No concept deletion/replacement blocker this round.",
+      "createdAt": "2026-07-19T05:33:05.774Z",
+      "reviewRound": "2026-07-19T05:30:00.772Z",
+      "reviewRunId": "B-d877:RR-010",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/findings.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          ".lattice/story/actives/B-d877/review-runs.json",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/guard-utils.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6e91ce3899a84cf551775891836065e4988904599d6b488310aecfc3aeca16d0"
+    },
+    {
+      "id": "B-d877:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "R4 test-coverage review: validate genuinely PASSES end-to-end (status=pass, allPass=true; reused off a real executed run at materialHash 60082ac2d... with commandExecutions=46/result=pass at 2026-07-19T05:27:15Z; my own re-runs at 05:38 reproduced pass with clean git tree). evidence_inspect: freshness=fresh, staleRefs=0. 6/6 must-priority intents covered (CHK-001/CHK-002 happy+edge+adversarial) via manual_transcript, result=pass, hashes bound fresh. Independently rebuilt (npm run build) and ran packages/main/dist/tasks/transition-integrity-smoke.js 10x in the real worktree: 57/57 checks, 0 fails, deterministic. Ran quorum-submit-smoke.js: 39/39 checks pass (F-011 clean-tree failure gone; locks live under gitignored .lattice/locks/, confirmed untracked via git ls-files). Isolated destructive probe in a detached git-worktree copy: stubbed out the atomic mkdir persist-claim in dist/handlers/transition-orchestrator.js (acquireMkdirLock replaced with an always-succeeding no-op) and reran the smoke -- CHK-002c6 correctly FAILED, catching a genuine double-mint (both racing real processes returned ok:true/REVIEW with the advisory lock bypassed), proving CHK-002c6 is load-bearing. Restored the file and reran 3x: 57/57 clean again. CHK-002c7 confirmed load-bearing: relocated lock paths (checklist/finding/review-run/init-check/prompt-envelopes/process-events) all resolve under .lattice/locks/<category>/, and .lattice/locks/ is gitignored with zero tracked files in the real worktree. Non-blocking observation: CHK-001/CHK-002 verificationEvidence note text still says (17 checks), stale wording from an earlier round, but the bound headHash/materialHash/storyFilesHash resolve to a commit at/after the R3 fix (57-check version) which I independently reproduced at that same materialHash -- evidence binding is accurate even though prose count is outdated; not filing a finding, does not affect coverage or gate correctness. No coverage gaps found.",
+      "createdAt": "2026-07-19T05:44:03.620Z",
+      "reviewRound": "2026-07-19T05:30:00.772Z",
+      "reviewRunId": "B-d877:RR-012",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".gitignore",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4892fde2b1285280cd957fe6274c99802748d9d023c7dab2d028ca12490dfd5c"
+    },
+    {
+      "id": "B-d877:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "R6 verification: F-013 doc-consistency fix confirmed. transition-orchestrator.ts:752-757 now reads (verified in file) that the atomic persist claim prevents double-mint under the practical threat model, and explicitly cross-refs the KNOWN LIMITATION note immediately below (OS-freeze residual) — no more contradiction with the unqualified impossible claim. Grepped repo for the old unqualified phrase; only remaining hit is the historical F-013 finding description text in findings.json (audit trail, not residue). Residue sweep of mkdir-lock.ts release() rewrite (atomic renameSync isolation, match/mismatch restore branches, ownedAuxFiles removal before non-recursive dir remove) and validation-execution-lock.ts ownedAuxFiles threading (heartbeat.json): comments internally consistent, no dangling references to prior read-then-remove approach, no duplicate old heartbeat-cleanup logic. Checked other acquireMkdirLock call sites (story-transition-lock.ts, main-write-lock.ts, transition-orchestrator.ts persist claim) — none write aux files inside their lock dirs so ownedAuxFiles omission there is correct. Rebuilt (tsc) and ran transition-integrity-smoke.js (CHK-002d/d2/d3 all green) and validate-progress-heartbeat-smoke.js (green) to confirm claims. No blocker.",
+      "createdAt": "2026-07-19T11:35:23.481Z",
+      "reviewRound": "2026-07-19T11:29:20.310Z",
+      "reviewRunId": "B-d877:RR-016",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/findings.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/tasks/mkdir-lock-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "54109843bf5ac39ebf945ba70a11ecb39ae0acd8ee3d83e78c45b533e07cbaba"
+    },
+    {
+      "id": "B-d877:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. Ran transition-integrity-smoke.js 5x in-place (72/72 deterministic) + validate-progress-heartbeat-smoke.js (pass); lattice validate --json shows 6/6 must intents covered, freshness fresh, staleRefs:0; in an isolated detached worktree confirmed CHK-002d2/d3 are load-bearing by reverting the F-016 ownedAuxFiles cleanup (CHK-002d2 fails) and breaking the rename-mismatch restore path (CHK-002d3 fails on holder.json byte-identity), then restored to 72/72 across 5 runs.",
+      "createdAt": "2026-07-19T11:42:32.693Z",
+      "reviewRound": "2026-07-19T11:29:20.310Z",
+      "reviewRunId": "B-d877:RR-017",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "07e3159bc843dcdcf199ca866066eb2d49f51d6ec8f22d3f4c048e605827b5e8"
+    },
+    {
+      "id": "B-d877:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "R7 delta-only concept-residue sweep: full code delta since round-6 pass RP-004 (headHash 93125e0..c8d094e) is exactly commit 486d3e36e3, touching only mkdir-lock.ts and transition-integrity-smoke.ts (verified via git diff --stat between the two review-run headHashes; no other src file changed). No concept word was deleted or replaced en masse this round (documentation refinement plus one dead-code-path simplification, not a rename or removal). Verified the new mismatch-restore doc comment: the cross-referenced concept (stale-reclaim-of-a-live-holder precondition / cross-host mtime-fallback) traces exactly to story-transition-lock.ts lines 88-93 classifyTransitionLockHolder (different-host holder maps to unknown, falls back to plain mtime staleMs) and to the original F-017 finding text itself, which cites that same location verbatim, not a fabricated or dangling reference, no contradiction with the CORRECTNESS BOUNDARY or KNOWN LIMITATION blocks in story-transition-lock.ts or transition-orchestrator.ts. Verified the legacy token-less no-op comments dead-code claim against the prior code path and removeEmptyLockDirNonRecursive own doc (rmdirSync fails harmlessly on ENOTEMPTY when holder.json is still present), the old removal call was provably always a no-op, so behavior is identical. Grepped for stale residue of the deleted inline removeEmptyLockDirNonRecursive call and old comment phrasing legacy PRE-universal-token, only the new single occurrence found, no orphaned duplicate elsewhere; readMkdirLockHolder and removeEmptyLockDirNonRecursive remain exported and used elsewhere so no dead exports introduced. Rebuilt with tsc and ran transition-integrity-smoke.js: 79 of 79 checks green including the new CHK-002d4 (matches commit message 72 to 79 delta exactly, and matches the checklist CHK-002 verificationEvidence note). No blocker.",
+      "createdAt": "2026-07-19T12:16:04.058Z",
+      "reviewRound": "2026-07-19T12:09:50.724Z",
+      "reviewRunId": "B-d877:RR-019",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/findings.json",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/plan.md",
+          ".lattice/story/actives/B-d877/review-passes.json",
+          ".lattice/story/actives/B-d877/review-runs.json",
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a4a78e0abdb154843e3ee783e2d6ddd99e6aef9aa9a04ebfa687f17ccce9e416"
+    },
+    {
+      "id": "B-d877:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "R7 delta review (responds to my own R6 F-017): the only src change since RR-018 is commit 486d3e36e3, touching mkdir-lock.ts (comment-only doc of the mismatch-restore safe-side tradeoff + collapsing the dead legacy token-less removeEmptyLockDirNonRecursive call into an explicit no-op) and transition-integrity-smoke.ts (new CHK-002d4, 72->79 checks). Verified: (1) mismatch-restore branch diff is comments only, renameSync(candidatePath, holder.json)/catch->rmSync(candidatePath) logic is byte-identical to pre-round code, no behavior change. (2) legacy-branch simplification is behavior-identical: removeEmptyLockDirNonRecursive uses non-recursive rmdirSync which always threw ENOTEMPTY and was swallowed at that call site (holder.json still present when current.lockId is falsy), so removing the dead call changes nothing observable; readMkdirLockHolder/removeEmptyLockDirNonRecursive remain used elsewhere, no dead exports. (3) CHK-002d4 faithfully scripts my F-017 'A wins' interleaving verbatim: isolate-out A's rename using the real candidatePath naming convention, then a real b.release() hits ENOENT on the token-less dir and no-ops (matches the release() catch branch exactly), then A's restore-rename re-populates the dir with B's now-orphaned token; cross-checked line-by-line against the F-017 finding text and the real release() code path (mkdir-lock.ts:383-451). (4) the self-heal assertion is honest, not special-cased: it backdates lockDir's own mtime (utimesSync), the exact field acquireMkdirLock's stale-reclaim check reads (statSync(lockDir).mtimeMs), then calls the ordinary acquireMkdirLock with staleMs=50 and lets the normal stale-reclaim rmSync+retry path run unmodified. (5) ran the smoke 5x standalone (node dist/tasks/transition-integrity-smoke.js after tsc rebuild): 79/79 checks green, 0 failures, deterministic across all 5 runs including CHK-002d4. Also reran quorum-submit-smoke.js (39 checks) and validate-progress-heartbeat-smoke.js green for regression safety. (6) Accept the documented safe-side tradeoff: the leak requires the already-scoped-out stale-reclaim-of-a-live-holder precondition (documented KNOWN LIMITATION in story-transition-lock.ts, out of this story's scope per background.md), is bounded by staleMs, self-heals via the pre-existing unmodified reclaim path, and does not violate the atomic mkdir+holder.json double-mint fence -- a liveness-only, not correctness, residual. No new defect found in the small diff; no dead code, no unsafe any-casts, no swallowed-error regressions introduced.",
+      "createdAt": "2026-07-19T12:19:46.739Z",
+      "reviewRound": "2026-07-19T12:09:50.724Z",
+      "reviewRunId": "B-d877:RR-020",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/findings.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-d877/process-events.jsonl",
+          ".lattice/story/actives/B-d877/review-passes.json",
+          ".lattice/story/actives/B-d877/review-runs.json",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "12f21cac76b24664ff279fb94de8b70bd98b70514514746ad3468c09c13d3d20"
+    },
+    {
+      "id": "B-d877:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 7 final delta): validate --story=B-d877 --json passes end-to-end, 6/6 must-intents covered with concrete per-intent evidence notes citing the accurate 79-check count; evidence_inspect reports freshness=fresh, staleRefs=0; smoke ran 5x with 79/79 deterministic; CHK-002d4 (F-017 bounded-leak/self-heal proof) spot-checked load-bearing in an isolated detached worktree (.worktrees-audit/B-d877-isolated) by breaking the mismatch-restore rename, confirming the assertion fails, then restoring to green. No blocker.",
+      "createdAt": "2026-07-19T12:23:13.238Z",
+      "reviewRound": "2026-07-19T12:09:50.724Z",
+      "reviewRunId": "B-d877:RR-021",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ec4e438bd52f55108ec058910cc7dc9951d11a33a2ac6777e9a18f42aaa668d1"
+    },
+    {
+      "id": "B-d877:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "R8 merged-state re-verification: ZERO S1 code changed since R7 (RP-006, headHash c8d094e5). Confirmed via git diff c8d094e5..HEAD that all five S1 core files (core/mkdir-lock.ts, core/story-transition-lock.ts, handlers/transition-orchestrator.ts, handlers/worktree.ts, handlers/hints.ts, tasks/transition-integrity-smoke.ts) are byte-identical to what passed R7 (empty diffs). The only event is the main merge (ff08b90570, parents ea1383626c=S1 tip / 7727a7ad67=main tip) bringing in already-DONE stories B-8d4b and B-03ac, which touched two S1-shared files. Verified both files kept BOTH sides intact: (1) handlers/review-run.ts still has S1 R3 FIX B withReviewRunLock relocation (gitignored .lattice/locks/review-run/ path, comment intact) alongside B-8d4b/B-03ac conditional-envelope additions (assembleConditionalReviewPromptEnvelope, reviewIncrementalContext) that replaced only the review_run_start call-site, not the underlying assembleFullPromptEnvelope primitive (still exported/used by prompt-envelope.ts:367, agent-prompt.ts, review-run-smoke.ts, prompt-full-context-envelope-smoke.ts, not a concept deletion). (2) tasks/quorum-submit-smoke.ts still has S1's process-event lock pre-creation, storyRuntimeLockPath call with the B-d877 R3 FIX B doc comment, verified single occurrence, import intact, alongside B-8d4b/B-03ac incremental-review-eligibility smoke additions. No merge-conflict markers found repo-wide, grep for conflict marker tokens in packages/ and .lattice/ returned zero hits. tsc --noEmit on packages/main is clean post-merge. Concept-residue sweep on the merge delta: no concept word was deleted or replaced en masse by this merge from B-d877's perspective; the assembleFullPromptEnvelope rename-at-callsite is B-8d4b/B-03ac's own already-DONE internal change, not an S1 concept, and the base function itself is not deleted. Repo-wide grep for the historical merge-back-to-main-branch misconception phrase and raw-actor (createStoryActor/PHASE_TO_EVENT/getStateName) residue outside the orchestrator found only pre-existing, unrelated, untouched-by-this-delta occurrences (docs/requirements/decisions/done-prepare-automation-execution-plan.md, story-query.ts:720, and legitimate in-orchestrator/in-machine.ts usages), confirmed via git diff c8d094e5..HEAD that neither file changed in this delta. No blocker.",
+      "createdAt": "2026-07-19T13:23:47.553Z",
+      "reviewRound": "2026-07-19T13:18:06.329Z",
+      "reviewRunId": "B-d877:RR-022",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/review-passes.json",
+          ".lattice/story/actives/B-d877/review-runs.json",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-d877/findings.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ca0a1728ca67fd815e77b0c37de34fd9d4968bf2354fec909f1d5adb59ad8cc0"
+    },
+    {
+      "id": "B-d877:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 merged-tree re-verification (RP-007 passed, zero S1 code changed since; sole event = ff08b90570 merge bringing B-8d4b in). Confirmed via git diff ea1383626c...HEAD -- packages/main/src that the merge touched exactly 16 files, none being S1 core files (transition-orchestrator.ts, worktree.ts, story-transition-lock.ts, mkdir-lock.ts, transition-integrity-smoke.ts are byte-identical to R7). Overlap files review-run.ts and quorum-submit-smoke.ts inspected in full: S1's relocated withReviewRunLock (runtimeLockDirPath) coexists with B-8d4b's conditional-envelope/reviewerEscalationReason additions without reintroducing an in-story lock or bypassing serialization (the merge also consistently relocated the sibling prompt-envelopes lock); quorum-submit-smoke.ts diff is a single fixture-lock-path update matching defaultAuditWriter. No conflict markers in any inspected file. Ran transition-integrity-smoke.js 3x: 79/79 deterministic each run. Ran quorum-submit-smoke.js: 1 full clean run, 42/42 passed (count grew from 39 baseline due to B-8d4b's added envelope/incremental-context cases, non-regressive). validate-progress-heartbeat-smoke.js failed (subprocess pidfile timeout) but that file has zero diff vs main (untouched by the merge) and no import relation to any S1/B-8d4b file, so out of this diff's scope -- flagged to main agent as an environment note, not a finding. git status clean, no leftover smoke artifacts.",
+      "createdAt": "2026-07-19T13:40:03.709Z",
+      "reviewRound": "2026-07-19T13:18:06.329Z",
+      "reviewRunId": "B-d877:RR-023",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/dirty-gate-policy.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/process-events.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "506b2ae23a82089c1ab47d5b6fcb22f763f2ddaa168a694b5b5768cd36698557"
+    },
+    {
+      "id": "B-d877:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-8 merged-state re-verification (ff08b90570 merge touched S1-shared review-run.ts + quorum-submit-smoke.ts; zero S1 code changed). Verified: 6/6 must-intents (CHK-001:happy/edge/adversarial:0, CHK-002:happy/edge/adversarial:0) covered by concrete manual_transcript evidence (transition-integrity-smoke.js, 79 checks) with result=pass, each note tied to a specific behavior. evidence_inspect was stale (7 refs, merge-induced hash drift) -> ran verification_evidence_refresh_stale (6/6 refreshed, no re-execution needed since S1 code unchanged) -> evidence_inspect now fresh (staleRefs:0). Ran lattice validate --story=B-d877 --json twice: first attempt (default 900s budget, host load avg ~20 on 10 cores) aborted at the global watchdog before finishing the 46-command suite. Second attempt (LATTICE_MAX_TIMEOUT_MS=2700000, lower host load) ran to completion: validate reports Verification intent coverage 6/6 covered (0 required missing); 45/46 configured commands passed; command 34/46 quorum-submit-smoke.js (one of the two merge-touched files, NOT a B-d877-owned checklist file) hit its per-command 270000ms budget mid-run (failureKind=infra_failure) while printing only passing checks, no assertion failures. Independently re-ran quorum-submit-smoke.js standalone with no time pressure: completed cleanly in ~7.5min, exit 0, quorum_submit smoke passed (42 checks) -- confirms the validate-suite timeout was a per-command budget/host-contention artifact on this shared machine, not a functional regression, and it does not touch any B-d877 must-intent or checklist-owned file. transition-integrity-smoke.js is a manual_transcript-evidence script and is not wired into validate.commands, so it was unaffected either run. Test-coverage verdict: no gap, no blocker.",
+      "createdAt": "2026-07-19T14:05:16.698Z",
+      "reviewRound": "2026-07-19T13:18:06.329Z",
+      "reviewRunId": "B-d877:RR-024",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1b57697213024df8054b6173319acd4bbee6fb74b085ed944db15b7c2be343f7"
+    }
+  ]
+}

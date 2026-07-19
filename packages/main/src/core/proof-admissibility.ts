@@ -112,6 +112,10 @@ export const ADMISSIBILITY_REASON_CODES = [
   'matrix_gap_unwaived',
   'bootstrap_noise',
   'environment_noise',
+  'environment_descriptor_mismatch',
+  'environment_receipt_invalid',
+  'environment_policy_mismatch',
+  'producer_independence_invalid',
   'command_spec_missing',
   'command_spec_digest_mismatch',
   'bootstrap_spec_digest_mismatch',
@@ -172,6 +176,10 @@ export interface AdmissibilityChecks {
   hashTupleFresh?: boolean;
   producerBoundaryTrusted?: boolean;
   hasReservedProofKey?: boolean;
+  environmentDescriptorValid?: boolean;
+  environmentReceiptValid?: boolean;
+  environmentPolicyValid?: boolean;
+  producerIndependenceValid?: boolean;
 }
 
 export interface EvaluateProofAdmissibilityInput {
@@ -372,8 +380,26 @@ export const PROOF_SURFACE_REGISTRY = [
     remediation: DIAGNOSTIC_REMEDIATION,
   },
   {
+    artifactKind: 'host-verdict',
+    scope: 'local-review-quorum',
+    artifactRole: 'planning-review',
+    temporalRole: 'current-state',
+    producerBoundary: 'local-runtime-owned',
+    schemaVersions: ['lattice.host_verdict.v1'],
+    strictShapeRequired: true,
+    semanticDigestRequired: true,
+    signatureOrReceiptBindingRequired: true,
+    temporalAndMaterialBindingRequired: true,
+    allowedConsumers: ['REVIEW'],
+    allowedClaims: [
+      { claim: 'review-pass', consumers: ['REVIEW'], productionDoneEligible: false },
+    ],
+    producerBoundaryNote: 'Structured local host verdict rounds may satisfy only the local REVIEW assurance floor; they never prove external Authority acceptance or production-grade readiness.',
+    remediation: 'Run the configured current-material multi-host quorum path and consume its host verdicts only for the local REVIEW assurance floor.',
+  },
+  {
     artifactKind: 'handoff-pack',
-    aliases: ['handoff-receipt', 'dispatch-report', 'host-verdict'],
+    aliases: ['handoff-receipt', 'dispatch-report'],
     scope: 'local-diagnostic',
     artifactRole: 'handoff-context',
     temporalRole: 'not-applicable',
@@ -692,6 +718,18 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
 
   if (checks.hasReservedProofKey === true) {
     addReason(reasons, remediation, 'reserved_key_detected', 'Strip caller-writable reserved proof keys and regenerate producer-owned proof fields.');
+  }
+  if (checks.environmentDescriptorValid === false) {
+    addReason(reasons, remediation, 'environment_descriptor_mismatch', 'Resolve the verifier through a registered Evidence Environment descriptor.');
+  }
+  if (checks.environmentReceiptValid === false) {
+    addReason(reasons, remediation, 'environment_receipt_invalid', 'Normalize and validate the identity-bound Environment receipt before Gate projection.');
+  }
+  if (checks.environmentPolicyValid === false) {
+    addReason(reasons, remediation, 'environment_policy_mismatch', 'Use an approved claim/consumer policy for this Evidence Environment.');
+  }
+  if (checks.producerIndependenceValid === false) {
+    addReason(reasons, remediation, 'producer_independence_invalid', 'Provide verifier-owned distinct producer attestations when the policy requires independent evidence.');
   }
   if (checks.storyMatches === false) {
     addReason(reasons, remediation, 'story_mismatch', 'Evaluate only proof bound to the requested story id.');

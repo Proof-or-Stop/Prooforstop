@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
-import { isAbsolute, resolve } from 'node:path';
+import { realpathSync } from 'node:fs';
+import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { loadConfig, type LatticeConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import type { StoryStore } from './store.js';
@@ -9,6 +10,7 @@ import type {
   DoneRequiredCommandReceipt,
   DoneRequiredEvidenceData,
   DoneRequiredEvidenceStatus,
+  RoutineValidationIdentity,
   ValidationCommand,
   ValidationCommandResult,
   ValidationProgressReporter,
@@ -19,11 +21,21 @@ import {
   resolveProofAdmissibilityPolicy,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
+import { buildRoutineValidationIdentity } from './validation-evidence-reuse.js';
+import { digestCanonicalJson } from './digest.js';
+import {
+  CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR_ID,
+  evaluateEvidenceEnvironmentGateProjection,
+  projectDoneRequiredReceiptToEnvironment,
+} from './evidence/environment-contract.js';
 
 export const DONE_REQUIRED_EVIDENCE_FILE = 'done-required-evidence.json';
 export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'lattice.done-required-evidence' as const;
 export const DONE_REQUIRED_EVIDENCE_VERSION = 1 as const;
-export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA = 'lattice.command-spec.v1' as const;
+// v2 digests a repo-root-RELATIVE logical cwd (worktree/host portable). v1
+// digested an ABSOLUTE cwd and is still accepted for pre-existing receipts.
+export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA = 'lattice.command-spec.v2' as const;
+export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1 = 'lattice.command-spec.v1' as const;
 
 const SHELL_META_RE = /[;&|<>$()`]/;
 const OUTPUT_TAIL_CHARS = 4000;
@@ -62,6 +74,32 @@ export interface DoneRequiredGateEvaluation {
   policy: DoneRequiredPolicy;
   evidence: DoneRequiredEvidenceData | null;
   proofAdmissibility: ProofAdmissibilityDiagnostic;
+}
+
+/**
+ * Single producer/consumer identity constructor for DONE-required execution.
+ * Platform/env seams are exposed only for deterministic cross-platform tests;
+ * production callers use the current process values.
+ */
+export function buildDoneRequiredExecutionIdentity(args: {
+  projectRoot: string;
+  policy: DoneRequiredPolicy;
+  processEnvironment?: NodeJS.ProcessEnv;
+  platform?: NodeJS.Platform;
+}): RoutineValidationIdentity {
+  return buildRoutineValidationIdentity({
+    projectRoot: args.projectRoot,
+    sourceKind: 'configured',
+    sourceInputs: args.policy.commands,
+    commands: args.policy.commands,
+    profile: 'done-required',
+    verificationPolicyInputs: {
+      policyHash: args.policy.policyHash,
+      commandSetHash: args.policy.commandSetHash,
+    },
+    ...(args.processEnvironment ? { processEnvironment: args.processEnvironment } : {}),
+    ...(args.platform ? { platform: args.platform } : {}),
+  });
 }
 
 interface DoneRequiredValidationRuntimeOptions {
@@ -130,6 +168,9 @@ function sortedStringRecord(value?: Record<string, string>): Record<string, stri
 }
 
 function commandSpecDigestPayload(spec: Omit<DoneRequiredCommandSpecEnvelope, 'schema' | 'digest'>): string {
+  // NOTE: `resolvedCwd` (absolute physical workspace path) is deliberately NOT
+  // included here — it is non-digested provenance (CHK-003), so changing only
+  // the physical cwd leaves the digest unchanged and portable across worktrees.
   return stableStringify({
     command: spec.command,
     args: spec.args,
@@ -144,7 +185,75 @@ function commandSpecDigest(spec: Omit<DoneRequiredCommandSpecEnvelope, 'schema' 
   return sha256(commandSpecDigestPayload(spec));
 }
 
+/**
+ * Portable (v2) command-spec envelope. The DIGESTED cwd is a workspace-root-
+ * relative LOGICAL cwd derived from the cwd the command ACTUALLY ran in
+ * (`executed.cwd` when present, else the configured cwd). Binding the executed
+ * cwd (F-005) means a command configured for one location but run somewhere else
+ * digests to where it really ran, and validateRequiredReceiptCoverage catches the
+ * divergence from the policy's configured cwd (receipt-cwd-mismatch). The same
+ * logical command still digests identically across worktree/host roots, and the
+ * physical absolute workspace path is recorded separately (see CHK-003
+ * `resolvedCwd`) as NON-digested provenance.
+ */
 export function buildDoneRequiredCommandSpecEnvelope(
+  projectRoot: string,
+  command: ValidationCommand,
+  executed?: Pick<ValidationCommandResult, 'command' | 'args' | 'shell' | 'cwd'>,
+): DoneRequiredCommandSpecEnvelope {
+  const cwd = executed?.cwd ?? command.cwd;
+  return buildV2CommandSpecEnvelopeFromLogicalCwd(
+    // Derive the portable logical cwd by relativizing against projectRoot. Correct
+    // at WRITE time, where projectRoot is the worktree the command actually ran in.
+    repoRelativeLogicalCwd(projectRoot, cwd),
+    // Non-digested provenance: the real absolute workspace path the command ran
+    // in. commandSpecDigestPayload intentionally omits it so it never affects
+    // the portable digest (CHK-003).
+    normalizedCommandCwd(projectRoot, cwd),
+    command,
+    executed,
+  );
+}
+
+/**
+ * Core v2 envelope builder keyed on an EXPLICIT already-resolved logical cwd
+ * (repo-root-relative, worktree/host portable). Callers that reconstruct an
+ * expected v2 digest to VERIFY a receipt written under a DIFFERENT root must pass
+ * the receipt's STORED logical cwd here — NOT an absolute physical cwd re-anchored
+ * against the current projectRoot, which would embed the verifying root and break
+ * cross-worktree comparison (F-009). `resolvedCwd` is non-digested provenance, so
+ * it never affects the digest or `matchesEnvelope` (CHK-003).
+ */
+function buildV2CommandSpecEnvelopeFromLogicalCwd(
+  logicalCwd: string,
+  resolvedCwd: string,
+  command: ValidationCommand,
+  executed?: Pick<ValidationCommandResult, 'command' | 'args' | 'shell' | 'cwd'>,
+): DoneRequiredCommandSpecEnvelope {
+  const spec = {
+    command: executed?.command ?? command.command,
+    args: [...(executed?.args ?? command.args)],
+    cwd: logicalCwd,
+    resolvedCwd,
+    shell: executed ? executed.shell === true : command.shell === true,
+    env: sortedStringRecord(command.env),
+    timeoutMs: resolveCommandTimeoutMs(command),
+  };
+  return {
+    schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA,
+    digest: commandSpecDigest(spec),
+    ...spec,
+  };
+}
+
+/**
+ * Reconstruct the LEGACY (v1) absolute-cwd envelope for migration-time
+ * verification only. Pre-existing receipts were written with an absolute cwd in
+ * the digest; recomputing the v1 digest lets those receipts keep verifying
+ * without hard-failing legacy evidence. Exported so migration tests can
+ * synthesize a faithful pre-existing v1 receipt.
+ */
+export function buildLegacyAbsoluteCwdCommandSpecEnvelope(
   projectRoot: string,
   command: ValidationCommand,
   executed?: Pick<ValidationCommandResult, 'command' | 'args' | 'shell' | 'cwd'>,
@@ -158,7 +267,7 @@ export function buildDoneRequiredCommandSpecEnvelope(
     timeoutMs: resolveCommandTimeoutMs(command),
   };
   return {
-    schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA,
+    schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1,
     digest: commandSpecDigest(spec),
     ...spec,
   };
@@ -329,6 +438,96 @@ function normalizedCommandCwd(projectRoot: string, cwd?: string): string {
   return commandCwd(projectRoot, cwd).replace(/\\/g, '/');
 }
 
+/**
+ * Longest-existing-prefix realpath: resolves symlinks on the part of `p` that
+ * exists on disk (e.g. macOS /var -> /private/var) and re-appends any trailing
+ * segments that do not exist yet. Falls back to the input verbatim when nothing
+ * resolves. Used to symlink-normalize BOTH the anchor and an absolute cwd before
+ * relativizing, so a symlinked workspace root does not produce a spurious '..'.
+ */
+function canonicalizeExisting(p: string): string {
+  let current = p;
+  const tail: string[] = [];
+  // Bounded by path depth; dirname() reaches a fixed point at the filesystem root.
+  for (;;) {
+    try {
+      const real = realpathSync(current);
+      return tail.length ? join(real, ...tail.reverse()) : real;
+    } catch {
+      const parent = dirname(current);
+      if (parent === current) return p;
+      tail.push(basename(current));
+      current = parent;
+    }
+  }
+}
+
+/**
+ * Portable LOGICAL cwd for the command-spec digest, anchored at the STORY'S OWN
+ * workspace root (projectRoot) — NOT the shared git-common-dir root. Anchoring at
+ * projectRoot is what makes the same logical command portable across a story's
+ * worktrees/hosts:
+ *
+ * - RELATIVE (or empty) cwd: resolved against projectRoot and expressed relative
+ *   to that SAME root — root-independent by construction ('.' -> '.',
+ *   'packages/main' -> 'packages/main').
+ * - ABSOLUTE cwd INSIDE projectRoot: relativized against projectRoot, so the
+ *   CORRESPONDING physical path in EVERY worktree ('<root>/packages/main') maps to
+ *   the same portable logical value ('packages/main'). Anchoring an in-workspace
+ *   absolute path at the SHARED root instead relativized the SAME logical location
+ *   differently per worktree ('.worktrees/<id>/packages/main' vs 'packages/main')
+ *   — that shared-root anchoring was the broken over-correction this replaces
+ *   (F-006). resolveSharedLockRoot stays in use for the LOCK path only (CHK-001).
+ * - ABSOLUTE cwd OUTSIDE projectRoot (relative result starts with '..', e.g.
+ *   '/opt/tool'): it points outside this story's workspace and genuinely CANNOT be
+ *   made cross-root portable. We keep the STABLE relative representation (which
+ *   starts with '..'); this is an accepted, documented limitation, not something
+ *   to force-anchor into an in-workspace path.
+ *
+ * Symlink-safe: for an absolute cwd, projectRoot and the cwd are realpath-
+ * canonicalized (longest existing prefix) before relativizing, so a symlinked
+ * temp/workspace root (macOS /var -> /private/var) does not yield a spurious '..'.
+ *
+ * Forward-slash normalized; '.' when equal to projectRoot.
+ */
+function repoRelativeLogicalCwd(projectRoot: string, cwd?: string): string {
+  if (!cwd || !isAbsolute(cwd)) {
+    // Relative/empty: both sides live in projectRoot's OWN path space, so a plain
+    // resolve+relativize is exact and needs no symlink canonicalization.
+    const absolute = resolve(projectRoot, cwd ?? '');
+    const rel = relative(projectRoot, absolute).replace(/\\/g, '/');
+    return rel === '' ? '.' : rel;
+  }
+  // Absolute: the configured/executed path may live in a different symlink space
+  // than projectRoot, so canonicalize BOTH before relativizing against projectRoot.
+  const anchor = canonicalizeExisting(projectRoot);
+  const target = canonicalizeExisting(cwd);
+  const rel = relative(anchor, target).replace(/\\/g, '/');
+  return rel === '' ? '.' : rel;
+}
+
+/**
+ * The receipt's portable LOGICAL cwd for cross-root receipt verification (F-001).
+ *
+ * A v2 receipt already stored the shared/worktree-portable logical cwd in
+ * `commandSpec.cwd` (verified independently by validateCommandSpecDigestCoverage),
+ * so we trust it directly — the top-level `receipt.cwd` is an ABSOLUTE physical
+ * worktree path and relativizing it embeds the writing worktree's location
+ * (e.g. '.worktrees/<id>'), which breaks cross-root comparison. For legacy v1 or
+ * missing envelopes we fall back to relativizing the physical `receipt.cwd`
+ * against the CURRENT projectRoot, matching the pre-portability same-root
+ * behavior (cross-root legacy evidence was never portable).
+ */
+function receiptLogicalCwd(projectRoot: string, receipt: DoneRequiredCommandReceipt): string {
+  const spec = receipt.commandSpec;
+  if (spec && spec.schema === DONE_REQUIRED_COMMAND_SPEC_SCHEMA && typeof spec.cwd === 'string') {
+    return spec.cwd;
+  }
+  const physical = typeof receipt.cwd === 'string' && receipt.cwd ? receipt.cwd : projectRoot;
+  const rel = relative(projectRoot, physical).replace(/\\/g, '/');
+  return rel === '' ? '.' : rel;
+}
+
 function outputTail(output: string): string {
   return output.length <= OUTPUT_TAIL_CHARS ? output : output.slice(output.length - OUTPUT_TAIL_CHARS);
 }
@@ -358,9 +557,12 @@ function receiptLine(receipt: DoneRequiredCommandReceipt): string {
 function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: string, command?: DoneRequiredCommand): boolean {
   if (receipt.status !== 'PASS') return false;
   if (command?.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF || command?.proof === PACKAGES_MAIN_BUILD_PROOF) return true;
-  const cwd = normalizedCommandCwd(projectRoot, receipt.cwd);
-  const rootCwd = normalizedCommandCwd(projectRoot);
-  const packagesMain = normalizedCommandCwd(projectRoot, 'packages/main');
+  // Compare on the portable LOGICAL cwd (not the absolute physical receipt.cwd)
+  // so a build proof written in worktree A is still recognized when evaluated
+  // under root B (F-001).
+  const cwd = receiptLogicalCwd(projectRoot, receipt);
+  const rootCwd = repoRelativeLogicalCwd(projectRoot);
+  const packagesMain = repoRelativeLogicalCwd(projectRoot, 'packages/main');
   const args = Array.isArray(receipt.args) ? receipt.args : [];
   if (receipt.command === 'npm' && cwd === rootCwd) {
     const prefixIndex = args.indexOf('--prefix');
@@ -420,26 +622,47 @@ export function validateCommandSpecDigestCoverage(
       continue;
     }
 
-    const expected = buildDoneRequiredCommandSpecEnvelope(projectRoot, command, {
+    const executedShape: Pick<ValidationCommandResult, 'command' | 'args' | 'shell' | 'cwd'> = {
       command: receipt.command,
       args: Array.isArray(receipt.args) ? receipt.args : [],
       ...(receipt.shell ? { shell: true } : {}),
       cwd: receipt.cwd,
-    });
+    };
+    // v2 reconstruction MUST use the receipt's STORED portable logical cwd
+    // (receiptLogicalCwd — the same helper validateRequiredReceiptCoverage uses),
+    // NOT receipt.cwd re-normalized against the current projectRoot. The receipt's
+    // top-level cwd is an ABSOLUTE physical worktree path; re-anchoring it via the
+    // verifying projectRoot embeds THIS root's location (e.g. '.worktrees/<id>'),
+    // so a cross-worktree receipt that validateRequiredReceiptCoverage correctly
+    // ACCEPTS would be wrongly rejected here as command-spec-digest-mismatch (F-009).
+    // resolvedCwd is non-digested provenance and does not affect the digest/match.
+    const expectedNew = buildV2CommandSpecEnvelopeFromLogicalCwd(
+      receiptLogicalCwd(projectRoot, receipt),
+      normalizedCommandCwd(projectRoot, receipt.cwd),
+      command,
+      executedShape,
+    );
+    // The LEGACY v1 branch keeps absolute-cwd reconstruction — that IS correct for
+    // v1 receipts, which digested an absolute cwd and were never cross-root portable.
+    const expectedLegacy = buildLegacyAbsoluteCwdCommandSpecEnvelope(projectRoot, command, executedShape);
 
-    const fieldsMatch =
-      commandSpec.schema === DONE_REQUIRED_COMMAND_SPEC_SCHEMA &&
-      commandSpec.command === expected.command &&
+    const matchesEnvelope = (candidate: DoneRequiredCommandSpecEnvelope): boolean =>
+      commandSpec.schema === candidate.schema &&
+      commandSpec.command === candidate.command &&
       Array.isArray(commandSpec.args) &&
-      sameStringArray(commandSpec.args, expected.args) &&
-      commandSpec.cwd === expected.cwd &&
-      commandSpec.shell === expected.shell &&
-      commandSpec.timeoutMs === expected.timeoutMs &&
+      sameStringArray(commandSpec.args, candidate.args) &&
+      commandSpec.cwd === candidate.cwd &&
+      commandSpec.shell === candidate.shell &&
+      commandSpec.timeoutMs === candidate.timeoutMs &&
       Boolean(commandSpec.env) &&
       !Array.isArray(commandSpec.env) &&
-      sameStringRecord(commandSpec.env, expected.env);
-    const digestMatches = commandSpec.digest === expected.digest;
-    if (!fieldsMatch || !digestMatches) {
+      sameStringRecord(commandSpec.env, candidate.env) &&
+      commandSpec.digest === candidate.digest;
+
+    // MIGRATION: accept a receipt whose stored envelope matches EITHER the new
+    // portable v2 relative-cwd digest OR the legacy v1 absolute-cwd digest, so
+    // pre-existing receipts still verify without hard-failing legacy evidence.
+    if (!matchesEnvelope(expectedNew) && !matchesEnvelope(expectedLegacy)) {
       mismatch = true;
       reasons.push(`command-spec-digest-mismatch[${i}]: ${receipt.label}`);
     }
@@ -455,6 +678,7 @@ export function validateRequiredReceiptCoverage(
   evidence: Pick<DoneRequiredEvidenceData, 'receipts'>,
   projectRoot: string,
   commands: DoneRequiredCommand[],
+  executionIdentity?: RoutineValidationIdentity,
 ): string[] {
   const reasons: string[] = [];
   const receipts = Array.isArray(evidence.receipts) ? evidence.receipts : [];
@@ -481,15 +705,18 @@ export function validateRequiredReceiptCoverage(
       reasons.push(`receipt-args-mismatch[${i}]: expected ${JSON.stringify(command.args)}, got ${JSON.stringify(actualArgs)}`);
     }
 
-    const expectedCwd = normalizedCommandCwd(projectRoot, command.cwd);
-    const actualCwd = typeof receipt.cwd === 'string'
-      ? normalizedCommandCwd(projectRoot, receipt.cwd)
-      : '';
+    // Compare a repo-relative LOGICAL cwd on BOTH sides (F-001). The old code
+    // compared absolute physical paths, so a receipt written in worktree A
+    // failed under root B (receipt-cwd-mismatch) — the exact cross-root scenario
+    // this story fixes. The logical cwd is worktree/host portable, yet genuinely
+    // different cwds still normalize differently and remain distinguishable.
+    const expectedCwd = repoRelativeLogicalCwd(projectRoot, command.cwd);
+    const actualCwd = receiptLogicalCwd(projectRoot, receipt);
     if (actualCwd !== expectedCwd) {
       reasons.push(`receipt-cwd-mismatch[${i}]: expected ${expectedCwd}, got ${actualCwd || '<missing>'}`);
     }
 
-    const expectedShell = command.shell === true;
+    const expectedShell = executionIdentity?.commands[i]?.shell ?? command.shell === true;
     const actualShell = receipt.shell === true;
     if (actualShell !== expectedShell) {
       reasons.push(`receipt-shell-mismatch[${i}]: expected ${expectedShell}, got ${actualShell}`);
@@ -527,6 +754,86 @@ export function validateSelfHostBuildProof(
   return reasons;
 }
 
+function validateDoneRequiredEvidenceEnvironmentProjection(
+  evidence: DoneRequiredEvidenceData,
+  policy: DoneRequiredPolicy,
+): string[] {
+  const reasons: string[] = [];
+  const subjectDigest = digestCanonicalJson({
+    storyId: evidence.storyId,
+    headHash: evidence.headHash ?? null,
+    materialHash: evidence.materialHash ?? null,
+    storyFilesHash: evidence.storyFilesHash ?? null,
+  });
+  for (let i = 0; i < evidence.receipts.length; i++) {
+    const commandReceipt = evidence.receipts[i];
+    try {
+      const projected = projectDoneRequiredReceiptToEnvironment(commandReceipt, {
+        invocationId: `done-required:${i}:${commandReceipt.commandSpec?.digest ?? 'missing'}`,
+        subjectId: evidence.storyId,
+        subjectDigest,
+        policyId: policy.source,
+        policyDigest: policy.policyHash,
+        requestedAt: commandReceipt.startedAt,
+        freshnessDeadline: '9999-12-31T23:59:59.999Z',
+      });
+      const gate = evaluateEvidenceEnvironmentGateProjection({
+        descriptorId: CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR_ID,
+        invocation: projected.invocation,
+        receipt: projected.receipt,
+        artifactKind: 'done-required-evidence',
+        consumer: 'DONE_REQUIRED',
+        claim: 'done-readiness',
+        checks: {
+          schemaVersion: 'lattice.done_required_evidence.v1',
+          strictShapeValid: true,
+          temporalAndMaterialBindingValid: true,
+          subjectMatches: true,
+          producerBoundaryTrusted: true,
+          commandSpecDigestValid: true,
+          hashTupleFresh: true,
+        },
+      });
+      if (!gate.allowed) {
+        reasons.push(...gate.reasons.map((reason) => `evidence-environment[${i}]: ${reason}`));
+      }
+    } catch (error) {
+      reasons.push(`evidence-environment[${i}]: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  return [...new Set(reasons)];
+}
+
+function validateDoneRequiredExecutionIdentityCoverage(
+  evidence: DoneRequiredEvidenceData,
+  currentIdentity: RoutineValidationIdentity,
+  policy: DoneRequiredPolicy,
+): string[] {
+  const reasons: string[] = [];
+  for (let i = 0; i < policy.commands.length; i++) {
+    const receipt = evidence.receipts[i];
+    const commandIdentity = currentIdentity.commands[i];
+    if (!receipt || !commandIdentity) {
+      reasons.push(`execution-identity-missing[${i}]`);
+      continue;
+    }
+    if (!receipt.effectiveEnvironmentDigest || receipt.effectiveEnvironmentDigest !== commandIdentity.effectiveEnvironmentDigest) {
+      reasons.push(`effective-environment-digest-mismatch[${i}]`);
+    }
+    if (receipt.executableDigest !== commandIdentity.executableDigest) {
+      reasons.push(`executable-digest-mismatch[${i}]`);
+    }
+    const expectedShellDigest = commandIdentity.shellExecutableDigest ?? null;
+    const receiptShellDigest = receipt.shellExecutableDigest ?? null;
+    if ((receipt.shell === true) !== commandIdentity.shell
+      || receiptShellDigest !== expectedShellDigest
+      || (commandIdentity.shell && !receiptShellDigest)) {
+      reasons.push(`shell-executable-digest-mismatch[${i}]`);
+    }
+  }
+  return reasons;
+}
+
 export async function runDoneRequiredValidation(args: {
   projectRoot: string;
   storyId: string;
@@ -541,6 +848,10 @@ export async function runDoneRequiredValidation(args: {
   const startedAt = new Date(startedMs).toISOString();
   const receipts: DoneRequiredCommandReceipt[] = [];
   const reasons: string[] = [];
+  const executionIdentity = buildDoneRequiredExecutionIdentity({
+    projectRoot: args.projectRoot,
+    policy,
+  });
 
   if (!policy.required) {
     reasons.push('no doneRequiredCommands policy configured');
@@ -569,6 +880,7 @@ export async function runDoneRequiredValidation(args: {
       const materialHash = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
       const storyFilesHash = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
       const status = commandStatus(result.code, result.timedOut);
+      const commandIdentity = executionIdentity.commands[i];
       const receipt: DoneRequiredCommandReceipt = {
         label: result.label,
         command: result.command,
@@ -584,6 +896,13 @@ export async function runDoneRequiredValidation(args: {
         startedAt: receiptStartedAt,
         endedAt: receiptEndedAt,
         ...(result.timedOut ? { timedOut: true } : {}),
+        ...(commandIdentity
+          ? {
+              effectiveEnvironmentDigest: commandIdentity.effectiveEnvironmentDigest,
+              executableDigest: commandIdentity.executableDigest,
+              shellExecutableDigest: commandIdentity.shellExecutableDigest ?? null,
+            }
+          : {}),
         ...(headHash ? { headHash } : {}),
         ...(materialHash ? { materialHash } : {}),
         ...(storyFilesHash ? { storyFilesHash } : {}),
@@ -630,6 +949,11 @@ export function evaluateDoneRequiredEvidence(args: {
   storyId: string;
   store: StoryStore;
   gitCwd: string;
+  /** Deterministic platform/env seam for cross-platform identity regressions. */
+  executionIdentityContext?: {
+    processEnvironment?: NodeJS.ProcessEnv;
+    platform?: NodeJS.Platform;
+  };
 }): DoneRequiredGateEvaluation {
   const policy = resolveDoneRequiredPolicy(args.projectRoot);
   const proofPolicy = resolveProofAdmissibilityPolicy(args.projectRoot);
@@ -716,6 +1040,16 @@ export function evaluateDoneRequiredEvidence(args: {
   }
 
   const reasons: string[] = [];
+  const currentExecutionIdentity = buildDoneRequiredExecutionIdentity({
+    projectRoot: args.projectRoot,
+    policy,
+    ...(args.executionIdentityContext?.processEnvironment
+      ? { processEnvironment: args.executionIdentityContext.processEnvironment }
+      : {}),
+    ...(args.executionIdentityContext?.platform
+      ? { platform: args.executionIdentityContext.platform }
+      : {}),
+  });
   if (evidence.schema !== DONE_REQUIRED_EVIDENCE_SCHEMA || evidence.version !== DONE_REQUIRED_EVIDENCE_VERSION) {
     reasons.push('schema-version-mismatch');
   }
@@ -723,7 +1057,12 @@ export function evaluateDoneRequiredEvidence(args: {
   if (evidence.status !== 'PASS') reasons.push(...(evidence.reasons.length > 0 ? evidence.reasons : ['status-fail']));
   if (evidence.policyHash !== policy.policyHash) reasons.push('policy-drift');
   if (evidence.commandSetHash !== policy.commandSetHash) reasons.push('command-set-drift');
-  reasons.push(...validateRequiredReceiptCoverage(evidence, args.projectRoot, policy.commands));
+  reasons.push(...validateRequiredReceiptCoverage(
+    evidence,
+    args.projectRoot,
+    policy.commands,
+    currentExecutionIdentity,
+  ));
   const commandSpecDigestCoverage = validateCommandSpecDigestCoverage(evidence, args.projectRoot, policy.commands);
   reasons.push(...commandSpecDigestCoverage.reasons);
 
@@ -740,6 +1079,7 @@ export function evaluateDoneRequiredEvidence(args: {
   if (!evidence.storyFilesHash || !currentStoryFiles) reasons.push('missing-storyFilesHash');
   else if (evidence.storyFilesHash !== currentStoryFiles) reasons.push('stale-storyFilesHash');
   reasons.push(...validateSelfHostBuildProof(evidence, args.projectRoot, policy.commands));
+  reasons.push(...validateDoneRequiredExecutionIdentityCoverage(evidence, currentExecutionIdentity, policy));
 
   const uniqueReasons = [...new Set(reasons)];
   if (uniqueReasons.length > 0) {
@@ -753,6 +1093,24 @@ export function evaluateDoneRequiredEvidence(args: {
         `rerun: lattice done_required_validate --storyId=${args.storyId}`,
       ].join('\n'),
       reasons: uniqueReasons,
+      policy,
+      evidence,
+      proofAdmissibility: doneRequiredDiagnostic(evidence, false, commandSpecDigestCoverage.valid),
+    });
+  }
+
+  const environmentProjectionReasons = validateDoneRequiredEvidenceEnvironmentProjection(evidence, policy);
+  if (environmentProjectionReasons.length > 0) {
+    return withProofBlock({
+      required: true,
+      ok: false,
+      status: 'fail',
+      detail: environmentProjectionReasons.slice(0, 3).join(', '),
+      hint: [
+        ...environmentProjectionReasons,
+        `rerun: lattice done_required_validate --storyId=${args.storyId}`,
+      ].join('\n'),
+      reasons: environmentProjectionReasons,
       policy,
       evidence,
       proofAdmissibility: doneRequiredDiagnostic(evidence, false, commandSpecDigestCoverage.valid),

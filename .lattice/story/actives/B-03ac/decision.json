@@ -1,0 +1,86 @@
+{
+  "principles": [
+    "Correctness eligibility is decided before cost optimization.",
+    "Every gate-consumed decision must be structured, versioned, signed or digest-bound, and mechanically revalidated.",
+    "First-release impact coverage stays narrow; unsupported categories honestly escalate to full.",
+    "Read-only observability and lifecycle authority remain separate."
+  ],
+  "drivers": [
+    "Prevent invalid incremental passes from satisfying review gates.",
+    "Reduce prompt input only where impact closure is provable.",
+    "Reuse existing freshness and review evidence facts instead of creating competing truth sources.",
+    "Keep operator output explainable through stable reason codes."
+  ],
+  "options": [
+    {
+      "name": "A: Extend the existing read-only command with a shared eligibility and assembly core",
+      "pros": [
+        "Preserves one incremental fact source",
+        "Allows handler, assembler, and gates to consume the same typed decision",
+        "Maintains current gate-neutral command semantics"
+      ],
+      "cons": [
+        "Requires careful separation between read-only computation and reviewerWrite persistence",
+        "Touches several contract and gate integration points"
+      ]
+    },
+    {
+      "name": "B: Add a separate incremental assembler command",
+      "pros": [
+        "Localizes new code initially",
+        "Could ship a prototype quickly"
+      ],
+      "cons": [
+        "Creates a second fact source",
+        "Risks drift from review_incremental_context",
+        "Makes caller-selected mode easier to misuse"
+      ]
+    },
+    {
+      "name": "C: Keep incremental selection in reviewer prompts",
+      "pros": [
+        "Minimal runtime implementation"
+      ],
+      "cons": [
+        "Cannot mechanically prove eligibility",
+        "Allows self-asserted safety",
+        "Cannot invalidate wrong incremental passes"
+      ]
+    }
+  ],
+  "chosen": "A: Extend the existing read-only command with a shared eligibility and assembly core",
+  "rationale": "Option A is the only design that preserves the accepted single-source architecture while making eligibility reusable by trusted assembly and gate validation. The command remains observational; persistence occurs only through existing reviewer authority paths.",
+  "preMortem": [
+    {
+      "scenario": "A caller supplies a flag or forged field to force incremental mode.",
+      "trigger": "Eligibility accepts caller-provided decision state instead of recomputing canonical facts.",
+      "consequence": "An under-scoped review can produce an admissible pass.",
+      "mitigation": "Expose no force-incremental option and recompute the versioned eligibility digest at assembly and pass validation."
+    },
+    {
+      "scenario": "Impact classification misses a cross-file or dynamic dependency.",
+      "trigger": "A change category is treated as bounded without a complete supported index or parse result.",
+      "consequence": "The reviewer misses affected behavior.",
+      "mitigation": "Allow only explicitly proven categories and map unknown language, dynamic reference, incomplete index, and parse failure to full."
+    },
+    {
+      "scenario": "Budget pressure overrides correctness escalation.",
+      "trigger": "Full context exceeds budget while incremental fits.",
+      "consequence": "The system chooses an unsafe smaller prompt.",
+      "mitigation": "Choose correctness mode first, record budget violation separately, and never downgrade full to incremental for cost."
+    },
+    {
+      "scenario": "The observational command accidentally mutates evidence or gate state.",
+      "trigger": "Assembly persistence or review-run creation is placed inside review_incremental_context.",
+      "consequence": "Simply inspecting context changes lifecycle readiness.",
+      "mitigation": "Keep the handler pure/read-only and retain before/after store and gate snapshot regression tests."
+    },
+    {
+      "scenario": "Envelope fields are recorded but not consumed by every review evidence path.",
+      "trigger": "Pass, receipt, floor, or quorum validation uses a legacy path that ignores incremental binding.",
+      "consequence": "A mismatched pass may count downstream.",
+      "mitigation": "Centralize admissibility validation and cover all collectors through the process fact registry verifier and adversarial integration tests."
+    }
+  ],
+  "timestamp": "2026-07-19T04:41:48.330Z"
+}

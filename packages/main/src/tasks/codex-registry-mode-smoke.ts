@@ -26,7 +26,8 @@ import {
   renderLatticeCodexWrapperScript,
 } from '../init-assets.js';
 import { runCodexAdapterChecks, renderCodexAdapterChecks } from '../core/codex-adapter-checks.js';
-import { readPromptRegistry } from '../core/prompt-registry.js';
+import { reviewerHostRenderIdentity } from '../core/prompt-role-contract-registry.js';
+import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const repoRoot = join(packageRoot, '..', '..');
@@ -83,6 +84,24 @@ try {
   rmSync(mirrorRoot, { recursive: true, force: true });
 }
 
+const jointlyDriftedHostRoot = makeRoot('codex-joint-host-drift');
+try {
+  writeText(jointlyDriftedHostRoot, '.lattice-codex/lattice.json', renderLatticeCodexAdapterManifest());
+  seedLegacyPrompts(jointlyDriftedHostRoot);
+  const file = 'lattice-review-quality.md';
+  const drift = '\n<!-- jointly drifted host asset -->\n';
+  for (const relPath of [`.claude/agents/${file}`, `.lattice-codex/agents/${file}`]) {
+    const path = join(jointlyDriftedHostRoot, relPath);
+    writeText(jointlyDriftedHostRoot, relPath, readFileSync(path, 'utf8') + drift);
+  }
+  const result = runCodexAdapterChecks(jointlyDriftedHostRoot, { executeHeartbeats: false });
+  assert.equal(result.ok, false, 'joint Claude/Codex drift cannot evade the package render identity');
+  assert.equal(checkById(result, 'agents-mirror').status, 'fail');
+  assert.match(checkById(result, 'agents-mirror').detail, /package\/Claude drift lattice-review-quality\.md/);
+} finally {
+  rmSync(jointlyDriftedHostRoot, { recursive: true, force: true });
+}
+
 const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-codex-legacy-only-'));
 try {
   writeText(legacyOnlyRoot, '.lattice-codex/legacy.json', renderLatticeCodexAdapterManifest());
@@ -106,8 +125,67 @@ try {
   assert.equal(checkById(thin, 'manifest').status, 'pass');
   assert.equal(checkById(thin, 'prompt-registry').status, 'pass');
   assert.equal(thin.checks.some(check => check.id === 'agents-mirror'), false);
+  const identity = reviewerHostRenderIdentity(thinRoot, 'lattice-review-quality', 'codex');
+  assert.equal(identity.host, 'codex');
+  assert.equal(identity.source, 'package-registry');
+  assert.equal(identity.hostRenderDigest.length, 64);
 } finally {
   rmSync(thinRoot, { recursive: true, force: true });
+}
+
+const globalThinRoot = makeRoot('global-thin-host-render');
+try {
+  writeText(globalThinRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'global-thin' }, null, 2)}\n`);
+  const codexIdentity = reviewerHostRenderIdentity(globalThinRoot, 'lattice-review-quality', 'codex');
+  const claudeIdentity = reviewerHostRenderIdentity(globalThinRoot, 'lattice-review-quality', 'claude');
+  assert.equal(codexIdentity.source, 'package-registry');
+  assert.equal(claudeIdentity.source, 'package-registry');
+  assert.notEqual(codexIdentity.identityDigest, claudeIdentity.identityDigest, 'host is part of the render identity');
+} finally {
+  rmSync(globalThinRoot, { recursive: true, force: true });
+}
+
+const fullCodexOnlyRoot = makeRoot('full-codex-only-host-render');
+try {
+  writeText(fullCodexOnlyRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'full' }, null, 2)}\n`);
+  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
+  const packagePrompt = readPromptTemplate(entry);
+  writeText(fullCodexOnlyRoot, `.lattice-codex/agents/${entry.file}`, renderCodexAgentContent(packagePrompt));
+  const identity = reviewerHostRenderIdentity(fullCodexOnlyRoot, entry.agentId, 'codex');
+  assert.equal(identity.source, 'full-asset');
+  assert.throws(
+    () => reviewerHostRenderIdentity(fullCodexOnlyRoot, entry.agentId, 'claude'),
+    /missing claude reviewer prompt asset/,
+    'a missing Claude mirror does not prevent the Codex host from establishing its own identity',
+  );
+  writeText(
+    fullCodexOnlyRoot,
+    `.lattice-codex/agents/${entry.file}`,
+    `${renderCodexAgentContent(packagePrompt)}\n<!-- codex-only drift -->\n`,
+  );
+  assert.throws(
+    () => reviewerHostRenderIdentity(fullCodexOnlyRoot, entry.agentId, 'codex'),
+    /codex reviewer prompt asset drift/,
+  );
+} finally {
+  rmSync(fullCodexOnlyRoot, { recursive: true, force: true });
+}
+
+const fullClaudeOnlyRoot = makeRoot('full-claude-only-host-render');
+try {
+  writeText(fullClaudeOnlyRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'full' }, null, 2)}\n`);
+  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
+  const packagePrompt = readPromptTemplate(entry);
+  writeText(fullClaudeOnlyRoot, `.claude/agents/${entry.file}`, packagePrompt);
+  const identity = reviewerHostRenderIdentity(fullClaudeOnlyRoot, entry.agentId, 'claude');
+  assert.equal(identity.source, 'full-asset');
+  assert.throws(
+    () => reviewerHostRenderIdentity(fullClaudeOnlyRoot, entry.agentId, 'codex'),
+    /missing codex reviewer prompt asset/,
+    'a missing Codex mirror does not prevent the Claude host from establishing its own identity',
+  );
+} finally {
+  rmSync(fullClaudeOnlyRoot, { recursive: true, force: true });
 }
 
 const driftRoot = makeRoot('codex-registry-drift');

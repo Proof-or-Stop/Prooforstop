@@ -610,9 +610,8 @@ Behavior:
       'lattice-review-docs',
       'lattice-review-channel',
     ]).optional().describe('Explicit reviewer lane; synonym for agent, provide only one.'),
-    prompt: z.string().optional().describe('Prompt text actually received by the reviewer; promptHash is computed automatically when provided.'),
-    promptHash: z.string().optional().describe('SHA-256 of the reviewer prompt; if prompt is also provided, it must match the actual prompt hash.'),
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
+    reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
   }},
   { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
     storyId: z.string().describe('Story ID'),
@@ -1284,6 +1283,8 @@ Behavior:
   }},
   { name: 'agent_prompt', description: 'Print the canonical Proofbound agent prompt body for a role from the package prompt registry (host-neutral single source; Claude thin-shims fetch from here, Codex resolves the same registry)', schema: {
     role: z.string().min(1).describe('Proofbound agent role name, e.g. lattice-implementer, lattice-review-concept (the template basename without .md)'),
+    storyId: z.string().min(1).optional().describe('Optional Story ID for trusted full-context assembly when this role rollout flag is enabled.'),
+    format: z.enum(['text', 'json']).optional().describe('Story-aware full-context output format (default text); role-only output remains byte-identical.'),
   }},
   { name: 'prompt_measurement_report', description: 'Report deterministic local prompt bytes, lines, estimated tokens, repetition, and three-layer input availability for all 16 package prompt roles (read-only L0)', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),

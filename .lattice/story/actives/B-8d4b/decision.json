@@ -1,0 +1,86 @@
+{
+  "principles": [
+    "Stop conclusions when evidence is insufficient; a shorter static prompt is not proof of finding recall.",
+    "Experiment facts and production lifecycle facts must remain physically and semantically isolated.",
+    "Reuse canonical measurement, envelope, and usage-availability semantics to avoid a parallel protocol.",
+    "Keep both arms identical for the same pinned input except for prompt shape, and make both replayable by digest."
+  ],
+  "drivers": [
+    "Story 3 requires read-only historical material, reproducible measurement, an independent ledger, and explicit INCONCLUSIVE results.",
+    "The production agent_prompt handler writes envelope metadata and is unsuitable for historical replay.",
+    "Existing pure core assemblers and measurement primitives are sufficient for offline assembly.",
+    "Existing historical experiments lack an adjudicated three-class finding corpus, so pinned samples must be added."
+  ],
+  "options": [
+    {
+      "name": "A: experiment-only harness reusing pure core primitives",
+      "pros": [
+        "Exposes no new production write entrypoint",
+        "Proves isolation and determinism with minimal changes",
+        "Records unavailable provider dimensions explicitly"
+      ],
+      "cons": [
+        "Requires a pinned new corpus and adjudication set",
+        "Real provider usage remains unavailable until dispatch evidence exists"
+      ]
+    },
+    {
+      "name": "B: new production lattice replay CLI and handler",
+      "pros": [
+        "Provides a unified user entrypoint",
+        "Could later expand to live dispatch"
+      ],
+      "cons": [
+        "Expands the production command, policy, and process-fact surface",
+        "Risks experiment records being mistaken for gate evidence",
+        "Adds complexity that this Story does not need"
+      ]
+    },
+    {
+      "name": "C: replay historical Stories through the Story-aware agent_prompt handler",
+      "pros": [
+        "Reuses the complete production entrypoint"
+      ],
+      "cons": [
+        "Writes production prompt-envelope metadata",
+        "Depends on owner, phase, and current HEAD, breaking pinned same-input replay",
+        "Violates read-only experiment and production-evidence isolation"
+      ]
+    }
+  ],
+  "chosen": "A: experiment-only harness reusing pure core primitives",
+  "rationale": "Option A directly delivers executable, reproducible, auditable, fail-closed user value. It reuses validated pure assembly and measurement algorithms while limiting every output to experiments/role-prompt-ab-replay. Option B adds unnecessary production process facts and maintenance surface, while option C violates the read-only isolation constraint.",
+  "preMortem": [
+    {
+      "scenario": "The corpus appears historical but lacks a complete arm or adjudicated finding set.",
+      "trigger": "A sample manifest omits a pinned digest, one of the three class labels, seeded critical/high truth, or either arm.",
+      "consequence": "The harness reports a false finding-recall result.",
+      "mitigation": "Mechanically validate corpus completeness before execution; any missing field makes the whole affected conclusion INCONCLUSIVE and prevents a success claim."
+    },
+    {
+      "scenario": "An experiment run contaminates production Story evidence.",
+      "trigger": "The harness calls agent_prompt or Story finding, review, or pass write handlers, or writes Story metadata.",
+      "consequence": "Experiment output affects lifecycle gates.",
+      "mitigation": "Import only pure core functions, constrain outputs to the experiment directory, and require production evidence hashes and counts to remain byte-identical before and after selfcheck."
+    },
+    {
+      "scenario": "Estimated tokens are presented as provider-processed usage.",
+      "trigger": "The report combines availability layers or replaces unavailable values with zero.",
+      "consequence": "Budget conclusions become false and drive an invalid migration decision.",
+      "mitigation": "Report assembled, known-dispatch, provider, and cache layers separately; retain unavailable plus a reason and never substitute across layers."
+    },
+    {
+      "scenario": "The A and B arms receive different inputs beyond prompt shape.",
+      "trigger": "Task context, runtime, model, contract, or execution-environment digests differ.",
+      "consequence": "Finding differences cannot be attributed to prompt modularization.",
+      "mitigation": "Pin shared input and the sole allowed difference in the manifest, then enforce same-input parity before execution."
+    },
+    {
+      "scenario": "Repeated runs produce different digests because of timestamps or ordering.",
+      "trigger": "createdAt, JSON key order, finding order, or ledger identity is not canonicalized.",
+      "consequence": "Users cannot reproduce or audit the result.",
+      "mitigation": "Use a pinned timestamp, canonical JSON, stable sorting, identity-keyed records, and a selfcheck that compares core digests across two runs."
+    }
+  ],
+  "timestamp": "2026-07-19T03:47:47.045Z"
+}

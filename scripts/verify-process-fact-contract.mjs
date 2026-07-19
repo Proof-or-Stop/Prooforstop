@@ -127,7 +127,7 @@ const requiredProcessFactSemantics = {
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
   autopilot_review_submit: ['host-verdict', 'execution-evidence', 'freshness-policy', 'schema-contract', 'gate-evidence'],
-  quorum_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
+  quorum_submit: ['host-verdict', 'execution-evidence', 'atomic-persistence', 'gate-evidence'],
   decision_doc_proposal: ['schema-contract', 'gate-evidence'],
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
@@ -154,6 +154,9 @@ const requiredProcessFactSemantics = {
   parent_roadmap_evaluate: ['schema-contract', 'verification-policy'],
 };
 const requiredRuntimeFactSemantics = {
+  'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
+  'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
+  'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 };
@@ -166,13 +169,13 @@ const requiredReviewerLanes = [
   'lattice-review-test-coverage',
   'lattice-review-behavior',
   'lattice-review-docs',
-  'lattice-review-channel',
   'lattice-review-delivery',
 ];
 const requiredArtifactFacts = [
   { name: 'artifact:index.json', path: 'index.json', signed: false },
   { name: 'artifact:review.json', path: 'review.json', signed: true, signaturePattern: /sha256\(storyId:timestamp:issueCount:blockerCount/ },
   { name: 'artifact:checklist.json', path: 'checklist.json', signed: false },
+  { name: 'artifact:prompt-envelopes.json', path: 'prompt-envelopes.json', signed: false },
   { name: 'artifact:init-check.json', path: 'init-check.json', signed: true, signaturePattern: /signInitCheck\/recomputeInitCheckHash/ },
   { name: 'artifact:scope-boundary.json', path: 'scope-boundary.json', signed: true, signaturePattern: /stable scope boundary _hash/ },
   { name: 'artifact:execution-boundary.json', path: 'execution-boundary.json', signed: true, signaturePattern: /stable execution boundary _hash/ },
@@ -183,7 +186,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
   { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
-  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures; writerSessionId-inclusive records bind writer session provenance \(writerSessionId \+ sessionSource \+ provenanceFlag, absent flag canonicalized to empty\) in a versioned domain with no legacy fallback/ },
+  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
@@ -855,7 +858,7 @@ function assertCloseoutTrustBoundary() {
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     'd6ca0a50fd24368b13817065278e2ca4d59d38983dc21a79322f9997de497e9e',
-    '57e34467adfc091cfe86ae9defbe7cb0606283f33f168aa148124dd100f41c89',
+    '48ca6562b11dda8996163ad992cdb2a9f6e19e6073beaf171290d064f1d106e2',
     '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
     '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
@@ -3689,12 +3692,20 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(quorumRegistryEntry.kind === 'host-verdict', `${processFactRegistryPath}: ${quorumCommand} registry kind must stay host-verdict`);
     assert(quorumRegistryEntry.gateEvidence === true, `${processFactRegistryPath}: ${quorumCommand} registry gateEvidence must stay true`);
     assert(quorumRegistryEntry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: ${quorumCommand} must record process-events.jsonl evidence`);
-    for (const semantic of ['host-verdict', 'execution-evidence', 'gate-evidence']) {
+    for (const semantic of ['host-verdict', 'execution-evidence', 'atomic-persistence', 'gate-evidence']) {
       assert(quorumRegistryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${quorumCommand} missing ${semantic} semantic`);
+    }
+    for (const token of ['one immutable metadata commit', 'pre-dirty refusal', 'HEAD CAS', 'all-row rollback']) {
+      assert(new RegExp(token, 'i').test(quorumLevelEntry?.rationale || ''), `${processFactLevelRegistryPath}: ${quorumCommand} rationale must name ${token}`);
     }
     assert(/review escalation/i.test(quorumRegistryEntry.consumerGate), `${processFactRegistryPath}: ${quorumCommand} consumerGate drifted (${quorumRegistryEntry.consumerGate})`);
     assert(/review assurance floor/i.test(quorumRegistryEntry.consumerGate), `${processFactRegistryPath}: ${quorumCommand} consumerGate must name review assurance floor (${quorumRegistryEntry.consumerGate})`);
   }
+  const cliEngineText = read('packages/main/src/cli-engine.ts');
+  assert(
+    cliEngineText.includes("if (entry.command === 'quorum_submit') return;"),
+    'packages/main/src/cli-engine.ts: quorum_submit must retain sole ownership of its atomic process-events terminal instead of receiving a generic post-handler codex_cli append',
+  );
 
   const runtimeName = 'runtime:review_escalation_done_gate';
   const runtimeLevel = levelRegistry.get(runtimeName);
@@ -4581,7 +4592,8 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
 
   const promptReviewerLanes = listMarkdown('packages/main/templates/agents')
     .map(relPath => basename(relPath, '.md'))
-    .filter(name => name.startsWith('lattice-review-') || name === 'product-reviewer');
+    .filter(name => (name.startsWith('lattice-review-') || name === 'product-reviewer')
+      && name !== 'lattice-review-channel');
   for (const lane of promptReviewerLanes) {
     assert(
       registry.has(`reviewer-lane:${lane}`),
@@ -5193,6 +5205,11 @@ function assertParentRoadmapTotalityRuntime() {
   assert(registryFactText.includes('runtime:parent_roadmap_totality_claim_consumer'), 'process-fact-registry: parent roadmap runtime claim consumer semantics missing');
   assert(levelText.includes('runtime:agent_dispatch_role_authority_gate'), 'process-fact-levels: typed agent dispatch authority fact missing');
   assert(registryFactText.includes("'runtime:agent_dispatch_role_authority_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence']"), 'process-fact-registry: typed dispatch authority must remain a gate-consumed reviewer-lane schema contract');
+  assert(levelText.includes('runtime:incremental_review_eligibility_gate'), 'process-fact-levels: incremental review eligibility fact missing');
+  assert(
+    registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
+    'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/freshness contract',
+  );
   const dispatchAuthorityLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:agent_dispatch_role_authority_gate');
   assert(dispatchAuthorityLevel?.level === 'L4', 'typed agent dispatch authority must remain L4');
   assert(/dispatch prompt admission and role-gated checklist\/reviewer evidence mutation consumers/.test(dispatchAuthorityLevel?.gateConsumer || ''), 'typed agent dispatch authority must name prompt and mutation consumers');
@@ -5575,12 +5592,37 @@ const inventory = [
     name: 'review_run_start',
     files: [
       {
-        relPath: 'packages/main/src/handlers/review-run.ts',
-        patterns: ['review_run_start', 'resolveReviewRunLane', 'captureReviewRunSnapshot', 'buildReviewRunWorkspaceBinding', 'workspaceBinding', 'signReviewRun', 'writeReviewRuns', 'Review run'],
+        relPath: 'packages/main/src/core/owner-session-adapters.ts',
+        patterns: [
+          'explicitProvider',
+          "return normalizeProvider(explicitProvider) ?? 'unknown'",
+          'CODEX_THREAD_ID',
+          'CLAUDE_CODE_SESSION_ID',
+        ],
       },
       {
-        relPath: 'packages/main/src/cli-engine.ts',
-        patterns: ['review_run_start', 'promptHash: z.string()', 'lane: z.enum'],
+        relPath: 'packages/main/src/handlers/story-dispatch.ts',
+        patterns: [
+          'reviewerPromptHostForProvider',
+          'currentReviewerPromptHost',
+          'unsupported session host provider',
+          'hostRenderHost',
+          'hostRenderIdentityDigest',
+          'dispatchBindingDigest',
+        ],
+      },
+      {
+        relPath: 'packages/main/src/handlers/review-run.ts',
+        patterns: ['review_run_start', 'resolveReviewRunLane', 'captureReviewRunSnapshot', 'buildReviewRunWorkspaceBinding', 'verifyCurrentReviewerDispatchBinding', 'dispatchPrompt', 'hostRenderHost', 'hostRenderIdentityDigest', 'workspaceBinding', 'signReviewRun', 'writeReviewRuns', 'Review run'],
+      },
+      {
+        relPath: 'packages/main/src/cli/command-catalog.ts',
+        patterns: [
+          'review_run_start',
+          'lane: z.enum',
+          'reviewedIntentRefs',
+          { label: 'caller-controlled promptHash removed', absentRegex: /promptHash:\s*z\.string\(\)/ },
+        ],
       },
     ],
   },

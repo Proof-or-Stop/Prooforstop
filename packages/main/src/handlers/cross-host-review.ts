@@ -1,8 +1,8 @@
-import { appendFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import { z } from 'zod';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
@@ -36,6 +36,7 @@ import {
   type DispatchPolicy,
 } from '../core/dispatch-policy.js';
 import type { HostVerdict, VerdictDecision } from '../core/verdicts.js';
+import { appendRawProcessEventBytes } from '../core/process-events.js';
 
 const DEFAULT_TIMEOUT_MINUTES = 12;
 
@@ -649,9 +650,16 @@ function hostVerdictProcessEvent(verdict: HostVerdict): Record<string, unknown> 
 function appendHostVerdictEvents(ctx: HandlerContext, storyId: string, ...verdicts: HostVerdict[]): void {
   const events = verdicts.filter(verdict => verdict.storyId).map(hostVerdictProcessEvent);
   if (events.length === 0) return;
-  const filePath = ctx.store.storyFilePath(storyId, 'process-events.jsonl');
-  mkdirSync(dirname(filePath), { recursive: true });
-  appendFileSync(filePath, events.map(event => JSON.stringify(event)).join('\n') + '\n', 'utf8');
+  // B-d877 R4 (codex #3): pass the RELOCATED append lock dir (the same gitignored
+  // shared `.lattice/locks/process-events/` path StoryStore.appendProcessEvent
+  // uses). Previously this site omitted lockDir, so the append lock was created
+  // inside the git-tracked story dir and a transient holder.json could dirty the
+  // tree / fail the clean-tree gate.
+  appendRawProcessEventBytes(
+    ctx.store.storyDirPath(storyId),
+    `${events.map(event => JSON.stringify(event)).join('\n')}\n`,
+    ctx.store.runtimeLockDirPath(storyId, 'process-events', 'process-events-append'),
+  );
 }
 
 export function createCrossHostReviewHandlers(

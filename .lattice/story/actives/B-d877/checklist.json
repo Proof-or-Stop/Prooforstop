@@ -4,9 +4,177 @@
       "id": "CHK-001",
       "title": "Implement fix for reproduced failure",
       "context": "Probe: rp-mrqf6efm-6wotja, Review: rr-mrqf729k-l0qs9c",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-19T01:40:27.082Z",
+      "endTime": "2026-07-19T02:13:31.517Z",
+      "userSees": "After dev_finish on a DEV story, the story is in REVIEW with a freshly minted currentReviewRound, a phase_transition process-event whose toPhase is REVIEW, and no event mislabeled TEST.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "dev_finish on a completed DEV story routes through runStoryTransition: phase=REVIEW, currentReviewRound minted, phase_transition event toPhase=REVIEW.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "dev_merge also routes through runStoryTransition (second bypass door closed).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "neither handler writes story.phase directly; no TEST-mislabeled event is produced.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (79 checks): dev_finish routes through runStoryTransition — phase=REVIEW, currentReviewRound minted, phase_transition toPhase=REVIEW. RED red-s1-devfinish-bypass.mjs 4/4 FAIL on baseline -> GREEN.",
+          "headHash": "7f456148bdc3c355fe2aa78f72c2c5c86156f261",
+          "materialHash": "6423f09c42362f74e1df340470489689a1d8340ef966faafa5113e8541e73f4c",
+          "storyFilesHash": "d2b80ed75c18c48208ef2a3948fd9f15804fc88ceafcd7a89cec90c33024e11a",
+          "timestamp": "2026-07-19T13:22:02.391Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (79 checks): dev_merge also routes through runStoryTransition (second bypass door closed), no raw phase-write. RED red-s1-devfinish-bypass.mjs GREEN.",
+          "headHash": "7f456148bdc3c355fe2aa78f72c2c5c86156f261",
+          "materialHash": "6423f09c42362f74e1df340470489689a1d8340ef966faafa5113e8541e73f4c",
+          "storyFilesHash": "d2b80ed75c18c48208ef2a3948fd9f15804fc88ceafcd7a89cec90c33024e11a",
+          "timestamp": "2026-07-19T13:22:02.391Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (79 checks): neither handler writes story.phase directly and no TEST-mislabeled event is produced (toPhase=REVIEW; labels INIT/REVIEW). RED red-s1-devfinish-bypass.mjs GREEN.",
+          "headHash": "7f456148bdc3c355fe2aa78f72c2c5c86156f261",
+          "materialHash": "6423f09c42362f74e1df340470489689a1d8340ef966faafa5113e8541e73f4c",
+          "storyFilesHash": "d2b80ed75c18c48208ef2a3948fd9f15804fc88ceafcd7a89cec90c33024e11a",
+          "timestamp": "2026-07-19T13:22:02.391Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Serialize same-owner concurrent transitions with a per-story transition lock",
+      "context": "Hold a per-story transition lock across read, gate, and persist in runStoryTransition so two concurrent same-owner DEV to REVIEW attempts cannot both act on the same pre-transition state and double-mint review rounds.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-d877/background.md"
+      ],
+      "userSees": "Two concurrent DEV to REVIEW transitions for the same story produce exactly one review round and one phase_transition event; the second observes the committed transition.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "create": [
+          "packages/main/src/core/story-transition-lock.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-07-19T02:04:35.882Z",
+      "endTime": "2026-07-19T02:13:32.828Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "two concurrent same-owner DEV->REVIEW transitions produce exactly one currentReviewRound and one phase_transition event.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "the losing transition observes the committed post-transition state, not a stale re-mint.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "a transition that throws mid-critical-section releases the lock (no deadlock); DONE still uses only the main write lock.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (79 checks): two concurrent same-owner DEV->REVIEW transitions produce exactly one currentReviewRound and one phase_transition event; CHK-002a spawns 2 real concurrent procs — 5/5 double-mint without the lock, 1 with.",
+          "headHash": "7f456148bdc3c355fe2aa78f72c2c5c86156f261",
+          "materialHash": "6423f09c42362f74e1df340470489689a1d8340ef966faafa5113e8541e73f4c",
+          "storyFilesHash": "d2b80ed75c18c48208ef2a3948fd9f15804fc88ceafcd7a89cec90c33024e11a",
+          "timestamp": "2026-07-19T13:22:02.391Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (79 checks): the losing transition observes the committed post-transition state, not a stale re-mint (per-story transition lock held across read/gate/persist).",
+          "headHash": "7f456148bdc3c355fe2aa78f72c2c5c86156f261",
+          "materialHash": "6423f09c42362f74e1df340470489689a1d8340ef966faafa5113e8541e73f4c",
+          "storyFilesHash": "d2b80ed75c18c48208ef2a3948fd9f15804fc88ceafcd7a89cec90c33024e11a",
+          "timestamp": "2026-07-19T13:22:02.391Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+          "result": "pass",
+          "note": "transition-integrity smoke (79 checks): a transition that throws mid-critical-section releases the lock (no deadlock); ownership-checked release never deletes a successor dir (CHK-002d/d2/d3) and the F-017 mismatch-restore leak is bounded + stale-reclaimable (CHK-002d4).",
+          "headHash": "7f456148bdc3c355fe2aa78f72c2c5c86156f261",
+          "materialHash": "6423f09c42362f74e1df340470489689a1d8340ef966faafa5113e8541e73f4c",
+          "storyFilesHash": "d2b80ed75c18c48208ef2a3948fd9f15804fc88ceafcd7a89cec90c33024e11a",
+          "timestamp": "2026-07-19T13:22:02.391Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-18T14:01:18.407Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Story-init reviewer flagged the mutex deliverable was untracked by the single generic checklist item; add it explicitly.",
+      "addedTitle": "Serialize same-owner concurrent transitions with a per-story transition lock",
+      "addedContext": "Hold a per-story transition lock across read, gate, and persist in runStoryTransition so two concurrent same-owner DEV to REVIEW attempts cannot both act on the same pre-transition state and double-mint review rounds."
     }
   ]
 }

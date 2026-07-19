@@ -121,18 +121,32 @@ export function buildRoutineValidationIdentity(args: {
       ? (isAbsolute(command.cwd) ? command.cwd : resolve(args.projectRoot, command.cwd))
       : args.projectRoot;
     const effectiveEnvironment = effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform);
+    // node:child_process uses an implicit command shell on Windows even when
+    // ValidationCommand.shell is false. Bind identity to that actual execution
+    // principal (ComSpec/cmd.exe), not to a command that spawn never executes
+    // directly.
+    const usesShell = command.shell === true || platform === 'win32';
+    const shellExecutableCommand = usesShell
+      ? platform === 'win32'
+        ? String(effectiveEnvironment.ComSpec ?? effectiveEnvironment.COMSPEC ?? 'cmd.exe')
+        : '/bin/sh'
+      : null;
     const executable = resolveExecutable(command.command, cwd, effectiveEnvironment, platform);
+    const shellExecutable = shellExecutableCommand
+      ? resolveExecutable(shellExecutableCommand, cwd, effectiveEnvironment, platform)
+      : null;
     return {
       label: command.label,
       command: command.command,
       args: [...command.args],
       cwd,
-      shell: command.shell === true,
+      shell: usesShell,
       timeoutMs: resolveCommandTimeoutMs(command),
       optional: command.optional === true,
       focus: [...(command.focus ?? [])],
       effectiveEnvironmentDigest: validationIdentityDigest(effectiveEnvironment),
       executableDigest: executable ? fileDigest(executable) : null,
+      shellExecutableDigest: shellExecutable ? fileDigest(shellExecutable) : null,
     };
   });
   const unsigned = {
@@ -177,6 +191,9 @@ export function isCompleteRoutineValidationIdentity(value: unknown): value is Ro
     || typeof command.optional !== 'boolean' || !Array.isArray(command.focus)
     || typeof command.effectiveEnvironmentDigest !== 'string' || command.effectiveEnvironmentDigest.length !== 64
     || (command.executableDigest !== null && (typeof command.executableDigest !== 'string' || command.executableDigest.length !== 64))
+    || (command.shellExecutableDigest !== undefined
+      && command.shellExecutableDigest !== null
+      && (typeof command.shellExecutableDigest !== 'string' || command.shellExecutableDigest.length !== 64))
   ))) return false;
   const { digest, ...unsigned } = identity;
   return typeof digest === 'string' && digest.length === 64 && validationIdentityDigest(unsigned) === digest;

@@ -1,0 +1,250 @@
+{
+  "schemaVersion": "proofbound.role-prompt-ab.corpus.v1",
+  "status": "frozen",
+  "historicalFindingSnapshotDigest": "23ff51c43e03099535eefd2afef9550780ce93b428c664331f624355d3b2b37a",
+  "historicalFindingSnapshot": [
+    {
+      "storyId": "B-dd81",
+      "findingId": "B-dd81:F-001",
+      "reviewRunId": "B-dd81:RR-001",
+      "severity": "high",
+      "category": "missing",
+      "evidenceState": "verified",
+      "createdAt": "2026-07-18T21:28:28.913Z",
+      "reviewRound": "2026-07-18T21:26:11.737Z",
+      "_hash": "e415a86aff1880e6328782a15cdca10e56b9f9072244433420502de2b7827594",
+      "desc": "packages/main/src/handlers/review-run.ts:117,175-214,262-263 [high] review_run_start independently assembles and persists a review-run Prompt Envelope after the reviewer is already running, but returns only the run/envelope IDs and never delivers assembly.prompt. Its signed ReviewRun.promptHash remains optional caller-controlled input and is only folded into launcherSpecDigest, not required to equal the envelope assembledPromptDigest. agent_prompt can emit only a story-dispatch audit Envelope, so no trusted path proves that the review-run Envelope was the Prompt actually received by the reviewer. A pass can therefore satisfy the new gate while binding a canonical prompt that was never model input, violating the decision contract that the same process that sends the Prompt must calculate/record it. Integrate reviewer dispatch with review-run assembly or otherwise mechanically bind and deliver the exact assembled bytes before accepting pass evidence.",
+      "sourceRefs": ["packages/main/src/handlers/review-run.ts:117,175-214,262-263"],
+      "signatureVersion": "lattice-finding-integrity-v1"
+    },
+    {
+      "storyId": "B-dd81",
+      "findingId": "B-dd81:F-002",
+      "reviewRunId": "B-dd81:RR-002",
+      "severity": "high",
+      "category": "adversarial",
+      "evidenceState": "verified",
+      "createdAt": "2026-07-18T21:28:34.091Z",
+      "reviewRound": "2026-07-18T21:26:11.737Z",
+      "_hash": "f3a101b614317c1be02799f8da0380171af0d4ac2d57916638d3522c2e44748c",
+      "desc": "packages/main/src/core/prompt-envelope.ts:82-186 and packages/main/src/core/review-run.ts:489-518 — [HIGH] The gate-consumed Prompt Envelope verifier proves only that envelopeId hashes the envelope fields; it never proves roleId equals reviewer lane, rolePrompt matches the registered role render, or the Runtime/Role digests match the actual prompt bytes. assembleFullPromptEnvelope accepts an arbitrary rolePrompt and a roleContract for lattice-review-concept while lane=lattice-review-quality, verifyPromptEnvelopeIntegrity returns true, and a ReviewRun signed over that envelopeId is accepted by verifyReviewRunPromptEnvelope. Repro: build, then assemble a review-run envelope with roleContract concept, rolePrompt ATTACKER-CONTROLLED PROMPT, lane quality; signReviewRun with the returned envelopeId; both verifyReviewRun and verifyReviewRunPromptEnvelope return true. This violates CHK-001 envelope-role-contract-coherence and CHK-003 gate-path shared verification, so a structurally valid but semantically wrong reviewer prompt can become gate evidence. Derive the prompt/contract from the canonical lane inside the trusted assembler or persist enough canonical material to recompute it, enforce roleId===lane for review-run envelopes, and add a gate-path regression test for prompt/role/lane substitution.",
+      "sourceRefs": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/tasks/review-run-smoke.ts"
+      ],
+      "signatureVersion": "lattice-finding-integrity-v1"
+    }
+  ],
+  "samples": [
+    {
+      "id": "clean-pass-01",
+      "class": "simple-bounded-change",
+      "task": "Review a bounded documentation-only change for contract consistency.",
+      "material": {
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "experiments/reports/story-review-output-after-production-v1.json",
+        "snapshotId": "clean-pass-01",
+        "content": {
+          "scope": "one decision document",
+          "diff": "Clarify that diagnostic estimates are not provider billing truth.",
+          "constraints": ["no gate change", "no runtime mutation"]
+        }
+      },
+      "tools": ["Read", "Grep"],
+      "materialDigest": "686c86e9385e977a96ff03a22fadccce0f786a7b08f078ee3aa17fe3e81db986",
+      "findingSetDigest": "2ded0283ea1d8c2b81325d63ca045ff3ffef36c882314d3c43fe5663abfb88c4",
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "Provider usage was not captured for this historical sample."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "Provider cache creation was not reported."},
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "Provider cache reads were not reported."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
+      },
+      "oracles": []
+    },
+    {
+      "id": "clean-pass-02",
+      "class": "simple-bounded-change",
+      "task": "Review a stable prompt-registry metadata change with no semantic delta.",
+      "material": {
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "experiments/reports/story-review-structured-v1.json",
+        "snapshotId": "clean-pass-02",
+        "content": {
+          "scope": "prompt registry metadata",
+          "diff": "Normalize a description while preserving role and command contracts.",
+          "constraints": ["byte changes are descriptive", "role eligibility is unchanged"]
+        }
+      },
+      "tools": ["Read", "Grep"],
+      "materialDigest": "119fb690b9a35ce036ca80a0ae396cac44f056b09d88fac7a0af1812ec79a5b3",
+      "findingSetDigest": "2ded0283ea1d8c2b81325d63ca045ff3ffef36c882314d3c43fe5663abfb88c4",
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "No committed provider cache-creation evidence artifact and digest are bound to this historical sample."},
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "No committed provider cache-read evidence artifact and digest are bound to this historical sample."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
+      },
+      "oracles": []
+    },
+    {
+      "id": "critical-01",
+      "class": "multi-round-high-finding",
+      "task": "Review a lifecycle change that accepts an unsigned review pass.",
+      "material": {
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "docs/requirements/decisions/review-run-binding-race.md",
+        "snapshotId": "critical-01",
+        "content": {
+          "scope": "REVIEW to TEST gate",
+          "diff": "Accept pass rows without checking the signed ReviewRun binding.",
+          "constraints": ["review evidence must bind current material", "legacy prose is not proof"]
+        }
+      },
+      "tools": ["Read", "Grep", "Bash"],
+      "materialDigest": "fc08f9de50f5cb29387141b79e7c286b29d263a40881eedb406bc52ed0047e0c",
+      "findingSetDigest": "d4ac11ea222bd9853f5ce4aee37d992c3fa6159458431a7104c4e70d63541f00",
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "Provider usage was not captured for this historical sample."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "Provider cache creation was not reported."},
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "Provider cache reads were not reported."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
+      },
+      "oracles": [
+        {
+          "id": "F-critical-unsigned-pass",
+          "category": "missing",
+          "severity": "critical",
+          "trigger": "Unsigned or unbound pass is accepted by the REVIEW gate.",
+          "sourceBinding": "review-gate",
+          "claimBinding": "signed-current-pass-required",
+          "adjudication": {"status": "oracle-only-unverified", "reason": "No independently adjudicated output artifact and digest are pinned; this row seeds a future oracle only."}
+        }
+      ]
+    },
+    {
+      "id": "critical-02",
+      "class": "multi-round-high-finding",
+      "task": "Review a prompt-envelope verifier that trusts a caller supplied digest.",
+      "material": {
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "snapshotId": "critical-02",
+        "content": {
+          "scope": "prompt envelope verification",
+          "diff": "Use the caller-provided prompt digest without recomputing bytes.",
+          "constraints": ["envelope is content addressed", "caller cannot mint gate evidence"]
+        }
+      },
+      "tools": ["Read", "Grep", "Bash"],
+      "materialDigest": "d88dfb108b07b4c90e1e95f049ee6f2f2459aadfd6ee60682b299e0c46120586",
+      "findingSetDigest": "2396c0321f19ff169a355e1873566f948fa6630285e715569886d9f298690097",
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "This provider does not report cache creation."},
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "No committed provider cache-read evidence artifact and digest are bound to this historical sample."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
+      },
+      "oracles": [
+        {
+          "id": "F-critical-digest-substitution",
+          "category": "adversarial",
+          "severity": "critical",
+          "trigger": "Caller-supplied prompt digest bypasses exact-byte recomputation.",
+          "sourceBinding": "prompt-envelope",
+          "claimBinding": "exact-bytes-recomputed",
+          "adjudication": {"status": "oracle-only-unverified", "reason": "No independently adjudicated output artifact and digest are pinned; this row seeds a future oracle only."}
+        }
+      ]
+    },
+    {
+      "id": "closeout-01",
+      "class": "closeout-reattestation",
+      "task": "Review closeout behavior after metadata-only HEAD drift.",
+      "material": {
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "snapshotId": "closeout-01",
+        "content": {
+          "scope": "DONE preparation freshness",
+          "diff": "Force a full review rerun for headHash-only metadata drift.",
+          "constraints": ["host follows the freshness reader", "metadata-only drift does not imply related material drift"]
+        }
+      },
+      "tools": ["Read", "Grep"],
+      "materialDigest": "949324b103039eb870a418121a9c82da095dbd901868fa53f1f35646b458b7d0",
+      "findingSetDigest": "5026a0c15af8f0f6f530093a3f386c09170f99ae1764b2ada003996b1e97bce7",
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "The crashed attempt had no terminal provider usage event."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "The crashed attempt had no terminal provider usage event."},
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "The crashed attempt had no terminal provider usage event."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
+      },
+      "oracles": [
+        {
+          "id": "F-high-metadata-overreview",
+          "category": "edge",
+          "severity": "high",
+          "trigger": "Metadata-only HEAD drift is treated as story-owned material drift and forces an unrelated full rerun.",
+          "sourceBinding": "freshness-reader",
+          "claimBinding": "headhash-only-advisory",
+          "adjudication": {"status": "oracle-only-unverified", "reason": "No independently adjudicated output artifact and digest are pinned; this row seeds a future oracle only."}
+        }
+      ]
+    },
+    {
+      "id": "closeout-02",
+      "class": "closeout-reattestation",
+      "task": "Review closeout evidence reuse after story-owned material drift.",
+      "material": {
+        "sourceKind": "inline-corpus-snapshot",
+        "snapshotAuthority": "corpus-json-content-addressed.v1",
+        "sourceHintPath": "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "snapshotId": "closeout-02",
+        "content": {
+          "scope": "delivery and review evidence freshness",
+          "diff": "Reuse delivery evidence after storyFilesHash changes.",
+          "constraints": ["story-owned drift requires re-attestation", "textual pass claims are not freshness evidence"]
+        }
+      },
+      "tools": ["Read", "Grep"],
+      "materialDigest": "27cd99ef87da918d687bdf896b5800ab180c2cb82d003e536e28570df8587103",
+      "findingSetDigest": "cd43aec77c05fea992d6622432ecef2117671815acfff9aafd225b212e0fa4b4",
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "uncachedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "No committed provider cache-creation evidence artifact and digest are bound to this historical sample."},
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "No committed provider cache-read evidence artifact and digest are bound to this historical sample."},
+        "outputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."}
+      },
+      "oracles": [
+        {
+          "id": "F-high-related-drift-reuse",
+          "category": "adversarial",
+          "severity": "high",
+          "trigger": "Delivery or reviewer evidence is reused after storyFilesHash changes.",
+          "sourceBinding": "delivery-check",
+          "claimBinding": "related-drift-reattestation",
+          "adjudication": {"status": "oracle-only-unverified", "reason": "No independently adjudicated output artifact and digest are pinned; this row seeds a future oracle only."}
+        }
+      ]
+    }
+  ]
+}

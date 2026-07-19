@@ -17,6 +17,50 @@ B-0985 adds a shared proof-admissibility classification helper.
 It does not implement retired server Authority quorum, production gate
 consumption, ledger waterlines, or hard Proof Admissibility enforcement.
 
+## Evidence Environment boundary
+
+Story B-955c makes the heterogeneous evidence-production boundary explicit as
+the **Evidence Environment Adapter (EEA)** contract:
+
+```text
+Agent proposes
+  → Evidence Environment observes or projects an existing receipt
+  → Evidence Platform preserves the existing proof surface
+  → Proof Admissibility evaluates the declared claim/consumer
+  → lifecycle Gate decides
+```
+
+The contract is implemented in
+`packages/main/src/core/evidence/environment-contract.ts`. It owns descriptor,
+invocation, receipt normalization, identity binding, and deterministic digests.
+It does not own artifact storage, truth, Proof Admissibility policy, or lifecycle
+completion. EEA results therefore reuse existing Evidence Platform/proof-surface
+owners; no `.lattice/evidence` sibling store or adapter-owned Done state exists.
+
+Current bounded reference projections are:
+
+- code-runtime: projects existing configured DONE-required/routine-validation
+  command identity and receipts; `evaluateDoneRequiredEvidence` revalidates the
+  registered descriptor, invocation/receipt digests, freshness, and current
+  effective-environment/executable identity before the existing DONE_REQUIRED
+  consumer can advance. Direct execution requires a target executable digest;
+  shell execution requires the actual shell executable digest and may omit the
+  target digest only for a compound command with no single target executable,
+  whose full CommandSpec remains digest-bound. It does not add a command launcher;
+- Quantum: reads only receipts already accepted by the existing Quantum
+  normalizer and never runs a solver.
+
+An environment receipt may reserve only an opaque producer-attestation
+reference. B-955c does not implement the project-owned pinned-key,
+signed-session, revocation-aware registry needed to verify that reference, and
+does not expose an injectable resolver as a substitute trust root. Distinct-host
+quorum is therefore explicitly unsupported and fail-closed. Caller-written host
+labels, identity strings, booleans, or callback-returned identities cannot
+create trusted or independent evidence.
+
+Lean, Rosetta, AlphaFold, PINN solvers, browsers, databases, CI, Kubernetes, and
+production deployment are integration targets, not implemented adapters.
+
 ## Architecture Rule
 
 Evidence-looking data must go through a shared evidence service instead of each

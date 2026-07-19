@@ -1,0 +1,180 @@
+{
+  "passes": [
+    {
+      "id": "B-03ac:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Re-reviewed repair 5f7ec42a83 and the integrated Story 4 implementation. F-001 is fixed by a ReviewRun-start finding cutoff shared by assembly and gate recomputation, with post-run finding admission regression. F-002 is fixed through the real review_run_start reviewerEscalationReason schema/handler, signed run and envelope replay path. Correctness-first mode selection, model-relevant TaskContext binding, fixture closure, and the single shared REVIEW/quorum verifier remain coherent; focused smokes and process-fact verification passed.",
+      "createdAt": "2026-07-19T06:18:05.685Z",
+      "reviewRound": "2026-07-19T06:15:24.700Z",
+      "reviewRunId": "B-03ac:RR-005",
+      "writerSessionId": "sess-48ac39ea866f7469fdfd80f0ad19d79c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a955b7eb64e2e44c9dddfe2a72a4e0ff53687441e7b39b6ed87ba4974730bf12"
+    },
+    {
+      "id": "B-03ac:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Current-round quality re-review found no independent blocker beyond the separately recorded coverage finding F-013. Verified F-004/F-005/F-006 repairs by source inspection; targeted quorum smoke passed 41 checks including real committed pure-fixture incremental reachability, unbound-case full fallback, latest-invalid envelope rejection, and signed reviewer escalation; incremental-context smoke and prompt-envelope smoke passed; flow-stability covered pass supersession and resolved finding compatibility; scope acknowledgements are present and nonblocking. Root npm test progressed through the reviewed regression surfaces without failure but was intentionally stopped when the owner requested immediate DEV return after F-013.",
+      "createdAt": "2026-07-19T06:23:56.964Z",
+      "reviewRound": "2026-07-19T06:15:24.700Z",
+      "reviewRunId": "B-03ac:RR-006",
+      "writerSessionId": "sess-153f37c72c9822026cd6ee1f17ad1f49",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "afdb4580c30ffa4095e147bb1d574e0d10bf097c8b609f0bdb510faaf310105f"
+    },
+    {
+      "id": "B-03ac:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Final current-round review after b06d3dcc56 found no semantic regression. Duplicate fixture identities now fail closed in both base and current snapshots across same-field, cross _id/id/name alias, prepend/append, and ordering variants before Map/digest comparison; this only narrows incremental eligibility. The documentation-only correction accurately limits Story 4 audit fields to conditionally assembled review-run envelopes and omits absent optional fields. The full final diff retains correctness-first selection, model-relevant TaskContext binding, signed escalation, frozen finding basis, and the single shared REVIEW/quorum verifier. Focused incremental, quorum, envelope, and process-fact checks passed.",
+      "createdAt": "2026-07-19T06:39:52.202Z",
+      "reviewRound": "2026-07-19T06:38:01.826Z",
+      "reviewRunId": "B-03ac:RR-009",
+      "writerSessionId": "sess-48ac39ea866f7469fdfd80f0ad19d79c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9c9e8903f3fd0181f7ba973ffb5622550ce1632f5c324d44d876162506de6688"
+    },
+    {
+      "id": "B-03ac:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Verified F-012 repair against the strict PromptEnvelope validator and conditional assembler. Story 4 selection fields are scoped to trusted conditional review-run envelopes; SAFE_INCREMENTAL omits optional budgetViolation and escalationReason rather than writing null; legacy, story-dispatch, and first-pass safety-full semantics are accurately bounded; docs/private implementation remain full in v1; and Stories 5-7 are explicitly not claimed complete. Targeted incremental, envelope, quorum, and process-fact smokes pass.",
+      "createdAt": "2026-07-19T06:40:52.002Z",
+      "reviewRound": "2026-07-19T06:38:01.826Z",
+      "reviewRunId": "B-03ac:RR-012",
+      "writerSessionId": "sess-1e209330545542f95d80bd870d58b3ad",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-03ac/background.md",
+          ".lattice/story/actives/B-03ac/checklist.json",
+          ".lattice/story/actives/B-03ac/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "04e87a1030f87a9713e050b29e9195155922adac7c8d507084a62cfbec367510"
+    },
+    {
+      "id": "B-03ac:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round final coverage re-review found no blocker. Verified F-007 through F-011 remain covered and F-013 rejects duplicate identities in both prior/current sets across prepend, append, reorder, _id/id/name aliases, direct closure and integrated ReviewRun paths. Build, focused incremental/envelope suites, process-fact verifier, and quorum_submit smoke passed 42/42. Existing current repair evidence records final npm test exit 0; my duplicate root suite was stopped after quorum to avoid rerunning already-bound coverage.",
+      "createdAt": "2026-07-19T06:45:25.320Z",
+      "reviewRound": "2026-07-19T06:38:01.826Z",
+      "reviewRunId": "B-03ac:RR-010",
+      "writerSessionId": "sess-92a267325dd505d26a7411bd684725eb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "19dc88c169746b05a506bdfec8b19a31ea41a9c23647bd22c6b1bc7a8a380f1d"
+    },
+    {
+      "id": "B-03ac:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Final current-round quality review passed. Commit b06d3dcc56 rejects duplicate canonical fixture keys and cross _id/id/name aliases in both prior and current snapshots before Map/digest comparison; prepend, append, reordered, prior-snapshot and integrated committed variants fail closed without false incremental eligibility. Prior D/R/C, pure-fixture reachability, freshness, escalation, tamper and supersession fixes remain intact. Scope check has only the two previously acknowledged nonblocking paths. Independently ran review-incremental-context smoke PASS, quorum-submit smoke 42/42 PASS, and root npm test exit 0.",
+      "createdAt": "2026-07-19T06:46:41.406Z",
+      "reviewRound": "2026-07-19T06:38:01.826Z",
+      "reviewRunId": "B-03ac:RR-011",
+      "writerSessionId": "sess-153f37c72c9822026cd6ee1f17ad1f49",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "85b07afea47c059dcd45c02f9d4a87dae989ac1d1ab6ab4546ba4acc09a62994"
+    }
+  ]
+}

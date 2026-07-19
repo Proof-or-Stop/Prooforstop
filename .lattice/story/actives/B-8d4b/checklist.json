@@ -1,0 +1,688 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define and pin the replay experiment contract and sample corpus",
+      "context": "Version the experiment schema; pin contract/model/token estimator, seeded and adjudicated finding sets, repetitions, sample classes, reconstruction prerequisites and INCONCLUSIVE rules so later savings claims are reproducible rather than post-hoc.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-19T02:07:15.718Z",
+      "endTime": "2026-07-19T03:09:00.715Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "pinned-ab-contract-and-corpus",
+            "desc": "A versioned, canonical experiment contract pins the A/B arm definitions, exact same-input material envelope, model and controllable sampling settings, estimator and contract versions, run order, at least three repetitions per applicable cell, three required historical sample classes with at least two samples each, and a pre-adjudicated stable finding set before any result is recorded; every seeded critical/high finding pins stable ID/category/severity/trigger plus independent machine or human adjudication evidence, matching uses normalized semantic category plus source/claim binding rather than wording, all critical findings must be detected, suspected systematic high misses require rerun and independent adjudication, and natural new findings or false positives are non-self-authenticating; rerunning the same contract yields the same experiment identity and corpus digests.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "availability-aware-preregistered-boundaries",
+            "desc": "The contract explicitly distinguishes assembled prompt, known dispatch input, and provider-processed input; provider seed/tool/usage/cache dimensions that cannot be observed are recorded as unavailable with reason and never as zero, while unsupported sampling controls and partially reconstructable samples are declared before comparison rather than normalized post-hoc.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "contract-corpus-posthoc-tamper-rejected",
+            "desc": "Changing a frozen arm, sample, repetition count, model/contract/estimator version, run order, adjudicated finding, reconstruction prerequisite or INCONCLUSIVE rule changes the content-addressed experiment identity or fails validation; duplicate/unknown samples, fewer than the pinned class/repetition floor, and result-dependent contract edits cannot be accepted under the original experiment ID.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "When the user runs selfcheck, the terminal shows: \"Protocol: PASS experimentId=<digest> classes=3 samples=6 repeats>=3 seededOracles=4 signedHistoricalFindings=2 adjudicatedReplayFindings=0\".",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/corpus.json"
+        ],
+        "test": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "pinned-ab-contract-and-corpus",
+          "kind": "integration_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "a4b3a20ce602f5e4b252999fdb11830ba9c085a4",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:00.978Z"
+        },
+        {
+          "intentRef": "availability-aware-preregistered-boundaries",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "a4b3a20ce602f5e4b252999fdb11830ba9c085a4",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:01.236Z"
+        },
+        {
+          "intentRef": "contract-corpus-posthoc-tamper-rejected",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "a4b3a20ce602f5e4b252999fdb11830ba9c085a4",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:01.411Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Build a read-only historical-material replay harness",
+      "context": "Load immutable historical material without changing current Story state; replay both arms from the same pinned input and deterministically recompute prompt bytes, estimated tokens, content digests and finding comparisons.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-19T02:07:27.042Z",
+      "endTime": "2026-07-19T03:09:02.949Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "same-input-deterministic-readonly-replay",
+            "desc": "For every valid historical sample the harness reconstructs immutable material once, feeds byte-identical pinned task/material/tool/model inputs to both A and B arms except for the pre-registered prompt-contract difference, and deterministically recomputes canonical prompt bytes, estimated tokens, content digests and adjudicated finding comparisons without modifying the source material or current Story state.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "replay-order-path-and-repeat-invariance",
+            "desc": "Repeated execution, reversed pre-registered arm order, repository-relative POSIX path normalization and semantically equivalent object insertion order preserve per-cell input/prompt digests and computed measurements; meaningful byte, model, tool, contract or material changes produce different digests instead of colliding or being silently normalized.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "replay-no-caller-substitution-or-write-path",
+            "desc": "The replay entrypoint rejects caller-supplied precomputed digests, finding outcomes, production evidence paths, mutable live-Story material, path traversal/symlink escape and mixed-arm inputs; filesystem snapshots and command probes prove the read-only harness cannot write review pass, finding, ReviewRun, verification, phase or lifecycle artifacts.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "When the user runs replay, the terminal shows \"Replay: PASS sameInput=true deterministic=true\" and \"Prompt cost: INCONCLUSIVE reason=PROMPT_SNAPSHOT_UNAVAILABLE\"; no historical prompt bytes, token count, or digest is claimed when the pinned snapshot is unavailable.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs"
+        ],
+        "test": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "same-input-deterministic-readonly-replay",
+          "kind": "integration_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "01a66fca66f554c51b8de7394d7a4f1e211dcf4a",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:03.191Z"
+        },
+        {
+          "intentRef": "replay-order-path-and-repeat-invariance",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "01a66fca66f554c51b8de7394d7a4f1e211dcf4a",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:03.432Z"
+        },
+        {
+          "intentRef": "replay-no-caller-substitution-or-write-path",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "01a66fca66f554c51b8de7394d7a4f1e211dcf4a",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:03.644Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record dispatch usage and finding measurements in an isolated experiment ledger",
+      "context": "Capture assembled prompt, known dispatch input, provider-reported usage/cache availability, contract/model versions, attempts and experiment findings in append-only experiment artifacts that cannot satisfy review pass, finding, ReviewRun, verification or lifecycle gates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-19T02:07:37.953Z",
+      "endTime": "2026-07-19T03:09:05.136Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "isolated-append-only-experiment-ledger",
+            "desc": "Each experiment dispatch attempt writes an append-only, experiment-namespace record keyed by experiment/cell/ledgerCallId/attemptId and bound to exact assembled-prompt, known-dispatch, model/contract, input and finding-set digests; it records prompt bytes/estimated tokens, known dispatch counts when observable, provider-reported uncached/cache-read/cache-creation/output usage when reported, latency/attempt disposition and experiment findings without acquiring gate authority.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "usage-availability-retry-and-summary-semantics",
+            "desc": "Missing provider usage or a provider-specific missing cache dimension remains explicitly unavailable/unknown with reason, never inferred as zero; provider-reported zero is accepted only when actually reported, retries keep distinct attempt IDs, terminal summaries reconcile exactly one final disposition per attempt, and estimates are not double-counted after reported usage supersedes them.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "experiment-ledger-non-authoritative-and-private",
+            "desc": "Forged authority flags, production Story/review references, duplicate or out-of-order attempts, raw prompt/completion/transcript/tool arguments, credentials, malformed counts and digest substitution are rejected; registry/gate probes prove even a perfectly shaped experiment record cannot satisfy review pass, finding, ReviewRun, verificationEvidence, validation, TEST or DONE consumers.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The analysis shows \"Experiment ledger: PASS gateEvidence=false attempts=<n>\"; unavailable provider or cache fields show \"unavailable(<reason>)\" rather than zero.",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/runtime/.gitignore"
+        ],
+        "test": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "isolated-append-only-experiment-ledger",
+          "kind": "integration_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "1d3d59cf86614228d0866fd9de5ef8e5de51bec1",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:05.362Z"
+        },
+        {
+          "intentRef": "usage-availability-retry-and-summary-semantics",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "1d3d59cf86614228d0866fd9de5ef8e5de51bec1",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:05.541Z"
+        },
+        {
+          "intentRef": "experiment-ledger-non-authoritative-and-private",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+          "headHash": "1d3d59cf86614228d0866fd9de5ef8e5de51bec1",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:05.757Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Fail closed on unreconstructable material and prove production evidence remains unchanged",
+      "context": "Adversarial tests must cover missing/tampered/version-skewed historical inputs, partial provider usage and retry cases; return explicit INCONCLUSIVE when reconstruction or recall comparison is not valid, and prove no production pass/finding/run/lifecycle files or gate facts are written.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-19T02:07:46.020Z",
+      "endTime": "2026-07-19T03:09:07.346Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "valid-reconstruction-evaluable-with-zero-production-drift",
+            "desc": "A fully reconstructable pinned sample produces an evaluable A/B result with explicit finding-recall and usage dimensions, while before/after canonical snapshots of production pass, finding, ReviewRun, verification, validation and lifecycle evidence are byte-identical and no production process-fact event is appended.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "partial-observation-remains-honest",
+            "desc": "Valid prompt reconstruction with unavailable provider usage can still report assembled-prompt metrics while provider and cache conclusions remain unavailable; partial retry usage is attributed only to its attempt, and missing adjudication evidence, absent provider seed support, or insufficient repetitions constrains only the affected conclusion instead of becoming zero, pass, or a global success claim.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "tamper-unreconstructable-fails-inconclusive",
+            "desc": "Missing/tampered/version-skewed historical inputs, mismatched material or finding digests, cross-arm input drift, incomplete sample floors and invalid recall denominators return explicit INCONCLUSIVE with stable reason codes and no savings/recall claim; injected experiment artifacts and crashes/restarts cannot mutate or be consumed as production pass, finding, ReviewRun, verification, validation, phase-transition or DONE evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The historical result shows \"Recall: INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED\"; the separate non-historical fixture shows \"Hermetic fixture: EVALUABLE scope=hermetic-selfcheck-only historicalEvidence=false cells=2\"; the final isolation line shows \"Isolated production evidence drift: NONE\".",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "create": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "test": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "valid-reconstruction-evaluable-with-zero-production-drift",
+          "kind": "integration_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun recursively snapshots the entire isolated .lattice tree; legitimate copied entrypoints preserve it and sibling Story plus usage mutation bites both detect drift.",
+          "headHash": "9cd19e331b17c2ee0aa601a2645b431afd24d175",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:07.568Z"
+        },
+        {
+          "intentRef": "partial-observation-remains-honest",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun recursively snapshots the entire isolated .lattice tree; legitimate copied entrypoints preserve it and sibling Story plus usage mutation bites both detect drift.",
+          "headHash": "9cd19e331b17c2ee0aa601a2645b431afd24d175",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:07.758Z"
+        },
+        {
+          "intentRef": "tamper-unreconstructable-fails-inconclusive",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Owner 49-check rerun recursively snapshots the entire isolated .lattice tree; legitimate copied entrypoints preserve it and sibling Story plus usage mutation bites both detect drift.",
+          "headHash": "9cd19e331b17c2ee0aa601a2645b431afd24d175",
+          "materialHash": "f5f62f0a8ccbffe703d67e55513ce0eb59ed8a4b18225efe53d029caaa3ccc57",
+          "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+          "timestamp": "2026-07-19T03:09:07.932Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-19T02:07:15.718Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementer commits c604919579, 7ac5731ce3 and b2860c42ae are complete; owner is binding independently rerun verification evidence.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:07:27.042Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementer commits c604919579, 7ac5731ce3 and b2860c42ae are complete; owner is binding independently rerun verification evidence.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:07:37.953Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementer commits c604919579, 7ac5731ce3 and b2860c42ae are complete; owner is binding independently rerun verification evidence.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:07:46.020Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementer commits c604919579, 7ac5731ce3 and b2860c42ae are complete; owner is binding independently rerun verification evidence.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:08:44.817Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted implementer commits after independent command reruns and evidence-first hardening.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:08:52.743Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted implementer commits after independent command reruns and evidence-first hardening.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:08:57.252Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted implementer commits after independent command reruns and evidence-first hardening.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:09:01.277Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted implementer commits after independent command reruns and evidence-first hardening.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:14:03.043Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "REVIEW findings F-001 through F-010 require implementation repair and fresh evidence.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:14:05.115Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "REVIEW findings F-001 through F-010 require implementation repair and fresh evidence.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:14:07.038Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "REVIEW findings F-001 through F-010 require implementation repair and fresh evidence.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:14:08.864Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "REVIEW findings F-001 through F-010 require implementation repair and fresh evidence.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:34:59.484Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner independently reran the repaired 43-check fail-closed harness and bound fresh evidence without promoting unavailable historical metrics.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:35:08.831Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner independently reran the repaired 43-check fail-closed harness and bound fresh evidence without promoting unavailable historical metrics.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:35:17.658Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner independently reran the repaired 43-check fail-closed harness and bound fresh evidence without promoting unavailable historical metrics.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:35:25.986Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner independently reran the repaired 43-check fail-closed harness and bound fresh evidence without promoting unavailable historical metrics.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:44:45.253Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Second-round docs findings F-011/F-012 require protocol and signed-field boundary correction.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:44:48.089Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Second-round coverage finding F-016 requires exact unique A/B hermetic arm/output validation.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:44:50.998Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Second-round quality findings F-013/F-015 require crash-safe stale-lock recovery and parent-path confinement.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:44:54.005Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Second-round quality finding F-014 requires production no-drift verification that is stable under legitimate concurrent Story metadata writes.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:53:17.142Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted implementer commit 1623374107 after independent 47-check, replay-order and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:53:19.762Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted implementer commit 1623374107 after independent 47-check, replay-order and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:53:22.286Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted implementer commit 1623374107 after independent 47-check, replay-order and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:53:25.226Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted implementer commit 1623374107 after independent 47-check, replay-order and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:57:20.940Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-017 requires canonical decision wording to match the isolated production-evidence no-drift proof.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:57:24.059Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-020/F-021 require cross-field prompt metric binding and correct empty-ledger availability semantics.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:57:28.204Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-018/F-019 require non-vacuous isolated production evidence/process-event no-write proof.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T03:03:52.707Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted f8c1b2c73a after independent 49-check isolated-evidence, ledger analysis and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T03:03:58.749Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted f8c1b2c73a after independent 49-check isolated-evidence, ledger analysis and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T03:04:01.553Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted f8c1b2c73a after independent 49-check isolated-evidence, ledger analysis and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T03:06:25.509Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fourth-round F-022/F-023/F-024/F-025 require recursive snapshot of the entire isolated .lattice evidence root, not only the sentinel Story subtree.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T03:09:07.346Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted a4b3a20ce6 after independent full-tree isolated evidence and scope verification.",
+      "agent": "main"
+    }
+  ]
+}

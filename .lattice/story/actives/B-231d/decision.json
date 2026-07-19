@@ -1,0 +1,56 @@
+{
+  "principles": [
+    "Derive shared identity from a canonical root, never a per-worktree root",
+    "Digest logical (repo-relative) inputs, keep physical paths as non-digested provenance",
+    "Version envelopes and migrate rather than hard-fail legacy evidence"
+  ],
+  "drivers": [
+    "Cross-host/worktree serialization must be real",
+    "Portable receipts must not false-mismatch",
+    "Fail-closed for genuinely different commands preserved"
+  ],
+  "options": [
+    {
+      "name": "git-common-dir",
+      "pros": [
+        "single source of truth for linked worktrees",
+        "native git semantics"
+      ],
+      "cons": [
+        "requires a git call; needs a non-git fallback"
+      ]
+    },
+    {
+      "name": "metadata-root",
+      "pros": [
+        "already resolved in code paths"
+      ],
+      "cons": [
+        "ambiguous under wrapper-root layouts"
+      ]
+    }
+  ],
+  "chosen": "git-common-dir",
+  "rationale": "git --git-common-dir is the canonical shared root for all linked worktrees of one repo; fall back to projectRoot when not a git repo, preserving plain-repo behavior byte-identically.",
+  "preMortem": [
+    {
+      "scenario": "non-git project",
+      "trigger": "git rev-parse fails",
+      "consequence": "lock root unresolved",
+      "mitigation": "fall back to projectRoot (current behavior) when git-common-dir is unavailable"
+    },
+    {
+      "scenario": "legacy receipts break",
+      "trigger": "digest shape change rejects old receipts",
+      "consequence": "DONE blocked on prior stories",
+      "mitigation": "versioned envelope accepts old-shape receipts during migration"
+    },
+    {
+      "scenario": "genuinely different commands collide",
+      "trigger": "over-normalization of cwd",
+      "consequence": "false digest match hides a real change",
+      "mitigation": "only cwd is made relative; command/args/env/shell stay verbatim in the digest"
+    }
+  ],
+  "timestamp": "2026-07-18T22:56:53.986Z"
+}

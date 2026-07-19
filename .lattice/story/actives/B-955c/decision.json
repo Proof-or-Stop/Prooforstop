@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Agent proposes, Environment observes, Proof Admissibility evaluates, and Gate decides.",
+    "Identity binding and authority separation take priority over adapter count.",
+    "The abstraction must reuse the single Evidence Platform and existing Gate ownership."
+  ],
+  "drivers": [
+    "The paper needs a host-neutral, cross-domain abstraction backed by implementation evidence.",
+    "The existing Pack and Proof Admissibility framework provides a reusable foundation.",
+    "Arbitrary command execution and forged producer identity are the highest risks."
+  ],
+  "options": [
+    {
+      "name": "A: Core EEA contract, two orthogonal reference paths, and Proof Admissibility integration",
+      "pros": [
+        "Provides the smallest evidence-backed M0-M5 loop.",
+        "Reuses the existing registry and lifecycle consumer.",
+        "Keeps paper claims calibrated to implementation."
+      ],
+      "cons": [
+        "Coordinates Pack, proof-surface, process-fact, and validation contracts.",
+        "Touches several security-sensitive files."
+      ]
+    },
+    {
+      "name": "B: TypeScript adapter interface and documentation only",
+      "pros": [
+        "Small implementation.",
+        "Low immediate change cost."
+      ],
+      "cons": [
+        "Would be only a conventional Adapter Pattern.",
+        "Would lack lifecycle Gate consumption evidence."
+      ]
+    },
+    {
+      "name": "C: Implement several domain adapters now",
+      "pros": [
+        "Broader demonstration set."
+      ],
+      "cons": [
+        "Exceeds scope and creates unverified domain-correctness claims.",
+        "Carries unacceptable security and maintenance cost."
+      ]
+    }
+  ],
+  "chosen": "A: Core EEA contract, two orthogonal reference paths, and Proof Admissibility integration",
+  "rationale": "Option A is the only minimum loop that combines identity binding, authority separation, host-substitution semantics, and real Gate consumption. Option B cannot support the paper contribution, while option C exceeds the authorized scope.",
+  "preMortem": [
+    {
+      "scenario": "The adapter becomes an arbitrary command endpoint.",
+      "trigger": "A Pack command specification executes directly or shell input bypasses the configured allowlist.",
+      "consequence": "Repository declarations obtain remote-code-execution capability.",
+      "mitigation": "Keep Pack command declarations inert, accept only receipts from the policy-authorized executor, and reject command data in receipt-only adapters."
+    },
+    {
+      "scenario": "A host label is forged into an independent quorum.",
+      "trigger": "The Gate treats caller-provided host or provider metadata as producer attestation.",
+      "consequence": "One agent self-certifies as multiple independent hosts.",
+      "mitigation": "Exclude provider brand from equivalence semantics and keep distinct-host quorum unsupported until a pinned cryptographic producer registry exists."
+    },
+    {
+      "scenario": "EEA bypasses the Evidence Platform and advances lifecycle state.",
+      "trigger": "An adapter API exposes lifecycle mutation or a completion flag is consumed as authority.",
+      "consequence": "Proof-or-Stop authority separation fails.",
+      "mitigation": "Expose no lifecycle mutation API, reject completion fields, and let only Proof Admissibility plus existing Gates decide progression."
+    },
+    {
+      "scenario": "The paper presents target adapters as current support.",
+      "trigger": "Examples and the implementation support matrix are not separated.",
+      "consequence": "The paper overclaims capability that cannot be reproduced.",
+      "mitigation": "Maintain explicit current-versus-target support and bind every current claim to tests and Gate evidence."
+    }
+  ],
+  "timestamp": "2026-07-19T02:02:30.344Z"
+}

@@ -3,17 +3,71 @@
  * Each story gets a process-events.jsonl file for telemetry events.
  */
 
-import { existsSync, readFileSync, appendFileSync, mkdirSync } from 'fs';
+import { existsSync, readFileSync, appendFileSync, mkdirSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import type { ProcessEvent } from './types.js';
+import { withMkdirLock } from './mkdir-lock.js';
 
 const FILENAME = 'process-events.jsonl';
 
-export function appendProcessEvent(storyDir: string, event: Omit<ProcessEvent, 'timestamp'>): void {
+export interface ProcessEventAppendIdentity {
+  filePath: string;
+  start: number;
+  end: number;
+  eventBytes: Buffer;
+}
+
+export function appendRawProcessEventBytes(
+  storyDir: string,
+  bytes: Buffer | string,
+  // B-d877 R3 FIX B / R4 (codex #3): the RELOCATED append lock dir is now
+  // MANDATORY. It must resolve under the gitignored shared
+  // `.lattice/locks/process-events/` prefix (via StoryStore.runtimeLockDirPath /
+  // storyRuntimeLockPath) so a transient holder.json can NEVER be created inside
+  // the git-tracked story dir and dirty the tree. Making it a required parameter
+  // — with NO in-story-dir fallback default — means the compiler forces every
+  // append site to pass a relocated lock, so no future caller can silently
+  // regress to an in-story `<storyDir>/.process-events-append.lock`.
+  lockDir: string,
+): ProcessEventAppendIdentity {
+  const eventBytes = Buffer.isBuffer(bytes) ? Buffer.from(bytes) : Buffer.from(bytes);
+  if (eventBytes.length === 0 || eventBytes[eventBytes.length - 1] !== 0x0a) {
+    throw new Error('process-event append requires non-empty newline-terminated JSONL bytes');
+  }
   const filePath = join(storyDir, FILENAME);
   mkdirSync(dirname(filePath), { recursive: true });
-  const full = { ...event, timestamp: new Date().toISOString() } as ProcessEvent;
-  appendFileSync(filePath, JSON.stringify(full) + '\n', 'utf-8');
+  return withMkdirLock(lockDir, () => {
+    const start = existsSync(filePath) ? statSync(filePath).size : 0;
+    appendFileSync(filePath, eventBytes);
+    return {
+      filePath,
+      start,
+      end: start + eventBytes.length,
+      eventBytes,
+    };
+  }, { label: 'process-events append' });
+}
+
+export function appendProcessEventRecord(
+  storyDir: string,
+  event: Record<string, unknown>,
+  // B-d877 R4 (codex #3): mandatory relocated lock dir, threaded to the append
+  // path so this wrapper cannot regress to an in-story lock either.
+  lockDir: string,
+): ProcessEventAppendIdentity {
+  const full = typeof event.timestamp === 'string'
+    ? event
+    : { ...event, timestamp: new Date().toISOString() };
+  return appendRawProcessEventBytes(storyDir, `${JSON.stringify(full)}\n`, lockDir);
+}
+
+export function appendProcessEvent(
+  storyDir: string,
+  event: Omit<ProcessEvent, 'timestamp'>,
+  // B-d877 R4 (codex #3): mandatory relocated lock dir (see appendRawProcessEventBytes).
+  lockDir: string,
+): ProcessEventAppendIdentity {
+  return appendProcessEventRecord(storyDir, event as Record<string, unknown>, lockDir);
 }
 
 export function readProcessEvents(storyDir: string): ProcessEvent[] {

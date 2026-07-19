@@ -80,7 +80,10 @@ const KNOWN_FINDING_CATEGORIES = new Set<string>([
 ]);
 
 function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
-  const lockDir = ctx.store.storyFilePath(storyId, 'review-passes.lock');
+  // B-d877 R3 FIX B: relocate out of the git-tracked story dir to the gitignored
+  // shared `.lattice/locks/finding/<id>-review-passes.lock` — the exact lock whose
+  // committed-then-deleted holder.json failed quorum-submit-smoke's clean-tree gate.
+  const lockDir = ctx.store.runtimeLockDirPath(storyId, 'finding', 'review-passes');
   return withMkdirLock(lockDir, fn, { label: 'review-passes metadata' });
 }
 
@@ -351,7 +354,7 @@ function recordReviewPass(
 ): string {
   return withReviewPassLock(ctx, storyId, () => {
     const story = ctx.store.readStory(storyId);
-    assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, agent, reviewRunId);
+    const reviewRun = assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, agent, reviewRunId);
     const data = ctx.store.readReviewPasses(storyId);
     const nextNum = data.passes.reduce((max, pass) => {
       const m = pass.id.match(/:RP-(\d+)$/);
@@ -396,6 +399,7 @@ function recordReviewPass(
       createdAt,
       reviewRound,
       reviewRunId,
+      ...(reviewRun.envelopeId ? { envelopeId: reviewRun.envelopeId } : {}),
       writerSessionId: provenance.writerSessionId,
       sessionSource: provenance.sessionSource,
       ...(provenance.provenanceFlag ? { provenanceFlag: provenance.provenanceFlag } : {}),
@@ -420,6 +424,7 @@ function recordReviewPass(
           // adding/stripping/flipping it post-write breaks verification.
           provenanceFlag: provenance.provenanceFlag,
         },
+        reviewRun.envelopeId,
       ),
     };
     data.passes.push(pass);
@@ -431,6 +436,7 @@ function recordReviewPass(
       || persistedPass._hash !== pass._hash
       || persistedPass.agent !== agent
       || persistedPass.reviewRunId !== reviewRunId
+      || persistedPass.envelopeId !== reviewRun.envelopeId
       || persistedPass.writerSessionId !== provenance.writerSessionId
       || persistedPass.sessionSource !== provenance.sessionSource
       || persistedPass.provenanceFlag !== provenance.provenanceFlag

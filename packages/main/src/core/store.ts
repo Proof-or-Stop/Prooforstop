@@ -19,9 +19,11 @@ import type { ClusterData } from './cluster-types.js';
 import type { MilestoneCloseoutSnapshot } from './milestone-status.js';
 import type { CandidateSpecSetArtifact } from './candidate-spec-routing.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
+import { storyRuntimeLockPath } from './validation-execution-lock.js';
 import { loadConfig } from './config.js';
 import { LEGACY_DOCS_STORY_DIR, uniqueRelPaths } from './lattice-paths.js';
 import { normalizeLegacyPhase, phaseRank } from './phase-flow.js';
+import type { PromptEnvelopeData } from './prompt-contracts.js';
 
 type JsonCandidate<T> = {
   filePath: string;
@@ -41,9 +43,11 @@ export class StoryStore {
   private baseDir: string;
   private legacyBaseDirs: string[];
   private storyDirRelValue: string;
+  private projectRootValue: string;
 
   constructor(projectRoot: string) {
     const config = loadConfig(projectRoot);
+    this.projectRootValue = projectRoot;
     this.storyDirRelValue = config.storyDir.replace(/\\/g, '/');
     this.baseDir = join(projectRoot, config.storyDir);
     this.legacyBaseDirs = uniqueRelPaths([
@@ -51,6 +55,22 @@ export class StoryStore {
     ])
       .filter((rel) => rel !== this.storyDirRelValue)
       .map((rel) => join(projectRoot, rel));
+  }
+
+  /** Repository root this store was constructed against (absolute path). */
+  get projectRoot(): string {
+    return this.projectRootValue;
+  }
+
+  /**
+   * B-d877 R3 FIX B: resolve a per-story RUNTIME lock dir under the gitignored,
+   * shared `.lattice/locks/<category>/` prefix instead of inside the git-tracked
+   * story metadata dir. Used by the checklist / finding / review-run / init-check
+   * / prompt-envelope / process-event append locks so a transient `holder.json`
+   * can never be committed inside the story dir and dirty the tree.
+   */
+  runtimeLockDirPath(storyId: string, category: string, name: string): string {
+    return storyRuntimeLockPath(this.projectRootValue, category, storyId, name);
   }
 
   storyDirRel(): string {
@@ -420,6 +440,18 @@ export class StoryStore {
 
   writeReviewRuns(storyId: string, data: ReviewRunData): void {
     this.writeJson(storyId, 'review-runs.json', data);
+  }
+
+  readPromptEnvelopes(storyId: string): PromptEnvelopeData {
+    try {
+      return this.readJson<PromptEnvelopeData>(storyId, 'prompt-envelopes.json');
+    } catch {
+      return { envelopes: [] };
+    }
+  }
+
+  writePromptEnvelopes(storyId: string, data: PromptEnvelopeData): void {
+    this.writeJson(storyId, 'prompt-envelopes.json', data);
   }
 
   // ── Clusters (B-e8c8 / B-9d95 CHK-005: finding clustering) ──
@@ -900,9 +932,12 @@ export class StoryStore {
 
   // ── Process Events (B-aa48: Phase 3 append-only event log) ──
 
-  appendProcessEvent(storyId: string, event: Omit<ProcessEvent, 'timestamp'>): void {
+  appendProcessEvent(storyId: string, event: Omit<ProcessEvent, 'timestamp'>) {
     const dir = this.storyDir(storyId);
-    appendProcessEventFn(dir, event);
+    // B-d877 R3 FIX B: serialize the append on a RELOCATED lock under the
+    // gitignored shared `.lattice/locks/process-events/` prefix (not inside the
+    // git-tracked story dir) so a transient holder.json can never be committed.
+    return appendProcessEventFn(dir, event, this.runtimeLockDirPath(storyId, 'process-events', 'process-events-append'));
   }
 
   readProcessEvents(storyId: string): ProcessEvent[] {

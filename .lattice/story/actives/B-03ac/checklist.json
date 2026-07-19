@@ -1,0 +1,944 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define versioned impact classification and fail-closed eligibility",
+      "context": "Compute stable reason codes from signed prior-pass bindings, semantic and render digests, freshness-reader output, scope and policy state, rename-aware changed files, and supported bounded categories. Unknown, public-contract, authority, policy, dynamic-reference, or parse-failure cases select full.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-19T04:51:02.614Z",
+      "endTime": "2026-07-19T06:31:33.859Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "eligibility-trusted-bounded-incremental",
+            "desc": "A current signed prior pass for the same reviewer lane with complete material, storyFiles, scope, policy, Runtime, Role, environment, assembler, launcher, and command bindings plus a trusted allowed freshness class and complete impact closure is mechanically classified incremental with a deterministic digest and stable reason codes.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "eligibility-supported-fixture-closure",
+            "desc": "A pure test-fixture delta selects incremental only when every changed path has an explicit checklist files.test declaration and every changed case has a current Story-scoped intentRef; output records exact changed and impacted file digests.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "eligibility-freshness-reader-binding",
+            "desc": "Metadata-only HEAD drift selects incremental only when the canonical freshness reader classifies it as an explicitly allowed known class; eligibility does not reinterpret raw hashes.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "eligibility-forced-full-contract-policy",
+            "desc": "Public API, schema, protocol, authority, permission, command policy, gate semantics, dependency, build entry, docs-only, private implementation, review policy, required-lane, scope, Runtime, Role, or agent-facing render changes select full with stable reason codes in v1.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "eligibility-unknown-fails-closed",
+            "desc": "Missing or stale prior-pass data, wrong-lane pass, incomplete bindings, changed-files failure, dynamic reference, unknown language, parse failure, untrusted lineage, unknown environment or tool state, or unproven impact closure selects full.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "eligibility-rename-crossfile-closure",
+            "desc": "A rename, deletion, cross-file change, or fixture change without complete declared intent closure falls back to full; no unsupported category is inferred incremental.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "eligibility-caller-cannot-force-incremental",
+            "desc": "Caller-supplied contextMode, forceIncremental, fabricated reason codes, reviewer notes, or main-agent arguments cannot override the mechanical result; identical authoritative inputs yield identical output.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "eligibility-raw-hash-forgery-rejected",
+            "desc": "Crafted raw hashes cannot impersonate metadata-only drift, and empty or no-signal storyFilesHash cannot qualify stale material for incremental review.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "impact-policy-registry-single-source",
+            "desc": "Policy rules are consumed from one registered versioned contract and verifier; tests fail for unregistered heuristics or a policy-version change that leaves the eligibility digest unchanged.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Terminal output includes quoted fields contextMode=incremental or contextMode=full, impactPolicyVersion, freshnessClassification, and eligibilityReasonCodes; unknown inputs show contextMode=full.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/review-incremental-context.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/impact-classification-policy.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "eligibility-trusted-bounded-incremental",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Policy smoke proves only trusted eligibility paths are accepted and legacy unsigned runs fail closed.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "eligibility-supported-fixture-closure",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Pure fixture classification requires files.test declaration plus a nonempty Story intentRef binding.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "eligibility-freshness-reader-binding",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "CLI-shaped smoke transcript shows canonical metadata-only and related-story freshness classes, with no raw-hash reinterpretation.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "eligibility-forced-full-contract-policy",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Table-driven forced-full cases cover docs, public contract, authority, command/gate, dependency/build and private implementation.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "eligibility-unknown-fails-closed",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Unknown paths and untrusted legacy PASS/ReviewRun input select full with stable codes.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "eligibility-rename-crossfile-closure",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Rename-aware old/new paths are retained and R status selects FULL_UNSUPPORTED_RENAME.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "eligibility-caller-cannot-force-incremental",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Executable advisory path exposes no caller force/contextMode input and deterministically emits authoritative full fallback for untrusted evidence.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "eligibility-raw-hash-forgery-rejected",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Canonical freshness reader, signed run verification, envelope integrity and no-signal handling precede eligibility.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "impact-policy-registry-single-source",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact verifier proves the versioned impact/freshness eligibility fact is registered as one L4 gate contract.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Assemble bounded reviewBasis and choose the safe context mode",
+      "context": "Construct the incremental delta from current authoritative references, impacted verification intent, findings, invariants, and affected contracts; compare final sizes only after safety eligibility and choose full with FULL_CHEAPER_OR_EQUAL when incremental is not cheaper.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-19T04:55:54.768Z",
+      "endTime": "2026-07-19T06:14:00.949Z",
+      "userSees": "Terminal output includes reviewBasis, changedFiles, impactedFiles, and either selectionReason=SAFE_INCREMENTAL or selectionReason=FULL_CHEAPER_OR_EQUAL after safety eligibility.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "review-basis-bounded-current-complete",
+            "desc": "Eligible incremental context contains compact Runtime and complete Role contracts, prior pass and hash bindings, changed and impacted files, finding deltas, scope acknowledgement, impacted intents, re-review reason, current claims, invariants, unresolved findings, affected contracts, and authoritative references.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "context-mode-safe-then-cheapest",
+            "desc": "Safety eligibility is decided before cost comparison; when both modes are safe and final incremental is smaller than full, incremental is selected and both measured sizes and digests are auditable.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "review-basis-authoritative-read-through",
+            "desc": "Incremental assembly preserves repository-relative current authoritative references and the reviewer contract permits reading them on demand rather than treating omitted injection as a prohibition.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "full-cheaper-or-equal-selected",
+            "desc": "When final incremental size is equal to or larger than final full size, full is selected with FULL_CHEAPER_OR_EQUAL without rewriting the prior safety decision.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "review-basis-change-deltas-exact",
+            "desc": "Added, resolved, and dismissed findings plus impacted intents retain stable identities and current states; unrelated material is omitted only when closure proves it outside the basis.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "reviewer-basis-incomplete-escalates",
+            "desc": "A reasoned reviewer request for missing or non-closed context produces a full-context run rather than silently expanding an incremental payload under the same identity.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "review-basis-stale-substitution-rejected",
+            "desc": "Stale prior prose, historical contracts, caller-authored file lists, or references outside the trusted current workspace cannot replace authoritative sources or produce a valid reviewBasis digest.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "review-basis-omission-fails-closed",
+            "desc": "Omitting an affected contract, open finding, impacted intent, invariant dependency, or changed fixture makes completeness unverifiable and selects full.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "cost-never-overrides-safety",
+            "desc": "A tiny attacker-crafted incremental payload cannot win when eligibility requires full, and an oversized full payload cannot cause incremental fallback to evade correctness.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "review-basis-bounded-current-complete",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Final-HEAD integration smoke passed and exercises bounded reviewBasis assembly together with conditional Prompt Envelope selection.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "context-mode-safe-then-cheapest",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Conditional assembly proves safety precedes final byte comparison and SAFE_INCREMENTAL only wins when smaller.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "review-basis-authoritative-read-through",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Executable prompt smoke preserves repository-relative authoritativeReferences inside the bound basis.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "full-cheaper-or-equal-selected",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Oversized bounded basis selects full with exact FULL_CHEAPER_OR_EQUAL reason after safety succeeds.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "review-basis-change-deltas-exact",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Versioned basis validator retains stable finding and intent identity/state fields.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.820Z"
+        },
+        {
+          "intentRef": "reviewer-basis-incomplete-escalates",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Reviewer escalation case mints full mode with REVIEWER_REQUESTED_FULL and a recorded reason.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "review-basis-stale-substitution-rejected",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Basis is constructed from trusted current store/git facts and exact schema rejects caller-authored unknown fields.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "review-basis-omission-fails-closed",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Missing basis on otherwise eligible conditional assembly selects SAFETY_REQUIRES_FULL.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "cost-never-overrides-safety",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Public-contract forced full remains full even under budget pressure; full budget violation cannot select incremental.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Final-HEAD integration smoke passed and exercises bounded reviewBasis assembly together with conditional Prompt Envelope selection.",
+          "headHash": "f8cbeb9770d1deff598ff8013927b93f5a301720",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:28:03.633Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Bind incremental envelopes to ReviewRun and pass gates",
+      "context": "Persist auditable context-mode fields and require a valid current envelope binding so an incorrectly served incremental context cannot produce an admissible pass, receipt, or quorum contribution. Callers cannot override the mechanical decision.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/decisions/review-run-binding-race.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-19T05:00:20.689Z",
+      "endTime": "2026-07-19T06:31:35.077Z",
+      "userSees": "A valid run prints Prompt Envelope <id> bound to ReviewRun <id>; a mismatch prints an explicit incremental envelope binding rejection and awards no REVIEW or quorum credit.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "incremental-envelope-reviewrun-binding",
+            "desc": "A trusted incremental Prompt Envelope records all context, prior-pass, contract, environment, policy, eligibility, freshness, file, reviewBasis, escalation, and digest fields and binds them to exact Story, HEAD, round, lane, and signed ReviewRun.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "incremental-pass-chain-admissible",
+            "desc": "A pass from a valid current incremental envelope is accepted only after shared binding and digest re-verification; REVIEW, receipt, readiness, and quorum consume that same admissibility result.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "full-escalation-mints-new-binding",
+            "desc": "Mechanical or reviewer-requested escalation records its reason and binds the full envelope to the run so the obsolete incremental envelope cannot authorize the final pass.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "legacy-pass-full-context-only",
+            "desc": "A pre-migration pass without Prompt Envelope fields remains legacy-full-context in its original round and cannot become an incremental prior pass through default values.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "nonlatest-pass-material-scope-rules-preserved",
+            "desc": "Existing kind-aware material and scope freshness semantics remain intact; older open findings stay visible and empty storyFilesHash supplies no advisory signal.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "incremental-envelope-required-fields-total",
+            "desc": "Missing, unknown-version, malformed, or inconsistent incremental fields are rejected at envelope verification and cannot be repaired downstream.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "incremental-envelope-tamper-chain-rejected",
+            "desc": "Single-field tampering across envelope, prior pass, Story, HEAD, lane, round, run, material, storyFiles, scope, policy, freshness, contracts, files, basis, or context digests invalidates the pass and downstream credit.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "served-wrong-mode-proof-invalid",
+            "desc": "If incremental context was served when authoritative eligibility required full, a syntactically valid reviewer response cannot mint an admissible pass, receipt, host verdict, or quorum contribution.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "untrusted-caller-envelope-authority-blocked",
+            "desc": "Main, implementer, compatibility aliases, request payloads, cached sidecars, or caller objects cannot supply authoritative envelope fields, override mode, or bypass trusted assembly.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "incremental-envelope-reviewrun-binding",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Final-HEAD 39-check integration smoke passed and exercises ReviewRun-bound incremental envelopes through shared pass and quorum admissibility.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "incremental-pass-chain-admissible",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "39-check executable quorum transcript proves REVIEW and quorum consume shared envelope admissibility, including incremental runs.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "full-escalation-mints-new-binding",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Reviewer-requested and mechanical escalation produce full envelopes with new bound identity and explicit reason.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "legacy-pass-full-context-only",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Unsigned or envelope-less legacy pass/run input cannot establish an incremental baseline and selects full.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "nonlatest-pass-material-scope-rules-preserved",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Stale older pass-envelope issues are superseded only when the same lane has newer valid evidence; stale material and findings remain enforced.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "incremental-envelope-required-fields-total",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Exact PromptEnvelope schema requires total incremental policy, freshness, files, basis, task-semantic and selection fields.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "incremental-envelope-tamper-chain-rejected",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Replay/tamper tests prove mutated envelopes invalidate machine REVIEW and quorum through the shared verifier.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "served-wrong-mode-proof-invalid",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Gate recomputes authoritative eligibility and rejects incremental mode whenever recomputation requires full; no pass/quorum credit survives.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "untrusted-caller-envelope-authority-blocked",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Strict schema and trusted review_run_start assembly reject caller-controlled unknown envelope fields and cross-role substitution.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Final-HEAD 39-check integration smoke passed and exercises ReviewRun-bound incremental envelopes through shared pass and quorum admissibility.",
+          "headHash": "f8cbeb9770d1deff598ff8013927b93f5a301720",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:28:03.633Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prove read-only compatibility, escalation safety, and budget behavior",
+      "context": "Keep review_incremental_context itself advisory and gate-neutral; cover supported bounded changes, forced-full classes, stale and untrusted evidence, reviewer full-context requests, FULL_CHEAPER_OR_EQUAL, and budget violations separated from correctness decisions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-19T05:19:24.807Z",
+      "endTime": "2026-07-19T06:14:02.879Z",
+      "userSees": "Repeated review_incremental_context output is deterministic and read-only; full escalation prints escalationReason, and an oversized correctness-required full prompt prints budgetViolation without changing contextMode=full.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-incremental-context.ts",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "incremental-context-readonly-gate-neutral",
+            "desc": "Calling review_incremental_context changes no files, process events, Story metadata, review evidence, phases, guards, receipts, floor, quorum, or DONE outcome; it remains advisory until trusted assembly consumes the result.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "reviewer-authoritative-read-and-escalate",
+            "desc": "An incremental reviewer can read referenced current authoritative material and request full context with a recorded reason without accepting an incomplete basis.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "budget-observation-separated-from-correctness",
+            "desc": "Measurement records incremental and full sizes plus budget status while eligibility and escalation remain correctness decisions and violations stay separately auditable.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "oversize-incremental-forces-full",
+            "desc": "An incremental context exceeding its budget escalates to full without truncating required evidence or authorizing an incremental pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "oversize-full-remains-correctness-path",
+            "desc": "When safety requires full but full exceeds ordinary budget, correct full context remains available, the violation is recorded, and baseline or enforce convergence is blocked without incremental fallback.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "full-cheaper-readonly-regression",
+            "desc": "When incremental is equal or larger, full is selected with FULL_CHEAPER_OR_EQUAL and repeated advisory calls remain deterministic and gate-neutral.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "budget-gaming-cannot-change-mode",
+            "desc": "Manipulated estimator metadata, caller sizes, omitted sections, compression claims, or budget values cannot override safety, erase a violation, or convert required full into incremental.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "readonly-command-cannot-smuggle-evidence",
+            "desc": "Arguments cannot write passes, findings, scope acknowledgements, envelopes, receipts, host verdicts, quorum, or transitions; repeated and concurrent calls do not alter gates.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "unsupported-paths-and-stale-evidence-full",
+            "desc": "A campaign proves stale or untrusted evidence, public contracts, docs, private implementation, policy, authority, command, dynamic, parse-failure, and unknown-impact cases always select full while only proven bounded cases select incremental.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "incremental-context-readonly-gate-neutral",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Repeated 8x per-lane advisory calls are deterministic and preserve byte-identical Story/gate inputs and outcomes.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "reviewer-authoritative-read-and-escalate",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Bound basis carries repository-relative authoritative references and reasoned reviewer escalation mints full.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "budget-observation-separated-from-correctness",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Measured full/incremental bytes and budgetViolation fields are independent of safety eligibility.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "oversize-incremental-forces-full",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "One-byte incremental budget selects full with INCREMENTAL_BUDGET_EXCEEDED and no truncation.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "oversize-full-remains-correctness-path",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Forced-full public-contract case stays full with budgetViolation=full under one-byte full budget.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "full-cheaper-readonly-regression",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Oversized eligible basis selects FULL_CHEAPER_OR_EQUAL; advisory smoke separately proves repeated calls are gate-neutral.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "budget-gaming-cannot-change-mode",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Budgets can only escalate incremental or record full violation; they never convert safety-required full into incremental.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "readonly-command-cannot-smuggle-evidence",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Read-only API has no evidence-write arguments and store/gate snapshots remain identical across repeated calls.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        },
+        {
+          "intentRef": "unsupported-paths-and-stale-evidence-full",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Executable campaign covers untrusted legacy, rename, docs, implementation, contract, authority, policy, dependency and unknown forced-full classes.",
+          "headHash": "020877a2c573fbc882dbd6ba5fd1d9460324ea35",
+          "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+          "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+          "timestamp": "2026-07-19T06:31:55.821Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-19T05:36:09.925Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Repair persisted REVIEW findings F-005/F-006/F-007/F-010",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T05:36:11.042Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Repair persisted REVIEW findings F-001/F-002/F-004/F-008",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T05:36:12.109Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Repair persisted REVIEW findings F-001/F-009",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T05:36:13.181Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Repair persisted REVIEW findings F-003/F-010/F-011",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T06:13:59.741Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-005/F-006/F-007/F-010 repaired; build, focused suites, quorum 41/41 and final npm test pass.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T06:14:00.949Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001/F-002/F-004/F-008 repaired; snapshot and production escalation integration pass.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T06:14:01.934Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-001/F-009 repaired; incremental tamper/wrong-mode collector and quorum chain pass.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T06:14:02.879Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-003/F-010/F-011 repaired; formal docs, forced-full matrix and concurrent built-CLI read-only proof pass.",
+      "agent": "lattice-implementer"
+    }
+  ]
+}

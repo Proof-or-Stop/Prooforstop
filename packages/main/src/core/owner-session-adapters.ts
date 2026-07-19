@@ -54,16 +54,26 @@ function trimToNull(value: string | undefined): string | null {
 function normalizeProvider(value: string | undefined): OwnerSessionHostProvider | null {
   const normalized = trimToNull(value)?.toLowerCase();
   if (!normalized) return null;
-  if (normalized === 'claude' || normalized === 'claude-code' || normalized === 'claude_code') return 'claude-code';
-  if (normalized === 'codex') return 'codex';
+  if (
+    normalized === 'claude'
+    || normalized === 'claude-code'
+    || normalized === 'claude_code'
+    || normalized === 'claude-cli'
+    || normalized === 'claude_cli'
+  ) return 'claude-code';
+  if (normalized === 'codex' || normalized === 'codex-cli' || normalized === 'codex_cli') return 'codex';
   if (normalized === 'antigravity' || normalized === 'agy') return 'antigravity';
   if (normalized === 'fake') return 'fake';
+  if (normalized === 'unknown') return 'unknown';
   return null;
 }
 
 function detectProvider(env: OwnerSessionEnv): OwnerSessionHostProvider | null {
-  return normalizeProvider(env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER)
-    ?? normalizeProvider(env.LATTICE_ACTIVITY_SOURCE)
+  const explicitProvider = trimToNull(env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER);
+  if (explicitProvider !== null) {
+    return normalizeProvider(explicitProvider) ?? 'unknown';
+  }
+  return normalizeProvider(env.LATTICE_ACTIVITY_SOURCE)
     ?? (trimToNull(env.CLAUDE_CODE_SESSION_ID) || trimToNull(env.CLAUDE_SESSION_ID) ? 'claude-code' : null)
     ?? (trimToNull(env.CODEX_THREAD_ID) || trimToNull(env.CODEX_SESSION_ID) || trimToNull(env.OPENAI_SESSION_ID) ? 'codex' : null)
     ?? (trimToNull(env.ANTIGRAVITY_SESSION_ID) || trimToNull(env.AGY_SESSION_ID) ? 'antigravity' : null);

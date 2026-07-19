@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-6ed2",
+  "sourceText": "Continue development and remove the repeated wall-clock waste observed after B-8195, where quorum_submit left host-verdict metadata dirty and caused a later long validation to be rejected.",
+  "normalizedOutcome": "A clean quorum_submit invocation leaves a clean repository with all six verdicts durably committed; any persistence failure leaves zero new verdicts and preserves HEAD and user bytes.",
+  "acceptanceClaim": "On the real local CLI, quorum_submit either commits exactly the complete six-row current-round quorum and leaves git clean, or fails with complete rollback and no gate-countable partial quorum.",
+  "keyRequirementIds": [
+    "REQ-NO-REDUNDANT-VALIDATE",
+    "REQ-QUORUM-ATOMIC",
+    "REQ-QUORUM-ROLLBACK"
+  ],
+  "requestHash": "sha256:f57089637047a704c42f1fa1f4afce0c641c5e2c095ed5b79dd6968585f59f72",
+  "createdAt": "2026-07-18T22:21:32.556Z",
+  "updatedAt": "2026-07-18T22:21:32.556Z"
+}
