@@ -148,6 +148,44 @@
           "packages/main/src/tasks/claim-admissibility-pack-framework-smoke.ts",
           "packages/main/src/tasks/quantum-claim-admissibility-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Invoke an allow-listed local validation command through the existing configured executor -> bounded stdout/stderr and exit facts become a normalized Environment receipt stored through the Evidence Platform, with actual cwd, argv/shell mode, effective environment policy, executable identity, timeout, and network posture bound; WHY: proves a safe executable reference path without a new arbitrary runner.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Read a valid existing Quantum scientific receipt through the receipt-only adapter -> it normalizes to the same generic contract while preserving Quantum-specific claim scope and without executing a solver; WHY: demonstrates one boundary across executable and external-observation environments.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run an allowed command that reaches timeout, cancellation, non-zero exit, or output limit -> the receipt records the bounded terminal observation deterministically and never converts it to a pass claim; WHY: covers failure timing and resource limits.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Read a validly shaped Quantum receipt whose source identity, freshness window, or required artifact is absent -> receipt parsing may diagnose it but Proof Admissibility remains fail-closed; WHY: separates normalization from acceptance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attempt command injection, shell-mode substitution, cwd/path escape, executable replacement, forbidden network access, or undeclared environment/secret access -> execution is refused before launch and no admissible success receipt is emitted; WHY: tests the local adapter security boundary.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Call the adapter with an arbitrary command not present in configured validation policy or search public handlers for a generic command endpoint -> invocation is rejected and no such endpoint exists; WHY: prevents the adapter contract becoming remote code execution.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
