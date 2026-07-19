@@ -376,6 +376,64 @@
         "scanEscalationReason": "Final convergence review focused on commit 16988f6a57 and the complete F-016 compound-shell identity path, while rechecking all previously identified trust, Gate, registry, quorum, Windows execution-identity, and documentation boundaries."
       },
       "_hash": "bee98f9b18d239784c8fa58be540aed54971659f4809cb1a2deaa339ad0cccdb"
+    },
+    {
+      "id": "B-955c:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Convergence review of 16988f6a57 found no documentation blocker. The conditional command identity union matches implementation: direct execution requires a non-null target executable digest; shell execution requires the actual shell executable digest and permits a null target only for compound commands without one resolvable target, while the exact CommandSpec remains bound. Windows implicit-shell dual identity remains accurate, distinct-host quorum remains unsupported/fail-closed pending a pinned registry, and the unbound external manuscript remains Level B with M6 open. Build, EEA smoke, and DONE-required smoke passed.",
+      "createdAt": "2026-07-19T01:57:31.297Z",
+      "reviewRound": "2026-07-19T01:54:45.274Z",
+      "reviewRunId": "B-955c:RR-018",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "679032960f48987e84e197c8681078ebccf70deccaa94f3842568822086c9d70"
+      },
+      "readDiagnostics": [],
+      "_hash": "c13189404e5108a2ab64ed3af8a185ff9f67f60655684148328be185bddeadee"
     }
   ]
 }
