@@ -146,6 +146,35 @@
         "scanEscalationReason": null
       },
       "_hash": "19dc88c169746b05a506bdfec8b19a31ea41a9c23647bd22c6b1bc7a8a380f1d"
+    },
+    {
+      "id": "B-03ac:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Final current-round quality review passed. Commit b06d3dcc56 rejects duplicate canonical fixture keys and cross _id/id/name aliases in both prior and current snapshots before Map/digest comparison; prepend, append, reordered, prior-snapshot and integrated committed variants fail closed without false incremental eligibility. Prior D/R/C, pure-fixture reachability, freshness, escalation, tamper and supersession fixes remain intact. Scope check has only the two previously acknowledged nonblocking paths. Independently ran review-incremental-context smoke PASS, quorum-submit smoke 42/42 PASS, and root npm test exit 0.",
+      "createdAt": "2026-07-19T06:46:41.406Z",
+      "reviewRound": "2026-07-19T06:38:01.826Z",
+      "reviewRunId": "B-03ac:RR-011",
+      "writerSessionId": "sess-153f37c72c9822026cd6ee1f17ad1f49",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "85b07afea47c059dcd45c02f9d4a87dae989ac1d1ab6ab4546ba4acc09a62994"
     }
   ]
 }
