@@ -186,6 +186,37 @@
         "scanEscalationReason": null
       },
       "_hash": "a4a78e0abdb154843e3ee783e2d6ddd99e6aef9aa9a04ebfa687f17ccce9e416"
+    },
+    {
+      "id": "B-d877:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "R7 delta review (responds to my own R6 F-017): the only src change since RR-018 is commit 486d3e36e3, touching mkdir-lock.ts (comment-only doc of the mismatch-restore safe-side tradeoff + collapsing the dead legacy token-less removeEmptyLockDirNonRecursive call into an explicit no-op) and transition-integrity-smoke.ts (new CHK-002d4, 72->79 checks). Verified: (1) mismatch-restore branch diff is comments only, renameSync(candidatePath, holder.json)/catch->rmSync(candidatePath) logic is byte-identical to pre-round code, no behavior change. (2) legacy-branch simplification is behavior-identical: removeEmptyLockDirNonRecursive uses non-recursive rmdirSync which always threw ENOTEMPTY and was swallowed at that call site (holder.json still present when current.lockId is falsy), so removing the dead call changes nothing observable; readMkdirLockHolder/removeEmptyLockDirNonRecursive remain used elsewhere, no dead exports. (3) CHK-002d4 faithfully scripts my F-017 'A wins' interleaving verbatim: isolate-out A's rename using the real candidatePath naming convention, then a real b.release() hits ENOENT on the token-less dir and no-ops (matches the release() catch branch exactly), then A's restore-rename re-populates the dir with B's now-orphaned token; cross-checked line-by-line against the F-017 finding text and the real release() code path (mkdir-lock.ts:383-451). (4) the self-heal assertion is honest, not special-cased: it backdates lockDir's own mtime (utimesSync), the exact field acquireMkdirLock's stale-reclaim check reads (statSync(lockDir).mtimeMs), then calls the ordinary acquireMkdirLock with staleMs=50 and lets the normal stale-reclaim rmSync+retry path run unmodified. (5) ran the smoke 5x standalone (node dist/tasks/transition-integrity-smoke.js after tsc rebuild): 79/79 checks green, 0 failures, deterministic across all 5 runs including CHK-002d4. Also reran quorum-submit-smoke.js (39 checks) and validate-progress-heartbeat-smoke.js green for regression safety. (6) Accept the documented safe-side tradeoff: the leak requires the already-scoped-out stale-reclaim-of-a-live-holder precondition (documented KNOWN LIMITATION in story-transition-lock.ts, out of this story's scope per background.md), is bounded by staleMs, self-heals via the pre-existing unmodified reclaim path, and does not violate the atomic mkdir+holder.json double-mint fence -- a liveness-only, not correctness, residual. No new defect found in the small diff; no dead code, no unsafe any-casts, no swallowed-error regressions introduced.",
+      "createdAt": "2026-07-19T12:19:46.739Z",
+      "reviewRound": "2026-07-19T12:09:50.724Z",
+      "reviewRunId": "B-d877:RR-020",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/findings.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-d877/process-events.jsonl",
+          ".lattice/story/actives/B-d877/review-passes.json",
+          ".lattice/story/actives/B-d877/review-runs.json",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "12f21cac76b24664ff279fb94de8b70bd98b70514514746ad3468c09c13d3d20"
     }
   ]
 }
