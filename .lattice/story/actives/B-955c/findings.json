@@ -371,6 +371,21 @@
       "_hash": "717c4249180f711ebae6e90c8850e3daf342bdf04b6946579ae8bdd47eb6b375",
       "signatureTag": "adversarial|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-955c:F-021",
+      "desc": "packages/main/src/core/evidence/environment-contract.ts:659 and docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md:629-631 — the F-018 documentation fix now says v2 logical commandSpec.cwd is mapped into EEA identity and physical resolvedCwd remains provenance-only, but projectDoneRequiredReceiptToEnvironment still assigns EEA commandSpec.cwd from receipt.cwd (the absolute physical execution path). A direct projection of v2 commandSpec.cwd=\".\", resolvedCwd/receipt.cwd=\"/repo-a\" produces EEA cwd=\"/repo-a\". Thus equivalent v2 receipts from two worktree roots acquire different EEA command identities/semantic digests, contradicting the new portability statement and leaving the smoke blind because it does not assert projected cwd. Preserve upstream fail-closed validation, map the versioned envelope cwd (v2 logical, v1 legacy absolute) into EEA identity, retain physical cwd only on the original receipt/provenance surface, and add a cross-root projection assertion. Severity medium: DONE validation and executable/environment identity checks remain fail-closed and all existing regressions pass, but the host-neutral identity/provenance contract is materially inaccurate.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T03:28:14.622Z",
+      "reviewRound": "2026-07-19T03:23:39.690Z",
+      "reviewRunId": "B-955c:RR-037",
+      "_hash": "6af5faf16dd1a8872bbc9dc584683ae2c7d1483f1aeede572769da68fab8e3c1",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
