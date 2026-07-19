@@ -188,6 +188,29 @@
         "scanEscalationReason": null
       },
       "_hash": "ae05bc22f4995914217552bf4b8fa56460fd63ac0aefa6a4c6806bf4b2a30766"
+    },
+    {
+      "id": "B-6ed2:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 targeted quality review passed: F-007/F-008 writer identity and all production appenders share the locked raw/record primitive; exact offsets, rollback, cross-host batch, dirty audit timestamp compatibility, and lock contention are covered. Build and focused quorum smoke passed 32/32. AST inventory is a bounded regression guard rather than a formal alias-proof and is non-blocking because current production writers were independently enumerated.",
+      "createdAt": "2026-07-19T00:18:39.147Z",
+      "reviewRound": "2026-07-19T00:14:28.161Z",
+      "reviewRunId": "B-6ed2:RR-014",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-events.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dirty-gate-policy.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a71190082da90b2fba5378741a47f13edfac8c18dde3f05795aed2f0d280752a"
     }
   ]
 }
