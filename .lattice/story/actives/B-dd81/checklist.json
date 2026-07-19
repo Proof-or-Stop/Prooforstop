@@ -7,10 +7,231 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "The full-context response exposes a deterministic envelope ID and canonical Task Context whose Story, HEAD, round and ReviewRun fields can be inspected and reproduced."
+      "status": "done",
+      "startTime": "2026-07-18T20:26:41.847Z",
+      "endTime": "2026-07-18T20:52:21.400Z",
+      "userSees": "The full-context response exposes a deterministic envelope ID and canonical Task Context whose Story, HEAD, round and ReviewRun fields can be inspected and reproduced.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-measurement.ts"
+        ],
+        "create": [
+          "packages/main/src/core/prompt-envelope.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-contract-measurement-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "full-envelope-contract-complete",
+            "desc": "A focused contract test constructs valid audit story-dispatch and reviewer-authority TaskContext/PromptEnvelope variants using a dispatchKind discriminated union. Both validate required common schema/digest/role/Story/HEAD/environment/prompt fields and contextMode=full; audit envelopes explicitly omit reviewRound/reviewRunId and are non-authoritative, while reviewer-authority envelopes require and validate both bindings.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "full-envelope-content-address-reproducible",
+            "desc": "Two trusted assemblies with the same dispatchKind and canonical Runtime Contract, Role Contract, Task Context, known execution environment, Story, HEAD and final prompt bytes produce byte-identical envelope material and envelopeId; reviewer-authority reproducibility additionally requires the same round/ReviewRun, while audit story-dispatch identity is reproducible without inventing either field.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "task-context-authoritative-facts",
+            "desc": "TaskContext is assembled from authoritative Story state and exposes exact Story/checklist/scope/HEAD facts while known execution environment is separately versioned and digest-bound. dispatchKind controls authority: audit story-dispatch carries no round/ReviewRun and cannot mint reviewer evidence; reviewer-authority carries the exact signed current-round ReviewRun reference required by the reviewer flow.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "full-only-no-incremental-fields",
+            "desc": "Schema and runtime probes reject Story 2 envelopes that claim incremental mode or carry priorPassRef, eligibility, impact-policy, changed/impacted-file delta, incremental-context, escalation, or other Story 4 fields; no empty/default incremental structure is silently accepted.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "task-context-canonical-order-boundaries",
+            "desc": "Insertion-order variants of semantically identical TaskContext and known-environment objects produce the same digests, while changing array order where order is semantic, an empty-versus-missing field, Unicode content, repository-relative POSIX path, or final prompt byte changes the appropriate digest and envelopeId.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "known-environment-source-and-version",
+            "desc": "Known execution environment records only values obtained by the trusted runtime source with explicit schema/version and digest; absent optional observations remain explicitly unavailable, and unknown required runtime facts, unsupported versions, absolute-host-path leakage, or caller-asserted replacements fail closed.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-role-contract-coherence",
+            "desc": "The selected roleId, role status, Runtime/Role semantic and render digests, rendered role prompt, TaskContext and final assembled prompt are mutually coherent; a Role Contract or render from another role cannot be paired with an otherwise valid envelope.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "envelope-single-field-tamper-rejected",
+            "desc": "Mutation probes alter common Story, HEAD, role, environment, TaskContext, contract, prompt, estimator, contextMode, dispatchKind and envelopeId fields, plus reviewer-authority reviewRound/reviewRunId. Missing or mismatched required fields fail stably; adding reviewer bindings to an audit envelope cannot upgrade it or make it admissible as reviewer evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-canonical-invalid-input-rejected",
+            "desc": "Envelope creation and verification reject unknown fields/versions, malformed digests, duplicate or non-canonical keys, undefined/non-finite/sparse/cyclic/accessor/proxy values, invalid enum/status combinations and inconsistent nested digests rather than omitting, coercing or reserializing them into an admissible identity.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-id-substitution-domain-separated",
+            "desc": "A valid semanticDigest, renderDigest, TaskContext digest, assembledPromptDigest, ReviewRun hash, material hash or envelopeId from another digest domain cannot be substituted for envelopeId or any sibling field, even when all values have valid SHA-256 shape.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "untrusted-envelope-constructor-inaccessible",
+            "desc": "Public handler and registry probes prove there is one trusted assembly path and no exported request field, alternate constructor, cached sidecar or deserialization path that lets main/implementer supply precomputed TaskContext, known environment, final prompt bytes, envelope bindings or envelopeId as authoritative input.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "full-envelope-contract-complete",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "full-envelope-content-address-reproducible",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "full-only-no-incremental-fields",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "task-context-canonical-order-boundaries",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "envelope-role-contract-coherence",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "envelope-canonical-invalid-input-rejected",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "envelope-id-substitution-domain-separated",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "task-context-authoritative-facts",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "known-environment-source-and-version",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "envelope-single-field-tamper-rejected",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "untrusted-envelope-constructor-inaccessible",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -19,10 +240,233 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "Calling agent_prompt for a Story returns the canonical full Prompt and signed envelope; attempts to provide or splice a caller-built envelope are rejected with a stable reason."
+      "status": "done",
+      "startTime": "2026-07-18T20:33:25.631Z",
+      "endTime": "2026-07-18T20:52:27.018Z",
+      "userSees": "Calling agent_prompt for a Story returns the canonical full Prompt plus a deterministic content-addressed audit Envelope; caller-built authority fields are rejected, and only a reviewer ReviewRun can sign that envelopeId into gate-consumed evidence.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "agent-prompt-story-full-assembly",
+            "desc": "For each supported active role, Story-aware agent_prompt returns literal dispatchKind=story-dispatch, contextMode=full, exact canonical Prompt bytes, validated TaskContext, known-environment digest, envelopeId and common Story/HEAD bindings from the trusted CLI path. This audit envelope contains no reviewRound or reviewRunId, cannot mint or satisfy reviewer evidence, and agent_prompt rejects reviewer-authority/review-run requests; dispatchKind=review-run is verified only through CHK-003 and review_run_start.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-role-only-byte-zero-drift",
+            "desc": "For all 16 frozen Story 1 role IDs and compatibility aliases where invocation remains legal, the role-only or legacy-full-context path returns prompt bytes byte-identical to the frozen Story 1 baseline; adding Story 2 changes no role-only output hash, length, line ending or trailing newline.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-repeatable-json-contract",
+            "desc": "Repeated JSON-mode calls at unchanged authoritative state return schema-valid, deterministically ordered response fields and the same prompt digest/envelopeId, and the final prompt bytes independently hash to assembledPromptDigest; human-readable mode presents the same identity without becoming a second parser contract.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "agent-prompt-storyless-legacy-boundary",
+            "desc": "A call without Story-aware inputs follows the explicitly documented role-only legacy behavior and mints no fake Story, HEAD, round, ReviewRun or envelope; a partially supplied Story-aware target fails with a stable missing-binding reason rather than falling back silently.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-worktree-authority-resolution",
+            "desc": "Invocation from repository root, the Story worktree, and an unrelated cwd with explicit root resolves the same authoritative Story worktree/HEAD and registered prompt assets; global/local template version skew, missing tracked assets or ambiguous Story worktrees fail closed instead of assembling from whichever file is found first.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-target-cardinality-role-status",
+            "desc": "The command enforces registry-defined role and target cardinality before assembly: unknown, retired, wrong-phase, wrong-item/finding/cluster, extra target, and compatibility-without-explicit-invocation cases receive stable rejection or migration guidance and mint no envelope.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-no-provider-or-evidence-side-effect",
+            "desc": "Full assembly is local and deterministic: it performs no provider call, usage fabrication, reviewer-pass/finding/review-run/lifecycle mutation or aggregate-evidence write. An audit story-dispatch envelope is explicitly non-authoritative and cannot be submitted as reviewer evidence; bounded activity/process observation cannot count as gate evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "agent-prompt-rejects-caller-envelope-fields",
+            "desc": "CLI schema/runtime mutation probes reject every caller-supplied envelope or assembly component, including envelopeId, PromptEnvelope, TaskContext, final/partial prompt, Runtime/Role Contract bytes or digests, environment facts/digest, HEAD, reviewRound, reviewRun hash and assembledPromptDigest, rather than ignoring or merging the field.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-rejects-prompt-splicing",
+            "desc": "Attempts to inject prefix/suffix/system/developer text, duplicate role sections, custom path/content, encoded JSON blobs, response-file arguments, unknown flags, prototype keys or shell-shaped values cannot alter the returned prompt/envelope and fail with a stable validation reason before trusted assembly.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-no-untrusted-handler-bypass",
+            "desc": "Direct handler and registry probes prove main/implementer cannot bypass CLI validation by calling an alternate exported handler, passing a structurally typed forged object, selecting a cached envelope, or invoking an unregistered command alias; all public paths converge on the same trusted builder and command policy.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "agent-prompt-role-only-drift-detector-sensitive",
+            "desc": "The zero-drift proof is mutation-sensitive: a controlled one-byte change to any frozen role template, assembly separator/order, newline normalization or alias routing makes the baseline verifier fail and identify the affected role, then the untouched repository passes all 16 exact comparisons.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "agent-prompt-no-untrusted-handler-bypass",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "agent-prompt-story-full-assembly",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "agent-prompt-role-only-byte-zero-drift",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "agent-prompt-repeatable-json-contract",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "agent-prompt-storyless-legacy-boundary",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "agent-prompt-worktree-authority-resolution",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "agent-prompt-target-cardinality-role-status",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "agent-prompt-no-provider-or-evidence-side-effect",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "agent-prompt-rejects-caller-envelope-fields",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "agent-prompt-rejects-prompt-splicing",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "agent-prompt-role-only-drift-detector-sensitive",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,10 +475,252 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "A fresh reviewer pass succeeds only with the matching envelope; replay against a new HEAD, round or ReviewRun is rejected, while a provider retry retains its existing usage-ledger attempt ID."
+      "status": "done",
+      "startTime": "2026-07-18T20:35:11.250Z",
+      "endTime": "2026-07-18T20:52:32.845Z",
+      "userSees": "A fresh reviewer pass succeeds only with the matching envelope; replay against a new HEAD, round or ReviewRun is rejected, while a provider retry retains its existing usage-ledger attempt ID.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/finding-verify.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/core/machine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "review-run-envelope-single-binding",
+            "desc": "A legal reviewer flow starts a signed current-round ReviewRun, obtains the trusted full Prompt Envelope for that exact lane/run, and records reviewer pass or verified finding only when Story, role/lane, HEAD, reviewRound, reviewRunId, scope/material hashes and envelopeId all match the same signed run.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "review-gates-consume-envelope-proof",
+            "desc": "REVIEW transition, current-round receipt, review-assurance floor and quorum consumers derive eligibility from structured signed evidence carrying a verified fresh envelopeId; with all active required lanes valid the existing legal flow passes and the process-fact registry declares the same gate semantics.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "retry-identity-semantics-distinguished",
+            "desc": "A new reviewer/dispatch retry creates a distinct signed ReviewRun and envelope binding. A provider retry remains grouped under the same logical usage-ledger ledgerCallId but mints a fresh attemptId for each execution attempt; it does not mint a new ReviewRun merely because of transport/provider retry and does not collapse separate attempts into one identity.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "parallel-lane-envelope-isolation",
+            "desc": "Two current-round reviewer lanes may run concurrently, but each lane-scoped signed ReviewRun and envelope remains isolated: passes can aggregate only after independent verification, and neither lane can reuse, overwrite or satisfy the other lanes envelope/run requirement.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "review-run-restart-invalidates-prior-envelope",
+            "desc": "Starting a newer same-lane ReviewRun does not invalidate a non-latest pass merely by ID recency. A coherent pass bound to the older signed run remains valid when round, lane, workspace, material and scope are fresh, including the empty-storyFilesHash strict guard; older open findings remain surfaced and cannot be hidden by the newer pass.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "usage-ledger-retry-terminal-accounting",
+            "desc": "Zero, one and multiple provider retries share one ledgerCallId but each execution attempt has a fresh attemptId and monotonic per-attempt record sequence. Partial/failure records cannot masquerade as terminal success, exact duplicate records for one ledgerCallId+attemptId are idempotent, conflicting duplicates fail closed, and all failed/successful attempts remain attributable to the logical call without overwriting one another.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "legacy-pass-round-bounded",
+            "desc": "A pre-deployment pass with no Prompt Envelope is explicitly parsed as legacy-full-context only in its original review round under the rollback policy; it cannot be upgraded, copied to a later round, used as incremental proof, or combined with a new envelope field to gain current-format authority.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "envelope-replay-new-head-rejected",
+            "desc": "Capture a valid signed envelope/pass, then introduce genuine story-owned material or scope drift and replay it; every gate consumer rejects the stale evidence until a newly fresh binding exists. A headHash-only or unrelated whole-tree change is classified by the canonical freshness reader and is not rejected solely because the commit ID changed; empty storyFilesHash provides no advisory downgrade.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-replay-new-round-rejected",
+            "desc": "Capture a valid envelope/pass in review round N, transition through a legitimate re-review to round N+1, and replay or relabel the old artifact; REVIEW gate, assurance floor and quorum all reject it as round-stale and do not count its receipt.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-replay-other-reviewrun-rejected",
+            "desc": "Cross-run field substitution is rejected: an envelopeId/payload/pass from run A cannot be relabeled with run B reviewRunId, hash, signature or lane, and mixed fields from two valid runs fail before persistence/counting. A wholly coherent signed non-latest pass from run A is not treated as replay merely by recency when it remains same-round, material-fresh and scope-fresh.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "signed-wrapper-content-tamper-rejected",
+            "desc": "A valid outer signature cannot rescue altered envelope payload, assembledPromptDigest, TaskContext, role status, scope/material/storyFiles hash or usage attempt identity; recomputed unsigned hashes, copied signatures and mixed fields from two valid runs are all rejected fail closed.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "gate-paths-share-envelope-verifier",
+            "desc": "Mutation-sensitive contract probes prove machine.ts, review-pass/finding handlers, review assurance, quorum and lifecycle/process-fact registry share one envelope-admissibility predicate or equivalent exhaustive contract; disabling verification in any one consumer makes the focused gate suite fail.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "usage-ledger-retry-terminal-accounting",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "signed-wrapper-content-tamper-rejected",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "gate-paths-share-envelope-verifier",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "review-run-envelope-single-binding",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "review-gates-consume-envelope-proof",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "retry-identity-semantics-distinguished",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "parallel-lane-envelope-isolation",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "review-run-restart-invalidates-prior-envelope",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "legacy-pass-round-bounded",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "envelope-replay-new-head-rejected",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "envelope-replay-new-round-rejected",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "envelope-replay-other-reviewrun-rejected",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -43,10 +729,273 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-2可信-full-context-装配与-envelope"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "Role flags can roll back to legacy-full-context safely, while compatibility-only or retired-role receipts visibly fail REVIEW, assurance-floor and quorum readiness checks."
+      "status": "done",
+      "startTime": "2026-07-18T20:40:32.439Z",
+      "endTime": "2026-07-18T20:52:38.676Z",
+      "userSees": "Role flags can roll back to legacy-full-context safely, while compatibility-only or retired-role receipts visibly fail REVIEW, assurance-floor and quorum readiness checks.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "role-eligibility-canonical-registry",
+            "desc": "Story 1 exact 16-role registry and 12 active, 3 compatibility, 1 retired partition remain the sole eligibility source; active phase/lane-appropriate roles can use trusted full envelopes, compatibility roles require explicit legacy invocation plus migration hint, and lattice-review-channel new dispatch is rejected as retired.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "per-role-full-feature-flag-independent",
+            "desc": "Every eligible role has an independently addressable, versioned full-envelope feature flag whose default preserves the documented legacy assembled behavior until that role is enabled; enabling one role changes only its Story-aware assembly path and leaves all other roles byte-identical and behaviorally unchanged.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "per-role-legacy-rollback-exact",
+            "desc": "For every eligible migrated role, enable trusted full, capture its behavior, roll back only that role to legacy-full-context, and prove the returned prompt bytes/hash and legal dispatch behavior exactly match the frozen pre-migration baseline while existing authorization and gate predicates remain equally strict.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "mixed-rollout-deterministic-routing",
+            "desc": "A mixed matrix of enabled and rolled-back roles routes deterministically from the canonical role registry with no global fallback, order dependence or alias leakage; repeated restart/config reload preserves the same per-role state and exact assembled bytes.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "compatibility-alias-status-preserved",
+            "desc": "test-intent and test-case-reviewer normalize to canonical verification-intent for migration guidance without being reclassified as active/default dispatch or gaining independent reviewer authority; implementation-reviewer remains compatibility and cannot become a third REVIEW authority.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "legacy-pass-read-original-round-only",
+            "desc": "Legacy no-envelope artifacts remain readable as legacy-full-context under their recorded contract/role status only in the original round, retain historical attribution, and are excluded from new-format/incremental reuse; rolling a role forward then back does not retroactively relabel either legacy or envelope-bound evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "retired-history-readonly-no-new-proof",
+            "desc": "Historical lattice-review-channel artifacts can be parsed read-only under their recorded contract version for audit, but new dispatch, pass, finding, receipt, ReviewRun or envelope creation is rejected and no replay can refresh them into current evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "compatibility-only-review-gate-blocked",
+            "desc": "With otherwise clean current Story state but only current-round signed passes/findings/receipts from implementation-reviewer, test-intent and test-case-reviewer, REVIEW to TEST remains blocked with a stable missing-active-lane reason; advisory visibility does not turn compatibility evidence into required proof.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "compatibility-only-assurance-floor-blocked",
+            "desc": "A fixture supplies numerically sufficient, fresh and correctly signed reviewer-role/Envelope evidence exclusively from compatibility or retired roles. The canonical quorum/receipt collector eligibility boundary rejects or excludes it and therefore emits no admissible signed host-verdict round; the assurance floor, which consumes only admissible signed host-verdict proof rather than raw role evidence, remains unsatisfied.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "compatibility-only-quorum-blocked",
+            "desc": "quorum_submit and receipt collectors reject a numerically sufficient 3x2 or multi-host set when eligible evidence comes only from compatibility/retired roles, mixed sets count only active eligible lanes, duplicate aliases do not increase cardinality, and stable diagnostics name the excluded role statuses.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "role-status-feature-flag-tamper-fails",
+            "desc": "Unknown role IDs, unsupported flag versions/values, compatibility or retired roles forced to enabled/default, alias cycles, missing replacement, duplicate registry rows, config prototype keys and direct environment/CLI overrides fail closed and cannot mint an envelope or change gate eligibility.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "all-gate-consumers-share-role-filter",
+            "desc": "Mutation-sensitive tests prove direct reviewer evidence consumers, including ReviewRun creation, reviewer/receipt collection, REVIEW guard and quorum, apply the same canonical role+Envelope eligibility, and quorum emits signed host-verdict proof only after that admission check. Assurance floor verifies and consumes admissible host-verdict rounds instead of parsing raw role evidence; removing a direct filter or allowing forged/inadmissible host-verdict proof to count makes the focused boundary tests fail.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "rollback-never-downgrades-gates",
+            "desc": "For each role and for an all-roles rollback, compare REVIEW guard, current-round receipt, assurance-floor, quorum, owner/reviewer authority and signature/freshness outcomes before enablement, while enabled and after rollback; rollback may change assembly format only and never accepts evidence that either modern mode or the pre-migration gate rejected.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "per-role-full-feature-flag-independent",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "role-status-feature-flag-tamper-fails",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "all-gate-consumers-share-role-filter",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 logic suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "role-eligibility-canonical-registry",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "per-role-legacy-rollback-exact",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "mixed-rollout-deterministic-routing",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "compatibility-alias-status-preserved",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "legacy-pass-read-original-round-only",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "retired-history-readonly-no-new-proof",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "compatibility-only-review-gate-blocked",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "compatibility-only-assurance-floor-blocked",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "compatibility-only-quorum-blocked",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        },
+        {
+          "intentRef": "rollback-never-downgrades-gates",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/prompt-contract-measurement-smoke.js && node scripts/verify-proof-or-stop-prompt-baseline.mjs && node packages/main/dist/tasks/review-run-smoke.js && node packages/main/dist/tasks/usage-ledger-smoke.js && node packages/main/dist/tasks/review-run-clean-tree-preflight-smoke.js && node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js && node packages/main/dist/tasks/flow-stability-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Final implementation-head Story 2 CLI/integration suite passed.",
+          "headHash": "2553a2dcf30fa827f45a1a84138e61ef4e36dfd9",
+          "materialHash": "55ae5317ed5768317dd4c2923630c5f4709ff3c2976fef622405ff0639f2cc24",
+          "storyFilesHash": "70e5f70c65b1ec35e1d8cb48bdb9060ad6f645187d4a4c5db4e165f6a57da4cb",
+          "timestamp": "2026-07-19T00:17:35.850Z"
+        }
+      ]
     }
   ]
 }

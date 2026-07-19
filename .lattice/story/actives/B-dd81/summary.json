@@ -1,0 +1,56 @@
+{
+  "storyId": "B-dd81",
+  "changes": "Added trusted Story-aware full-context assembly, content-addressed Prompt Envelope contracts, signed ReviewRun/HEAD/pass binding, canonical role eligibility filters, replay and tamper rejection, per-role rollout and rollback controls, and gate-consumed process facts with regression coverage.",
+  "usage": "Use `lattice agent_prompt --role=<active-role> --storyId=B-dd81 --format=json` when that role is configured as full-envelope; reviewer authority flows use dispatch plus review_run_start so the signed ReviewRun consumes the same trusted envelope. Roles not enabled remain byte-exact legacy-full-context.",
+  "expectedOutcome": "The trusted full-context path exposes a deterministic envelope identity and canonical Task Context bound to Story, HEAD, role, environment and, for reviewer authority, the exact review round and ReviewRun; forged, replayed, compatibility-only or retired evidence is rejected.",
+  "actualTranscript": "Real-machine smoke exited 0. With the current safe-default configuration, concept agent_prompt returned the frozen legacy role prompt; independent delivery review confirmed this is the documented rollback default. Enabled full-envelope and reviewer-authority paths passed focused envelope, ReviewRun and quorum 22/22 tests; routine validation passed 46/46 and DONE-required build plus root npm test passed.",
+  "outcomeDiff": "No acceptance gap. The current role output is intentionally legacy because Story 2 delivers the trusted mechanism and per-role flag while role migration/enabling is scheduled for Stories 5 and 6; enabled and authority paths produced the expected deterministic envelope behavior in real focused execution.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Full-envelope rollout is intentionally disabled by default for existing roles; Story 5 migrates active reviewers and Story 6 migrates complex roles. Local 3x2 host verdicts satisfy only the local REVIEW assurance floor and do not prove external Authority acceptance or production-grade readiness.",
+  "pitfalls": "A forbidden retired-authority phrase caused the first TEST failure and was fixed with an equivalent boundary statement. Quorum left process-events metadata dirty, so canonical validation initially failed closed until that generated metadata was committed. The first validation artifact changed the review diff pack and required reviewer re-attestation. Merging main caused whole-tree drift but unchanged storyFilesHash; done_prepare reran validation and DONE-required tests and retained review under the canonical freshness policy.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 248494
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 38459
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 3986165
+    },
+    "DEV": {
+      "count": 9,
+      "durationMs": 9440654
+    },
+    "REVIEW": {
+      "count": 8,
+      "durationMs": 6021298
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1690980
+    }
+  },
+  "totalDurationMs": 21426545,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-19T01:16:06.789Z",
+  "updatedAt": "2026-07-19T01:16:06.789Z"
+}

@@ -6,9 +6,10 @@ import {
   buildReviewRunWorkspaceBinding,
   ensureCurrentReviewRound,
   captureReviewRunSnapshot,
-  resolveReviewPromptHash,
+  hashReviewPrompt,
   resolveReviewRunLane,
   signReviewRun,
+  verifyCurrentReviewerDispatchBinding,
 } from '../core/review-run.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
@@ -22,6 +23,17 @@ import {
   isBlockingDirty,
 } from '../core/dirty-worktree-gate.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import {
+  promptRoleContract,
+  resolvePromptEnvelopeRolloutMode,
+} from '../core/prompt-role-contract-registry.js';
+import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
+import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
+import {
+  assembleFullPromptEnvelope,
+  buildFullTaskContext,
+  verifyPromptEnvelopeIntegrity,
+} from '../core/prompt-envelope.js';
 
 function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.storyFilePath(storyId, 'review-runs.lock');
@@ -63,7 +75,7 @@ function resolveGitTopLevel(gitCwd: string): string | null {
 export function createReviewRunHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
-    review_run_start(args: { storyId: string; agent?: string; lane?: string; prompt?: string; promptHash?: string; reviewedIntentRefs?: string[] }): string {
+    review_run_start(args: { storyId: string; agent?: string; lane?: string; reviewedIntentRefs?: string[] }): string {
       const authority = resolveAgentMutationAuthority({
         command: 'review_run_start',
         payloadActors: [args.agent, args.lane],
@@ -103,7 +115,6 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       // status.ok === false → fail-open: after this preflight declines to block, proceed to the snapshot.
 
       const lane = resolveReviewRunLane(authority.actor, args.lane);
-      const promptHash = resolveReviewPromptHash(args.prompt, args.promptHash);
       const startedAt = new Date().toISOString();
       // B-9dcb CHK-002: thread the resolved metadataRoot into the snapshot so the
       // storyDir-aware material/story hash exclusion loads lattice.config.json
@@ -156,6 +167,73 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           return match ? Math.max(max, Number(match[1])) : max;
         }, 0) + 1;
         const reviewRunId = `${args.storyId}:RR-${String(nextNum).padStart(3, '0')}`;
+        const rolloutMode = resolvePromptEnvelopeRolloutMode(
+          lane,
+          loadConfig(workspace.metadataRoot || ctx.root).promptEnvelope,
+        );
+        const promptEntry = readPromptRegistry().agents.find(entry => entry.agentId === lane);
+        if (!promptEntry) throw new Error(`review_run_start: no canonical prompt registry entry for ${lane}`);
+        const canonicalRolePrompt = readPromptTemplate(promptEntry);
+        let promptHash = hashReviewPrompt(canonicalRolePrompt);
+        let envelopeId: string | undefined;
+        let assembledPrompt: string | undefined;
+        if (rolloutMode === 'full-envelope') {
+          const dispatchBinding = verifyCurrentReviewerDispatchBinding({
+            store,
+            storyId: args.storyId,
+            lane,
+            reviewRound: story.currentReviewRound!,
+            projectRoot: workspace.metadataRoot || ctx.root,
+          });
+          if (!dispatchBinding.ok) {
+            throw new Error(`review_run_start: ${dispatchBinding.reason}; rerun lattice dispatch for ${lane}`);
+          }
+          const assembly = assembleFullPromptEnvelope({
+            roleContract: promptRoleContract(lane),
+            runtimeContract: BASELINE_RUNTIME_CONTRACT,
+            rolePrompt: canonicalRolePrompt,
+            taskContext: buildFullTaskContext({
+              story,
+              checklist: store.readChecklist(args.storyId),
+              headHash,
+              materialHash,
+              storyFilesHash,
+              scopeContract: contract,
+            }),
+            dispatchKind: 'review-run',
+            reviewRunId,
+            reviewRound: story.currentReviewRound!,
+            lane,
+            createdAt: startedAt,
+            dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
+            hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
+            launcherSpec: {
+              reviewedIntentRefs: args.reviewedIntentRefs ?? [],
+              dispatchBindingDigest: dispatchBinding.binding.dispatchBindingDigest,
+              hostRenderHost: dispatchBinding.binding.hostRenderHost,
+            },
+          });
+          withMkdirLock(store.storyFilePath(args.storyId, 'prompt-envelopes.lock'), () => {
+            const envelopeData = store.readPromptEnvelopes(args.storyId);
+            const existingEnvelope = envelopeData.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
+            if (existingEnvelope && !verifyPromptEnvelopeIntegrity(existingEnvelope)) {
+              throw new Error(`review_run_start: persisted Prompt Envelope ${existingEnvelope.envelopeId} is invalid`);
+            }
+            if (!existingEnvelope) {
+              envelopeData.envelopes.push(assembly.envelope);
+              store.writePromptEnvelopes(args.storyId, envelopeData);
+            }
+            const persistedEnvelope = store.readPromptEnvelopes(args.storyId).envelopes.find(
+              candidate => candidate.envelopeId === assembly.envelope.envelopeId,
+            );
+            if (!persistedEnvelope || !verifyPromptEnvelopeIntegrity(persistedEnvelope)) {
+              throw new Error(`review_run_start: Prompt Envelope ${assembly.envelope.envelopeId} was not durably persisted`);
+            }
+          }, { label: 'prompt-envelopes metadata' });
+          envelopeId = assembly.envelope.envelopeId;
+          assembledPrompt = assembly.prompt;
+          promptHash = assembly.envelope.assembledPromptDigest;
+        }
         const run: ReviewRun = {
           reviewRunId,
           storyId: args.storyId,
@@ -167,6 +245,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           materialHash,
           ...(storyFilesHash ? { storyFilesHash } : {}),
           promptHash,
+          ...(envelopeId ? { envelopeId } : {}),
+          ...(assembledPrompt ? { assembledPrompt } : {}),
           ...(scopeBinding ? { scopeBinding } : {}),
           workspaceBinding,
           _hash: signReviewRun(
@@ -182,6 +262,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             scopeBinding?.bindingHash,
             workspaceBinding.bindingHash,
             storyFilesHash,
+            envelopeId,
           ),
         };
         data.runs.push(run);
@@ -192,6 +273,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           || persisted.storyFilesHash !== storyFilesHash
           || persisted.scopeBinding?.bindingHash !== scopeBinding?.bindingHash
           || persisted.workspaceBinding?.bindingHash !== workspaceBinding.bindingHash
+          || persisted.envelopeId !== envelopeId
+          || persisted.assembledPrompt !== assembledPrompt
         ) {
           throw new Error(`review_run_start: ${reviewRunId} was not durably persisted; refusing to continue`);
         }
@@ -199,7 +282,11 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           ? `, scope ${scopeBinding.scopeContractHash?.slice(0, 7)}/${scopeBinding.diffPackHash?.slice(0, 7)}`
           : '';
         const storyHashNote = storyFilesHash ? `, story ${storyFilesHash.slice(0, 7)}` : '';
-        return `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote})`;
+        const envelopeNote = envelopeId ? `, envelope ${envelopeId.slice(0, 7)}` : ', legacy-full-context';
+        const summary = `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote})`;
+        return assembledPrompt
+          ? `${summary}\n\n--- BEGIN EXACT ASSEMBLED REVIEW PROMPT ---\n${assembledPrompt}\n--- END EXACT ASSEMBLED REVIEW PROMPT ---`
+          : summary;
       });
     },
   };

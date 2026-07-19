@@ -1,0 +1,30 @@
+{
+  "task": "Make quorum_submit atomically persist only the host-verdict batch it causally emits, eliminating dirty metadata residue before later validation.",
+  "outcome": "After a clean REVIEW worktree runs `lattice quorum_submit`, the terminal reports all six verdicts and the repository remains clean. A following `lattice validate` starts normally instead of ending with `canonical-validation-persistence-failed`. If the quorum commit hook or CAS fails, the terminal reports a classified quorum persistence failure, zero new verdicts remain, and the original HEAD and user files are unchanged.",
+  "facts": [
+    "B-8195 produced six host_verdict rows and left process-events.jsonl dirty after quorum_submit.",
+    "The next 46-command validation passed all commands but correctly refused its canonical evidence transaction because quorum dirt pre-existed validation.",
+    "createQuorumSubmitHandlers loops through submitLocalVerdict and returns without invoking an atomic metadata writer.",
+    "process-events.jsonl host verdicts are L4 gate evidence consumed by review assurance and DONE gates."
+  ],
+  "constraints": [
+    "Begin with a committed production-path RED before runtime changes.",
+    "Commit only the exact causal process-events delta; never use a broad metadata allowlist.",
+    "All verdict rows are durable or none are; partial quorum must never satisfy a gate.",
+    "Pre-existing and concurrent human/foreign dirt fail closed and remain untouched.",
+    "No heap tuning, usage-ledger binding, routing, remote host, publication or broad validation changes."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/core/auto-commit-metadata.ts",
+    "packages/main/src/core/done-prepare-generated-metadata.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+  ],
+  "timestamp": "2026-07-18T22:13:46.437Z"
+}

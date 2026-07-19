@@ -128,7 +128,8 @@ export interface ValidationReuseMetadataTransactionCommitResult {
 
 export type LifecycleMetadataTransactionKind =
   | 'test-transition'
-  | 'codex-command-terminal';
+  | 'codex-command-terminal'
+  | 'quorum-submit';
 
 export interface LifecycleMetadataTransaction {
   kind: LifecycleMetadataTransactionKind;

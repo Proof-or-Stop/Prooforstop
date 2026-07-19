@@ -82,6 +82,11 @@ export interface LatticeConfig {
   fixturesDir: string;
   storyDir: string;
   requirementsDir: string;
+  /** Per-role trusted full-context rollout. Missing roles remain byte-exact legacy-full-context. */
+  promptEnvelope?: {
+    version?: 'proofbound.prompt-envelope-rollout.v1';
+    roles?: Record<string, 'legacy-full-context' | 'full-envelope'>;
+  };
   candidateSpecRouting?: {
     mode?: 'shadow' | 'warn' | 'enforce';
     candidateBudget?: number;
@@ -283,7 +288,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'planner_*', 'story_resolve', // Natural-language planner and plannedStep context resolution surfaces
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
-    'agent_prompt', // B-097f CHK-002: read-only host-neutral agent prompt endpoint; resolves role body from package registry in any phase
+    'agent_prompt', // Host-neutral role-only read or owner-gated Story-aware Prompt Envelope audit write; available in any phase
     'prompt_measurement_report', // B-360e: read-only deterministic no-Story prompt measurement, all phases
     'baseline_run', 'baseline_suite', 'baseline_suite_report', 'capability_claim_evaluate', 'capability_claim_formal_evaluate', // B-92e2/B-ce79: baseline artifact/report commands; formal claim still does not mutate lifecycle or release readiness
     'memory_benchmark_*', // B-d4dd/B-2a63: virtual benchmark + real-data export harnesses are read-only in all phases
