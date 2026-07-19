@@ -5,7 +5,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/core/material-code-policy.ts:491 preflightMaterialCodeExclusions (the claimed second enforcement layer for excludePaths) is never called by resolveMaterialCodePolicy (lines 305-384) or by any handler/gate — grep across packages/main/src confirms its ONLY caller is the smoke test (packages/main/src/tasks/language-neutral-gates-smoke.ts:301,305), and there it is invoked directly with a hand-fabricated trackedFiles array, not derived from a real git tree at the resolved projectRoot. In real usage, resolveMaterialCodePolicy(dirRoot) for materialCode.excludePaths=[\"backend/\"] does NOT throw (confirmed live: baseName(\"backend/\")==\"\" so isImmutableManifestName never matches) — the smoke test itself even comments \"backend/ passes basename resolve\" before manually calling the isolated preflight function. So a project can save an excludePaths entry that covers a real manifest (e.g. backend/ over backend/go.mod) with NO error/warning at config-resolve time, contradicting: (1) the module docstring lines 13-17 (\"enforced both at config-resolve time and by a filesystem-aware transition preflight\"), (2) config.ts:58-59 MaterialCodeConfig docstring (\"via the filesystem-aware preflight, covering\"), and (3) checklist.json CHK-002 adversarial verificationEvidence (\"rejected at BOTH layers\"). Net classification correctness is still preserved for backend/go.mod itself because classifyMaterialCodePath checks the immutable-manifest step (step 1) before excludePaths (step 3) regardless of this preflight, but the promised REJECTION/error-surfacing behavior for misleading directory-level excludes never fires in production — the two-layer enforcement architecture the story claims is DONE is actually one layer.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T16:24:20.177Z",
@@ -13,7 +13,9 @@
       "reviewRunId": "B-956f:RR-001",
       "_hash": "33151556ac5a5f0ae223cd5a5c72890269f55352fb3d40657795aa08974d5aa1",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-19T17:18:28.275Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-956f:F-002",
