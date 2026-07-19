@@ -4,7 +4,7 @@
   "title": "Make validation lock identity and command-spec digest portable across worktrees and hosts",
   "description": "validationExecutionLockPath (validation-execution-lock.ts:116) joins projectRoot so two linked worktrees of the same story mint different locks, breaking cross-host serialization; buildDoneRequiredCommandSpecEnvelope (done-required-validation.ts:85) embeds an absolute cwd in the spec digest, so identical logical commands mismatch across roots. Derive the lock root from the shared git common dir / canonical metadata root, and digest a repo-relative logical cwd (recording the physical workspace separately as provenance) with a versioned receipt-envelope migration.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-18T13:57:45.484Z",
   "startedAt": "2026-07-18T13:57:45.484Z",
-  "endedAt": null,
+  "endedAt": "2026-07-19T03:10:42.387Z",
   "events": [
     {
       "phase": "INIT",
@@ -150,12 +150,16 @@
       "user": "Harmonygo",
       "sessionId": "main-agent-s2s1-stable-f93ff408f3",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-19T03:10:42.388Z",
+      "branch": "story/B-231d",
+      "user": "Harmonygo",
+      "sessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-231d",
-    "branch": "story/B-231d",
-    "createdAt": "2026-07-18T22:48:44.932Z"
-  },
   "currentReviewRound": "2026-07-19T02:06:18.939Z"
 }
