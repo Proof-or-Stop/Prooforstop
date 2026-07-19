@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { hostname } from 'node:os';
 import {
+  existsSync,
   mkdirSync,
   readFileSync,
   readdirSync,
@@ -437,6 +438,22 @@ export function withMkdirTicketLock<T>(
 
 export const REVIEW_METADATA_TICKET_LOCK_DIR = 'review-metadata-transaction.lock';
 
+function reviewMetadataBarrierConfig(): { root: string; id: string } | null {
+  if (process.env.NODE_ENV !== 'test') return null;
+  const root = process.env.LATTICE_TEST_REVIEW_METADATA_BARRIER_ROOT;
+  const id = process.env.LATTICE_TEST_REVIEW_METADATA_BARRIER_ID;
+  if (!root || !id || !/^[a-z0-9-]+$/i.test(id)) return null;
+  return { root, id };
+}
+
+function waitForReviewMetadataBarrier(path: string): void {
+  const deadline = Date.now() + 10_000;
+  while (!existsSync(path)) {
+    if (Date.now() >= deadline) throw new Error(`review metadata test barrier timed out: ${path}`);
+    sleepSync(5);
+  }
+}
+
 /**
  * Shared transaction boundary for every producer that can update reviewer
  * protocol metadata. In particular, review_run_start and Story-aware
@@ -449,11 +466,19 @@ export function acquireReviewMetadataTicketLock(
   overrides: Pick<MkdirTicketLockOptions, 'onBeforeStaleTicketRemove' | 'pollMs'> = {},
 ): AcquiredMkdirLock {
   const localHostname = hostname();
+  const barrier = reviewMetadataBarrierConfig();
+  const callerBeforeStaleRemove = overrides.onBeforeStaleTicketRemove;
   return acquireMkdirTicketLock(lockDir, {
     label: 'review metadata transaction',
     deadlineMs: 120_000,
     staleMs: 10_000,
     ...overrides,
+    onBeforeStaleTicketRemove: ticketPath => {
+      callerBeforeStaleRemove?.(ticketPath);
+      if (!barrier || !ticketPath.endsWith('dead-a.ticket')) return;
+      writeFileSync(join(barrier.root, `observed-${barrier.id}`), ticketPath);
+      waitForReviewMetadataBarrier(join(barrier.root, `allow-remove-${barrier.id}`));
+    },
     holderInfo: {
       pid: process.pid,
       hostname: localHostname,
@@ -479,8 +504,15 @@ export function withReviewMetadataTicketLock<T>(
   overrides: Pick<MkdirTicketLockOptions, 'onBeforeStaleTicketRemove' | 'pollMs'> = {},
 ): T {
   const lock = acquireReviewMetadataTicketLock(lockDir, operation, overrides);
+  const barrier = reviewMetadataBarrierConfig();
   try {
-    return fn();
+    if (barrier) {
+      writeFileSync(join(barrier.root, `acquired-${barrier.id}`), lock.lockDir);
+      waitForReviewMetadataBarrier(join(barrier.root, `release-${barrier.id}`));
+    }
+    const result = fn();
+    if (barrier) writeFileSync(join(barrier.root, `completed-${barrier.id}`), operation);
+    return result;
   } finally {
     lock.release();
   }

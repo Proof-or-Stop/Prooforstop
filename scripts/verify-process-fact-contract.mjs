@@ -5252,7 +5252,7 @@ function assertParentRoadmapTotalityRuntime() {
   assert(agentPromptHandlerText.includes('withReviewMetadataTicketLock'), 'Story-aware agent_prompt must use the shared review metadata transaction lock');
   assert(!reviewRunHandlerText.includes("'prompt-envelopes.lock'"), 'review_run_start must not nest the legacy fixed-path Prompt Envelope lock');
   assert(!agentPromptHandlerText.includes("'prompt-envelopes.lock'"), 'Story-aware agent_prompt must not use the legacy fixed-path Prompt Envelope lock');
-  for (const token of ['MIXED WRITER LOCK ABA:', 'review_run_start mixed-producer barrier', 'agent_prompt mixed-producer barrier', 'observed-w2', 'observed-w1', 'allow-w2-remove', 'acquired-w2', 'allow-w1-remove']) {
+  for (const token of ['MIXED WRITER LOCK ABA:', "'review_run_start'", "'agent_prompt'", 'observed-w2', 'observed-w1', 'allow-remove-w2', 'acquired-w2', 'allow-remove-w1', 'actual mixed producers preserve both Prompt Envelope records', 'verifyReviewRunPromptEnvelope']) {
     assert(incrementalSmokeText.includes(token), `review incremental smoke must preserve deterministic ABA barrier ${token}`);
   }
   const dispatchAuthorityLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:agent_dispatch_role_authority_gate');

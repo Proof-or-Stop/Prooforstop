@@ -68,7 +68,11 @@ import {
   classifyEvidenceFreshness,
   currentGitHead,
 } from '../core/evidence-freshness.js';
-import { collectReviewerEvidenceState } from '../core/review-run.js';
+import {
+  collectReviewerEvidenceState,
+  verifyReviewRun,
+  verifyReviewRunPromptEnvelope,
+} from '../core/review-run.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { materialDiffPackDigest } from '../core/review-scope-binding.js';
 import {
@@ -87,7 +91,6 @@ import type {
 /** Marker line printed by the smoke so `lattice validate` output is greppable. */
 const MARKER = 'review-incremental-context-smoke:';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
-const DIST_MKDIR_LOCK_URL = new URL('../core/mkdir-lock.js', import.meta.url).href;
 
 const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
 
@@ -912,73 +915,148 @@ function waitForPath(path: string, label: string, timeoutMs = 10_000): void {
 
 function runDeterministicTicketReclaimAbaCase(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-review-lock-aba-'));
-  const lockDir = join(root, 'review-metadata-transaction.lock');
+  const storyId = 'B-mixed-writer-aba';
+  const round = '2026-07-19T00:00:00.000Z';
+  const barrierRoot = join(root, 'barriers');
+  const lockDir = join(root, '.lattice/story/actives', storyId, 'review-metadata-transaction.lock');
   const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
-  mkdirSync(lockDir, { recursive: true });
-  writeFileSync(deadTicket, JSON.stringify({
-    pid: 999_999_999,
-    hostname: hostname(),
-    command: 'dead A',
-    acquiredAt: '2026-07-19T00:00:00.000Z',
-    lockId: 'dead-a',
-  }) + '\n');
-
-  const childScript = (id: 'w1' | 'w2') => `
-    import { existsSync, writeFileSync } from 'node:fs';
-    import { join } from 'node:path';
-    import { acquireReviewMetadataTicketLock } from ${JSON.stringify(DIST_MKDIR_LOCK_URL)};
-    const root = ${JSON.stringify(root)};
-    const id = ${JSON.stringify(id)};
-    const sleep = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
-    const wait = path => { while (!existsSync(path)) sleep(5); };
-    const operation = id === 'w2'
-      ? 'review_run_start mixed-producer barrier'
-      : 'agent_prompt mixed-producer barrier';
-    const lock = acquireReviewMetadataTicketLock(
-      join(root, 'review-metadata-transaction.lock'),
-      operation,
-      {
-      pollMs: 5,
-      onBeforeStaleTicketRemove: ticketPath => {
-        if (!ticketPath.endsWith('dead-a.ticket')) return;
-        writeFileSync(join(root, 'observed-' + id), ticketPath);
-        if (id === 'w2') wait(join(root, 'allow-w2-remove'));
-        else wait(join(root, 'allow-w1-remove'));
-      },
-    });
-    writeFileSync(join(root, 'acquired-' + id), lock.lockDir);
-    wait(join(root, 'release-' + id));
-    lock.release();
-    writeFileSync(join(root, 'done-' + id), 'done');
-  `;
-
-  const children = [
-    spawn(process.execPath, ['--input-type=module', '-e', childScript('w2')], { stdio: 'ignore' }),
-  ];
+  const children: ReturnType<typeof spawn>[] = [];
   try {
-    waitForPath(join(root, 'observed-w2'), 'W2 observing dead A');
-    children.push(spawn(process.execPath, ['--input-type=module', '-e', childScript('w1')], { stdio: 'ignore' }));
-    waitForPath(join(root, 'observed-w1'), 'W1 observing dead A');
-    writeFileSync(join(root, 'allow-w2-remove'), 'go');
-    waitForPath(join(root, 'acquired-w2'), 'replacement B/W2 acquiring after reclaim');
-    const replacementTicket = readFileSync(join(root, 'acquired-w2'), 'utf8');
+    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\nbarriers/\n');
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: '.',
+      rootDir: 'src',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+      flows: { defaults: {}, patterns: [] },
+      promptEnvelope: {
+        version: 'proofbound.prompt-envelope-rollout.v1',
+        roles: {
+          'lattice-review-quality': 'full-envelope',
+          'lattice-review-docs': 'full-envelope',
+        },
+      },
+    }, null, 2) + '\n');
+    write(root, 'src/seed.ts', 'export const seed = true;\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed mixed writer base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const store = new StoryStore(root);
+    store.writeStory(storyId, {
+      ...reviewStory(storyId, 1, round),
+      title: 'Mixed Prompt Envelope writers',
+      description: 'Prove review_run_start and Story-aware agent_prompt serialize one envelope transaction.',
+      priority: 'high',
+    });
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Preserve both Prompt Envelopes',
+        context: 'Mixed producers must not overwrite each other.',
+        status: 'done',
+        startTime: null,
+        endTime: round,
+        files: { modify: ['src/seed.ts'], create: [], test: [] },
+        verificationIntent: {
+          happy: [{ id: 'CHK-001:happy:0', desc: 'Both producer records survive.', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    });
+    git(root, ['add', '.lattice/story']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed mixed writer review metadata']);
+    execFileSync(process.execPath, [
+      DIST_CLI_PATH, '--root', root, 'dispatch',
+      JSON.stringify({ storyId, agentType: 'lattice-review-quality' }),
+    ], {
+      cwd: root,
+      env: {
+        ...process.env,
+        LATTICE_PROJECT_ROOT: root,
+        LATTICE_ACTIVITY_SOURCE: 'codex',
+        LATTICE_AGENT: 'main',
+        LATTICE_SESSION_ID: 'mixed-owner',
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    mkdirSync(lockDir, { recursive: true });
+    mkdirSync(barrierRoot, { recursive: true });
+    writeFileSync(deadTicket, JSON.stringify({
+      pid: 999_999_999,
+      hostname: hostname(),
+      command: 'dead A',
+      acquiredAt: '2026-07-19T00:00:00.000Z',
+      lockId: 'dead-a',
+    }) + '\n');
+    const childEnv = (id: 'w1' | 'w2', agent: string, sessionId: string) => ({
+      ...process.env,
+      NODE_ENV: 'test',
+      LATTICE_PROJECT_ROOT: root,
+      LATTICE_ACTIVITY_SOURCE: 'codex',
+      LATTICE_AGENT: agent,
+      LATTICE_SESSION_ID: sessionId,
+      LATTICE_TEST_REVIEW_METADATA_BARRIER_ROOT: barrierRoot,
+      LATTICE_TEST_REVIEW_METADATA_BARRIER_ID: id,
+    });
+    children.push(spawn(process.execPath, [
+      DIST_CLI_PATH, '--root', root, 'review_run_start',
+      JSON.stringify({ storyId, agent: 'lattice-review-quality' }),
+    ], {
+      cwd: root,
+      env: childEnv('w2', 'lattice-review-quality', 'concurrent-lattice-review-quality'),
+      stdio: 'ignore',
+    }));
+    waitForPath(join(barrierRoot, 'observed-w2'), 'W2 observing dead A');
+    children.push(spawn(process.execPath, [
+      DIST_CLI_PATH, '--root', root, 'agent_prompt',
+      JSON.stringify({ storyId, role: 'lattice-review-docs', format: 'json' }),
+    ], {
+      cwd: root,
+      env: childEnv('w1', 'main', 'mixed-owner'),
+      stdio: 'ignore',
+    }));
+    waitForPath(join(barrierRoot, 'observed-w1'), 'W1 observing dead A');
+    writeFileSync(join(barrierRoot, 'allow-remove-w2'), 'go');
+    waitForPath(join(barrierRoot, 'acquired-w2'), 'replacement B/W2 acquiring after reclaim');
+    const replacementTicket = readFileSync(join(barrierRoot, 'acquired-w2'), 'utf8');
     assert.equal(existsSync(replacementTicket), true, 'replacement B ticket exists before delayed W1 reclaim resumes');
 
-    writeFileSync(join(root, 'allow-w1-remove'), 'go');
+    writeFileSync(join(barrierRoot, 'allow-remove-w1'), 'go');
     sleepSync(100);
     assert.equal(
       existsSync(replacementTicket),
       true,
       'delayed stale reclaimer removes only dead A identity and cannot delete replacement B',
     );
-    assert.equal(existsSync(join(root, 'acquired-w1')), false, 'W1 cannot overlap replacement B critical section');
+    assert.equal(existsSync(join(barrierRoot, 'acquired-w1')), false, 'agent_prompt cannot overlap review_run_start critical section');
 
-    writeFileSync(join(root, 'release-w2'), 'go');
-    waitForPath(join(root, 'acquired-w1'), 'W1 acquiring after B release');
-    writeFileSync(join(root, 'release-w1'), 'go');
-    waitForPath(join(root, 'done-w1'), 'W1 completion');
-    waitForPath(join(root, 'done-w2'), 'W2 completion');
-    console.log(`${MARKER} MIXED WRITER LOCK ABA: review_run_start + agent_prompt share identity-safe serialization`);
+    writeFileSync(join(barrierRoot, 'release-w2'), 'go');
+    waitForPath(join(barrierRoot, 'completed-w2'), 'actual review_run_start completion');
+    waitForPath(join(barrierRoot, 'acquired-w1'), 'actual agent_prompt acquiring after review_run_start release');
+    writeFileSync(join(barrierRoot, 'release-w1'), 'go');
+    waitForPath(join(barrierRoot, 'completed-w1'), 'actual agent_prompt completion');
+    const envelopes = store.readPromptEnvelopes(storyId).envelopes;
+    const runs = store.readReviewRuns(storyId).runs;
+    assert.equal(envelopes.length, 2, 'actual mixed producers preserve both Prompt Envelope records');
+    assert.deepEqual(
+      [...new Set(envelopes.map(envelope => envelope.dispatchKind))].sort(),
+      ['review-run', 'story-dispatch'],
+      'persisted envelopes identify both actual producer paths',
+    );
+    assert.equal(runs.length, 1, 'actual review_run_start durably persists exactly one ReviewRun');
+    assert.equal(verifyReviewRun(runs[0]), true, 'actual mixed-writer ReviewRun remains signed');
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runs[0]),
+      { ok: true },
+      'gate verifier accepts the review-run envelope after agent_prompt appends its record',
+    );
+    console.log(`${MARKER} MIXED WRITER LOCK ABA: actual review_run_start + agent_prompt preserve two envelopes and valid signed ReviewRun`);
   } finally {
     for (const child of children) {
       if (child.exitCode === null) child.kill('SIGKILL');
