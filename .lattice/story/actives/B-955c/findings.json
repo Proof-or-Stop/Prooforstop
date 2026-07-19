@@ -119,7 +119,7 @@
       "desc": "packages/main/src/core/evidence/environment-contract.ts:488-565,793-819 — HIGH: normalization accepts any structurally valid caller-supplied descriptor without resolving it through the default registry, and Gate projection then hard-codes environmentDescriptorValid/environmentReceiptValid/environmentPolicyValid=true. Repro against the built artifact created descriptor id `unregistered.evil`; normalization returned ok=true and DONE_REQUIRED projection returned decision=advance with no reasons. This violates the registered-descriptor fail-closed invariant and is not covered by the smoke suite.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T00:53:38.717Z",
@@ -127,7 +127,11 @@
       "reviewRunId": "B-955c:RR-002",
       "_hash": "34e23f432832a90de809514d82d7fca753f99efbac51bb9a3ef5f81b541b51b5",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: caller-supplied descriptor unregistered.evil could normalize and advance. Root cause: normalization accepted arbitrary descriptor objects and Gate hard-coded descriptor validity. Fix: Gate resolves only the default registered descriptor by id and requires exact canonical descriptor equality during normalization. Unregistered descriptor Gate regression returns stop; PASS at b31b29b522.",
+      "resolvedAt": "2026-07-19T01:10:34.911Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-955c:F-008",
