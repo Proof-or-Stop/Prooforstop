@@ -43,7 +43,7 @@
       "desc": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md:314-355,768-793 — The canonical PromptEnvelope interface and the audit-field example are stale relative to the implemented v1 contract. They omit impactPolicyVersion, eligibilityReasonCodes, changedFilesDigest, impactedFilesDigest, reviewBasisDigest, incrementalContextDigest, taskSemanticDigest, selectionReason, fullContextBytes, incrementalContextBytes, escalatedToFull, escalationReason, and budgetViolation (implemented in packages/main/src/core/prompt-contracts.ts:217-229 and assembled in prompt-envelope.ts:412-435). The text also says every review run records reviewBasisDigest/incrementalContextDigest, but those fields are conditional on a trusted prior basis and are absent for first-pass safety-full runs. Update the formal schema and audit description to distinguish always-recorded v1 fields from conditional incremental-basis fields; preserve legacy-full-context compatibility and do not imply Stories 5-7 rollout.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-19T05:31:54.696Z",
@@ -51,7 +51,11 @@
       "reviewRunId": "B-03ac:RR-004",
       "_hash": "0e709cc40a2b26066fd1f5df1039bdfcc959905857ef4bc57af892dbd4c488f0",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 5f7ec42a83: canonical decision document formal PromptEnvelope and audit examples now include implemented optional selection, size, budget, task semantic and escalation fields, and distinguish first-pass/legacy full runs without reviewBasis.",
+      "resolvedAt": "2026-07-19T06:15:49.454Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-03ac:F-004",
