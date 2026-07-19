@@ -704,6 +704,34 @@
         "scanEscalationReason": "Bounded current-authority re-attestation created a new signed ReviewRun/Prompt Envelope after stale eligibility digests, then verified unchanged storyFilesHash/scope, all 48 semantic evidence records, current validation PASS, and SAFE_INCREMENTAL selection. No story-owned code changed, so repeated stress would not add coverage."
       },
       "_hash": "86832fd5a978b60d7f8abaf0abaaed63451ece9f39b21111f1111df2a9dc95b5"
+    },
+    {
+      "id": "B-235e:RP-029",
+      "agent": "lattice-review-concept",
+      "note": "Round 17 first convergence pass. Since RP-025 only lifecycle/process/test and reviewer-evidence metadata changed, including prior Prompt Envelopes/ReviewRuns; no material source, Prompt, config, docs, contract, scope, or environment input changed. RR-061 authoritatively recomputed incremental/SAFE_INCREMENTAL from RP-025 with ELIGIBLE_NO_MATERIAL_CHANGE and ELIGIBLE_TRUSTED_PRIOR_BINDINGS. No concept or authority blocker found.",
+      "createdAt": "2026-07-19T22:59:20.994Z",
+      "reviewRound": "2026-07-19T22:57:57.775Z",
+      "reviewRunId": "B-235e:RR-061",
+      "envelopeId": "9a0b425d09b90fe4fdb08ee6a3618b35d42cfb215d474ffae1dd3581dee81890",
+      "writerSessionId": "sess-725b97bee152890e065410dcd644eaff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/review-incremental-context.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "51891f89dd7c54f4c1538e20572e2a7ef4520fc83a8937f1a0fd89e992badc9c"
     }
   ]
 }
