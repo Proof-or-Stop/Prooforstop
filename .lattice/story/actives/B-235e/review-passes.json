@@ -604,6 +604,23 @@
         "scanEscalationReason": null
       },
       "_hash": "fe17cefbd0619b5c4a113150ca60a7bf876730cc7a768c19ade18e99cf988434"
+    },
+    {
+      "id": "B-235e:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 15 metadata-only DONE-required re-attestation PASS: story-owned material and scope remain unchanged (storyFilesHash 645080887673ae8bfef02e5dde7704eceb40b9a0d87e52802ac616849e5e6c51; same scope binding as rounds 13-14), current mapping remains 48 intents to 48 concrete passing evidence with zero missing, duplicates, failures, waivers, or orphans, and latest routine validation is PASS via trusted-story-metadata-descendant reuse with commandExecutions=0. Current signed ReviewRun selected SAFE_INCREMENTAL (6505 vs 31563 bytes). No story-owned code changed after the fully exercised round-13 review, so no additional stress rerun was warranted. This lane pass does not claim full quorum or DONE completion.",
+      "createdAt": "2026-07-19T22:46:31.452Z",
+      "reviewRound": "2026-07-19T22:44:59.941Z",
+      "reviewRunId": "B-235e:RR-054",
+      "envelopeId": "6a4cd399baea17aa234bc4c807cb4059d307c853f9f6a9719e20a7524cb7a147",
+      "writerSessionId": "sess-78c1fcc0db71cb224b0d05382e8243ea",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Bounded metadata-only re-attestation verified unchanged storyFilesHash/scope, all 48 semantic evidence records, current trusted validation PASS, and the SAFE_INCREMENTAL signed envelope. DONE-required validation changed only lifecycle evidence; no story-owned code changed, so repeating code tests would add no new coverage."
+      },
+      "_hash": "f8fb191e49040204270341527c151bfe269907d4ca549b6160feb1f8d64fe4d8"
     }
   ]
 }
