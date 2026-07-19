@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-19T02:07:15.718Z",
       "endTime": "2026-07-19T02:34:59.484Z",
       "verificationIntent": {
@@ -522,6 +522,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Owner independently reran the repaired 43-check fail-closed harness and bound fresh evidence without promoting unavailable historical metrics.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:44:45.253Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Second-round docs findings F-011/F-012 require protocol and signed-field boundary correction.",
       "agent": "main"
     }
   ]
