@@ -291,6 +291,21 @@
       "_hash": "631ba750c6ae13676675c4d5b1f0b8ff7ba579deda87bc87927fcfff4b81cf99",
       "signatureTag": "adversarial|unknown|experiments-role-prompt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d4b:F-017",
+      "desc": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md:1100-1104 still says selfcheck snapshots production pass/finding/ReviewRun/verification/validation/lifecycle evidence before and after. The current selfcheck.mjs:193-200 instead hashes five immutable production source/registry files and reports Immutable production fact drift: NONE; it no longer snapshots those mutable lifecycle evidence artifacts. Update the delivered-status wording to the actual immutable-process-fact no-drift check and separately describe the structural path/gate-consumer isolation tests, rather than claiming an evidence snapshot assertion the command does not run.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T02:55:10.377Z",
+      "reviewRound": "2026-07-19T02:53:38.210Z",
+      "reviewRunId": "B-8d4b:RR-011",
+      "_hash": "a5bda6b85e464075a20e77d9b4e62182158e25022170e8034685003888232bc7",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
