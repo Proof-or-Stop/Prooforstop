@@ -430,6 +430,21 @@
       "_hash": "f40ced312d421bc2b416d33a1adbc750a2a1ab2d81913d9817fa791b32c0162a",
       "signatureTag": "missing|unknown|experiments-role-prompt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d4b:F-023",
+      "desc": "experiments/role-prompt-ab-replay/selfcheck.mjs:199-203,294-301 — HIGH: the isolated no-write proof still snapshots only .lattice/story/actives/B-sentinel plus the root process-events file, then checks only the top-level .lattice names. It does not snapshot the complete .lattice/story evidence root as the decision document claims. Independent repro using the same snapshot algorithm created .lattice/story/actives/B-forged/review-passes.json after the baseline; snapshotEqual remained true and topLevelLattice remained [process-events.jsonl,story]. Therefore a new pass/finding/ReviewRun artifact under another Story is invisible and CHK-004 can still print drift NONE. Snapshot/compare the entire isolated .lattice/story tree (and other governed evidence roots) or explicitly assert the recursive inventory so any new sibling artifact fails.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-19T03:05:38.304Z",
+      "reviewRound": "2026-07-19T03:04:08.970Z",
+      "reviewRunId": "B-8d4b:RR-014",
+      "_hash": "708748dd81d77dbbb66a504ee42d576d21a634c36e7ee6fc5ba868da4c9403f8",
+      "signatureTag": "missing|unknown|experiments-role-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
