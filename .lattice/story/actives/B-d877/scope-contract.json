@@ -78,10 +78,26 @@
       "phase": "DEV",
       "headHash": "b52a035d862ee461d0f4a92d557951e8df00b51b",
       "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Fix-round R3 codex#4/F-011: relocate in-story mkdir-lock dirs to gitignored .lattice/locks/<category>/ (storyRuntimeLockPath/runtimeLockDirPath threaded through every caller that rooted a lock in the story dir). Reviewer-demanded; each caller's smoke green.",
+      "timestamp": "2026-07-19T05:28:14.118Z",
+      "paths": [
+        "packages/main/src/core/dirty-gate-policy.ts,packages/main/src/core/process-events.ts,packages/main/src/core/store.ts,packages/main/src/core/validation-execution-lock.ts,packages/main/src/handlers/agent-prompt.ts,packages/main/src/handlers/checklist.ts,packages/main/src/handlers/finding.ts,packages/main/src/handlers/init-check.ts,packages/main/src/handlers/review-run.ts,packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/dirty-gate-policy.ts,packages/main/src/core/process-events.ts,packages/main/src/core/store.ts,packages/main/src/core/validation-execution-lock.ts,packages/main/src/handlers/agent-prompt.ts,packages/main/src/handlers/checklist.ts,packages/main/src/handlers/finding.ts,packages/main/src/handlers/init-check.ts,packages/main/src/handlers/review-run.ts,packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "788d8af648cbb98fe3c4eb40473f75088c9f78f9",
+      "materialHash": "60082ac2db9523cd03aac2de2c03b22b03b77146bc2fc4472ea13d2c4d21b702"
     }
   ],
   "createdAt": "2026-07-18T23:51:45.763Z",
-  "updatedAt": "2026-07-19T05:20:08.850Z",
+  "updatedAt": "2026-07-19T05:28:14.118Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
