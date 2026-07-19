@@ -431,6 +431,27 @@
         "scanEscalationReason": "Coverage review used all 48 structured semantic intent/evidence mappings and executed the changed full-envelope runtime-lock regression, actual mixed-producer barrier, eligibility fail-closed checks, and complete 20-round concurrency stress; relevant regions were triaged without claiming entire files were read fully."
       },
       "_hash": "7e59b312f762c856871d861431f67993641b2286ad304400eb4883ac50176a9c"
+    },
+    {
+      "id": "B-235e:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Re-reviewed after main merge changed runtime lock semantics and Prompt Envelope eligibility context. Current agent_prompt and review_run_start use the same canonical gitignored runtime lock path and identity-safe unique-ticket helper; the prompt smoke mock now supplies runtimeLockDirPath via canonical storyRuntimeLockPath rather than a test-only hard-coded path. Current build, prompt full-context envelope, review-run envelope, process-fact verifier, actual mixed-producer ABA, all fail-closed eligibility branches, and the complete 20-iteration mixed legacy/full concurrency matrix passed. No blocking quality issue found.",
+      "createdAt": "2026-07-19T21:44:11.060Z",
+      "reviewRound": "2026-07-19T21:34:56.422Z",
+      "reviewRunId": "B-235e:RR-045",
+      "envelopeId": "dc591d1382b77198c0efcd8fcbab251a52c6196b76c8d6ab85989451a401d7ed",
+      "writerSessionId": "sess-61e583213cb095be130628a3b1ad47cd",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0ed541cac9bf41f570388e36746b27b182915d4b40f26b69f79be71f119faa33"
     }
   ]
 }
