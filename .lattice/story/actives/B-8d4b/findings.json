@@ -20,6 +20,27 @@
       ],
       "signatureTag": "spec-boundary|mjs|experiments-role-prompt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d4b:F-002",
+      "desc": "experiments/role-prompt-ab-replay/corpus.json:81-83,123-125,165-167,207-209 and lib/replay.mjs:308-320 — finding recall is marked EVALUABLE solely by replaying caller-authored `observedFindingsByArm`; those arm observations carry no source artifact, transcript/reviewer-run reference, evidence digest, or independent adjudication binding. The oracle `adjudication.evidenceRef` only supports that the seeded defect is valid, not that arm A or B actually detected it. `selfcheck.mjs` then prints `Recall: EVALUABLE` while merely checking schema/digests. Treat unbound arm outcomes exactly like unbound provider usage: reject numeric/detected observations or return INCONCLUSIVE until every arm observation is mechanically bound to immutable review output and independently adjudicated matching evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T02:11:22.120Z",
+      "reviewRound": "2026-07-19T02:09:19.210Z",
+      "reviewRunId": "B-8d4b:RR-004",
+      "_hash": "967bab8e03324e32e58db29a614e166d41a61986eec9ab7d0937a7c7c2604e19",
+      "files": [
+        "experiments/role-prompt-ab-replay/corpus.json",
+        "experiments/role-prompt-ab-replay/lib/replay.mjs",
+        "experiments/role-prompt-ab-replay/selfcheck.mjs",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "signatureTag": "missing|json|experiments-role-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
