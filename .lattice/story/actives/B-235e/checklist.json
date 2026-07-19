@@ -357,7 +357,7 @@
           }
         ]
       },
-      "userSees": "The Story 5 replay report shows every role and arm separately, reports context and assembled token deltas, provider/cache availability, finding recall and misuse, and says PASS or INCONCLUSIVE without inventing evidence.",
+      "userSees": "User sees one report row per role such as \"role=lattice-review-docs verdict=INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED incrementalContextReduction=62% assembledReduction=41% providerUsage=unavailable(...)\" without fabricated PASS values.",
       "files": {
         "modify": [
           "experiments/role-prompt-ab-replay"
