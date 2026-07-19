@@ -786,12 +786,16 @@ policy 必须被 registry 和 contract verifier 消费；handler 不能维护一
 #### 9.6 审计字段
 
 每个 v1 Prompt Envelope 都记录 Runtime/Role/environment/assembler/dispatch/
-launcher/command、eligibility、selection 和最终 prompt 的绑定。下例中的
-`impactPolicyVersion`、`eligibilityReasonCodes`、size/selection/budget 字段属于
+launcher/command 与最终 prompt 的绑定。只有经 Story 4 条件装配器生成的
+可信 review-run Envelope 才额外记录 eligibility 与 selection 审计面；
+story-dispatch Envelope、迁移前 legacy run，以及未走该条件装配路径的 full
+Envelope 不要求携带 Story 4 selection 字段。下例中的
+`impactPolicyVersion`、`eligibilityReasonCodes`、size/selection 字段属于
 Story 4 条件装配器的审计面；`reviewBasisDigest` 与
 `incrementalContextDigest` 仅在存在可信 prior pass 且成功构造 bounded
 reviewBasis 时出现。首次审查或缺少可信基线的 safety-full run 不伪造这两个
-字段：
+字段。`budgetViolation` 与 `escalationReason` 是可选的非 null 字段：只有
+实际发生预算违规或升级时才出现，缺省时必须省略而不是写 `null`：
 
 ```json
 {
@@ -813,11 +817,9 @@ reviewBasis 时出现。首次审查或缺少可信基线的 safety-full run 不
   "selectionReason": "SAFE_INCREMENTAL",
   "fullContextBytes": 120000,
   "incrementalContextBytes": 24000,
-  "budgetViolation": null,
   "envelopeId": "...",
   "reviewBasisDigest": "...",
-  "escalatedToFull": false,
-  "escalationReason": null
+  "escalatedToFull": false
 }
 ```
 

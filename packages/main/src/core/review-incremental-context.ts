@@ -244,12 +244,37 @@ function fixtureCaseKey(value: Record<string, unknown>, index: number): string {
   return `index:${index}`;
 }
 
+function canonicalFixtureCaseSet(
+  cases: Array<Record<string, unknown>>,
+): Map<string, Record<string, unknown>> | null {
+  const result = new Map<string, Record<string, unknown>>();
+  const identityOwners = new Map<string, number>();
+  for (const [index, value] of cases.entries()) {
+    // All supported identity aliases participate in uniqueness, not only the
+    // highest-priority field selected by fixtureCaseKey. Otherwise an `_id:x`
+    // case and a later `id:x`/`name:x` case can ambiguously identify the same
+    // logical case while occupying different Map keys.
+    for (const field of ['_id', 'id', 'name']) {
+      const candidate = value[field];
+      if (typeof candidate !== 'string' || !candidate.trim()) continue;
+      const alias = candidate.trim();
+      const owner = identityOwners.get(alias);
+      if (owner !== undefined && owner !== index) return null;
+      identityOwners.set(alias, index);
+    }
+    const key = fixtureCaseKey(value, index);
+    if (result.has(key)) return null;
+    result.set(key, value);
+  }
+  return result;
+}
+
 /**
  * Proves case-level closure from trusted git objects. File-level declarations
  * are insufficient: every new/changed case must carry a current Story-scoped
  * positional intentRef and removed cases fail closed.
  */
-function fixtureCaseClosure(
+export function fixtureCaseClosure(
   gitCwd: string,
   baseRef: string,
   storyId: string,
@@ -259,8 +284,12 @@ function fixtureCaseClosure(
   const before = fixtureCases(gitFileAt(gitCwd, baseRef, path));
   const after = fixtureCases(gitFileAt(gitCwd, 'HEAD', path));
   if (!before || !after) return false;
-  const prior = new Map(before.map((value, index) => [fixtureCaseKey(value, index), value]));
-  const current = new Map(after.map((value, index) => [fixtureCaseKey(value, index), value]));
+  // Reject duplicate/ambiguous identities in both snapshots before any Map or
+  // digest comparison. This makes overwrite order irrelevant and prevents an
+  // unbound duplicate from hiding behind an unchanged later occurrence.
+  const prior = canonicalFixtureCaseSet(before);
+  const current = canonicalFixtureCaseSet(after);
+  if (!prior || !current) return false;
   if ([...prior.keys()].some(key => !current.has(key))) return false;
   const storyPrefix = `${storyId}:`;
   for (const [key, value] of current) {

@@ -58,6 +58,7 @@ import { fileURLToPath } from 'node:url';
 
 import {
   classifyIncrementalBindingReasons,
+  fixtureCaseClosure,
   reviewIncrementalContext,
 } from '../core/review-incremental-context.js';
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
@@ -605,6 +606,64 @@ function runPolicyCases(): void {
   console.log(`${MARKER} POLICY: stable v1 bounded categories and canonical freshness classifications PASS`);
 }
 
+function runFixtureDuplicateIdentityCases(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-fixture-duplicate-identity-'));
+  const storyId = 'B-duplicate';
+  const fixturePath = 'cases.json';
+  const intentRef = `${storyId}:CHK-001:happy:0`;
+  const original = {
+    _id: 'base-case',
+    name: 'base case',
+    intentRef,
+    expect: true,
+  };
+  try {
+    write(root, fixturePath, JSON.stringify({ cases: [original] }, null, 2) + '\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', fixturePath]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed fixture']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+
+    const duplicateVariants: Array<[string, Array<Record<string, unknown>>]> = [
+      ['prepend duplicate _id', [{ _id: 'base-case', expect: false }, original]],
+      ['append duplicate _id', [original, { _id: 'base-case', expect: false }]],
+      ['reordered duplicate _id', [{ _id: 'other', intentRef }, original, { _id: 'base-case', expect: false }]],
+      ['cross-field id alias', [original, { id: 'base-case', expect: false }]],
+      ['cross-field name alias', [original, { name: 'base case', expect: false }]],
+    ];
+    for (const [label, cases] of duplicateVariants) {
+      write(root, fixturePath, JSON.stringify({ cases }, null, 2) + '\n');
+      git(root, ['add', fixturePath]);
+      git(root, [...COMMIT_ENV, 'commit', '-m', label]);
+      assert.equal(
+        fixtureCaseClosure(root, 'main', storyId, fixturePath, new Set([intentRef])),
+        false,
+        `${label} must fail closed before Map/digest comparison`,
+      );
+    }
+
+    git(root, ['checkout', 'main']);
+    write(root, fixturePath, JSON.stringify({
+      cases: [original, { id: 'base-case', expect: false }],
+    }, null, 2) + '\n');
+    git(root, ['add', fixturePath]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'duplicate identity in prior snapshot']);
+    git(root, ['checkout', '-B', 'story/duplicate-prior']);
+    write(root, fixturePath, JSON.stringify({ cases: [original] }, null, 2) + '\n');
+    git(root, ['add', fixturePath]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'remove duplicate from current snapshot']);
+    assert.equal(
+      fixtureCaseClosure(root, 'main', storyId, fixturePath, new Set([intentRef])),
+      false,
+      'duplicate identity in the prior canonical set must fail closed',
+    );
+    console.log(`${MARKER} FIXTURE DUPLICATES: before/after canonical sets reject prepend/append/order and _id/id/name alias ambiguity`);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Case (d): GATE-UNCHANGED ASSERTION over deterministic git-free fixtures.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -789,6 +848,7 @@ function runConcurrentCliReadOnlyCase(): void {
 
 function run(): void {
   runPolicyCases();
+  runFixtureDuplicateIdentityCases();
   runIncrementalCases();
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();

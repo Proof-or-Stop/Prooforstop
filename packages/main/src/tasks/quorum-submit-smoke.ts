@@ -557,6 +557,37 @@ try {
     });
   });
 
+  check('duplicate fixture identities always force full regardless of alias or ordering', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const fixturePath = 'packages/main/tests/fixtures/quorum-smoke.json';
+      const intentRef = `${STORY_ID}:CHK-001:happy:0`;
+      const original = {
+        _id: 'base-case',
+        name: 'base case',
+        intentRef,
+        expect: true,
+      };
+      const duplicateVariants: Array<[string, Array<Record<string, unknown>>]> = [
+        ['prepend duplicate _id', [{ _id: 'base-case', expect: false }, original]],
+        ['append duplicate _id', [original, { _id: 'base-case', expect: false }]],
+        ['reordered duplicate _id', [{ _id: 'other', intentRef }, original, { _id: 'base-case', expect: false }]],
+        ['cross-field id alias', [original, { id: 'base-case', expect: false }]],
+        ['cross-field name alias', [original, { name: 'base case', expect: false }]],
+      ];
+      const dispatch = fixture.registry.get('dispatch')!;
+      const start = fixture.registry.get('review_run_start')!;
+      for (const [label, cases] of duplicateVariants) {
+        write(fixture.root, fixturePath, JSON.stringify({ cases }, null, 2) + '\n');
+        git(fixture.root, ['add', fixturePath]);
+        git(fixture.root, [...COMMIT_ENV, 'commit', '-m', label]);
+        dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' });
+        const output = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
+        assert.match(output, /context full\/SAFETY_REQUIRES_FULL/, `${label} must select safety full`);
+      }
+    });
+  });
+
   check('review_run_start CLI records reviewer-requested full escalation in envelope and signed run', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
