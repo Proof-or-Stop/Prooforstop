@@ -1,0 +1,33 @@
+{
+  "storyId": "B-8d4b",
+  "name": "role-prompt-ab-replay-usage-measurement",
+  "title": "Story 3: establish isolated role-prompt A/B replay and usage measurement",
+  "description": "Implement the third milestone of the canonical role-prompt modularization plan: a read-only historical-material replay harness that deterministically compares pinned prompt contracts/models/samples, records assembled and known-dispatch input plus provider usage/cache and adjudicated findings in experiment-only artifacts, and returns INCONCLUSIVE when source material cannot be reconstructed without mutating production Story evidence.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-19T01:28:46.243Z",
+  "startedAt": "2026-07-19T01:28:46.243Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-19T01:28:46.775Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
+      "agent": "main"
+    }
+  ]
+}
