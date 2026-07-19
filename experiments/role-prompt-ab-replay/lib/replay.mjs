@@ -259,6 +259,19 @@ export function validateExperiment(protocol, corpus) {
   if (protocol.sameInputRule?.onlyPermittedDifference !== 'promptContract') {
     throw new ReplayContractError('ARM_INPUT_DRIFT', 'only promptContract may differ between arms');
   }
+  const requiredInputLayers = {
+    assembledPrompt: 'unavailable-without-content-addressed-prompt-snapshot',
+    knownDispatchInput: 'unavailable-without-verified-evidence-binding',
+    providerProcessedInput: 'unavailable-without-verified-evidence-binding',
+    cacheCreation: 'unavailable-without-verified-evidence-binding',
+    cacheRead: 'unavailable-without-verified-evidence-binding',
+  };
+  if (canonicalJson(protocol.inputLayers) !== canonicalJson(requiredInputLayers)) {
+    throw new ReplayContractError(
+      'INVALID_INPUT_LAYER_SEMANTICS',
+      'protocol inputLayers must match the canonical availability-aware unavailable snapshot boundary',
+    );
+  }
   const repeats = protocol.sampling?.repeats;
   if (!Number.isSafeInteger(repeats) || repeats < 3 || repeats < protocol.requiredCorpus?.minimumRepeats) {
     throw new ReplayContractError('REPEAT_FLOOR_INCOMPLETE', 'at least three repeats are required');
@@ -405,9 +418,22 @@ function measureBoundPrompt(text) {
 export function evaluateBoundFixture(fixture) {
   assertObject(fixture, 'HERMETIC_FIXTURE_INVALID', 'fixture must be an object');
   if (fixture.schemaVersion !== 'proofbound.role-prompt-ab.hermetic-fixture.v1'
-      || !Array.isArray(fixture.arms) || fixture.arms.length !== 2
-      || !Array.isArray(fixture.reviewerOutputs) || fixture.reviewerOutputs.length !== 2) {
+      || !Array.isArray(fixture.arms)
+      || !Array.isArray(fixture.reviewerOutputs)) {
     throw new ReplayContractError('HERMETIC_FIXTURE_INVALID', 'fixture shape/version invalid');
+  }
+  const armIds = fixture.arms.map(arm => arm?.id);
+  if (canonicalJson([...new Set(armIds)].sort()) !== canonicalJson(['A', 'B'])
+      || armIds.length !== 2) {
+    throw new ReplayContractError('HERMETIC_ARM_SET_INVALID', 'fixture arms must be exactly one A and one B');
+  }
+  const outputArmIds = fixture.reviewerOutputs.map(output => output?.armId);
+  if (canonicalJson([...new Set(outputArmIds)].sort()) !== canonicalJson(['A', 'B'])
+      || outputArmIds.length !== 2) {
+    throw new ReplayContractError(
+      'HERMETIC_OUTPUT_SET_INVALID',
+      'reviewer outputs must be exactly one output for A and one output for B',
+    );
   }
   const oracleSetDigest = digest('role-prompt-ab.hermetic-oracle-set.v1', fixture.oracles);
   if (fixture.oracleSetDigest !== oracleSetDigest) {

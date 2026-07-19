@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { constants as fsConstants } from 'node:fs';
 import { lstat, mkdir, open, readFile, realpath, unlink } from 'node:fs/promises';
 import path from 'node:path';
@@ -103,8 +104,7 @@ async function assertNoSymlinkEscape(target) {
 }
 
 export async function resolveLedgerPath(relativePath) {
-  if (typeof relativePath !== 'string' || !/^runtime\/[a-zA-Z0-9._/-]+\.jsonl$/.test(relativePath)
-      || relativePath.includes('..') || relativePath.includes('\\')) {
+  if (typeof relativePath !== 'string' || !/^runtime\/[a-zA-Z0-9._-]+\.jsonl$/.test(relativePath)) {
     throw new ReplayContractError('LEDGER_PATH_ESCAPE', 'ledger path must be runtime/<safe-name>.jsonl');
   }
   const target = path.resolve(EXPERIMENT_ROOT, relativePath);
@@ -329,19 +329,110 @@ export async function readLedger(relativePath) {
   return parseLedgerText(text);
 }
 
-async function acquireLedgerLock(target) {
+async function assertParentIdentity(parentHandle, parentPath) {
+  const held = await parentHandle.stat();
+  if (!held.isDirectory()) {
+    throw new ReplayContractError('LEDGER_PATH_ESCAPE', 'ledger parent descriptor is not a directory');
+  }
+  let current;
+  let canonical;
+  try {
+    [current, canonical] = await Promise.all([lstat(parentPath), realpath(parentPath)]);
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      throw new ReplayContractError('LEDGER_PATH_ESCAPE', 'ledger parent directory disappeared');
+    }
+    throw error;
+  }
+  if (current.isSymbolicLink() || !current.isDirectory()
+      || current.dev !== held.dev || current.ino !== held.ino
+      || canonical !== path.resolve(parentPath)) {
+    throw new ReplayContractError('LEDGER_PATH_ESCAPE', 'ledger parent directory identity changed');
+  }
+}
+
+function processIsAlive(pid) {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch (error) {
+    return error?.code === 'EPERM';
+  }
+}
+
+async function recoverStaleLock(lockPath, parentHandle, parentPath) {
+  await assertParentIdentity(parentHandle, parentPath);
+  let pathStat;
+  let handle;
+  try {
+    pathStat = await lstat(lockPath);
+    if (pathStat.isSymbolicLink() || !pathStat.isFile()) return false;
+    handle = await open(lockPath, fsConstants.O_RDONLY | fsConstants.O_NOFOLLOW);
+    const held = await handle.stat();
+    if (held.dev !== pathStat.dev || held.ino !== pathStat.ino) return false;
+    const text = await handle.readFile('utf8');
+    let owner;
+    try {
+      owner = JSON.parse(text);
+    } catch {
+      owner = null;
+    }
+    const validOwner = owner
+      && Number.isSafeInteger(owner.pid) && owner.pid > 0
+      && typeof owner.createdAt === 'string' && Number.isFinite(Date.parse(owner.createdAt))
+      && typeof owner.lockId === 'string' && /^[a-f0-9-]{36}$/.test(owner.lockId)
+      && canonicalJson(Object.keys(owner).sort()) === canonicalJson(['createdAt', 'lockId', 'pid']);
+    const ageMs = Date.now() - pathStat.mtimeMs;
+    const ownerAgeMs = validOwner ? Date.now() - Date.parse(owner.createdAt) : -1;
+    const reclaimable = validOwner
+      ? !processIsAlive(owner.pid) && ageMs >= 250 && ownerAgeMs >= 250
+      : ageMs >= 30_000;
+    if (!reclaimable) return false;
+    await assertParentIdentity(parentHandle, parentPath);
+    const current = await lstat(lockPath);
+    if (current.dev !== held.dev || current.ino !== held.ino) return false;
+    await unlink(lockPath);
+    return true;
+  } catch (error) {
+    if (error?.code === 'ENOENT' || error?.code === 'ELOOP') return false;
+    throw error;
+  } finally {
+    await handle?.close();
+  }
+}
+
+async function acquireLedgerLock(target, parentHandle, parentPath) {
   const lockPath = `${target}.lock`;
   for (let attempt = 0; attempt < 200; attempt += 1) {
     try {
+      await assertParentIdentity(parentHandle, parentPath);
       const handle = await open(
         lockPath,
         fsConstants.O_WRONLY | fsConstants.O_CREAT | fsConstants.O_EXCL | fsConstants.O_NOFOLLOW,
         0o600,
       );
-      await handle.writeFile(`${process.pid}\n`, 'utf8');
-      return { handle, lockPath };
+      try {
+        await assertParentIdentity(parentHandle, parentPath);
+        const owner = {
+          pid: process.pid,
+          createdAt: new Date().toISOString(),
+          lockId: randomUUID(),
+        };
+        await handle.writeFile(`${canonicalJson(owner)}\n`, 'utf8');
+        await handle.sync();
+        return { handle, lockPath, lockId: owner.lockId };
+      } catch (error) {
+        await handle.close();
+        try {
+          await unlink(lockPath);
+        } catch (unlinkError) {
+          if (unlinkError?.code !== 'ENOENT') throw unlinkError;
+        }
+        throw error;
+      }
     } catch (error) {
       if (error?.code !== 'EEXIST') throw error;
+      if (await recoverStaleLock(lockPath, parentHandle, parentPath)) continue;
       await new Promise(resolve => setTimeout(resolve, 5));
     }
   }
@@ -359,12 +450,29 @@ async function releaseLedgerLock(lock) {
   }
 }
 
-export async function appendLedgerRecord(relativePath, input) {
+export async function appendLedgerRecord(relativePath, input, hooks = {}) {
   const target = await resolveLedgerPath(relativePath);
-  await mkdir(path.dirname(target), { recursive: true });
+  const parentPath = path.dirname(target);
+  await mkdir(parentPath, { recursive: true });
   await assertNoSymlinkEscape(target);
-  const lock = await acquireLedgerLock(target);
+  let parentHandle;
   try {
+    parentHandle = await open(
+      parentPath,
+      fsConstants.O_RDONLY | fsConstants.O_DIRECTORY | fsConstants.O_NOFOLLOW,
+    );
+  } catch (error) {
+    if (error?.code === 'ELOOP') {
+      throw new ReplayContractError('LEDGER_PATH_ESCAPE', 'ledger parent became a symlink');
+    }
+    throw error;
+  }
+  await assertParentIdentity(parentHandle, parentPath);
+  let lock;
+  try {
+    lock = await acquireLedgerLock(target, parentHandle, parentPath);
+    if (hooks.afterLockAcquired) await hooks.afterLockAcquired();
+    await assertParentIdentity(parentHandle, parentPath);
     await assertNoSymlinkEscape(target);
     let handle;
     try {
@@ -380,6 +488,7 @@ export async function appendLedgerRecord(relativePath, input) {
     try {
       const stat = await handle.stat();
       if (!stat.isFile()) throw new ReplayContractError('LEDGER_PATH_ESCAPE', 'ledger target is not a regular file');
+      await assertParentIdentity(parentHandle, parentPath);
       const expectedPath = path.resolve(target);
       const openedPath = await realpath(target);
       const pathStat = await lstat(target);
@@ -400,6 +509,7 @@ export async function appendLedgerRecord(relativePath, input) {
       const supersedes = input.event === 'terminal' ? attemptRows.map(row => row.recordId) : [];
       const record = makeLedgerRecord(input, state.lastRecordHash, supersedes);
       verifyLedgerRows([...rows, record]);
+      await assertParentIdentity(parentHandle, parentPath);
       await handle.write(`${canonicalJson(record)}\n`, null, 'utf8');
       await handle.sync();
       return record;
@@ -407,7 +517,11 @@ export async function appendLedgerRecord(relativePath, input) {
       await handle.close();
     }
   } finally {
-    await releaseLedgerLock(lock);
+    try {
+      if (lock) await releaseLedgerLock(lock);
+    } finally {
+      await parentHandle.close();
+    }
   }
 }
 

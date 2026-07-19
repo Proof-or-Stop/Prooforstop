@@ -43,7 +43,8 @@ the reconstruction authority.
 The canonical corpus includes a small frozen snapshot of real signed historical
 findings from Story B-dd81. The validator recomputes the v1 finding signature
 over `storyId`, `findingId`, description, severity, creation time, review round,
-and `reviewRunId`, and also binds the complete snapshot into an explicit digest.
+`reviewRunId`, and `signatureVersion`, and also binds the complete snapshot into
+an explicit digest.
 The category, evidence state, and source references are corpus-bound metadata;
 the v1 finding signature itself does not cover those fields.
 

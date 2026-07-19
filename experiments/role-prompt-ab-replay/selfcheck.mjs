@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { lstat, mkdir, readFile, readdir, rm, symlink } from 'node:fs/promises';
+import { lstat, mkdir, mkdtemp, readFile, readdir, rename, rm, symlink, utimes, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import {
@@ -192,10 +193,11 @@ function makeHermeticFixture() {
 }
 
 const productionPaths = [
-  '.lattice/story',
-  '.lattice/usage/llm-usage.jsonl',
-  '.lattice/activity.jsonl',
-  '.lattice/process-events.jsonl',
+  'packages/main/src/core/process-fact-registry.ts',
+  'packages/main/src/core/process-fact-levels.ts',
+  'packages/main/src/core/runtime-artifact-registry.ts',
+  'packages/main/src/core/usage-ledger/record.ts',
+  'packages/main/src/core/review-run.ts',
 ];
 const beforeProduction = await hashTree(productionPaths);
 
@@ -242,6 +244,12 @@ try {
     changed.sampling.repeats = 2;
     changed.sampling.armOrderByRepeat = changed.sampling.armOrderByRepeat.slice(0, 2);
     await expectCode('REPEAT_FLOOR_INCOMPLETE', async () => validateExperiment(changed, corpus));
+  });
+
+  await check('protocol rejects locally recomputed assembledPrompt semantics without pinned prompt bytes', async () => {
+    const changed = clone(protocol);
+    changed.inputLayers.assembledPrompt = 'locally-recomputed';
+    await expectCode('INVALID_INPUT_LAYER_SEMANTICS', async () => validateExperiment(changed, corpus));
   });
 
   await check('sample-class floor regression is rejected', async () => {
@@ -399,6 +407,24 @@ try {
     await expectCode('FINDING_OUTPUT_DIGEST_MISMATCH', async () => evaluateBoundFixture(outputTamper));
   });
 
+  await check('hermetic evaluator requires exact unique A/B arm and output sets', async () => {
+    const duplicateArms = makeHermeticFixture();
+    duplicateArms.arms[1] = clone(duplicateArms.arms[0]);
+    await expectCode('HERMETIC_ARM_SET_INVALID', async () => evaluateBoundFixture(duplicateArms));
+
+    const missingOutput = makeHermeticFixture();
+    missingOutput.reviewerOutputs.pop();
+    await expectCode('HERMETIC_OUTPUT_SET_INVALID', async () => evaluateBoundFixture(missingOutput));
+
+    const duplicateOutput = makeHermeticFixture();
+    duplicateOutput.reviewerOutputs[1] = clone(duplicateOutput.reviewerOutputs[0]);
+    await expectCode('HERMETIC_OUTPUT_SET_INVALID', async () => evaluateBoundFixture(duplicateOutput));
+
+    const extraOutput = makeHermeticFixture();
+    extraOutput.reviewerOutputs.push(clone(extraOutput.reviewerOutputs[0]));
+    await expectCode('HERMETIC_OUTPUT_SET_INVALID', async () => evaluateBoundFixture(extraOutput));
+  });
+
   await check('meaningful material/tool change changes digests after explicit repinning', () => {
     const changedCorpus = clone(corpus);
     changedCorpus.samples[0].tools.push('Bash');
@@ -528,6 +554,77 @@ try {
       ));
     } finally {
       await rm(link, { force: true });
+    }
+  });
+
+  await check('dead stale lock is reclaimed without weakening live-owner exclusion', async () => {
+    const stalePath = `runtime/stale-lock-${process.pid}.jsonl`;
+    const target = await resolveLedgerPath(stalePath);
+    const lockPath = `${target}.lock`;
+    const old = new Date(Date.now() - 60_000);
+    await writeFile(lockPath, `${canonicalJson({
+      pid: process.pid,
+      createdAt: old.toISOString(),
+      lockId: '00000000-0000-4000-8000-000000000001',
+    })}\n`, { mode: 0o600 });
+    await utimes(lockPath, old, old);
+    await expectCode('LEDGER_LOCK_TIMEOUT', async () => appendLedgerRecord(
+      stalePath,
+      inputFor(baseline, firstCell, {
+        ledgerCallId: 'live-owner',
+        attemptId: 'live-owner-attempt',
+      }),
+    ));
+    await rm(lockPath, { force: true });
+    await writeFile(lockPath, `${canonicalJson({
+      pid: 2147483647,
+      createdAt: old.toISOString(),
+      lockId: '00000000-0000-4000-8000-000000000000',
+    })}\n`, { mode: 0o600 });
+    await utimes(lockPath, old, old);
+    try {
+      await appendLedgerRecord(stalePath, inputFor(baseline, firstCell, {
+        ledgerCallId: 'stale-recovery',
+        attemptId: 'stale-attempt',
+      }));
+      assert.equal((await readLedger(stalePath)).length, 1);
+      await assert.rejects(lstat(lockPath), error => error?.code === 'ENOENT');
+    } finally {
+      await rm(target, { force: true });
+      await rm(lockPath, { force: true });
+    }
+  });
+
+  await check('runtime parent replacement after lock acquisition cannot escape the namespace', async () => {
+    const racePath = `runtime/parent-race-${process.pid}.jsonl`;
+    const target = await resolveLedgerPath(racePath);
+    const heldRuntime = `${runtimeDir}-held-${process.pid}`;
+    const external = await mkdtemp(path.join(tmpdir(), 'role-prompt-parent-race-'));
+    let swapped = false;
+    try {
+      await expectCode('LEDGER_PATH_ESCAPE', async () => appendLedgerRecord(
+        racePath,
+        inputFor(baseline, firstCell, {
+          ledgerCallId: 'parent-race',
+          attemptId: 'parent-race-attempt',
+        }),
+        {
+          afterLockAcquired: async () => {
+            await rename(runtimeDir, heldRuntime);
+            await symlink(external, runtimeDir, 'dir');
+            swapped = true;
+          },
+        },
+      ));
+      assert.deepEqual(await readdir(external), []);
+    } finally {
+      if (swapped) {
+        await rm(runtimeDir, { force: true });
+        await rename(heldRuntime, runtimeDir);
+      }
+      await rm(`${target}.lock`, { force: true });
+      await rm(target, { force: true });
+      await rm(external, { recursive: true, force: true });
     }
   });
 
@@ -661,7 +758,7 @@ try {
   });
 
   const afterProduction = await hashTree(productionPaths);
-  await check('production pass/finding/run/validation/lifecycle evidence has zero drift', () => {
+  await check('immutable production process facts have zero drift', () => {
     assert.equal(afterProduction, beforeProduction);
   });
 
@@ -671,7 +768,7 @@ try {
   process.stdout.write('Recall: INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED\n');
   process.stdout.write(`Hermetic fixture: EVALUABLE scope=${hermeticResult.evidenceScope} historicalEvidence=${hermeticResult.historicalEvidence} cells=${hermeticResult.cells.length}\n`);
   process.stdout.write('Experiment ledger: PASS gateEvidence=false attempts=3\n');
-  process.stdout.write('Production evidence drift: NONE\n');
+  process.stdout.write('Immutable production fact drift: NONE\n');
   process.stdout.write(`Selfcheck: PASS checks=${checks}\n`);
 } finally {
   await rm(await resolveLedgerPath(ledgerPath), { force: true });
