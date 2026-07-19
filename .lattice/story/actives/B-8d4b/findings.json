@@ -146,6 +146,21 @@
       "_hash": "634d592173d6e6a6a5969f0f314bf4ba9099cc046cbe9224a2506c0cc21d99bb",
       "signatureTag": "adversarial|unknown|experiments-role-prompt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d4b:F-010",
+      "desc": "experiments/role-prompt-ab-replay/lib/ledger.mjs:280-293 — MEDIUM: ledger path confinement has a check/use race. The code lstat-checks components, creates the directory, checks again, then opens by pathname with appendFile; a target or parent can be replaced by a symlink between the second check and open. Static symlink selfchecks do not cover this TOCTOU, so the claimed experiment-only write boundary is not mechanically guaranteed.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T02:12:10.592Z",
+      "reviewRound": "2026-07-19T02:09:19.210Z",
+      "reviewRunId": "B-8d4b:RR-001",
+      "_hash": "7ee8f23672f5c1dd642b609a9be3003476fc33076a01a9173332c51ff83b2ab3",
+      "signatureTag": "adversarial|unknown|experiments-role-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
