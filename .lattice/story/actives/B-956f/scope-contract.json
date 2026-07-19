@@ -1,0 +1,36 @@
+{
+  "storyId": "B-956f",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/repro-evidence-binding-gate.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/handlers/validate-concept.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/material-code-policy.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-19T15:24:53.100Z",
+  "updatedAt": "2026-07-19T15:24:53.100Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/review-assurance-floor.ts": "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/repro-evidence-binding-gate.ts": "packages/main/src/core/repro-evidence-binding-gate.ts",
+    "packages/main/src/core/proofstory.ts": "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/scope-diff-pack.ts": "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/handlers/validate-concept.ts": "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/core/material-code-policy.ts": "packages/main/src/core/material-code-policy.ts",
+    "packages/main/src/tasks/language-neutral-gates-smoke.ts": "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+  }
+}

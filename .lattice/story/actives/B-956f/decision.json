@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "Language-neutral by construction: classification is driven by a config-resolved policy, never by hardcoded TS/proofbound-layout assumptions",
+    "Single source of truth: one HEAD+materialHash-bound snapshot threaded to all three consumers; no consumer re-derives its own classification",
+    "Fail closed: malformed materialCode config and manifest-covering exclusions are rejected with named-key diagnostics, never silently degraded to TS-only",
+    "Preserve whitelist direction: unknown and doc formats stay non-material forever",
+    "Pure evaluators stay pure: resolution happens once at the transition boundary that has projectRoot"
+  ],
+  "drivers": [
+    "This is gate code: silent under-classification invisibly disables repro-first RED and review floors for entire language ecosystems",
+    "Cross-ecosystem manifests must be non-excludable at level 1, or a single config key can hide backend/go.mod and re-open the hole",
+    "Repo compatibility: this repo's execution-time classification delta must be exactly the agreed experiments/ exclusion set (2506 files)"
+  ],
+  "options": [
+    {
+      "name": "Per-consumer language lists (patch each of the three call sites independently)",
+      "pros": [
+        "Small localized diffs",
+        "No new service or threading"
+      ],
+      "cons": [
+        "Three lists drift apart over time — reproduces the original bug shape",
+        "Project config still cannot reach collectMaterialCodeFiles (the dropped-projectRoot call remains)",
+        "ProofStory trigger predicate still never classifies"
+      ]
+    },
+    {
+      "name": "Config-resolved resolveMaterialCodePolicy(projectRoot) service + hash-bound snapshot threading (plan v4)",
+      "pros": [
+        "One choke point: floor, repro, and ProofStory all consume the same snapshot resolved once per transition",
+        "8-step precedence chain with a level-1 immutable manifest set resists config gaming (two-layer enforcement)",
+        "Strict fail-closed resolver surfaces misconfig instead of silently degrading",
+        "Snapshot embeds HEAD+materialHash so consumers detect drift and re-resolve"
+      ],
+      "cons": [
+        "Wider mechanical diff: 3 consumers plus orchestrator threading",
+        "Snapshot currency must be re-checked at every consuming gate"
+      ]
+    },
+    {
+      "name": "Full per-language semantic support (parsers for py/rs/go/java)",
+      "pros": [
+        "Deepest possible analysis, semantic anchors for every language"
+      ],
+      "cons": [
+        "Massive scope; explicit plan non-goal",
+        "Does not fix the classification choke point any better than the policy service",
+        "Ongoing parser maintenance burden"
+      ]
+    }
+  ],
+  "chosen": "Config-resolved resolveMaterialCodePolicy(projectRoot) service + hash-bound snapshot threading (plan v4)",
+  "rationale": "The v4 architecture survived three cross-host audit rounds (codex + agy APPROVE-WITH-CHANGES) and fixes the shared choke point exactly once: policy and diff classification resolve at the transition boundary, an immutable HEAD+materialHash-bound snapshot threads into floor + repro + ProofStory so their decisions can never diverge, level-1 immutable manifests make the fix un-gameable by config, and the strict resolver fails closed. Per-consumer patching reproduces the drift that caused the bug; new language parsers are an explicit non-goal.",
+  "preMortem": [
+    {
+      "scenario": "Doc-heavy repo over-classification",
+      "trigger": "The broadened defaults or the level-1 immutable manifest set classify files material in a docs-heavy repo where nearly every story is prose-only",
+      "consequence": "Every docs story would trip repro-first RED and inflate review floors, grinding documentation work to a halt",
+      "mitigation": "Whitelist direction is preserved — unknown/doc formats stay non-material at precedence steps 4 and 8 — and the repro-first classifier keeps its docs/refactor/chore type exemption; the execution-time repo regression check pins this repo's delta to exactly the experiments/ set"
+    },
+    {
+      "scenario": "Fail-closed config brick",
+      "trigger": "A typo in a project's lattice.config.json materialCode block (malformed extension entry, non-string path) after the strict resolver lands",
+      "consequence": "Config-resolve refuses, blocking every story transition in that project until the config is fixed",
+      "mitigation": "Resolver diagnostics name the offending key and value so the fix is immediate and config-only (edit or delete the key — no code rollback); the resolver ships with its own smoke matrix covering malformed-entry shapes"
+    },
+    {
+      "scenario": "Snapshot staleness divergence",
+      "trigger": "A long validation or a concurrent commit moves HEAD/materialHash after the classification snapshot was computed",
+      "consequence": "Floor, repro, and ProofStory could silently decide on different trees — inconsistent required/floor decisions inside one transition, the exact inconsistency this story exists to remove",
+      "mitigation": "The snapshot embeds the HEAD + materialHash it was computed at; every consuming gate re-checks those hashes at decision time and re-resolves on drift; all three consumers receive the SAME snapshot object resolved once per evaluation, so drift is detected uniformly"
+    },
+    {
+      "scenario": "Transition-time performance regression",
+      "trigger": "Classifying the full main...HEAD diff — 2500+ experiments/ files in this repo — on every gate evaluation",
+      "consequence": "Noticeably slower validate and story transitions for large-diff stories",
+      "mitigation": "This repo's config excludes experiments/ at precedence step 3, and the snapshot is computed once per transition and reused by all three consumers instead of per-gate re-classification"
+    }
+  ],
+  "timestamp": "2026-07-19T15:23:54.571Z"
+}

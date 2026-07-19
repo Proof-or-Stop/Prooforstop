@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-956f",
+  "id": "IC-20260719152434",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Make advanced-gate material-code classification language-neutral per plan v4: one config-resolved resolveMaterialCodePolicy(projectRoot) service whose HEAD+materialHash-bound classification snapshot threads into all three consumers (review-assurance floor, repro classification via collectMaterialCodeFiles, ProofStory diagnostic input); replace the flat TS whitelist with the 8-step precedence chain whose level-1 immutable set of cross-ecosystem manifests no config key can exclude (config-resolve rejection + filesystem-aware preflight); strict fail-closed materialCode config resolver; semantic_analysis_unavailable degradation diagnostics produced by buildScopeDiffPack and written by mutating callers only. Whitelist direction preserved (unknown/doc formats stay non-material), no new language parsers, experiments/ excluded in this repo's config.",
+  "acceptedInterpretationHash": "sha256:804cfa5aa328fe1767c3c8ca8672fe8d2c91b253aa9beac49074c158b6591ce1",
+  "notes": "Checked sourceText against checklist CHK-001/002/003 and plan v4 (docs/requirements/decisions/language-neutral-gates-execution-plan.md, double cross-host APPROVE-WITH-CHANGES): scope matches — three checklist items map 1:1 to Changes A, B+C, and D; no competing interpretation (full per-language parsers is an explicit non-goal; per-consumer patching was rejected in decision_set).",
+  "createdAt": "2026-07-19T15:24:34.598Z",
+  "updatedAt": "2026-07-19T15:24:34.598Z"
+}
