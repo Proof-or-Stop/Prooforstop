@@ -179,7 +179,7 @@
       "desc": "CHK-002:happy:0 (must) verificationEvidence overclaims coverage. worktree-portability-smoke.ts's cross-root check (F-001, lines ~363-407) calls only validateRequiredReceiptCoverage cross-root; it never calls validateCommandSpecDigestCoverage (or the aggregate evaluateDoneRequiredEvidence, which ANDs both validators per F-008) cross-root. Confirmed by direct repro against the built dist: for a v2 receipt written under a worktree root with commandSpec built from that worktree's own absolute cwd, validateRequiredReceiptCoverage(receipt, mainRoot, [cmd]) returns [] (valid) but validateCommandSpecDigestCoverage(receipt, mainRoot, [cmd]) returns {valid:false, reasons:['command-spec-digest-mismatch[0]: suite']} -- because it reconstructs the expected v2 envelope from the receipt's absolute physical cwd re-normalized against the CURRENT (main) projectRoot, which relativizes to .worktrees/<id> instead of the portable logical value. This matches host-B codex findings F-008/F-009 already filed this round (verified, open, high). Net effect: the smoke's 25/25 pass gives false confidence that cross-root DONE-required evidence verification works, when the aggregate gate would still reject a genuinely valid cross-worktree receipt. Fix required in done-required-validation.ts (reconstruct the v2 digest from receiptLogicalCwd, not a re-normalized absolute cwd) plus a new smoke check exercising validateCommandSpecDigestCoverage (or the aggregate evaluator) cross-root before this evidence can be trusted.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T01:56:25.692Z",
@@ -191,7 +191,10 @@
         "packages/main/src/tasks/worktree-portability-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-verificationevidence-overclaims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6e69d64dde: validateCommandSpecDigestCoverage v2 branch now reconstructs from receiptLogicalCwd (stored logical cwd), not absolute cwd re-normalized against current projectRoot. Whole-file audit of all 9 digest/cwd reconstruction sites confirms no residual absolute-cwd-vs-current-root layer. New aggregate cross-root smoke (validateCommandSpecDigestCoverage + validateRequiredReceiptCoverage both accept a worktree receipt from main; forged/different logical cwd still rejected). Smoke 29/29.",
+      "resolvedAt": "2026-07-19T02:06:25.889Z",
+      "resolutionType": "fixed"
     }
   ]
 }
