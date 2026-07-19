@@ -318,6 +318,21 @@
       "_hash": "f9ab79f6329763adfb8bc38b99c7277f13b983e2b247fb48c61739d1daac3c95",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-955c:F-018",
+      "desc": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md:114,620,636 and packages/main/src/core/evidence/environment-contract.ts:643 — merged B-231d makes lattice.command-spec.v2 the current portable DONE-required envelope and retains v1 only as a legacy compatibility input, but the paper-facing audit/mapping still names v1 as the existing/current surface and the EEA missing-commandSpec diagnostic says a receipt must carry v1. This contradicts the implemented support boundary and can mislead an auditor/operator into treating valid v2 evidence as unsupported. Update the current-surface text to v2, describe v1 explicitly as legacy migration input, make the mapping cover the supported versioned envelope, and make the runtime diagnostic version-neutral or list v1/v2. Severity medium because Gate behavior remains fail-closed and all identity regressions pass, but CHK-005 requires publication claims to remain implementation-bound after merged-state changes.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T03:18:24.906Z",
+      "reviewRound": "2026-07-19T03:15:15.271Z",
+      "reviewRunId": "B-955c:RR-035",
+      "_hash": "720a34024c0bbe90a0492221ff6f19bbcc98cbcb630467bad9b1186fc34d5e30",
+      "signatureTag": "edge|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
