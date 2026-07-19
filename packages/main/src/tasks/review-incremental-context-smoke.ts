@@ -61,8 +61,13 @@ import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js
 import { resetConfigCache } from '../core/config.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import {
+  classifyEvidenceFreshness,
   currentGitHead,
 } from '../core/evidence-freshness.js';
+import {
+  classifyImpact,
+  IMPACT_CLASSIFICATION_POLICY_VERSION,
+} from '../core/impact-classification-policy.js';
 import type { StoryStore } from '../core/store.js';
 import type {
   Finding,
@@ -311,15 +316,17 @@ function runIncrementalCases(): void {
       const store = buildFixtureStore({ story, passes: [pass], runs: [run] });
 
       const ctx = reviewIncrementalContext(store, root, storyId, 'quality');
-      assert.equal(ctx.isFirstPass, false, '(a) returning reviewer must NOT be first pass');
-      assert.equal(ctx.priorHeadHash, baseSha, '(a) priorHeadHash must resolve to the bound baseSha');
-      assert.ok(ctx.priorVerdict && ctx.priorVerdict.includes('RP-001'), '(a) priorVerdict must reference the prior pass');
+      assert.equal(ctx.isFirstPass, true, '(a) unsigned legacy run must not establish an incremental baseline');
+      assert.equal(ctx.priorHeadHash, null, '(a) untrusted baseline has no priorHeadHash authority');
+      assert.equal(ctx.priorVerdict, null, '(a) untrusted pass is not surfaced as a trusted prior verdict');
+      assert.equal(ctx.contextMode, 'full', '(a) untrusted prior evidence fails closed to full');
+      assert.ok(ctx.eligibilityReasonCodes.includes('FULL_MISSING_TRUSTED_PRIOR_PASS'));
       assert.equal(ctx.scopeChanged, true, '(a) material change since last pass => scopeChanged=true');
       assert.ok(
         ctx.changedFiles.includes('src/feature.ts'),
         `(a) changedFiles must include the edited material file, got ${JSON.stringify(ctx.changedFiles)}`,
       );
-      console.log(`${MARKER} (a) RETURNING REVIEWER: isFirstPass=false, priorVerdict=${ctx.priorVerdict}, scopeChanged=true, changedFiles=${JSON.stringify(ctx.changedFiles)}`);
+      console.log(`${MARKER} (a) UNTRUSTED LEGACY PASS: contextMode=full, changedFiles=${JSON.stringify(ctx.changedFiles)}`);
     }
 
     // ---- (b) FIRST-TIMER ----
@@ -358,7 +365,8 @@ function runIncrementalCases(): void {
       };
       const store = buildFixtureStore({ story, passes: [pass], runs: [run] });
       const ctx = reviewIncrementalContext(store, root, storyId, 'docs');
-      assert.equal(ctx.isFirstPass, false, '(c) returning reviewer with a rename is not first pass');
+      assert.equal(ctx.isFirstPass, true, '(c) unsigned legacy run cannot establish a baseline');
+      assert.equal(ctx.contextMode, 'full', '(c) rename remains full');
       assert.equal(ctx.scopeChanged, true, '(c) a rename since last pass => scopeChanged=true');
       assert.ok(
         ctx.changedFiles.includes('src/old-name.ts') && ctx.changedFiles.includes('src/new-name.ts'),
@@ -405,17 +413,81 @@ function runIncrementalCases(): void {
       );
       // priorVerdict MAY be non-null here (the reviewer did pass before); the point
       // is that it is NOT the authoritative baseline signal — isFirstPass is.
-      assert.ok(
-        ctx.priorVerdict && ctx.priorVerdict.includes('RP-003'),
-        `(e) priorVerdict stays non-null/informational alongside isFirstPass=true, got ${JSON.stringify(ctx.priorVerdict)}`,
-      );
-      console.log(`${MARKER} (e) PRIOR VERDICT + UNRESOLVABLE headHash: isFirstPass=true, priorHeadHash=null, priorVerdict=${ctx.priorVerdict} (non-null, informational), full diff changedFiles=${JSON.stringify(ctx.changedFiles)}`);
+      assert.equal(ctx.priorVerdict, null, '(e) an invalid run cannot supply trusted prior-pass information');
+      assert.equal(ctx.contextMode, 'full', '(e) unresolved evidence fails closed');
+      console.log(`${MARKER} (e) INVALID BOUND RUN: isFirstPass=true, priorHeadHash=null, contextMode=full, full diff changedFiles=${JSON.stringify(ctx.changedFiles)}`);
     }
 
     void headSha; // headSha is HEAD; referenced for clarity in fixture wiring above.
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+}
+
+function runPolicyCases(): void {
+  const none = classifyImpact({
+    changedFiles: [],
+    declaredTestFiles: [],
+    testIntentRefsByFile: {},
+  });
+  assert.equal(none.policyVersion, IMPACT_CLASSIFICATION_POLICY_VERSION);
+  assert.equal(none.eligible, true);
+  assert.deepEqual(none.reasonCodes, ['ELIGIBLE_NO_MATERIAL_CHANGE']);
+
+  const fixture = classifyImpact({
+    changedFiles: ['tests/case.fixture.json'],
+    declaredTestFiles: ['tests/case.fixture.json'],
+    testIntentRefsByFile: { 'tests/case.fixture.json': ['CHK-001:happy:0'] },
+  });
+  assert.equal(fixture.eligible, true);
+  assert.deepEqual(fixture.reasonCodes, ['ELIGIBLE_PURE_STORY_FIXTURE']);
+
+  const fixtureWithoutIntent = classifyImpact({
+    changedFiles: ['tests/case.fixture.json'],
+    declaredTestFiles: ['tests/case.fixture.json'],
+    testIntentRefsByFile: {},
+  });
+  assert.equal(fixtureWithoutIntent.eligible, false);
+  assert.deepEqual(fixtureWithoutIntent.reasonCodes, ['FULL_FIXTURE_BINDING_INCOMPLETE']);
+
+  for (const [path, expected] of [
+    ['docs/decision.md', 'FULL_DOCS_V1'],
+    ['src/api/schema.proto', 'FULL_PUBLIC_CONTRACT'],
+    ['src/authority/check.ts', 'FULL_AUTHORITY_OR_PERMISSION'],
+    ['src/core/command-policy.ts', 'FULL_COMMAND_OR_GATE_POLICY'],
+    ['package.json', 'FULL_DEPENDENCY_OR_BUILD'],
+    ['src/private.ts', 'FULL_PRIVATE_IMPLEMENTATION_V1'],
+    ['asset.bin', 'FULL_UNKNOWN_IMPACT'],
+  ] as const) {
+    const result = classifyImpact({
+      changedFiles: [path],
+      declaredTestFiles: [],
+      testIntentRefsByFile: {},
+    });
+    assert.equal(result.eligible, false);
+    assert.ok(result.reasonCodes.includes(expected), `${path} must classify ${expected}`);
+  }
+  const renamed = classifyImpact({
+    changedFiles: ['src/old.ts', 'src/new.ts'],
+    declaredTestFiles: [],
+    testIntentRefsByFile: {},
+    changedFileStatus: { 'src/old.ts': 'R100', 'src/new.ts': 'R100' },
+  });
+  assert.deepEqual(renamed.reasonCodes, ['FULL_UNSUPPORTED_RENAME']);
+
+  assert.equal(classifyEvidenceFreshness({
+    fresh: true,
+    reason: 'evidence followed by 1 metadata-only changes, not invalidated',
+    changedFiles: ['.lattice/x'],
+    materialFiles: [],
+  }, 'a'.repeat(40)), 'KNOWN_METADATA_ONLY_HEAD_DRIFT');
+  assert.equal(classifyEvidenceFreshness({
+    fresh: false,
+    reason: 'evidence storyFilesHash does not match current story-owned file state',
+    changedFiles: [],
+    materialFiles: ['<story-files-changed>'],
+  }, 'a'.repeat(40)), 'RELATED_STORY_MATERIAL_DRIFT');
+  console.log(`${MARKER} POLICY: stable v1 bounded categories and canonical freshness classifications PASS`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -534,6 +606,7 @@ function runGateUnchangedCase(): void {
 }
 
 function run(): void {
+  runPolicyCases();
   runIncrementalCases();
   runGateUnchangedCase();
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);

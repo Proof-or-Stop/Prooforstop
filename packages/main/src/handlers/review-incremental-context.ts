@@ -21,7 +21,14 @@ function renderIncrementalContextText(
   lines.push(`role: ${ctx.role}`);
   lines.push(`isFirstPass: ${ctx.isFirstPass}`);
   lines.push(`scopeChanged: ${ctx.scopeChanged}`);
+  lines.push(`contextMode: ${ctx.contextMode}`);
+  lines.push(`impactPolicyVersion: ${ctx.impactPolicyVersion}`);
+  lines.push(`freshnessClassification: ${ctx.freshnessClassification}`);
+  lines.push(`eligibilityDigest: ${ctx.eligibilityDigest}`);
+  lines.push(`eligibilityReasonCodes: ${ctx.eligibilityReasonCodes.join(', ') || '(none)'}`);
   lines.push(`priorHeadHash: ${ctx.priorHeadHash ?? '(none)'}`);
+  lines.push(`priorPassRef: ${ctx.priorPassRef ?? '(none)'}`);
+  lines.push(`priorReviewRunId: ${ctx.priorReviewRunId ?? '(none)'}`);
   lines.push(`priorVerdict: ${ctx.priorVerdict ?? '(none)'}`);
   if (ctx.changedFiles.length === 0) {
     lines.push('changedFiles: (none)');
@@ -29,6 +36,14 @@ function renderIncrementalContextText(
     lines.push(`changedFiles (${ctx.changedFiles.length}):`);
     for (const file of ctx.changedFiles) lines.push(`  ${file}`);
   }
+  lines.push(`changedFilesDigest: ${ctx.changedFilesDigest}`);
+  if (ctx.impactedFiles.length === 0) {
+    lines.push('impactedFiles: (none)');
+  } else {
+    lines.push(`impactedFiles (${ctx.impactedFiles.length}):`);
+    for (const file of ctx.impactedFiles) lines.push(`  ${file}`);
+  }
+  lines.push(`impactedFilesDigest: ${ctx.impactedFilesDigest}`);
   return lines.join('\n');
 }
 

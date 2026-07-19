@@ -21,12 +21,34 @@
  */
 
 import type { StoryStore } from './store.js';
-import type { Finding, ReviewPass, ReviewRun } from './types.js';
-import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
+import type { ReviewPass, ReviewRun } from './types.js';
 import {
   changedFilesBetweenRenameAware,
+  changedFileStatusesBetweenRenameAware,
+  checkEvidenceFreshnessForGit,
+  classifyEvidenceFreshness,
+  currentGitHead,
+  currentMaterialHash,
+  currentStoryFilesHash,
   isMaterialExcludedPath,
+  type EvidenceFreshnessClassification,
 } from './evidence-freshness.js';
+import { verifyReviewPass } from './finding-verify.js';
+import { verifyReviewRun, verifyReviewRunPromptEnvelope } from './review-run.js';
+import {
+  classifyImpact,
+  IMPACT_CLASSIFICATION_POLICY_VERSION,
+  type ImpactClassification,
+} from './impact-classification-policy.js';
+import { domainSeparatedDigest } from './prompt-contracts.js';
+import {
+  PROMPT_DISPATCH_PROTOCOL_VERSION,
+  PROMPT_ENVELOPE_ASSEMBLER_VERSION,
+  captureKnownExecutionEnvironment,
+} from './prompt-envelope.js';
+import { BASELINE_RUNTIME_CONTRACT } from './prompt-measurement.js';
+import { promptRoleContract } from './prompt-role-contract-registry.js';
+import { digestScopeContract } from './guard-session.js';
 
 export interface ReviewIncrementalContext {
   /** The reviewer role this context was computed for (echoed back). */
@@ -74,15 +96,25 @@ export interface ReviewIncrementalContext {
    * `priorHeadHash` to HEAD (rename-aware, material-filtered).
    */
   changedFiles: string[];
+  contextMode: 'full' | 'incremental';
+  impactPolicyVersion: typeof IMPACT_CLASSIFICATION_POLICY_VERSION;
+  freshnessClassification: EvidenceFreshnessClassification | 'NOT_EVALUATED';
+  eligibilityReasonCodes: string[];
+  eligibilityDigest: string;
+  impact: ImpactClassification;
+  priorPassRef: string | null;
+  priorReviewRunId: string | null;
+  currentHeadHash: string | null;
+  currentMaterialHash: string | null;
+  currentStoryFilesHash: string | null;
+  changedFilesDigest: string;
+  impactedFiles: string[];
+  impactedFilesDigest: string;
 }
 
-interface PriorVerdict {
-  /** Short human summary, e.g. "PASS (RP-001)" or "finding F-002: high". */
-  summary: string;
-  /** Bound headHash resolved from the verdict's reviewRunId, else null. */
-  headHash: string | null;
-  /** Timestamp used to pick the most recent verdict (ms since epoch, NaN-safe). */
-  sortKey: number;
+interface TrustedPriorPass {
+  pass: ReviewPass;
+  run: ReviewRun;
 }
 
 function verdictTime(value: string | undefined): number {
@@ -91,48 +123,24 @@ function verdictTime(value: string | undefined): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-/** Resolve the headHash a reviewRunId was bound to, scanning verified-or-not runs. */
-function headHashForRun(runs: ReviewRun[], reviewRunId: string | undefined): string | null {
-  if (!reviewRunId) return null;
-  const run = runs.find((candidate) => candidate.reviewRunId === reviewRunId);
-  return run?.headHash || null;
-}
-
-function passVerdict(pass: ReviewPass, runs: ReviewRun[]): PriorVerdict {
-  return {
-    summary: `PASS (${pass.id})`,
-    headHash: headHashForRun(runs, pass.reviewRunId),
-    sortKey: verdictTime(pass.createdAt),
-  };
-}
-
-function findingVerdict(finding: Finding, runs: ReviewRun[]): PriorVerdict {
-  return {
-    summary: `finding ${finding.id}: ${finding.severity}`,
-    headHash: headHashForRun(runs, finding.reviewRunId),
-    sortKey: verdictTime(finding.createdAt),
-  };
-}
-
-/**
- * Pick the most recent prior verdict for `role` across passes + findings.
- * Returns null when the reviewer has no prior verdict on this story.
- */
-function mostRecentPriorVerdict(
+function latestTrustedPriorPass(
+  store: StoryStore,
+  storyId: string,
   role: string,
-  findings: Finding[],
   passes: ReviewPass[],
   runs: ReviewRun[],
-): PriorVerdict | null {
-  const candidates: PriorVerdict[] = [];
+): TrustedPriorPass | null {
+  const candidates: TrustedPriorPass[] = [];
   for (const pass of passes) {
-    if (findingAgentMatchesReviewer(pass.agent, role)) candidates.push(passVerdict(pass, runs));
-  }
-  for (const finding of findings) {
-    if (findingAgentMatchesReviewer(finding.agent, role)) candidates.push(findingVerdict(finding, runs));
+    if (pass.agent !== role || !verifyReviewPass(storyId, pass) || !pass.reviewRunId) continue;
+    const run = runs.find(candidate => candidate.reviewRunId === pass.reviewRunId);
+    if (!run || run.lane !== role || !verifyReviewRun(run)) continue;
+    if (!run.envelopeId || pass.envelopeId !== run.envelopeId) continue;
+    if (!verifyReviewRunPromptEnvelope(store, run).ok) continue;
+    candidates.push({ pass, run });
   }
   if (candidates.length === 0) return null;
-  candidates.sort((a, b) => a.sortKey - b.sortKey);
+  candidates.sort((a, b) => verdictTime(a.pass.createdAt) - verdictTime(b.pass.createdAt));
   return candidates[candidates.length - 1];
 }
 
@@ -156,38 +164,156 @@ export function reviewIncrementalContext(
   storyId: string,
   role: string,
 ): ReviewIncrementalContext {
-  const findings = store.readFindings(storyId).findings || [];
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
+  const prior = latestTrustedPriorPass(store, storyId, role, passes, runs);
+  const currentHead = currentGitHead(projectRoot) ?? null;
+  const currentMaterial = currentMaterialHash(projectRoot, 'HEAD', projectRoot) ?? null;
+  const currentStoryFiles = currentStoryFilesHash(projectRoot, 'HEAD', projectRoot) ?? null;
+  const checklist = store.readChecklist(storyId);
+  const declaredTestFiles = checklist.items.flatMap(item => item.files?.test ?? []);
+  const testIntentRefsByFile = Object.fromEntries(declaredTestFiles.map(path => {
+    const refs = checklist.items
+      .filter(item => item.files?.test?.includes(path))
+      .flatMap(item => (['happy', 'edge', 'adversarial'] as const)
+        .flatMap(lane => (item.verificationIntent?.[lane] ?? [])
+          .map((intent, index) => intent.id?.trim() || `${item.id}:${lane}:${index}`)));
+    return [path, [...new Set(refs)].sort()];
+  }));
 
-  const prior = mostRecentPriorVerdict(role, findings, passes, runs);
+  const finalize = (args: {
+    prior: TrustedPriorPass | null;
+    changedFiles: string[];
+    freshnessClassification: EvidenceFreshnessClassification | 'NOT_EVALUATED';
+    reasonCodes: string[];
+    impact: ImpactClassification;
+  }): ReviewIncrementalContext => {
+    const eligibilityReasonCodes = [...new Set([...args.reasonCodes, ...args.impact.reasonCodes])].sort();
+    const contextMode = eligibilityReasonCodes.every(code => code.startsWith('ELIGIBLE_'))
+      ? 'incremental' as const
+      : 'full' as const;
+    const changedFilesDigest = domainSeparatedDigest('incremental.changed-files.v1', args.changedFiles);
+    const impactedFilesDigest = domainSeparatedDigest('incremental.impacted-files.v1', args.impact.impactedFiles);
+    const semantic = {
+      impactPolicyVersion: IMPACT_CLASSIFICATION_POLICY_VERSION,
+      role,
+      contextMode,
+      priorPassRef: args.prior?.pass.id ?? null,
+      priorReviewRunId: args.prior?.run.reviewRunId ?? null,
+      priorEnvelopeId: args.prior?.run.envelopeId ?? null,
+      priorHeadHash: args.prior?.run.headHash ?? null,
+      currentHeadHash: currentHead,
+      currentMaterialHash: currentMaterial,
+      currentStoryFilesHash: currentStoryFiles,
+      freshnessClassification: args.freshnessClassification,
+      eligibilityReasonCodes,
+      changedFilesDigest,
+      impactedFilesDigest,
+      impactDigest: args.impact.digest,
+    };
+    return {
+      role,
+      isFirstPass: !args.prior,
+      priorHeadHash: args.prior?.run.headHash ?? null,
+      priorVerdict: args.prior ? `PASS (${args.prior.pass.id})` : null,
+      scopeChanged: !args.prior || args.changedFiles.length > 0,
+      changedFiles: args.changedFiles,
+      contextMode,
+      impactPolicyVersion: IMPACT_CLASSIFICATION_POLICY_VERSION,
+      freshnessClassification: args.freshnessClassification,
+      eligibilityReasonCodes,
+      eligibilityDigest: domainSeparatedDigest('incremental-eligibility.v1', semantic),
+      impact: args.impact,
+      priorPassRef: args.prior?.pass.id ?? null,
+      priorReviewRunId: args.prior?.run.reviewRunId ?? null,
+      currentHeadHash: currentHead,
+      currentMaterialHash: currentMaterial,
+      currentStoryFilesHash: currentStoryFiles,
+      changedFilesDigest,
+      impactedFiles: args.impact.impactedFiles,
+      impactedFilesDigest,
+    };
+  };
 
   // First-timer (or a prior verdict whose bound headHash cannot be resolved):
   // fall back to the full story diff against main. We treat a missing bound
   // headHash as a first pass so we never compute an incremental diff from an
   // unknown base — the conservative direction is "show everything".
-  if (!prior || !prior.headHash) {
+  if (!prior || !prior.run.headHash) {
     const fullDiff = materialOnly(changedFilesBetweenRenameAware(projectRoot, 'main', 'HEAD'), projectRoot);
-    return {
-      role,
-      isFirstPass: true,
-      priorHeadHash: null,
-      priorVerdict: prior ? prior.summary : null,
-      scopeChanged: true,
+    const impact = classifyImpact({
       changedFiles: fullDiff,
-    };
+      declaredTestFiles,
+      testIntentRefsByFile,
+      changedFileStatus: changedFileStatusesBetweenRenameAware(projectRoot, 'main', 'HEAD'),
+    });
+    return finalize({
+      prior: null,
+      changedFiles: fullDiff,
+      freshnessClassification: 'NOT_EVALUATED',
+      reasonCodes: ['FULL_MISSING_TRUSTED_PRIOR_PASS'],
+      impact,
+    });
   }
 
   const changedFiles = materialOnly(
-    changedFilesBetweenRenameAware(projectRoot, prior.headHash, 'HEAD'),
+    changedFilesBetweenRenameAware(projectRoot, prior.run.headHash, 'HEAD'),
     projectRoot,
   );
-  return {
-    role,
-    isFirstPass: false,
-    priorHeadHash: prior.headHash,
-    priorVerdict: prior.summary,
-    scopeChanged: changedFiles.length > 0,
+  const statuses = changedFileStatusesBetweenRenameAware(projectRoot, prior.run.headHash, 'HEAD');
+  const freshness = checkEvidenceFreshnessForGit(
+    projectRoot,
+    prior.run.headHash,
+    prior.run.materialHash,
+    projectRoot,
+    prior.run.storyFilesHash,
+  );
+  const freshnessClassification = classifyEvidenceFreshness(freshness, prior.run.headHash);
+  const currentRole = promptRoleContract(role);
+  const environmentDigest = domainSeparatedDigest('known-execution-environment.v1', captureKnownExecutionEnvironment());
+  const priorEnvelope = store.readPromptEnvelopes(storyId).envelopes.find(
+    envelope => envelope.envelopeId === prior.run.envelopeId,
+  );
+  const scopeContract = store.readScopeContract(storyId);
+  const currentPolicyHash = scopeContract ? digestScopeContract(scopeContract) : undefined;
+  const bindingReasons: string[] = [];
+  if (!priorEnvelope) bindingReasons.push('FULL_MISSING_PRIOR_ENVELOPE');
+  if (priorEnvelope && (
+    priorEnvelope.runtimeContractVersion !== BASELINE_RUNTIME_CONTRACT.schemaVersion
+    || priorEnvelope.runtimeSemanticDigest !== BASELINE_RUNTIME_CONTRACT.semanticDigest
+    || priorEnvelope.runtimeRenderDigest !== BASELINE_RUNTIME_CONTRACT.renderDigest
+  )) bindingReasons.push('FULL_RUNTIME_CONTRACT_CHANGED');
+  if (priorEnvelope && (
+    priorEnvelope.roleContractVersion !== currentRole.schemaVersion
+    || priorEnvelope.roleSemanticDigest !== currentRole.semanticDigest
+    || priorEnvelope.roleRenderDigest !== currentRole.renderDigest
+  )) bindingReasons.push('FULL_ROLE_CONTRACT_CHANGED');
+  if (priorEnvelope?.knownExecutionEnvironmentDigest !== environmentDigest) {
+    bindingReasons.push('FULL_EXECUTION_ENVIRONMENT_CHANGED');
+  }
+  if (priorEnvelope?.assemblerVersion !== PROMPT_ENVELOPE_ASSEMBLER_VERSION) {
+    bindingReasons.push('FULL_ASSEMBLER_CHANGED');
+  }
+  if (priorEnvelope?.dispatchProtocolVersion !== PROMPT_DISPATCH_PROTOCOL_VERSION) {
+    bindingReasons.push('FULL_DISPATCH_PROTOCOL_CHANGED');
+  }
+  if (priorEnvelope?.policyHash !== currentPolicyHash) bindingReasons.push('FULL_SCOPE_OR_POLICY_CHANGED');
+  if (!['CURRENT_MATERIAL', 'KNOWN_METADATA_ONLY_HEAD_DRIFT'].includes(freshnessClassification)) {
+    bindingReasons.push(`FULL_FRESHNESS_${freshnessClassification}`);
+  } else {
+    bindingReasons.push('ELIGIBLE_TRUSTED_PRIOR_BINDINGS');
+  }
+  const impact = classifyImpact({
     changedFiles,
-  };
+    declaredTestFiles,
+    testIntentRefsByFile,
+    changedFileStatus: statuses,
+  });
+  return finalize({
+    prior,
+    changedFiles,
+    freshnessClassification,
+    reasonCodes: bindingReasons,
+    impact,
+  });
 }
