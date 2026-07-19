@@ -1,4 +1,5 @@
-import { appendFile, lstat, mkdir, readFile, realpath } from 'node:fs/promises';
+import { constants as fsConstants } from 'node:fs';
+import { lstat, mkdir, open, readFile, realpath, unlink } from 'node:fs/promises';
 import path from 'node:path';
 import { canonicalJson, digest, EXPERIMENT_ROOT, ReplayContractError } from './replay.mjs';
 
@@ -10,6 +11,13 @@ const FORBIDDEN_KEYS = new Set([
   'reviewpass', 'finding', 'verificationevidence', 'validationevidence', 'phase',
 ]);
 const TERMINAL_DISPOSITIONS = new Set(['succeeded', 'failed', 'crashed', 'blocked']);
+const STORED_RECORD_KEYS = [
+  'schemaVersion', 'namespace', 'gateEvidence', 'experimentId', 'cellId',
+  'ledgerCallId', 'attemptId', 'sequence', 'event', 'disposition', 'observedAt',
+  'inputDigest', 'promptDigest', 'materialDigest', 'findingSetDigest', 'modelId',
+  'contractVersion', 'usage', 'latency', 'findingMeasurement', 'privacy',
+  'supersedesRecordIds', 'previousRecordHash', 'recordId', 'recordHash',
+].sort();
 
 function assertObject(value, at) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -116,7 +124,13 @@ export function makeLedgerRecord(input, previousRecordHash = null, supersedesRec
   if (canonicalJson(Object.keys(input).sort()) !== canonicalJson(expectedKeys)) {
     throw new ReplayContractError('INVALID_LEDGER_RECORD', `input keys must be exactly ${expectedKeys.join(',')}`);
   }
-  for (const key of ['experimentId', 'inputDigest', 'promptDigest', 'materialDigest', 'findingSetDigest']) digestText(input[key], key);
+  for (const key of ['experimentId', 'inputDigest', 'materialDigest', 'findingSetDigest']) digestText(input[key], key);
+  if (input.promptDigest !== null) {
+    throw new ReplayContractError(
+      'UNBOUND_PROMPT_SNAPSHOT',
+      'promptDigest must remain null until exact prompt snapshot bytes are content-addressed',
+    );
+  }
   for (const key of ['cellId', 'ledgerCallId', 'attemptId', 'modelId', 'contractVersion']) nonblank(input[key], key);
   if (!Number.isSafeInteger(input.sequence) || input.sequence < 1) throw new ReplayContractError('INVALID_LEDGER_RECORD', 'sequence must be positive');
   if (!['assembled', 'dispatched', 'terminal'].includes(input.event)) throw new ReplayContractError('INVALID_LEDGER_RECORD', 'event invalid');
@@ -172,18 +186,24 @@ export function makeLedgerRecord(input, previousRecordHash = null, supersedesRec
       );
     }
   }
-  const latencyMs = input.latencyMs === null
-    ? { availability: 'unavailable', reason: 'Historical replay has no trusted wall-clock observation.' }
-    : { availability: 'available', value: count(input.latencyMs, 'latencyMs'), source: 'pinned historical observation' };
+  if (input.latencyMs !== null) {
+    throw new ReplayContractError(
+      'UNBOUND_HISTORICAL_METRIC',
+      'latencyMs must remain unavailable until a content-addressed observation is pinned',
+    );
+  }
+  const latencyMs = { availability: 'unavailable', reason: 'Historical replay has no trusted wall-clock observation.' };
   assertObject(input.findingMeasurement, 'findingMeasurement');
-  if (canonicalJson(Object.keys(input.findingMeasurement).sort()) !== canonicalJson(['detectedCount', 'seededCount', 'status'])) {
+  if (canonicalJson(Object.keys(input.findingMeasurement).sort()) !== canonicalJson([
+    'detectedCount', 'reasonCode', 'seededOracleCount', 'status',
+  ])) {
     throw new ReplayContractError('INVALID_LEDGER_RECORD', 'findingMeasurement shape invalid');
   }
-  count(input.findingMeasurement.seededCount, 'findingMeasurement.seededCount');
-  count(input.findingMeasurement.detectedCount, 'findingMeasurement.detectedCount');
-  if (input.findingMeasurement.detectedCount > input.findingMeasurement.seededCount
-      || !['EVALUABLE', 'NO_ADJUDICATED_FINDINGS'].includes(input.findingMeasurement.status)) {
-    throw new ReplayContractError('INVALID_LEDGER_RECORD', 'findingMeasurement values invalid');
+  count(input.findingMeasurement.seededOracleCount, 'findingMeasurement.seededOracleCount');
+  if (input.findingMeasurement.detectedCount !== null
+      || input.findingMeasurement.status !== 'INCONCLUSIVE'
+      || !['FINDING_OUTPUT_UNAVAILABLE', 'ADJUDICATION_EVIDENCE_UNVERIFIED'].includes(input.findingMeasurement.reasonCode)) {
+    throw new ReplayContractError('UNBOUND_FINDING_OUTPUT', 'findingMeasurement must remain INCONCLUSIVE without output evidence');
   }
   if (previousRecordHash !== null) digestText(previousRecordHash, 'previousRecordHash');
   if (!Array.isArray(supersedesRecordIds) || supersedesRecordIds.some(value => !/^[a-f0-9]{64}$/.test(value))) {
@@ -231,8 +251,36 @@ export function verifyLedgerRows(rows) {
   const attempts = new Map();
   let previous = null;
   for (const row of rows) {
+    scanForbidden(Object.fromEntries(
+      Object.entries(row).filter(([key]) => key !== 'gateEvidence'),
+    ));
+    if (canonicalJson(Object.keys(row).sort()) !== canonicalJson(STORED_RECORD_KEYS)) {
+      throw new ReplayContractError('INVALID_LEDGER_RECORD', 'stored row has missing or extra fields');
+    }
     if (row.schemaVersion !== LEDGER_SCHEMA || row.namespace !== 'experiment-only' || row.gateEvidence !== false) {
       throw new ReplayContractError('FORGED_LEDGER_AUTHORITY', 'ledger row is not an experiment-only record');
+    }
+    const rebuilt = makeLedgerRecord({
+      experimentId: row.experimentId,
+      cellId: row.cellId,
+      ledgerCallId: row.ledgerCallId,
+      attemptId: row.attemptId,
+      sequence: row.sequence,
+      event: row.event,
+      disposition: row.disposition,
+      observedAt: row.observedAt,
+      inputDigest: row.inputDigest,
+      promptDigest: row.promptDigest,
+      materialDigest: row.materialDigest,
+      findingSetDigest: row.findingSetDigest,
+      modelId: row.modelId,
+      contractVersion: row.contractVersion,
+      usage: row.usage,
+      latencyMs: row.latency?.availability === 'unavailable' ? null : row.latency?.value,
+      findingMeasurement: row.findingMeasurement,
+    }, row.previousRecordHash, row.supersedesRecordIds);
+    if (canonicalJson(rebuilt) !== canonicalJson(row)) {
+      throw new ReplayContractError('INVALID_LEDGER_RECORD', 'stored row does not match the canonical validated shape');
     }
     if (ids.has(row.recordId)) throw new ReplayContractError('DUPLICATE_LEDGER_RECORD', row.recordId);
     ids.add(row.recordId);
@@ -257,15 +305,7 @@ export function verifyLedgerRows(rows) {
   return { rows: rows.length, attempts, lastRecordHash: previous };
 }
 
-export async function readLedger(relativePath) {
-  const target = await resolveLedgerPath(relativePath);
-  let text;
-  try {
-    text = await readFile(target, 'utf8');
-  } catch (error) {
-    if (error?.code === 'ENOENT') return [];
-    throw error;
-  }
+function parseLedgerText(text) {
   const rows = text.split('\n').filter(Boolean).map((line, index) => {
     try {
       return JSON.parse(line);
@@ -277,21 +317,98 @@ export async function readLedger(relativePath) {
   return rows;
 }
 
+export async function readLedger(relativePath) {
+  const target = await resolveLedgerPath(relativePath);
+  let text;
+  try {
+    text = await readFile(target, 'utf8');
+  } catch (error) {
+    if (error?.code === 'ENOENT') return [];
+    throw error;
+  }
+  return parseLedgerText(text);
+}
+
+async function acquireLedgerLock(target) {
+  const lockPath = `${target}.lock`;
+  for (let attempt = 0; attempt < 200; attempt += 1) {
+    try {
+      const handle = await open(
+        lockPath,
+        fsConstants.O_WRONLY | fsConstants.O_CREAT | fsConstants.O_EXCL | fsConstants.O_NOFOLLOW,
+        0o600,
+      );
+      await handle.writeFile(`${process.pid}\n`, 'utf8');
+      return { handle, lockPath };
+    } catch (error) {
+      if (error?.code !== 'EEXIST') throw error;
+      await new Promise(resolve => setTimeout(resolve, 5));
+    }
+  }
+  throw new ReplayContractError('LEDGER_LOCK_TIMEOUT', 'experiment ledger lock remained busy');
+}
+
+async function releaseLedgerLock(lock) {
+  const held = await lock.handle.stat();
+  await lock.handle.close();
+  try {
+    const current = await lstat(lock.lockPath);
+    if (current.dev === held.dev && current.ino === held.ino) await unlink(lock.lockPath);
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+}
+
 export async function appendLedgerRecord(relativePath, input) {
   const target = await resolveLedgerPath(relativePath);
-  const rows = await readLedger(relativePath);
-  const state = verifyLedgerRows(rows);
-  const attemptRows = rows.filter(row => row.experimentId === input.experimentId
-    && row.cellId === input.cellId
-    && row.ledgerCallId === input.ledgerCallId
-    && row.attemptId === input.attemptId);
-  const supersedes = input.event === 'terminal' ? attemptRows.map(row => row.recordId) : [];
-  const record = makeLedgerRecord(input, state.lastRecordHash, supersedes);
-  verifyLedgerRows([...rows, record]);
   await mkdir(path.dirname(target), { recursive: true });
   await assertNoSymlinkEscape(target);
-  await appendFile(target, `${canonicalJson(record)}\n`, { encoding: 'utf8', flag: 'a' });
-  return record;
+  const lock = await acquireLedgerLock(target);
+  try {
+    await assertNoSymlinkEscape(target);
+    let handle;
+    try {
+      handle = await open(
+        target,
+        fsConstants.O_RDWR | fsConstants.O_CREAT | fsConstants.O_APPEND | fsConstants.O_NOFOLLOW,
+        0o600,
+      );
+    } catch (error) {
+      if (error?.code === 'ELOOP') throw new ReplayContractError('LEDGER_PATH_ESCAPE', 'ledger target became a symlink');
+      throw error;
+    }
+    try {
+      const stat = await handle.stat();
+      if (!stat.isFile()) throw new ReplayContractError('LEDGER_PATH_ESCAPE', 'ledger target is not a regular file');
+      const expectedPath = path.resolve(target);
+      const openedPath = await realpath(target);
+      const pathStat = await lstat(target);
+      if (openedPath !== expectedPath || pathStat.isSymbolicLink()
+          || pathStat.dev !== stat.dev || pathStat.ino !== stat.ino) {
+        throw new ReplayContractError(
+          'LEDGER_PATH_ESCAPE',
+          `opened ledger descriptor does not match canonical target: ${openedPath}`,
+        );
+      }
+      const text = await handle.readFile({ encoding: 'utf8' });
+      const rows = parseLedgerText(text);
+      const state = verifyLedgerRows(rows);
+      const attemptRows = rows.filter(row => row.experimentId === input.experimentId
+        && row.cellId === input.cellId
+        && row.ledgerCallId === input.ledgerCallId
+        && row.attemptId === input.attemptId);
+      const supersedes = input.event === 'terminal' ? attemptRows.map(row => row.recordId) : [];
+      const record = makeLedgerRecord(input, state.lastRecordHash, supersedes);
+      verifyLedgerRows([...rows, record]);
+      await handle.write(`${canonicalJson(record)}\n`, null, 'utf8');
+      await handle.sync();
+      return record;
+    } finally {
+      await handle.close();
+    }
+  } finally {
+    await releaseLedgerLock(lock);
+  }
 }
 
 export function summarizeLedger(rows) {

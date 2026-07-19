@@ -14,12 +14,20 @@
     {
       "id": "A",
       "promptContract": "legacy-full-context.v1",
-      "description": "Legacy full-context role prompt contract"
+      "description": "Legacy full-context role prompt contract",
+      "promptSnapshot": {
+        "availability": "unavailable",
+        "reason": "No exact content-addressed legacy dispatch prompt snapshot is pinned for every corpus sample."
+      }
     },
     {
       "id": "B",
       "promptContract": "modular-full-context.v1",
-      "description": "Modular full-context role prompt contract"
+      "description": "Modular full-context role prompt contract",
+      "promptSnapshot": {
+        "availability": "unavailable",
+        "reason": "No exact content-addressed modular dispatch prompt snapshot is pinned for every corpus sample."
+      }
     }
   ],
   "sameInputRule": {
@@ -80,7 +88,10 @@
     "high": "suspected-systematic-miss-requires-rerun-and-independent-adjudication",
     "naturalNewFinding": "non-self-authenticating",
     "falsePositive": "non-self-authenticating",
-    "recallDenominator": "independently-adjudicated-critical-and-high-oracles-only"
+    "recallDenominator": "independently-adjudicated-critical-and-high-oracles-only",
+    "currentOutputStatus": "unavailable",
+    "currentAdjudicationStatus": "oracle-only-unverified",
+    "currentRecallConclusion": "INCONCLUSIVE"
   },
   "conclusionPolicy": {
     "validStates": ["EVALUABLE", "INCONCLUSIVE"],
@@ -93,7 +104,10 @@
       "SAMPLE_FLOOR_INCOMPLETE",
       "REPEAT_FLOOR_INCOMPLETE",
       "ADJUDICATION_MISSING",
+      "ADJUDICATION_EVIDENCE_UNVERIFIED",
       "FINDING_DIGEST_MISMATCH",
+      "FINDING_OUTPUT_UNAVAILABLE",
+      "PROMPT_SNAPSHOT_UNAVAILABLE",
       "RECALL_DENOMINATOR_INVALID",
       "PROVIDER_USAGE_UNAVAILABLE"
     ],

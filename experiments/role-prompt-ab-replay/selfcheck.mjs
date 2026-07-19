@@ -8,6 +8,7 @@ import {
   EXPERIMENT_ROOT,
   canonicalJson,
   digest,
+  evaluateBoundFixture,
   findingSetDigest,
   loadPinnedExperiment,
   materialDigest,
@@ -81,7 +82,10 @@ async function hashTree(relativePaths) {
 
 function usage(cell, overrides = {}) {
   return {
-    assembledPromptTokens: { availability: 'available', tokens: cell.measurement.estimatedTokens, source: 'selfcheck canonical replay' },
+    assembledPromptTokens: {
+      availability: 'unavailable',
+      reason: 'Exact content-addressed prompt snapshot bytes are not pinned for this canonical sample.',
+    },
     knownDispatchInputTokens: cell.providerObservation.knownDispatchInputTokens,
     providerProcessedInputTokens: cell.providerObservation.providerProcessedInputTokens,
     uncachedInputTokens: cell.providerObservation.uncachedInputTokens,
@@ -111,11 +115,78 @@ function inputFor(result, cell, overrides = {}) {
     usage: usage(cell),
     latencyMs: null,
     findingMeasurement: {
-      seededCount: cell.findingComparison.seededCount,
+      seededOracleCount: cell.findingComparison.seededOracleCount,
       detectedCount: cell.findingComparison.detectedCount,
       status: cell.findingComparison.status,
+      reasonCode: cell.findingComparison.reasonCode,
     },
     ...overrides,
+  };
+}
+
+function makeHermeticFixture() {
+  const oracles = [{
+    id: 'HERMETIC-001',
+    category: 'missing',
+    severity: 'critical',
+    sourceBinding: 'fixture/source.mjs',
+    claimBinding: 'fixture-claim',
+  }];
+  const arms = [
+    {
+      id: 'A',
+      promptContract: 'fixture-legacy.v1',
+      promptSnapshot: {
+        content: 'PROMPT CONTRACT: fixture-legacy.v1\nLegacy fixture instructions.\nShared fixture input.',
+      },
+    },
+    {
+      id: 'B',
+      promptContract: 'fixture-modular.v1',
+      promptSnapshot: {
+        content: 'PROMPT CONTRACT: fixture-modular.v1\nModular fixture instructions.\nShared fixture input.',
+      },
+    },
+  ];
+  for (const arm of arms) {
+    arm.promptSnapshot.contentDigest = digest(
+      'role-prompt-ab.hermetic-prompt-snapshot.v1',
+      arm.promptSnapshot.content,
+    );
+  }
+  const reviewerOutputs = arms.map(arm => {
+    const content = {
+      findings: [{
+        oracleId: 'HERMETIC-001',
+        category: 'missing',
+        sourceBinding: 'fixture/source.mjs',
+        claimBinding: 'fixture-claim',
+      }],
+    };
+    return {
+      armId: arm.id,
+      content,
+      contentDigest: digest('role-prompt-ab.hermetic-reviewer-output.v1', content),
+    };
+  });
+  const matches = arms.map(arm => ({
+    armId: arm.id,
+    seededOracleCount: 1,
+    detectedCount: 1,
+    criticalAllDetected: true,
+    recall: 1,
+  }));
+  const adjudicationContent = { matches };
+  return {
+    schemaVersion: 'proofbound.role-prompt-ab.hermetic-fixture.v1',
+    arms,
+    oracles,
+    oracleSetDigest: digest('role-prompt-ab.hermetic-oracle-set.v1', oracles),
+    reviewerOutputs,
+    independentAdjudication: {
+      content: adjudicationContent,
+      contentDigest: digest('role-prompt-ab.hermetic-independent-adjudication.v1', adjudicationContent),
+    },
   };
 }
 
@@ -131,13 +202,16 @@ try {
   const { protocol, corpus } = await loadPinnedExperiment();
   let identity;
   let baseline;
+  let hermeticResult;
 
-  await check('pinned protocol has 3 classes, 6 samples, >=3 repeats and adjudicated findings', () => {
+  await check('pinned protocol has 3 classes, 6 samples, >=3 repeats and oracle-only seeded truths', () => {
     identity = validateExperiment(protocol, corpus);
     assert.equal(identity.classes, 3);
     assert.equal(identity.samples, 6);
     assert.ok(identity.repeats >= 3);
-    assert.ok(identity.adjudicatedFindings >= 4);
+    assert.equal(identity.seededOracleCount, 4);
+    assert.equal(identity.adjudicatedFindings, 0);
+    assert.equal(identity.recallStatus, 'INCONCLUSIVE');
   });
 
   await check('all pinned material and finding digests recompute exactly', () => {
@@ -176,11 +250,14 @@ try {
     await expectCode('DUPLICATE_SAMPLE', async () => validateExperiment(protocol, changed));
   });
 
-  await check('missing independent adjudication is rejected', async () => {
+  await check('unverified oracle rows cannot masquerade as independent adjudication', async () => {
     const changed = clone(corpus);
-    changed.samples[2].oracles[0].adjudication.evidenceRef = '';
+    changed.samples[2].oracles[0].adjudication = {
+      status: 'verified',
+      reason: 'unsupported prose-only claim',
+    };
     changed.samples[2].findingSetDigest = findingSetDigest(changed.samples[2]);
-    await expectCode('ADJUDICATION_MISSING', async () => validateExperiment(protocol, changed));
+    await expectCode('ADJUDICATION_EVIDENCE_UNVERIFIED', async () => validateExperiment(protocol, changed));
   });
 
   await check('unavailable controls carry reasons and never masquerade as zero', () => {
@@ -252,12 +329,54 @@ try {
     assert.equal(reordered.resultDigest, baseline.resultDigest);
   });
 
-  await check('meaningful model change changes input and prompt digests', () => {
+  await check('meaningful model change changes shared input while prompt cost stays honestly unavailable', () => {
     const changedProtocol = clone(protocol);
     changedProtocol.model.modelId = 'historical-observation-only.v2';
     const changed = replayExperiment({ protocol: changedProtocol, corpus });
     assert.notEqual(changed.cells[0].inputDigest, baseline.cells[0].inputDigest);
-    assert.notEqual(changed.cells[0].measurement.promptDigest, baseline.cells[0].measurement.promptDigest);
+    assert.equal(changed.cells[0].measurement.promptDigest, null);
+    assert.equal(changed.cells[0].measurement.status, 'INCONCLUSIVE');
+  });
+
+  await check('arm contract mutation changes contract identity but cannot fabricate prompt bytes', () => {
+    const changedProtocol = clone(protocol);
+    changedProtocol.arms[0].promptContract = 'legacy-full-context.v2';
+    const changed = replayExperiment({ protocol: changedProtocol, corpus });
+    const baselineA = baseline.cells.find(cell => cell.armId === 'A');
+    const changedA = changed.cells.find(cell => cell.armId === 'A');
+    assert.notEqual(changedA.promptContractDigest, baselineA.promptContractDigest);
+    assert.equal(changedA.measurement.bytes, null);
+    assert.equal(changedA.measurement.promptDigest, null);
+  });
+
+  await check('hermetic bound fixture computes exact prompt metrics and semantic finding comparison', () => {
+    hermeticResult = evaluateBoundFixture(makeHermeticFixture());
+    assert.equal(hermeticResult.status, 'EVALUABLE');
+    assert.equal(hermeticResult.evidenceScope, 'hermetic-selfcheck-only');
+    assert.equal(hermeticResult.historicalEvidence, false);
+    assert.ok(hermeticResult.cells.every(cell => cell.measurement.bytes > 0));
+    assert.ok(hermeticResult.cells.every(cell => /^[a-f0-9]{64}$/.test(cell.measurement.promptDigest)));
+    assert.ok(hermeticResult.cells.every(cell => cell.findingComparison.recall === 1));
+  });
+
+  await check('hermetic prompt contract/content and reviewer-output tamper fail closed', async () => {
+    const contractOnly = makeHermeticFixture();
+    contractOnly.arms[0].promptContract = 'fixture-legacy.v2';
+    await expectCode('PROMPT_CONTRACT_SNAPSHOT_MISMATCH', async () => evaluateBoundFixture(contractOnly));
+    const updated = makeHermeticFixture();
+    const oldDigest = updated.arms[0].promptSnapshot.contentDigest;
+    updated.arms[0].promptContract = 'fixture-legacy.v2';
+    updated.arms[0].promptSnapshot.content =
+      'PROMPT CONTRACT: fixture-legacy.v2\nLegacy fixture instructions.\nShared fixture input.';
+    updated.arms[0].promptSnapshot.contentDigest = digest(
+      'role-prompt-ab.hermetic-prompt-snapshot.v1',
+      updated.arms[0].promptSnapshot.content,
+    );
+    const evaluated = evaluateBoundFixture(updated);
+    assert.notEqual(evaluated.cells.find(cell => cell.armId === 'A').promptSnapshotDigest, oldDigest);
+    const outputTamper = makeHermeticFixture();
+    outputTamper.reviewerOutputs[0].content.findings[0].category = 'edge';
+    await expectCode('FINDING_OUTPUT_DIGEST_MISMATCH', async () => evaluateBoundFixture(outputTamper));
   });
 
   await check('meaningful material/tool change changes digests after explicit repinning', () => {
@@ -377,13 +496,16 @@ try {
     }
   });
 
-  await check('symlink ledger file itself cannot redirect an append', async () => {
+  await check('symlink ledger file itself cannot redirect an fd-based append', async () => {
     const link = path.join(runtimeDir, 'file-link.jsonl');
     await mkdir(runtimeDir, { recursive: true });
     await rm(link, { force: true });
     await symlink(path.join(repoRoot, '.lattice', 'process-events.jsonl'), link);
     try {
-      await expectCode('LEDGER_PATH_ESCAPE', async () => resolveLedgerPath('runtime/file-link.jsonl'));
+      await expectCode('LEDGER_PATH_ESCAPE', async () => appendLedgerRecord(
+        'runtime/file-link.jsonl',
+        inputFor(baseline, firstCell),
+      ));
     } finally {
       await rm(link, { force: true });
     }
@@ -401,6 +523,29 @@ try {
     assert.equal(rows.length, 2);
     assert.deepEqual(rows[1].supersedesRecordIds, [rows[0].recordId]);
     verifyLedgerRows(rows);
+  });
+
+  await check('concurrent appenders serialize under one experiment-local lock', async () => {
+    const concurrentPath = `runtime/concurrent-${process.pid}.jsonl`;
+    const secondCell = baseline.cells[1];
+    try {
+      await Promise.all([
+        appendLedgerRecord(concurrentPath, inputFor(baseline, firstCell, {
+          ledgerCallId: 'concurrent-a',
+          attemptId: 'attempt-a',
+        })),
+        appendLedgerRecord(concurrentPath, inputFor(baseline, secondCell, {
+          ledgerCallId: 'concurrent-b',
+          attemptId: 'attempt-b',
+        })),
+      ]);
+      const rows = await readLedger(concurrentPath);
+      assert.equal(rows.length, 2);
+      assert.equal(rows[1].previousRecordHash, rows[0].recordHash);
+      verifyLedgerRows(rows);
+    } finally {
+      await rm(await resolveLedgerPath(concurrentPath), { force: true });
+    }
   });
 
   await check('duplicate/out-of-order/after-terminal writes are rejected', async () => {
@@ -462,18 +607,30 @@ try {
   await check('ledger chain tamper is rejected', async () => {
     const rows = await readLedger(ledgerPath);
     const changed = clone(rows);
-    changed[0].promptDigest = '0'.repeat(64);
-    await expectCode('LEDGER_CHAIN_BROKEN', async () => verifyLedgerRows(changed));
+    changed[0].observedAt = '2026-01-01T00:09:00.000Z';
+    await expectCode('INVALID_LEDGER_RECORD', async () => verifyLedgerRows(changed));
   });
 
-  await check('invalid finding denominator is rejected rather than reported as zero recall', async () => {
+  await check('privacy injection with recomputed row hash is rejected before chain acceptance', async () => {
+    const [row] = await readLedger(ledgerPath);
+    const changed = clone(row);
+    changed.rawPrompt = 'injected private bytes';
+    changed.recordHash = digest('role-prompt-ab.ledger-record.v1', Object.fromEntries(
+      Object.entries(changed).filter(([key]) => key !== 'recordHash'),
+    ));
+    await expectCode('PRIVATE_OR_AUTHORITATIVE_FIELD', async () => verifyLedgerRows([changed]));
+  });
+
+  await check('missing finding output remains INCONCLUSIVE instead of zero recall', () => {
     const changed = clone(corpus);
     for (const sample of changed.samples) {
       sample.oracles = [];
-      sample.observedFindingsByArm = { A: [], B: [] };
       sample.findingSetDigest = findingSetDigest(sample);
     }
-    await expectCode('RECALL_DENOMINATOR_INVALID', async () => validateExperiment(protocol, changed));
+    const result = replayExperiment({ protocol, corpus: changed });
+    assert.equal(result.cells[0].findingComparison.status, 'INCONCLUSIVE');
+    assert.equal(result.cells[0].findingComparison.reasonCode, 'FINDING_OUTPUT_UNAVAILABLE');
+    assert.equal(result.cells[0].findingComparison.recall, null);
   });
 
   await check('partial provider observation remains unavailable, not zero', () => {
@@ -488,10 +645,11 @@ try {
     assert.equal(afterProduction, beforeProduction);
   });
 
-  process.stdout.write(`Protocol: PASS experimentId=${identity.experimentId} classes=${identity.classes} samples=${identity.samples} repeats>=3 adjudicatedFindings=${identity.adjudicatedFindings}\n`);
+  process.stdout.write(`Protocol: PASS experimentId=${identity.experimentId} classes=${identity.classes} samples=${identity.samples} repeats>=3 seededOracles=${identity.seededOracleCount} adjudicatedFindings=${identity.adjudicatedFindings}\n`);
   process.stdout.write('Replay: PASS sameInput=true deterministic=true\n');
-  process.stdout.write('Recall: EVALUABLE seeded critical/high denominator is independently adjudicated\n');
-  process.stdout.write('Recall: INCONCLUSIVE reason=MATERIAL_DIGEST_MISMATCH (tamper probe)\n');
+  process.stdout.write('Prompt cost: INCONCLUSIVE reason=PROMPT_SNAPSHOT_UNAVAILABLE\n');
+  process.stdout.write('Recall: INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED\n');
+  process.stdout.write(`Hermetic fixture: EVALUABLE scope=${hermeticResult.evidenceScope} historicalEvidence=${hermeticResult.historicalEvidence} cells=${hermeticResult.cells.length}\n`);
   process.stdout.write('Experiment ledger: PASS gateEvidence=false attempts=3\n');
   process.stdout.write('Production evidence drift: NONE\n');
   process.stdout.write(`Selfcheck: PASS checks=${checks}\n`);

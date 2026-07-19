@@ -18,19 +18,24 @@ try {
   const options = parseArgs(process.argv.slice(2));
   const rows = await readLedger(options.ledger);
   const summary = summarizeLedger(rows);
-  const status = summary.incompleteAttempts === 0 && summary.attempts > 0 ? 'EVALUABLE' : 'INCONCLUSIVE';
+  const ledgerStatus = summary.incompleteAttempts === 0 && summary.attempts > 0 ? 'EVALUABLE' : 'INCONCLUSIVE';
   const result = {
     ...summary,
-    status,
-    reasonCode: status === 'EVALUABLE' ? null : 'INCOMPLETE_ATTEMPT',
-    providerCostConclusion: summary.providerInputAvailability === 'available' ? 'EVALUABLE' : 'UNAVAILABLE',
+    ledgerStatus,
+    status: 'INCONCLUSIVE',
+    reasonCodes: ledgerStatus === 'EVALUABLE'
+      ? ['PROMPT_SNAPSHOT_UNAVAILABLE', 'ADJUDICATION_EVIDENCE_UNVERIFIED', 'PROVIDER_USAGE_UNAVAILABLE']
+      : ['INCOMPLETE_ATTEMPT'],
+    promptCostConclusion: 'INCONCLUSIVE',
+    findingRecallConclusion: 'INCONCLUSIVE',
+    providerCostConclusion: 'UNAVAILABLE',
     savingsClaim: null,
     recallClaim: null,
   };
   if (options.json) process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
   else {
     process.stdout.write(`Experiment ledger: PASS gateEvidence=false attempts=${result.attempts}\n`);
-    process.stdout.write(`Analysis: ${result.status} providerCost=${result.providerCostConclusion}\n`);
+    process.stdout.write(`Analysis: ${result.status} ledger=${result.ledgerStatus} providerCost=${result.providerCostConclusion}\n`);
   }
 } catch (error) {
   const code = error instanceof ReplayContractError ? error.code : 'UNEXPECTED_ERROR';

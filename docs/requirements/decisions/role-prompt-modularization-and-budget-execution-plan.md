@@ -1079,7 +1079,12 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
 
 - 已在 `experiments/role-prompt-ab-replay/` 交付隔离的只读 replay、
   experiment-only ledger、离线分析和 selfcheck。协议冻结三类样本、每类两个，
-  每个适用 cell 至少三次，并绑定独立裁决的 critical/high finding oracle。
+  每个适用 cell 至少三次。当前 critical/high 仅作为
+  `oracle-only-unverified` future seeds；没有 reviewer output + digest +
+  独立语义裁决证据时，finding recall 不可评估。
+- `lattice-experiment-protocol.md` 的五 arm lifecycle ablation 与本实验无关，
+  只提供 pre-registration 方法参考，不是 Story 3 的 governing acceptance
+  contract。
 - 可执行验证命令：
 
   ```bash
@@ -1094,7 +1099,8 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
 
 - selfcheck 覆盖固定协议与语料、重复/反序、material/model/tool/contract
   drift、post-hoc tamper、缺失裁决、无效 denominator、retry/crash、ledger
-  chain、伪 authority、私密字段、路径/符号链接逃逸，以及 production
+  chain、并发 append、重算 hash 后的私密字段注入、伪 authority、
+  fd-based `O_NOFOLLOW` 路径/符号链接逃逸，以及 production
   pass/finding/ReviewRun/verification/validation/lifecycle evidence 前后摘要一致。
 - Claim boundary：本 Story 只证明 pinned 历史观察可被确定性重算并与生产证据
   隔离。它不运行历史代码、不调用 provider，也不宣称生产 Prompt 降幅、provider
@@ -1102,6 +1108,11 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
   enforce-ready。当前 snapshot authority 是 `corpus.json` 内联提交并由
   `materialDigest`/corpus digest 绑定的 `material.content`；
   `sourceHintPath` 只提供人类 provenance context，不是历史文件内容证明。
+  当前没有 exact content-addressed legacy/modular prompt snapshots、reviewer
+  output artifacts 或 independent semantic-match adjudication bytes，因此
+  canonical corpus 的 prompt cost 与 finding recall 均为 `INCONCLUSIVE`。
+  selfcheck 的 hermetic inline fixtures 只证明证据齐全时测量/匹配引擎可工作，
+  不属于历史或生产证据。
   当前语料未绑定可机械验证的 dispatch/provider receipt 与 evidence digest，
   因此 known dispatch、provider/output/cache 全部保持
   `unavailable(<reason>)`，包括 0 也不得伪装成已观测值；任何不可重建、篡改、

@@ -19,8 +19,7 @@
       },
       "tools": ["Read", "Grep"],
       "materialDigest": "686c86e9385e977a96ff03a22fadccce0f786a7b08f078ee3aa17fe3e81db986",
-      "findingSetDigest": "66ca3f418d5e8fc8c29fbea373c3bb404824073af32f2b9e31b73699a72261dd",
-      "observedFindingsByArm": {"A": [], "B": []},
+      "findingSetDigest": "2ded0283ea1d8c2b81325d63ca045ff3ffef36c882314d3c43fe5663abfb88c4",
       "providerObservation": {
         "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
         "providerProcessedInputTokens": {"availability": "unavailable", "reason": "Provider usage was not captured for this historical sample."},
@@ -48,8 +47,7 @@
       },
       "tools": ["Read", "Grep"],
       "materialDigest": "119fb690b9a35ce036ca80a0ae396cac44f056b09d88fac7a0af1812ec79a5b3",
-      "findingSetDigest": "66ca3f418d5e8fc8c29fbea373c3bb404824073af32f2b9e31b73699a72261dd",
-      "observedFindingsByArm": {"A": [], "B": []},
+      "findingSetDigest": "2ded0283ea1d8c2b81325d63ca045ff3ffef36c882314d3c43fe5663abfb88c4",
       "providerObservation": {
         "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
         "providerProcessedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
@@ -77,11 +75,7 @@
       },
       "tools": ["Read", "Grep", "Bash"],
       "materialDigest": "fc08f9de50f5cb29387141b79e7c286b29d263a40881eedb406bc52ed0047e0c",
-      "findingSetDigest": "5f5aa8bd6a80703870dc699107ab73fc79fde5ba283bb27dad2233b0382f030c",
-      "observedFindingsByArm": {
-        "A": [{"oracleId": "F-critical-unsigned-pass", "category": "missing", "sourceBinding": "review-gate", "claimBinding": "signed-current-pass-required"}],
-        "B": [{"oracleId": "F-critical-unsigned-pass", "category": "missing", "sourceBinding": "review-gate", "claimBinding": "signed-current-pass-required"}]
-      },
+      "findingSetDigest": "d4ac11ea222bd9853f5ce4aee37d992c3fa6159458431a7104c4e70d63541f00",
       "providerObservation": {
         "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
         "providerProcessedInputTokens": {"availability": "unavailable", "reason": "Provider usage was not captured for this historical sample."},
@@ -98,7 +92,7 @@
           "trigger": "Unsigned or unbound pass is accepted by the REVIEW gate.",
           "sourceBinding": "review-gate",
           "claimBinding": "signed-current-pass-required",
-          "adjudication": {"kind": "machine", "adjudicator": "review-run-binding-smoke", "evidenceRef": "packages/main/src/tasks/review-run-binding-smoke.ts"}
+          "adjudication": {"status": "oracle-only-unverified", "reason": "No independently adjudicated output artifact and digest are pinned; this row seeds a future oracle only."}
         }
       ]
     },
@@ -119,11 +113,7 @@
       },
       "tools": ["Read", "Grep", "Bash"],
       "materialDigest": "d88dfb108b07b4c90e1e95f049ee6f2f2459aadfd6ee60682b299e0c46120586",
-      "findingSetDigest": "9770d091f4fcc19a56e847d1761ff369d279fe8042fac3779a43acbf0791b49a",
-      "observedFindingsByArm": {
-        "A": [{"oracleId": "F-critical-digest-substitution", "category": "adversarial", "sourceBinding": "prompt-envelope", "claimBinding": "exact-bytes-recomputed"}],
-        "B": [{"oracleId": "F-critical-digest-substitution", "category": "adversarial", "sourceBinding": "prompt-envelope", "claimBinding": "exact-bytes-recomputed"}]
-      },
+      "findingSetDigest": "2396c0321f19ff169a355e1873566f948fa6630285e715569886d9f298690097",
       "providerObservation": {
         "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
         "providerProcessedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
@@ -140,7 +130,7 @@
           "trigger": "Caller-supplied prompt digest bypasses exact-byte recomputation.",
           "sourceBinding": "prompt-envelope",
           "claimBinding": "exact-bytes-recomputed",
-          "adjudication": {"kind": "human", "adjudicator": "independent-concept-reviewer", "evidenceRef": "Story B-dd81 review round 9"}
+          "adjudication": {"status": "oracle-only-unverified", "reason": "No independently adjudicated output artifact and digest are pinned; this row seeds a future oracle only."}
         }
       ]
     },
@@ -161,11 +151,7 @@
       },
       "tools": ["Read", "Grep"],
       "materialDigest": "949324b103039eb870a418121a9c82da095dbd901868fa53f1f35646b458b7d0",
-      "findingSetDigest": "eb1465c910e9a2d91e770a4cc18ea06ce4d4b685ba06a12da7c59a632ada183d",
-      "observedFindingsByArm": {
-        "A": [{"oracleId": "F-high-metadata-overreview", "category": "edge", "sourceBinding": "freshness-reader", "claimBinding": "headhash-only-advisory"}],
-        "B": [{"oracleId": "F-high-metadata-overreview", "category": "edge", "sourceBinding": "freshness-reader", "claimBinding": "headhash-only-advisory"}]
-      },
+      "findingSetDigest": "5026a0c15af8f0f6f530093a3f386c09170f99ae1764b2ada003996b1e97bce7",
       "providerObservation": {
         "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
         "providerProcessedInputTokens": {"availability": "unavailable", "reason": "The crashed attempt had no terminal provider usage event."},
@@ -182,7 +168,7 @@
           "trigger": "Metadata-only HEAD drift is treated as story-owned material drift and forces an unrelated full rerun.",
           "sourceBinding": "freshness-reader",
           "claimBinding": "headhash-only-advisory",
-          "adjudication": {"kind": "machine", "adjudicator": "done-prepare-smoke", "evidenceRef": "packages/main/src/tasks/done-prepare-smoke.ts"}
+          "adjudication": {"status": "oracle-only-unverified", "reason": "No independently adjudicated output artifact and digest are pinned; this row seeds a future oracle only."}
         }
       ]
     },
@@ -203,11 +189,7 @@
       },
       "tools": ["Read", "Grep"],
       "materialDigest": "27cd99ef87da918d687bdf896b5800ab180c2cb82d003e536e28570df8587103",
-      "findingSetDigest": "13f4db7c79a94564a2685da7ec0e3fffe37815927ab0f25e5b04e675f7305909",
-      "observedFindingsByArm": {
-        "A": [{"oracleId": "F-high-related-drift-reuse", "category": "adversarial", "sourceBinding": "delivery-check", "claimBinding": "related-drift-reattestation"}],
-        "B": [{"oracleId": "F-high-related-drift-reuse", "category": "adversarial", "sourceBinding": "delivery-check", "claimBinding": "related-drift-reattestation"}]
-      },
+      "findingSetDigest": "cd43aec77c05fea992d6622432ecef2117671815acfff9aafd225b212e0fa4b4",
       "providerObservation": {
         "knownDispatchInputTokens": {"availability": "unavailable", "reason": "No committed dispatch evidence artifact and digest are bound to this historical sample."},
         "providerProcessedInputTokens": {"availability": "unavailable", "reason": "No committed provider terminal usage artifact and digest are bound to this historical sample."},
@@ -224,7 +206,7 @@
           "trigger": "Delivery or reviewer evidence is reused after storyFilesHash changes.",
           "sourceBinding": "delivery-check",
           "claimBinding": "related-drift-reattestation",
-          "adjudication": {"kind": "human", "adjudicator": "independent-delivery-reviewer", "evidenceRef": "docs/requirements/decisions/story-files-hash-material-drift.md"}
+          "adjudication": {"status": "oracle-only-unverified", "reason": "No independently adjudicated output artifact and digest are pinned; this row seeds a future oracle only."}
         }
       ]
     }

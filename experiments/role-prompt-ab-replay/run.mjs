@@ -19,7 +19,10 @@ function parseArgs(argv) {
 function usageForCell(cell) {
   const observation = cell.providerObservation;
   return {
-    assembledPromptTokens: { availability: 'available', tokens: cell.measurement.estimatedTokens, source: 'canonical local replay measurement' },
+    assembledPromptTokens: {
+      availability: 'unavailable',
+      reason: 'Exact content-addressed prompt snapshot bytes are not pinned for this arm and sample.',
+    },
     knownDispatchInputTokens: observation.knownDispatchInputTokens,
     providerProcessedInputTokens: observation.providerProcessedInputTokens,
     uncachedInputTokens: observation.uncachedInputTokens,
@@ -48,9 +51,10 @@ async function recordReplay(result, ledger, runId) {
       usage: usageForCell(cell),
       latencyMs: null,
       findingMeasurement: {
-        seededCount: cell.findingComparison.seededCount,
+        seededOracleCount: cell.findingComparison.seededOracleCount,
         detectedCount: cell.findingComparison.detectedCount,
         status: cell.findingComparison.status,
+        reasonCode: cell.findingComparison.reasonCode,
       },
     };
     const second = String(index % 60).padStart(2, '0');
@@ -85,9 +89,7 @@ try {
     process.stdout.write(`experimentId=${result.experimentId} samples=${result.samples} cells=${result.cells.length}\n`);
     for (const cell of result.cells) {
       const m = cell.measurement;
-      process.stdout.write(
-        `${cell.cellId} bytes=${m.bytes} estimatedTokens=${m.estimatedTokens} promptDigest=${m.promptDigest} findingComparison=${cell.findingComparison.status}\n`,
-      );
+      process.stdout.write(`${cell.cellId} promptCost=${m.status} reason=${m.reasonCode} findingRecall=${cell.findingComparison.status} findingReason=${cell.findingComparison.reasonCode}\n`);
     }
     if (options.ledger) process.stdout.write(`Experiment ledger: PASS gateEvidence=false path=${options.ledger}\n`);
   }

@@ -11,6 +11,7 @@
     "experiments/role-prompt-ab-replay/lib/replay.mjs",
     "experiments/role-prompt-ab-replay/lib/ledger.mjs",
     "experiments/role-prompt-ab-replay/analyze.mjs",
+    "experiments/role-prompt-ab-replay/runtime/.gitignore",
     "experiments/role-prompt-ab-replay/selfcheck.mjs",
     "experiments/role-prompt-ab-replay/README.md"
   ],
@@ -26,10 +27,10 @@
     ".lattice/story",
     ".lattice/usage"
   ],
-  "scopeChangeReason": "Story 3 is experiment-only: allow only planned experiment files and canonical decision status update; production code, prompt assets, Story/fixture metadata and normal usage ledger remain outside implementation scope.",
+  "scopeChangeReason": "F-004 adds only experiments/role-prompt-ab-replay/runtime/.gitignore so documented opt-in ledger output does not dirty the worktree; all production paths remain excluded.",
   "acknowledgements": [],
   "createdAt": "2026-07-19T01:55:09.766Z",
-  "updatedAt": "2026-07-19T01:55:09.766Z",
+  "updatedAt": "2026-07-19T02:14:49.548Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -40,6 +41,7 @@
     "experiments/role-prompt-ab-replay/lib/replay.mjs": "experiments/role-prompt-ab-replay/lib/replay.mjs",
     "experiments/role-prompt-ab-replay/lib/ledger.mjs": "experiments/role-prompt-ab-replay/lib/ledger.mjs",
     "experiments/role-prompt-ab-replay/analyze.mjs": "experiments/role-prompt-ab-replay/analyze.mjs",
+    "experiments/role-prompt-ab-replay/runtime/.gitignore": "experiments/role-prompt-ab-replay/runtime/.gitignore",
     "experiments/role-prompt-ab-replay/selfcheck.mjs": "experiments/role-prompt-ab-replay/selfcheck.mjs",
     "experiments/role-prompt-ab-replay/README.md": "experiments/role-prompt-ab-replay/README.md",
     "packages/main/src": "packages/main/src",

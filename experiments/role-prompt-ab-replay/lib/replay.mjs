@@ -128,7 +128,6 @@ export function materialDigest(sample) {
 export function findingSetDigest(sample) {
   return digest('role-prompt-ab.finding-set.v1', {
     oracles: sample.oracles,
-    observedFindingsByArm: sample.observedFindingsByArm,
   });
 }
 
@@ -148,34 +147,13 @@ function validateOracle(oracle, sampleId, oracleIds) {
       throw new ReplayContractError('INVALID_ADJUDICATION', `${oracle.id}.${key} must be nonblank`);
     }
   }
-  assertExactKeys(oracle.adjudication, ['kind', 'adjudicator', 'evidenceRef'], `${oracle.id}.adjudication`);
-  if (!['machine', 'human'].includes(oracle.adjudication.kind)
-      || typeof oracle.adjudication.adjudicator !== 'string' || !oracle.adjudication.adjudicator.trim()
-      || typeof oracle.adjudication.evidenceRef !== 'string' || !oracle.adjudication.evidenceRef.trim()) {
-    throw new ReplayContractError('ADJUDICATION_MISSING', `${oracle.id} requires independent adjudication evidence`);
-  }
-}
-
-function validateObservedFindings(sample, armIds) {
-  assertObject(sample.observedFindingsByArm, 'INVALID_FINDINGS', `${sample.id}.observedFindingsByArm must be an object`);
-  if (canonicalJson(Object.keys(sample.observedFindingsByArm).sort()) !== canonicalJson([...armIds].sort())) {
-    throw new ReplayContractError('ARM_INPUT_DRIFT', `${sample.id} must carry the exact registered arm set`);
-  }
-  const oracleById = new Map(sample.oracles.map(oracle => [oracle.id, oracle]));
-  for (const armId of armIds) {
-    const rows = sample.observedFindingsByArm[armId];
-    if (!Array.isArray(rows)) throw new ReplayContractError('INVALID_FINDINGS', `${sample.id}.${armId} must be an array`);
-    const seen = new Set();
-    for (const row of rows) {
-      assertExactKeys(row, ['oracleId', 'category', 'sourceBinding', 'claimBinding'], `${sample.id}.${armId} finding`);
-      const oracle = oracleById.get(row.oracleId);
-      if (!oracle) throw new ReplayContractError('INVALID_FINDINGS', `${sample.id}.${armId} references unknown oracle`);
-      if (seen.has(row.oracleId)) throw new ReplayContractError('INVALID_FINDINGS', `${sample.id}.${armId} duplicates ${row.oracleId}`);
-      seen.add(row.oracleId);
-      if (row.category !== oracle.category || row.sourceBinding !== oracle.sourceBinding || row.claimBinding !== oracle.claimBinding) {
-        throw new ReplayContractError('FINDING_DIGEST_MISMATCH', `${sample.id}.${armId}.${row.oracleId} semantic binding differs`);
-      }
-    }
+  assertExactKeys(oracle.adjudication, ['status', 'reason'], `${oracle.id}.adjudication`);
+  if (oracle.adjudication.status !== 'oracle-only-unverified'
+      || typeof oracle.adjudication.reason !== 'string' || !oracle.adjudication.reason.trim()) {
+    throw new ReplayContractError(
+      'ADJUDICATION_EVIDENCE_UNVERIFIED',
+      `${oracle.id} may only seed future truth until independently adjudicated evidence bytes and digest are pinned`,
+    );
   }
 }
 
@@ -189,6 +167,18 @@ export function validateExperiment(protocol, corpus) {
     throw new ReplayContractError('INVALID_ARMS', 'exactly two unique arms are required');
   }
   const armIds = protocol.arms.map(arm => arm.id);
+  for (const arm of protocol.arms) {
+    if (typeof arm.promptContract !== 'string' || !arm.promptContract.trim()) {
+      throw new ReplayContractError('INVALID_ARMS', `${arm.id} promptContract must be nonblank`);
+    }
+    validateAvailability(arm.promptSnapshot, `protocol.arms.${arm.id}.promptSnapshot`);
+    if (arm.promptSnapshot.availability !== 'unavailable') {
+      throw new ReplayContractError(
+        'UNBOUND_PROMPT_SNAPSHOT',
+        `${arm.id} prompt bytes require content-addressed snapshot content and digest`,
+      );
+    }
+  }
   if (protocol.sameInputRule?.onlyPermittedDifference !== 'promptContract') {
     throw new ReplayContractError('ARM_INPUT_DRIFT', 'only promptContract may differ between arms');
   }
@@ -247,7 +237,6 @@ export function validateExperiment(protocol, corpus) {
     if (!Array.isArray(sample.oracles)) throw new ReplayContractError('ADJUDICATION_MISSING', `${sample.id} oracles missing`);
     const oracleIds = new Set();
     for (const oracle of sample.oracles) validateOracle(oracle, sample.id, oracleIds);
-    validateObservedFindings(sample, armIds);
     if (typeof sample.findingSetDigest !== 'string' || sample.findingSetDigest !== findingSetDigest(sample)) {
       throw new ReplayContractError('FINDING_DIGEST_MISMATCH', `${sample.id} finding-set digest mismatch`);
     }
@@ -273,10 +262,7 @@ export function validateExperiment(protocol, corpus) {
   for (const [className, count] of counts) {
     if (count < minimum) throw new ReplayContractError('SAMPLE_FLOOR_INCOMPLETE', `${className} has ${count}, requires ${minimum}`);
   }
-  const adjudicatedDenominator = corpus.samples.flatMap(sample => sample.oracles).length;
-  if (adjudicatedDenominator < 1) {
-    throw new ReplayContractError('RECALL_DENOMINATOR_INVALID', 'at least one independently adjudicated oracle is required');
-  }
+  const seededOracleCount = corpus.samples.flatMap(sample => sample.oracles).length;
   return {
     experimentId: digest('role-prompt-ab.experiment.v1', { protocol, corpus }),
     protocolDigest: digest('role-prompt-ab.protocol.v1', protocol),
@@ -284,13 +270,34 @@ export function validateExperiment(protocol, corpus) {
     classes: counts.size,
     samples: corpus.samples.length,
     repeats,
-    adjudicatedFindings: adjudicatedDenominator,
+    seededOracleCount,
+    adjudicatedFindings: 0,
+    recallStatus: 'INCONCLUSIVE',
+    recallReasonCode: 'ADJUDICATION_EVIDENCE_UNVERIFIED',
   };
 }
 
-function measure(text) {
+function findingComparison(sample, armId) {
+  return {
+    findingSetDigest: sample.findingSetDigest,
+    armId,
+    seededOracleCount: sample.oracles.length,
+    detectedCount: null,
+    criticalAllDetected: null,
+    recall: null,
+    status: 'INCONCLUSIVE',
+    reasonCode: sample.oracles.length === 0
+      ? 'FINDING_OUTPUT_UNAVAILABLE'
+      : 'ADJUDICATION_EVIDENCE_UNVERIFIED',
+  };
+}
+
+function measureBoundPrompt(text) {
+  if (typeof text !== 'string') throw new ReplayContractError('PROMPT_SNAPSHOT_INVALID', 'prompt snapshot content must be text');
   const bytes = Buffer.byteLength(text, 'utf8');
   return {
+    status: 'EVALUABLE',
+    reasonCode: null,
     bytes,
     lines: text.length === 0 ? 0 : 1 + (text.match(/\n/g)?.length ?? 0),
     estimatedTokens: bytes === 0 ? 0 : Math.ceil(bytes / 4),
@@ -298,25 +305,91 @@ function measure(text) {
   };
 }
 
-function armPrompt(arm, sharedInput) {
-  const contractBlock = arm.id === 'A'
-    ? 'ROLE PROMPT CONTRACT: legacy-full-context.v1\nApply the complete shared runtime and role instructions.'
-    : 'ROLE PROMPT CONTRACT: modular-full-context.v1\nApply the referenced runtime contract and the bounded role contract.';
-  return `${contractBlock}\n\nSHARED INPUT (canonical JSON):\n${canonicalJson(sharedInput)}\n`;
-}
-
-function findingComparison(sample, armId) {
-  const observed = new Set(sample.observedFindingsByArm[armId].map(row => row.oracleId));
-  const seeded = sample.oracles;
-  const detected = seeded.filter(oracle => observed.has(oracle.id));
-  const missedCritical = seeded.filter(oracle => oracle.severity === 'critical' && !observed.has(oracle.id));
+/**
+ * Positive evaluator for hermetic selfcheck fixtures only. It proves the
+ * measurement/matching machinery when every input is inline and
+ * content-addressed. It is not historical or production evidence.
+ */
+export function evaluateBoundFixture(fixture) {
+  assertObject(fixture, 'HERMETIC_FIXTURE_INVALID', 'fixture must be an object');
+  if (fixture.schemaVersion !== 'proofbound.role-prompt-ab.hermetic-fixture.v1'
+      || !Array.isArray(fixture.arms) || fixture.arms.length !== 2
+      || !Array.isArray(fixture.reviewerOutputs) || fixture.reviewerOutputs.length !== 2) {
+    throw new ReplayContractError('HERMETIC_FIXTURE_INVALID', 'fixture shape/version invalid');
+  }
+  const oracleSetDigest = digest('role-prompt-ab.hermetic-oracle-set.v1', fixture.oracles);
+  if (fixture.oracleSetDigest !== oracleSetDigest) {
+    throw new ReplayContractError('FINDING_DIGEST_MISMATCH', 'hermetic oracle set digest mismatch');
+  }
+  const oracleById = new Map(fixture.oracles.map(oracle => [oracle.id, oracle]));
+  const outputByArm = new Map(fixture.reviewerOutputs.map(output => [output.armId, output]));
+  const cells = [];
+  const derivedMatches = [];
+  for (const arm of fixture.arms) {
+    assertObject(arm.promptSnapshot, 'PROMPT_SNAPSHOT_INVALID', `${arm.id} promptSnapshot missing`);
+    const snapshotDigest = digest('role-prompt-ab.hermetic-prompt-snapshot.v1', arm.promptSnapshot.content);
+    if (snapshotDigest !== arm.promptSnapshot.contentDigest) {
+      throw new ReplayContractError('PROMPT_SNAPSHOT_DIGEST_MISMATCH', `${arm.id} prompt snapshot digest mismatch`);
+    }
+    const contractMarker = `PROMPT CONTRACT: ${arm.promptContract}\n`;
+    if (!arm.promptSnapshot.content.startsWith(contractMarker)) {
+      throw new ReplayContractError(
+        'PROMPT_CONTRACT_SNAPSHOT_MISMATCH',
+        `${arm.id} prompt bytes do not bind promptContract ${arm.promptContract}`,
+      );
+    }
+    const output = outputByArm.get(arm.id);
+    if (!output || digest('role-prompt-ab.hermetic-reviewer-output.v1', output.content) !== output.contentDigest) {
+      throw new ReplayContractError('FINDING_OUTPUT_DIGEST_MISMATCH', `${arm.id} output missing or digest-invalid`);
+    }
+    if (!Array.isArray(output.content.findings)) {
+      throw new ReplayContractError('FINDING_OUTPUT_INVALID', `${arm.id} findings must be an array`);
+    }
+    const detected = new Set();
+    for (const finding of output.content.findings) {
+      const oracle = oracleById.get(finding.oracleId);
+      if (oracle
+          && finding.category === oracle.category
+          && finding.sourceBinding === oracle.sourceBinding
+          && finding.claimBinding === oracle.claimBinding) {
+        detected.add(oracle.id);
+      }
+    }
+    const seeded = fixture.oracles.length;
+    const match = {
+      armId: arm.id,
+      seededOracleCount: seeded,
+      detectedCount: detected.size,
+      criticalAllDetected: fixture.oracles
+        .filter(oracle => oracle.severity === 'critical')
+        .every(oracle => detected.has(oracle.id)),
+      recall: seeded === 0 ? null : detected.size / seeded,
+    };
+    derivedMatches.push(match);
+    cells.push({
+      armId: arm.id,
+      promptContract: arm.promptContract,
+      promptSnapshotDigest: snapshotDigest,
+      measurement: measureBoundPrompt(arm.promptSnapshot.content),
+      findingComparison: { ...match, status: seeded === 0 ? 'INCONCLUSIVE' : 'EVALUABLE' },
+    });
+  }
+  assertObject(fixture.independentAdjudication, 'ADJUDICATION_MISSING', 'independentAdjudication missing');
+  if (digest(
+    'role-prompt-ab.hermetic-independent-adjudication.v1',
+    fixture.independentAdjudication.content,
+  ) !== fixture.independentAdjudication.contentDigest) {
+    throw new ReplayContractError('ADJUDICATION_EVIDENCE_UNVERIFIED', 'independent adjudication digest mismatch');
+  }
+  if (canonicalJson(fixture.independentAdjudication.content.matches) !== canonicalJson(derivedMatches)) {
+    throw new ReplayContractError('ADJUDICATION_EVIDENCE_UNVERIFIED', 'independent adjudication does not match derived semantics');
+  }
   return {
-    findingSetDigest: sample.findingSetDigest,
-    seededCount: seeded.length,
-    detectedCount: detected.length,
-    criticalAllDetected: missedCritical.length === 0,
-    recall: seeded.length === 0 ? null : detected.length / seeded.length,
-    status: seeded.length === 0 ? 'NO_ADJUDICATED_FINDINGS' : 'EVALUABLE',
+    status: 'EVALUABLE',
+    evidenceScope: 'hermetic-selfcheck-only',
+    historicalEvidence: false,
+    cells,
+    resultDigest: digest('role-prompt-ab.hermetic-result.v1', cells),
   };
 }
 
@@ -350,7 +423,7 @@ export function replayExperiment(options = {}) {
     for (let repeat = 1; repeat <= protocol.sampling.repeats; repeat += 1) {
       const order = overrideOrder ?? protocol.sampling.armOrderByRepeat[repeat - 1];
       for (const armId of order) {
-        const promptText = armPrompt(arms.get(armId), sharedInput);
+        const arm = arms.get(armId);
         cells.push({
           cellId: `${sample.id}/${armId}/repeat-${repeat}`,
           sampleId: sample.id,
@@ -359,8 +432,16 @@ export function replayExperiment(options = {}) {
           repeat,
           inputDigest,
           materialDigest: sample.materialDigest,
-          promptContract: arms.get(armId).promptContract,
-          measurement: measure(promptText),
+          promptContract: arm.promptContract,
+          promptContractDigest: digest('role-prompt-ab.prompt-contract.v1', arm),
+          measurement: {
+            status: 'INCONCLUSIVE',
+            reasonCode: 'PROMPT_SNAPSHOT_UNAVAILABLE',
+            bytes: null,
+            lines: null,
+            estimatedTokens: null,
+            promptDigest: null,
+          },
           providerObservation: sample.providerObservation,
           findingComparison: findingComparison(sample, armId),
         });
