@@ -412,6 +412,18 @@
           "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
           "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
           "timestamp": "2026-07-19T05:26:50.932Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Final-HEAD integration smoke passed and exercises bounded reviewBasis assembly together with conditional Prompt Envelope selection.",
+          "headHash": "f8cbeb9770d1deff598ff8013927b93f5a301720",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:28:03.633Z"
         }
       ]
     },
@@ -624,6 +636,18 @@
           "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
           "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
           "timestamp": "2026-07-19T05:26:50.932Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Final-HEAD 39-check integration smoke passed and exercises ReviewRun-bound incremental envelopes through shared pass and quorum admissibility.",
+          "headHash": "f8cbeb9770d1deff598ff8013927b93f5a301720",
+          "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e",
+          "storyFilesHash": "525ab11a612ae7b8c1eb00f79ed108a58e39d7ddad499e02586184f94bbe8fad",
+          "timestamp": "2026-07-19T05:28:03.633Z"
         }
       ]
     },
