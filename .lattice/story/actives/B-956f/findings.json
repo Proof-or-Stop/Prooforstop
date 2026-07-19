@@ -14,6 +14,21 @@
       "_hash": "33151556ac5a5f0ae223cd5a5c72890269f55352fb3d40657795aa08974d5aa1",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-956f:F-002",
+      "desc": "doc-promise-undelivered: ProofStoryDiagnosticInput.materialClassification (packages/main/src/core/proofstory.ts:144, consumed at proofstory.ts:710 via materialClassificationHasMaterialCode) is NEVER populated by any real production caller. Grep for materialClassification across packages/main/src shows it only appears in proofstory.ts (def+use), review-assurance-floor.ts (a DIFFERENT field on EvaluateReviewAssuranceFloorArgs), and the smoke test. All 5 real diagnosticInput/proofStoryDiagnosticInput builders that feed evaluateProofStoryDiagnostics in production — packages/main/src/core/machine.ts:129, packages/main/src/handlers/phase-gates.ts:110 (used by proofStoryDevGateFailure, the actual DEV-gate enforce path), packages/main/src/handlers/proofstory.ts:92, and packages/main/src/handlers/story-review.ts:229 and :733 — construct the ProofStoryDiagnosticInput object WITHOUT a materialClassification field and never call buildMaterialClassificationSnapshot. So in production, materialClassificationHasMaterialCode(input.materialClassification) always receives undefined and always returns false; the new `materialCodePresent` behavior-change signal at proofstory.ts:710 can never fire for real ProofStory evaluations. Only packages/main/src/tasks/language-neutral-gates-smoke.ts:146-170 (helper proofStoryInput()) and :210-211 manually construct an input WITH a hand-built snapshot to exercise this branch — that is not equivalent to production wiring. This directly contradicts checklist.json CHK-001 (marked done): the context text (\"ProofStoryDiagnosticInput gains a materialClassification field consumed by the trigger predicate\"), the userSees claim (\"An identical bug story flips required=true across floor + repro + ProofStory triggers, all driven by one classification snapshot\"), and the CHK-001:happy verificationEvidence note pointing at the RED harness (tmp/w1-red/red-language-degradation.cjs), which — confirmed by reading it — only calls classifyReviewAssuranceFloorPath and never exercises the repro-first or ProofStory trigger flag at all. A pure-.go/.py/.rs bug story therefore still does NOT flip ProofStory's red-evidence trigger in real usage; only the review-assurance floor classifier (and, independently, the repro-first gate via its own freshly-built snapshot in evaluateStoryEvidenceBindingGate) are genuinely wired end-to-end.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T16:24:30.091Z",
+      "reviewRound": "2026-07-19T16:16:39.695Z",
+      "reviewRunId": "B-956f:RR-001",
+      "_hash": "a6bd5378eff6dc5ac52fcb46be20765d33b9eb05aff3848b937155a1d71f57ed",
+      "signatureTag": "missing|unknown|promise-undelivered-proofstorydiagnosticinput",
+      "signatureTagSource": "auto"
     }
   ]
 }
