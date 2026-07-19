@@ -1075,6 +1075,35 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
 - 同一 pinned 输入可复算 bytes、tokens、digest 和 finding 对比。
 - 历史 material 不可重建时明确返回 `INCONCLUSIVE`，不伪造召回结论。
 
+当前实现状态（Story `B-8d4b`）：
+
+- 已在 `experiments/role-prompt-ab-replay/` 交付隔离的只读 replay、
+  experiment-only ledger、离线分析和 selfcheck。协议冻结三类样本、每类两个，
+  每个适用 cell 至少三次，并绑定独立裁决的 critical/high finding oracle。
+- 可执行验证命令：
+
+  ```bash
+  node experiments/role-prompt-ab-replay/selfcheck.mjs
+  node experiments/role-prompt-ab-replay/run.mjs
+  node experiments/role-prompt-ab-replay/run.mjs --reverse
+  node experiments/role-prompt-ab-replay/run.mjs \
+    --ledger=runtime/operator-run.jsonl --run-id=operator-run-001
+  node experiments/role-prompt-ab-replay/analyze.mjs \
+    --ledger=runtime/operator-run.jsonl
+  ```
+
+- selfcheck 覆盖固定协议与语料、重复/反序、material/model/tool/contract
+  drift、post-hoc tamper、缺失裁决、无效 denominator、retry/crash、ledger
+  chain、伪 authority、私密字段、路径/符号链接逃逸，以及 production
+  pass/finding/ReviewRun/verification/validation/lifecycle evidence 前后摘要一致。
+- Claim boundary：本 Story 只证明 pinned 历史观察可被确定性重算并与生产证据
+  隔离。它不运行历史代码、不调用 provider，也不宣称生产 Prompt 降幅、provider
+  成本下降、模型质量等价、incremental eligibility、角色迁移或 budget
+  enforce-ready。provider/cache 历史观察缺失时保持
+  `unavailable(<reason>)`；任何不可重建、篡改、版本偏移、arm 不对称、样本/
+  重复不足或无效召回 denominator 均为 `INCONCLUSIVE`，不输出 savings/recall
+  claim。Story 的正式完成状态仍以 Lattice lifecycle 的 DONE 证据为准。
+
 #### Story 4：Incremental eligibility 与 impact policy
 
 目标：

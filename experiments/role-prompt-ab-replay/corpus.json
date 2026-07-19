@@ -1,0 +1,217 @@
+{
+  "schemaVersion": "proofbound.role-prompt-ab.corpus.v1",
+  "status": "frozen",
+  "samples": [
+    {
+      "id": "clean-pass-01",
+      "class": "simple-bounded-change",
+      "task": "Review a bounded documentation-only change for contract consistency.",
+      "material": {
+        "sourceKind": "committed-snapshot",
+        "repositoryPath": "experiments/reports/story-review-output-after-production-v1.json",
+        "snapshotRef": "story3-pinned-snapshot/clean-pass-01",
+        "content": {
+          "scope": "one decision document",
+          "diff": "Clarify that diagnostic estimates are not provider billing truth.",
+          "constraints": ["no gate change", "no runtime mutation"]
+        }
+      },
+      "tools": ["Read", "Grep"],
+      "materialDigest": "e7365ad14de9184d8d2cbfb24575e2170414e344354db4f9359ff3a6657efa58",
+      "findingSetDigest": "66ca3f418d5e8fc8c29fbea373c3bb404824073af32f2b9e31b73699a72261dd",
+      "observedFindingsByArm": {"A": [], "B": []},
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "available", "tokens": 1840, "source": "pinned historical adapter observation"},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "Provider usage was not captured for this historical sample."},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "Provider cache creation was not reported."},
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "Provider cache reads were not reported."}
+      },
+      "oracles": []
+    },
+    {
+      "id": "clean-pass-02",
+      "class": "simple-bounded-change",
+      "task": "Review a stable prompt-registry metadata change with no semantic delta.",
+      "material": {
+        "sourceKind": "committed-snapshot",
+        "repositoryPath": "experiments/reports/story-review-structured-v1.json",
+        "snapshotRef": "story3-pinned-snapshot/clean-pass-02",
+        "content": {
+          "scope": "prompt registry metadata",
+          "diff": "Normalize a description while preserving role and command contracts.",
+          "constraints": ["byte changes are descriptive", "role eligibility is unchanged"]
+        }
+      },
+      "tools": ["Read", "Grep"],
+      "materialDigest": "b5619b2c6b69a11c599fe6d54d3df90e275bf0301064042e3518299c035e5bcc",
+      "findingSetDigest": "66ca3f418d5e8fc8c29fbea373c3bb404824073af32f2b9e31b73699a72261dd",
+      "observedFindingsByArm": {"A": [], "B": []},
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "available", "tokens": 1762, "source": "pinned historical adapter observation"},
+        "providerProcessedInputTokens": {"availability": "available", "tokens": 1901, "source": "pinned provider terminal usage"},
+        "uncachedInputTokens": {"availability": "available", "tokens": 1601, "source": "pinned provider terminal usage"},
+        "cacheCreationInputTokens": {"availability": "available", "tokens": 0, "source": "pinned provider terminal usage"},
+        "cacheReadInputTokens": {"availability": "available", "tokens": 300, "source": "pinned provider terminal usage"}
+      },
+      "oracles": []
+    },
+    {
+      "id": "critical-01",
+      "class": "multi-round-high-finding",
+      "task": "Review a lifecycle change that accepts an unsigned review pass.",
+      "material": {
+        "sourceKind": "committed-snapshot",
+        "repositoryPath": "docs/requirements/decisions/review-run-binding-race.md",
+        "snapshotRef": "story3-pinned-snapshot/critical-01",
+        "content": {
+          "scope": "REVIEW to TEST gate",
+          "diff": "Accept pass rows without checking the signed ReviewRun binding.",
+          "constraints": ["review evidence must bind current material", "legacy prose is not proof"]
+        }
+      },
+      "tools": ["Read", "Grep", "Bash"],
+      "materialDigest": "cdc3ea3ca4caef028a2d6d45a0a0a1edd8475af5f027fa8d5755abe3c87cea84",
+      "findingSetDigest": "5f5aa8bd6a80703870dc699107ab73fc79fde5ba283bb27dad2233b0382f030c",
+      "observedFindingsByArm": {
+        "A": [{"oracleId": "F-critical-unsigned-pass", "category": "missing", "sourceBinding": "review-gate", "claimBinding": "signed-current-pass-required"}],
+        "B": [{"oracleId": "F-critical-unsigned-pass", "category": "missing", "sourceBinding": "review-gate", "claimBinding": "signed-current-pass-required"}]
+      },
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "available", "tokens": 4120, "source": "pinned historical adapter observation"},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "Provider usage was not captured for this historical sample."},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "Provider cache creation was not reported."},
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "Provider cache reads were not reported."}
+      },
+      "oracles": [
+        {
+          "id": "F-critical-unsigned-pass",
+          "category": "missing",
+          "severity": "critical",
+          "trigger": "Unsigned or unbound pass is accepted by the REVIEW gate.",
+          "sourceBinding": "review-gate",
+          "claimBinding": "signed-current-pass-required",
+          "adjudication": {"kind": "machine", "adjudicator": "review-run-binding-smoke", "evidenceRef": "packages/main/src/tasks/review-run-binding-smoke.ts"}
+        }
+      ]
+    },
+    {
+      "id": "critical-02",
+      "class": "multi-round-high-finding",
+      "task": "Review a prompt-envelope verifier that trusts a caller supplied digest.",
+      "material": {
+        "sourceKind": "committed-snapshot",
+        "repositoryPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+        "snapshotRef": "story3-pinned-snapshot/critical-02",
+        "content": {
+          "scope": "prompt envelope verification",
+          "diff": "Use the caller-provided prompt digest without recomputing bytes.",
+          "constraints": ["envelope is content addressed", "caller cannot mint gate evidence"]
+        }
+      },
+      "tools": ["Read", "Grep", "Bash"],
+      "materialDigest": "26b0abf8af2c424ac367203adc117737f528641972cd8c6e421e0d14398840b1",
+      "findingSetDigest": "9770d091f4fcc19a56e847d1761ff369d279fe8042fac3779a43acbf0791b49a",
+      "observedFindingsByArm": {
+        "A": [{"oracleId": "F-critical-digest-substitution", "category": "adversarial", "sourceBinding": "prompt-envelope", "claimBinding": "exact-bytes-recomputed"}],
+        "B": [{"oracleId": "F-critical-digest-substitution", "category": "adversarial", "sourceBinding": "prompt-envelope", "claimBinding": "exact-bytes-recomputed"}]
+      },
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "available", "tokens": 4388, "source": "pinned historical adapter observation"},
+        "providerProcessedInputTokens": {"availability": "available", "tokens": 4620, "source": "pinned provider terminal usage"},
+        "uncachedInputTokens": {"availability": "available", "tokens": 4620, "source": "pinned provider terminal usage"},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "This provider does not report cache creation."},
+        "cacheReadInputTokens": {"availability": "available", "tokens": 0, "source": "pinned provider terminal usage"}
+      },
+      "oracles": [
+        {
+          "id": "F-critical-digest-substitution",
+          "category": "adversarial",
+          "severity": "critical",
+          "trigger": "Caller-supplied prompt digest bypasses exact-byte recomputation.",
+          "sourceBinding": "prompt-envelope",
+          "claimBinding": "exact-bytes-recomputed",
+          "adjudication": {"kind": "human", "adjudicator": "independent-concept-reviewer", "evidenceRef": "Story B-dd81 review round 9"}
+        }
+      ]
+    },
+    {
+      "id": "closeout-01",
+      "class": "closeout-reattestation",
+      "task": "Review closeout behavior after metadata-only HEAD drift.",
+      "material": {
+        "sourceKind": "committed-snapshot",
+        "repositoryPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "snapshotRef": "story3-pinned-snapshot/closeout-01",
+        "content": {
+          "scope": "DONE preparation freshness",
+          "diff": "Force a full review rerun for headHash-only metadata drift.",
+          "constraints": ["host follows the freshness reader", "metadata-only drift does not imply related material drift"]
+        }
+      },
+      "tools": ["Read", "Grep"],
+      "materialDigest": "9e81c29de7563a2d831556ec16743cce8031eb7614d051f09dd08874529d8812",
+      "findingSetDigest": "eb1465c910e9a2d91e770a4cc18ea06ce4d4b685ba06a12da7c59a632ada183d",
+      "observedFindingsByArm": {
+        "A": [{"oracleId": "F-high-metadata-overreview", "category": "edge", "sourceBinding": "freshness-reader", "claimBinding": "headhash-only-advisory"}],
+        "B": [{"oracleId": "F-high-metadata-overreview", "category": "edge", "sourceBinding": "freshness-reader", "claimBinding": "headhash-only-advisory"}]
+      },
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "available", "tokens": 2200, "source": "pinned historical adapter observation"},
+        "providerProcessedInputTokens": {"availability": "unavailable", "reason": "The crashed attempt had no terminal provider usage event."},
+        "cacheCreationInputTokens": {"availability": "unavailable", "reason": "The crashed attempt had no terminal provider usage event."},
+        "cacheReadInputTokens": {"availability": "unavailable", "reason": "The crashed attempt had no terminal provider usage event."}
+      },
+      "oracles": [
+        {
+          "id": "F-high-metadata-overreview",
+          "category": "edge",
+          "severity": "high",
+          "trigger": "Metadata-only HEAD drift is treated as story-owned material drift and forces an unrelated full rerun.",
+          "sourceBinding": "freshness-reader",
+          "claimBinding": "headhash-only-advisory",
+          "adjudication": {"kind": "machine", "adjudicator": "done-prepare-smoke", "evidenceRef": "packages/main/src/tasks/done-prepare-smoke.ts"}
+        }
+      ]
+    },
+    {
+      "id": "closeout-02",
+      "class": "closeout-reattestation",
+      "task": "Review closeout evidence reuse after story-owned material drift.",
+      "material": {
+        "sourceKind": "committed-snapshot",
+        "repositoryPath": "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "snapshotRef": "story3-pinned-snapshot/closeout-02",
+        "content": {
+          "scope": "delivery and review evidence freshness",
+          "diff": "Reuse delivery evidence after storyFilesHash changes.",
+          "constraints": ["story-owned drift requires re-attestation", "textual pass claims are not freshness evidence"]
+        }
+      },
+      "tools": ["Read", "Grep"],
+      "materialDigest": "15b7f6afde13e59175ebbca466f7e9900871a6af91af0f931caa06106cb524d0",
+      "findingSetDigest": "13f4db7c79a94564a2685da7ec0e3fffe37815927ab0f25e5b04e675f7305909",
+      "observedFindingsByArm": {
+        "A": [{"oracleId": "F-high-related-drift-reuse", "category": "adversarial", "sourceBinding": "delivery-check", "claimBinding": "related-drift-reattestation"}],
+        "B": [{"oracleId": "F-high-related-drift-reuse", "category": "adversarial", "sourceBinding": "delivery-check", "claimBinding": "related-drift-reattestation"}]
+      },
+      "providerObservation": {
+        "knownDispatchInputTokens": {"availability": "available", "tokens": 1980, "source": "pinned historical adapter observation"},
+        "providerProcessedInputTokens": {"availability": "available", "tokens": 2048, "source": "pinned provider terminal usage"},
+        "uncachedInputTokens": {"availability": "available", "tokens": 1800, "source": "pinned provider terminal usage"},
+        "cacheCreationInputTokens": {"availability": "available", "tokens": 0, "source": "pinned provider terminal usage"},
+        "cacheReadInputTokens": {"availability": "available", "tokens": 248, "source": "pinned provider terminal usage"}
+      },
+      "oracles": [
+        {
+          "id": "F-high-related-drift-reuse",
+          "category": "adversarial",
+          "severity": "high",
+          "trigger": "Delivery or reviewer evidence is reused after storyFilesHash changes.",
+          "sourceBinding": "delivery-check",
+          "claimBinding": "related-drift-reattestation",
+          "adjudication": {"kind": "human", "adjudicator": "independent-delivery-reviewer", "evidenceRef": "docs/requirements/decisions/story-files-hash-material-drift.md"}
+        }
+      ]
+    }
+  ]
+}

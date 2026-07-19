@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "proofbound.role-prompt-ab.protocol.v1",
+  "status": "frozen",
+  "experimentName": "story-3-role-prompt-ab-replay",
+  "algorithms": {
+    "canonicalSerialization": "proofbound.canonical-json.code-point-keys.v1",
+    "digest": "sha256.domain-separated-utf8.v1",
+    "bytes": "utf8-bytes.v1",
+    "lines": "lf-logical-lines.v1",
+    "tokenEstimator": "bytes-chars-heuristic.v1.utf8-bytes",
+    "findingMatch": "semantic-category-source-claim.v1"
+  },
+  "arms": [
+    {
+      "id": "A",
+      "promptContract": "legacy-full-context.v1",
+      "description": "Legacy full-context role prompt contract"
+    },
+    {
+      "id": "B",
+      "promptContract": "modular-full-context.v1",
+      "description": "Modular full-context role prompt contract"
+    }
+  ],
+  "sameInputRule": {
+    "version": "same-material-envelope.v1",
+    "onlyPermittedDifference": "promptContract",
+    "sharedFields": [
+      "task",
+      "material",
+      "tools",
+      "model",
+      "sampling"
+    ]
+  },
+  "model": {
+    "provider": "offline-replay",
+    "modelId": "historical-observation-only.v1",
+    "contractVersion": "proofbound.story-dispatch.v1"
+  },
+  "sampling": {
+    "repeats": 3,
+    "runOrderSeed": "role-prompt-ab-story3-seed-v1",
+    "armOrderByRepeat": [
+      ["A", "B"],
+      ["B", "A"],
+      ["A", "B"]
+    ],
+    "temperature": {
+      "availability": "unavailable",
+      "reason": "Historical observation replay does not expose provider temperature."
+    },
+    "providerSeed": {
+      "availability": "unavailable",
+      "reason": "Historical observation replay does not expose a provider seed."
+    },
+    "toolChoice": {
+      "availability": "unavailable",
+      "reason": "Historical observation replay does not expose provider-side tool selection."
+    }
+  },
+  "requiredCorpus": {
+    "classes": [
+      "simple-bounded-change",
+      "multi-round-high-finding",
+      "closeout-reattestation"
+    ],
+    "minimumSamplesPerClass": 2,
+    "minimumRepeats": 3
+  },
+  "inputLayers": {
+    "assembledPrompt": "locally-recomputed",
+    "knownDispatchInput": "pinned-historical-observation",
+    "providerProcessedInput": "availability-aware",
+    "cacheCreation": "availability-aware",
+    "cacheRead": "availability-aware"
+  },
+  "findingPolicy": {
+    "critical": "all-seeded-critical-must-be-detected",
+    "high": "suspected-systematic-miss-requires-rerun-and-independent-adjudication",
+    "naturalNewFinding": "non-self-authenticating",
+    "falsePositive": "non-self-authenticating",
+    "recallDenominator": "independently-adjudicated-critical-and-high-oracles-only"
+  },
+  "conclusionPolicy": {
+    "validStates": ["EVALUABLE", "INCONCLUSIVE"],
+    "inconclusiveReasonCodes": [
+      "MATERIAL_MISSING",
+      "MATERIAL_DIGEST_MISMATCH",
+      "UNSUPPORTED_PROTOCOL_VERSION",
+      "UNSUPPORTED_CORPUS_VERSION",
+      "ARM_INPUT_DRIFT",
+      "SAMPLE_FLOOR_INCOMPLETE",
+      "REPEAT_FLOOR_INCOMPLETE",
+      "ADJUDICATION_MISSING",
+      "FINDING_DIGEST_MISMATCH",
+      "RECALL_DENOMINATOR_INVALID",
+      "PROVIDER_USAGE_UNAVAILABLE"
+    ],
+    "noClaimOnInconclusive": true
+  }
+}
