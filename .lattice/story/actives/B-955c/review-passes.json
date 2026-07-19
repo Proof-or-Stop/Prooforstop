@@ -1191,6 +1191,62 @@
       },
       "readDiagnostics": [],
       "_hash": "2e64a19b05a96e5e4fbd6c83c86e0f2a2d97d253d2fcd533ed5577399851e534"
+    },
+    {
+      "id": "B-955c:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-9 coverage review bound to the post-B-231d scope found no blocker. The portability smoke proves v2 repo-relative command-spec digests are stable across worktree roots while executed-cwd drift, forged logical cwd, and genuinely different cwd remain fail-closed; legacy v1 receipts still verify. Independent build, EEA, done-required freshness/validation, and validation-evidence-reuse regressions pass. All 36 verification intents have unique current-storyFilesHash passing evidence.",
+      "createdAt": "2026-07-19T03:18:56.013Z",
+      "reviewRound": "2026-07-19T03:15:15.271Z",
+      "reviewRunId": "B-955c:RR-033",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-955c/done-required-evidence.json",
+          ".lattice/story/actives/B-955c/test-evidence.json",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "lattice.config.json",
+          "packages/main/package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "878f3fe22b18ed1d75c50617f7c89018a63350478886516fd9cb7a93f1eb2dfe"
+      },
+      "readDiagnostics": [],
+      "_hash": "bfa7c7ca879cdcd34549659de7aded58242b68f94f33397705dd32d1a856933f"
     }
   ]
 }
