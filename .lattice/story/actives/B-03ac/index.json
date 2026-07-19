@@ -4,7 +4,7 @@
   "title": "Implement fail-closed incremental review eligibility and impact classification",
   "description": "Deliver Story 4 of the accepted role-prompt modularization plan by extending the existing read-only review_incremental_context path with versioned impact classification, bounded reviewBasis construction, freshness-aware eligibility, automatic full-context escalation, cost comparison, and Prompt Envelope binding to ReviewRun and pass validation.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
   "depends": [
@@ -30,6 +30,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-19T04:40:46.678Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-03ac",
+    "branch": "story/B-03ac",
+    "createdAt": "2026-07-19T04:40:44.475Z"
+  }
 }
