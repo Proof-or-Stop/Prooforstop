@@ -308,7 +308,7 @@
       "desc": "doc-code-drift: F012 host-adapter prose is now accurate, but the ABA lock claim/evidence is not. packages/main/src/handlers/review-run.ts:71-78 says two observations of the same dead lockId closes ABA; however classification returns stale before acquireMkdirLock later removes the shared lockDir, so two waiters can still let W1 classify dead A, W2 reclaim A, replacement B acquire, and W1 delete B. The recorded 20-iteration mixed-mask smoke exercises ordinary live contention only and does not force this dead-holder/two-reclaimer/replacement schedule. In addition, this review-run evidence persistence/reclaim semantic is absent from packages/main/src/core/process-fact-levels.ts, packages/main/src/core/process-fact-registry.ts, and scripts/verify-process-fact-contract.mjs despite being gate-consumed review evidence behavior. Existing open F-013 independently identifies the same correctness hole. Add identity-conditional/atomic reclaim plus a deterministic barrier-driven ABA regression, then register and verify the resulting process fact before claiming closure. [HIGH]",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-19T10:33:41.292Z",
@@ -325,7 +325,11 @@
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
       "signatureTag": "missing|ts|code-drift-f012",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 6e3d7ed3ee; L4 process-fact registry/verifier now register atomic persistence semantics and deterministic ABA evidence passes.",
+      "resolvedAt": "2026-07-19T11:08:47.442Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-015",
