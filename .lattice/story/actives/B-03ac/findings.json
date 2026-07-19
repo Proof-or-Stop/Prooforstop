@@ -157,7 +157,7 @@
       "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:906-944 and 1007-1017 — HIGH coverage gap: the shared collector/quorum test mutates only reviewRound on an earlier full envelope, while the incremental branch merely asserts a valid incremental envelope is accepted. No test serves incremental when recomputation requires full, and no test tampers the new incremental-only policy/freshness/prior-pass/file/basis/task/selection fields then proves REVIEW, collectReviewerEvidenceState, receipt/host-verdict, and quorum all reject it. This does not substantiate incremental-envelope-tamper-chain-rejected or served-wrong-mode-proof-invalid despite evidence notes claiming those paths.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T05:34:18.927Z",
@@ -165,7 +165,11 @@
       "reviewRunId": "B-03ac:RR-003",
       "_hash": "8743e9ed4fffaa04d6541e099ba1d4371e901297c1edeb7d25e346c6b2381ddc",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 5f7ec42a83: quorum smoke now exercises a 10-field incremental Envelope tamper matrix plus authoritative wrong-mode recomputation across REVIEW collector and quorum admission; quorum passes 41/41.",
+      "resolvedAt": "2026-07-19T06:15:54.222Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-03ac:F-010",
