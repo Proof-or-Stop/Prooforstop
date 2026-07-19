@@ -853,6 +853,23 @@
         "scanEscalationReason": null
       },
       "_hash": "e05715c4ee842fcdb88b90e657cfc1b944a5cd971aeb1f1570a092b200fde959"
+    },
+    {
+      "id": "B-235e:RP-036",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 17 convergence re-attestation 2 PASS: this is a distinct fresh same-round binding from the first receipt (RR-067 / Prompt Envelope 33dbf29, not RR-063 / 1c04670) on current head a93dd01; authoritative selection remains SAFE_INCREMENTAL (6505 vs 31563 bytes); story-owned material and scope remain unchanged (storyFilesHash 645080887673ae8bfef02e5dde7704eceb40b9a0d87e52802ac616849e5e6c51); current mapping remains 48 intents to 48 concrete passing evidence with zero missing, duplicates, failures, waivers, or orphans. This is the second same-round coverage convergence receipt and does not claim other lanes, full quorum, or DONE.",
+      "createdAt": "2026-07-19T23:01:58.864Z",
+      "reviewRound": "2026-07-19T22:57:57.775Z",
+      "reviewRunId": "B-235e:RR-067",
+      "envelopeId": "33dbf2910ac68a4950a0d5040bd643727e1edf3e5ff30a38b459206518e1d9dc",
+      "writerSessionId": "sess-78c1fcc0db71cb224b0d05382e8243ea",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Second bounded same-round convergence re-attestation independently created a new signed ReviewRun/Prompt Envelope after the first pass, then rechecked current 48/48 semantic evidence and unchanged storyFilesHash/scope. No story-owned code changed between receipts."
+      },
+      "_hash": "175622a48474caee1692aaa86efa747882266b21b968bbddb18c1047474d1473"
     }
   ]
 }
