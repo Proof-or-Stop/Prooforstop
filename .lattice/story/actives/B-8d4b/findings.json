@@ -30,7 +30,7 @@
       "desc": "experiments/role-prompt-ab-replay/corpus.json:81-83,123-125,165-167,207-209 and lib/replay.mjs:308-320 — finding recall is marked EVALUABLE solely by replaying caller-authored `observedFindingsByArm`; those arm observations carry no source artifact, transcript/reviewer-run reference, evidence digest, or independent adjudication binding. The oracle `adjudication.evidenceRef` only supports that the seeded defect is valid, not that arm A or B actually detected it. `selfcheck.mjs` then prints `Recall: EVALUABLE` while merely checking schema/digests. Treat unbound arm outcomes exactly like unbound provider usage: reject numeric/detected observations or return INCONCLUSIVE until every arm observation is mechanically bound to immutable review output and independently adjudicated matching evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T02:11:22.120Z",
@@ -44,7 +44,11 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
       "signatureTag": "missing|json|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e36af72f74 and 6cf3fc7c47: caller/corpus observed findings were removed; canonical finding outputs remain unavailable and recall stays INCONCLUSIVE. Two real signed historical finding identities are bound without pretending they are replay outputs.",
+      "resolvedAt": "2026-07-19T02:37:05.365Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-003",
