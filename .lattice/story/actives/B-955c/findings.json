@@ -170,6 +170,21 @@
       "resolvedAt": "2026-07-19T01:10:40.788Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-955c:F-010",
+      "desc": "packages/main/src/core/evidence/environment-contract.ts:916 — HIGH: F-001 remains unresolved at the resolver trust boundary. The receipt now carries only an opaque ref, but evaluateEvidenceEnvironmentQuorum accepts an arbitrary caller-supplied EvidenceEnvironmentAttestationResolver, and the only implementation is the smoke test local Map at packages/main/src/tasks/evidence-environment-adapter-smoke.ts:218. A caller can return two invented VerifiedEvidenceEnvironmentProducerIdentity rows and satisfy independence; there is no project-owned pinned-producer registry, Ed25519/public-key/session binding, or revocation check required by the candidate spec at lines 737-753. WHY: moving self-asserted identity from the receipt into an untrusted callback does not make it verifier-owned, so forged distinct-Host quorum is still mechanically possible despite the support claim.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T01:13:49.757Z",
+      "reviewRound": "2026-07-19T01:09:36.550Z",
+      "reviewRunId": "B-955c:RR-008",
+      "_hash": "a29875f562a3c6f25da54749bb02b23c95d05efc1652ca2b929a81dc385bf6ca",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
