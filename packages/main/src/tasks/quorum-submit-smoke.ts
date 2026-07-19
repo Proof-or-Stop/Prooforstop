@@ -2,10 +2,11 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { appendFileSync, chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 import { captureLifecycleMetadataTransaction } from '../core/auto-commit-metadata.js';
 import { canonicalDigest } from '../core/authority-signing.js';
 import { resetConfigCache } from '../core/config.js';
@@ -269,6 +270,46 @@ function check(name: string, fn: () => void): void {
   console.log(`  ✓ ${name}`);
 }
 
+function productionTypeScriptFiles(dir: string): string[] {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(dir, entry.name);
+    if (entry.isDirectory()) return entry.name === 'tasks' ? [] : productionTypeScriptFiles(path);
+    return entry.isFile() && entry.name.endsWith('.ts') ? [path] : [];
+  });
+}
+
+function directProcessEventAppends(): string[] {
+  const srcRoot = join(IMPLEMENTATION_REPO_ROOT, 'packages/main/src');
+  const primitive = join(srcRoot, 'core/process-events.ts');
+  const violations: string[] = [];
+  for (const path of productionTypeScriptFiles(srcRoot)) {
+    if (path === primitive) continue;
+    const sourceText = readFileSync(path, 'utf8');
+    if (!sourceText.includes('appendFileSync') || !sourceText.includes('process-events.jsonl')) continue;
+    const source = ts.createSourceFile(path, sourceText, ts.ScriptTarget.Latest, true);
+    const visit = (node: ts.Node): void => {
+      if (
+        ts.isCallExpression(node)
+        && ts.isIdentifier(node.expression)
+        && node.expression.text === 'appendFileSync'
+      ) {
+        let scope: ts.Node | undefined = node;
+        while (scope) {
+          if (ts.isFunctionLike(scope) && scope.getText(source).includes('process-events.jsonl')) {
+            const position = source.getLineAndCharacterOfPosition(node.getStart(source));
+            violations.push(`${relative(IMPLEMENTATION_REPO_ROOT, path)}:${position.line + 1}`);
+            break;
+          }
+          scope = scope.parent;
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+  }
+  return violations;
+}
+
 const previousCwd = process.cwd();
 const { root, store, registry } = makeFixture();
 
@@ -317,17 +358,11 @@ try {
       const rows = readFileSync(join(storyDir, 'process-events.jsonl'), 'utf8').trim().split('\n');
       assert.equal(rows.length, 1);
 
-      for (const rel of [
-        'packages/main/src/handlers/cross-host-review.ts',
-        'packages/main/src/core/dirty-gate-policy.ts',
-      ]) {
-        const source = readFileSync(join(IMPLEMENTATION_REPO_ROOT, rel), 'utf8');
-        assert.doesNotMatch(
-          source,
-          /\bappendFileSync\b/,
-          `${rel} must use the shared process-event append primitive`,
-        );
-      }
+      assert.deepEqual(
+        directProcessEventAppends(),
+        [],
+        'production process-events writers outside core/process-events.ts must use the shared append primitive',
+      );
     } finally {
       rmSync(lockFixture, { recursive: true, force: true });
     }

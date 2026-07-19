@@ -17,16 +17,18 @@ export interface ProcessEventAppendIdentity {
   eventBytes: Buffer;
 }
 
-export function appendProcessEvent(
+export function appendRawProcessEventBytes(
   storyDir: string,
-  event: Omit<ProcessEvent, 'timestamp'>,
+  bytes: Buffer | string,
 ): ProcessEventAppendIdentity {
+  const eventBytes = Buffer.isBuffer(bytes) ? Buffer.from(bytes) : Buffer.from(bytes);
+  if (eventBytes.length === 0 || eventBytes[eventBytes.length - 1] !== 0x0a) {
+    throw new Error('process-event append requires non-empty newline-terminated JSONL bytes');
+  }
   const filePath = join(storyDir, FILENAME);
   mkdirSync(dirname(filePath), { recursive: true });
   return withMkdirLock(join(storyDir, '.process-events-append.lock'), () => {
     const start = existsSync(filePath) ? statSync(filePath).size : 0;
-    const full = { ...event, timestamp: new Date().toISOString() } as ProcessEvent;
-    const eventBytes = Buffer.from(`${JSON.stringify(full)}\n`);
     appendFileSync(filePath, eventBytes);
     return {
       filePath,
@@ -35,6 +37,23 @@ export function appendProcessEvent(
       eventBytes,
     };
   }, { label: 'process-events append' });
+}
+
+export function appendProcessEventRecord(
+  storyDir: string,
+  event: Record<string, unknown>,
+): ProcessEventAppendIdentity {
+  const full = typeof event.timestamp === 'string'
+    ? event
+    : { ...event, timestamp: new Date().toISOString() };
+  return appendRawProcessEventBytes(storyDir, `${JSON.stringify(full)}\n`);
+}
+
+export function appendProcessEvent(
+  storyDir: string,
+  event: Omit<ProcessEvent, 'timestamp'>,
+): ProcessEventAppendIdentity {
+  return appendProcessEventRecord(storyDir, event as Record<string, unknown>);
 }
 
 export function readProcessEvents(storyDir: string): ProcessEvent[] {
