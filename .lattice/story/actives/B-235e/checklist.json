@@ -556,7 +556,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-19T07:35:27.519Z",
-      "endTime": "2026-07-19T10:04:14.604Z",
+      "endTime": "2026-07-19T10:29:08.334Z",
       "verificationIntent": {
         "happy": [
           {
@@ -667,10 +667,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Story 5 campaign protocol is versioned and content-addressed for five roles, three arms, three repetitions, pinned ordering and exact body digests; selfcheck passed.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:14.949Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:08.849Z"
         },
         {
           "intentRef": "seeded-critical-high-quality-gate",
@@ -679,10 +679,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Quality evaluator requires verified seeded critical/high adjudication and returns INCONCLUSIVE for every role when those inputs are absent.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:15.270Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:09.302Z"
         },
         {
           "intentRef": "incremental-context-reduction-50",
@@ -691,10 +691,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Campaign output does not fabricate a 50 percent context reduction because exact historical per-role envelopes are unavailable; affected role rows explicitly report INCONCLUSIVE.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:15.612Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:09.787Z"
         },
         {
           "intentRef": "assembled-prompt-per-role-40-target",
@@ -703,10 +703,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Campaign reports exact legacy/modular role-body token observations but refuses to claim the 40 percent assembled target without exact assembled dispatch snapshots.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:15.927Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:10.315Z"
         },
         {
           "intentRef": "inconclusive-on-insufficient-quality-evidence",
@@ -715,10 +715,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Missing envelopes, reviewer outputs, independent adjudication, or provider receipts deterministically yields per-role INCONCLUSIVE reason codes.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:16.252Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:10.858Z"
         },
         {
           "intentRef": "honest-provider-usage-availability",
@@ -727,10 +727,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Provider usage and cache fields render unavailable with a reason instead of fabricated zero.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:16.569Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:11.467Z"
         },
         {
           "intentRef": "seed-and-order-limitations-recorded",
@@ -739,10 +739,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Campaign manifest and README record repetition, order, seed support limitations, pinned versions, and evidence gaps.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:16.934Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:12.295Z"
         },
         {
           "intentRef": "false-positive-and-command-misuse-guard",
@@ -751,10 +751,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Quality-equivalence acceptance remains unavailable without adjudicated false-positive and command-misuse observations.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:17.278Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:12.983Z"
         },
         {
           "intentRef": "denominator-seed-erasure-detected",
@@ -763,10 +763,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Manifest and oracle denominator mutation checks reject erased, relabeled, duplicated, or downgraded applicable evidence.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:17.647Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:13.912Z"
         },
         {
           "intentRef": "cache-and-gross-token-gaming-rejected",
@@ -775,10 +775,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Role-aware report separates body, context, assembled, provider, and cache measures and rejects aggregate substitution.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:18.639Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:14.924Z"
         },
         {
           "intentRef": "experiment-production-evidence-isolated",
@@ -787,10 +787,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Production evidence isolation checks prove campaign findings, passes, usage, and run identifiers cannot satisfy Story gates.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:19.533Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:15.762Z"
         },
         {
           "intentRef": "cherry-pick-reconstruction-tamper-inconclusive",
@@ -799,10 +799,10 @@
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck rejects body substitution, repetition cherry-picking, arm/order mutation, cross-role mismatch, and digest reconstruction tamper.",
-          "headHash": "48ffc8ef633e2a07d34324621543e4654cc194b9",
-          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
-          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
-          "timestamp": "2026-07-19T10:04:19.947Z"
+          "headHash": "fb42281649ae96fa7204423a3cfc77d9f19f18e1",
+          "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+          "storyFilesHash": "3aee366fb1e227f8242e4a85f05caa2c4d16d1e9de2ea3d15f2f74774bf3d2a8",
+          "timestamp": "2026-07-19T10:29:16.482Z"
         }
       ]
     },
