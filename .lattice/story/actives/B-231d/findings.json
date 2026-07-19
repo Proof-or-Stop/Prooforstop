@@ -140,7 +140,7 @@
       "desc": "NEW cross-root blocker: validateCommandSpecDigestCoverage defeats the v2 portable cwd in the aggregate DONE-required gate. For a receipt created in worktree A with commandSpec.cwd=. and receipt.cwd=<absolute A>, verification under main/root B makes buildDoneRequiredCommandSpecEnvelope(B,... receipt.cwd=A) normalize the executed cwd to .worktrees/<id> rather than ., so matchesEnvelope rejects the valid stored v2 envelope with command-spec-digest-mismatch. validateRequiredReceiptCoverage passes that same receipt, but validateDoneRequiredEvidence appends both validator results and therefore still fails it. Repro after build: construct a v2 receipt with buildDoneRequiredCommandSpecEnvelope(worktreeRoot, cmd, executed cwd=worktreeRoot), then call validateCommandSpecDigestCoverage(receipt, mainRoot, [cmd]); observed valid=false and command-spec-digest-mismatch while validateRequiredReceiptCoverage returns []. The 25-check smoke only calls receipt coverage for its cross-root case and never calls digest coverage or the aggregate gate, so it misses the regression.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T01:35:59.438Z",
@@ -152,7 +152,10 @@
         "packages/main/src/tasks/worktree-portability-smoke.ts"
       ],
       "signatureTag": "missing|ts|cross-root-digest-reconstruction",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 6e69d64dde: validateCommandSpecDigestCoverage v2 branch now reconstructs from receiptLogicalCwd (stored logical cwd), not absolute cwd re-normalized against current projectRoot. Whole-file audit of all 9 digest/cwd reconstruction sites confirms no residual absolute-cwd-vs-current-root layer. New aggregate cross-root smoke (validateCommandSpecDigestCoverage + validateRequiredReceiptCoverage both accept a worktree receipt from main; forged/different logical cwd still rejected). Smoke 29/29.",
+      "resolvedAt": "2026-07-19T02:06:23.375Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-231d:F-009",
