@@ -283,6 +283,40 @@
         "scanEscalationReason": null
       },
       "_hash": "ca0a1728ca67fd815e77b0c37de34fd9d4968bf2354fec909f1d5adb59ad8cc0"
+    },
+    {
+      "id": "B-d877:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 merged-tree re-verification (RP-007 passed, zero S1 code changed since; sole event = ff08b90570 merge bringing B-8d4b in). Confirmed via git diff ea1383626c...HEAD -- packages/main/src that the merge touched exactly 16 files, none being S1 core files (transition-orchestrator.ts, worktree.ts, story-transition-lock.ts, mkdir-lock.ts, transition-integrity-smoke.ts are byte-identical to R7). Overlap files review-run.ts and quorum-submit-smoke.ts inspected in full: S1's relocated withReviewRunLock (runtimeLockDirPath) coexists with B-8d4b's conditional-envelope/reviewerEscalationReason additions without reintroducing an in-story lock or bypassing serialization (the merge also consistently relocated the sibling prompt-envelopes lock); quorum-submit-smoke.ts diff is a single fixture-lock-path update matching defaultAuditWriter. No conflict markers in any inspected file. Ran transition-integrity-smoke.js 3x: 79/79 deterministic each run. Ran quorum-submit-smoke.js: 1 full clean run, 42/42 passed (count grew from 39 baseline due to B-8d4b's added envelope/incremental-context cases, non-regressive). validate-progress-heartbeat-smoke.js failed (subprocess pidfile timeout) but that file has zero diff vs main (untouched by the merge) and no import relation to any S1/B-8d4b file, so out of this diff's scope -- flagged to main agent as an environment note, not a finding. git status clean, no leftover smoke artifacts.",
+      "createdAt": "2026-07-19T13:40:03.709Z",
+      "reviewRound": "2026-07-19T13:18:06.329Z",
+      "reviewRunId": "B-d877:RR-023",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/dirty-gate-policy.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/process-events.ts",
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "506b2ae23a82089c1ab47d5b6fcb22f763f2ddaa168a694b5b5768cd36698557"
     }
   ]
 }
