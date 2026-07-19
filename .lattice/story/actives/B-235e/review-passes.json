@@ -687,6 +687,23 @@
         "scanEscalationReason": null
       },
       "_hash": "29c99ad22868c2e1e041b177d154eaa331867a32e5a7688119d509f20d605e86"
+    },
+    {
+      "id": "B-235e:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 16 authoritative eligibility re-attestation PASS: prior round-15 reviewer eligibility digests were stale at DONE, so this conclusion is bound only to fresh signed ReviewRun RR-059 and Prompt Envelope a847e70 on the current REVIEW round. Story-owned material and scope remain unchanged (storyFilesHash 645080887673ae8bfef02e5dde7704eceb40b9a0d87e52802ac616849e5e6c51; scope binding unchanged); current mapping is 48 intents to 48 concrete passing evidence with zero missing, duplicates, failures, waivers, or orphans; latest validation is PASS via trusted-story-metadata-descendant reuse; current authoritative selection is SAFE_INCREMENTAL (6505 vs 31563 bytes). No code changed after the fully exercised round-13 review, so this is a bounded eligibility-digest rebind, not a claim of a new test execution or full quorum.",
+      "createdAt": "2026-07-19T22:54:03.219Z",
+      "reviewRound": "2026-07-19T22:52:21.293Z",
+      "reviewRunId": "B-235e:RR-059",
+      "envelopeId": "a847e70b386db1892e4363a7e98cd0a28a61e49a1f9fa26624f3908ea8338620",
+      "writerSessionId": "sess-78c1fcc0db71cb224b0d05382e8243ea",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": "Bounded current-authority re-attestation created a new signed ReviewRun/Prompt Envelope after stale eligibility digests, then verified unchanged storyFilesHash/scope, all 48 semantic evidence records, current validation PASS, and SAFE_INCREMENTAL selection. No story-owned code changed, so repeated stress would not add coverage."
+      },
+      "_hash": "86832fd5a978b60d7f8abaf0abaaed63451ece9f39b21111f1111df2a9dc95b5"
     }
   ]
 }
