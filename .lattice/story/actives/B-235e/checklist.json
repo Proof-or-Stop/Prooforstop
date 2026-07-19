@@ -817,7 +817,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-19T07:39:07.035Z",
-      "endTime": "2026-07-19T09:45:21.487Z",
+      "endTime": "2026-07-19T10:04:23.834Z",
       "verificationIntent": {
         "happy": [
           {
@@ -936,10 +936,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Dispatch permission probes passed reviewerWrite authority and rejected main, implementer, wrong-lane, owner-gated lifecycle, and delivery-only mutation paths.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:21.811Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:24.233Z"
         },
         {
           "intentRef": "signed-current-run-admission",
@@ -948,10 +948,10 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Quorum smoke passed 42 checks for signed same-lane ReviewRun, Prompt Envelope, round/hash freshness, binding-race PASS compatibility, and kind-aware finding admission.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:22.200Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:24.571Z"
         },
         {
           "intentRef": "role-baseline-diff-approval-rollback",
@@ -960,10 +960,10 @@
           "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
           "note": "All three immutable digest-bound baselines verify selected modular bodies, exact legacy rollback, role-by-role diffs, and approval identity.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:22.643Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:24.883Z"
         },
         {
           "intentRef": "process-contract-docs-synchronized",
@@ -972,10 +972,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process-fact registry/verifier passed; canonical Story 5 and host usage docs describe selected-body measurement, rollout, rollback, and evidence limits. Owner verify_codex also passed relevant adapter checks.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:23.383Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:25.211Z"
         },
         {
           "intentRef": "old-pass-original-round-only",
@@ -984,10 +984,10 @@
           "command": "node packages/main/dist/tasks/review-run-smoke.js",
           "result": "pass",
           "note": "Legacy envelope-less pass remains original-round legacy-full-context and cannot establish a modular incremental baseline.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:24.390Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:25.526Z"
         },
         {
           "intentRef": "mixed-role-rollback-gate-equivalence",
@@ -996,10 +996,10 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Real mixed masks 10 and 21 plus full mask 31 passed dispatch, ReviewRun admission, legacy/full envelope distinction, concurrent collection, lane uniqueness, and canPassReviewGuard.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:25.084Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:25.836Z"
         },
         {
           "intentRef": "budget-violation-does-not-weaken-authority",
@@ -1008,10 +1008,10 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Budget violation and FULL_CHEAPER_OR_EQUAL remain observation/selection facts and do not weaken authority or correctness-required full review.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:25.696Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:26.224Z"
         },
         {
           "intentRef": "compatibility-retired-artifact-audit-only",
@@ -1020,10 +1020,10 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Compatibility and retired artifacts remain audit-readable but receive zero current receipt, assurance-floor, or quorum credit.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:26.184Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:26.541Z"
         },
         {
           "intentRef": "unauthorized-pass-and-lifecycle-writes-rejected",
@@ -1032,10 +1032,10 @@
           "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
           "result": "pass",
           "note": "Dispatch permission probes passed reviewerWrite authority and rejected main, implementer, wrong-lane, owner-gated lifecycle, and delivery-only mutation paths.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:26.571Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:26.833Z"
         },
         {
           "intentRef": "replay-tamper-wrong-lane-signature-rejected",
@@ -1044,10 +1044,10 @@
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
           "note": "Wrong-lane, stale, altered envelope/contract/body/baseline digest, and malformed signature/receipt cases receive no quorum credit.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:27.004Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:27.124Z"
         },
         {
           "intentRef": "rollback-cannot-relax-contract-or-retire-role",
@@ -1056,10 +1056,10 @@
           "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
           "result": "pass",
           "note": "Rollback changes only selected prompt body and cannot alter Role Contract permissions, lifecycle status, signature domain, or retired channel policy.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:27.361Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:27.434Z"
         },
         {
           "intentRef": "concurrent-lane-write-and-collector-determinism",
@@ -1068,10 +1068,10 @@
           "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
           "result": "pass",
           "note": "Five-lane concurrent review_run_start plus pass/finding writers passed masks 31 and 10 once and mask 21 for 20/20 stress iterations with zero lost runs, zero overwritten findings, zero invalid collector records, and stable canPassReviewGuard evidence.",
-          "headHash": "554307c3707dcc263522f4c87990eef512eff687",
-          "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
-          "storyFilesHash": "ba242b6a72795040a3c1323b0ebd3ae9afc1bceb1b4a51d027099a224e0ec29b",
-          "timestamp": "2026-07-19T09:45:27.676Z"
+          "headHash": "cde2717bea5ea74a9d8ed4dfe7cb8c052760aeb6",
+          "materialHash": "d1efd46b3cf214e361966c7cdb790a610c7c2d4b6dd1507fd0e924f69227d8e2",
+          "storyFilesHash": "8775770fdd193133977ab51624ca010d64c6384002d143cedbc96bf2fdfb9d7c",
+          "timestamp": "2026-07-19T10:04:27.738Z"
         }
       ]
     }
