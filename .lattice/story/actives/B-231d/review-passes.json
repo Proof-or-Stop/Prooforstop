@@ -131,6 +131,31 @@
         "scanEscalationReason": null
       },
       "_hash": "b366fa42eab4306e486191e38a8f54f2dd337e5e3e6a1556866c4d891ada7e5e"
+    },
+    {
+      "id": "B-231d:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Verified commit f39ef9f967 fix for F-005/F-006/F-007, no new defects. F-007: grepped repo-wide for locks/validation joins outside the canonical VALIDATION_EXECUTION_LOCKS_REL constant in validation-execution-lock.ts; only the delegating validationLockPath() in lifecycle-control/runtime/index.ts remains and it now calls the exported validationExecutionLockPath() inside try/catch (empty-string fallback, safe with existsSync). F-006: repoRelativeLogicalCwd anchors absolute cwd at projectRoot via canonicalizeExisting (longest-existing-prefix realpath) on both anchor and target; traced buildDoneRequiredCommandSpecEnvelope call sites and confirmed in-workspace absolute cwd now normalizes identically across two worktree roots while out-of-workspace stays a documented `..`-prefixed limitation. Manually reproduced the symlink case (macOS /tmp -> /private/tmp) against the built dist outside the smoke harness (which pre-resolves its temp base via realpathSync and so never itself exercises canonicalizeExistings fallback branch) and confirmed identical digest/cwd across the symlinked vs realpath forms -- canonicalizeExisting is sound. F-005: confirmed via before/after diff of f39ef9f967 that buildDoneRequiredCommandSpecEnvelope previously ignored the executed param entirely and always digested command.cwd; now digests executed?.cwd ?? command.cwd, and validateCommandSpecDigestCoverage recomputes the expected envelope from receipt.cwd (physical) so a forged/divergent commandSpec.cwd that does not match repoRelativeLogicalCwd(receipt.cwd) is caught as command-spec-digest-mismatch, and validateRequiredReceiptCoverage separately catches configured-vs-executed divergence as receipt-cwd-mismatch. Ran npm run build (tsc, clean) then worktree-portability-smoke (25/25, incl. new F-005/F-006/F-007 checks), validate-execution-lock-smoke (12/12, passed in isolation -- an unrelated file, untouched by this diff, showed load-sensitive flakiness only when run back-to-back with other builds/tests on this machine), lifecycle-control-smoke, done-required-validation-smoke, plus related-regression smokes (gitroot-cwd-contract, bare-gate-gitroot-cwd, project-gitroot-cwd, graceful-sites-gitroot-cwd-wrapper-root, gitroot-cwd-routing, storydir-inside-gitroot, done-oracle-wrapper-root, done-required-freshness) all pass. Dead code: none -- all new imports (execFileSync/realpathSync/basename/dirname/isAbsolute/resolve/join in validation-execution-lock.ts and done-required-validation.ts) are used; resolvedCwd/buildLegacyAbsoluteCwdCommandSpecEnvelope are deliberate non-digested-provenance/migration exports, both consumed. Type safety: no as-any introduced; the two new catch blocks (validationLockPath empty-string fallback, resolveSharedLockRoot pre-existing) follow the existing fallback-to-caller-value pattern used throughout this file, not novel error-swallowing. Proof-metadata job/run.metadata dual-surface check: not applicable, this diff only touches validation-lock/command-spec-digest internals, no job/run/provider metadata semantics. No doc files (README/CLAUDE.md) touched, so no promised-but-undelivered surface. git status clean (dist gitignored) throughout.",
+      "createdAt": "2026-07-19T01:45:46.815Z",
+      "reviewRound": "2026-07-19T01:28:28.627Z",
+      "reviewRunId": "B-231d:RR-011",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7adae938c8ad13a13849fb34e2cbe9a157668aefc2a9209262dbdae0100ea128"
     }
   ]
 }
