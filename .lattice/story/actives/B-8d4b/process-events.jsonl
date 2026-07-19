@@ -15,3 +15,8 @@
 {"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-07-19T02:08:58.336Z"}
 {"type":"subagent_result","checklistId":"CHK-004","success":true,"timestamp":"2026-07-19T02:09:02.421Z"}
 {"type":"phase_transition","storyId":"B-8d4b","attemptId":"2026-07-19T02:09:19.210Z","fromPhase":"DEV","toPhase":"REVIEW","materialHash":"eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7","storyFilesHash":"0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b","reviewRound":"2026-07-19T02:09:19.210Z","timestamp":"2026-07-19T02:09:19.514Z"}
+{"type":"dispatch","storyId":"B-8d4b","phase":"REVIEW","source":"lattice dispatch","targetKind":"story-review","agentType":"lattice-review-concept","timestamp":"2026-07-19T02:09:53.961Z"}
+{"type":"dispatch","storyId":"B-8d4b","phase":"REVIEW","source":"lattice dispatch","targetKind":"story-review","agentType":"lattice-review-quality","timestamp":"2026-07-19T02:09:57.051Z"}
+{"type":"dispatch","storyId":"B-8d4b","phase":"REVIEW","source":"lattice dispatch","targetKind":"story-review","agentType":"lattice-review-test-coverage","timestamp":"2026-07-19T02:10:00.717Z"}
+{"type":"dispatch","storyId":"B-8d4b","phase":"REVIEW","source":"lattice dispatch","targetKind":"story-review","agentType":"lattice-review-docs","timestamp":"2026-07-19T02:10:07.303Z"}
+{"type":"reviewer_finding","storyId":"B-8d4b","command":"finding_add","role":"reviewer","agent":"lattice-review-concept","result":"pass","findingId":"B-8d4b:F-001","severity":"high","missingAttribution":false,"timestamp":"2026-07-19T02:11:19.790Z"}

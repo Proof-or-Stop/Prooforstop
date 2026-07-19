@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-8d4b:F-001",
+      "desc": "experiments/role-prompt-ab-replay/lib/replay.mjs:301-305 and protocol.json:14-23 — The two A/B arms are not pinned legacy/modular role-prompt bytes or a verified prompt-envelope reconstruction; armPrompt synthesizes one short label sentence per arm. `node experiments/role-prompt-ab-replay/run.mjs --json` therefore reports 1279 vs 1292 bytes for critical-01, measuring the labels plus shared JSON rather than either real role contract. This can validate harness determinism but cannot constitute a role-prompt A/B assembled-input measurement. Bind each arm to exact committed prompt/envelope bytes plus digest/contract version, or classify the arm metric itself INCONCLUSIVE and rename the artifact as a framework selfcheck.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T02:11:19.790Z",
+      "reviewRound": "2026-07-19T02:09:19.210Z",
+      "reviewRunId": "B-8d4b:RR-004",
+      "_hash": "8ff9e9a9ae22eb9a9f8128db73775bc5b3cf9f31f822d70226fc71cb8e51827f",
+      "files": [
+        "experiments/role-prompt-ab-replay/lib/replay.mjs",
+        "experiments/role-prompt-ab-replay/protocol.json",
+        "experiments/role-prompt-ab-replay/README.md",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "signatureTag": "spec-boundary|mjs|experiments-role-prompt",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
