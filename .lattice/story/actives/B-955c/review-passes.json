@@ -99,6 +99,42 @@
         "scanEscalationReason": "Focused third-round adversarial re-review of commit c0c3eeddde and F-011 trust-boundary changes; related specifications and adjacent producer/consumer files were name-triaged or targeted by quorum, registry, shell-identity, and claim-calibration searches."
       },
       "_hash": "c09fde0354da01801efca2fd96aada904939afc77caac33ca41b1ccc8d667051"
+    },
+    {
+      "id": "B-955c:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Third-round concept re-review found no blocker: public attestation resolver types and inputs are removed, quorum is mechanically fail-closed unsupported even with injected callback-shaped data, documentation consistently marks producer independence and cross-vendor quorum as future work, and build plus EEA, DONE_REQUIRED, and process-fact regressions pass.",
+      "createdAt": "2026-07-19T01:34:23.504Z",
+      "reviewRound": "2026-07-19T01:28:32.809Z",
+      "reviewRunId": "B-955c:RR-012",
+      "writerSessionId": "sess-3f7565f7f61d53a3ee9fed5bca52533e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bc0614386214980a0c0387b0696b2c966300799f945457efbe4386ab7b4c31b3"
     }
   ]
 }
