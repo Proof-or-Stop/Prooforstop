@@ -1,10 +1,10 @@
 {
   "storyId": "B-955c",
-  "checkedAt": "2026-07-19T02:52:57.161Z",
-  "headHash": "38a40a8d4b9a75d0619fd6ce2f08844770b02ce7",
-  "materialHash": "c68b8e60ebeba051ab8accb2f84e0c6332175e8ac0fb39c788ac6141b227d105",
-  "storyFilesHash": "e65e95dcb9ad9b9232d9974c3f5f642b7a60f4b0a3c6aff91ef8906c5cdf718f",
-  "reviewRound": "2026-07-19T02:20:03.166Z",
+  "checkedAt": "2026-07-19T03:44:49.855Z",
+  "headHash": "a7b95ab6becef3323e3744e4541acf205c2aadab",
+  "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+  "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+  "reviewRound": "2026-07-19T03:32:04.001Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
@@ -12,82 +12,93 @@
       "promise": "Agent proposes, Environment observes, Proof Admissibility evaluates, and the existing lifecycle Gate decides, with one ownership path and no parallel evidence store or adapter-owned Done state.",
       "status": "verified",
       "verifiedBy": "lattice-review-delivery",
-      "evidence": "Reverse-scan of architecture doc and main...HEAD shows the ownership rule, shared proof surface, explicit false lifecycle/storage authority fields, and no new handler or storage path."
+      "evidence": "Current main...HEAD reverse-scan preserves the ownership rule, shared proof surface, explicit false lifecycle/storage authority fields, and no new handler or storage path."
     },
     {
       "docPath": "packages/main/src/core/evidence/environment-contract.ts#descriptor-registry-and-normalization",
       "promise": "The generic descriptor, invocation request, receipt, normalized envelope, deterministic digests, strict shape checks, and read-only registry are implemented.",
       "status": "verified",
       "verifiedBy": "lattice-review-delivery",
-      "evidence": "Fresh test:evidence-environment-adapter reports default registry PASS, deterministic normalized envelope PASS, and identity/authority/execution/freshness tamper cases PASS; the full 46-command validation is fresh PASS."
+      "evidence": "Fresh 46/46 validation at 2026-07-19T03:43:06.364Z and reviewer EEA rerun report registry, deterministic normalization, identity, authority, execution, and freshness checks PASS."
     },
     {
       "docPath": "packages/main/src/core/evidence/environment-contract.ts#reference-projections",
       "promise": "Bounded code-runtime and Quantum receipt-only reference paths are implemented without a new arbitrary command endpoint.",
       "status": "verified",
       "verifiedBy": "lattice-review-delivery",
-      "evidence": "Fresh EEA smoke reports code-runtime execute-local receipt projection PASS and quantum read-receipt-only projection PASS; diff adds only contract exports and no CLI/handler command launcher, while Quantum command injection is rejected."
+      "evidence": "Fresh EEA smoke reports code-runtime execute-local and Quantum read-receipt-only projections PASS; diff adds no CLI/handler launcher and receipt-only command injection remains rejected."
+    },
+    {
+      "docPath": "packages/main/src/core/evidence/environment-contract.ts#portable-v2-cwd-projection",
+      "promise": "Current CommandSpec v2 uses repo-relative logical cwd for portable EEA identity while absolute resolvedCwd remains provenance; legacy v1 remains intentionally non-portable and unknown versions fail closed.",
+      "status": "verified",
+      "verifiedBy": "lattice-review-delivery",
+      "evidence": "29a9fc5288 maps v2 and v1 through commandSpec.cwd; fresh EEA smoke proves identical v2 digests across /repo and /other-worktree, logical-cwd tamper changes both digests, v1 retains absolute identity, and v3 rejects."
     },
     {
       "docPath": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
-      "promise": "The conformance suite passes positive, boundary, tamper, freshness, authority, status, and host-substitution cases fail closed where required.",
+      "promise": "The conformance suite passes positive, portability, boundary, tamper, freshness, authority, status, and host-substitution cases fail closed where required.",
       "status": "verified",
       "verifiedBy": "lattice-review-delivery",
-      "evidence": "Reviewer rerun test:evidence-environment-adapter exited 0 with all named PASS rows; Pack and Quantum regression smokes, process-fact contract, and git diff --check also exited 0."
+      "evidence": "Reviewer reran test:evidence-environment-adapter, DONE-required smoke, process-fact verifier, and git diff --check on current state; all exited 0. Fresh full validation covers 46/46 commands and 36/36 intents."
     },
     {
       "docPath": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md#Implemented support boundary B-955c",
       "promise": "Paper-facing claims are calibrated: M0-M5 repository implementation is evidence-backed; M6 external manuscript binding remains open; named external environments are integration targets.",
       "status": "verified",
       "verifiedBy": "lattice-review-delivery",
-      "evidence": "Reverse-scan confirms the support matrix, explicit M6-not-complete section, Level-B external manuscript ceiling, and Lean/Rosetta/AlphaFold/PINN/browser/database/CI/Kubernetes/deployment integration-target wording; README matches."
+      "evidence": "Current docs define v2 portability accurately, explicitly keep M6 external manuscript incomplete and at Level B, and retain Lean/Rosetta/AlphaFold/PINN/browser/database/CI/Kubernetes/deployment as integration targets; README matches."
     },
     {
       "docPath": "packages/main/src/core/done-required-validation.ts#Evidence Environment Gate projection",
       "promise": "A fresh trusted code-runtime receipt may advance only through the existing DONE_REQUIRED Proof Admissibility/Gate consumer; stale, forged, non-pass, diagnostic-only, or independence evidence stops.",
       "status": "verified",
       "verifiedBy": "lattice-review-delivery",
-      "evidence": "Fresh EEA and DONE-required smokes verify the actual evaluator path, raw re-normalization, descriptor/digest/freshness/execution identity checks, non-pass status rejection, diagnostic Quantum stop, and baseline policy non-bypass."
+      "evidence": "Fresh DONE-required and EEA smokes verify the production evaluator, raw re-normalization, descriptor/digest/freshness/execution identity checks, non-pass rejection, diagnostic Quantum stop, and baseline-policy non-bypass."
     },
     {
       "docPath": "README.md#Proof-or-Stop",
       "promise": "Distinct-host producer quorum is unsupported and fail-closed until a project-owned pinned-key, session-bound, revocation-aware trust registry exists.",
       "status": "verified",
       "verifiedBy": "lattice-review-delivery",
-      "evidence": "README, architecture docs, runtime process-fact entry, and evaluateEvidenceEnvironmentQuorum consistently state and implement distinct_host_quorum_unsupported; caller callback trust injection and repeated producer references remain non-independent."
+      "evidence": "README, architecture docs, runtime process-fact entry, and evaluateEvidenceEnvironmentQuorum remain consistent; fresh EEA smoke reports fail-closed unsupported distinct-host quorum PASS."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Fresh live-smoke artifact is present and fresh with successful exit; delivery_context_pack reports transcriptDiff=true, and architecture/docs reverse-scan confirms the exact Agent proposes -> Environment observes -> Proof Admissibility evaluates -> Gate decides outcome."
+      "transcript": "Fresh live-smoke artifact is present-fresh with a successful exit; current architecture and docs reverse-scan confirms Agent proposes -> Environment observes -> Proof Admissibility evaluates -> Gate decides."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "npm --prefix packages/main run test:evidence-environment-adapter exited 0: default environment descriptor registry PASS; deterministic normalized envelope PASS; identity, authority, execution, and freshness tamper cases PASS."
+      "transcript": "Current npm --prefix packages/main run test:evidence-environment-adapter exited 0: registry PASS, deterministic normalized envelope PASS, and identity/authority/execution/freshness tamper cases PASS."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "npm --prefix packages/main run test:evidence-environment-adapter exited 0: code-runtime execute-local receipt projection PASS; quantum read-receipt-only projection PASS; public diff contains no new CLI/handler arbitrary-runner endpoint."
+      "transcript": "Current EEA smoke exited 0 for code-runtime execute-local and Quantum read-receipt-only projections; no public arbitrary runner was added."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Reviewer reran EEA, done-required, Pack-framework, and Quantum smokes plus process-fact verifier and git diff --check; all exited 0. Fresh full lattice validation is PASS at 2026-07-19T02:48:33.476Z with 36/36 verification intents covered."
+      "transcript": "Fresh full lattice validation is PASS at 2026-07-19T03:43:06.364Z for 46/46 commands with 36/36 verification intents; reviewer reruns of EEA, DONE-required, process-fact, and diff checks all exited 0."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "README and execution-plan reverse-scan confirm M0-M5 implemented support, M6 external manuscript explicitly open, external manuscript capped at Level B, and all named external environments marked integration targets."
+      "transcript": "Current README/execution-plan reverse-scan confirms M0-M5 in-repo support, v2 logical/physical cwd semantics, M6 external manuscript open/Level B, and named environments as integration targets."
     },
     {
       "featureId": "CHK-006",
-      "transcript": "npm --prefix packages/main run test:done-required-validation-smoke exited 0; EEA smoke confirms fresh allowed Gate projection, baseline policy non-bypass, stale/forged/non-pass stop, diagnostic-only Quantum stop, and distinct-host quorum unsupported/fail-closed."
+      "transcript": "Current DONE-required smoke exited 0; EEA Gate tests confirm fresh allowed projection, baseline non-bypass, stale/forged/non-pass/diagnostic stop, and unsupported distinct-host quorum."
+    },
+    {
+      "featureId": "B-955c:F-019/F-020/F-021",
+      "transcript": "Current EEA smoke validates 29a9fc5288 cross-root portability: equivalent v2 receipts under two physical roots share commandSpecDigest and invocationDigest; logical cwd tampering diverges; v1 remains non-portable; unsupported v3 fails closed."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery reverse-scan found no scoped blocker: all six Story promises are observable and mechanically supported, the fresh full validation and live-smoke evidence pass, no changed-file TODO/FIXME remains, and claims retain the explicit M6 and external-environment limitations."
+    "summary": "Current delivery reverse-scan found no scoped blocker after the main merge and v2 portability fix: all Story promises remain observable, fresh validation and live smoke pass, all F-001 through F-021 are resolved, and claims retain explicit M6, quorum, and external-environment limitations."
   },
-  "_hash": "4d028b099f9b51aee9e56efb2cad36f57e2aa1672d2e5f6a62f5a7c3ad265aaf"
+  "_hash": "d9592f1bb1abfbfc3b32459f92cde5813c5f50758a6d126f774ceb7793637a51"
 }
