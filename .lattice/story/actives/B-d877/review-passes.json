@@ -217,6 +217,34 @@
         "scanEscalationReason": null
       },
       "_hash": "12f21cac76b24664ff279fb94de8b70bd98b70514514746ad3468c09c13d3d20"
+    },
+    {
+      "id": "B-d877:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 7 final delta): validate --story=B-d877 --json passes end-to-end, 6/6 must-intents covered with concrete per-intent evidence notes citing the accurate 79-check count; evidence_inspect reports freshness=fresh, staleRefs=0; smoke ran 5x with 79/79 deterministic; CHK-002d4 (F-017 bounded-leak/self-heal proof) spot-checked load-bearing in an isolated detached worktree (.worktrees-audit/B-d877-isolated) by breaking the mismatch-restore rename, confirming the assertion fails, then restoring to green. No blocker.",
+      "createdAt": "2026-07-19T12:23:13.238Z",
+      "reviewRound": "2026-07-19T12:09:50.724Z",
+      "reviewRunId": "B-d877:RR-021",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-d877/background.md",
+          ".lattice/story/actives/B-d877/checklist.json",
+          ".lattice/story/actives/B-d877/plan.md",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ec4e438bd52f55108ec058910cc7dc9951d11a33a2ac6777e9a18f42aaa668d1"
     }
   ]
 }
