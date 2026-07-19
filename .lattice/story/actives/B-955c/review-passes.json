@@ -1387,6 +1387,60 @@
         "scanEscalationReason": "Current re-review was bounded to commit 29a9fc5288 and the previously reviewed B-955c candidate surface; the cwd projection change was traced through its production DONE consumer and targeted conformance/portability regressions."
       },
       "_hash": "b418aacf48f8c17c96aa69885af458efc837359d7f0ac9017f001efbf16f87c6"
+    },
+    {
+      "id": "B-955c:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review for 29a9fc5288 found no blocker. New EEA tests prove v2 projections preserve identical command/invocation identities across physical roots, logical-cwd changes alter both identities, legacy v1 roots remain intentionally distinct, and unsupported v3 fails closed. Build, EEA, worktree-portability, done-required freshness/validation, and diff checks pass. The 36 intent mappings remain unique and passing, but their checklist bindings still require freshness refresh/revalidation after the story-owned hash change.",
+      "createdAt": "2026-07-19T03:34:07.642Z",
+      "reviewRound": "2026-07-19T03:32:04.001Z",
+      "reviewRunId": "B-955c:RR-042",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-955c/done-required-evidence.json",
+          ".lattice/story/actives/B-955c/test-evidence.json",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "lattice.config.json",
+          "packages/main/package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "878f3fe22b18ed1d75c50617f7c89018a63350478886516fd9cb7a93f1eb2dfe"
+      },
+      "readDiagnostics": [],
+      "_hash": "25ea0af651f3b1e8392e1590cea0a109239396a499d492e1128be3dee4937139"
     }
   ]
 }
