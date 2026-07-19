@@ -242,6 +242,48 @@
         "scanEscalationReason": null
       },
       "_hash": "9da71da9189dca3525d65a07867139da10e7bdbec7633bfa816f0fe923c579f5"
+    },
+    {
+      "id": "B-956f:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "R3 verification round (fixes R3 F-005): reviewed full git diff main...HEAD (38 files). Confirmed the F-005 fix: the narrow MaterialCodePolicyError->structured-outcome conversion now covers evaluateStoryEvidenceBindingGate (repro-evidence-binding-gate.ts:412-423 catches MaterialCodePolicyError around buildMaterialClassificationSnapshot+classifyReproFirstRequirement, returns materialPolicyErrorResult with new always-blocking reasonCode repro_first_material_policy_error; formatStoryEvidenceBindingGateFailure:537-543 keeps the Cannot-enter-PHASE / reason_code conventions) and story-create.ts:125-152 preflight (same catch pattern, enforce throws / warn returns advisory). machine.ts getGuardFailureReason PLAN(:1054)/DEV(:1102) sections call evaluateStoryEvidenceBindingGate directly so they inherit the fix with no code change needed there. Independently reproduced (own isolated git fixtures, not story-owned smoke): (1) getGuardFailureReason(id,store,PLAN-or-DEV,root) against a fixture repo whose ONLY lattice.config.json defect is a trailing-comma JSON syntax error returns the structured Cannot-enter-PLAN/DEV message naming lattice.config.json with the repro_first_material_policy_error reason code, no raw throw, for BOTH PLAN and DEV; (2) same call graph with a healthy config but a checklist shape lacking .items still lets a TypeError (unrelated to MaterialCodePolicyError) propagate UNCAUGHT out of evaluateStoryEvidenceBindingGate, confirming only MaterialCodePolicyError is narrowed; (3) a healthy TS-only config with no material files (chore story) and with a real material .ts bug-story change both classify normally (reasonCode null / missing_story_evidence_binding respectively) -- the new always-blocking reason code never fires for healthy configs. Also verified codex R3 production fixes: pinned-sha snapshot build (material-code-policy.ts buildMaterialClassificationSnapshot captures ONE currentGitHead(gitCwd) sha, threads headRef through buildMaterialClassificationSnapshotAtRef/listMainToHeadDiffEntries/diffBaseRef/extensionlessScriptSignal, post-validates live HEAD with bounded retries and fails closed with materialClassification.freshness on instability -- no live-HEAD read inside the pinned build path); per-resolution filesystem preflight re-fire (resolveMaterialCodePolicy re-runs preflightMaterialCodeExclusions on every call regardless of config-signature cache hit, confirmed via code read plus smoke R3-c warm-cache test); freshness-vs-config remediation branch (isFreshness equals offendingKey===materialClassification.freshness correctly separates workspace/git remediation from lattice.config.json remediation across all 3 catch sites: review-assurance-floor.ts, repro-evidence-binding-gate.ts, story-create.ts); scripts/verify-process-fact-contract.mjs exits 0 (ran myself) with new tokens (language-neutral, material-code policy, snapshot freshness, diff enumeration, repro-evidence-binding, buildMaterialClassificationSnapshot, classifyReviewAssuranceFloorPath, diffEnumerationError) all verified present in live review-assurance-floor.ts source, not just prose. Ran RED harness myself: tmp/w1-red/red-language-degradation.cjs 11/11 PASS. Ran language-neutral-gates-smoke.js myself: 27/27 PASS (12 verificationIntent + 6 fix-round + 5 R2 + 4 R3 production-boundary checks). Ran full npm test myself: exit code 0, all suites passed including review-assurance-floor-smoke (18), proofstory-intent-hardening-smoke, closeout-trust-smoke, process-fact-contract, flow-stability-smoke, experience-arm-gate/isolation-e2e, convergence-breaker-smoke, and all others in the chain. Sanity-checked (not re-litigated, already independently passed by lattice-review-concept RR-010 and lattice-review-test-coverage RR-009 this round) the remaining R2-era wiring this round depends on: F-002 materialClassification production wiring (machine.ts:169, phase-gates.ts:153, handlers/proofstory.ts:132, handlers/story-review.ts:251+756, all diagnostic-only via evaluateProofStoryDiagnostics enforceableTriggers filter at proofstory.ts:983 so enforce outcomes stay byte-identical for TS projects even where non-observe mode now populates materialClassification e.g. phase-gates.ts runReviewToTestPreflightGate); F-004 scope-diff-pack dedup (runScopeGateAndDiffPack shares one diffPack between the scope gate and emitSemanticDegradationEvent). No dead code, no unsafe as-any, no empty catch swallowing real errors introduced by this round (all catches are narrow instanceof MaterialCodePolicyError with typed re-throw, or documented fail-soft diagnostic-only paths). No I/O shell isolation applicability (no bridge.ts pattern in this project). No proof/receipt/job/run metadata dual-surface concern (this story does not touch job.metadata/run.metadata). No new findings. No blockers.",
+      "createdAt": "2026-07-19T19:18:43.090Z",
+      "reviewRound": "2026-07-19T19:06:37.284Z",
+      "reviewRunId": "B-956f:RR-011",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/review-passes.json",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c705cae20a92a642077110fbdb7cb1d615acf02ac0f2ab876485d45be38cceb9"
     }
   ]
 }
