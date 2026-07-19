@@ -36,7 +36,7 @@ import {
 } from '../core/prompt-envelope.js';
 import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { canonicalJsonStringify } from '../core/prompt-contracts.js';
-import { withMkdirLock } from '../core/mkdir-lock.js';
+import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 import {
   acquireOrRefreshOwnerLease,
   formatNonOwnerError,
@@ -146,8 +146,8 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       // B-d877 R3 FIX B: relocate out of the git-tracked story dir to the gitignored
       // shared `.lattice/locks/prompt-envelopes/<id>-prompt-envelopes.lock` (same
       // canonical lock the review_run_start prompt-envelope write uses).
-      const lockDir = ctx.store.runtimeLockDirPath(storyId, 'prompt-envelopes', 'prompt-envelopes');
-      const envelope = withMkdirLock(lockDir, () => {
+      const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
+      const envelope = withReviewMetadataTicketLock(lockDir, `agent_prompt for ${storyId}/${role}`, () => {
         const data = ctx.store.readPromptEnvelopes(storyId);
         const existing = data.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
         if (existing) {

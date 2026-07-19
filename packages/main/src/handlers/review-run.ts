@@ -14,7 +14,7 @@ import {
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
-import { withMkdirLock } from '../core/mkdir-lock.js';
+import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 import { loadConfig } from '../core/config.js';
 import {
   readGitStatusLines,
@@ -38,7 +38,7 @@ import { reviewIncrementalContext } from '../core/review-incremental-context.js'
 
 function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
-  return withMkdirLock(lockDir, fn, { label: 'review metadata transaction' });
+  return withReviewMetadataTicketLock(lockDir, `review_run_start for ${storyId}`, fn);
 }
 
 type ResolvedReviewWorkspace = ReturnType<typeof resolveStoryCommandWorkspace>;

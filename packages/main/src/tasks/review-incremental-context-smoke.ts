@@ -917,8 +917,8 @@ function runDeterministicTicketReclaimAbaCase(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-review-lock-aba-'));
   const storyId = 'B-mixed-writer-aba';
   const round = '2026-07-19T00:00:00.000Z';
-  const barrierRoot = join(root, '.lattice/story/actives', storyId, '.review-metadata-test-barrier');
-  const lockDir = join(root, '.lattice/story/actives', storyId, 'review-metadata-transaction.lock');
+  const barrierRoot = join(root, '.lattice/locks/review-run', '.review-metadata-test-barrier');
+  const lockDir = join(root, '.lattice/locks/review-run', `${storyId}-review-runs.lock`);
   const deadTicket = join(lockDir, '0000000000000000-dead-a.ticket');
   const children: ReturnType<typeof spawn>[] = [];
   try {
