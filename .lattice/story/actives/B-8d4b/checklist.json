@@ -278,7 +278,7 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-19T02:07:46.020Z",
       "endTime": "2026-07-19T03:04:01.553Z",
       "verificationIntent": {
@@ -662,6 +662,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Owner accepted f8c1b2c73a after independent 49-check isolated-evidence, ledger analysis and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T03:06:25.509Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Fourth-round F-022/F-023/F-024/F-025 require recursive snapshot of the entire isolated .lattice evidence root, not only the sentinel Story subtree.",
       "agent": "main"
     }
   ]
