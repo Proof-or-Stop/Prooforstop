@@ -1,0 +1,122 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-d877:RR-001",
+      "storyId": "B-d877",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-07-19T02:27:46.689Z",
+      "startedAt": "2026-07-19T02:48:43.167Z",
+      "headHash": "eecf5630c3d4ecec2764caf903e48d485a808ed7",
+      "materialHash": "b54d07bfd0224d6542d575a9daf4416d8bf4113636cb0118554c6a47c96c3cab",
+      "storyFilesHash": "b3e23fec817abe037d58b9bab7e7dabeafbebb2a1c4118f40b55b9bd21799089",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "86c3e9d61c787f7f5668a563e3205c1e781e5798727516402032a4f547b4d6fd",
+        "diffPackHash": "2cbddf83ecb8ab4b904aad67418071d9e8f61455d49e55ce30cc41e8fe4b9e7e",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "09cf0e1acd7000ec8655ed74dbba63494eb08460e189c98fa17c3742cdb45784",
+          "183ade81295c9cd170bae5f5b11de24f98b00adeff6f86581fe0d97de7668187",
+          "344bb99fcefb71196096346bd328a8214d32d4458b682a8440f00d7958aaba2c",
+          "39f6843c71b86f643e1a883dd9e0019bc025f10de74df731cf2776a5fc8a3e6d",
+          "47a357eff84eced5397873724c2f8bc0ebdb6dff0c66811f3fe3eb45ade14c27",
+          "49604068762fe222c3b8a282a9e83c0dde140e85f0b823de64264cca61826ce6",
+          "4c81c247f2d90dc763a701f6926eeedf8819b7a70665d0bcb49de0653a37e877",
+          "50344829f3d99ff5e5eae7541a27ecae7ebf1531a59e32d2aec68c8d38b90e21",
+          "57bf652a55bdaec7e49356d906eaace4fd943fd2f816f3b1d990bd33863e529c",
+          "5d4e3fc9291d2a39d3326bbb04156a89f0956b8fb3045aa12ecb3d067b3b8432",
+          "7badc4325347a972e773d48506913e7556ba884496380137372a60fd85cb884e",
+          "8bf4d0fc974e608c6c2b6a9674412f59c32aa55456e616d2fb746210fcd1312a",
+          "9de2a2f747b5108f6f47bc31921e077f440e4251d35db742df47104b6d442e5a",
+          "a20ac1997e6f7215e67fcdddf4d37ea2a087b35ea66e176036f6576b350b5388",
+          "aa3d1db748702b6cb715dea185f755bf1c88016aad24d20c3698177e20aa7362",
+          "b2762477fe5a857a7b5c067d5347a31c59c2a1cbbe749554ab011e0968b7c851",
+          "b29d9ebe6df201d4a708aa8f830dc0c0f44dfc11ac2e723ef2a1ffc600c5e743",
+          "e016f72648e1edd847b5892ba3a3f1c0f27567ada47ecd1c8419ec7544c1bf60",
+          "ef128c86e351a0ac84a6286a99eb388b63353c8d947a1664f62d500823750512",
+          "fd482f7876a12b26755bc6397a470e630840dfb70398410cdfc2d19f76a6aaea"
+        ],
+        "bindingHash": "5eb5b7d0b53e25cd404f2d7fcf27dea39e4adb287747517c031662b29d389f7d"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d877",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d877",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d877",
+        "workspaceMode": "story-worktree",
+        "headHash": "eecf5630c3d4ecec2764caf903e48d485a808ed7",
+        "materialHash": "b54d07bfd0224d6542d575a9daf4416d8bf4113636cb0118554c6a47c96c3cab",
+        "storyFilesHash": "b3e23fec817abe037d58b9bab7e7dabeafbebb2a1c4118f40b55b9bd21799089",
+        "bindingHash": "2c8f41bcf1d3fcb2cfb69e4d9dbf2f39d7095a5207c936f8f99dd7a9c468adef"
+      },
+      "_hash": "f99ebea46ec537d2a8ce91de6968a4336867ab632a2884cbbf7b0718871186cf"
+    },
+    {
+      "reviewRunId": "B-d877:RR-002",
+      "storyId": "B-d877",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-07-19T02:27:46.689Z",
+      "startedAt": "2026-07-19T02:48:49.263Z",
+      "headHash": "eecf5630c3d4ecec2764caf903e48d485a808ed7",
+      "materialHash": "b54d07bfd0224d6542d575a9daf4416d8bf4113636cb0118554c6a47c96c3cab",
+      "storyFilesHash": "b3e23fec817abe037d58b9bab7e7dabeafbebb2a1c4118f40b55b9bd21799089",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "86c3e9d61c787f7f5668a563e3205c1e781e5798727516402032a4f547b4d6fd",
+        "diffPackHash": "2cbddf83ecb8ab4b904aad67418071d9e8f61455d49e55ce30cc41e8fe4b9e7e",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/story-transition-lock.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/transition-integrity-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "09cf0e1acd7000ec8655ed74dbba63494eb08460e189c98fa17c3742cdb45784",
+          "183ade81295c9cd170bae5f5b11de24f98b00adeff6f86581fe0d97de7668187",
+          "344bb99fcefb71196096346bd328a8214d32d4458b682a8440f00d7958aaba2c",
+          "39f6843c71b86f643e1a883dd9e0019bc025f10de74df731cf2776a5fc8a3e6d",
+          "47a357eff84eced5397873724c2f8bc0ebdb6dff0c66811f3fe3eb45ade14c27",
+          "49604068762fe222c3b8a282a9e83c0dde140e85f0b823de64264cca61826ce6",
+          "4c81c247f2d90dc763a701f6926eeedf8819b7a70665d0bcb49de0653a37e877",
+          "50344829f3d99ff5e5eae7541a27ecae7ebf1531a59e32d2aec68c8d38b90e21",
+          "57bf652a55bdaec7e49356d906eaace4fd943fd2f816f3b1d990bd33863e529c",
+          "5d4e3fc9291d2a39d3326bbb04156a89f0956b8fb3045aa12ecb3d067b3b8432",
+          "7badc4325347a972e773d48506913e7556ba884496380137372a60fd85cb884e",
+          "8bf4d0fc974e608c6c2b6a9674412f59c32aa55456e616d2fb746210fcd1312a",
+          "9de2a2f747b5108f6f47bc31921e077f440e4251d35db742df47104b6d442e5a",
+          "a20ac1997e6f7215e67fcdddf4d37ea2a087b35ea66e176036f6576b350b5388",
+          "aa3d1db748702b6cb715dea185f755bf1c88016aad24d20c3698177e20aa7362",
+          "b2762477fe5a857a7b5c067d5347a31c59c2a1cbbe749554ab011e0968b7c851",
+          "b29d9ebe6df201d4a708aa8f830dc0c0f44dfc11ac2e723ef2a1ffc600c5e743",
+          "e016f72648e1edd847b5892ba3a3f1c0f27567ada47ecd1c8419ec7544c1bf60",
+          "ef128c86e351a0ac84a6286a99eb388b63353c8d947a1664f62d500823750512",
+          "fd482f7876a12b26755bc6397a470e630840dfb70398410cdfc2d19f76a6aaea"
+        ],
+        "bindingHash": "5eb5b7d0b53e25cd404f2d7fcf27dea39e4adb287747517c031662b29d389f7d"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d877",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d877",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d877",
+        "workspaceMode": "story-worktree",
+        "headHash": "eecf5630c3d4ecec2764caf903e48d485a808ed7",
+        "materialHash": "b54d07bfd0224d6542d575a9daf4416d8bf4113636cb0118554c6a47c96c3cab",
+        "storyFilesHash": "b3e23fec817abe037d58b9bab7e7dabeafbebb2a1c4118f40b55b9bd21799089",
+        "bindingHash": "2c8f41bcf1d3fcb2cfb69e4d9dbf2f39d7095a5207c936f8f99dd7a9c468adef"
+      },
+      "_hash": "50cf408f73e68cc784bd21d6a0f58e0436b99bf56233b67e9f189f4279a5151c"
+    }
+  ]
+}

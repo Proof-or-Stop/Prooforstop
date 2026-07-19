@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-d877:F-001",
+      "desc": "quality-cleanup: packages/main/src/tasks/transition-integrity-smoke.ts:172-206 (CHK-001b) — the delegation-equivalence check leaks the REAL invoking process cwd/git-branch into the fixture comparison via the pre-existing detectDoneStoryWorktreeContext(invocationCwd = process.cwd()) default (packages/main/src/handlers/done-effects.ts:625), which runStoryTransition calls unconditionally for phase=DONE. Reproduced: running `node dist/tasks/transition-integrity-smoke.js` from inside the B-d877 worktree makes both errA/errB collide on the leaked real branch text (\"refusing DONE cleanup: detected branch story/B-d877 but expected story/SID\"), i.e. the assertion passes only because both calls incidentally observe the SAME wrong ambient branch — not because dev_merge genuinely delegates to the same DONE business-gate logic. Running the identical unmodified build from /tmp (outside any git worktree) produces a completely different, deterministic pair (\"Cannot enter DONE: no test evidence (run lattice validate first)\") that DOES exercise the real DONE gate. So the check's pass is environment-dependent/coincidental rather than a rigorous proof of delegation; it could in principle diverge (false pass or false fail) depending on unrelated ambient git state at invocation time. Separately, checklist verificationEvidence notes \"transition-integrity smoke (17 checks)\" but the committed file (unchanged since headHash 30499ca7e1) actually emits 19 [✓] lines end-to-end — the recorded check count in the evidence note does not match the delivered smoke.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T02:48:56.551Z",
+      "reviewRound": "2026-07-19T02:27:46.689Z",
+      "reviewRunId": "B-d877:RR-001",
+      "_hash": "1cfb010a8b6c49f513f6548f2666bc2dcf553df501f5f4aeb4d474b030a2f901",
+      "signatureTag": "missing|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
