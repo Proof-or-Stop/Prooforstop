@@ -51,19 +51,28 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { reviewIncrementalContext } from '../core/review-incremental-context.js';
+import {
+  classifyIncrementalBindingReasons,
+  fixtureCaseClosure,
+  reviewIncrementalContext,
+} from '../core/review-incremental-context.js';
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
 import { resetConfigCache } from '../core/config.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import {
+  classifyEvidenceFreshness,
   currentGitHead,
 } from '../core/evidence-freshness.js';
-import type { StoryStore } from '../core/store.js';
+import {
+  classifyImpact,
+  IMPACT_CLASSIFICATION_POLICY_VERSION,
+} from '../core/impact-classification-policy.js';
+import { StoryStore } from '../core/store.js';
 import type {
   Finding,
   ReviewPass,
@@ -74,6 +83,7 @@ import type {
 
 /** Marker line printed by the smoke so `lattice validate` output is greppable. */
 const MARKER = 'review-incremental-context-smoke:';
+const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
 
 const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
 
@@ -88,6 +98,25 @@ function git(cwd: string, args: string[]): string {
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), content);
+}
+
+function directoryBytes(root: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  const visit = (path: string, relativePath: string): void => {
+    if (!statSync(path).isDirectory()) {
+      result[relativePath] = readFileSync(path).toString('base64');
+      return;
+    }
+    for (const name of readdirSync(path).sort()) {
+      visit(join(path, name), relativePath ? `${relativePath}/${name}` : name);
+    }
+  };
+  try {
+    visit(root, '');
+  } catch {
+    return {};
+  }
+  return result;
 }
 
 /**
@@ -213,6 +242,11 @@ function assertGateUnchangedByHelper(
     // Smoke-level shape sanity (the helper always returns these fields).
     assert.equal(incremental.role, role, `${label}: helper echoes the requested role`);
     assert.equal(typeof incremental.scopeChanged, 'boolean', `${label}: helper returns a boolean scopeChanged`);
+    const repeated = Array.from({ length: 8 }, () =>
+      reviewIncrementalContext(store, projectRoot, storyId, role));
+    for (const candidate of repeated) {
+      assert.deepEqual(candidate, incremental, `${label}: repeated advisory calls are deterministic for ${role}`);
+    }
   }
   const afterHelper = gateInputSnapshot(store, storyId);
   assert.equal(afterHelper, before, `${label}: reviewIncrementalContext must perform no store writes / leave gate inputs byte-identical`);
@@ -311,15 +345,17 @@ function runIncrementalCases(): void {
       const store = buildFixtureStore({ story, passes: [pass], runs: [run] });
 
       const ctx = reviewIncrementalContext(store, root, storyId, 'quality');
-      assert.equal(ctx.isFirstPass, false, '(a) returning reviewer must NOT be first pass');
-      assert.equal(ctx.priorHeadHash, baseSha, '(a) priorHeadHash must resolve to the bound baseSha');
-      assert.ok(ctx.priorVerdict && ctx.priorVerdict.includes('RP-001'), '(a) priorVerdict must reference the prior pass');
+      assert.equal(ctx.isFirstPass, true, '(a) unsigned legacy run must not establish an incremental baseline');
+      assert.equal(ctx.priorHeadHash, null, '(a) untrusted baseline has no priorHeadHash authority');
+      assert.equal(ctx.priorVerdict, null, '(a) untrusted pass is not surfaced as a trusted prior verdict');
+      assert.equal(ctx.contextMode, 'full', '(a) untrusted prior evidence fails closed to full');
+      assert.ok(ctx.eligibilityReasonCodes.includes('FULL_MISSING_TRUSTED_PRIOR_PASS'));
       assert.equal(ctx.scopeChanged, true, '(a) material change since last pass => scopeChanged=true');
       assert.ok(
         ctx.changedFiles.includes('src/feature.ts'),
         `(a) changedFiles must include the edited material file, got ${JSON.stringify(ctx.changedFiles)}`,
       );
-      console.log(`${MARKER} (a) RETURNING REVIEWER: isFirstPass=false, priorVerdict=${ctx.priorVerdict}, scopeChanged=true, changedFiles=${JSON.stringify(ctx.changedFiles)}`);
+      console.log(`${MARKER} (a) UNTRUSTED LEGACY PASS: contextMode=full, changedFiles=${JSON.stringify(ctx.changedFiles)}`);
     }
 
     // ---- (b) FIRST-TIMER ----
@@ -358,7 +394,8 @@ function runIncrementalCases(): void {
       };
       const store = buildFixtureStore({ story, passes: [pass], runs: [run] });
       const ctx = reviewIncrementalContext(store, root, storyId, 'docs');
-      assert.equal(ctx.isFirstPass, false, '(c) returning reviewer with a rename is not first pass');
+      assert.equal(ctx.isFirstPass, true, '(c) unsigned legacy run cannot establish a baseline');
+      assert.equal(ctx.contextMode, 'full', '(c) rename remains full');
       assert.equal(ctx.scopeChanged, true, '(c) a rename since last pass => scopeChanged=true');
       assert.ok(
         ctx.changedFiles.includes('src/old-name.ts') && ctx.changedFiles.includes('src/new-name.ts'),
@@ -405,14 +442,223 @@ function runIncrementalCases(): void {
       );
       // priorVerdict MAY be non-null here (the reviewer did pass before); the point
       // is that it is NOT the authoritative baseline signal — isFirstPass is.
-      assert.ok(
-        ctx.priorVerdict && ctx.priorVerdict.includes('RP-003'),
-        `(e) priorVerdict stays non-null/informational alongside isFirstPass=true, got ${JSON.stringify(ctx.priorVerdict)}`,
-      );
-      console.log(`${MARKER} (e) PRIOR VERDICT + UNRESOLVABLE headHash: isFirstPass=true, priorHeadHash=null, priorVerdict=${ctx.priorVerdict} (non-null, informational), full diff changedFiles=${JSON.stringify(ctx.changedFiles)}`);
+      assert.equal(ctx.priorVerdict, null, '(e) an invalid run cannot supply trusted prior-pass information');
+      assert.equal(ctx.contextMode, 'full', '(e) unresolved evidence fails closed');
+      console.log(`${MARKER} (e) INVALID BOUND RUN: isFirstPass=true, priorHeadHash=null, contextMode=full, full diff changedFiles=${JSON.stringify(ctx.changedFiles)}`);
     }
 
     void headSha; // headSha is HEAD; referenced for clarity in fixture wiring above.
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function runPolicyCases(): void {
+  const none = classifyImpact({
+    changedFiles: [],
+    declaredTestFiles: [],
+    testIntentRefsByFile: {},
+  });
+  assert.equal(none.policyVersion, IMPACT_CLASSIFICATION_POLICY_VERSION);
+  assert.equal(none.eligible, true);
+  assert.deepEqual(none.reasonCodes, ['ELIGIBLE_NO_MATERIAL_CHANGE']);
+
+  const fixture = classifyImpact({
+    changedFiles: ['tests/case.fixture.json'],
+    declaredTestFiles: ['tests/case.fixture.json'],
+    testIntentRefsByFile: { 'tests/case.fixture.json': ['CHK-001:happy:0'] },
+    fixtureCaseClosureByFile: { 'tests/case.fixture.json': true },
+  });
+  assert.equal(fixture.eligible, true);
+  assert.deepEqual(fixture.reasonCodes, ['ELIGIBLE_PURE_STORY_FIXTURE']);
+
+  const fixtureWithoutIntent = classifyImpact({
+    changedFiles: ['tests/case.fixture.json'],
+    declaredTestFiles: ['tests/case.fixture.json'],
+    testIntentRefsByFile: {},
+  });
+  assert.equal(fixtureWithoutIntent.eligible, false);
+  assert.deepEqual(fixtureWithoutIntent.reasonCodes, ['FULL_FIXTURE_BINDING_INCOMPLETE']);
+
+  const fixtureWithUnboundChangedCase = classifyImpact({
+    changedFiles: ['tests/case.fixture.json'],
+    declaredTestFiles: ['tests/case.fixture.json'],
+    testIntentRefsByFile: { 'tests/case.fixture.json': ['CHK-001:happy:0'] },
+    fixtureCaseClosureByFile: { 'tests/case.fixture.json': false },
+  });
+  assert.equal(fixtureWithUnboundChangedCase.eligible, false);
+  assert.deepEqual(fixtureWithUnboundChangedCase.reasonCodes, ['FULL_FIXTURE_BINDING_INCOMPLETE']);
+
+  for (const status of ['D', 'R100', 'C100']) {
+    const unsupportedFixtureStatus = classifyImpact({
+      changedFiles: ['tests/case.fixture.json'],
+      declaredTestFiles: ['tests/case.fixture.json'],
+      testIntentRefsByFile: { 'tests/case.fixture.json': ['CHK-001:happy:0'] },
+      fixtureCaseClosureByFile: { 'tests/case.fixture.json': true },
+      changedFileStatus: { 'tests/case.fixture.json': status },
+    });
+    assert.equal(unsupportedFixtureStatus.eligible, false, `declared fixture status ${status} must fail closed`);
+    assert.deepEqual(unsupportedFixtureStatus.reasonCodes, ['FULL_UNSUPPORTED_RENAME']);
+  }
+
+  const unavailable = classifyImpact({
+    changedFiles: ['tests/case.fixture.json'],
+    declaredTestFiles: ['tests/case.fixture.json'],
+    testIntentRefsByFile: { 'tests/case.fixture.json': ['CHK-001:happy:0'] },
+    fixtureCaseClosureByFile: { 'tests/case.fixture.json': true },
+    classificationUnavailable: true,
+  });
+  assert.equal(unavailable.eligible, false);
+  assert.deepEqual(unavailable.reasonCodes, ['FULL_DYNAMIC_OR_PARSE_FAILURE']);
+
+  const trustedBinding = {
+    priorEnvelopePresent: true,
+    runtimeContractMatches: true,
+    roleContractMatches: true,
+    executionEnvironmentMatches: true,
+    assemblerMatches: true,
+    dispatchProtocolMatches: true,
+    scopePolicyMatches: true,
+    taskSemanticDigestMatches: true,
+    freshnessClassification: 'CURRENT_MATERIAL' as const,
+    pureFixtureDrift: false,
+  };
+  for (const [field, expected] of [
+    ['priorEnvelopePresent', 'FULL_MISSING_PRIOR_ENVELOPE'],
+    ['runtimeContractMatches', 'FULL_RUNTIME_CONTRACT_CHANGED'],
+    ['roleContractMatches', 'FULL_ROLE_CONTRACT_CHANGED'],
+    ['executionEnvironmentMatches', 'FULL_EXECUTION_ENVIRONMENT_CHANGED'],
+    ['assemblerMatches', 'FULL_ASSEMBLER_CHANGED'],
+    ['dispatchProtocolMatches', 'FULL_DISPATCH_PROTOCOL_CHANGED'],
+    ['scopePolicyMatches', 'FULL_SCOPE_OR_POLICY_CHANGED'],
+    ['taskSemanticDigestMatches', 'FULL_MODEL_RELEVANT_TASK_CONTEXT_CHANGED'],
+  ] as const) {
+    const reasons = classifyIncrementalBindingReasons({ ...trustedBinding, [field]: false });
+    assert.ok(reasons.includes(expected), `${field} drift forces stable full reason ${expected}`);
+  }
+  for (const freshnessClassification of [
+    'RELATED_STORY_MATERIAL_DRIFT',
+    'KNOWN_UNRELATED_MATERIAL_DRIFT',
+    'LEGACY_UNBOUND',
+    'RUNTIME_UNAVAILABLE',
+    'UNCOMPARABLE',
+  ] as const) {
+    const reasons = classifyIncrementalBindingReasons({
+      ...trustedBinding,
+      freshnessClassification,
+      pureFixtureDrift: false,
+    });
+    assert.ok(reasons.includes(`FULL_FRESHNESS_${freshnessClassification}`));
+  }
+  assert.ok(classifyIncrementalBindingReasons({
+    ...trustedBinding,
+    freshnessClassification: 'RELATED_STORY_MATERIAL_DRIFT',
+    pureFixtureDrift: true,
+  }).includes('ELIGIBLE_RELATED_PURE_STORY_FIXTURE_DRIFT'));
+  const callerOverride = classifyImpact({
+    changedFiles: ['src/private.ts'],
+    declaredTestFiles: [],
+    testIntentRefsByFile: {},
+    contextMode: 'incremental',
+    forceIncremental: true,
+    eligibilityReasonCodes: ['ELIGIBLE_ATTACKER_OVERRIDE'],
+  } as Parameters<typeof classifyImpact>[0] & Record<string, unknown>);
+  assert.equal(callerOverride.eligible, false);
+  assert.deepEqual(callerOverride.reasonCodes, ['FULL_PRIVATE_IMPLEMENTATION_V1']);
+
+  for (const [path, expected] of [
+    ['docs/decision.md', 'FULL_DOCS_V1'],
+    ['src/api/schema.proto', 'FULL_PUBLIC_CONTRACT'],
+    ['src/authority/check.ts', 'FULL_AUTHORITY_OR_PERMISSION'],
+    ['src/core/command-policy.ts', 'FULL_COMMAND_OR_GATE_POLICY'],
+    ['package.json', 'FULL_DEPENDENCY_OR_BUILD'],
+    ['src/private.ts', 'FULL_PRIVATE_IMPLEMENTATION_V1'],
+    ['asset.bin', 'FULL_UNKNOWN_IMPACT'],
+  ] as const) {
+    const result = classifyImpact({
+      changedFiles: [path],
+      declaredTestFiles: [],
+      testIntentRefsByFile: {},
+    });
+    assert.equal(result.eligible, false);
+    assert.ok(result.reasonCodes.includes(expected), `${path} must classify ${expected}`);
+  }
+  const renamed = classifyImpact({
+    changedFiles: ['src/old.ts', 'src/new.ts'],
+    declaredTestFiles: [],
+    testIntentRefsByFile: {},
+    changedFileStatus: { 'src/old.ts': 'R100', 'src/new.ts': 'R100' },
+  });
+  assert.deepEqual(renamed.reasonCodes, ['FULL_UNSUPPORTED_RENAME']);
+
+  assert.equal(classifyEvidenceFreshness({
+    fresh: true,
+    reason: 'evidence followed by 1 metadata-only changes, not invalidated',
+    changedFiles: ['.lattice/x'],
+    materialFiles: [],
+  }, 'a'.repeat(40)), 'KNOWN_METADATA_ONLY_HEAD_DRIFT');
+  assert.equal(classifyEvidenceFreshness({
+    fresh: false,
+    reason: 'evidence storyFilesHash does not match current story-owned file state',
+    changedFiles: [],
+    materialFiles: ['<story-files-changed>'],
+  }, 'a'.repeat(40)), 'RELATED_STORY_MATERIAL_DRIFT');
+  console.log(`${MARKER} POLICY: stable v1 bounded categories and canonical freshness classifications PASS`);
+}
+
+function runFixtureDuplicateIdentityCases(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-fixture-duplicate-identity-'));
+  const storyId = 'B-duplicate';
+  const fixturePath = 'cases.json';
+  const intentRef = `${storyId}:CHK-001:happy:0`;
+  const original = {
+    _id: 'base-case',
+    name: 'base case',
+    intentRef,
+    expect: true,
+  };
+  try {
+    write(root, fixturePath, JSON.stringify({ cases: [original] }, null, 2) + '\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', fixturePath]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed fixture']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+
+    const duplicateVariants: Array<[string, Array<Record<string, unknown>>]> = [
+      ['prepend duplicate _id', [{ _id: 'base-case', expect: false }, original]],
+      ['append duplicate _id', [original, { _id: 'base-case', expect: false }]],
+      ['reordered duplicate _id', [{ _id: 'other', intentRef }, original, { _id: 'base-case', expect: false }]],
+      ['cross-field id alias', [original, { id: 'base-case', expect: false }]],
+      ['cross-field name alias', [original, { name: 'base case', expect: false }]],
+    ];
+    for (const [label, cases] of duplicateVariants) {
+      write(root, fixturePath, JSON.stringify({ cases }, null, 2) + '\n');
+      git(root, ['add', fixturePath]);
+      git(root, [...COMMIT_ENV, 'commit', '-m', label]);
+      assert.equal(
+        fixtureCaseClosure(root, 'main', storyId, fixturePath, new Set([intentRef])),
+        false,
+        `${label} must fail closed before Map/digest comparison`,
+      );
+    }
+
+    git(root, ['checkout', 'main']);
+    write(root, fixturePath, JSON.stringify({
+      cases: [original, { id: 'base-case', expect: false }],
+    }, null, 2) + '\n');
+    git(root, ['add', fixturePath]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'duplicate identity in prior snapshot']);
+    git(root, ['checkout', '-B', 'story/duplicate-prior']);
+    write(root, fixturePath, JSON.stringify({ cases: [original] }, null, 2) + '\n');
+    git(root, ['add', fixturePath]);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'remove duplicate from current snapshot']);
+    assert.equal(
+      fixtureCaseClosure(root, 'main', storyId, fixturePath, new Set([intentRef])),
+      false,
+      'duplicate identity in the prior canonical set must fail closed',
+    );
+    console.log(`${MARKER} FIXTURE DUPLICATES: before/after canonical sets reject prepend/append/order and _id/id/name alias ambiguity`);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -533,9 +779,79 @@ function runGateUnchangedCase(): void {
   }
 }
 
+function runConcurrentCliReadOnlyCase(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-incremental-cli-readonly-'));
+  const storyId = 'B-readonly';
+  try {
+    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
+    write(root, 'lattice.config.json', JSON.stringify({
+      storyDir: '.lattice/story/actives',
+      workflow: { profile: 'balanced' },
+    }, null, 2) + '\n');
+    write(root, 'src/seed.ts', 'export const seed = true;\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed read-only CLI fixture']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    write(root, 'src/seed.ts', 'export const seed = false;\n');
+    git(root, ['add', 'src/seed.ts']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'story material']);
+    const store = new StoryStore(root);
+    store.writeStory(storyId, reviewStory(storyId, 1, ts(1)));
+    store.writeChecklist(storyId, { items: [] });
+    git(root, ['add', '.lattice/story']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'story metadata']);
+
+    const storyDir = store.storyDirPath(storyId);
+    const beforeStoryBytes = directoryBytes(storyDir);
+    const beforeVerdictBytes = directoryBytes(join(root, '.lattice/autopilot-verdicts'));
+    const beforeStatus = git(root, ['status', '--porcelain=v1']);
+    const beforeStory = JSON.stringify(store.readStory(storyId));
+    const command = [
+      JSON.stringify(process.execPath),
+      JSON.stringify(DIST_CLI_PATH),
+      '--root',
+      JSON.stringify(root),
+      'review_incremental_context',
+      JSON.stringify(JSON.stringify({ storyId, role: 'quality', json: true })),
+    ].join(' ');
+    const script = [
+      'set -eu',
+      ...Array.from({ length: 8 }, () => `${command} >/dev/null &`),
+      'wait',
+    ].join('\n');
+    execFileSync('/bin/sh', ['-c', script], {
+      cwd: root,
+      env: {
+        ...process.env,
+        LATTICE_PROJECT_ROOT: root,
+        LATTICE_ACTIVITY_SOURCE: 'codex',
+        LATTICE_SESSION_ID: 'incremental-readonly-concurrent',
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    assert.deepEqual(directoryBytes(storyDir), beforeStoryBytes, 'concurrent CLI calls preserve every Story artifact byte');
+    assert.deepEqual(
+      directoryBytes(join(root, '.lattice/autopilot-verdicts')),
+      beforeVerdictBytes,
+      'concurrent CLI calls create no receipts, host verdicts, floor, or quorum artifacts',
+    );
+    assert.equal(git(root, ['status', '--porcelain=v1']), beforeStatus, 'concurrent CLI calls preserve project filesystem status');
+    assert.equal(JSON.stringify(store.readStory(storyId)), beforeStory, 'concurrent CLI calls preserve phase and DONE outcome');
+    console.log(`${MARKER} CLI READ-ONLY: 8 concurrent built-CLI calls preserved Story/gate/verdict bytes and lifecycle state`);
+  } finally {
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function run(): void {
+  runPolicyCases();
+  runFixtureDuplicateIdentityCases();
   runIncrementalCases();
   runGateUnchangedCase();
+  runConcurrentCliReadOnlyCase();
   console.log(`\n${MARKER} PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across missing-round and invalid-binding fail-closed branches, with the helper proven to write nothing to the store (case d).`);
 }
 

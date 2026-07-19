@@ -1,0 +1,71 @@
+{
+  "storyId": "B-03ac",
+  "checkedAt": "2026-07-19T06:58:57.904Z",
+  "headHash": "b03a4c40a882e71f1bd6b6ace060c9fa61bc96a1",
+  "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+  "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4",
+  "reviewRound": "2026-07-19T06:38:01.826Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-4-incremental-eligibility-impact-policy",
+      "promise": "Version 1 permits incremental review only for no-material metadata drift and exactly bound pure Story fixture deltas; all unsupported or ambiguous impacts fail closed to full.",
+      "status": "verified",
+      "verifiedBy": "lattice-review-delivery: source inspection plus built-CLI and policy smoke",
+      "evidence": "Canonical Story 4 implementation record matches proofbound.impact-classification.v1; actual built CLI returned contextMode=full with FULL_DOCS_V1, FULL_MISSING_TRUSTED_PRIOR_PASS, and FULL_PRIVATE_IMPLEMENTATION_V1, while review-incremental-context-smoke passed bounded, unknown, rename, tamper, and duplicate-identity cases."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#incremental-baseline-and-envelope-admission",
+      "promise": "Only a same-lane signed PASS bound to a valid ReviewRun and exact Prompt Envelope can establish an incremental baseline, and shared pass/quorum admission rejects invalid incremental evidence.",
+      "status": "verified",
+      "verifiedBy": "lattice-review-delivery: envelope smoke, process-fact contract, and TEST evidence review",
+      "evidence": "prompt-full-context-envelope-smoke PASS; process-fact verifier registers runtime:incremental_review_eligibility_gate as L4 for review_run_start and ReviewRun/Prompt Envelope REVIEW/quorum admission; routine TEST validation passed review-run and quorum-submit smoke commands."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#safe-selection-and-budget",
+      "promise": "Safety eligibility precedes cost; eligible context uses SAFE_INCREMENTAL only when smaller and within budget, otherwise records FULL_CHEAPER_OR_EQUAL or INCREMENTAL_BUDGET_EXCEEDED, while correctness-required full stays full.",
+      "status": "verified",
+      "verifiedBy": "lattice-review-delivery: source inspection and prompt envelope smoke",
+      "evidence": "prompt-full-context-envelope-smoke PASS exercised SAFE_INCREMENTAL, FULL_CHEAPER_OR_EQUAL, budget violation, and reviewer escalation; implementation separates eligibilityDecision, selectionReason, and budgetViolation fields."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#read-only-advisory-command",
+      "promise": "review_incremental_context remains read-only, advisory, and gate-neutral.",
+      "status": "verified",
+      "verifiedBy": "lattice-review-delivery: current-worktree digest check and concurrent built-CLI smoke",
+      "evidence": "Current Story aggregate digest was identical before/after an actual built-CLI call; review-incremental-context-smoke reports 8 concurrent built-CLI calls preserved every Story/gate/verdict byte, git status, and lifecycle state."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-4-support-boundary",
+      "promise": "Story 4 does not claim active reviewer migration, provider observation, enforcement rollout, or final budget convergence from Stories 5 through 7.",
+      "status": "verified",
+      "verifiedBy": "lattice-review-delivery: documentation and delivered-scope inspection",
+      "evidence": "Canonical document explicitly limits Story 4 to v1 eligibility, assembly, audit, and admission semantics; diff contains no active reviewer role migration or provider/budget enforcement rollout."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Built CLI on B-03ac quality lane returned contextMode=full, impactPolicyVersion=proofbound.impact-classification.v1, 17 changed/impacted files, and stable FULL_DOCS_V1/FULL_MISSING_TRUSTED_PRIOR_PASS/FULL_PRIVATE_IMPLEMENTATION_V1 reason codes. review-incremental-context-smoke PASS covered bounded, unknown, rename, raw-hash, and duplicate fixture identity cases."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 and printed PASS, covering safe incremental selection, FULL_CHEAPER_OR_EQUAL, budget handling, complete bounded reviewBasis, and reasoned reviewer escalation."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node scripts/verify-process-fact-contract.mjs exited 0 and printed Process fact contract verified; it registered runtime:incremental_review_eligibility_gate as an L4 fact consumed by trusted review_run_start and Prompt Envelope REVIEW/quorum admission. Routine TEST evidence also passed review-run-smoke and quorum-submit-smoke."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Actual current-worktree read-only audit computed identical Story digest c16561ab... before and after review_incremental_context. The focused smoke exited 0 and reported 8 concurrent built-CLI calls preserved Story/gate/verdict bytes, git status, and lifecycle state."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS: the delivered CLI provides the documented fail-closed v1 choice, exposes auditable reasons, preserves read-only advisory behavior, binds authoritative review evidence, and states its intentionally narrow limits without claiming later-Story outcomes."
+  },
+  "_hash": "6b22905099a0ba18f7aa04fe73b63bc84d4b191eef66067c740884922545b699"
+}

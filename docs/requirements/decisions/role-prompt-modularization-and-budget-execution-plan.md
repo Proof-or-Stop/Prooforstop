@@ -322,6 +322,7 @@ interface PromptEnvelope {
   dispatchKind: 'story-dispatch' | 'review-run';
   reviewRunId?: string;
   reviewRound?: string;
+  lane?: string;
   createdAt: string;
   headHash: string;
   runtimeContractVersion: string;
@@ -339,6 +340,21 @@ interface PromptEnvelope {
   eligibilityDecision: 'full' | 'incremental';
   eligibilityDigest: string;
   freshnessClassification?: string;
+  impactPolicyVersion?: string;
+  eligibilityReasonCodes?: string[];
+  changedFilesDigest?: string;
+  impactedFilesDigest?: string;
+  reviewBasisDigest?: string;
+  incrementalContextDigest?: string;
+  taskSemanticDigest?: string;
+  selectionReason?: 'SAFETY_REQUIRES_FULL' | 'SAFE_INCREMENTAL'
+    | 'FULL_CHEAPER_OR_EQUAL' | 'INCREMENTAL_BUDGET_EXCEEDED'
+    | 'REVIEWER_REQUESTED_FULL';
+  fullContextBytes?: number;
+  incrementalContextBytes?: number;
+  escalatedToFull?: boolean;
+  escalationReason?: string;
+  budgetViolation?: 'incremental' | 'full';
   knownExecutionEnvironmentDigest: string;
   assemblerVersion: string;
   dispatchProtocolVersion: string;
@@ -347,6 +363,8 @@ interface PromptEnvelope {
   toolPolicyDigest?: string;
   systemInstructionDigest?: string;
   requestedModelId?: string;
+  dispatchPromptDigest?: string;
+  hostRenderIdentityDigest?: string;
   assembledPromptDigest: string;
   bytes: number;
   lines: number;
@@ -759,7 +777,7 @@ policy 必须被 registry 和 contract verifier 消费；handler 不能维护一
 | Role semantic contract | 是 | 是 | 审查职责或权限改变 |
 | Tool/command authority | 是 | 是 | 执行能力变化 |
 | Public API/schema/protocol | 是 | 是 | 影响闭包难证明 |
-| Private implementation | 依 impact policy | 可能 incremental | 可界定影响 |
+| Private implementation | 是（v1） | 是 | v1 尚不声称实现跨文件影响闭包 |
 | Metadata-only HEAD drift | 依据 freshness-reader | 通常否 | 无 material change |
 | Scope expansion | 是 | 是 | 验收边界改变 |
 | Incremental 大于等于 full | 否 | 选择 full | 成本优化 |
@@ -767,7 +785,17 @@ policy 必须被 registry 和 contract verifier 消费；handler 不能维护一
 
 #### 9.6 审计字段
 
-每次 review run 记录：
+每个 v1 Prompt Envelope 都记录 Runtime/Role/environment/assembler/dispatch/
+launcher/command 与最终 prompt 的绑定。只有经 Story 4 条件装配器生成的
+可信 review-run Envelope 才额外记录 eligibility 与 selection 审计面；
+story-dispatch Envelope、迁移前 legacy run，以及未走该条件装配路径的 full
+Envelope 不要求携带 Story 4 selection 字段。下例中的
+`impactPolicyVersion`、`eligibilityReasonCodes`、size/selection 字段属于
+Story 4 条件装配器的审计面；`reviewBasisDigest` 与
+`incrementalContextDigest` 仅在存在可信 prior pass 且成功构造 bounded
+reviewBasis 时出现。首次审查或缺少可信基线的 safety-full run 不伪造这两个
+字段。`budgetViolation` 与 `escalationReason` 是可选的非 null 字段：只有
+实际发生预算违规或升级时才出现，缺省时必须省略而不是写 `null`：
 
 ```json
 {
@@ -785,16 +813,22 @@ policy 必须被 registry 和 contract verifier 消费；handler 不能维护一
   "changedFilesDigest": "...",
   "impactedFilesDigest": "...",
   "incrementalContextDigest": "...",
+  "taskSemanticDigest": "...",
+  "selectionReason": "SAFE_INCREMENTAL",
+  "fullContextBytes": 120000,
+  "incrementalContextBytes": 24000,
   "envelopeId": "...",
   "reviewBasisDigest": "...",
-  "escalatedToFull": false,
-  "escalationReason": null
+  "escalatedToFull": false
 }
 ```
 
 reviewer pass、review run 和 receipt/quorum collector 必须校验
 `envelopeId`。缺字段的在途旧 pass 按第 12.6 节处理，不能静默视为
-新格式 incremental pass。
+新格式 incremental pass。迁移前没有 Prompt Envelope 的历史 run 只保留
+`legacy-full-context` 解释；它不能通过默认值升级为 incremental baseline。
+Story 4 只落地上述 v1 eligibility、装配与审计语义，不表示 Stories 5–7 的
+provider observation、enforce rollout 或预算收敛已经完成。
 
 ### 10. Legacy 角色迁移
 
@@ -1129,6 +1163,43 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
   Lattice lifecycle 的 DONE 证据为准。
 
 #### Story 4：Incremental eligibility 与 impact policy
+
+实现记录（B-03ac）：
+
+- v1 的机械边界只允许两类 incremental：未改变模型相关输入的
+  no-material/metadata-only drift，以及所有路径均由当前 Story `files.test`
+  声明且具有当前 `verificationIntent` 绑定的纯测试 fixture delta。
+- docs、私有实现、public API/schema/protocol、authority/permission、
+  command/gate policy、dependency/build、dynamic/parse failure、rename/delete、
+  未知影响或不完整 fixture closure 全部 fail closed 到 full。扩大支持面必须升级
+  `proofbound.impact-classification.v1` 并同步 process-fact verifier。
+- prior baseline 必须是同 lane、签名有效的 PASS，且绑定有效 ReviewRun 和精确
+  Prompt Envelope；legacy/full-context-only、wrong-lane、缺字段或损坏证据不能
+  成为 incremental baseline。
+- Prompt Envelope 额外绑定 model-relevant TaskContext digest、canonical
+  freshness classification、changed/impacted file digests、reviewBasis digest 和
+  stable reason codes。HEAD/material/storyFiles 仍由 ReviewRun/Envelope 独立签名，
+  不由 Host 从 raw hash 自行解释。
+- 安全 eligibility 先于成本。安全允许 incremental 后，只有最终 incremental
+  bytes 小于 full 且未超 incremental budget 时才选择 `SAFE_INCREMENTAL`；
+  否则分别记录 `FULL_CHEAPER_OR_EQUAL` 或 `INCREMENTAL_BUDGET_EXCEEDED`。
+  correctness-required full 即使超预算仍保持 full，并单独记录
+  `budgetViolation=full`。
+- `review_incremental_context` 仍严格只读、advisory 和 gate-neutral；真正的
+  authority 位于 `review_run_start` 的可信装配及
+  `assertCurrentReviewRunForEvidence` / `verifyReviewRunPromptEnvelope` /
+  `collectReviewerEvidenceState` 的共享 admission 链。
+
+实现证据命令：
+
+```bash
+npm --prefix packages/main run build
+node packages/main/dist/tasks/review-incremental-context-smoke.js
+node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js
+node packages/main/dist/tasks/review-run-smoke.js
+node packages/main/dist/tasks/quorum-submit-smoke.js
+node scripts/verify-process-fact-contract.mjs
+```
 
 目标：
 

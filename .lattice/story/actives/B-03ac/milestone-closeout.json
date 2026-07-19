@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-03ac",
+  "phase": "TEST",
+  "generatedAt": "2026-07-19T07:03:41.952Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "86f362e5375809059b30640b5b8b4a44e15117135f5c97ba8f719ac13d127925",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:3c875e6d0a4f9108df260aeae7975d79353f67f10a6cfb159536dd1719dc76b6"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "467cd049d818d027e5d29326b1626e7d1da9b463",
+    "materialHash": "a6581fb0d9288bb839423b843223f93659f750eabb0db261290dd70d85a9a217",
+    "storyFilesHash": "0230878a543ea461c98ef797dc6e9397d0df190eead4744b18dcea9eca7938f4"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Incremental eligibility and impact classification are versioned, mechanical, and fail closed.",
+      "acceptance": "Supported bounded changes receive stable incremental reason codes while every unknown or forced-full class deterministically selects full context.",
+      "evidence": [
+        "eligibility-trusted-bounded-incremental [pass/logic_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Policy smoke proves only trusted eligibility paths are accepted and legacy unsigned runs fail closed.",
+        "eligibility-supported-fixture-closure [pass/logic_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Pure fixture classification requires files.test declaration plus a nonempty Story intentRef binding.",
+        "eligibility-freshness-reader-binding [pass/manual_transcript] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=CLI-shaped smoke transcript shows canonical metadata-only and related-story freshness classes, with no raw-hash reinterpretation.",
+        "eligibility-forced-full-contract-policy [pass/logic_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Table-driven forced-full cases cover docs, public contract, authority, command/gate, dependency/build and private implementation.",
+        "eligibility-unknown-fails-closed [pass/logic_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Unknown paths and untrusted legacy PASS/ReviewRun input select full with stable codes.",
+        "eligibility-rename-crossfile-closure [pass/logic_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Rename-aware old/new paths are retained and R status selects FULL_UNSUPPORTED_RENAME.",
+        "eligibility-caller-cannot-force-incremental [pass/manual_transcript] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Executable advisory path exposes no caller force/contextMode input and deterministically emits authoritative full fallback for untrusted evidence.",
+        "eligibility-raw-hash-forgery-rejected [pass/logic_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Canonical freshness reader, signed run verification, envelope integrity and no-signal handling precede eligibility.",
+        "impact-policy-registry-single-source [pass/logic_test] node scripts/verify-process-fact-contract.mjs file=scripts/verify-process-fact-contract.mjs note=Process-fact verifier proves the versioned impact/freshness eligibility fact is registered as one L4 gate contract."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Incremental reviewBasis is bounded, authoritative, and selected only when cheaper and safe.",
+      "acceptance": "The assembler builds the specified delta and selects full with FULL_CHEAPER_OR_EQUAL when incremental size is not lower, without using budget pressure to override safety.",
+      "evidence": [
+        "review-basis-bounded-current-complete [pass/integration_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Final-HEAD integration smoke passed and exercises bounded reviewBasis assembly together with conditional Prompt Envelope selection.",
+        "context-mode-safe-then-cheapest [pass/logic_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Conditional assembly proves safety precedes final byte comparison and SAFE_INCREMENTAL only wins when smaller.",
+        "review-basis-authoritative-read-through [pass/manual_transcript] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Executable prompt smoke preserves repository-relative authoritativeReferences inside the bound basis.",
+        "full-cheaper-or-equal-selected [pass/logic_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Oversized bounded basis selects full with exact FULL_CHEAPER_OR_EQUAL reason after safety succeeds.",
+        "review-basis-change-deltas-exact [pass/logic_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Versioned basis validator retains stable finding and intent identity/state fields.",
+        "reviewer-basis-incomplete-escalates [pass/manual_transcript] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Reviewer escalation case mints full mode with REVIEWER_REQUESTED_FULL and a recorded reason.",
+        "review-basis-stale-substitution-rejected [pass/logic_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Basis is constructed from trusted current store/git facts and exact schema rejects caller-authored unknown fields.",
+        "review-basis-omission-fails-closed [pass/logic_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Missing basis on otherwise eligible conditional assembly selects SAFETY_REQUIRES_FULL.",
+        "cost-never-overrides-safety [pass/logic_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Public-contract forced full remains full even under budget pressure; full budget violation cannot select incremental."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Incremental Prompt Envelopes are bound to ReviewRun and pass admissibility.",
+      "acceptance": "A missing, stale, mismatched, or mechanically ineligible incremental envelope cannot satisfy review-pass, receipt, assurance-floor, or quorum consumers.",
+      "evidence": [
+        "incremental-envelope-reviewrun-binding [pass/integration_test] node packages/main/dist/tasks/quorum-submit-smoke.js file=packages/main/src/tasks/quorum-submit-smoke.ts note=Final-HEAD 39-check integration smoke passed and exercises ReviewRun-bound incremental envelopes through shared pass and quorum admissibility.",
+        "incremental-pass-chain-admissible [pass/manual_transcript] node packages/main/dist/tasks/quorum-submit-smoke.js file=packages/main/src/tasks/quorum-submit-smoke.ts note=39-check executable quorum transcript proves REVIEW and quorum consume shared envelope admissibility, including incremental runs.",
+        "full-escalation-mints-new-binding [pass/manual_transcript] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Reviewer-requested and mechanical escalation produce full envelopes with new bound identity and explicit reason.",
+        "legacy-pass-full-context-only [pass/logic_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Unsigned or envelope-less legacy pass/run input cannot establish an incremental baseline and selects full.",
+        "nonlatest-pass-material-scope-rules-preserved [pass/logic_test] node packages/main/dist/tasks/quorum-submit-smoke.js file=packages/main/src/tasks/quorum-submit-smoke.ts note=Stale older pass-envelope issues are superseded only when the same lane has newer valid evidence; stale material and findings remain enforced.",
+        "incremental-envelope-required-fields-total [pass/logic_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Exact PromptEnvelope schema requires total incremental policy, freshness, files, basis, task-semantic and selection fields.",
+        "incremental-envelope-tamper-chain-rejected [pass/logic_test] node packages/main/dist/tasks/quorum-submit-smoke.js file=packages/main/src/tasks/quorum-submit-smoke.ts note=Replay/tamper tests prove mutated envelopes invalidate machine REVIEW and quorum through the shared verifier.",
+        "served-wrong-mode-proof-invalid [pass/manual_transcript] node packages/main/dist/tasks/quorum-submit-smoke.js file=packages/main/src/tasks/quorum-submit-smoke.ts note=Gate recomputes authoritative eligibility and rejects incremental mode whenever recomputation requires full; no pass/quorum credit survives.",
+        "untrusted-caller-envelope-authority-blocked [pass/manual_transcript] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Strict schema and trusted review_run_start assembly reject caller-controlled unknown envelope fields and cross-role substitution."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "The existing advisory command stays read-only while full escalation and budget reporting are proven.",
+      "acceptance": "Smoke and adversarial tests show the command does not mutate gates, reviewer escalation is honored, and budget violations remain distinct from correctness mode selection.",
+      "evidence": [
+        "incremental-context-readonly-gate-neutral [pass/manual_transcript] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Repeated 8x per-lane advisory calls are deterministic and preserve byte-identical Story/gate inputs and outcomes.",
+        "reviewer-authoritative-read-and-escalate [pass/manual_transcript] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Bound basis carries repository-relative authoritative references and reasoned reviewer escalation mints full.",
+        "budget-observation-separated-from-correctness [pass/logic_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Measured full/incremental bytes and budgetViolation fields are independent of safety eligibility.",
+        "oversize-incremental-forces-full [pass/logic_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=One-byte incremental budget selects full with INCREMENTAL_BUDGET_EXCEEDED and no truncation.",
+        "oversize-full-remains-correctness-path [pass/manual_transcript] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Forced-full public-contract case stays full with budgetViolation=full under one-byte full budget.",
+        "full-cheaper-readonly-regression [pass/manual_transcript] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Oversized eligible basis selects FULL_CHEAPER_OR_EQUAL; advisory smoke separately proves repeated calls are gate-neutral.",
+        "budget-gaming-cannot-change-mode [pass/logic_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Budgets can only escalate incremental or record full violation; they never convert safety-required full into incremental.",
+        "readonly-command-cannot-smuggle-evidence [pass/manual_transcript] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Read-only API has no evidence-write arguments and store/gate snapshots remain identical across repeated calls.",
+        "unsupported-paths-and-stale-evidence-full [pass/manual_transcript] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Executable campaign covers untrusted legacy, rename, docs, implementation, contract, authority, policy, dependency and unknown forced-full classes."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
