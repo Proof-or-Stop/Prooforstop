@@ -1,6 +1,6 @@
 {
   "storyId": "B-955c",
-  "checkedAt": "2026-07-19T00:31:29.313Z",
+  "checkedAt": "2026-07-19T02:04:31.816Z",
   "features": [
     {
       "feature": "Define Evidence Environment as the host-neutral execution and observation boundary beneath the existing Evidence Platform.",
@@ -73,7 +73,7 @@
       "source": "decisions:decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
     },
     {
-      "feature": "Bind command identity to command, ordered args, cwd, effective process environment, resolved executable, actual shell identity, and timeout.",
+      "feature": "Bind command identity to command, ordered args, cwd, effective process environment, resolved target executable, actual shell executable identity, and timeout.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
@@ -87,14 +87,14 @@
       "source": "decisions:decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
     },
     {
-      "feature": "Require verifier-owned producer attestation and policy-owned signer, key, session, and revocation checks when independence or external trust is required.",
-      "covered_by": "CHK-002",
+      "feature": "Fail closed for external or independence claims until a verifier-owned pinned producer, session, key, and revocation registry exists; caller callbacks and provider labels are not trust roots.",
+      "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
     },
     {
-      "feature": "Constrain cache reuse to the complete Gate-relevant identity and default temporal or unspecified stochastic observations to non-cacheable.",
+      "feature": "Constrain cache reuse to complete Gate-relevant identity and default temporal or unspecified stochastic observations to non-cacheable.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
@@ -108,7 +108,7 @@
       "source": "decisions:decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
     },
     {
-      "feature": "Resolve and bind actual shell execution, including the Windows implicit-shell gap, rather than copying declared shell configuration.",
+      "feature": "Resolve and bind actual shell execution, including Windows implicit-shell identity, while stating that richer shell posture remains future schema work.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
@@ -164,7 +164,7 @@
       "source": "decisions:decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
     },
     {
-      "feature": "Demonstrate host substitution through an actual lifecycle Gate and reject caller-renamed, same-key, same-session, or otherwise non-independent quorum inputs.",
+      "feature": "Demonstrate host substitution through the existing DONE_REQUIRED Gate and return distinct_host_quorum_unsupported for every independence request.",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
@@ -178,14 +178,14 @@
       "source": "decisions:decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
     },
     {
-      "feature": "Name the manuscript artifact path or version and bind its claims to an implementation commit or release digest.",
+      "feature": "Keep external-manuscript M6 explicitly open until a named artifact version is bound to the final implementation commit or release digest.",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
     },
     {
-      "feature": "Enforce the Level A through D claim ladder and avoid inferring support for unimplemented third-party environments.",
+      "feature": "Enforce the Level A through D claim ladder, allowing repository Level C evidence while keeping the unbound external manuscript at Level B.",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
@@ -262,8 +262,8 @@
       "source": "decisions:decisions/testing-infra.md"
     },
     {
-      "feature": "Require distinct pinned keys, fresh common material, strict bundle shape, and fail-closed rejection for a claimed cross-host quorum.",
-      "covered_by": "CHK-006",
+      "feature": "Require distinct pinned keys, fresh common material, strict bundle shape, and fail-closed rejection before any future cross-host quorum can be supported.",
+      "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/tier-c-crosshost-quorum-threat-model.md"
@@ -441,7 +441,7 @@
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "95d1457e3095189d144d728884a0f4d9a78e5c2544bb461dc8171ce00ce2242f",
+  "reviewRound": "2026-07-19T01:54:45.274Z",
+  "_hash": "b0d9067093e04772cbd8f41fd2d1b730243e48be4db51b8ed89edbc3556bdf1d",
   "openQuestions": []
 }

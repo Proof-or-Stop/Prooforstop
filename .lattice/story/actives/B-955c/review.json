@@ -215,6 +215,24 @@
         }
       ],
       "_hash": "d9bf89fb03515085464b3984766b9763a671227f53a1d5ecb5b2d81ae4aa828b"
+    },
+    {
+      "timestamp": "2026-07-19T02:02:49.573Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when Define the normative Evidence Environment architecture and ownership boundary + Implement the generic Environment Descriptor, Invocation Request, and Receipt contracts are performed simultaneously?)"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (none) does not match the current review round (2026-07-19T01:54:45.274Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "af7538dd8b56ee09ebbfebf5e582cbb518bb65c58811926b9858382c6622539d"
     }
   ]
 }

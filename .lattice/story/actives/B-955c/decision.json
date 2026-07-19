@@ -1,76 +1,76 @@
 {
   "principles": [
-    "Agent proposes, Environment observes, Proof Admissibility evaluates, Gate decides",
-    "身份绑定与权限分离优先于 Adapter 数量",
-    "新增抽象必须复用单一 Evidence Platform 和现有 Gate ownership"
+    "Agent proposes, Environment observes, Proof Admissibility evaluates, and Gate decides.",
+    "Identity binding and authority separation take priority over adapter count.",
+    "The abstraction must reuse the single Evidence Platform and existing Gate ownership."
   ],
   "drivers": [
-    "论文需要可由实现证据支撑的 host-neutral 跨领域抽象",
-    "当前 Pack 与 Proof Admissibility 已有可复用骨架",
-    "任意命令执行与伪造 producer 是最高安全风险"
+    "The paper needs a host-neutral, cross-domain abstraction backed by implementation evidence.",
+    "The existing Pack and Proof Admissibility framework provides a reusable foundation.",
+    "Arbitrary command execution and forged producer identity are the highest risks."
   ],
   "options": [
     {
-      "name": "A: 核心 EEA 契约加两个正交参考路径并接入现有 Proof Admissibility",
+      "name": "A: Core EEA contract, two orthogonal reference paths, and Proof Admissibility integration",
       "pros": [
-        "覆盖 M0-M6 的最小可证闭环",
-        "复用现有 registry 与 Gate consumer",
-        "论文声明可校准到实际实现"
+        "Provides the smallest evidence-backed M0-M5 loop.",
+        "Reuses the existing registry and lifecycle consumer.",
+        "Keeps paper claims calibrated to implementation."
       ],
       "cons": [
-        "需要协调 Pack、proof surface 与 process-fact 多处契约",
-        "本 Story 变更面较大"
+        "Coordinates Pack, proof-surface, process-fact, and validation contracts.",
+        "Touches several security-sensitive files."
       ]
     },
     {
-      "name": "B: 只写通用 TypeScript Adapter 接口和文档",
+      "name": "B: TypeScript adapter interface and documentation only",
       "pros": [
-        "实现快",
-        "改动小"
+        "Small implementation.",
+        "Low immediate change cost."
       ],
       "cons": [
-        "只是普通 Adapter Pattern",
-        "没有 Gate 消费证据，无法支撑论文核心声明"
+        "Would be only a conventional Adapter Pattern.",
+        "Would lack lifecycle Gate consumption evidence."
       ]
     },
     {
-      "name": "C: 同时实现多个领域 Adapter",
+      "name": "C: Implement several domain adapters now",
       "pros": [
-        "演示丰富"
+        "Broader demonstration set."
       ],
       "cons": [
-        "超出范围且会制造未验证的领域正确性声明",
-        "安全和维护成本过高"
+        "Exceeds scope and creates unverified domain-correctness claims.",
+        "Carries unacceptable security and maintenance cost."
       ]
     }
   ],
-  "chosen": "A: 核心 EEA 契约加两个正交参考路径并接入现有 Proof Admissibility",
-  "rationale": "A 是唯一同时提供身份绑定、权限分离、host-substitution 和真实 Gate 消费证据的最小闭环；B 不足以支撑理论贡献，C 超出本 Story 授权。",
+  "chosen": "A: Core EEA contract, two orthogonal reference paths, and Proof Admissibility integration",
+  "rationale": "Option A is the only minimum loop that combines identity binding, authority separation, host-substitution semantics, and real Gate consumption. Option B cannot support the paper contribution, while option C exceeds the authorized scope.",
   "preMortem": [
     {
-      "scenario": "Adapter 变成任意命令执行入口",
-      "trigger": "Pack commandSpec 被直接执行或 shell 参数未经过 policy allowlist",
-      "consequence": "仓库内声明获得 RCE 能力",
-      "mitigation": "MVP 将 Pack command spec 保持 inert，只接受 policy-authorized executor 回传的 receipt，并对 receipt-only 含 command 数据 fail closed"
+      "scenario": "The adapter becomes an arbitrary command endpoint.",
+      "trigger": "A Pack command specification executes directly or shell input bypasses the configured allowlist.",
+      "consequence": "Repository declarations obtain remote-code-execution capability.",
+      "mitigation": "Keep Pack command declarations inert, accept only receipts from the policy-authorized executor, and reject command data in receipt-only adapters."
     },
     {
-      "scenario": "host label 被伪造成独立 quorum",
-      "trigger": "Gate 把 caller-provided hostId/provider 当成 producer attestation",
-      "consequence": "单一 Agent 自证为多 Host",
-      "mitigation": "等价策略排除品牌字段；独立性策略只接受 verifier-owned key/session attestation"
+      "scenario": "A host label is forged into an independent quorum.",
+      "trigger": "The Gate treats caller-provided host or provider metadata as producer attestation.",
+      "consequence": "One agent self-certifies as multiple independent hosts.",
+      "mitigation": "Exclude provider brand from equivalence semantics and keep distinct-host quorum unsupported until a pinned cryptographic producer registry exists."
     },
     {
-      "scenario": "EEA 绕过 Evidence Platform 直接推进 Story 或 Release",
-      "trigger": "Adapter API 暴露 lifecycle mutation 或 completion flag 被消费",
-      "consequence": "Proof-or-Stop authority separation 失效",
-      "mitigation": "契约无 mutation API，拒绝 done/productionReady 字段，Gate 只消费 Proof Admissibility 结果"
+      "scenario": "EEA bypasses the Evidence Platform and advances lifecycle state.",
+      "trigger": "An adapter API exposes lifecycle mutation or a completion flag is consumed as authority.",
+      "consequence": "Proof-or-Stop authority separation fails.",
+      "mitigation": "Expose no lifecycle mutation API, reject completion fields, and let only Proof Admissibility plus existing Gates decide progression."
     },
     {
-      "scenario": "论文把目标 Adapter 写成当前支持",
-      "trigger": "示例工具清单与实现矩阵未分开",
-      "consequence": "论文 overclaim，审计无法复现",
-      "mitigation": "维护 current/target support matrix，并将声明绑定到 smoke、registry 和 Gate evidence"
+      "scenario": "The paper presents target adapters as current support.",
+      "trigger": "Examples and the implementation support matrix are not separated.",
+      "consequence": "The paper overclaims capability that cannot be reproduced.",
+      "mitigation": "Maintain explicit current-versus-target support and bind every current claim to tests and Gate evidence."
     }
   ],
-  "timestamp": "2026-07-19T00:26:04.950Z"
+  "timestamp": "2026-07-19T02:02:30.344Z"
 }

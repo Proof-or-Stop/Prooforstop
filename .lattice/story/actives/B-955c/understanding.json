@@ -1,20 +1,20 @@
 {
-  "task": "实现 Proof-or-Stop Evidence Environment Adapter 通用契约、参考路径、可采性与 Gate 集成，并交付可审计论文表述",
-  "outcome": "用户运行 npm --prefix packages/main run test:evidence-environment-adapter 后看到 evidence environment adapter smoke passed；文档明确说明 Proof-or-Stop 已实现通用 EEA 契约、local-command 与 Quantum receipt-only 参考路径及 Gate 消费证据，但未宣称已支持 Lean、Rosetta、AlphaFold 或任意外部环境。",
+  "task": "Implement the Proof-or-Stop Evidence Environment Adapter contract, reference paths, admissibility integration, lifecycle Gate consumption, and an auditable paper-facing description.",
+  "outcome": "The user runs npm --prefix packages/main run test:evidence-environment-adapter and sees evidence environment adapter smoke passed. Documentation states that Proof-or-Stop implements the generic EEA contract, code-runtime local receipt projection, Quantum receipt-only projection, and DONE_REQUIRED Gate consumption, while Lean, Rosetta, AlphaFold, and other external environments remain integration targets.",
   "facts": [
-    "现有 Proof Admissibility 已拥有 proof-surface、claim、consumer 与 producer-boundary 语义",
-    "ClaimAdmissibilityPack 已声明 code-runtime 与 Quantum verifier adapter，Quantum 是 read-receipt-only",
-    "execute-local 参考路径复用 validation-executor 产生的 DONE-required receipt 与 command-spec，不新增 launcher；EEA 只做适配和规范化",
-    "Gate 集成复用 done-required-evidence proof surface、DONE_REQUIRED consumer 与 proofAdmissibilityBlockingReason，不增加平行 lifecycle gate",
-    "已审计执行计划定义 M0-M6 与六个安全不变量"
+    "Proof Admissibility already owns proof-surface, claim, consumer, and producer-boundary semantics.",
+    "ClaimAdmissibilityPack already declares code-runtime and Quantum verifier adapters; Quantum is receipt-only.",
+    "The local reference path reuses DONE-required receipts and command identity from the policy-authorized validation executor; it adds no launcher.",
+    "Gate integration reuses the done-required-evidence proof surface and DONE_REQUIRED consumer rather than creating a parallel lifecycle Gate.",
+    "The audited execution plan defines milestones M0 through M6 and six safety invariants."
   ],
   "constraints": [
-    "Adapter 只能产生观察/receipt，不能决定 Done 或改变 lifecycle",
-    "所有 Gate 消费事实必须结构化登记到 process-fact registry",
-    "caller-provided host/provider 字符串不能伪造独立生产者或 quorum",
-    "external/remote receipt 缺少可验证 attestation 必须 fail closed",
-    "保持现有 code-runtime 和 Quantum Pack 向后兼容",
-    "不实现或宣称 Lean、Rosetta、AlphaFold、PINN solver 等目标 Adapter"
+    "An adapter may produce observations or receipts but cannot decide Done or mutate lifecycle state.",
+    "Every Gate-consumed fact must be registered in the process-fact registry.",
+    "Caller-provided host or provider strings cannot establish independent producers or quorum.",
+    "External or remote receipts without verifiable attestation must fail closed; distinct-host quorum remains unsupported until a pinned cryptographic registry exists.",
+    "Existing code-runtime and Quantum Pack behavior must remain backward compatible.",
+    "Do not implement or claim Lean, Rosetta, AlphaFold, PINN solver, or other target adapters."
   ],
   "unknowns": [],
   "touchpoints": [
@@ -29,5 +29,5 @@
     "docs/evidence/evidence-platform-architecture.md",
     "README.md"
   ],
-  "timestamp": "2026-07-19T00:26:25.681Z"
+  "timestamp": "2026-07-19T02:02:29.570Z"
 }
