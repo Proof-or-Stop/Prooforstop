@@ -187,9 +187,9 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T02:07:37.953Z",
-      "endTime": "2026-07-19T02:53:22.286Z",
+      "endTime": "2026-07-19T03:03:58.749Z",
       "verificationIntent": {
         "happy": [
           {
@@ -235,14 +235,14 @@
         {
           "intentRef": "isolated-append-only-experiment-ledger",
           "kind": "integration_test",
-          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
-          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "file": "experiments/role-prompt-ab-replay/analyze.mjs",
+          "command": "node experiments/role-prompt-ab-replay/analyze.mjs --ledger=runtime/owner-fourth.jsonl --json",
           "result": "pass",
-          "note": "Owner rerun verifies append-only experiment records under a direct runtime JSONL path, live-owner mutual exclusion and serialized chain writes.",
-          "headHash": "33a8d47d0f766d9993acf3d16efa2fd01d2730b7",
-          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
-          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
-          "timestamp": "2026-07-19T02:53:22.597Z"
+          "note": "Owner produced 36 attempts/72 chained rows; ledger EVALUABLE, gateEvidence=false, and all output remains experiment runtime only.",
+          "headHash": "4586391c1f8c2aebcbf9c543cdfd7d10e56bc05e",
+          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
+          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
+          "timestamp": "2026-07-19T03:03:59.030Z"
         },
         {
           "intentRef": "usage-availability-retry-and-summary-semantics",
@@ -250,11 +250,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun proves dead stale lock recovery, live lock exclusion, distinct crash/retry identities, terminal reconciliation and unavailable-not-zero.",
-          "headHash": "33a8d47d0f766d9993acf3d16efa2fd01d2730b7",
-          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
-          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
-          "timestamp": "2026-07-19T02:53:22.883Z"
+          "note": "Owner rerun covers retries/locks/terminal reconciliation; empty and wholly unavailable summaries return null/unavailable with stable reasons, never fabricated zero.",
+          "headHash": "4586391c1f8c2aebcbf9c543cdfd7d10e56bc05e",
+          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
+          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
+          "timestamp": "2026-07-19T03:03:59.269Z"
         },
         {
           "intentRef": "experiment-ledger-non-authoritative-and-private",
@@ -262,11 +262,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun rejects authority/privacy/schema attacks and proves runtime parent replacement leaves the external directory empty.",
-          "headHash": "33a8d47d0f766d9993acf3d16efa2fd01d2730b7",
-          "materialHash": "40ea86459c9ef77fdc528dbb78bb9b20ee72da80069617237ceabdf0b35e1c40",
-          "storyFilesHash": "5bddd6bc741f024011ead31b1a802e69bd433aaca8e9a3ab3cd06f12fffb1889",
-          "timestamp": "2026-07-19T02:53:23.103Z"
+          "note": "Owner rerun rejects privacy/authority/schema attacks and available assembledPromptTokens including zero unless bound by prompt digest and reconstruction evidence.",
+          "headHash": "4586391c1f8c2aebcbf9c543cdfd7d10e56bc05e",
+          "materialHash": "eb97049393d8cd926a4dd63d8123196a24cb7db2552d075478704835199b4b16",
+          "storyFilesHash": "b7267e9a8b31f0cc574885a9737a9f70f46d17ea22496da684be98ff372f2267",
+          "timestamp": "2026-07-19T03:03:59.733Z"
         }
       ]
     },
@@ -638,6 +638,16 @@
       "timestamp": "2026-07-19T03:03:52.707Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner accepted f8c1b2c73a after independent 49-check isolated-evidence, ledger analysis and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T03:03:58.749Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
       "action": "update",
       "from": "in_progress",
       "to": "done",
