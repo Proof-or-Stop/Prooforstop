@@ -9,6 +9,7 @@ import {
   DONE_REQUIRED_EVIDENCE_SCHEMA,
   DONE_REQUIRED_EVIDENCE_VERSION,
   buildDoneRequiredCommandSpecEnvelope,
+  buildDoneRequiredExecutionIdentity,
   evaluateDoneRequiredEvidence,
   resolveDoneRequiredPolicy,
 } from '../core/done-required-validation.js';
@@ -104,6 +105,11 @@ function writeDoneEvidence(root: string, store: StoryStore): DoneRequiredEvidenc
   const policy = resolveDoneRequiredPolicy(root);
   const [requiredCommand] = policy.commands;
   assert.ok(requiredCommand, 'freshness smoke requires one DONE-required command');
+  const [commandIdentity] = buildDoneRequiredExecutionIdentity({
+    projectRoot: root,
+    policy,
+  }).commands;
+  assert.ok(commandIdentity, 'freshness smoke requires canonical DONE execution identity');
   const h = hashes(root);
   const now = new Date().toISOString();
   const executedCommand = {
@@ -124,6 +130,9 @@ function writeDoneEvidence(root: string, store: StoryStore): DoneRequiredEvidenc
     outputTail: '',
     startedAt: now,
     endedAt: now,
+    effectiveEnvironmentDigest: commandIdentity.effectiveEnvironmentDigest,
+    executableDigest: commandIdentity.executableDigest,
+    shellExecutableDigest: commandIdentity.shellExecutableDigest ?? null,
     headHash: h.headHash,
     materialHash: h.materialHash,
     ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),

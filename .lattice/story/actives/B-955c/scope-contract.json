@@ -101,10 +101,26 @@
       "phase": "DEV",
       "headHash": "520786a7d764ab1b0a8361f197cfdeaea0793043",
       "materialHash": "21e0f09eeb4901a614703ee31f245eda8d4d30696ccaa60801fdf2fff5e4fd10"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Formal validation exposed a legacy synthetic DONE receipt; freshness smoke must use the canonical production execution identity helper",
+      "timestamp": "2026-07-19T02:18:50.921Z",
+      "paths": [
+        "packages/main/src/tasks/done-required-freshness-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/done-required-freshness-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e7685b4bb3d58aa56099b465b8b1982ec4737b81",
+      "materialHash": "b0e5c1f7e4bad34dcca2a7947383e35ba09acdce0d7589acf5a52543a1695037"
     }
   ],
   "createdAt": "2026-07-19T00:32:46.036Z",
-  "updatedAt": "2026-07-19T01:24:53.793Z",
+  "updatedAt": "2026-07-19T02:18:50.921Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -132,6 +148,7 @@
     "packages/main/src/core/done-required-validation.ts,packages/main/src/core/validation-types.ts,packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/core/done-required-validation.ts,packages/main/src/core/validation-types.ts,packages/main/src/tasks/done-required-validation-smoke.ts",
     "packages/main/src/core/validation-evidence-reuse.ts,packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-evidence-reuse.ts,packages/main/src/core/validation-executor.ts",
     "packages/main/src/core/validation-evidence-reuse.ts": "packages/main/src/core/validation-evidence-reuse.ts",
-    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts"
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/tasks/done-required-freshness-smoke.ts": "packages/main/src/tasks/done-required-freshness-smoke.ts"
   }
 }
