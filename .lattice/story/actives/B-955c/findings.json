@@ -195,7 +195,7 @@
       "desc": "packages/main/src/core/evidence/environment-contract.ts:924-966 [high] F-006 remains bypassable: quorum deduplicates lineageId/keyId/sessionId but never producerId. Repro against commit b31b29b522 build: two resolver-verified identities with the same producerId=\"same-host\" and distinct lineage/key/session values produce {independent:true,reasons:[]}. WHY: CHK-006 explicitly requires same-producer inputs to fail closed; a producer able to rotate or mint lineage/key/session identifiers can still count twice. Track producerId in the independence set (and add the exact same-producer/distinct-other-identities regression), or define and mechanically enforce a stronger canonical producer principal supplied by the trusted resolver.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T01:14:07.096Z",
@@ -203,7 +203,11 @@
       "reviewRunId": "B-955c:RR-006",
       "_hash": "4440fec56e45fa92532ec0eaf0f1d8cda0d3817adb4fb53b737c3ea50b5d379e",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: prior quorum omitted producerId deduplication, allowing same producerId with distinct lineage/key/session values. Root cause: incomplete independence dimensions combined with an untrusted resolver. Fix: selected the safe unsupported branch: no producer identity tuple is accepted at all without a pinned registry; every distinct-host quorum is independent=false, repeated opaque principal references additionally return same_producer_not_independent. Regression injects the same producerId with distinct lineage/key/session callback rows and still receives distinct_host_quorum_unsupported; repeated principal regression also fails; EEA smoke PASS at c0c3eeddde.",
+      "resolvedAt": "2026-07-19T01:28:52.364Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-955c:F-012",
