@@ -23,6 +23,7 @@ import {
 import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js';
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
 import { resetSessionIdForTest, resolveSessionIdentity } from '../core/owner-session.js';
+import { storyRuntimeLockPath } from '../core/validation-execution-lock.js';
 import { computePromptEnvelopeId } from '../core/prompt-envelope.js';
 import { PROMPT_ENVELOPE_ROLLOUT_VERSION } from '../core/prompt-role-contract-registry.js';
 import { readPromptRegistry, renderPromptEntryForHost, type PromptHost } from '../core/prompt-registry.js';
@@ -440,7 +441,14 @@ try {
     try {
       const storyDirRel = '.lattice/story/actives';
       const storyDir = join(lockFixture, storyDirRel, STORY_ID);
-      const lockDir = join(storyDir, '.process-events-append.lock');
+      // B-d877 R3 FIX B: defaultAuditWriter now serializes the append on the
+      // RELOCATED shared process-event lock under the gitignored
+      // `.lattice/locks/process-events/` prefix — NOT the old in-story
+      // `<storyDir>/.process-events-append.lock` (whose committed-then-deleted
+      // holder.json dirtied the tree). Pre-create the relocated lock so the writer
+      // must block on it; the invariant (honor the shared append lock) is unchanged,
+      // only the canonical lock location moved.
+      const lockDir = storyRuntimeLockPath(lockFixture, 'process-events', STORY_ID, 'process-events-append');
       mkdirSync(lockDir, { recursive: true });
       write(lockFixture, 'invoke-audit-writer.mjs', [
         `import { defaultAuditWriter } from ${JSON.stringify(DIST_DIRTY_GATE_POLICY_PATH)};`,

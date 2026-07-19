@@ -174,7 +174,7 @@ const devStartHint: HintFn = (ctx) => {
 };
 
 const devFinishHint: HintFn = (ctx) => {
-  return `→ Worktree 已合并回本地 main。可以开始下一个 story；如需远端发布，先由人类运行 lattice release_approve_push --confirm，再手动 git push origin main`;
+  return `→ Story 已推进到 REVIEW（DEV→REVIEW），worktree 保留未合并。下一步：运行 reviewers（review_run_start / review_pass_set / finding_add），审阅通过后再 story_advance 到 TEST`;
 };
 
 const storyDiscardHint: HintFn = (ctx) => {

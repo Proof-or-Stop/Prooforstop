@@ -41,11 +41,12 @@
 
 import { execFileSync } from 'child_process';
 import { realpathSync } from 'fs';
-import { relative } from 'path';
+import { hostname } from 'os';
+import { join, relative } from 'path';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
-import type { ProcessEvent, StoryInfo, StoryPhase } from '../core/types.js';
+import type { ChecklistData, ProcessEvent, StoryInfo, StoryPhase } from '../core/types.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
@@ -95,6 +96,10 @@ import {
   runPostDoneLearningSettlement,
 } from './done-effects.js';
 import { runWithMainWriteLockContext } from '../core/main-write-lock.js';
+import { acquireStoryTransitionLock } from '../core/story-transition-lock.js';
+import { acquireMkdirLock, type AcquiredMkdirLock } from '../core/mkdir-lock.js';
+import { resolveSharedLockRoot, sanitizeLockSegment } from '../core/validation-execution-lock.js';
+import { LATTICE_DIR } from '../core/lattice-paths.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 import {
@@ -414,6 +419,15 @@ async function runStoryTransitionInner(
 ): Promise<TransitionResult> {
   const { store } = ctx;
   let doneMainMergeLock: ReturnType<typeof acquireDoneMainMergeLock> | undefined;
+  // B-d877 CHK-002 + Finding 2: per-story transition lock taken for EVERY phase
+  // (including DONE). Held across the non-atomic read → gate → persist span so two
+  // concurrent SAME-owner transitions serialize (the owner lease only rejects
+  // FOREIGN sessions). DONE ALSO takes acquireDoneMainMergeLock, but this
+  // transition lock is acquired FIRST (fixed ordering transitionLock →
+  // doneMainMergeLock) so a DONE and a concurrent same-story NON-DONE transition
+  // (e.g. a rollback) mutually exclude. NON-DONE only takes this lock, so the
+  // ordering is total → no circular wait. Released in the finally.
+  let transitionLock: AcquiredMkdirLock | undefined;
   // B-0e53: main's commit sha captured AFTER the DONE pre-check autoSyncMain.
   // Outer-scoped so the capture point (end of the DONE pre-check block) and the
   // re-check point (just before store.writeStory persists phase=DONE) both see
@@ -424,6 +438,16 @@ async function runStoryTransitionInner(
   // finally — covering success, guard failure, gate failure, and exceptions.
   let actor: ReturnType<typeof createStoryActor> | undefined;
   try {
+    // B-d877 CHK-002 + Finding 2: acquire the per-story transition lock BEFORE
+    // readStory so the read → gate → persist span is atomic against another
+    // SAME-owner transition. A second concurrent attempt blocks here, then
+    // re-reads the committed post-transition state below. This now runs for ALL
+    // phases (including DONE); for DONE it is acquired BEFORE
+    // acquireDoneMainMergeLock (see the DONE pre-check block) — a fixed lock
+    // ordering that makes a DONE and a concurrent same-story rollback mutually
+    // exclude without any circular wait.
+    transitionLock = acquireStoryTransitionLock(ctx.root, args.storyId);
+
     // B-9bd9 CHK-002: meta-story never enters DONE (long-lived cross-story container, only carries findings)
     const metaGuardErr = checkMetaStoryAdvanceGuard(args.storyId, args.phase);
     if (metaGuardErr) {
@@ -511,6 +535,12 @@ async function runStoryTransitionInner(
       // acquireDoneMainMergeLock's lock-path mkdir uses the projectRoot fallback
       // when not inside a story worktree, so pass the resolved gitCwd so the
       // mkdir target is the real main repo root in wrapper-root layouts.
+      //
+      // B-d877 Finding 2: the per-story `transitionLock` was already acquired at
+      // the top of this try (for EVERY phase). Acquiring the DONE main-merge lock
+      // here — strictly AFTER the transition lock — fixes the ordering
+      // (transitionLock → doneMainMergeLock). Since a NON-DONE transition only
+      // ever holds `transitionLock`, this ordering is total and cannot deadlock.
       doneMainMergeLock = acquireDoneMainMergeLock(args.storyId, doneGitCwd);
       const doneWorktree = detectDoneStoryWorktreeContext();
       if (doneWorktree) {
@@ -669,9 +699,16 @@ async function runStoryTransitionInner(
       }
     }
 
-    // IDEA→PLAN: write checklist
+    // IDEA→PLAN: BUILD the checklist to write. B-d877 R4 FIX F-012: the WRITE is
+    // deferred INTO the atomic persist claim's critical section below (co-located
+    // with the phase writeStory), so it becomes atomically conditional on the
+    // pre-write phase re-read guard too. Building the object here is a pure,
+    // side-effect-free computation; only its persist moves. A losing concurrent
+    // PLAN transition aborts at the re-read guard BEFORE writing either the
+    // checklist or the story, so a loser's checklist can never land on disk.
+    let checklistToWrite: ChecklistData | undefined;
     if (args.phase === 'PLAN' && args.checklist && args.checklist.length > 0) {
-      const checklist = {
+      checklistToWrite = {
         items: args.checklist.map(c => ({
           id: c.id,
           title: c.title,
@@ -680,7 +717,6 @@ async function runStoryTransitionInner(
           endTime: null,
         })),
       };
-      store.writeChecklist(args.storyId, checklist);
     }
 
     // Persist state
@@ -698,7 +734,90 @@ async function runStoryTransitionInner(
     if (args.phase === 'REVIEW') {
       story.currentReviewRound = now;
     }
-    store.writeStory(args.storyId, story);
+    // B-d877 R3 FIX A: ATOMIC persist claim — the AUTHORITATIVE correctness fence.
+    //
+    // The R2 fence was a plain read-then-write ("re-read phase, then writeStory"):
+    // two concurrent transitions could BOTH re-read the still-`oldPhase` on-disk
+    // state before EITHER wrote, pass the check, and both persist → double-mint
+    // (duplicate review round / duplicate phase_transition event). The advisory
+    // transition lock reduces contention but does NOT itself make this window
+    // atomic (a mis-classified/stale-reclaimed advisory lock can let two writers
+    // reach here concurrently). So the write is instead gated by an ATOMIC `mkdir`
+    // CLAIM: `mkdir` of a fresh dir is atomic on POSIX, so exactly ONE concurrent
+    // writer creates the claim and the loser throws IMMEDIATELY (failFastIfHeld).
+    // Under the claim we RE-READ the on-disk phase and abort unless it still equals
+    // `oldPhase`, then writeStory — making the persist atomically conditional on
+    // `oldPhase`. The claim is held ONLY across re-read → write (milliseconds), so a
+    // short staleMs (15s) + failFast is safe and a crashed holder's claim
+    // self-reclaims in 15s. This covers BOTH the non-DONE and DONE persist (they
+    // share this one writeStory). The advisory transition lock and the in-process
+    // fail-fast guard remain as contention reducers; THIS atomic claim — not the
+    // lock — is what prevents a double-mint under the practical threat model (see
+    // KNOWN LIMITATION below for the sole residual: an OS-level freeze longer than
+    // staleMs, outside the software-concurrency threat model).
+    //
+    // KNOWN LIMITATION (B-d877 R4, codex #1 residual — deliberately deferred):
+    // this atomic claim uses a TIME-BASED stale reclaim (staleMs=15s), so it is
+    // NOT an absolute mutex against a holder that is OS-level frozen (e.g.
+    // SIGSTOP) for LONGER than staleMs in the middle of the persist — a waiter
+    // could then stale-reclaim a still-live holder's claim. Mitigation in place:
+    // the persist critical section (claim acquire → phase re-read → checklist +
+    // story write → release) is FULLY SYNCHRONOUS — there is NO `await` between
+    // acquire and release — so the JS runtime cannot preempt a live holder
+    // mid-section; only an external multi-second OS process freeze could trigger
+    // a stale-reclaim of a live holder, which is outside the software-concurrency
+    // threat model and is recoverable (re-run story_advance). Full fencing-token
+    // hardening (a monotonic generation checked at commit, with crash → explicit
+    // recovery instead of a time reclaim) is a deliberately-deferred follow-up.
+    const persistClaimPath = join(
+      resolveSharedLockRoot(ctx.root),
+      LATTICE_DIR, 'locks', 'transition-cas',
+      `${sanitizeLockSegment(args.storyId)}.claim`,
+    );
+    let persistClaim: AcquiredMkdirLock;
+    try {
+      persistClaim = acquireMkdirLock(persistClaimPath, {
+        failFastIfHeld: true,
+        staleMs: 15000,
+        requireHolderToken: true,
+        holderInfo: {
+          pid: process.pid,
+          hostname: hostname(),
+          command: `transition persist claim ${args.storyId} ${oldPhase}->${args.phase}`,
+          acquiredAt: new Date().toISOString(),
+        },
+      });
+    } catch (claimErr: any) {
+      // The claim is held → a concurrent transition is persisting this same story.
+      throw new Error(
+        `concurrent transition already advancing ${args.storyId} from ${oldPhase}; ` +
+        `aborting to prevent double-mint (${String(claimErr?.message ?? claimErr)})`,
+      );
+    }
+    try {
+      const persistedBeforeWrite = store.readStory(args.storyId);
+      if ((persistedBeforeWrite.phase as string) !== oldPhase) {
+        throw new Error(
+          `concurrent transition already advanced ${args.storyId} ` +
+          `(expected fromPhase ${oldPhase}, found ${persistedBeforeWrite.phase}); ` +
+          `aborting to prevent double-mint`,
+        );
+      }
+      // B-d877 R4 FIX F-012: write the IDEA→PLAN checklist INSIDE the claim,
+      // immediately before the phase writeStory, so BOTH writes are atomically
+      // conditional on the oldPhase re-read guard above. Two concurrent PLAN
+      // transitions previously wrote the checklist BEFORE acquiring the claim, so
+      // the LOSING transition's checklist still landed on disk even though its
+      // phase write aborted. Co-locating the checklist write here makes the loser
+      // abort at the guard before writing EITHER file.
+      if (checklistToWrite) {
+        store.writeChecklist(args.storyId, checklistToWrite);
+      }
+      store.writeStory(args.storyId, story);
+    } finally {
+      // Release only across the re-read→write critical section (milliseconds).
+      persistClaim.release();
+    }
     if (!transitionGitCwd) {
       transitionGitCwd = resolveGitCwd({
         store,
@@ -874,5 +993,9 @@ async function runStoryTransitionInner(
     // transition (runDonePreMergeGate → actor.send → writeStory →
     // applyDoneMergeEffects), equivalent to the old story-advance.ts scope.
     doneMainMergeLock?.release();
+    // B-d877 CHK-002: release the per-story transition lock on EVERY exit path
+    // (success, guard failure, gate failure, exception) so a throwing
+    // critical section cannot leak it (no deadlock for the next transition).
+    transitionLock?.release();
   }
 }

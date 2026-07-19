@@ -650,9 +650,15 @@ function hostVerdictProcessEvent(verdict: HostVerdict): Record<string, unknown> 
 function appendHostVerdictEvents(ctx: HandlerContext, storyId: string, ...verdicts: HostVerdict[]): void {
   const events = verdicts.filter(verdict => verdict.storyId).map(hostVerdictProcessEvent);
   if (events.length === 0) return;
+  // B-d877 R4 (codex #3): pass the RELOCATED append lock dir (the same gitignored
+  // shared `.lattice/locks/process-events/` path StoryStore.appendProcessEvent
+  // uses). Previously this site omitted lockDir, so the append lock was created
+  // inside the git-tracked story dir and a transient holder.json could dirty the
+  // tree / fail the clean-tree gate.
   appendRawProcessEventBytes(
     ctx.store.storyDirPath(storyId),
     `${events.map(event => JSON.stringify(event)).join('\n')}\n`,
+    ctx.store.runtimeLockDirPath(storyId, 'process-events', 'process-events-append'),
   );
 }
 

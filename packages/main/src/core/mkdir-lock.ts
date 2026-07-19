@@ -9,6 +9,7 @@ import {
   rmSync,
   statSync,
   writeFileSync,
+  rmdirSync,
 } from 'fs';
 import { dirname, join } from 'path';
 
@@ -120,6 +121,26 @@ export interface MkdirLockOptions {
    * default mtime stale check.
    */
   classifyExistingLock?: (snapshot: ExistingMkdirLockSnapshot) => ExistingMkdirLockState;
+  /**
+   * B-d877 R2 FIX D: require a persisted ownership token. When true, a failure to
+   * write `holder.json` at acquire FAILS the acquire (the just-created lock dir is
+   * removed and an error is thrown) instead of proceeding in the token-less
+   * back-compat mode. Callers whose `release()` MUST be ownership-checked (the
+   * per-story transition lock) set this so the lock is never in a state where a
+   * late release could unconditionally delete a successor's dir.
+   */
+  requireHolderToken?: boolean;
+  /**
+   * B-d877 R5 FIX 2 (F-016): filenames INSIDE the lock dir that the HOLDER ITSELF
+   * writes (e.g. the validation lock's `heartbeat.json`) and that a verified-owner
+   * release MUST also remove before the non-recursive dir removal. Without this the
+   * release removes only `holder.json`, `rmdirSync` fails (dir not empty), and the
+   * leaked dir blocks the next acquire with a false "already running". These are
+   * removed ENOENT-tolerantly ONLY after release proves ownership (FIX 1); an
+   * UNDECLARED leftover still leaves the dir-removal a no-op (ENOTEMPTY) so a
+   * successor's fresh dir is never force-removed.
+   */
+  ownedAuxFiles?: string[];
 }
 
 /**
@@ -131,8 +152,19 @@ export interface MkdirLockOptions {
  * the lock itself is still valid; only the descriptive metadata is absent.
  */
 export function readMkdirLockHolder(lockDir: string): MkdirLockHolderInfo | null {
+  return readHolderFile(join(lockDir, MKDIR_LOCK_HOLDER_FILE));
+}
+
+/**
+ * B-d877 R5 FIX 1: parse a holder-metadata file at an ARBITRARY path (not just
+ * `<lockDir>/holder.json`). Release() uses this to validate the token of a
+ * holder.json it has atomically `renameSync`-ed OUT of the lock dir into a
+ * unique sibling `*.release-candidate`, so token-validation-and-removal operate
+ * on an entry a concurrent stale-reclaim + successor-acquire can no longer swap.
+ */
+function readHolderFile(filePath: string): MkdirLockHolderInfo | null {
   try {
-    const raw = readFileSync(join(lockDir, MKDIR_LOCK_HOLDER_FILE), 'utf-8');
+    const raw = readFileSync(filePath, 'utf-8');
     const parsed = JSON.parse(raw) as unknown;
     if (!parsed || typeof parsed !== 'object') return null;
     const obj = parsed as Record<string, unknown>;
@@ -159,6 +191,26 @@ export function readMkdirLockHolder(lockDir: string): MkdirLockHolderInfo | null
   } catch {
     /* PROBE: no holder.json / unreadable / malformed — holder is unknown. */
     return null;
+  }
+}
+
+/**
+ * B-d877 R4 (codex #2): remove an OWNED, now-empty lock dir NON-recursively.
+ *
+ * This NEVER recursively force-removes: it uses the non-recursive empty-dir
+ * removal (`rmdirSync`), which fails harmlessly (ENOTEMPTY / ENOENT) if the dir
+ * is NOT empty (e.g. a successor's `holder.json` is present after a stale-reclaim
+ * race) or already gone. A missed removal simply leaves a lock that self-reclaims
+ * at `staleMs` — far safer than a recursive force-remove that could delete a
+ * successor's LIVE lock dir. Callers must have already removed their own
+ * `holder.json` (or confirmed the dir is empty) before calling this.
+ */
+function removeEmptyLockDirNonRecursive(lockDir: string): void {
+  try {
+    rmdirSync(lockDir);
+  } catch {
+    /* PROBE: dir not empty (successor present) or already gone — both harmless.
+       We deliberately do NOT escalate to a recursive force-remove here. */
   }
 }
 
@@ -203,6 +255,9 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
   const staleMs = options.staleMs ?? DEFAULT_STALE_MS;
   const pollMs = options.pollMs ?? DEFAULT_POLL_MS;
   const label = options.label ?? 'mkdir';
+  // B-d877 R5 FIX 2 (F-016): snapshot the caller-declared holder-owned aux files so
+  // the ownership-verified release removes them before the non-recursive dir remove.
+  const ownedAuxFiles = Array.isArray(options.ownedAuxFiles) ? [...options.ownedAuxFiles] : [];
 
   // Ensure the lock's parent exists so mkdir(lockDir) fails only on EEXIST,
   // never on ENOENT. mkdir(recursive) on an existing dir is a no-op.
@@ -255,24 +310,163 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
   }
 
   // Record holder metadata inside the freshly-acquired lock dir so a later
-  // blocked caller can describe who holds it. Best-effort: a write failure
-  // (read-only fs, etc.) must not fail the acquire — the lock is already held.
-  if (options.holderInfo) {
-    try {
-      writeFileSync(
-        join(lockDir, MKDIR_LOCK_HOLDER_FILE),
-        JSON.stringify(options.holderInfo, null, 2) + '\n',
-        'utf-8',
+  // blocked caller can describe who holds it.
+  //
+  // B-d877 R2 FIX D: ALWAYS mint a unique per-acquire `lockId` (randomUUID) and
+  // persist it in holder.json, then capture it in the release() closure below.
+  // This makes release OWNERSHIP-CHECKED for EVERY caller — not just holderInfo
+  // callers: if this holder is stale-reclaimed (dir removed by a waiter) and a NEW
+  // holder acquires, our later release() must NOT delete the successor's dir.
+  //
+  // Token provenance:
+  //  - holderInfo provided → merge our minted lockId into it.
+  //  - no holderInfo → write a MINIMAL but fully-valid holder.json (pid / hostname
+  //    / command / acquiredAt / lockId). It MUST carry the four descriptive fields
+  //    so readMkdirLockHolder can re-validate and return the token on release; a
+  //    token-only file would parse back as null → release would never match → leak.
+  //
+  // `releaseLockId` is only set AFTER a successful holder.json write. On write
+  // failure:
+  //  - default (fail-open) → leave it undefined and fall back to the back-compat
+  //    UNCONDITIONAL removal so the lock dir can never leak (ownership unprovable).
+  //  - requireHolderToken=true (fail-closed) → a token-less state is unacceptable,
+  //    so remove the just-created dir and FAIL the acquire.
+  const ourLockId = options.holderInfo?.lockId ?? randomUUID();
+  const holderToWrite: MkdirLockHolderInfo = options.holderInfo
+    ? { ...options.holderInfo, lockId: ourLockId }
+    : {
+        pid: process.pid,
+        hostname: hostname(),
+        command: label,
+        acquiredAt: new Date().toISOString(),
+        lockId: ourLockId,
+      };
+  let releaseLockId: string | undefined;
+  try {
+    writeFileSync(
+      join(lockDir, MKDIR_LOCK_HOLDER_FILE),
+      JSON.stringify(holderToWrite, null, 2) + '\n',
+      'utf-8',
+    );
+    releaseLockId = ourLockId;
+  } catch (writeErr: any) {
+    if (options.requireHolderToken) {
+      // Fail-closed: cannot prove ownership on release, so do not proceed
+      // token-less. The dir we JUST created is empty (the holder.json write
+      // failed) and no successor can exist yet (mkdir just won the race, age≈0 so
+      // no waiter could stale-reclaim), so clean it up with the NON-recursive
+      // empty-dir removal — B-d877 R4 (codex #2): never recursive-force-remove an
+      // identity-unverified dir. Then fail the acquire.
+      removeEmptyLockDirNonRecursive(lockDir);
+      throw new Error(
+        `${label} lock: failed to persist required ownership token (holder.json): ${writeErr?.message ?? writeErr}`,
       );
-    } catch {
-      /* PROBE: holder.json is descriptive metadata only — acquire still succeeded. */
     }
+    /* PROBE: holder.json is descriptive metadata only — acquire still succeeded;
+       release falls back to unconditional removal (back-compat). */
   }
 
   return {
     lockDir,
     release() {
-      rmSync(lockDir, { recursive: true, force: true });
+      // B-d877 R4 (codex #2): release is OWNERSHIP-SAFE and NON-recursive. It
+      // NEVER recursively force-removes an identity-unverified directory, so a
+      // holder that was suspended (holder.json write failed / OS freeze),
+      // stale-reclaimed, and then resumed can never wipe a SUCCESSOR's LIVE lock
+      // dir. It removes only what it can prove it owns, and the directory removal
+      // is the non-recursive empty-dir remove that fails harmlessly if a
+      // successor's holder.json is present (dir not empty).
+      if (releaseLockId === undefined) {
+        // BACK-COMPAT / fail-open: the holder.json write failed AND the caller did
+        // NOT require a token, so we have NO token to prove ownership.
+        //
+        // B-d877 R5 FIX 4 (F-015): a NULL holder is AMBIGUOUS — it is EITHER our
+        // own failed-write orphan OR a SUCCESSOR MID-ACQUIRE (mkdir won the dir but
+        // has not yet written holder.json). Removing on null would delete that
+        // nascent successor's dir. So on a null holder we NO-OP and let the
+        // stale-reclaim path collect a true orphan within staleMs.
+        //
+        // B-d877 R6 (codex R6 LOW): the legacy PRE-universal-token case — a
+        // holder.json that EXISTS but carries no lockId (a dir acquired by pre-FIX-D
+        // code that could not mint a token) — is ALSO a DELIBERATE SAFETY NO-OP.
+        // Safe immediate removal is impossible without ownership identity: we cannot
+        // prove we own that dir, so removing the file-then-dir could destroy a dir a
+        // successor legitimately owns. (The prior code attempted a non-recursive
+        // rmdir here, but that was DEAD-ON-ARRIVAL: the legacy holder.json is still
+        // present, so rmdirSync always hit ENOTEMPTY and swallowed it — the dir never
+        // came out anyway.) So we simply NO-OP and let the stale-reclaim path collect
+        // it within staleMs, exactly like the null-holder case above.
+        return;
+      }
+      // B-d877 R5 FIX 1 (codex R5 HIGH — release TOCTOU): ownership-checked release
+      // via ATOMIC token ISOLATION. The prior read-then-remove had a window between
+      // validating our token and removing the dir in which a stale-reclaim +
+      // successor-acquire could swap the dir, so this old holder deleted the
+      // successor's LIVE claim. Instead, atomically `renameSync` holder.json OUT of
+      // the lock dir into a UNIQUE sibling candidate (rename is atomic on POSIX), so
+      // token-validation and removal operate on an entry nothing can swap underneath
+      // us.
+      const candidatePath = join(
+        dirname(lockDir),
+        `${releaseLockId}.${process.pid}.release-candidate`,
+      );
+      try {
+        renameSync(join(lockDir, MKDIR_LOCK_HOLDER_FILE), candidatePath);
+      } catch {
+        // ENOENT: no holder.json to isolate — the dir was reclaimed, or a successor
+        // is mid-acquire (mkdir won but holder.json not yet written). Nothing we own
+        // to remove → no-op.
+        return;
+      }
+      const isolated = readHolderFile(candidatePath);
+      if (isolated?.lockId === releaseLockId) {
+        // MATCH — we own this release. holder.json is already OUT of the dir, so a
+        // successor cannot mkdir the still-present dir; finish cleanup safely.
+        // B-d877 R5 FIX 2 (F-016): remove HOLDER-owned aux files (e.g. the validation
+        // lock's heartbeat.json) declared by the caller, ENOENT-tolerantly, so the
+        // subsequent non-recursive dir remove is not blocked by our own aux files.
+        for (const aux of ownedAuxFiles) {
+          try {
+            rmSync(join(lockDir, aux), { force: true });
+          } catch {
+            /* PROBE: ENOENT-tolerant — an aux file may already be gone. */
+          }
+        }
+        // Non-recursive: tolerates ENOTEMPTY (an UNDECLARED file or a successor's
+        // fresh dir → leave it for the stale-reclaim path; never recursive-force) and
+        // ENOENT.
+        removeEmptyLockDirNonRecursive(lockDir);
+        rmSync(candidatePath, { force: true });
+      } else {
+        // MISMATCH — the isolated holder.json belongs to a SUCCESSOR (we were
+        // stale-reclaimed and it re-acquired). We do NOT own it: atomically rename
+        // the candidate BACK into the dir to RESTORE the successor's token, then
+        // no-op. If the restore throws (the successor already wrote a fresh
+        // holder.json), drop the stray candidate — never delete the successor's dir.
+        //
+        // B-d877 R6 (F-017, quality MED — DELIBERATE safe-side tradeoff): restoring
+        // the successor's token is intentional even though, in a DOUBLY-degenerate
+        // race, it can leak the lock dir. F-017 REQUIRES BOTH the already-documented
+        // stale-reclaim-of-a-LIVE-holder precondition (the cross-host mtime-fallback
+        // KNOWN LIMITATION) AND the successor's OWN release() interleaving in the
+        // token-less window: if B.release() runs after we isolate the token (its
+        // rename hits ENOENT → no-op, so B will not clean up again) but before this
+        // restore, we re-populate the dir with B's now-ORPHANED token → a bounded
+        // false "already running" until staleMs. We choose this over the alternative
+        // — DROPPING the candidate on mismatch — because dropping would DESTROY a
+        // possibly-LIVE successor's token (the exact release TOCTOU codex R5 flagged),
+        // a real correctness bug. Restoring risks only a BOUNDED, SELF-HEALING leak:
+        // the orphaned dir's mtime ages past staleMs and the ordinary stale-reclaim
+        // path collects it; the atomic persist claim (mkdir + holder.json) stays the
+        // double-mint fence, so there is NO correctness loss. CHK-002d4 in
+        // transition-integrity-smoke.ts scripts this interleaving and proves the
+        // orphan is stale-reclaimable.
+        try {
+          renameSync(candidatePath, join(lockDir, MKDIR_LOCK_HOLDER_FILE));
+        } catch {
+          rmSync(candidatePath, { force: true });
+        }
+      }
     },
   };
 }

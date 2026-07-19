@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-d877",
+  "records": [
+    {
+      "id": "RED-20260718214719",
+      "trigger": "behavior-change: phase-advancing commands must route through runStoryTransition",
+      "acceptanceTargetRef": "sha256:eecf2973b010eb2e0d60e20f21834c17b9063dfede82088b692e58091002e40d",
+      "baselineHeadHash": "437a3796ef957c8f04fd81f443ef97e4e1fb5fda",
+      "baselineMaterialHash": "740b2cdf3ff9f1d8d859fb562ef1fc0fb2f0a23ed7cc47800b623bffabe47737",
+      "observedFailure": "dev_finish advances a DEV story to REVIEW but mints no currentReviewRound, appends no phase_transition process-event, and pushes an event mislabeled TEST — 4 orchestrator effects skipped.",
+      "failingCommand": "node tmp/s1-red/red-s1-devfinish-bypass.mjs",
+      "expectedGreenCommand": "node packages/main/dist/tasks/transition-integrity-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:eecf2973b010eb2e0d60e20f21834c17b9063dfede82088b692e58091002e40d",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/transition-integrity-smoke.js"
+      },
+      "note": "RED harness asserts orchestrator-grade effects; 4/4 fail on baseline (bug present).",
+      "createdAt": "2026-07-18T21:47:19.717Z"
+    }
+  ],
+  "createdAt": "2026-07-18T21:47:19.717Z",
+  "updatedAt": "2026-07-18T21:47:19.717Z"
+}

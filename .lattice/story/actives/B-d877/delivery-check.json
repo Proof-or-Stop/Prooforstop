@@ -1,0 +1,70 @@
+{
+  "storyId": "B-d877",
+  "checkedAt": "2026-07-19T15:06:34.137Z",
+  "headHash": "06ce57ffe18f78ee86c26c82c5734f8683ce70e1",
+  "materialHash": "8bb25e8e72d9b5151ef9aecf21a1e72886a378f5ced8871c1852b3ca47d03d23",
+  "storyFilesHash": "d2b80ed75c18c48208ef2a3948fd9f15804fc88ceafcd7a89cec90c33024e11a",
+  "reviewRound": "2026-07-19T13:18:06.329Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-d877/plan.md#CHK-001",
+      "promise": "dev_finish and dev_merge advance a story phase by calling runStoryTransition (the canonical orchestrator) instead of driving a raw XState actor and writing story.phase directly.",
+      "verifiedBy": "diff/grep + live re-run of transition-integrity-smoke.js",
+      "evidence": "packages/main/src/handlers/worktree.ts (main...HEAD diff, S1's own commits, byte-identical to the prior-passed delivery review): dev_finish now `await runStoryTransition(ctx, { storyId, phase: 'REVIEW' })`; dev_merge now `await runStoryTransition(ctx, { storyId, phase: 'DONE' })`. The old createStoryActor/send/story.phase= block is removed from both handlers. Re-ran node packages/main/dist/tasks/transition-integrity-smoke.js on the merged tree myself: 79/79 checks passed, exit 0, incl. CHK-001a/b confirming dev_finish lands REVIEW with a minted currentReviewRound + correct phase_transition event and dev_merge delegates the DONE gate identically to a direct runStoryTransition(DONE) call."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d877/plan.md#CHK-002",
+      "promise": "A new per-story transition lock (core/story-transition-lock.ts) is held across read-gate-persist in runStoryTransitionInner for every phase, backstopped by an atomic mkdir persist-claim, so two concurrent same-owner transitions cannot both act on the same pre-transition state and double-mint a review round.",
+      "verifiedBy": "diff/grep + live re-run of transition-integrity-smoke.js",
+      "evidence": "packages/main/src/handlers/transition-orchestrator.ts diff: acquireStoryTransitionLock(ctx.root, args.storyId) taken immediately inside the try before readStory and released in the finally on every exit path; DONE acquires it before acquireDoneMainMergeLock (fixed ordering). New file core/story-transition-lock.ts (302 lines) implements the mkdir-lock-based advisory lock plus liveness classifier. Re-ran the smoke on the merged tree: CHK-002a (real 2-process race) yields exactly one currentReviewRound/phase_transition event; CHK-002b proves a throwing critical section releases the lock and DONE does not self-deadlock; CHK-002c6 proves the atomic persist claim alone (advisory lock bypassed) still serializes two real concurrent OS processes to exactly one commit; CHK-002c9/F-012 proves the IDEA->PLAN checklist write is co-located inside the same atomic claim so a loser's checklist never lands. All 79 checks passed on my own run, exit 0."
+    },
+    {
+      "docPath": "packages/main/src/handlers/transition-orchestrator.ts + core/story-transition-lock.ts (in-code KNOWN LIMITATION, matches summary.json limitations field)",
+      "promise": "The atomic persist claim used as the authoritative double-mint fence uses a time-based stale reclaim (staleMs=15000) and is therefore not an absolute mutex against a holder that is OS-level frozen (e.g. SIGSTOP) longer than staleMs mid-persist; documented in-code as a deliberately-deferred KNOWN LIMITATION, mitigated by the fully-synchronous persist critical section (no await between claim-acquire and release).",
+      "verifiedBy": "grep + read (unchanged since the prior-passed delivery review; S1's own code is byte-identical)",
+      "evidence": "The 'KNOWN LIMITATION (B-d877 R4, codex #1 residual - deliberately deferred)' comment block appears verbatim in both packages/main/src/core/story-transition-lock.ts and packages/main/src/handlers/transition-orchestrator.ts (inside runStoryTransitionInner's persist-claim section), each describing the identical staleMs/SIGSTOP residual and fully-synchronous-critical-section mitigation, textually consistent with summary.json's limitations field."
+    },
+    {
+      "docPath": "summary.json#limitations F-017 bounded leak",
+      "promise": "A doubly-degenerate concurrent-release race in the ownership-checked mkdir-lock release can leave a bounded self-healing lock-dir leak, collected by ordinary stale reclaim; smoke CHK-002d4 proves the leak is bounded.",
+      "verifiedBy": "live re-run of transition-integrity-smoke.js",
+      "evidence": "CHK-002d4 in the re-run output scripts the exact interleaving (A isolates the token, B's release no-ops on the ENOENT window, A restores B's now-orphaned token) and asserts (a) the dir is left populated with B's orphaned token (documented bounded leak) and (b) a fresh acquire with a short staleMs succeeds, i.e. the orphan is stale-reclaimable/self-healing. Both assertions passed on my own run of the merged tree."
+    },
+    {
+      "docPath": ".gitignore + core/validation-execution-lock.ts storyRuntimeLockPath + core/mkdir-lock.ts universal lockId",
+      "promise": "Per-story runtime locks (checklist/finding/review-run/init-check/prompt-envelopes/process-events) are relocated from the git-tracked story metadata dir to the gitignored shared .lattice/locks/<category>/ prefix, and every mkdir-lock acquire mints a lockId token so release() is ownership-checked (never an unconditional recursive removal that could delete a successor's live lock).",
+      "verifiedBy": "diff/grep + live re-run of transition-integrity-smoke.js",
+      "evidence": ".gitignore adds **/*.lock/ (present in main...HEAD diff). checklist.ts/finding.ts/review-run.ts/init-check.ts/agent-prompt.ts/store.ts/cross-host-review.ts/dirty-gate-policy.ts all switched to store.runtimeLockDirPath(id,'category','name') / storyRuntimeLockPath, which resolves under .lattice/locks/<category>/. mkdir-lock.ts release() now does atomic renameSync-isolate plus token match or mismatch-restore instead of rmSync(lockDir,{recursive:true,force:true}). Re-ran the smoke on the merged tree: CHK-002c7 confirms all 6 relocated lock categories (checklist, finding/review-passes, review-run/review-runs, init-check, prompt-envelopes, process-events) resolve under .lattice/locks/, not the story dir; CHK-002c8 confirms every production process-event append call passes a relocated lockDir; CHK-002d/d2/d3 confirm ownership-checked release never deletes a successor's lock dir and correctly cleans up holder-owned aux files."
+    },
+    {
+      "docPath": "review-runs.json + review-passes.json + findings.json (process facts, not prose)",
+      "promise": "The story converged through cross-host review rounds with a recorded full-3x2 quorum, and all findings raised across those rounds are resolved before TEST.",
+      "verifiedBy": "read + count",
+      "evidence": "findings.json on the merged tree lists 17 findings, all with status=resolved (0 open/unresolved). process-events.jsonl shows the REVIEW->TEST phase_transition (2026-07-19T14:59:54.416Z) immediately following a validation_terminal result=pass, and quorum host_verdict rows for 3 rounds x 2 hosts (claude-cli, codex-cli) bound to materialDigest 6423f09c... Story is currently phase=TEST with currentReviewRound=2026-07-19T13:18:06.329Z."
+    },
+    {
+      "docPath": "packages/main/src/tasks/quorum-submit-smoke.ts (merged-in B-8d4b extra checks) + lattice.config.json (merged-in 600s validate budget)",
+      "promise": "The main-merge that staled the first delivery-check bound only B-8d4b's unrelated changes (review-run.ts / quorum-submit-smoke.ts conditional envelopes and extra checks, lattice.config.json's 600s quorum-submit-smoke budget) plus a one-line validate budget fix, not S1's own code.",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main...HEAD (three-dot, merge-base = current main tip since main was merged into this branch) shows only S1-authored hunks in review-run.ts and quorum-submit-smoke.ts (R3 lock-path relocation comments/calls), NOT the B-8d4b conditional-envelope/extra-check content itself — confirming that content is already baked into main and merged in, not reintroduced by S1. lattice.config.json shows zero diff in the three-dot comparison, consistent with B-8d4b's 600s budget already being on main and merged. git log main..HEAD confirms 'Merge branch main into story/B-d877' (63aec3563c) is the most recent ancestor-establishing merge."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Rebuilt (npm --prefix packages/main run build, tsc clean) and re-ran node packages/main/dist/tasks/transition-integrity-smoke.js myself on the merged tree (commit 06ce57ffe1). 79/79 checks passed, exit 0. CHK-001-scoped checks confirm dev_finish on a completed DEV fixture story advances to REVIEW (not TEST), mints a non-empty currentReviewRound, appends exactly one phase_transition event with toPhase=REVIEW, and produces no story.events entry mislabeled TEST; dev_merge on a TEST story reaches the orchestrator DONE gate and throws the identical error a direct runStoryTransition(DONE) call throws, proving delegation not an inline reimplementation."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same live run of transition-integrity-smoke.js on the merged tree: 79/79 checks passed, exit 0. CHK-002a: two real concurrent same-owner DEV->REVIEW transitions for the same story produce exactly one committed transition, exactly one minted currentReviewRound, and exactly one phase_transition event. CHK-002b: a throwing critical section releases the transition lock (no deadlock) and a DONE transition uniformly acquires/releases it without self-deadlocking against acquireDoneMainMergeLock. CHK-002c6: with the advisory lock explicitly bypassed, two REAL concurrent OS processes racing the persist still yield exactly one commit because the atomic mkdir persist-claim (not the advisory lock) is the correctness fence. CHK-002c9/F-012: two concurrent IDEA->PLAN transitions with distinct checklists persist exactly the winner's checklist; the loser's checklist never lands on disk. Additionally independently re-ran node packages/main/dist/tasks/quorum-submit-smoke.js on the merged tree (now includes B-8d4b's extra checks + the 600s validate budget): 42/42 checks passed, exit 0, in ~2 minutes wall clock, including the relocated-lock-aware clean-tree/dirty-gate checks this story's lock relocation must keep green."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Second delivery pass after a main merge (unrelated B-8d4b + a one-line validate budget fix) staled the first delivery-check's hash binding. Re-verified independently on the merged tree: S1's own diff (main...HEAD) is unchanged in substance from the first pass (worktree.ts dev_finish/dev_merge delegation, transition-orchestrator.ts uniform transition lock + atomic persist-claim, new story-transition-lock.ts, mkdir-lock.ts ownership-checked release, lock relocation across 6 handlers); the only files also touched by the merge (review-run.ts, quorum-submit-smoke.ts) show only S1's own lock-relocation hunks in this diff, confirming B-8d4b's content is already on main and not reintroduced here. Rebuilt clean and re-ran both real-machine smokes myself: transition-integrity-smoke 79/79 and quorum-submit-smoke 42/42 (matching the B-8d4b-grown count), both exit 0, no failures. All 17 review findings are resolved and no unresolved TODO/FIXME/HACK appears in the diff."
+  },
+  "_hash": "200fc08a84eb61e5f7dcdf4186bb71336e9dc62ccca7c695bcb4c2a6b4d8eabf"
+}

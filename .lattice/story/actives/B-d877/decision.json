@@ -1,0 +1,57 @@
+{
+  "principles": [
+    "One orchestrator door for every phase write",
+    "Serialize the whole read->gate->persist critical section, not just the write",
+    "Reuse the existing mkdir-lock primitive, don't add a new lock scheme"
+  ],
+  "drivers": [
+    "No command may bypass gates/review-round/events",
+    "Concurrent same-owner transitions must not double-mint",
+    "Preserve worktree-specific preconditions of dev_finish/dev_merge"
+  ],
+  "options": [
+    {
+      "name": "delegate-to-runStoryTransition",
+      "pros": [
+        "single door",
+        "all effects+gates run",
+        "minimal new code"
+      ],
+      "cons": [
+        "must thread worktree preconditions before delegation"
+      ]
+    },
+    {
+      "name": "duplicate-effects-in-handlers",
+      "pros": [
+        "no delegation"
+      ],
+      "cons": [
+        "drifts from orchestrator; the exact bug being fixed"
+      ]
+    }
+  ],
+  "chosen": "delegate-to-runStoryTransition",
+  "rationale": "Delegating both handlers to runStoryTransition closes the bypass at its root and keeps a single source of truth for phase writes; a per-story transition lock in the orchestrator covers the concurrency half.",
+  "preMortem": [
+    {
+      "scenario": "delegation drops worktree checks",
+      "trigger": "refactor removes the clean-tree guard",
+      "consequence": "dirty worktree advances",
+      "mitigation": "keep the worktree preconditions in the handler before calling runStoryTransition"
+    },
+    {
+      "scenario": "lock never released",
+      "trigger": "exception between acquire and release",
+      "consequence": "story deadlocks",
+      "mitigation": "acquire/release in try/finally; reuse mkdir-lock TTL/stale reclaim"
+    },
+    {
+      "scenario": "DONE double-locks",
+      "trigger": "transition lock stacks on the existing main write lock",
+      "consequence": "self-deadlock on DONE",
+      "mitigation": "only non-DONE transitions take the new lock (DONE already holds main write lock)"
+    }
+  ],
+  "timestamp": "2026-07-18T23:51:23.859Z"
+}
