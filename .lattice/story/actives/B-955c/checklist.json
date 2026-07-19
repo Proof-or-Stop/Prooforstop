@@ -20,6 +20,44 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect the normative architecture and executable ownership registry -> execution, observation, receipt normalization, Proof Admissibility, Evidence Platform storage, and Task/Story/Release Gate decisions each have exactly one named owner that maps to the existing architecture; WHY: prevents a second evidence or lifecycle control plane.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Trace one accepted Environment observation from adapter boundary through the existing evidence surface to a Gate consumer -> the trace uses the shared evidence store and existing lifecycle decision path with no adapter-owned Done state; WHY: proves the abstraction is integrated rather than merely documented.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Load legacy evidence that predates Environment Descriptor metadata -> backward-compatible parsing remains available but absent identities are not synthesized into stronger admissibility; WHY: preserves compatibility without laundering weak provenance.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Register two environment kinds with different execution models -> both share the normative receipt boundary while domain-specific truth rules remain in their packs/policies; WHY: tests host-neutral ownership without collapsing domain semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Provide an adapter result that asserts pass, Done, or release approval directly -> the architecture and runtime path reject or ignore that authority and require the existing Gate decision; WHY: enforces authority separation.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Search implementation and documentation for a parallel Evidence Environment store, independent admissibility engine, or duplicate Task/Story/Release Gate -> no competing owner is introduced; WHY: prevents architectural split-brain.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
