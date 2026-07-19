@@ -129,7 +129,7 @@
           }
         ]
       },
-      "userSees": "When the user runs replay, the terminal shows \"Replay: PASS sameInput=true deterministic=true\" plus bytes, estimatedTokens, promptDigest, and findingComparison for each sample and arm.",
+      "userSees": "When the user runs replay, the terminal shows \"Replay: PASS sameInput=true deterministic=true\" and \"Prompt cost: INCONCLUSIVE reason=PROMPT_SNAPSHOT_UNAVAILABLE\"; no historical prompt bytes, token count, or digest is claimed when the pinned snapshot is unavailable.",
       "files": {
         "modify": [],
         "create": [
