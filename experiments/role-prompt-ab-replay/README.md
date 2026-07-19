@@ -40,11 +40,19 @@ bytes equal the inline snapshot. The validator requires
 `snapshotId=<sample id>` so an arbitrary path or label cannot silently become
 the reconstruction authority.
 
-The canonical six-sample corpus does not contain exact content-addressed
-legacy/modular dispatch prompt snapshots, reviewer output artifacts, or
-independent semantic-match adjudication bytes. Its prompt bytes/tokens/digest
-and finding recall therefore remain `INCONCLUSIVE`; `corpus.json` carries only
-future oracle seeds marked `oracle-only-unverified`, never detected findings.
+The canonical corpus includes a small frozen snapshot of real signed historical
+findings from Story B-dd81. The validator recomputes the v1 finding signature
+over `storyId`, `findingId`, description, severity, creation time, review round,
+and `reviewRunId`, and also binds the complete snapshot into an explicit digest.
+The category, evidence state, and source references are corpus-bound metadata;
+the v1 finding signature itself does not cover those fields.
+
+The corpus still does not contain exact content-addressed legacy/modular
+dispatch prompt snapshots, reviewer output artifacts, or independent
+semantic-match adjudication bytes connecting either A/B arm to those findings.
+Its prompt bytes/tokens/digest and replay finding recall therefore remain
+`INCONCLUSIVE`; the sample-level rows are future oracle seeds marked
+`oracle-only-unverified`, never detected findings.
 Selfcheck separately uses explicitly labelled hermetic, inline,
 content-addressed fixtures to prove that exact prompt measurement and semantic
 finding comparison work when all required evidence exists. Those fixtures are

@@ -131,6 +131,83 @@ export function findingSetDigest(sample) {
   });
 }
 
+export function historicalFindingSnapshotDigest(findings) {
+  return digest('role-prompt-ab.historical-finding-snapshot.v1', findings);
+}
+
+function findingSignature(finding) {
+  return createHash('sha256')
+    .update([
+      finding.storyId,
+      finding.findingId,
+      finding.desc,
+      finding.severity,
+      finding.createdAt,
+      finding.reviewRound,
+      finding.reviewRunId,
+      finding.signatureVersion,
+    ].join(':'), 'utf8')
+    .digest('hex');
+}
+
+function validateSourceRef(sourceRef, findingId) {
+  if (typeof sourceRef !== 'string' || !sourceRef.trim()) {
+    throw new ReplayContractError('HISTORICAL_FINDING_REFERENCE_INVALID', `${findingId} source reference must be nonblank`);
+  }
+  const pathPart = sourceRef.replace(/:[0-9][0-9,-]*$/, '');
+  safeRepoPath(pathPart, `${findingId}.sourceRefs`);
+}
+
+function validateHistoricalFinding(finding, findingIds) {
+  assertExactKeys(
+    finding,
+    [
+      'storyId',
+      'findingId',
+      'reviewRunId',
+      'severity',
+      'category',
+      'evidenceState',
+      'createdAt',
+      'reviewRound',
+      '_hash',
+      'desc',
+      'sourceRefs',
+      'signatureVersion',
+    ],
+    'historical finding',
+  );
+  if (!/^B-[a-z0-9]+$/.test(finding.storyId)
+      || !finding.findingId.startsWith(`${finding.storyId}:F-`)
+      || !finding.reviewRunId.startsWith(`${finding.storyId}:RR-`)) {
+    throw new ReplayContractError(
+      'HISTORICAL_FINDING_REFERENCE_INVALID',
+      `${finding.findingId} story/finding/review-run references are incoherent`,
+    );
+  }
+  if (findingIds.has(finding.findingId)) {
+    throw new ReplayContractError('DUPLICATE_HISTORICAL_FINDING', `duplicate ${finding.findingId}`);
+  }
+  findingIds.add(finding.findingId);
+  if (!['critical', 'high'].includes(finding.severity)
+      || !['happy', 'edge', 'adversarial', 'missing'].includes(finding.category)
+      || finding.evidenceState !== 'verified'
+      || typeof finding.desc !== 'string'
+      || !finding.desc.trim()
+      || !Array.isArray(finding.sourceRefs)
+      || finding.sourceRefs.length === 0
+      || finding.signatureVersion !== 'lattice-finding-integrity-v1') {
+    throw new ReplayContractError('HISTORICAL_FINDING_INVALID', `${finding.findingId} signed snapshot fields are invalid`);
+  }
+  for (const sourceRef of finding.sourceRefs) validateSourceRef(sourceRef, finding.findingId);
+  if (!/^[a-f0-9]{64}$/.test(finding._hash) || finding._hash !== findingSignature(finding)) {
+    throw new ReplayContractError(
+      'HISTORICAL_FINDING_SIGNATURE_INVALID',
+      `${finding.findingId} does not match its lattice-finding-integrity-v1 signature`,
+    );
+  }
+}
+
 function validateOracle(oracle, sampleId, oracleIds) {
   assertExactKeys(
     oracle,
@@ -205,6 +282,20 @@ export function validateExperiment(protocol, corpus) {
   if (corpus.status !== 'frozen' || !Array.isArray(corpus.samples)) {
     throw new ReplayContractError('CORPUS_NOT_FROZEN', 'corpus must be frozen and contain samples');
   }
+  if (!Array.isArray(corpus.historicalFindingSnapshot) || corpus.historicalFindingSnapshot.length === 0) {
+    throw new ReplayContractError('HISTORICAL_FINDING_MISSING', 'signed historical finding snapshot is required');
+  }
+  const historicalFindingIds = new Set();
+  for (const finding of corpus.historicalFindingSnapshot) {
+    validateHistoricalFinding(finding, historicalFindingIds);
+  }
+  if (corpus.historicalFindingSnapshotDigest
+      !== historicalFindingSnapshotDigest(corpus.historicalFindingSnapshot)) {
+    throw new ReplayContractError(
+      'HISTORICAL_FINDING_SNAPSHOT_DIGEST_MISMATCH',
+      'historical finding snapshot digest mismatch',
+    );
+  }
   const requiredClasses = protocol.requiredCorpus.classes;
   const minimum = protocol.requiredCorpus.minimumSamplesPerClass;
   const counts = new Map(requiredClasses.map(name => [name, 0]));
@@ -271,6 +362,7 @@ export function validateExperiment(protocol, corpus) {
     samples: corpus.samples.length,
     repeats,
     seededOracleCount,
+    signedHistoricalFindings: corpus.historicalFindingSnapshot.length,
     adjudicatedFindings: 0,
     recallStatus: 'INCONCLUSIVE',
     recallReasonCode: 'ADJUDICATION_EVIDENCE_UNVERIFIED',

@@ -1,6 +1,42 @@
 {
   "schemaVersion": "proofbound.role-prompt-ab.corpus.v1",
   "status": "frozen",
+  "historicalFindingSnapshotDigest": "23ff51c43e03099535eefd2afef9550780ce93b428c664331f624355d3b2b37a",
+  "historicalFindingSnapshot": [
+    {
+      "storyId": "B-dd81",
+      "findingId": "B-dd81:F-001",
+      "reviewRunId": "B-dd81:RR-001",
+      "severity": "high",
+      "category": "missing",
+      "evidenceState": "verified",
+      "createdAt": "2026-07-18T21:28:28.913Z",
+      "reviewRound": "2026-07-18T21:26:11.737Z",
+      "_hash": "e415a86aff1880e6328782a15cdca10e56b9f9072244433420502de2b7827594",
+      "desc": "packages/main/src/handlers/review-run.ts:117,175-214,262-263 [high] review_run_start independently assembles and persists a review-run Prompt Envelope after the reviewer is already running, but returns only the run/envelope IDs and never delivers assembly.prompt. Its signed ReviewRun.promptHash remains optional caller-controlled input and is only folded into launcherSpecDigest, not required to equal the envelope assembledPromptDigest. agent_prompt can emit only a story-dispatch audit Envelope, so no trusted path proves that the review-run Envelope was the Prompt actually received by the reviewer. A pass can therefore satisfy the new gate while binding a canonical prompt that was never model input, violating the decision contract that the same process that sends the Prompt must calculate/record it. Integrate reviewer dispatch with review-run assembly or otherwise mechanically bind and deliver the exact assembled bytes before accepting pass evidence.",
+      "sourceRefs": ["packages/main/src/handlers/review-run.ts:117,175-214,262-263"],
+      "signatureVersion": "lattice-finding-integrity-v1"
+    },
+    {
+      "storyId": "B-dd81",
+      "findingId": "B-dd81:F-002",
+      "reviewRunId": "B-dd81:RR-002",
+      "severity": "high",
+      "category": "adversarial",
+      "evidenceState": "verified",
+      "createdAt": "2026-07-18T21:28:34.091Z",
+      "reviewRound": "2026-07-18T21:26:11.737Z",
+      "_hash": "f3a101b614317c1be02799f8da0380171af0d4ac2d57916638d3522c2e44748c",
+      "desc": "packages/main/src/core/prompt-envelope.ts:82-186 and packages/main/src/core/review-run.ts:489-518 — [HIGH] The gate-consumed Prompt Envelope verifier proves only that envelopeId hashes the envelope fields; it never proves roleId equals reviewer lane, rolePrompt matches the registered role render, or the Runtime/Role digests match the actual prompt bytes. assembleFullPromptEnvelope accepts an arbitrary rolePrompt and a roleContract for lattice-review-concept while lane=lattice-review-quality, verifyPromptEnvelopeIntegrity returns true, and a ReviewRun signed over that envelopeId is accepted by verifyReviewRunPromptEnvelope. Repro: build, then assemble a review-run envelope with roleContract concept, rolePrompt ATTACKER-CONTROLLED PROMPT, lane quality; signReviewRun with the returned envelopeId; both verifyReviewRun and verifyReviewRunPromptEnvelope return true. This violates CHK-001 envelope-role-contract-coherence and CHK-003 gate-path shared verification, so a structurally valid but semantically wrong reviewer prompt can become gate evidence. Derive the prompt/contract from the canonical lane inside the trusted assembler or persist enough canonical material to recompute it, enforce roleId===lane for review-run envelopes, and add a gate-path regression test for prompt/role/lane substitution.",
+      "sourceRefs": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/tasks/review-run-smoke.ts"
+      ],
+      "signatureVersion": "lattice-finding-integrity-v1"
+    }
+  ],
   "samples": [
     {
       "id": "clean-pass-01",

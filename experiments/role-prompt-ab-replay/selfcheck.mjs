@@ -10,6 +10,7 @@ import {
   digest,
   evaluateBoundFixture,
   findingSetDigest,
+  historicalFindingSnapshotDigest,
   loadPinnedExperiment,
   materialDigest,
   replayExperiment,
@@ -204,14 +205,19 @@ try {
   let baseline;
   let hermeticResult;
 
-  await check('pinned protocol has 3 classes, 6 samples, >=3 repeats and oracle-only seeded truths', () => {
+  await check('pinned protocol has 3 classes, 6 samples, >=3 repeats and signed historical findings', () => {
     identity = validateExperiment(protocol, corpus);
     assert.equal(identity.classes, 3);
     assert.equal(identity.samples, 6);
     assert.ok(identity.repeats >= 3);
     assert.equal(identity.seededOracleCount, 4);
+    assert.equal(identity.signedHistoricalFindings, 2);
     assert.equal(identity.adjudicatedFindings, 0);
     assert.equal(identity.recallStatus, 'INCONCLUSIVE');
+    assert.equal(
+      corpus.historicalFindingSnapshotDigest,
+      historicalFindingSnapshotDigest(corpus.historicalFindingSnapshot),
+    );
   });
 
   await check('all pinned material and finding digests recompute exactly', () => {
@@ -258,6 +264,20 @@ try {
     };
     changed.samples[2].findingSetDigest = findingSetDigest(changed.samples[2]);
     await expectCode('ADJUDICATION_EVIDENCE_UNVERIFIED', async () => validateExperiment(protocol, changed));
+  });
+
+  await check('forged historical finding signature is rejected even when the snapshot digest is repinned', async () => {
+    const changed = clone(corpus);
+    changed.historicalFindingSnapshot[0]._hash = '0'.repeat(64);
+    changed.historicalFindingSnapshotDigest = historicalFindingSnapshotDigest(changed.historicalFindingSnapshot);
+    await expectCode('HISTORICAL_FINDING_SIGNATURE_INVALID', async () => validateExperiment(protocol, changed));
+  });
+
+  await check('cross-story historical finding reference is rejected even when the snapshot digest is repinned', async () => {
+    const changed = clone(corpus);
+    changed.historicalFindingSnapshot[0].reviewRunId = 'B-other:RR-001';
+    changed.historicalFindingSnapshotDigest = historicalFindingSnapshotDigest(changed.historicalFindingSnapshot);
+    await expectCode('HISTORICAL_FINDING_REFERENCE_INVALID', async () => validateExperiment(protocol, changed));
   });
 
   await check('unavailable controls carry reasons and never masquerade as zero', () => {
@@ -645,7 +665,7 @@ try {
     assert.equal(afterProduction, beforeProduction);
   });
 
-  process.stdout.write(`Protocol: PASS experimentId=${identity.experimentId} classes=${identity.classes} samples=${identity.samples} repeats>=3 seededOracles=${identity.seededOracleCount} adjudicatedFindings=${identity.adjudicatedFindings}\n`);
+  process.stdout.write(`Protocol: PASS experimentId=${identity.experimentId} classes=${identity.classes} samples=${identity.samples} repeats>=3 seededOracles=${identity.seededOracleCount} signedHistoricalFindings=${identity.signedHistoricalFindings} adjudicatedReplayFindings=${identity.adjudicatedFindings}\n`);
   process.stdout.write('Replay: PASS sameInput=true deterministic=true\n');
   process.stdout.write('Prompt cost: INCONCLUSIVE reason=PROMPT_SNAPSHOT_UNAVAILABLE\n');
   process.stdout.write('Recall: INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED\n');
