@@ -24,7 +24,7 @@
       "desc": "packages/main/src/handlers/review-run.ts:79,193-227 and packages/main/src/core/prompt-envelope.ts:391-392 — HIGH: reviewer-requested full escalation exists only as an unconnected assembler parameter. The production review_run_start schema/handler accepts no escalation reason and never forwards reviewerEscalationReason, so a reviewer who finds an incremental reviewBasis incomplete cannot mechanically obtain a new full-context run with a recorded reason. The smoke invokes assembleConditionalReviewPromptEnvelope directly and therefore does not prove the user-visible path required by Story 4. Add a reviewer-authorized CLI/handler input or command that records a nonblank reason, assembles full, and cover it end-to-end.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T05:31:37.514Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-03ac:RR-001",
       "_hash": "a0c34b46bd02b70cba6194907947c192a7a20d191095f1423581ca3b4f1fe996",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 5f7ec42a83: reviewerEscalationReason is exposed by review_run_start CLI schema, passed through handler and trusted assembler, bound into Prompt Envelope and signed ReviewRun, durably replay-verified, and covered by production built-CLI integration.",
+      "resolvedAt": "2026-07-19T06:15:48.677Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-03ac:F-003",
