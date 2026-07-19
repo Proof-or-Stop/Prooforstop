@@ -496,6 +496,21 @@
       "resolvedAt": "2026-07-19T03:09:25.577Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8d4b:F-026",
+      "desc": "The English metadata translation preserves stale user-visible claims that no longer match the canonical fail-closed implementation: checklist.json:42 expects an adjudicatedFindings field that selfcheck replaced with seededOracles/signedHistoricalFindings/adjudicatedReplayFindings; checklist.json:132 and understanding.json:3 promise per-arm historical bytes/estimatedTokens/promptDigest/finding comparison although canonical replay reports PROMPT_SNAPSHOT_UNAVAILABLE and null metrics; checklist.json:313 promises valid historical samples with Recall:EVALUABLE and Production evidence drift:NONE, while current output intentionally reports historical recall INCONCLUSIVE and Isolated production evidence drift:NONE (only the hermetic non-historical fixture is EVALUABLE). This contradicts the canonical decision claim boundary and can make the translated Story promise evidence the harness deliberately refuses to claim. Update author-controlled userSees/outcome text through Lattice to the current exact output and isolated-proof scope; keep the implementation unchanged.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T03:51:38.517Z",
+      "reviewRound": "2026-07-19T03:50:19.464Z",
+      "reviewRunId": "B-8d4b:RR-023",
+      "_hash": "ac5c1c3140d5c10ebaa8ad698b4701a739723afef838c7fdcd70ab7116d5f102",
+      "signatureTag": "missing|unknown|english-metadata-translation",
+      "signatureTagSource": "auto"
     }
   ]
 }
