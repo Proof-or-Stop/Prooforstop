@@ -237,7 +237,7 @@
           }
         ]
       },
-      "userSees": "Starting any migrated reviewer prints context full or incremental plus a stable selection reason; unsafe or stale inputs visibly select full, while an eligible bounded delta remains readable and can explicitly escalate to a fresh full run.",
+      "userSees": "User sees \"context incremental reason=ELIGIBLE_PURE_FIXTURE_DELTA\" only for proven bounded input, or \"context full reason=CONTRACT_DRIFT\" for unsafe input; requesting full creates a new run and prints \"reason=REVIEWER_REQUESTED_FULL\".",
       "files": {
         "modify": [
           "packages/main/src/core/prompt-envelope.ts",
