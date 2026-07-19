@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { realpathSync } from 'node:fs';
 import { isAbsolute, relative, resolve } from 'node:path';
 import { loadConfig, type LatticeConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
@@ -19,6 +20,7 @@ import {
   resolveProofAdmissibilityPolicy,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
+import { resolveSharedLockRoot } from './validation-execution-lock.js';
 
 export const DONE_REQUIRED_EVIDENCE_FILE = 'done-required-evidence.json';
 export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'lattice.done-required-evidence' as const;
@@ -374,14 +376,78 @@ function normalizedCommandCwd(projectRoot: string, cwd?: string): string {
 }
 
 /**
- * Repo-root-RELATIVE logical cwd for the portable command-spec digest. Anchored
- * at the workspace root (projectRoot), so a command's configured cwd maps to the
- * SAME logical value in every worktree/host of the same story ('.' for the root,
- * 'packages/main' for a subdir). Forward-slash normalized; '.' when equal.
+ * Repo-relative LOGICAL cwd for the portable command-spec digest. The anchor is
+ * chosen so that BOTH a relative cwd AND an in-repo ABSOLUTE cwd map to the same
+ * portable logical value in every worktree/host of the same story.
+ *
+ * - RELATIVE (or empty) cwd: resolve against the current worktree root
+ *   (projectRoot) and express it relative to that SAME root. This is
+ *   root-independent by construction ('.' -> '.', 'packages/main' ->
+ *   'packages/main'), because a worktree's checked-out tree root IS its
+ *   projectRoot.
+ * - ABSOLUTE cwd (allowed by the config parser): anchoring an absolute path at
+ *   projectRoot would relativize the SAME literal string differently in each
+ *   worktree (root vs '.worktrees/<id>/...'), reintroducing the non-portability
+ *   bug (F-003). Instead anchor at the SHARED git-common-dir root, which is
+ *   identical for the main worktree and every linked worktree, so an in-repo
+ *   absolute path digests identically across worktrees. The shared root itself
+ *   maps to the canonical '.', so an absolute path equal to the workspace root
+ *   normalizes the same as a relative '.'.
+ *
+ * Forward-slash normalized; '.' when equal to the anchor.
  */
 function repoRelativeLogicalCwd(projectRoot: string, cwd?: string): string {
-  const absolute = commandCwd(projectRoot, cwd);
-  const rel = relative(projectRoot, absolute).replace(/\\/g, '/');
+  if (!cwd || !isAbsolute(cwd)) {
+    const absolute = resolve(projectRoot, cwd ?? '');
+    const rel = relative(projectRoot, absolute).replace(/\\/g, '/');
+    return rel === '' ? '.' : rel;
+  }
+  const rel = relative(sharedRootInProjectSpace(projectRoot), cwd).replace(/\\/g, '/');
+  return rel === '' ? '.' : rel;
+}
+
+/**
+ * The shared git-common-dir root, expressed in projectRoot's OWN path space.
+ *
+ * resolveSharedLockRoot realpath-resolves symlinks (needed for stable lock
+ * identity), but the projectRoot and an absolute config cwd we relativize
+ * against it may be symlinked paths (e.g. macOS /var -> /private/var). Comparing
+ * a realpath'd anchor against a symlinked path yields a broken '../..' relative
+ * path. So we derive the shared root's structural depth below projectRoot in
+ * realpath space, then re-apply that pure `..` offset to the ORIGINAL projectRoot
+ * string — keeping the anchor in the caller's path space while still resolving to
+ * the same shared location in every worktree.
+ */
+function sharedRootInProjectSpace(projectRoot: string): string {
+  try {
+    const sharedReal = realpathSync(resolveSharedLockRoot(projectRoot));
+    const projectReal = realpathSync(projectRoot);
+    const upToShared = relative(projectReal, sharedReal);
+    return upToShared === '' ? projectRoot : resolve(projectRoot, upToShared);
+  } catch {
+    return projectRoot;
+  }
+}
+
+/**
+ * The receipt's portable LOGICAL cwd for cross-root receipt verification (F-001).
+ *
+ * A v2 receipt already stored the shared/worktree-portable logical cwd in
+ * `commandSpec.cwd` (verified independently by validateCommandSpecDigestCoverage),
+ * so we trust it directly — the top-level `receipt.cwd` is an ABSOLUTE physical
+ * worktree path and relativizing it embeds the writing worktree's location
+ * (e.g. '.worktrees/<id>'), which breaks cross-root comparison. For legacy v1 or
+ * missing envelopes we fall back to relativizing the physical `receipt.cwd`
+ * against the CURRENT projectRoot, matching the pre-portability same-root
+ * behavior (cross-root legacy evidence was never portable).
+ */
+function receiptLogicalCwd(projectRoot: string, receipt: DoneRequiredCommandReceipt): string {
+  const spec = receipt.commandSpec;
+  if (spec && spec.schema === DONE_REQUIRED_COMMAND_SPEC_SCHEMA && typeof spec.cwd === 'string') {
+    return spec.cwd;
+  }
+  const physical = typeof receipt.cwd === 'string' && receipt.cwd ? receipt.cwd : projectRoot;
+  const rel = relative(projectRoot, physical).replace(/\\/g, '/');
   return rel === '' ? '.' : rel;
 }
 
@@ -414,9 +480,12 @@ function receiptLine(receipt: DoneRequiredCommandReceipt): string {
 function isPackagesMainBuild(receipt: DoneRequiredCommandReceipt, projectRoot: string, command?: DoneRequiredCommand): boolean {
   if (receipt.status !== 'PASS') return false;
   if (command?.providesBuildProof === PACKAGES_MAIN_BUILD_PROOF || command?.proof === PACKAGES_MAIN_BUILD_PROOF) return true;
-  const cwd = normalizedCommandCwd(projectRoot, receipt.cwd);
-  const rootCwd = normalizedCommandCwd(projectRoot);
-  const packagesMain = normalizedCommandCwd(projectRoot, 'packages/main');
+  // Compare on the portable LOGICAL cwd (not the absolute physical receipt.cwd)
+  // so a build proof written in worktree A is still recognized when evaluated
+  // under root B (F-001).
+  const cwd = receiptLogicalCwd(projectRoot, receipt);
+  const rootCwd = repoRelativeLogicalCwd(projectRoot);
+  const packagesMain = repoRelativeLogicalCwd(projectRoot, 'packages/main');
   const args = Array.isArray(receipt.args) ? receipt.args : [];
   if (receipt.command === 'npm' && cwd === rootCwd) {
     const prefixIndex = args.indexOf('--prefix');
@@ -543,10 +612,13 @@ export function validateRequiredReceiptCoverage(
       reasons.push(`receipt-args-mismatch[${i}]: expected ${JSON.stringify(command.args)}, got ${JSON.stringify(actualArgs)}`);
     }
 
-    const expectedCwd = normalizedCommandCwd(projectRoot, command.cwd);
-    const actualCwd = typeof receipt.cwd === 'string'
-      ? normalizedCommandCwd(projectRoot, receipt.cwd)
-      : '';
+    // Compare a repo-relative LOGICAL cwd on BOTH sides (F-001). The old code
+    // compared absolute physical paths, so a receipt written in worktree A
+    // failed under root B (receipt-cwd-mismatch) — the exact cross-root scenario
+    // this story fixes. The logical cwd is worktree/host portable, yet genuinely
+    // different cwds still normalize differently and remain distinguishable.
+    const expectedCwd = repoRelativeLogicalCwd(projectRoot, command.cwd);
+    const actualCwd = receiptLogicalCwd(projectRoot, receipt);
     if (actualCwd !== expectedCwd) {
       reasons.push(`receipt-cwd-mismatch[${i}]: expected ${expectedCwd}, got ${actualCwd || '<missing>'}`);
     }

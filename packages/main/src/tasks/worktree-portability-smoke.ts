@@ -17,6 +17,16 @@
  *   CHK-003  resolvedCwd records the absolute physical path but is EXCLUDED from the
  *            digest — changing only provenance leaves the digest equal.
  *
+ * Plus regression coverage for the REVIEW fixes:
+ *   F-001    a receipt written under worktree root A verifies (no receipt-cwd-mismatch)
+ *            under main root B via validateRequiredReceiptCoverage; a genuinely
+ *            different logical cwd still mismatches.
+ *   F-002    varying ONLY the logical cwd (command/args/shell/env fixed) changes the
+ *            digest — a regression dropping cwd from the payload would be caught.
+ *   F-003    an ABSOLUTE in-repo cwd digests identically across two worktree roots
+ *            (shared-root anchored), and an absolute path equal to the workspace root
+ *            normalizes identically to a relative '.'.
+ *
  * Prints ✓/✗ per check; exits non-zero on the first failure; final line
  * "worktree-portability smoke passed".
  */
@@ -31,6 +41,7 @@ import {
   buildDoneRequiredCommandSpecEnvelope,
   buildLegacyAbsoluteCwdCommandSpecEnvelope,
   validateCommandSpecDigestCoverage,
+  validateRequiredReceiptCoverage,
 } from '../core/done-required-validation.js';
 import type { DoneRequiredCommandReceipt, ValidationCommand } from '../core/validation-types.js';
 
@@ -171,6 +182,92 @@ try {
     'CHK-003 resolvedCwd is excluded from the digest (differs while digest stays equal)',
     envMain.resolvedCwd !== envWorktree.resolvedCwd && envMain.digest === envWorktree.digest,
     `${envMain.resolvedCwd} vs ${envWorktree.resolvedCwd}`,
+  );
+
+  // ── F-002: adversarial isolation of the logical cwd in the digest ───────────
+  // Hold command/args/shell/env/timeout fixed and vary ONLY the logical cwd; the
+  // digest MUST differ. This isolates cwd (the existing "different commands"
+  // check above varies args AND cwd together), so a regression that drops `cwd`
+  // from commandSpecDigestPayload would flip this to equal and be caught.
+  const cwdDotCmd: ValidationCommand = { label: 'iso', command: 'npm', args: ['test'], cwd: '.', shell: false, env: {} };
+  const cwdSubCmd: ValidationCommand = { label: 'iso', command: 'npm', args: ['test'], cwd: 'packages/main', shell: false, env: {} };
+  const digDot = buildDoneRequiredCommandSpecEnvelope(mainRoot, cwdDotCmd).digest;
+  const digSub = buildDoneRequiredCommandSpecEnvelope(mainRoot, cwdSubCmd).digest;
+  check(
+    'F-002 digest changes when ONLY the logical cwd varies (regression guard for dropping cwd from the payload)',
+    digDot !== digSub,
+    `${digDot} vs ${digSub}`,
+  );
+
+  // ── F-003: absolute in-repo cwd is shared-root-relative and portable ────────
+  const absSub = join(mainRoot, 'packages', 'main'); // absolute path inside the repo
+  const absSubCmd: ValidationCommand = { label: 'abs', command: 'npm', args: ['run', 'build'], cwd: absSub, shell: false, env: {} };
+  const absEnvMain = buildDoneRequiredCommandSpecEnvelope(mainRoot, absSubCmd);
+  const absEnvWorktree = buildDoneRequiredCommandSpecEnvelope(worktreeRoot, absSubCmd);
+  check(
+    'F-003 absolute in-repo cwd digests identically across two worktree roots',
+    absEnvMain.digest === absEnvWorktree.digest,
+    `${absEnvMain.digest} vs ${absEnvWorktree.digest}`,
+  );
+  check(
+    'F-003 absolute in-repo cwd normalizes to a shared-root-relative logical cwd (packages/main)',
+    absEnvMain.cwd === 'packages/main' && absEnvWorktree.cwd === 'packages/main',
+    `${absEnvMain.cwd} / ${absEnvWorktree.cwd}`,
+  );
+  // An absolute path equal to the workspace (main) root normalizes to the SAME
+  // canonical '.' as a relative '.', so the two forms digest identically.
+  const absRootCmd: ValidationCommand = { label: 'absroot', command: 'npm', args: ['test'], cwd: mainRoot, shell: false, env: {} };
+  const absRootEnv = buildDoneRequiredCommandSpecEnvelope(mainRoot, absRootCmd);
+  check(
+    'F-003 absolute path equal to the workspace root normalizes identically to relative `.`',
+    absRootEnv.cwd === '.' && absRootEnv.digest === envMain.digest,
+    `${absRootEnv.cwd} / ${absRootEnv.digest} vs ${envMain.digest}`,
+  );
+
+  // ── F-001: cross-root receipt coverage (receipt from worktree, verified under main) ──
+  const suiteCommand: ValidationCommand = { label: 'suite', command: 'npm', args: ['test'], cwd: '.', shell: false, env: {} };
+  const receiptSpecA = buildDoneRequiredCommandSpecEnvelope(worktreeRoot, suiteCommand, {
+    command: 'npm', args: ['test'], shell: false, cwd: worktreeRoot,
+  });
+  const crossRootReceipt: DoneRequiredCommandReceipt = {
+    label: 'suite',
+    command: 'npm',
+    args: ['test'],
+    cwd: worktreeRoot, // absolute PHYSICAL path of the writing worktree (root A)
+    commandSpec: receiptSpecA,
+    shell: false,
+    status: 'PASS',
+    exitCode: 0,
+    durationMs: 1,
+    outputDigest: 'x',
+    outputTail: '',
+    startedAt: '1970-01-01T00:00:00.000Z',
+    endedAt: '1970-01-01T00:00:00.001Z',
+  };
+  const crossRootReasons = validateRequiredReceiptCoverage({ receipts: [crossRootReceipt] }, mainRoot, [suiteCommand]);
+  check(
+    'F-001 receipt written under worktree root verifies (no cwd-mismatch) under main root',
+    crossRootReasons.length === 0,
+    JSON.stringify(crossRootReasons),
+  );
+
+  // Distinguishability preserved: a receipt whose LOGICAL cwd genuinely differs
+  // from the policy command still reports receipt-cwd-mismatch across roots.
+  const wrongCwdSpec = buildDoneRequiredCommandSpecEnvelope(
+    worktreeRoot,
+    { label: 'suite', command: 'npm', args: ['test'], cwd: 'packages/main', shell: false, env: {} },
+    { command: 'npm', args: ['test'], shell: false, cwd: join(worktreeRoot, 'packages', 'main') },
+  );
+  const wrongCwdReceipt: DoneRequiredCommandReceipt = {
+    ...crossRootReceipt,
+    cwd: join(worktreeRoot, 'packages', 'main'),
+    commandSpec: wrongCwdSpec,
+  };
+  const wrongCwdReasons = validateRequiredReceiptCoverage({ receipts: [wrongCwdReceipt] }, mainRoot, [suiteCommand]);
+  check(
+    'F-001 genuinely different logical cwd still reports receipt-cwd-mismatch across roots',
+    wrongCwdReasons.some((reason) => reason.startsWith('receipt-cwd-mismatch')),
+    JSON.stringify(wrongCwdReasons),
   );
 
   cleanupAll();
