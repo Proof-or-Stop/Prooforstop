@@ -96,7 +96,7 @@
           },
           {
             "id": "concurrent-flag-baseline-writes-serialized",
-            "desc": "Concurrent role migrations, rollback requests, and baseline approvals cannot lose updates or produce a hybrid registry or baseline; shared writes use the main write lock while lane evidence remains signed and lane scoped.",
+            "desc": "Concurrent role migration and rollback reads cannot observe a hybrid baseline: legacy and modular bodies plus approvals are immutable content-addressed repository artifacts bound to committed digests; any future mutable shared writer must use the canonical main write lock, while lane evidence remains signed and lane scoped.",
             "type": "cli",
             "requiredIn": "strict",
             "priority": "must"
