@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import {
-  copyFile, cp, lstat, mkdir, mkdtemp, readFile, readdir, rename, rm, symlink, utimes, writeFile,
+  copyFile, cp, lstat, mkdir, mkdtemp, readFile, readdir, readlink, rename, rm, symlink, utimes, writeFile,
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -70,7 +70,7 @@ async function snapshotTree(root, relativePaths) {
       throw error;
     }
     if (stat.isSymbolicLink()) {
-      rows.push([relative, 'symlink']);
+      rows.push([relative, 'symlink', await readlink(absolute)]);
       return;
     }
     if (stat.isDirectory()) {
@@ -200,10 +200,7 @@ async function proveIsolatedProductionEvidenceNoWrite() {
   const sandbox = await mkdtemp(path.join(tmpdir(), 'role-prompt-evidence-root-'));
   const isolatedExperimentRoot = path.join(sandbox, 'experiments', 'role-prompt-ab-replay');
   const sentinelStoryRoot = path.join(sandbox, '.lattice', 'story', 'actives', 'B-sentinel');
-  const evidencePaths = [
-    '.lattice/story/actives/B-sentinel',
-    '.lattice/process-events.jsonl',
-  ];
+  const evidencePaths = ['.lattice'];
   const sentinelFiles = new Map([
     ['review-passes.json', `${canonicalJson({
       passes: [{
@@ -311,7 +308,27 @@ async function proveIsolatedProductionEvidenceNoWrite() {
       (await readdir(path.join(sandbox, '.lattice'))).sort(),
       ['process-events.jsonl', 'story'],
     );
-    return { sentinelArtifacts: sentinelFiles.size + 1, entrypoints: 3 };
+
+    const forgedStoryRoot = path.join(sandbox, '.lattice', 'story', 'actives', 'B-forged');
+    await mkdir(forgedStoryRoot, { recursive: true });
+    await writeFile(
+      path.join(forgedStoryRoot, 'review-passes.json'),
+      `${canonicalJson({ passes: [{ agent: 'forged', gateEvidence: true }] })}\n`,
+      'utf8',
+    );
+    assert.notDeepEqual(await snapshotTree(sandbox, evidencePaths), before);
+    await rm(forgedStoryRoot, { recursive: true, force: true });
+    assert.deepEqual(await snapshotTree(sandbox, evidencePaths), before);
+
+    const forgedUsageRoot = path.join(sandbox, '.lattice', 'usage');
+    await mkdir(forgedUsageRoot, { recursive: true });
+    await writeFile(
+      path.join(forgedUsageRoot, 'llm-usage.jsonl'),
+      `${canonicalJson({ namespace: 'production', inputTokens: 1 })}\n`,
+      'utf8',
+    );
+    assert.notDeepEqual(await snapshotTree(sandbox, evidencePaths), before);
+    return { sentinelArtifacts: sentinelFiles.size + 1, entrypoints: 3, mutationBites: 2 };
   } finally {
     await rm(sandbox, { recursive: true, force: true });
   }
@@ -916,6 +933,7 @@ try {
     isolationProof = await proveIsolatedProductionEvidenceNoWrite();
     assert.equal(isolationProof.sentinelArtifacts, 8);
     assert.equal(isolationProof.entrypoints, 3);
+    assert.equal(isolationProof.mutationBites, 2);
   });
 
   process.stdout.write(`Protocol: PASS experimentId=${identity.experimentId} classes=${identity.classes} samples=${identity.samples} repeats>=3 seededOracles=${identity.seededOracleCount} signedHistoricalFindings=${identity.signedHistoricalFindings} adjudicatedReplayFindings=${identity.adjudicatedFindings}\n`);
@@ -924,7 +942,7 @@ try {
   process.stdout.write('Recall: INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED\n');
   process.stdout.write(`Hermetic fixture: EVALUABLE scope=${hermeticResult.evidenceScope} historicalEvidence=${hermeticResult.historicalEvidence} cells=${hermeticResult.cells.length}\n`);
   process.stdout.write('Experiment ledger: PASS gateEvidence=false attempts=3\n');
-  process.stdout.write(`Isolated production evidence drift: NONE sentinelArtifacts=${isolationProof.sentinelArtifacts} copiedEntrypoints=${isolationProof.entrypoints}\n`);
+  process.stdout.write(`Isolated production evidence drift: NONE sentinelArtifacts=${isolationProof.sentinelArtifacts} copiedEntrypoints=${isolationProof.entrypoints} mutationBites=${isolationProof.mutationBites}\n`);
   process.stdout.write(`Selfcheck: PASS checks=${checks}\n`);
 } finally {
   await rm(await resolveLedgerPath(ledgerPath), { force: true });

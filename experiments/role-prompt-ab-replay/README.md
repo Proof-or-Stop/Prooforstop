@@ -89,8 +89,11 @@ evidence root. It seeds real-shaped sentinel pass, finding, ReviewRun,
 verification, validation, lifecycle, and process-event artifacts; copies the
 experiment modules and entrypoints into that sandbox; runs ordinary replay,
 ledger replay, and analysis there; then compares every sentinel artifact byte
-and the complete evidence-root tree before and after. This avoids races with
-concurrent real Story metadata while detecting any new or modified production
-artifact or process event. Separate structural tests reject production paths,
-forged gate authority, Story references, and normal process-fact/usage-ledger
-consumption of experiment rows.
+and the entire sandbox `.lattice` tree before and after, recursively including
+all Story siblings, usage/activity/lifecycle/process-event locations, directory
+membership, file bytes, and symlink targets. Mutation-bite checks then add a
+sibling Story review pass and a separate usage artifact and require the same
+detector to report drift. This avoids races with concurrent real Story metadata
+while detecting any new or modified production artifact or process event.
+Separate structural tests reject production paths, forged gate authority, Story
+references, and normal process-fact/usage-ledger consumption of experiment rows.

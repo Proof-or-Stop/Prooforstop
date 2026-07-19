@@ -1103,10 +1103,13 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
   fd-based `O_NOFOLLOW` 路径/符号链接逃逸。生产证据 no-write 验证在临时隔离
   evidence root 中预置真实形状的 pass、finding、ReviewRun、verification、
   validation、lifecycle 和 process-event sentinel，复制并运行 replay/ledger/
-  analyze 入口，再逐字节比较 sentinel 与完整 evidence-root 树的前后状态并确认
-  没有新增 artifact/event；因此不读取并发变化的真实 Story metadata。另有结构
-  测试拒绝 production 路径、伪 gate authority/Story reference，以及 experiment
-  row 被正常 process-fact/usage-ledger consumer 接受。
+  analyze 入口，再递归比较整个 sandbox `.lattice` 树的前后状态：覆盖所有
+  sibling Story、usage/activity/lifecycle/process-event 位置、目录成员、文件
+  字节和 symlink target，并确认没有新增 artifact/event。mutation-bite 另行
+  写入 sibling Story review pass 和独立 usage artifact，要求同一 detector
+  必须报告 drift；因此该断言不依赖并发变化的真实 Story metadata。另有结构测试
+  拒绝 production 路径、伪 gate authority/Story reference，以及 experiment row
+  被正常 process-fact/usage-ledger consumer 接受。
 - Claim boundary：本 Story 只证明 pinned 历史观察可被确定性重算并与生产证据
   隔离。它不运行历史代码、不调用 provider，也不宣称生产 Prompt 降幅、provider
   成本下降、模型质量等价、incremental eligibility、角色迁移或 budget
