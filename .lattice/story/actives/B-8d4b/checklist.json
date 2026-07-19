@@ -187,7 +187,7 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量",
         "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-19T02:07:37.953Z",
       "endTime": "2026-07-19T02:35:17.658Z",
       "verificationIntent": {
@@ -542,6 +542,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Second-round coverage finding F-016 requires exact unique A/B hermetic arm/output validation.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:44:50.998Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Second-round quality findings F-013/F-015 require crash-safe stale-lock recovery and parent-path confinement.",
       "agent": "main"
     }
   ]
