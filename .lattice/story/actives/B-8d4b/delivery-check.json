@@ -1,0 +1,64 @@
+{
+  "storyId": "B-8d4b",
+  "checkedAt": "2026-07-19T04:36:58.614Z",
+  "headHash": "17181ec40ba5d5d1c6bbd5b23880c67fbf4164f4",
+  "materialHash": "10b34aa74efaf1481f008be2f0ae3087ce949bb55620eb6ceed315d823ca3a92",
+  "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8",
+  "reviewRound": "2026-07-19T04:29:33.613Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "promise": "Story 3 ships an isolated read-only replay, experiment-only non-authoritative ledger, fail-closed historical conclusions, and complete isolated .lattice no-drift proof without enabling Stories 4-7.",
+      "status": "verified",
+      "verifiedBy": "Fresh post-main-merge 49-check selfcheck plus current full-diff re-attestation",
+      "evidence": "At materialHash 10b34aa74efaf1481f008be2f0ae3087ce949bb55620eb6ceed315d823ca3a92 and unchanged storyFilesHash 3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8, selfcheck exits 0: Protocol PASS; historical Prompt cost and Recall INCONCLUSIVE; Hermetic fixture historicalEvidence=false; gateEvidence=false; isolated production evidence drift NONE with two mutation bites."
+    },
+    {
+      "docPath": "experiments/role-prompt-ab-replay/README.md",
+      "promise": "Documented selfcheck, replay, ledger replay and analyze commands execute with the stated isolation and unavailable-value semantics.",
+      "status": "verified",
+      "verifiedBy": "Fresh post-merge selfcheck and persisted-ledger analysis",
+      "evidence": "Fresh selfcheck exits 0 with 49 checks. Current analyze.mjs --ledger=runtime/operator-run.jsonl --json exits 0 with gateEvidence=false, attempts=36, status=INCONCLUSIVE, and null savings/recall claims."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-8d4b/checklist.json",
+      "promise": "Corrected F-026 user-visible transcript reports exact Protocol fields, deterministic replay, historical prompt cost/recall INCONCLUSIVE, only the hermetic non-historical fixture EVALUABLE, experiment ledger non-authoritative, and isolated production drift NONE.",
+      "status": "verified",
+      "verifiedBy": "Fresh post-merge live-smoke comparison",
+      "evidence": "Fresh selfcheck exactly includes seededOracles=4 signedHistoricalFindings=2 adjudicatedReplayFindings=0; PROMPT_SNAPSHOT_UNAVAILABLE; ADJUDICATION_EVIDENCE_UNVERIFIED; historicalEvidence=false; gateEvidence=false; drift NONE; 49 checks. All 26 findings remain resolved and none are open."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-8d4b/summary.json",
+      "promise": "Usage instructions provide the complete persisted-ledger sequence: replay with --ledger and --run-id, followed by analysis of the same ledger.",
+      "status": "verified",
+      "verifiedBy": "Post-merge summary inspection and persisted-ledger analysis",
+      "evidence": "Summary contains run.mjs --ledger=runtime/operator-run.jsonl --run-id=operator-run-001 --json followed by analyze.mjs --ledger=runtime/operator-run.jsonl --json. Current analysis of the produced ledger exits 0 with gateEvidence=false and 36 attempts; append-only reuse requires a fresh run ID or deletion of generated operator output as documented in README."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh post-main-merge selfcheck: Protocol PASS experimentId=330d7937... classes=3 samples=6 repeats>=3 seededOracles=4 signedHistoricalFindings=2 adjudicatedReplayFindings=0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Fresh post-main-merge selfcheck: Replay PASS sameInput=true deterministic=true; historical prompt cost remains INCONCLUSIVE/PROMPT_SNAPSHOT_UNAVAILABLE."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Current persisted operator ledger analysis exits 0 with gateEvidence=false and attempts=36; status remains INCONCLUSIVE with null savings/recall claims. Fresh selfcheck reports experiment ledger PASS gateEvidence=false attempts=3."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Fresh post-main-merge selfcheck: Recall INCONCLUSIVE/ADJUDICATION_EVIDENCE_UNVERIFIED; Hermetic fixture EVALUABLE historicalEvidence=false cells=2; Isolated production evidence drift NONE; Selfcheck PASS checks=49."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Post-main-merge delivery is clean at materialHash 10b34aa and unchanged storyFilesHash 3b4f0b: corrected F-026 promises match fresh 49-check output, persisted ledger analysis reports gateEvidence=false with 36 attempts, all 26 findings remain resolved, and no delivery TODO remains."
+  },
+  "_hash": "ad504213424beac2ab010ee966182e7daccc20f71db7ac4afcea11587b32fdd1"
+}

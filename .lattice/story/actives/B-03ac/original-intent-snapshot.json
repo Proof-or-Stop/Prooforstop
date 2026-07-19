@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-03ac",
+  "sourceText": "Continue implementing every Story in the accepted role-prompt modularization plan in order until all milestones are DONE, while validating recommendations with evidence and avoiding optimization for its own sake.",
+  "normalizedOutcome": "Story 4 automatically and safely chooses incremental review only for mechanically proven bounded changes, otherwise selects full review, and prevents an incorrect incremental context from producing valid review evidence.",
+  "acceptanceClaim": "For every supported and adversarial change class, the trusted runtime emits a deterministic eligibility decision and only envelope-bound evidence from the mechanically selected context mode can satisfy REVIEW and quorum consumers, while the advisory command remains read-only.",
+  "keyRequirementIds": [
+    "STORY4-COMPATIBILITY",
+    "STORY4-ELIGIBILITY",
+    "STORY4-GATE-BINDING",
+    "STORY4-REVIEW-BASIS"
+  ],
+  "requestHash": "sha256:0e6bd8b9369c008e6e9c076c018968d53b138176420a0b276cf597cbca986465",
+  "createdAt": "2026-07-19T04:48:07.432Z",
+  "updatedAt": "2026-07-19T04:48:07.432Z"
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-03ac",
+  "mode": "feature",
+  "allowed": [
+    "Add a versioned impact classification policy and registry verification",
+    "Add adversarial tests and update the canonical decision record when implementation facts change",
+    "Add automatic full escalation, FULL_CHEAPER_OR_EQUAL selection, and separate budget-violation reporting",
+    "Bind incremental Prompt Envelopes to ReviewRun and review-pass validation",
+    "Build bounded reviewBasis and stable eligibility reason codes",
+    "Extend the existing read-only review_incremental_context capability"
+  ],
+  "excluded": [
+    "Allow callers or prompt text to force incremental mode",
+    "Build a whole-repository static dependency graph",
+    "Migrate complex non-reviewer roles reserved for Story 6",
+    "Migrate the five active reviewer roles reserved for Story 5",
+    "Retire legacy roles or enable budget enforcement reserved for Story 7"
+  ],
+  "confirmedBy": "codex-owner",
+  "confirmationNote": "The user authorized sequential implementation of every Story in the accepted seven-Story plan and instructed the agent to continue without further approval.",
+  "createdAt": "2026-07-19T04:39:51.046Z",
+  "updatedAt": "2026-07-19T04:39:51.046Z",
+  "_hash": "93a91b6473962587059928e5aea9aa1b817474fc5a13bec6b8c814bbbd16ccfc"
+}

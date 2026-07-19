@@ -1,0 +1,126 @@
+{
+  "storyId": "B-03ac",
+  "name": "role-prompt-incremental-eligibility-impact-policy",
+  "title": "Implement fail-closed incremental review eligibility and impact classification",
+  "description": "Deliver Story 4 of the accepted role-prompt modularization plan by extending the existing read-only review_incremental_context path with versioned impact classification, bounded reviewBasis construction, freshness-aware eligibility, automatic full-context escalation, cost comparison, and Prompt Envelope binding to ReviewRun and pass validation.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+  "depends": [
+    "B-8d4b"
+  ],
+  "keywords": [
+    "role-prompt",
+    "incremental-review",
+    "eligibility",
+    "impact-classification",
+    "review-basis",
+    "prompt-envelope"
+  ],
+  "createdAt": "2026-07-19T04:39:51.046Z",
+  "startedAt": "2026-07-19T04:39:51.046Z",
+  "endedAt": "2026-07-19T07:03:41.953Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-19T04:39:51.424Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-19T04:40:46.678Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-19T04:41:15.019Z",
+      "branch": "story/B-03ac",
+      "user": "Harmonygo",
+      "sessionId": "sess-60ea6e22f12f8afc7a82bba0dae53a8e",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-19T04:50:07.377Z",
+      "branch": "story/B-03ac",
+      "user": "Harmonygo",
+      "sessionId": "sess-60ea6e22f12f8afc7a82bba0dae53a8e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-19T05:29:10.580Z",
+      "branch": "story/B-03ac",
+      "user": "Harmonygo",
+      "sessionId": "sess-60ea6e22f12f8afc7a82bba0dae53a8e",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-19T05:35:29.152Z",
+      "branch": "story/B-03ac",
+      "user": "Harmonygo",
+      "sessionId": "sess-60ea6e22f12f8afc7a82bba0dae53a8e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-19T06:15:24.700Z",
+      "branch": "story/B-03ac",
+      "user": "Harmonygo",
+      "sessionId": "sess-60ea6e22f12f8afc7a82bba0dae53a8e",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-19T06:24:25.162Z",
+      "branch": "story/B-03ac",
+      "user": "Harmonygo",
+      "sessionId": "sess-60ea6e22f12f8afc7a82bba0dae53a8e",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-19T06:38:01.826Z",
+      "branch": "story/B-03ac",
+      "user": "Harmonygo",
+      "sessionId": "sess-60ea6e22f12f8afc7a82bba0dae53a8e",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-19T06:55:38.545Z",
+      "branch": "story/B-03ac",
+      "user": "Harmonygo",
+      "sessionId": "sess-60ea6e22f12f8afc7a82bba0dae53a8e",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-19T07:03:41.953Z",
+      "branch": "story/B-03ac",
+      "user": "Harmonygo",
+      "sessionId": "sess-60ea6e22f12f8afc7a82bba0dae53a8e",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-19T06:38:01.826Z"
+}

@@ -29,6 +29,44 @@ export type EvidenceFreshness = {
   materialFiles: string[];
 };
 
+export const EVIDENCE_FRESHNESS_CLASSIFIER_VERSION = 'proofbound.evidence-freshness-classifier.v1';
+
+export type EvidenceFreshnessClassification =
+  | 'CURRENT_MATERIAL'
+  | 'KNOWN_METADATA_ONLY_HEAD_DRIFT'
+  | 'KNOWN_UNRELATED_MATERIAL_DRIFT'
+  | 'RELATED_STORY_MATERIAL_DRIFT'
+  | 'LEGACY_UNBOUND'
+  | 'RUNTIME_UNAVAILABLE'
+  | 'UNCOMPARABLE';
+
+/**
+ * Canonical projection of the freshness reader result. Incremental eligibility
+ * consumes this classification and never reinterprets raw hashes or reason text.
+ */
+export function classifyEvidenceFreshness(
+  freshness: EvidenceFreshness,
+  evidenceHash?: string,
+): EvidenceFreshnessClassification {
+  if (!evidenceHash) return 'LEGACY_UNBOUND';
+  if (/Unable to get git HEAD/i.test(freshness.reason)) return 'RUNTIME_UNAVAILABLE';
+  if (!freshness.fresh) {
+    return freshness.materialFiles.includes('<story-files-changed>')
+      ? 'RELATED_STORY_MATERIAL_DRIFT'
+      : 'UNCOMPARABLE';
+  }
+  if (freshness.warnings?.some(warning => /whole-tree materialHash drift/i.test(warning))) {
+    return 'KNOWN_UNRELATED_MATERIAL_DRIFT';
+  }
+  if (freshness.materialFiles.length === 0 && freshness.changedFiles.length > 0) {
+    return 'KNOWN_METADATA_ONLY_HEAD_DRIFT';
+  }
+  if (freshness.changedFiles.length === 0 && freshness.materialFiles.length === 0) {
+    return 'CURRENT_MATERIAL';
+  }
+  return 'UNCOMPARABLE';
+}
+
 export interface EvidenceHashSnapshot {
   schemaVersion: 'lattice.evidence_hash_snapshot.v1';
   headHash?: string;
@@ -305,6 +343,31 @@ export function changedFilesBetweenRenameAware(gitCwd: string, fromHead: string,
     }
   }
   return [...paths].sort();
+}
+
+/** Status map companion for callers whose policy must reject rename/delete. */
+export function changedFileStatusesBetweenRenameAware(
+  gitCwd: string,
+  fromHead: string,
+  toHead = 'HEAD',
+): Record<string, string> {
+  const raw = execFileSync('git', ['diff', '--name-status', '-M', `${fromHead}..${toHead}`], {
+    cwd: gitCwd,
+    ...GIT_EXEC_OPTS,
+  }).trim();
+  const statuses: Record<string, string> = {};
+  for (const line of raw.split('\n')) {
+    const cols = line.trim().split('\t').map(column => column.trim()).filter(Boolean);
+    if (cols.length < 2) continue;
+    const status = cols[0];
+    if ((status.startsWith('R') || status.startsWith('C')) && cols.length >= 3) {
+      statuses[cols[1]] = status;
+      statuses[cols[2]] = status;
+    } else {
+      statuses[cols[cols.length - 1]] = status;
+    }
+  }
+  return Object.fromEntries(Object.entries(statuses).sort(([left], [right]) => left.localeCompare(right)));
 }
 
 function mergeBaseWithMain(gitCwd: string, ref = 'HEAD'): string | undefined {

@@ -845,6 +845,8 @@ export interface ReviewRun {
    * domain-separated digest is promptHash and is also bound by envelopeId.
    */
   assembledPrompt?: string;
+  /** Reviewer-authored reason that forced this otherwise eligible run to full context. */
+  reviewerEscalationReason?: string;
   /**
    * B-6bfd CHK-005: scope/diff/hunk binding for scope-protected stories. Present
    * only when the story has a scope contract at review_run_start time; absent for

@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-03ac",
+  "state": "confirmed",
+  "ledgerHash": "sha256:3c875e6d0a4f9108df260aeae7975d79353f67f10a6cfb159536dd1719dc76b6",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "STORY4-ELIGIBILITY",
+      "claim": "Incremental eligibility and impact classification are versioned, mechanical, and fail closed.",
+      "doneMeans": "Supported bounded changes receive stable incremental reason codes while every unknown or forced-full class deterministically selects full context.",
+      "requiredEvidence": [
+        "logic_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "eligibility-trusted-bounded-incremental",
+        "eligibility-supported-fixture-closure",
+        "eligibility-freshness-reader-binding",
+        "eligibility-forced-full-contract-policy",
+        "eligibility-unknown-fails-closed",
+        "eligibility-rename-crossfile-closure",
+        "eligibility-caller-cannot-force-incremental",
+        "eligibility-raw-hash-forgery-rejected",
+        "impact-policy-registry-single-source"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "STORY4-REVIEW-BASIS",
+      "claim": "Incremental reviewBasis is bounded, authoritative, and selected only when cheaper and safe.",
+      "doneMeans": "The assembler builds the specified delta and selects full with FULL_CHEAPER_OR_EQUAL when incremental size is not lower, without using budget pressure to override safety.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "review-basis-bounded-current-complete",
+        "context-mode-safe-then-cheapest",
+        "review-basis-authoritative-read-through",
+        "full-cheaper-or-equal-selected",
+        "review-basis-change-deltas-exact",
+        "reviewer-basis-incomplete-escalates",
+        "review-basis-stale-substitution-rejected",
+        "review-basis-omission-fails-closed",
+        "cost-never-overrides-safety"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "STORY4-GATE-BINDING",
+      "claim": "Incremental Prompt Envelopes are bound to ReviewRun and pass admissibility.",
+      "doneMeans": "A missing, stale, mismatched, or mechanically ineligible incremental envelope cannot satisfy review-pass, receipt, assurance-floor, or quorum consumers.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "incremental-envelope-reviewrun-binding",
+        "incremental-pass-chain-admissible",
+        "full-escalation-mints-new-binding",
+        "legacy-pass-full-context-only",
+        "nonlatest-pass-material-scope-rules-preserved",
+        "incremental-envelope-required-fields-total",
+        "incremental-envelope-tamper-chain-rejected",
+        "served-wrong-mode-proof-invalid",
+        "untrusted-caller-envelope-authority-blocked"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "STORY4-COMPATIBILITY",
+      "claim": "The existing advisory command stays read-only while full escalation and budget reporting are proven.",
+      "doneMeans": "Smoke and adversarial tests show the command does not mutate gates, reviewer escalation is honored, and budget violations remain distinct from correctness mode selection.",
+      "requiredEvidence": [
+        "logic_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "incremental-context-readonly-gate-neutral",
+        "reviewer-authoritative-read-and-escalate",
+        "budget-observation-separated-from-correctness",
+        "oversize-incremental-forces-full",
+        "oversize-full-remains-correctness-path",
+        "full-cheaper-readonly-regression",
+        "budget-gaming-cannot-change-mode",
+        "readonly-command-cannot-smuggle-evidence",
+        "unsupported-paths-and-stale-evidence-full"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-19T04:39:51.046Z",
+  "updatedAt": "2026-07-19T04:47:24.860Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260719044709",
+    "acceptedInterpretationHash": "sha256:8299e53844b085eeb1befffe3ef7061c275b132a924ec074f5da41bf5b4511d0",
+    "acceptedAt": "2026-07-19T04:47:24.860Z"
+  }
+}

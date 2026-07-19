@@ -1,0 +1,50 @@
+{
+  "storyId": "B-235e",
+  "name": "migrate-active-reviewer-prompts",
+  "title": "Migrate active reviewer roles to modular full and incremental Prompt Envelopes",
+  "description": "Execute Story 5 of the canonical role-prompt modularization plan: migrate concept, quality, test-coverage, behavior, and docs reviewers while excluding retired channel; preserve authority/signature gates and prove quality and budget outcomes with preregistered A/B replay and per-role rollback.",
+  "type": "refactor",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-5",
+  "depends": [
+    "B-dd81",
+    "B-8d4b",
+    "B-03ac"
+  ],
+  "keywords": [
+    "active-reviewer",
+    "prompt-envelope",
+    "incremental-assembly",
+    "role-migration",
+    "budget-ab-replay"
+  ],
+  "createdAt": "2026-07-19T07:04:56.495Z",
+  "startedAt": "2026-07-19T07:04:56.495Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-19T07:04:56.878Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-19T07:05:56.619Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-235e",
+    "branch": "story/B-235e",
+    "createdAt": "2026-07-19T07:05:54.327Z"
+  }
+}

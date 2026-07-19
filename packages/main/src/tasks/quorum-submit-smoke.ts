@@ -11,8 +11,8 @@ import { captureLifecycleMetadataTransaction } from '../core/auto-commit-metadat
 import { canonicalDigest } from '../core/authority-signing.js';
 import { resetConfigCache } from '../core/config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
-import { signReviewPass } from '../core/finding-verify.js';
-import { signReviewRun, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
+import { signFinding, signReviewPass } from '../core/finding-verify.js';
+import { collectReviewerEvidenceState, signReviewRun, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
 import {
   deriveCanonicalHostKeyId,
   deriveHostVerdictBindings,
@@ -33,7 +33,7 @@ import { createMainRegistry } from '../registry.js';
 import { createQuorumSubmitHandlers } from '../handlers/quorum-submit.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { reviewerPromptHostForProvider } from '../handlers/story-dispatch.js';
-import type { ChecklistData, ReviewPass, ReviewRun, StoryInfo } from '../core/types.js';
+import type { ChecklistData, Finding, ReviewPass, ReviewRun, StoryInfo } from '../core/types.js';
 
 const STORY_ID = 'B-quorum-smoke';
 const DIST_CLI_PATH = fileURLToPath(new URL('../cli.js', import.meta.url));
@@ -126,7 +126,32 @@ function checklist(): ChecklistData {
       status: 'done',
       startTime: null,
       endTime: null,
-    }],
+      files: {
+        modify: ['packages/main/src/index.ts'],
+        create: [],
+        test: ['packages/main/tests/fixtures/quorum-smoke.json'],
+      },
+      verificationIntent: {
+        happy: [{
+          id: 'quorum-smoke-happy',
+          desc: 'Quorum smoke fixture remains Story-scoped.',
+          type: 'logic',
+          priority: 'must',
+        }],
+        edge: [],
+        adversarial: [],
+      },
+    }, ...Array.from({ length: 24 }, (_, index) => ({
+      id: `CHK-CONTEXT-${String(index + 1).padStart(3, '0')}`,
+      title: `Unaffected authoritative acceptance context ${index + 1}`,
+      context: `Current full-context requirement ${index + 1} ${'bounded '.repeat(40)}`,
+      status: 'done' as const,
+      startTime: null,
+      endTime: null,
+      relatedDocs: [],
+      files: { modify: [], create: [], test: [] },
+      verificationIntent: { happy: [], edge: [], adversarial: [] },
+    }))],
   };
 }
 
@@ -155,6 +180,14 @@ function makeFixture(
   }
   write(root, 'README.md', 'quorum submit smoke\n');
   write(root, 'packages/main/src/index.ts', 'export const seed = true;\n');
+  write(root, 'packages/main/tests/fixtures/quorum-smoke.json', JSON.stringify({
+    cases: [{
+      _id: 'base-case',
+      name: 'base case',
+      intentRef: `${STORY_ID}:CHK-001:happy:0`,
+      expect: true,
+    }],
+  }, null, 2) + '\n');
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
@@ -167,6 +200,7 @@ function makeFixture(
   const store = new StoryStore(root);
   store.writeStory(STORY_ID, story());
   store.writeChecklist(STORY_ID, checklist());
+  store.writeFindings(STORY_ID, { findings: [] });
   store.writeTestEvidence(STORY_ID, {
     result: 'PASS',
     command: 'quorum-submit-smoke-validation',
@@ -489,6 +523,112 @@ try {
     assert.equal(absentClaude.hostProvider, 'claude-code', 'absent explicit provider preserves Claude inference');
   });
 
+  check('real story-owned fixture delta reaches incremental only with case-level Story intent closure', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const fixturePath = 'packages/main/tests/fixtures/quorum-smoke.json';
+      write(fixture.root, fixturePath, JSON.stringify({
+        cases: [
+          { _id: 'base-case', name: 'base case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
+          { _id: 'added-case', name: 'new bounded case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
+        ],
+      }, null, 2) + '\n');
+      git(fixture.root, ['add', fixturePath]);
+      git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'add story-scoped fixture case']);
+      const dispatch = fixture.registry.get('dispatch')!;
+      const start = fixture.registry.get('review_run_start')!;
+      dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' });
+      const output = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
+      assert.match(output, /context incremental\/SAFE_INCREMENTAL/);
+      const latest = [...fixture.store.readReviewRuns(STORY_ID).runs].reverse().find(
+        candidate => candidate.lane === 'lattice-review-quality',
+      )!;
+      const envelope = fixture.store.readPromptEnvelopes(STORY_ID).envelopes.find(
+        candidate => candidate.envelopeId === latest.envelopeId,
+      )!;
+      assert.equal(envelope.freshnessClassification, 'RELATED_STORY_MATERIAL_DRIFT');
+      assert.ok(envelope.eligibilityReasonCodes?.includes('ELIGIBLE_RELATED_PURE_STORY_FIXTURE_DRIFT'));
+      assert.equal(verifyReviewRunPromptEnvelope(fixture.store, latest).ok, true);
+
+      write(fixture.root, fixturePath, JSON.stringify({
+        cases: [
+          { _id: 'base-case', name: 'base case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
+          { _id: 'added-case', name: 'new bounded case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
+          { _id: 'unbound-case', name: 'attacker omitted current Story intent', expect: true },
+        ],
+      }, null, 2) + '\n');
+      git(fixture.root, ['add', fixturePath]);
+      git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'add unbound fixture case']);
+      dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' });
+      const rejectedOutput = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
+      assert.match(rejectedOutput, /context full\/SAFETY_REQUIRES_FULL/);
+    });
+  });
+
+  check('duplicate fixture identities always force full regardless of alias or ordering', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const fixturePath = 'packages/main/tests/fixtures/quorum-smoke.json';
+      const intentRef = `${STORY_ID}:CHK-001:happy:0`;
+      const original = {
+        _id: 'base-case',
+        name: 'base case',
+        intentRef,
+        expect: true,
+      };
+      const duplicateVariants: Array<[string, Array<Record<string, unknown>>]> = [
+        ['prepend duplicate _id', [{ _id: 'base-case', expect: false }, original]],
+        ['append duplicate _id', [original, { _id: 'base-case', expect: false }]],
+        ['reordered duplicate _id', [{ _id: 'other', intentRef }, original, { _id: 'base-case', expect: false }]],
+        ['cross-field id alias', [original, { id: 'base-case', expect: false }]],
+        ['cross-field name alias', [original, { name: 'base case', expect: false }]],
+      ];
+      const dispatch = fixture.registry.get('dispatch')!;
+      const start = fixture.registry.get('review_run_start')!;
+      for (const [label, cases] of duplicateVariants) {
+        write(fixture.root, fixturePath, JSON.stringify({ cases }, null, 2) + '\n');
+        git(fixture.root, ['add', fixturePath]);
+        git(fixture.root, [...COMMIT_ENV, 'commit', '-m', label]);
+        dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' });
+        const output = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
+        assert.match(output, /context full\/SAFETY_REQUIRES_FULL/, `${label} must select safety full`);
+      }
+    });
+  });
+
+  check('review_run_start CLI records reviewer-requested full escalation in envelope and signed run', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const dispatch = runFixtureCli(fixture.root, [
+        'dispatch',
+        JSON.stringify({ storyId: STORY_ID, agentType: 'lattice-review-quality' }),
+      ], { LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex' });
+      assert.equal(dispatch.status, 0, dispatch.stderr);
+      const reason = 'Bounded basis omitted an affected contract required by the reviewer.';
+      const started = runFixtureCli(fixture.root, [
+        'review_run_start',
+        JSON.stringify({
+          storyId: STORY_ID,
+          agent: 'lattice-review-quality',
+          reviewerEscalationReason: reason,
+        }),
+      ], { LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: 'codex' });
+      assert.equal(started.status, 0, started.stderr);
+      assert.match(started.stdout, /context full\/REVIEWER_REQUESTED_FULL/);
+      assert.match(started.stdout, /reviewer escalation: Bounded basis omitted/);
+      const latest = [...fixture.store.readReviewRuns(STORY_ID).runs].reverse().find(
+        candidate => candidate.lane === 'lattice-review-quality',
+      )!;
+      assert.equal(latest.reviewerEscalationReason, reason);
+      assert.equal(verifyReviewRunPromptEnvelope(fixture.store, latest).ok, true);
+      const envelope = fixture.store.readPromptEnvelopes(STORY_ID).envelopes.find(
+        candidate => candidate.envelopeId === latest.envelopeId,
+      )!;
+      assert.equal(envelope.selectionReason, 'REVIEWER_REQUESTED_FULL');
+      assert.equal(envelope.escalationReason, reason);
+    });
+  });
+
   check('unsupported session providers cannot enter the dispatch-to-review-run-to-gate chain', () => {
     const cases = [
       { label: 'agy', provider: 'agy', diagnostic: 'antigravity', competingEnv: {} },
@@ -569,6 +709,7 @@ try {
         assert.equal(existsSync(join(thin.root, '.lattice-codex/agents')), false);
         assert.equal(existsSync(join(thin.root, '.claude/agents')), false);
         recordReviewerPasses(thin.registry, selected.provider);
+        const thinEvidence = collectReviewerEvidenceState(thin.store, STORY_ID, thin.root);
         const qualityDispatch = [...thin.store.readProcessEvents(STORY_ID)].reverse().find(
           event => event.type === 'dispatch' && event.agentType === 'lattice-review-quality',
         );
@@ -581,7 +722,7 @@ try {
             gitCwd: thin.root,
           }),
           true,
-          `${selected.provider} completes dispatch, review_run_start and REVIEW gate without host assets`,
+          `${selected.provider} completes dispatch, review_run_start and REVIEW gate without host assets; invalid=${JSON.stringify(thinEvidence.invalid)}`,
         );
       } finally {
         process.chdir(primaryCwd);
@@ -888,6 +1029,23 @@ try {
   });
 
   check('refuses when reviewer passes are stale and writes no verdicts', () => {
+    const checklist = store.readChecklist(STORY_ID);
+    store.writeChecklist(STORY_ID, {
+      items: [
+        ...checklist.items,
+        ...Array.from({ length: 60 }, (_, index) => ({
+          id: `CHK-PAD-${String(index + 1).padStart(3, '0')}`,
+          title: `Current unaffected acceptance context ${index + 1}`,
+          context: `Authoritative current full-context padding ${index + 1} ${'x'.repeat(160)}`,
+          status: 'done' as const,
+          startTime: null,
+          endTime: null,
+          relatedDocs: [],
+          files: { modify: [], create: [], test: [] },
+          verificationIntent: { happy: [], edge: [], adversarial: [] },
+        })),
+      ],
+    });
     recordReviewerPasses(registry);
     commitMaterialChange(root);
     assertQuorumRefuses(registry, store, root, 'stale reviewer pass refusal');
@@ -901,7 +1059,12 @@ try {
       projectRoot: root,
       gitCwd: root,
     };
-    assert.equal(canPassReviewGuard(machineContext), true, 'current canonical full-envelope evidence passes REVIEW');
+    const currentEnvelopeEvidence = collectReviewerEvidenceState(store, STORY_ID, root);
+    assert.equal(
+      canPassReviewGuard(machineContext),
+      true,
+      `current canonical full-envelope evidence passes REVIEW; invalid=${JSON.stringify(currentEnvelopeEvidence.invalid)}`,
+    );
     const qualityRun = [...store.readReviewRuns(STORY_ID).runs]
       .reverse()
       .find(run => run.lane === 'lattice-review-quality');
@@ -991,6 +1154,107 @@ try {
   let result: any;
   check('emits exactly rounds x 2 verdicts after current reviewer passes', () => {
     recordReviewerPasses(registry);
+    const machineContext: StoryMachineContext = {
+      storyId: STORY_ID,
+      store,
+      projectRoot: root,
+      gitCwd: root,
+    };
+    for (const lane of REVIEW_LANES) {
+      const latestRun = [...store.readReviewRuns(STORY_ID).runs].reverse().find(run => run.lane === lane)!;
+      const latestEnvelope = store.readPromptEnvelopes(STORY_ID).envelopes.find(
+        envelope => envelope.envelopeId === latestRun.envelopeId,
+      )!;
+      assert.equal(latestEnvelope.contextMode, 'incremental', `${lane} second same-material run uses trusted incremental context`);
+      assert.equal(latestEnvelope.selectionReason, 'SAFE_INCREMENTAL');
+      assert.equal(verifyReviewRunPromptEnvelope(store, latestRun).ok, true);
+    }
+    const qualityRun = [...store.readReviewRuns(STORY_ID).runs].reverse().find(
+      run => run.lane === 'lattice-review-quality',
+    )!;
+    const postRunFinding: Finding = {
+      id: `${STORY_ID}:F-CUTOFF`,
+      desc: 'Low-severity finding recorded after the incremental ReviewRun snapshot.',
+      severity: 'low',
+      category: 'edge',
+      status: 'open',
+      evidenceState: 'verified',
+      agent: 'lattice-review-quality',
+      createdAt: new Date(Date.parse(qualityRun.startedAt) + 1_000).toISOString(),
+      reviewRound: qualityRun.reviewRound,
+      reviewRunId: qualityRun.reviewRunId,
+    };
+    postRunFinding._hash = signFinding(
+      STORY_ID,
+      postRunFinding.id,
+      postRunFinding.desc,
+      postRunFinding.severity,
+      postRunFinding.createdAt!,
+      postRunFinding.reviewRound!,
+      postRunFinding.reviewRunId!,
+    );
+    const originalFindings = store.readFindings(STORY_ID);
+    store.writeFindings(STORY_ID, { findings: [...originalFindings.findings, postRunFinding] });
+    assert.equal(
+      verifyReviewRunPromptEnvelope(store, qualityRun).ok,
+      true,
+      'a finding created after ReviewRun start cannot self-invalidate the frozen incremental basis',
+    );
+    assert.ok(
+      collectReviewerEvidenceState(store, STORY_ID, root).valid.some(record => record.id === postRunFinding.id),
+      'the post-run finding remains visible as reviewer evidence even though it is outside the frozen basis',
+    );
+    store.writeFindings(STORY_ID, originalFindings);
+
+    const envelopeData = store.readPromptEnvelopes(STORY_ID);
+    const qualityEnvelopeIndex = envelopeData.envelopes.findIndex(
+      envelope => envelope.envelopeId === qualityRun.envelopeId,
+    );
+    assert.ok(qualityEnvelopeIndex >= 0);
+    const originalQualityEnvelope = envelopeData.envelopes[qualityEnvelopeIndex];
+    const tamperCases: Array<[string, unknown]> = [
+      ['impactPolicyVersion', 'tampered-policy'],
+      ['eligibilityReasonCodes', ['ELIGIBLE_ATTACKER_OVERRIDE']],
+      ['freshnessClassification', 'ATTACKER_FRESH'],
+      ['priorPassRef', 'attacker-pass'],
+      ['changedFilesDigest', 'attacker-changed-files'],
+      ['impactedFilesDigest', 'attacker-impacted-files'],
+      ['reviewBasisDigest', 'attacker-basis'],
+      ['incrementalContextDigest', 'attacker-context'],
+      ['taskSemanticDigest', 'attacker-task'],
+      ['selectionReason', 'FULL_CHEAPER_OR_EQUAL'],
+    ];
+    for (const [field, value] of tamperCases) {
+      const tampered = { ...originalQualityEnvelope, [field]: value };
+      const envelopes = [...envelopeData.envelopes];
+      envelopes[qualityEnvelopeIndex] = tampered;
+      store.writePromptEnvelopes(STORY_ID, { envelopes });
+      assert.equal(canPassReviewGuard(machineContext), false, `${field} tamper is rejected by REVIEW`);
+      assert.ok(
+        collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(issue => issue.reviewRunId === qualityRun.reviewRunId),
+        `${field} tamper is rejected by the shared evidence collector`,
+      );
+      assertQuorumRefuses(registry, store, root, `${field} tamper is rejected by quorum`);
+    }
+    store.writePromptEnvelopes(STORY_ID, envelopeData);
+    assert.equal(canPassReviewGuard(machineContext), true, 'restoring the exact incremental envelope restores REVIEW');
+
+    const originalChecklist = store.readChecklist(STORY_ID);
+    store.writeChecklist(STORY_ID, {
+      items: originalChecklist.items.map(item => ({
+        ...item,
+        context: `${item.context ?? ''} model-relevant attacker drift`,
+      })),
+    });
+    assert.equal(canPassReviewGuard(machineContext), false, 'incremental run is rejected when authoritative recomputation requires full');
+    assert.ok(
+      collectReviewerEvidenceState(store, STORY_ID, root).invalid.some(issue => issue.reviewRunId === qualityRun.reviewRunId),
+      'wrong-mode incremental evidence is rejected by the shared collector',
+    );
+    assertQuorumRefuses(registry, store, root, 'wrong-mode incremental run is rejected by quorum');
+    store.writeChecklist(STORY_ID, originalChecklist);
+    assert.equal(canPassReviewGuard(machineContext), true, 'restoring authoritative task context restores incremental evidence');
+
     const handler = registry.get('quorum_submit');
     assert.ok(handler, 'quorum_submit handler is registered');
     const beforeHead = git(root, ['rev-parse', 'HEAD']);

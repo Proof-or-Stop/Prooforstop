@@ -1,0 +1,86 @@
+{
+  "storyId": "B-03ac",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/handlers/review-incremental-context.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/finding.ts",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/impact-classification-policy.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/review-run-smoke.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/story",
+    "tests/fixtures",
+    "packages/main/src/.omx"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/.omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "scopeChangeReason": "Initialize from the confirmed Story 4 PLAN after evidence-based narrowing of v1 incremental eligibility.",
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Mechanically required to expose the approved reviewerEscalationReason on the public review_run_start CLI schema and bind that reason into the signed ReviewRun record.",
+      "timestamp": "2026-07-19T05:39:31.544Z",
+      "paths": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "6828f0a3db9f7b2165f9932d5f85d2c1bfb83156",
+      "materialHash": "8f18f2d81ab6a4969f465e4133d3cf818edb3e39c44ad010c96bf567f6887b8e"
+    }
+  ],
+  "createdAt": "2026-07-19T04:49:26.801Z",
+  "updatedAt": "2026-07-19T05:39:31.544Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/handlers/review-incremental-context.ts": "packages/main/src/handlers/review-incremental-context.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/prompt-contracts.ts": "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/review-run.ts": "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "packages/main/src/core/impact-classification-policy.ts": "packages/main/src/core/impact-classification-policy.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/review-run-smoke.ts": "packages/main/src/tasks/review-run-smoke.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "docs/story": "docs/story",
+    "tests/fixtures": "tests/fixtures",
+    "packages/main/src/.omx": ".omx",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts"
+  }
+}
