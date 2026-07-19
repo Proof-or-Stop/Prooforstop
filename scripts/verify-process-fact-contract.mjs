@@ -156,6 +156,7 @@ const requiredProcessFactSemantics = {
 const requiredRuntimeFactSemantics = {
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
+  'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
@@ -5210,6 +5211,16 @@ function assertParentRoadmapTotalityRuntime() {
     registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
     'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/freshness contract',
   );
+  assert(levelText.includes('runtime:prompt_role_body_rollout_gate'), 'process-fact-levels: prompt role-body rollout gate fact missing');
+  assert(
+    registryFactText.includes("'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence']"),
+    'process-fact-registry: prompt role-body rollout must remain a gate-consumed role/envelope contract',
+  );
+  const roleBodyRolloutLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:prompt_role_body_rollout_gate');
+  assert(roleBodyRolloutLevel?.level === 'L4', 'prompt role-body rollout must remain L4');
+  for (const token of ['five active REVIEW lanes', 'content-addressed', 'byte-exact legacy body', 'host identity', 'Compatibility and retired']) {
+    assert(roleBodyRolloutLevel?.rationale.includes(token), `prompt role-body rollout rationale must preserve ${token}`);
+  }
   const dispatchAuthorityLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:agent_dispatch_role_authority_gate');
   assert(dispatchAuthorityLevel?.level === 'L4', 'typed agent dispatch authority must remain L4');
   assert(/dispatch prompt admission and role-gated checklist\/reviewer evidence mutation consumers/.test(dispatchAuthorityLevel?.gateConsumer || ''), 'typed agent dispatch authority must name prompt and mutation consumers');

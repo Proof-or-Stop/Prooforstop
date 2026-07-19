@@ -17,6 +17,7 @@ import { tmpdir } from 'node:os';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BUILT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-registry.js');
+const BUILT_ROLE_CONTRACT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-role-contract-registry.js');
 const BUILT_PROMPT_MEASUREMENT_PATH = join(ROOT, 'packages/main/dist/core/prompt-measurement.js');
 const CLI_PATH = join(ROOT, 'bin/lattice.js');
 const BASELINE_PATH = join(
@@ -32,7 +33,7 @@ const PROMPT_MEASUREMENT_BASELINE_PATH = join(
   'docs/requirements/baselines/role-prompt-measurement-baseline.json',
 );
 const EXPECTED_ROLE_COUNT = 16;
-const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v7';
+const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v8';
 const PLAN_PATH = 'docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md';
 const WRITE_MODE = process.argv.includes('--write');
 const PROBE_DIRECT_STORY_CLASSIFIER = process.argv.includes('--probe-direct-story-classifier');
@@ -59,7 +60,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-behavior',
-    templateHash: 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2',
+    templateHash: 'e06925d175585f5154ecce329491b9444b837f4d5468614ed81f09313a7ee7fa',
   },
   {
     role: 'lattice-review-channel',
@@ -67,7 +68,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-concept',
-    templateHash: 'cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a',
+    templateHash: 'a2bd8b90abd659f5917ea808fbe4e9c9fabdfaab01bee14a41b9f53fff49058e',
   },
   {
     role: 'lattice-review-delivery',
@@ -75,11 +76,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-docs',
-    templateHash: '9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59',
+    templateHash: '01feeef7c3e6dacdc0003ea6f40e2363b858bc199d8b17c294583a885c394d64',
   },
   {
     role: 'lattice-review-quality',
-    templateHash: 'f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280',
+    templateHash: 'e23e289d6954262ededfc53befc5e808b557e808a7946f45df9742eec41ad4af',
   },
   {
     role: 'lattice-review-scope-plan',
@@ -91,7 +92,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-test-coverage',
-    templateHash: '145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0',
+    templateHash: 'a47a2fdab2d64a18c0338c06a1fcbc41bb7abe6a3187b4caae7303aa42721a5d',
   },
   {
     role: 'product-reviewer',
@@ -106,8 +107,25 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
     templateHash: '170e49b7abf5a4ff4b949315c5ff41f32d11696c1f84e0909a5935d03ab7816d',
   },
 ].map(entry => Object.freeze(entry)));
+const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
+  ['lattice-review-behavior', 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2', 'e06925d175585f5154ecce329491b9444b837f4d5468614ed81f09313a7ee7fa', 'af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8', '080d2f49a3e203cf630a5cc0689408e8afd6bd02dce26df8c1445d038925414a', '0ce97a4f6fafaac9c89a729502924fcdd121ae846b5588bc1055f5065e18f02d', '0691de5b1497033422f8c0a31103e9473a5a58ee4add491dcd0846919ac0442a', '13655ac2380e502a392cca12c15e0a58530a288a774b3b9fe62d48175e713a65', '6401781e688307f7c92c742b5a0a023be078f5091bd4e21a8114235e66d646d6'],
+  ['lattice-review-concept', 'cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a', 'a2bd8b90abd659f5917ea808fbe4e9c9fabdfaab01bee14a41b9f53fff49058e', '197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2', '2984d1e5cec94627faddd5129fc8d306914a4523b11818274f859ea1643081d7', '72d2be508d5d5beb674249ac7278ec873b76bfc1593812fd2cdc8e71fc961b87', '43309f2da0a3f960dd77dc1d324df82f3728fe8812886506e7de61938862278e', '22a558d50f72075ac5ae90d61c067064199f55d92bf467b8bd19cb574a481661', '276e86de93e1372ce22c1456415135639765d68cb0a022a2db5cf15b4adc2d89'],
+  ['lattice-review-docs', '9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59', '01feeef7c3e6dacdc0003ea6f40e2363b858bc199d8b17c294583a885c394d64', '9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7', '48fffaf33f04def131e9f8c56858930b55d334b42b5756cb6addd68844502577', 'a18c1c4de753f9239f23172fb3a68ba97fe1497441908b073db87c13e6a44300', '2a98f7147169dae06ffd9ebdc3407787d506d797904c3541a6a4296151ca7bed', '91f4692b28668316391f0e595b4d19223fa11a9fb1af1637c961e26b9e4f753f', 'd4b9ab9eeaeabaef70070b17381cb6fdec3f1b432ed063ba7d67b660ae19dd93'],
+  ['lattice-review-quality', 'f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280', 'e23e289d6954262ededfc53befc5e808b557e808a7946f45df9742eec41ad4af', 'ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0', 'f0f73d2785eef08df017e74e1216f929c832bca6581b25bf8d6c6181ead8d000', '4f2b3ab09a545108b6cb4bc572608e954323af898a5135201caa0b01f069bc88', 'b36cc9647cff071f2da311cc4b1c71ec60e6a3b8d036e1baeab1ccb5255ec93e', '5e31b3bab889aa797c85cb9242f86cb81edf8eaec3626d14b94abb6a84d976b8', '498a92ac6c47f69acf0860cce77a0ad7543c98cb02a1cf67e1efa41ea77e8fbb'],
+  ['lattice-review-test-coverage', '145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0', 'a47a2fdab2d64a18c0338c06a1fcbc41bb7abe6a3187b4caae7303aa42721a5d', '9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7', 'dfe09b8656889ee8b2dfde40eaf00faf1bae0a3f425c8144b1003bc04c4edbc8', 'b59fe6e97931bbe44bee880c790082541e3865a414e9bbc131d73796d8a033d2', 'bc636c86ab8646c9e0f26dc172452c5e091fbd33a739f50e05a1c92ddecb489c', '28ff8aa8a7becf96df708582738311bd3e58a6abcec9c10376dd151acd3c68bd', 'f3f251ba1c931868dc01d8d51ecbc37ed9d6c8f0a1946576ce56225347a7308d'],
+].map(([role, legacyBodySha256, modularBodySha256, roleSemanticDigest, roleRenderDigest, legacyClaudeRenderDigest, legacyCodexRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
+  role,
+  legacyBodySha256,
+  modularBodySha256,
+  roleSemanticDigest,
+  roleRenderDigest,
+  legacyClaudeRenderDigest,
+  legacyCodexRenderDigest,
+  modularClaudeRenderDigest,
+  modularCodexRenderDigest,
+})));
 const PROMPT_POLICY_PRIMARY_BOUNDARY =
-  'The independent code-reviewed approval manifest binds every exact role ID and complete prompt body by SHA-256 before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.';
+  'The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.';
 const ROLE_MATRIX_FIELDS = [
   'status',
   'phase',
@@ -123,7 +141,8 @@ const ROLE_MATRIX_FIELDS = [
 const REVIEWER_AUDITED_ROLE_MATRIX_FIELDS = [...ROLE_MATRIX_FIELDS];
 const ROLE_MATRIX_MACHINE_CHECKS = [
   'Lock the exact 16 role snapshots and role IDs.',
-  'Require each complete prompt body and registry template hash to match the independent code-reviewed approval manifest.',
+  'Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.',
+  'For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.',
   'Lock agent_prompt output hashes.',
   'Require every role-matrix field to be a non-empty string.',
   'Require JSON/Markdown parity and reject snapshot drift.',
@@ -1321,11 +1340,12 @@ function assertApprovedPromptPolicyManifest(roleEntries) {
 
 function buildPromptPolicyManifestAudit() {
   return {
-    model: 'independent-hardcoded-role-and-whole-prompt-sha256-manifest',
+    model: 'independent-hardcoded-role-and-mode-aware-whole-prompt-digest-manifest',
     algorithm: 'sha256',
     roleCount: EXPECTED_ROLE_COUNT,
     primaryBoundary: PROMPT_POLICY_PRIMARY_BOUNDARY,
     roles: APPROVED_PROMPT_POLICY_MANIFEST.map(entry => ({ ...entry })),
+    roleBodyRollout: APPROVED_ROLE_BODY_ROLLOUT_MANIFEST.map(entry => ({ ...entry })),
   };
 }
 
@@ -1903,6 +1923,11 @@ async function loadBuiltRegistry() {
   return registryModule;
 }
 
+async function loadBuiltRoleContractRegistry() {
+  assertBuiltArtifacts();
+  return import(`${pathToFileURL(BUILT_ROLE_CONTRACT_REGISTRY_PATH).href}?v=${Date.now()}`);
+}
+
 async function verifyPromptMeasurementSidecar(failures) {
   if (!existsSync(BUILT_PROMPT_MEASUREMENT_PATH)) {
     failures.push('built prompt measurement module is missing; run packages/main build');
@@ -1957,13 +1982,21 @@ async function collectPromptStateFromSource({
   promptOutputCollector,
   canonicalizeTemplateRelPath = false,
 } = {}) {
-  const { readPromptRegistry, readPromptTemplate } = await loadBuiltRegistry();
+  const { readPromptRegistry } = await loadBuiltRegistry();
+  const {
+    PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    resolvePromptRoleBody,
+  } = await loadBuiltRoleContractRegistry();
   const snapshot = readPromptRegistry(templateDir);
+  const rolloutConfig = {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: Object.fromEntries(APPROVED_ROLE_BODY_ROLLOUT_MANIFEST.map(entry => [entry.role, 'full-envelope'])),
+  };
   const roleEntries = [];
   const agentPromptOutputs = [];
 
   for (const entry of snapshot.agents) {
-    const content = readPromptTemplate(entry);
+    const content = resolvePromptRoleBody(entry.agentId, rolloutConfig, snapshot).body;
     const stdout = promptOutputCollector
       ? promptOutputCollector(entry, content)
       : runAgentPrompt(entry.agentId);
@@ -1978,8 +2011,8 @@ async function collectPromptStateFromSource({
       relPath: canonicalizeTemplateRelPath
         ? `templates/agents/${entry.file}`
         : entry.relPath,
-      templateHash: entry.templateHash,
-      bytes: entry.bytes,
+      templateHash: sha256(content),
+      bytes: Buffer.byteLength(content),
       lines: countLines(content),
       content,
     });
@@ -2235,6 +2268,12 @@ function verifyPromptPolicyManifestAuditSnapshot(audit, label, failures) {
   for (const role of actualRoles.keys()) {
     if (!expectedRoles.has(role)) failures.push(`${label}: unapproved role ${role}`);
   }
+  requireSameContent(
+    JSON.stringify(audit.roleBodyRollout ?? null, null, 2),
+    JSON.stringify(expected.roleBodyRollout, null, 2),
+    `${label}.roleBodyRollout`,
+    failures,
+  );
 }
 
 function verifyPromptPolicyManifestAudit(current, baseline, failures) {
@@ -3105,6 +3144,20 @@ async function verifyPromptPolicyManifestProbes(promptState, failures) {
         audit.roles.shift();
       },
     },
+    {
+      name: 'rollout modular body hash mutation',
+      expected: 'roleBodyRollout',
+      mutate(audit) {
+        audit.roleBodyRollout[0].modularBodySha256 = '0'.repeat(64);
+      },
+    },
+    {
+      name: 'rollout host identity removal',
+      expected: 'roleBodyRollout',
+      mutate(audit) {
+        delete audit.roleBodyRollout[0].modularCodexRenderDigest;
+      },
+    },
   ];
   for (const probe of auditCases) {
     const mutatedAudit = buildPromptPolicyManifestAudit();
@@ -3201,7 +3254,7 @@ async function runPromptPolicyManifestProbeCommand() {
     process.exit(1);
   }
   console.log(
-    `PASS approved prompt policy manifest probes: 8 role/hash/content/add/remove entry mutations, 4 generated-audit mutations, 2 synthetic collector rejections, ${PROMPT_POLICY_DIRECT_COLLECTION_PROBES.length} direct and ${PROMPT_POLICY_LEGACY_COLLECTION_PROBES.length} legacy body-mutation collection rejections, baseline-refresh self-authorization rejected`,
+    `PASS approved prompt policy manifest probes: 8 role/hash/content/add/remove entry mutations, 6 generated-audit mutations (including rollout body/host identity), 2 synthetic collector rejections, ${PROMPT_POLICY_DIRECT_COLLECTION_PROBES.length} direct and ${PROMPT_POLICY_LEGACY_COLLECTION_PROBES.length} legacy body-mutation collection rejections, baseline-refresh self-authorization rejected`,
   );
 }
 
@@ -3236,11 +3289,20 @@ async function runRoleMatrixSnapshotDriftProbeCommand() {
 
 async function writeBaselineFiles() {
   const current = await collectCurrentBaseline();
+  const measurementModule = await import(
+    `${pathToFileURL(BUILT_PROMPT_MEASUREMENT_PATH).href}?v=${Date.now()}`
+  );
+  const measurementReport = measurementModule.generatePromptMeasurementReport();
   mkdirSync(dirname(BASELINE_PATH), { recursive: true });
   writeFileSync(BASELINE_PATH, `${JSON.stringify(current, null, 2)}\n`);
   writeFileSync(MATRIX_PATH, renderMatrixMarkdown(current));
+  writeFileSync(
+    PROMPT_MEASUREMENT_BASELINE_PATH,
+    measurementModule.canonicalPromptMeasurementReportJson(measurementReport),
+  );
   console.log(`WROTE ${toRepoPath(BASELINE_PATH)}`);
   console.log(`WROTE ${toRepoPath(MATRIX_PATH)}`);
+  console.log(`WROTE ${toRepoPath(PROMPT_MEASUREMENT_BASELINE_PATH)}`);
 }
 
 async function verifyBaseline() {

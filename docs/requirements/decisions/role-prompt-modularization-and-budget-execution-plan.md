@@ -1219,6 +1219,50 @@ node scripts/verify-process-fact-contract.mjs
 
 #### Story 5：迁移 active reviewer 角色与增量装配
 
+实现记录（B-235e）：
+
+- concept、quality、test-coverage、behavior、docs 五个 active reviewer 现已各有
+  独立 `full-envelope` feature flag；未配置时仍选择冻结且内容寻址的
+  `legacy-full-context` 正文。五个 flag 的 32 种组合均有机械覆盖，
+  `lattice-review-channel` 因 retired 明确不在 rollout 集合中。
+- package registry 和 Claude/Codex full-asset mirror 保留复合正文作为精确
+  legacy rollback 资产；运行时 resolver 只在启用角色上选择模块化 Role
+  Contract。`agent_prompt`、Story dispatch、`review_run_start` 和 gate
+  reconstruction 消费同一个 mode-aware resolver，host render identity 同时绑定
+  rollout mode、所选正文 digest 和 host render digest。
+- incremental eligibility 仍完全由 Story 4 的 impact policy 决定。本 Story
+  没有新增“精简即 incremental”的捷径；未知、contract/policy/scope drift
+  继续 fail closed 到 full。
+- 在途旧 pass 仍按其原 ReviewRun、round、Prompt Envelope 和 host identity
+  验证；切换 feature flag 不会把旧正文重新解释成新正文，也不会让非当前
+  round、compatibility 或 retired evidence 获得 gate authority。
+- 三份审批基线已绑定五个角色的 legacy/modular 正文 hash、role
+  semantic/render digest，以及 Claude/Codex 两种模式的 host render digest。
+  baseline verifier、process-fact registry/verifier 和 smoke tests 同步保护该
+  边界。
+- Story 3 的冻结 corpus/protocol 未修改。B-235e 使用独立、版本化且
+  content-addressed 的三臂 replay campaign（legacy/full/incremental）重算；
+  由于缺少逐角色 exact historical envelopes、reviewer outputs、独立
+  adjudication bytes 和 provider receipts，五个角色全部诚实输出
+  `INCONCLUSIVE`。因此本 Story 不宣称已达到 50%/40% 降幅，也不把
+  unavailable provider usage 当成 0。
+
+实现证据命令：
+
+```bash
+npm --prefix packages/main run build
+node packages/main/dist/tasks/prompt-registry-smoke.js
+node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js
+node packages/main/dist/tasks/review-run-smoke.js
+node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js
+node packages/main/dist/tasks/review-incremental-context-smoke.js
+node packages/main/dist/tasks/quorum-submit-smoke.js
+node experiments/role-prompt-ab-replay/selfcheck.mjs
+node scripts/verify-proof-or-stop-prompt-baseline.mjs
+node scripts/verify-process-fact-contract.mjs
+node bin/lattice.js verify_codex
+```
+
 目标：
 
 - 迁移 concept、quality、test-coverage、behavior、docs；不包含已退役 channel。
@@ -1415,8 +1459,8 @@ node scripts/verify-process-fact-contract.mjs
 - [ ] 实现机械 incremental eligibility。
 - [ ] 实现自动 full-review escalation。
 - [ ] 验证 `FULL_CHEAPER_OR_EQUAL` 和 budget violation。
-- [ ] 迁移五个 active reviewer 角色。
-- [ ] 实现旧 pass `legacy-full-context` 兼容和 per-role rollback。
+- [x] 迁移五个 active reviewer 角色（B-235e；逐角色 flag、32 组合、mode-aware gate/host binding）。
+- [x] 实现旧 pass `legacy-full-context` 兼容和 per-role rollback（B-235e；精确冻结正文与 digest）。
 - [ ] 迁移 init/scope/implementer/delivery/evaluator。
 - [ ] 隔离 legacy 角色。
 - [ ] 完成三类、每类至少两个历史 Story A/B。
@@ -1424,7 +1468,7 @@ node scripts/verify-process-fact-contract.mjs
 - [ ] 将预算从 observe 升到 warn。
 - [ ] 输出 enforce-readiness；证据充分时另建条件性 enforce Story。
 - [ ] 验证 budget violation 和 main-write-lock 并发路径。
-- [ ] 更新 baseline 和相关决策文档。
+- [x] 更新 Story 5 baseline 和相关决策文档（B-235e；不提前声称 Story 6/7 完成）。
 
 ## Operational Rules
 

@@ -1,13 +1,13 @@
 {
-  "schemaVersion": "proof-or-stop.prompt-baseline.v7",
+  "schemaVersion": "proof-or-stop.prompt-baseline.v8",
   "storyId": "B-3928",
   "sourcePlan": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
   "expectedRoleCount": 16,
   "promptPolicyApproval": {
-    "model": "independent-hardcoded-role-and-whole-prompt-sha256-manifest",
+    "model": "independent-hardcoded-role-and-mode-aware-whole-prompt-digest-manifest",
     "algorithm": "sha256",
     "roleCount": 16,
-    "primaryBoundary": "The independent code-reviewed approval manifest binds every exact role ID and complete prompt body by SHA-256 before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.",
+    "primaryBoundary": "The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.",
     "roles": [
       {
         "role": "implementation-reviewer",
@@ -27,7 +27,7 @@
       },
       {
         "role": "lattice-review-behavior",
-        "templateHash": "a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2"
+        "templateHash": "e06925d175585f5154ecce329491b9444b837f4d5468614ed81f09313a7ee7fa"
       },
       {
         "role": "lattice-review-channel",
@@ -35,7 +35,7 @@
       },
       {
         "role": "lattice-review-concept",
-        "templateHash": "cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a"
+        "templateHash": "a2bd8b90abd659f5917ea808fbe4e9c9fabdfaab01bee14a41b9f53fff49058e"
       },
       {
         "role": "lattice-review-delivery",
@@ -43,11 +43,11 @@
       },
       {
         "role": "lattice-review-docs",
-        "templateHash": "9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59"
+        "templateHash": "01feeef7c3e6dacdc0003ea6f40e2363b858bc199d8b17c294583a885c394d64"
       },
       {
         "role": "lattice-review-quality",
-        "templateHash": "f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280"
+        "templateHash": "e23e289d6954262ededfc53befc5e808b557e808a7946f45df9742eec41ad4af"
       },
       {
         "role": "lattice-review-scope-plan",
@@ -59,7 +59,7 @@
       },
       {
         "role": "lattice-review-test-coverage",
-        "templateHash": "145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0"
+        "templateHash": "a47a2fdab2d64a18c0338c06a1fcbc41bb7abe6a3187b4caae7303aa42721a5d"
       },
       {
         "role": "product-reviewer",
@@ -73,6 +73,63 @@
         "role": "test-intent",
         "templateHash": "170e49b7abf5a4ff4b949315c5ff41f32d11696c1f84e0909a5935d03ab7816d"
       }
+    ],
+    "roleBodyRollout": [
+      {
+        "role": "lattice-review-behavior",
+        "legacyBodySha256": "a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2",
+        "modularBodySha256": "e06925d175585f5154ecce329491b9444b837f4d5468614ed81f09313a7ee7fa",
+        "roleSemanticDigest": "af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8",
+        "roleRenderDigest": "080d2f49a3e203cf630a5cc0689408e8afd6bd02dce26df8c1445d038925414a",
+        "legacyClaudeRenderDigest": "0ce97a4f6fafaac9c89a729502924fcdd121ae846b5588bc1055f5065e18f02d",
+        "legacyCodexRenderDigest": "0691de5b1497033422f8c0a31103e9473a5a58ee4add491dcd0846919ac0442a",
+        "modularClaudeRenderDigest": "13655ac2380e502a392cca12c15e0a58530a288a774b3b9fe62d48175e713a65",
+        "modularCodexRenderDigest": "6401781e688307f7c92c742b5a0a023be078f5091bd4e21a8114235e66d646d6"
+      },
+      {
+        "role": "lattice-review-concept",
+        "legacyBodySha256": "cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a",
+        "modularBodySha256": "a2bd8b90abd659f5917ea808fbe4e9c9fabdfaab01bee14a41b9f53fff49058e",
+        "roleSemanticDigest": "197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2",
+        "roleRenderDigest": "2984d1e5cec94627faddd5129fc8d306914a4523b11818274f859ea1643081d7",
+        "legacyClaudeRenderDigest": "72d2be508d5d5beb674249ac7278ec873b76bfc1593812fd2cdc8e71fc961b87",
+        "legacyCodexRenderDigest": "43309f2da0a3f960dd77dc1d324df82f3728fe8812886506e7de61938862278e",
+        "modularClaudeRenderDigest": "22a558d50f72075ac5ae90d61c067064199f55d92bf467b8bd19cb574a481661",
+        "modularCodexRenderDigest": "276e86de93e1372ce22c1456415135639765d68cb0a022a2db5cf15b4adc2d89"
+      },
+      {
+        "role": "lattice-review-docs",
+        "legacyBodySha256": "9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59",
+        "modularBodySha256": "01feeef7c3e6dacdc0003ea6f40e2363b858bc199d8b17c294583a885c394d64",
+        "roleSemanticDigest": "9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7",
+        "roleRenderDigest": "48fffaf33f04def131e9f8c56858930b55d334b42b5756cb6addd68844502577",
+        "legacyClaudeRenderDigest": "a18c1c4de753f9239f23172fb3a68ba97fe1497441908b073db87c13e6a44300",
+        "legacyCodexRenderDigest": "2a98f7147169dae06ffd9ebdc3407787d506d797904c3541a6a4296151ca7bed",
+        "modularClaudeRenderDigest": "91f4692b28668316391f0e595b4d19223fa11a9fb1af1637c961e26b9e4f753f",
+        "modularCodexRenderDigest": "d4b9ab9eeaeabaef70070b17381cb6fdec3f1b432ed063ba7d67b660ae19dd93"
+      },
+      {
+        "role": "lattice-review-quality",
+        "legacyBodySha256": "f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280",
+        "modularBodySha256": "e23e289d6954262ededfc53befc5e808b557e808a7946f45df9742eec41ad4af",
+        "roleSemanticDigest": "ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0",
+        "roleRenderDigest": "f0f73d2785eef08df017e74e1216f929c832bca6581b25bf8d6c6181ead8d000",
+        "legacyClaudeRenderDigest": "4f2b3ab09a545108b6cb4bc572608e954323af898a5135201caa0b01f069bc88",
+        "legacyCodexRenderDigest": "b36cc9647cff071f2da311cc4b1c71ec60e6a3b8d036e1baeab1ccb5255ec93e",
+        "modularClaudeRenderDigest": "5e31b3bab889aa797c85cb9242f86cb81edf8eaec3626d14b94abb6a84d976b8",
+        "modularCodexRenderDigest": "498a92ac6c47f69acf0860cce77a0ad7543c98cb02a1cf67e1efa41ea77e8fbb"
+      },
+      {
+        "role": "lattice-review-test-coverage",
+        "legacyBodySha256": "145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0",
+        "modularBodySha256": "a47a2fdab2d64a18c0338c06a1fcbc41bb7abe6a3187b4caae7303aa42721a5d",
+        "roleSemanticDigest": "9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7",
+        "roleRenderDigest": "dfe09b8656889ee8b2dfde40eaf00faf1bae0a3f425c8144b1003bc04c4edbc8",
+        "legacyClaudeRenderDigest": "b59fe6e97931bbe44bee880c790082541e3865a414e9bbc131d73796d8a033d2",
+        "legacyCodexRenderDigest": "bc636c86ab8646c9e0f26dc172452c5e091fbd33a739f50e05a1c92ddecb489c",
+        "modularClaudeRenderDigest": "28ff8aa8a7becf96df708582738311bd3e58a6abcec9c10376dd151acd3c68bd",
+        "modularCodexRenderDigest": "f3f251ba1c931868dc01d8d51ecbc37ed9d6c8f0a1946576ce56225347a7308d"
+      }
     ]
   },
   "registry": {
@@ -80,7 +137,7 @@
     "schemaVersion": "lattice.prompt-registry.v1",
     "source": "@lattice/core/templates/agents",
     "agentCount": 16,
-    "materialHash": "08e4db7c1936c1ff27815be454adca059a3cf205195af1787ff3160ed9f23be8",
+    "materialHash": "91d0beb2859b90b5826e44467d55b160160ea0e659d71524c6c370246feac323",
     "roles": [
       {
         "role": "implementation-reviewer",
@@ -118,9 +175,9 @@
         "role": "lattice-review-behavior",
         "file": "lattice-review-behavior.md",
         "relPath": "templates/agents/lattice-review-behavior.md",
-        "templateHash": "a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2",
-        "bytes": 14269,
-        "lines": 185
+        "templateHash": "e06925d175585f5154ecce329491b9444b837f4d5468614ed81f09313a7ee7fa",
+        "bytes": 9255,
+        "lines": 90
       },
       {
         "role": "lattice-review-channel",
@@ -134,9 +191,9 @@
         "role": "lattice-review-concept",
         "file": "lattice-review-concept.md",
         "relPath": "templates/agents/lattice-review-concept.md",
-        "templateHash": "cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a",
-        "bytes": 9594,
-        "lines": 152
+        "templateHash": "a2bd8b90abd659f5917ea808fbe4e9c9fabdfaab01bee14a41b9f53fff49058e",
+        "bytes": 4580,
+        "lines": 57
       },
       {
         "role": "lattice-review-delivery",
@@ -150,17 +207,17 @@
         "role": "lattice-review-docs",
         "file": "lattice-review-docs.md",
         "relPath": "templates/agents/lattice-review-docs.md",
-        "templateHash": "9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59",
-        "bytes": 12100,
-        "lines": 200
+        "templateHash": "01feeef7c3e6dacdc0003ea6f40e2363b858bc199d8b17c294583a885c394d64",
+        "bytes": 7086,
+        "lines": 105
       },
       {
         "role": "lattice-review-quality",
         "file": "lattice-review-quality.md",
         "relPath": "templates/agents/lattice-review-quality.md",
-        "templateHash": "f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280",
-        "bytes": 10104,
-        "lines": 176
+        "templateHash": "e23e289d6954262ededfc53befc5e808b557e808a7946f45df9742eec41ad4af",
+        "bytes": 5090,
+        "lines": 81
       },
       {
         "role": "lattice-review-scope-plan",
@@ -182,9 +239,9 @@
         "role": "lattice-review-test-coverage",
         "file": "lattice-review-test-coverage.md",
         "relPath": "templates/agents/lattice-review-test-coverage.md",
-        "templateHash": "145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0",
-        "bytes": 4403,
-        "lines": 55
+        "templateHash": "a47a2fdab2d64a18c0338c06a1fcbc41bb7abe6a3187b4caae7303aa42721a5d",
+        "bytes": 2345,
+        "lines": 41
       },
       {
         "role": "product-reviewer",
@@ -242,9 +299,9 @@
       },
       {
         "role": "lattice-review-behavior",
-        "sha256": "3042a69a8d6a1560be4f3872fbafbd9cc0106460a308e4adfdcfca1de1dc8e6e",
-        "bytes": 14270,
-        "lines": 186
+        "sha256": "3a0757390fa50348402cdf1337eae33d5f49c57b6f0df6a82d8fb4f0674525ed",
+        "bytes": 9256,
+        "lines": 91
       },
       {
         "role": "lattice-review-channel",
@@ -254,9 +311,9 @@
       },
       {
         "role": "lattice-review-concept",
-        "sha256": "4c989344024017b2dead3d769dd828db96d576a7309222495ce64058b677d446",
-        "bytes": 9595,
-        "lines": 153
+        "sha256": "40baa6781a35d9ac4f2300eafe867ea9bcb1ba19f63ab947505b915ace63180e",
+        "bytes": 4581,
+        "lines": 58
       },
       {
         "role": "lattice-review-delivery",
@@ -266,15 +323,15 @@
       },
       {
         "role": "lattice-review-docs",
-        "sha256": "1bf21c0584622466d1695cafacc8aec18f592bd656894f53358e5b5280a15720",
-        "bytes": 12101,
-        "lines": 201
+        "sha256": "819b3e7e20b4e6f74dff1dfb6f73f89779f3f7f5aa2a8ce045c38b854603f9f9",
+        "bytes": 7087,
+        "lines": 106
       },
       {
         "role": "lattice-review-quality",
-        "sha256": "beb7ca4b55013f00d2b9ba84849b25d2bddc71431fe66932e7eac9c71f90fd07",
-        "bytes": 10105,
-        "lines": 177
+        "sha256": "7ae422d8a56f57196c64928fa66604e68a5ba66c9279eb82ad785da3ba79e559",
+        "bytes": 5091,
+        "lines": 82
       },
       {
         "role": "lattice-review-scope-plan",
@@ -290,9 +347,9 @@
       },
       {
         "role": "lattice-review-test-coverage",
-        "sha256": "9d4c09428afb0b01f7b5d96ff6ebe356ad0863cc2baa64eb21caa930d1d87860",
-        "bytes": 4404,
-        "lines": 56
+        "sha256": "0d8c53496b746fe5c6ee2cc354d499f5314477021b171d94f2bc7df018e72cca",
+        "bytes": 2346,
+        "lines": 42
       },
       {
         "role": "product-reviewer",
@@ -527,7 +584,8 @@
   "roleMatrixAudit": {
     "machineChecks": [
       "Lock the exact 16 role snapshots and role IDs.",
-      "Require each complete prompt body and registry template hash to match the independent code-reviewed approval manifest.",
+      "Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.",
+      "For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.",
       "Lock agent_prompt output hashes.",
       "Require every role-matrix field to be a non-empty string.",
       "Require JSON/Markdown parity and reject snapshot drift."
@@ -575,7 +633,7 @@
         {
           "role": "lattice-review-behavior",
           "relPath": "templates/agents/lattice-review-behavior.md",
-          "templateHash": "a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2"
+          "templateHash": "e06925d175585f5154ecce329491b9444b837f4d5468614ed81f09313a7ee7fa"
         },
         {
           "role": "lattice-review-channel",
@@ -585,7 +643,7 @@
         {
           "role": "lattice-review-concept",
           "relPath": "templates/agents/lattice-review-concept.md",
-          "templateHash": "cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a"
+          "templateHash": "a2bd8b90abd659f5917ea808fbe4e9c9fabdfaab01bee14a41b9f53fff49058e"
         },
         {
           "role": "lattice-review-delivery",
@@ -595,12 +653,12 @@
         {
           "role": "lattice-review-docs",
           "relPath": "templates/agents/lattice-review-docs.md",
-          "templateHash": "9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59"
+          "templateHash": "01feeef7c3e6dacdc0003ea6f40e2363b858bc199d8b17c294583a885c394d64"
         },
         {
           "role": "lattice-review-quality",
           "relPath": "templates/agents/lattice-review-quality.md",
-          "templateHash": "f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280"
+          "templateHash": "e23e289d6954262ededfc53befc5e808b557e808a7946f45df9742eec41ad4af"
         },
         {
           "role": "lattice-review-scope-plan",
@@ -615,7 +673,7 @@
         {
           "role": "lattice-review-test-coverage",
           "relPath": "templates/agents/lattice-review-test-coverage.md",
-          "templateHash": "145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0"
+          "templateHash": "a47a2fdab2d64a18c0338c06a1fcbc41bb7abe6a3187b4caae7303aa42721a5d"
         },
         {
           "role": "product-reviewer",
@@ -733,9 +791,9 @@
         "policyReason": "Role status fold-candidate is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "6c32bcd169f15e80",
+        "id": "27be8f032228153f",
         "role": "lattice-review-concept",
-        "line": 114,
+        "line": 19,
         "clauseIndex": 2,
         "occurrence": 1,
         "term": "testIntent",
@@ -750,9 +808,9 @@
         "policyReason": "Exact role/term/excerpt occurrence is registered as current historical context."
       },
       {
-        "id": "1b95a69e573de10a",
+        "id": "cd971232e39ba4ae",
         "role": "lattice-review-test-coverage",
-        "line": 21,
+        "line": 7,
         "clauseIndex": 2,
         "occurrence": 1,
         "term": "TEST_CASE_REVIEW",
@@ -1725,18 +1783,6 @@
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
       },
       {
-        "id": "b9067f7ef148bfc7",
-        "role": "lattice-review-behavior",
-        "line": 22,
-        "references": [
-          "docs/story/"
-        ],
-        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
-        "classification": "policy-reminder",
-        "grandfathered": false,
-        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
-      },
-      {
         "id": "9443bd6e8ff439bd",
         "role": "lattice-review-channel",
         "line": 22,
@@ -1785,44 +1831,8 @@
         "note": "Exact code-reviewed current story-file reference."
       },
       {
-        "id": "1d20c2c6cd563994",
-        "role": "lattice-review-concept",
-        "line": 22,
-        "references": [
-          "docs/story/"
-        ],
-        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
-        "classification": "policy-reminder",
-        "grandfathered": false,
-        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
-      },
-      {
         "id": "54e2faadec1a8ede",
         "role": "lattice-review-delivery",
-        "line": 22,
-        "references": [
-          "docs/story/"
-        ],
-        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
-        "classification": "policy-reminder",
-        "grandfathered": false,
-        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
-      },
-      {
-        "id": "4cc181b0ed884817",
-        "role": "lattice-review-docs",
-        "line": 22,
-        "references": [
-          "docs/story/"
-        ],
-        "excerpt": "- Story operations must use Lattice CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
-        "classification": "policy-reminder",
-        "grandfathered": false,
-        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
-      },
-      {
-        "id": "dd8abe32010180d4",
-        "role": "lattice-review-quality",
         "line": 22,
         "references": [
           "docs/story/"
