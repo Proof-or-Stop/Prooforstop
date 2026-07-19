@@ -106,6 +106,33 @@
         "scanEscalationReason": null
       },
       "_hash": "3f014b7e9e9127d1b7f8c5be10113f362055a1f2c5292d4ccefb2d50d517ac38"
+    },
+    {
+      "id": "B-235e:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 concept cleanup is complete: F-012 terminology now distinguishes migrated reviewer body-free registry/bootstrap renders from ordinary agent_prompt role bodies; Codex registry/runtime-owned and Claude global/full-asset paths still consume the canonical bootstrap while review_run_start supplies exactly one selected modular or legacy body. TypeScript build plus prompt-registry, codex-registry-mode, runtime-owned-agent-assets, global-agents-unit, and global-agents-init smokes passed.",
+      "createdAt": "2026-07-19T10:34:40.252Z",
+      "reviewRound": "2026-07-19T10:29:49.068Z",
+      "reviewRunId": "B-235e:RR-024",
+      "envelopeId": "89c18e75b839e65eac6f17c432feb0186c9f4a19226ca16cf15958b19636ed46",
+      "writerSessionId": "sess-725b97bee152890e065410dcd644eaff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/global-agents.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6d19dbadf6241a79c385bf7789f9412aa2e53d43e9c58ad9003732d7d555370d"
     }
   ]
 }
