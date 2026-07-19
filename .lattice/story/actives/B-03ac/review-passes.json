@@ -1,0 +1,33 @@
+{
+  "passes": [
+    {
+      "id": "B-03ac:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Re-reviewed repair 5f7ec42a83 and the integrated Story 4 implementation. F-001 is fixed by a ReviewRun-start finding cutoff shared by assembly and gate recomputation, with post-run finding admission regression. F-002 is fixed through the real review_run_start reviewerEscalationReason schema/handler, signed run and envelope replay path. Correctness-first mode selection, model-relevant TaskContext binding, fixture closure, and the single shared REVIEW/quorum verifier remain coherent; focused smokes and process-fact verification passed.",
+      "createdAt": "2026-07-19T06:18:05.685Z",
+      "reviewRound": "2026-07-19T06:15:24.700Z",
+      "reviewRunId": "B-03ac:RR-005",
+      "writerSessionId": "sess-48ac39ea866f7469fdfd80f0ad19d79c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/impact-classification-policy.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a955b7eb64e2e44c9dddfe2a72a4e0ff53687441e7b39b6ed87ba4974730bf12"
+    }
+  ]
+}
