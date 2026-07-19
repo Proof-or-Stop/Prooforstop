@@ -88,14 +88,17 @@
       "desc": "[host-B codex] done-required-validation.ts:~170 digests the CONFIGURED command.cwd, not executed.cwd. A command configured for packages/main but recorded as executed at repo root passes both receipt and digest validation, weakening execution-evidence binding. Fix: digest the EXECUTED logical cwd, then independently compare stored logical cwd against policy.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-07-19T01:12:47.106Z",
       "reviewRound": "2026-07-19T01:08:03.737Z",
       "_hash": "d1e2147b25be81cc8568039a3d0d1d5a0ce5da914cb5b2756a773f9a6e45b0b8",
       "signatureTag": "missing|unknown|host-codex-required",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f39ef9f967: F-005 digest executed.cwd + coverage compares logical vs policy; F-006 anchor logical cwd at projectRoot (in-workspace absolute portable, out-of-workspace documented limit), deleted shared-root anchoring; F-007 lifecycle-control validationLockPath delegates to exported validationExecutionLockPath. Smoke now 25/25 incl. corresponding-abs-path portability, executed-cwd, and lifecycle-lock-visibility checks.",
+      "resolvedAt": "2026-07-19T01:28:46.790Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-231d:F-006",
