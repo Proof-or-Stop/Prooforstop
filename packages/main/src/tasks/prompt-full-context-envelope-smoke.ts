@@ -28,6 +28,7 @@ import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { createAgentPromptHandlers, findRoleEntry } from '../handlers/agent-prompt.js';
 import { readPromptTemplate } from '../core/prompt-registry.js';
 import { isReviewerAgent, resolveReviewRunLane } from '../core/review-run.js';
+import { storyRuntimeLockPath } from '../core/validation-execution-lock.js';
 import { parseForceReviewers } from '../handlers/reviewer-list.js';
 
 const role = promptRoleContract('lattice-review-quality');
@@ -342,6 +343,8 @@ try {
     }),
     readScopeContract: () => null,
     storyDirPath: () => storyDir,
+    runtimeLockDirPath: (storyId: string, category: string, name: string) =>
+      storyRuntimeLockPath(tempRoot, category, storyId, name),
     storyFilePath: (_storyId: string, file: string) => {
       mkdirSync(storyDir, { recursive: true });
       return join(storyDir, file);
