@@ -167,6 +167,21 @@
       "_hash": "e48d86cbe2c62dbf7b36b36eb09e4f450b3578e32ee37fda29e0400014c67466",
       "signatureTag": "missing|unknown|concept-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d877:F-009",
+      "desc": "adversarial-repro (F-005 residual): packages/main/src/core/story-transition-lock.ts:146-153 (classifyTransitionLockHolder) — the round-3 PID-reuse guard only fires when `holder.pid === process.pid` (line 150), i.e. it can only detect that ITS OWN reclaiming process happens to have inherited the recorded pid. For the general/realistic case reported in the original F-005 (a DIFFERENT, unrelated, genuinely-live process on the host has since been assigned the crashed holder's recycled pid), the classifier still returns 'active' forever regardless of age, exactly like pre-fix. Reproduced directly: `classifyTransitionLockHolder({holder:{pid:<a live pid that is NOT process.pid, e.g. process.ppid>, hostname: os.hostname(), processStartTimeMs: Date.now()-99*3600000, lockId:'orig'}, ageMs: 600000, staleMs:120000, ...})` returns `'active'` even though ageMs (10min) >> staleMs and the recorded processStartTimeMs is wildly wrong — because the pid!==process.pid branch never runs the mismatch check. This means a crashed transition-lock holder whose pid gets recycled by ANY other live process (not just a coincidental self-respawn) is still permanently un-reclaimable, reproducing the same story_advance DoS the original F-005 described. The round-3 fix's own smoke check (CHK-002c in transition-integrity-smoke.ts) only exercises the narrow self-pid case (`pid: process.pid`), so it never catches this. The claimed parity with packages/main/src/core/validation-execution-lock.ts (classifyValidationExecutionLock) is also inaccurate: that sibling's REAL defense against foreign pid-reuse is a HEARTBEAT freshness check (heartbeatAgeMs/heartbeatLooksMismatched, validation-execution-lock.ts:88-100), which classifyTransitionLockHolder never ported over (no heartbeat file is ever written by acquireStoryTransitionLock) — only the narrow self-pid start-time comparison was mirrored, not the mechanism that actually generalizes to foreign pids.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T04:32:41.274Z",
+      "reviewRound": "2026-07-19T04:21:25.153Z",
+      "reviewRunId": "B-d877:RR-007",
+      "_hash": "c3d236351ea696aecc9a4ab40775659b7e1ac450152c349efa0983f6e02eba7b",
+      "signatureTag": "adversarial|unknown|adversarial-repro-residual",
+      "signatureTagSource": "auto"
     }
   ]
 }
