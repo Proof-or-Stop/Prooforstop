@@ -1,64 +1,64 @@
 {
   "storyId": "B-235e",
-  "checkedAt": "2026-07-19T12:09:42.195Z",
-  "headHash": "ae1785fb3b3282647fa09e3c0f426661e77d641f",
-  "materialHash": "7aef176f110a60a3941845a1d23b06b1387f52e50e482c3ec270083245261b07",
-  "storyFilesHash": "9157fa9ccae756fef9edfc06a36fbc9469d83f926c74da2ff052285f9f8d0b92",
+  "checkedAt": "2026-07-19T21:24:03.559Z",
+  "headHash": "60d92a63ef1f1b653b6a8d4c3672926415188d90",
+  "materialHash": "875f9c5f685ca175d68bca022de769cc317361d5bcf56852d3af05d916fb2cbd",
+  "storyFilesHash": "6cae3ed6a44b1354eea954a17c36511dcdb453c2aaf4c2a316a0521acce6fdf2",
   "reviewRound": "2026-07-19T11:51:48.217Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
-      "promise": "User sees role=lattice-review-concept rollout=full-envelope and role=lattice-review-quality rollout=legacy-full-context legacyBytesRestored=true after independently rolling back only quality; lattice-review-channel is absent from active roles.",
+      "promise": "Prompt modularization and budget execution plan reflects the implemented rollout.",
       "status": "verified",
-      "verifiedBy": "prompt-registry-smoke + runtime-owned-agent-assets-smoke + global agent asset checks",
-      "evidence": "Active five-role registry, independent mixed flags, exact legacy body restoration, and retired channel exclusion all passed on current TEST validation evidence."
+      "verifiedBy": "full validate and review evidence",
+      "evidence": "B-235e current HEAD validation/review evidence"
     },
     {
-      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
-      "promise": "User sees context incremental reason=ELIGIBLE_PURE_FIXTURE_DELTA only for proven bounded input, or context full reason=CONTRACT_DRIFT for unsafe input; requesting full creates a new run and prints reason=REVIEWER_REQUESTED_FULL.",
+      "docPath": "docs/requirements/decisions/prompt-envelope-runtime-contract.md",
+      "promise": "Prompt Envelope runtime contract matches the active implementation.",
       "status": "verified",
-      "verifiedBy": "prompt-full-context-envelope-smoke + review-incremental-context-smoke + review-run-smoke",
-      "evidence": "Full/incremental eligibility matrix, stable reason codes, read-through escalation, stale/wrong-lane fail-closed behavior, and envelope/run binding passed."
+      "verifiedBy": "process contract verification",
+      "evidence": "verify-process-fact-contract PASS"
     },
     {
-      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
-      "promise": "User sees one report row per role with honest INCONCLUSIVE/providerUsage unavailable values when adjudication or provider receipts are unavailable, without fabricated PASS values.",
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "Review assurance and degraded fallback semantics remain documented.",
       "status": "verified",
-      "verifiedBy": "experiments/role-prompt-ab-replay/selfcheck.mjs",
-      "evidence": "Replay selfcheck PASS; five-role campaign reports honest INCONCLUSIVE/ADJUDICATION_EVIDENCE_UNVERIFIED and unavailable provider usage rather than fabricated PASS or zero."
+      "verifiedBy": "review assurance smoke",
+      "evidence": "review-assurance-floor smoke PASS"
     },
     {
-      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
-      "promise": "User sees process contract PASS, host mirror identity PASS, legacy pass compatibility PASS, and retired or compatibility gate credit 0 after permission, signature, rollback, baseline, and documentation checks.",
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "promise": "Shared writer and lock ownership constraints remain documented.",
       "status": "verified",
-      "verifiedBy": "verify-process-fact-contract + verify-proof-or-stop-prompt-baseline + agent-dispatch-registry-smoke + runtime-owned-agent-assets-smoke",
-      "evidence": "Process-fact contract and immutable baseline verifiers PASS; dispatch permission, host mirror identity, rollback, and retired/compatibility exclusion smokes PASS."
+      "verifiedBy": "mixed-writer ABA smoke",
+      "evidence": "20/20 mixed producer rounds PASS"
     }
   ],
   "realMachineTests": [
     {
-      "featureId": "CHK-001",
-      "transcript": "PASS: node packages/main/dist/tasks/prompt-registry-smoke.js; node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js; five active reviewer roles resolve modular/legacy bodies independently and retired channel remains excluded."
+      "featureId": "B-235e-prompt-registry",
+      "transcript": "prompt-registry-smoke PASS: 16 agents rendered for claude and codex."
     },
     {
-      "featureId": "CHK-002",
-      "transcript": "PASS: node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js; node packages/main/dist/tasks/review-run-smoke.js; trusted full/incremental envelope provenance, stale/drift escalation, and legacy compatibility checks pass."
+      "featureId": "B-235e-review-incremental",
+      "transcript": "review-incremental-context-smoke PASS including mixed writer ABA and 20/20 mask rounds."
     },
     {
-      "featureId": "CHK-003",
-      "transcript": "PASS: node experiments/role-prompt-ab-replay/selfcheck.mjs; protocol/replay integrity PASS with honest INCONCLUSIVE outputs for unavailable adjudication/provider evidence."
+      "featureId": "B-235e-quorum",
+      "transcript": "quorum-submit-smoke PASS."
     },
     {
-      "featureId": "CHK-004",
-      "transcript": "PASS: node packages/main/dist/tasks/agent-dispatch-registry-smoke.js; node packages/main/dist/tasks/review-incremental-context-smoke.js; node packages/main/dist/tasks/quorum-submit-smoke.js; node scripts/verify-process-fact-contract.mjs; node scripts/verify-proof-or-stop-prompt-baseline.mjs. Permission, signed review-run admission, mixed rollout gate behavior, collector/lock stress, process contract, and baseline verifiers pass."
+      "featureId": "B-235e-live-smoke",
+      "transcript": "live-smoke-transcript PASS: prompt registry smoke exitCode 0."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery review verified all four completed checklist items against current TEST validation PASS, live smoke transcript, focused real-machine smokes, process-fact and baseline verifiers, and all recorded findings F-001 through F-015 resolved. Replay quality/provider limitations remain explicitly INCONCLUSIVE and are not treated as PASS; no unresolved implementation TODOs remain."
+    "summary": "Current HEAD has full validation PASS, DONE-required build and npm test PASS, current review assurance fallback PASS, and refreshed evidence."
   },
-  "_hash": "eb33650c2c2019caf17d59c7043c398306c7a0ef9b5f174a1a3fef10299e5aa1"
+  "_hash": "4eddee2c0b64f761a13e2bc58a2a7b9171df5e83d40cb370c750ea1ea3d271bb"
 }
