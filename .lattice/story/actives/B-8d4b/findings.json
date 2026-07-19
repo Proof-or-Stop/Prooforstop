@@ -131,7 +131,7 @@
       "desc": "experiments/role-prompt-ab-replay/lib/replay.mjs:301-305,362 — HIGH: armPrompt ignores the frozen arm.promptContract value and hard-codes bytes solely from arm id. Repro: mutate protocol.arms[0].promptContract from legacy-full-context.v1 to .v2; experimentId and emitted metadata change but the A-arm promptDigest remains identical. This breaks the promised contract-drift sensitivity and can label old prompt bytes as a new contract.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T02:12:04.412Z",
@@ -139,7 +139,11 @@
       "reviewRunId": "B-8d4b:RR-001",
       "_hash": "0ee7e1027b772fa151cc004211a906f14ea837abd66c7ce67554f8e24b43f64b",
       "signatureTag": "adversarial|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e36af72f74: prompt metrics require content-addressed prompt snapshots; contract metadata cannot produce a prompt digest by itself, and canonical unavailable snapshots fail closed.",
+      "resolvedAt": "2026-07-19T02:37:30.391Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-008",
