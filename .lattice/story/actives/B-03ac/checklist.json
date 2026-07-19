@@ -110,7 +110,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "For an eligible bounded change, the terminal shows the exact reviewBasis and selects incremental only when it is safe and smaller; otherwise it reports full with FULL_CHEAPER_OR_EQUAL or the correctness escalation reason.",
+      "userSees": "Terminal output includes reviewBasis, changedFiles, impactedFiles, and either selectionReason=SAFE_INCREMENTAL or selectionReason=FULL_CHEAPER_OR_EQUAL after safety eligibility.",
       "files": {
         "modify": [
           "packages/main/src/core/review-incremental-context.ts",
