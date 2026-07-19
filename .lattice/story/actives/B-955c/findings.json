@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/evidence/environment-contract.ts:544 — HIGH: producer trust is self-asserted by the receipt: normalization accepts verificationSource=verifier-owned-attestation-registry plus signatureVerified=true without resolving a verifier-owned registry, signature, or key binding; evaluateEvidenceEnvironmentGateProjection then hard-codes environmentDescriptorValid/environmentReceiptValid/environmentPolicyValid to true. A caller can therefore mint two invented lineage/key/session tuples, normalize both, and satisfy evaluateEvidenceEnvironmentQuorum. WHY: this contradicts the identity-bound, forged-producer fail-closed invariant and makes host-independence evidence forgeable.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T00:52:39.455Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-955c:RR-004",
       "_hash": "f57818f1481cc3726262cbc01275739049d93d9fda13f737e5f3edca05850847",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: prior receipt fields could self-assert signatureVerified and invented producer tuples. Root cause: trust identity lived inside the untrusted receipt and Gate accepted a pre-normalized envelope. Fix: receipt now carries only an opaque producerAttestationRef; verifier-owned resolver returns verified identity outside the receipt, and Gate re-normalizes raw inputs. Repro test: evidence-environment smoke rejects unresolved attestations and forged quorum; PASS at b31b29b522.",
+      "resolvedAt": "2026-07-19T01:10:11.254Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-955c:F-002",
