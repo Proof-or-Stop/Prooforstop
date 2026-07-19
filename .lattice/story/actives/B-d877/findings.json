@@ -182,6 +182,21 @@
       "_hash": "c3d236351ea696aecc9a4ab40775659b7e1ac450152c349efa0983f6e02eba7b",
       "signatureTag": "adversarial|unknown|adversarial-repro-residual",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d877:F-010",
+      "desc": "adversarial-repro (CAS fence is not atomic): packages/main/src/handlers/transition-orchestrator.ts:725-746 — the round-3 \"CAS-at-persist correctness fence\" (re-read story via store.readStory, compare persistedBeforeWrite.phase to oldPhase, then store.writeStory) is a plain read-then-write, NOT an atomic compare-and-swap: store.ts readStory/writeStory (packages/main/src/core/store.ts:174-182) are independent readFileSync/writeFileSync calls with no OS-level lock, no O_EXCL, and no version/CAS primitive tying the read to the write. The code comment explicitly claims \"this CAS is the AUTHORITATIVE correctness guarantee and does not depend on the lock having held\" (transition-orchestrator.ts:733-734) — this claim is false for genuine cross-process concurrency. Reproduced directly: wrote a standalone 2-process repro that mirrors the exact pattern (readStory(oldPhase check) -> [scheduling gap] -> writeStory) against the REAL StoryStore class with NO lock at all; when both processes' re-reads land before either writeStory (simulating what happens if the transition lock's exclusivity is ever defeated, e.g. by the still-open PID-reuse gap in the sibling finding B-d877:F-009), BOTH racers observe phase===oldPhase, BOTH pass the \"CAS\" check, and BOTH call writeStory -> a genuine double-mint (two distinct currentReviewRound values written, the second silently clobbering the first, exactly the bug class CHK-002 exists to prevent). Full repro script + output available on request. The existing smoke coverage for this (CHK-002c4 in transition-integrity-smoke.ts) does NOT test this: it runs entirely SINGLE-PROCESS, using a Proxy to inject a synthetic already-changed read result at one specific read index within one JS call stack — this can only model a strictly-SEQUENTIAL race (a second transition whose read happens after the first transition's write already committed), which a plain re-read-and-compare genuinely does catch. It never models two truly concurrent OS processes racing the CAS window itself, so it cannot support the \"does not depend on the lock having held\" claim, and my repro shows that claim does not hold. Recommend either (a) softening the code comment to state this fence only defends against sequential/late-starting transitions, not true concurrent races, and continuing to rely on the transition lock as the actual exclusion mechanism (in which case F-009 should be fully closed first), or (b) making the persist step genuinely atomic (e.g. an OS-level file lock spanning read+write, or a version-checked atomic rename).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T04:32:57.807Z",
+      "reviewRound": "2026-07-19T04:21:25.153Z",
+      "reviewRunId": "B-d877:RR-007",
+      "_hash": "e929c19a9021d0821976f0d349731699f1820c5d618c0af795cb39d70d0de3ac",
+      "signatureTag": "adversarial|unknown|adversarial-repro-fence",
+      "signatureTagSource": "auto"
     }
   ]
 }
