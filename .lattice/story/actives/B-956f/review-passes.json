@@ -212,6 +212,36 @@
         "scanEscalationReason": null
       },
       "_hash": "54002033db00b03029d1671ba0d0de146bfb76c567a61e25505386b8546a2767"
+    },
+    {
+      "id": "B-956f:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "R3 fix-round concept-residue sweep clean. (a) Pinned-ref snapshot: buildMaterialClassificationSnapshot now captures ONE currentGitHead(gitCwd) sha, threads headRef through buildMaterialClassificationSnapshotAtRef/listMainToHeadDiffEntries/diffBaseRef/extensionlessScriptSignal, and post-validates live HEAD with bounded retries (fail-closed materialClassification.freshness on instability) - no leftover literal main...HEAD/live-HEAD read remains inside the atomic build path; grep confirmed zero residual dual-enumeration callers. The only remaining live-HEAD reads (preflightMaterialCodeExclusions default ref=HEAD in resolveMaterialCodePolicy, workingTreeScriptSignal/extensionlessScriptSignal fallback inside classifyDeclaredPaths) are a pre-existing, distinct concept (tree-immutability preflight and query-time declared-path classification outside the diff scan) unchanged by this round, not the replaced dual-path. materialClassificationSnapshotStale/ensureFreshMaterialClassificationSnapshot legitimately keep literal HEAD since that is the separate consumption-time staleness check, not the build. (b) Verifier tokens genuinely describe current code: grep + node scripts/verify-process-fact-contract.mjs exits 0; new L4 rationale tokens (language-neutral, material-code policy, snapshot freshness, diff enumeration, repro-evidence-binding) and new evaluatorText tokens (buildMaterialClassificationSnapshot, classifyReviewAssuranceFloorPath, diffEnumerationError) all match live review-assurance-floor.ts source; old literal markdown-documentation whitelist-branch assertion fully removed from process-fact-levels.ts and the source, with no orphaned reference (only a script comment explaining the removal). (c) New repro_first_material_policy_error reason code + Cannot-enter/[reason_code] rendering, and the isFreshness-vs-config remediation branch, are consistent and duplicated correctly across all three catch sites (review-assurance-floor.ts, repro-evidence-binding-gate.ts, story-create.ts) with no contradictory wording; ran npm run build + language-neutral-gates-smoke.js (27/27 incl. all 4 new R3 checks) + repro-evidence-binding-dev-gate-smoke.js (37/37) to confirm live behavior matches the comments. No concept deletion/replacement residue found; no blocker.",
+      "createdAt": "2026-07-19T19:12:38.228Z",
+      "reviewRound": "2026-07-19T19:06:37.284Z",
+      "reviewRunId": "B-956f:RR-010",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9da71da9189dca3525d65a07867139da10e7bdbec7633bfa816f0fe923c579f5"
     }
   ]
 }
