@@ -207,7 +207,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A pass created from a valid incremental Prompt Envelope is accepted, while stale, mismatched, tampered, or wrongly served incremental envelopes are rejected before REVIEW, receipt, assurance-floor, or quorum credit.",
+      "userSees": "A valid run prints Prompt Envelope <id> bound to ReviewRun <id>; a mismatch prints an explicit incremental envelope binding rejection and awards no REVIEW or quorum credit.",
       "files": {
         "modify": [
           "packages/main/src/core/prompt-contracts.ts",
