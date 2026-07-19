@@ -103,10 +103,67 @@
         "REVIEW_RETENTION_PROTOCOL_METADATA_PATHS",
         "evaluateReviewRunMetadataRetention"
       ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required regression coverage for reviewer dispatch semantics: verify the five migrated active reviewer roles remain dispatchable while the explicitly retired review channel stays registry-readable but dispatch-rejected.",
+      "timestamp": "2026-07-19T08:20:43.750Z",
+      "paths": [
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "25cc8f415be33c862a3528dda958b64bfe924eca",
+      "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+      "anchors": [
+        "runAgentDispatchRegistrySmoke"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required repair from the real five-reviewer concurrent write test: ordinary Story finding_add currently bypasses locking and loses one of two simultaneous findings, so a per-story findings lock is required to preserve reviewer gate evidence; B-META keeps its existing main lock.",
+      "timestamp": "2026-07-19T08:24:45.120Z",
+      "paths": [
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "25cc8f415be33c862a3528dda958b64bfe924eca",
+      "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+      "anchors": [
+        "withMetaFindingLock"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required compatibility regression update for the stricter legacy ReviewRun verifier: the closeout trust fixture must use the frozen legacy role body hash instead of a placeholder prompt hash, proving legitimate rollback evidence remains admissible while forged legacy evidence is rejected.",
+      "timestamp": "2026-07-19T08:28:37.565Z",
+      "paths": [
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "25cc8f415be33c862a3528dda958b64bfe924eca",
+      "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+      "anchors": [
+        "runCloseoutTrustSmoke"
+      ]
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T08:04:44.218Z",
+  "updatedAt": "2026-07-19T08:28:37.565Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -162,6 +219,9 @@
     "packages/main/templates/agents/lattice-review-delivery.md": "packages/main/templates/agents/lattice-review-delivery.md",
     "packages/main/templates/agents/lattice-evaluator.md": "packages/main/templates/agents/lattice-evaluator.md",
     "packages/main/src/core/prompt-measurement.ts": "packages/main/src/core/prompt-measurement.ts",
-    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts"
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts"
   }
 }
