@@ -250,7 +250,17 @@ async function raceTwoTransitionWorkers(
 // relocated-lock resolver (runtimeLockDirPath / storyRuntimeLockPath), i.e. it could
 // only be fabricating an in-story path.
 // ─────────────────────────────────────────────────────────────────────────────
-const APPEND_HELPERS = new Set(['appendRawProcessEventBytes', 'appendProcessEventRecord']);
+// B-d877 R5 FIX 5 (F-015): `appendProcessEvent` — the third exported append helper
+// that forwards to `appendProcessEventRecord` with a MANDATORY relocated lockDir —
+// is included so a future DIRECT (bare-identifier) call omitting the relocated
+// lockDir is caught too. Note: `store.appendProcessEvent(...)` method calls are
+// PropertyAccessExpressions (not bare Identifiers) and the interface signature in
+// planner.ts is not a CallExpression, so neither is (correctly) flagged.
+const APPEND_HELPERS = new Set([
+  'appendRawProcessEventBytes',
+  'appendProcessEventRecord',
+  'appendProcessEvent',
+]);
 
 function productionTsFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
@@ -802,6 +812,77 @@ async function main(): Promise<void> {
     // B can still release its own lock (ownership matches → dir removed).
     b.release();
     check('successor B can release its own lock after the ownership-checked no-op', !existsSync(lockDir));
+  }
+
+  // ── CHK-002d2 (F-016): ownedAuxFiles let a verified-owner release remove a ────
+  // HOLDER-owned aux file INSIDE the lock dir so the dir does not leak. Mirrors the
+  // validation lock's heartbeat.json: pre-fix, release removed only holder.json,
+  // rmdirSync failed (dir not empty), and the leaked dir blocked the next acquire
+  // with a false "already running".
+  console.log('\nCHK-002d2 (F-016): a lock acquired with ownedAuxFiles + a holder-written aux file inside → clean release leaves NO leftover dir');
+  {
+    const fx = makeFixture('B-tisaux', 'DEV', { withWorktree: false });
+    const lockDir = join(fx.root, '.lattice', 'locks', 'validation', 'aux.lock');
+    const parent = join(fx.root, '.lattice', 'locks', 'validation');
+    const auxName = 'heartbeat.json';
+    const lock = acquireMkdirLock(lockDir, {
+      holderInfo: { pid: process.pid, hostname: hostname(), command: 'aux holder', acquiredAt: NOW },
+      ownedAuxFiles: [auxName],
+    });
+    // The holder itself writes an aux file INSIDE the lock dir (mirrors heartbeat.json).
+    writeFileSync(join(lockDir, auxName), JSON.stringify({ beat: 1 }) + '\n', 'utf8');
+    check('aux file exists inside the held lock dir before release', existsSync(join(lockDir, auxName)));
+    lock.release();
+    check('verified-owner release removed the holder-owned aux file AND the lock dir (no leak)',
+      !existsSync(lockDir), lockDir);
+    const strays = existsSync(parent) ? readdirSync(parent).filter((n) => n.endsWith('.release-candidate')) : [];
+    check('no *.release-candidate stray left after a clean owned-aux release', strays.length === 0, JSON.stringify(strays));
+    // The freed dir is immediately re-acquirable — no false "already running".
+    let reacq = false;
+    try { const l = acquireMkdirLock(lockDir, {}); l.release(); reacq = true; } catch { reacq = false; }
+    check('the freed lock dir is immediately re-acquirable (F-016: no leaked-dir false-busy)', reacq);
+  }
+
+  // ── CHK-002d3 (codex R5 HIGH): release TOKEN-ISOLATION — a dir REPLACED by a ───
+  // successor between A's acquire and A's release is left FULLY intact. FIX 1 moves
+  // holder.json out via an atomic rename before validating/removing; on a token
+  // mismatch A restores the successor's token and no-ops. Deterministic (no sleeps):
+  // A → simulate stale-reclaim (rm A's dir) → B acquires a BRAND-NEW dir → A.release().
+  console.log('\nCHK-002d3 (codex R5 HIGH): A stale-reclaimed, B re-acquires a FRESH dir → A\'s release no-ops via the rename-mismatch restore (B\'s dir + holder.json survive byte-identical)');
+  {
+    const fx = makeFixture('B-tisiso', 'DEV', { withWorktree: false });
+    const lockDir = join(fx.root, '.lattice', 'locks', 'transition', 'isolation.lock');
+    const parent = join(fx.root, '.lattice', 'locks', 'transition');
+
+    const a = acquireMkdirLock(lockDir, {
+      holderInfo: { pid: 111111, hostname: 'hostA', command: 'holder A', acquiredAt: NOW },
+    });
+    const holderA = readMkdirLockHolder(lockDir);
+    check('holder A minted a lockId', !!holderA?.lockId, JSON.stringify(holderA));
+
+    // Full stale-reclaim: A's dir removed, then successor B acquires a BRAND-NEW dir
+    // (fresh mkdir + B's own holder.json) — the "dir REPLACED under A's release" case.
+    rmSync(lockDir, { recursive: true, force: true });
+    const b = acquireMkdirLock(lockDir, {
+      holderInfo: { pid: 222222, hostname: 'hostB', command: 'holder B', acquiredAt: NOW },
+    });
+    const bBytesBefore = readFileSync(join(lockDir, 'holder.json'), 'utf8');
+    const holderB = readMkdirLockHolder(lockDir);
+    check('successor B holds a fresh dir with a DIFFERENT lockId',
+      !!holderB?.lockId && holderB!.lockId !== holderA!.lockId, JSON.stringify(holderB));
+
+    // A (unaware) releases → rename isolates B's holder.json → token mismatch →
+    // A restores it and no-ops. B's dir + holder.json must be byte-identical.
+    a.release();
+    check("A's release did NOT delete successor B's fresh dir", existsSync(lockDir));
+    const bBytesAfter = existsSync(join(lockDir, 'holder.json')) ? readFileSync(join(lockDir, 'holder.json'), 'utf8') : '';
+    check("successor B's holder.json is byte-identical after A's release (rename-mismatch restore)",
+      bBytesAfter === bBytesBefore, `before=${bBytesBefore.length}B after=${bBytesAfter.length}B`);
+    const strays = existsSync(parent) ? readdirSync(parent).filter((n) => n.endsWith('.release-candidate')) : [];
+    check("A's no-op release left no *.release-candidate stray", strays.length === 0, JSON.stringify(strays));
+
+    b.release();
+    check("successor B released its own lock after A's no-op", !existsSync(lockDir));
   }
 
   console.log('');

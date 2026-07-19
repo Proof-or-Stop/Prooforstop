@@ -325,6 +325,12 @@ export async function withValidationExecutionLock<T>(
     staleMs: options.staleMs ?? VALIDATION_EXECUTION_LOCK_STALE_MS,
     failFastIfHeld: true,
     holderInfo,
+    // B-d877 R5 FIX 2 (F-016): the heartbeat.json this lock writes INSIDE the lock
+    // dir is HOLDER-owned; declare it so the ownership-verified release removes it
+    // before the non-recursive dir removal. Otherwise release leaves heartbeat.json
+    // behind, rmdirSync fails (dir not empty), and the leaked dir blocks the next
+    // validate with a false "already running".
+    ownedAuxFiles: [VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE],
     classifyExistingLock: classifyValidationExecutionLock,
     onContentionHeld: (holder, holderAgeMs) => buildValidationLockContentionMessage({
       storyId,

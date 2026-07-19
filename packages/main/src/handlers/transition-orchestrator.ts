@@ -752,7 +752,9 @@ async function runStoryTransitionInner(
     // self-reclaims in 15s. This covers BOTH the non-DONE and DONE persist (they
     // share this one writeStory). The advisory transition lock and the in-process
     // fail-fast guard remain as contention reducers; THIS atomic claim — not the
-    // lock — is what makes a double-mint impossible.
+    // lock — is what prevents a double-mint under the practical threat model (see
+    // KNOWN LIMITATION below for the sole residual: an OS-level freeze longer than
+    // staleMs, outside the software-concurrency threat model).
     //
     // KNOWN LIMITATION (B-d877 R4, codex #1 residual — deliberately deferred):
     // this atomic claim uses a TIME-BASED stale reclaim (staleMs=15s), so it is
