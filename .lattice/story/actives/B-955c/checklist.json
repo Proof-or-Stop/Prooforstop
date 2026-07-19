@@ -28,10 +28,12 @@
     {
       "id": "CHK-003",
       "title": "Provide executable and receipt-reading reference adapter paths",
-      "context": "Demonstrate that one contract covers an active local-command environment and a read-receipt-only scientific environment without allowing adapters to control lifecycle state.",
+      "context": "Demonstrate that one contract covers a policy-authorized local-command reference path and the existing Quantum read-receipt-only scientific path. The local path must reuse the existing configured validation executor and must not expose a new arbitrary-command endpoint; actual cwd/path, argv/shell, effective process environment, executable identity, secrets/redaction, network, timeout/cancellation, output bounds, and Evidence Platform storage behavior fail closed under project policy.",
       "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
         "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
-        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
+        "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md"
       ],
       "status": "pending",
       "startTime": null,
@@ -40,8 +42,9 @@
     {
       "id": "CHK-004",
       "title": "Add fail-closed environment adapter conformance tests",
-      "context": "Mechanically reject unknown versions, subject or invocation mismatches, stale or unsafe receipts, checker errors, forbidden execution, and direct completion authority.",
+      "context": "Mechanically prove descriptor and receipt conformance, deterministic normalization, admissibility-level host substitution, and fail-closed rejection for unknown versions, subject/invocation/environment/executable/shell mismatch, stale or unsafe receipts, checker errors, forbidden execution, secret/network/path policy violations, forged producer identity, quorum substitution, and direct completion authority. Gate-level host substitution is rerun only after M5 integration.",
       "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
@@ -52,14 +55,31 @@
     {
       "id": "CHK-005",
       "title": "Publish the paper-facing abstraction and calibrated support claims",
-      "context": "Explain Agent proposes, Environment observes or executes, Evidence Platform binds, Admissibility evaluates, Gate decides; label current reference implementation separately from future Lean, biology, PINN and deployment integrations.",
+      "context": "Publish the versioned paper-ready architecture section and claim-to-evidence support matrix in docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md, with an explicit external-manuscript handoff requirement and implementation commit/release binding. Wording may advance from Level A to B/C only after CHK-003/004 conformance and M5 Gate evidence; Lean, biology, PINN solver, deployment, and other unimplemented integrations remain future targets.",
       "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
         "README.md",
         "docs/requirements/NAV.md",
         "docs/requirements/decisions/project-vision.md",
         "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
         "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md"
       ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Integrate Evidence Environment receipts with Proof Admissibility and lifecycle Gate consumers",
+      "context": "Implement M5 as an explicit owner: normalized EEA receipts enter the shared proof-surface and Proof Admissibility path, diagnostic-only adapters remain non-gating, approved policies may strengthen but never weaken Task/Story/Release requirements, and Gate-level host substitution is verified with fresh evidence while forged or same-producer quorum inputs fail closed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "Registered Evidence Environment receipts can be evaluated by existing Proof Admissibility and lifecycle Gates without giving adapters completion authority.",
       "status": "pending",
       "startTime": null,
       "endTime": null

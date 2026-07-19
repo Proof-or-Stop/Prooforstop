@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-955c",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git status*",
+    "lattice *",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:claim-admissibility-pack-framework",
+    "npm --prefix packages/main run test:done-required-validation-smoke",
+    "npm --prefix packages/main run test:evidence-environment-adapter",
+    "npm --prefix packages/main run test:quantum-claim-admissibility"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "lattice",
+    "read-only agy CLI review",
+    "read-only Claude CLI review"
+  ],
+  "allowedPaths": [
+    "docs/evidence",
+    "docs/requirements",
+    "packages/main/package.json",
+    "packages/main/src/core/claim-admissibility",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/evidence",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/proof-admissibility-gates.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/validation-command-environment.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/tasks",
+    "README.md",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "curl * | sh",
+    "git checkout --*",
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "rm -rf*",
+    "sudo *",
+    "wget * | sh"
+  ],
+  "excludedTools": [
+    "arbitrary external command adapter",
+    "production deployment",
+    "remote mutation"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "node_modules",
+    "packages/main/dist",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "No arbitrary runner is introduced. Local execution reuses the configured validation executor; remote and receipt-only paths remain non-executing unless separately authorized. Generated dist may be rebuilt but is not manually edited.",
+  "createdAt": "2026-07-19T00:23:58.205Z",
+  "updatedAt": "2026-07-19T00:23:58.205Z",
+  "_hash": "75978588188b180a8b6d52d5ad2a9951acaf3170bfd3d6cd7284d4130f08214a"
+}
