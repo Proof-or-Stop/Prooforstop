@@ -311,6 +311,18 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "The Story 5 replay report shows every role and arm separately, reports context and assembled token deltas, provider/cache availability, finding recall and misuse, and says PASS or INCONCLUSIVE without inventing evidence.",
+      "files": {
+        "modify": [
+          "experiments/role-prompt-ab-replay"
+        ],
+        "create": [
+          "experiments/role-prompt-ab-replay/story5-active-reviewers"
+        ],
+        "test": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ]
       }
     },
     {
