@@ -143,6 +143,17 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "终端报告隔离 experiment ledger 的 attempt 数、assembled/dispatch/provider/cache 可用性和 findings；不可用字段显示 unavailable(reason)，并标明 gateEvidence=false。",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/analyze.mjs"
+        ],
+        "test": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ]
       }
     },
     {
