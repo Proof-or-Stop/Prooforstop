@@ -402,7 +402,7 @@
       "desc": "experiments/role-prompt-ab-replay/lib/ledger.mjs:528-548 — MEDIUM: summarizeLedger reports finalProviderInputTokens=0 and providerInputAvailability=available for an empty ledger because reduce seeds zero and [].every(...) is true. More generally it emits numeric zero even when every provider dimension is unavailable. Repro: analyze.mjs --ledger=runtime/nonexistent.jsonl --json shows records=0, finalProviderInputTokens=0, providerInputAvailability=available. This violates unavailable-not-zero summary semantics even though analyze.mjs later hard-codes providerCostConclusion=UNAVAILABLE.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T02:56:01.614Z",
@@ -410,7 +410,11 @@
       "reviewRunId": "B-8d4b:RR-009",
       "_hash": "d000867ff3209ed76335d39f92c045383861b117c71ead3e63936832ad1002d6",
       "signatureTag": "edge|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in f8c1b2c73a: empty or wholly unavailable ledger summaries return null/unavailable with stable reason; analyze CLI regression prevents vacuous [].every available/0.",
+      "resolvedAt": "2026-07-19T03:04:28.978Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
