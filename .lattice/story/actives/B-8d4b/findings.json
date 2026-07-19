@@ -245,7 +245,7 @@
       "desc": "experiments/role-prompt-ab-replay/lib/ledger.mjs:332-349 — MEDIUM: the new O_EXCL ledger lock has no stale-owner recovery. A process killed after creating <ledger>.lock leaves it permanently present; every retry waits ~1s then returns LEDGER_LOCK_TIMEOUT even when the recorded PID is dead. Repro: create runtime/stale-quality.jsonl.lock containing 999999, then run run.mjs with that ledger; it exits 2 LEDGER_LOCK_TIMEOUT. This breaks the promised crash/restart path and requires an undocumented manual deletion.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T02:41:52.704Z",
@@ -253,7 +253,11 @@
       "reviewRunId": "B-8d4b:RR-005",
       "_hash": "fbdec289f23e304df6c6981b42107d3b97eebcb384d5d973b0967c68e33a93a0",
       "signatureTag": "edge|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 1623374107: lock payload binds pid/createdAt/lockId; live owners remain exclusive while a dead stale owner is safely reclaimed, covered by regression.",
+      "resolvedAt": "2026-07-19T02:55:47.932Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-014",
