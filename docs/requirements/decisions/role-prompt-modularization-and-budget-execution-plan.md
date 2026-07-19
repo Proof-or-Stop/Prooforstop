@@ -1130,6 +1130,43 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
 
 #### Story 4：Incremental eligibility 与 impact policy
 
+实现记录（B-03ac）：
+
+- v1 的机械边界只允许两类 incremental：未改变模型相关输入的
+  no-material/metadata-only drift，以及所有路径均由当前 Story `files.test`
+  声明且具有当前 `verificationIntent` 绑定的纯测试 fixture delta。
+- docs、私有实现、public API/schema/protocol、authority/permission、
+  command/gate policy、dependency/build、dynamic/parse failure、rename/delete、
+  未知影响或不完整 fixture closure 全部 fail closed 到 full。扩大支持面必须升级
+  `proofbound.impact-classification.v1` 并同步 process-fact verifier。
+- prior baseline 必须是同 lane、签名有效的 PASS，且绑定有效 ReviewRun 和精确
+  Prompt Envelope；legacy/full-context-only、wrong-lane、缺字段或损坏证据不能
+  成为 incremental baseline。
+- Prompt Envelope 额外绑定 model-relevant TaskContext digest、canonical
+  freshness classification、changed/impacted file digests、reviewBasis digest 和
+  stable reason codes。HEAD/material/storyFiles 仍由 ReviewRun/Envelope 独立签名，
+  不由 Host 从 raw hash 自行解释。
+- 安全 eligibility 先于成本。安全允许 incremental 后，只有最终 incremental
+  bytes 小于 full 且未超 incremental budget 时才选择 `SAFE_INCREMENTAL`；
+  否则分别记录 `FULL_CHEAPER_OR_EQUAL` 或 `INCREMENTAL_BUDGET_EXCEEDED`。
+  correctness-required full 即使超预算仍保持 full，并单独记录
+  `budgetViolation=full`。
+- `review_incremental_context` 仍严格只读、advisory 和 gate-neutral；真正的
+  authority 位于 `review_run_start` 的可信装配及
+  `assertCurrentReviewRunForEvidence` / `verifyReviewRunPromptEnvelope` /
+  `collectReviewerEvidenceState` 的共享 admission 链。
+
+实现证据命令：
+
+```bash
+npm --prefix packages/main run build
+node packages/main/dist/tasks/review-incremental-context-smoke.js
+node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js
+node packages/main/dist/tasks/review-run-smoke.js
+node packages/main/dist/tasks/quorum-submit-smoke.js
+node scripts/verify-process-fact-contract.mjs
+```
+
 目标：
 
 - 扩展现有 `review_incremental_context`，保持调用本身只读且不改变 gate。

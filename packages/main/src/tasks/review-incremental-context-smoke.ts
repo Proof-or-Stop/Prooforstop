@@ -218,6 +218,11 @@ function assertGateUnchangedByHelper(
     // Smoke-level shape sanity (the helper always returns these fields).
     assert.equal(incremental.role, role, `${label}: helper echoes the requested role`);
     assert.equal(typeof incremental.scopeChanged, 'boolean', `${label}: helper returns a boolean scopeChanged`);
+    const repeated = Array.from({ length: 8 }, () =>
+      reviewIncrementalContext(store, projectRoot, storyId, role));
+    for (const candidate of repeated) {
+      assert.deepEqual(candidate, incremental, `${label}: repeated advisory calls are deterministic for ${role}`);
+    }
   }
   const afterHelper = gateInputSnapshot(store, storyId);
   assert.equal(afterHelper, before, `${label}: reviewIncrementalContext must perform no store writes / leave gate inputs byte-identical`);

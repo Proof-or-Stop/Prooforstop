@@ -203,16 +203,22 @@ export function reviewIncrementalContext(
   const checklist = store.readChecklist(storyId);
   const scopeContract = store.readScopeContract(storyId);
   const story = store.readStory(storyId);
-  const currentTaskSemanticDigest = currentHead
-    ? fullTaskSemanticDigest(buildFullTaskContext({
-      story,
-      checklist,
-      headHash: currentHead,
-      materialHash: currentMaterial ?? undefined,
-      storyFilesHash: currentStoryFiles ?? undefined,
-      scopeContract,
-    }))
-    : null;
+  let currentTaskSemanticDigest: string | null = null;
+  if (currentHead) {
+    try {
+      currentTaskSemanticDigest = fullTaskSemanticDigest(buildFullTaskContext({
+        story,
+        checklist,
+        headHash: currentHead,
+        materialHash: currentMaterial ?? undefined,
+        storyFilesHash: currentStoryFiles ?? undefined,
+        scopeContract,
+      }));
+    } catch {
+      // Legacy/malformed task context is not eligible; the stable FULL reason is
+      // added below instead of letting this advisory read throw.
+    }
+  }
   const declaredTestFiles = checklist.items.flatMap(item => item.files?.test ?? []);
   const testIntentRefsByFile = Object.fromEntries(declaredTestFiles.map(path => {
     const refs = checklist.items

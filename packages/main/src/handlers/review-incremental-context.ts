@@ -25,6 +25,7 @@ function renderIncrementalContextText(
   lines.push(`impactPolicyVersion: ${ctx.impactPolicyVersion}`);
   lines.push(`freshnessClassification: ${ctx.freshnessClassification}`);
   lines.push(`eligibilityDigest: ${ctx.eligibilityDigest}`);
+  lines.push(`taskSemanticDigest: ${ctx.taskSemanticDigest ?? '(unavailable)'}`);
   lines.push(`eligibilityReasonCodes: ${ctx.eligibilityReasonCodes.join(', ') || '(none)'}`);
   lines.push(`priorHeadHash: ${ctx.priorHeadHash ?? '(none)'}`);
   lines.push(`priorPassRef: ${ctx.priorPassRef ?? '(none)'}`);
