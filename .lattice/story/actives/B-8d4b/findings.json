@@ -246,6 +246,21 @@
       "_hash": "fbdec289f23e304df6c6981b42107d3b97eebcb384d5d973b0967c68e33a93a0",
       "signatureTag": "edge|unknown|experiments-role-prompt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d4b:F-014",
+      "desc": "experiments/role-prompt-ab-replay/selfcheck.mjs:122-128,662-666 — MEDIUM: production no-drift verification snapshots the entire mutable .lattice/story tree, so any legitimate concurrent reviewer/owner metadata write makes selfcheck fail even though the experiment changed no production evidence. During this REVIEW run, two concurrent finding_add commits landed and selfcheck failed at line 665 with differing snapshot digests after 42 earlier checks passed. The test cannot distinguish harness drift from external lifecycle activity, making parallel review and CI nondeterministic.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-19T02:41:56.469Z",
+      "reviewRound": "2026-07-19T02:36:39.599Z",
+      "reviewRunId": "B-8d4b:RR-005",
+      "_hash": "4b4d569165960e15ce9494a4660e2bf57789c8d878ff3ed15c4eb96eccc0c259",
+      "signatureTag": "edge|unknown|experiments-role-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
