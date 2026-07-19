@@ -10,7 +10,78 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "eligibility-trusted-bounded-incremental",
+            "desc": "A current signed prior pass for the same reviewer lane with complete material, storyFiles, scope, policy, Runtime, Role, environment, assembler, launcher, and command bindings plus a trusted allowed freshness class and complete impact closure is mechanically classified incremental with a deterministic digest and stable reason codes.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "eligibility-supported-fixture-closure",
+            "desc": "A pure test-fixture delta selects incremental only when every changed path has an explicit checklist files.test declaration and every changed case has a current Story-scoped intentRef; output records exact changed and impacted file digests.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "eligibility-freshness-reader-binding",
+            "desc": "Metadata-only HEAD drift selects incremental only when the canonical freshness reader classifies it as an explicitly allowed known class; eligibility does not reinterpret raw hashes.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "eligibility-forced-full-contract-policy",
+            "desc": "Public API, schema, protocol, authority, permission, command policy, gate semantics, dependency, build entry, docs-only, private implementation, review policy, required-lane, scope, Runtime, Role, or agent-facing render changes select full with stable reason codes in v1.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "eligibility-unknown-fails-closed",
+            "desc": "Missing or stale prior-pass data, wrong-lane pass, incomplete bindings, changed-files failure, dynamic reference, unknown language, parse failure, untrusted lineage, unknown environment or tool state, or unproven impact closure selects full.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "eligibility-rename-crossfile-closure",
+            "desc": "A rename, deletion, cross-file change, or fixture change without complete declared intent closure falls back to full; no unsupported category is inferred incremental.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "eligibility-caller-cannot-force-incremental",
+            "desc": "Caller-supplied contextMode, forceIncremental, fabricated reason codes, reviewer notes, or main-agent arguments cannot override the mechanical result; identical authoritative inputs yield identical output.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "eligibility-raw-hash-forgery-rejected",
+            "desc": "Crafted raw hashes cannot impersonate metadata-only drift, and empty or no-signal storyFilesHash cannot qualify stale material for incremental review.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "impact-policy-registry-single-source",
+            "desc": "Policy rules are consumed from one registered versioned contract and verifier; tests fail for unregistered heuristics or a policy-version change that leaves the eligibility digest unchanged.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

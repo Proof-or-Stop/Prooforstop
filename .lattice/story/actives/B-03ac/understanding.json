@@ -1,0 +1,42 @@
+{
+  "task": "Make incremental reviewer context mechanically safe and auditable instead of caller-selected.",
+  "outcome": "When an operator runs lattice review_incremental_context for an eligible reviewer lane, the terminal shows contextMode=incremental with stable eligibility reason codes, impacted files, reviewBasis, and the bound prior pass. For any stale, unknown, public-contract, policy, authority, scope, parse, or untrusted case, it shows contextMode=full and a precise escalation reason; attempts to force incremental or submit a pass with a mismatched incremental Prompt Envelope are rejected. The read-only command does not change lifecycle gate state.",
+  "facts": [
+    "Story 2 already defines and validates full-context Prompt Envelopes and currently rejects incremental envelopes.",
+    "The existing review_incremental_context command is read-only and reports prior verdict, bound head, rename-aware changed files, and scopeChanged.",
+    "Canonical freshness comes from checkEvidenceFreshnessForGit, which needs a stable versioned classification for incremental use while preserving legacy consumer behavior.",
+    "The shared admissibility chain is review_run_start, assertCurrentReviewRunForEvidence, verifyReviewRunPromptEnvelope, validateEvidenceRunBinding, and collectReviewerEvidenceState; REVIEW, readiness, preflight, status, and quorum already consume it.",
+    "The only v1 bounded categories supported by current proof machinery are metadata-only/no material delta and pure test-fixture deltas with complete checklist files.test plus current story-scoped intentRef bindings.",
+    "Docs routing is not a complete reverse-reference graph and semantic scope is not a repository-complete call index, so docs-only and private implementation remain full in v1.",
+    "B-8d4b completed the replay and measurement prerequisite."
+  ],
+  "constraints": [
+    "Unknown or unprovable impact must fail closed to full context.",
+    "The main agent, caller parameters, and prompt prose cannot force incremental eligibility.",
+    "Public API, schema, protocol, command authority, permission, gate, dependency, build-entry, docs-only, private implementation, dynamic reference, parse failure, and unsupported rename changes default to full in v1.",
+    "Incremental mode must not restrict reviewer access to current authoritative material.",
+    "review_incremental_context must remain read-only and non-gating.",
+    "Gate-consumed facts require registry and contract-verifier coverage.",
+    "Do not create a second reviewer evidence authority or migrate roles assigned to Stories 5-7."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/handlers/review-incremental-context.ts",
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/review-run-smoke.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+  ],
+  "timestamp": "2026-07-19T04:45:29.158Z"
+}
