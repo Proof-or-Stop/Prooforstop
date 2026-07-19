@@ -303,7 +303,117 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "review-basis-bounded-current-complete",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Bounded basis schema and assembly cover current claims, invariants, findings, impacted intents/contracts, scope and authoritative refs.",
+          "headHash": "f5bf9b6c17e197dafe049995d514c3aa8dfacf96",
+          "materialHash": "01f3b9fc63ff78bcf8f828d9335961df76680f590ad75fb97232df3b0a0ec560",
+          "storyFilesHash": "ed35c104524fbed4745bfcb1b569f9642a34ae7e8c342ab18ebf3e9b840a19e5",
+          "timestamp": "2026-07-19T05:00:03.137Z"
+        },
+        {
+          "intentRef": "context-mode-safe-then-cheapest",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Conditional assembly proves safety precedes final byte comparison and SAFE_INCREMENTAL only wins when smaller.",
+          "headHash": "f5bf9b6c17e197dafe049995d514c3aa8dfacf96",
+          "materialHash": "01f3b9fc63ff78bcf8f828d9335961df76680f590ad75fb97232df3b0a0ec560",
+          "storyFilesHash": "ed35c104524fbed4745bfcb1b569f9642a34ae7e8c342ab18ebf3e9b840a19e5",
+          "timestamp": "2026-07-19T05:00:03.137Z"
+        },
+        {
+          "intentRef": "review-basis-authoritative-read-through",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Executable prompt smoke preserves repository-relative authoritativeReferences inside the bound basis.",
+          "headHash": "f5bf9b6c17e197dafe049995d514c3aa8dfacf96",
+          "materialHash": "01f3b9fc63ff78bcf8f828d9335961df76680f590ad75fb97232df3b0a0ec560",
+          "storyFilesHash": "ed35c104524fbed4745bfcb1b569f9642a34ae7e8c342ab18ebf3e9b840a19e5",
+          "timestamp": "2026-07-19T05:00:03.137Z"
+        },
+        {
+          "intentRef": "full-cheaper-or-equal-selected",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Oversized bounded basis selects full with exact FULL_CHEAPER_OR_EQUAL reason after safety succeeds.",
+          "headHash": "f5bf9b6c17e197dafe049995d514c3aa8dfacf96",
+          "materialHash": "01f3b9fc63ff78bcf8f828d9335961df76680f590ad75fb97232df3b0a0ec560",
+          "storyFilesHash": "ed35c104524fbed4745bfcb1b569f9642a34ae7e8c342ab18ebf3e9b840a19e5",
+          "timestamp": "2026-07-19T05:00:03.137Z"
+        },
+        {
+          "intentRef": "review-basis-change-deltas-exact",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Versioned basis validator retains stable finding and intent identity/state fields.",
+          "headHash": "f5bf9b6c17e197dafe049995d514c3aa8dfacf96",
+          "materialHash": "01f3b9fc63ff78bcf8f828d9335961df76680f590ad75fb97232df3b0a0ec560",
+          "storyFilesHash": "ed35c104524fbed4745bfcb1b569f9642a34ae7e8c342ab18ebf3e9b840a19e5",
+          "timestamp": "2026-07-19T05:00:03.137Z"
+        },
+        {
+          "intentRef": "reviewer-basis-incomplete-escalates",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Reviewer escalation case mints full mode with REVIEWER_REQUESTED_FULL and a recorded reason.",
+          "headHash": "f5bf9b6c17e197dafe049995d514c3aa8dfacf96",
+          "materialHash": "01f3b9fc63ff78bcf8f828d9335961df76680f590ad75fb97232df3b0a0ec560",
+          "storyFilesHash": "ed35c104524fbed4745bfcb1b569f9642a34ae7e8c342ab18ebf3e9b840a19e5",
+          "timestamp": "2026-07-19T05:00:03.137Z"
+        },
+        {
+          "intentRef": "review-basis-stale-substitution-rejected",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Basis is constructed from trusted current store/git facts and exact schema rejects caller-authored unknown fields.",
+          "headHash": "f5bf9b6c17e197dafe049995d514c3aa8dfacf96",
+          "materialHash": "01f3b9fc63ff78bcf8f828d9335961df76680f590ad75fb97232df3b0a0ec560",
+          "storyFilesHash": "ed35c104524fbed4745bfcb1b569f9642a34ae7e8c342ab18ebf3e9b840a19e5",
+          "timestamp": "2026-07-19T05:00:03.137Z"
+        },
+        {
+          "intentRef": "review-basis-omission-fails-closed",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Missing basis on otherwise eligible conditional assembly selects SAFETY_REQUIRES_FULL.",
+          "headHash": "f5bf9b6c17e197dafe049995d514c3aa8dfacf96",
+          "materialHash": "01f3b9fc63ff78bcf8f828d9335961df76680f590ad75fb97232df3b0a0ec560",
+          "storyFilesHash": "ed35c104524fbed4745bfcb1b569f9642a34ae7e8c342ab18ebf3e9b840a19e5",
+          "timestamp": "2026-07-19T05:00:03.137Z"
+        },
+        {
+          "intentRef": "cost-never-overrides-safety",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Public-contract forced full remains full even under budget pressure; full budget violation cannot select incremental.",
+          "headHash": "f5bf9b6c17e197dafe049995d514c3aa8dfacf96",
+          "materialHash": "01f3b9fc63ff78bcf8f828d9335961df76680f590ad75fb97232df3b0a0ec560",
+          "storyFilesHash": "ed35c104524fbed4745bfcb1b569f9642a34ae7e8c342ab18ebf3e9b840a19e5",
+          "timestamp": "2026-07-19T05:00:03.137Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
