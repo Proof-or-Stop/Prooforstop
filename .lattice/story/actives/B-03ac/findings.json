@@ -214,7 +214,7 @@
       "desc": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md:788-820 — The repaired audit section still describes selection as recorded by every v1 Prompt Envelope and shows budgetViolation:null plus escalationReason:null. In the implemented strict contract both fields are optional non-null values (budgetViolation is only incremental|full; escalationReason is a nonblank string), and assembleConditionalReviewPromptEnvelope omits them on SAFE_INCREMENTAL (packages/main/src/core/prompt-contracts.ts:228-229,639-640; packages/main/src/core/prompt-envelope.ts:427-435). Story-dispatch/legacy full envelopes also do not necessarily carry Story 4 selection fields. Narrow the opening sentence to Story-4 conditionally assembled review-run envelopes and omit the two keys from the SAFE_INCREMENTAL JSON example (or provide separate valid violation/escalation examples). This preserves the now-correct first-pass/legacy optional semantics instead of publishing an example the validator rejects.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-19T06:18:19.363Z",
@@ -222,7 +222,11 @@
       "reviewRunId": "B-03ac:RR-008",
       "_hash": "7fb1ee999a44b20e04daefec692159a0b4b3c095cb5f193fccda585dfb42ad2b",
       "signatureTag": "edge|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b06d3dcc56: audit prose now scopes Story 4 selection fields to conditionally assembled trusted review-run envelopes; optional non-null budgetViolation and escalationReason are omitted when absent, and legacy/story-dispatch/first-pass semantics are explicit.",
+      "resolvedAt": "2026-07-19T06:38:06.474Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-03ac:F-013",
