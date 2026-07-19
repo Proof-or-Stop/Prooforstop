@@ -706,6 +706,51 @@
       },
       "readDiagnostics": [],
       "_hash": "38590686826f6c4971f81d9e7e80d0aed9c7c6eb1c0c58d01fe49ff47373e489"
+    },
+    {
+      "id": "B-955c:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Current-round quality/security review passed for test-only commit 3b5b5cfd99. The change is confined to done-required-freshness-smoke.ts and replaces an incomplete legacy synthetic receipt with identity fields from the same canonical buildDoneRequiredExecutionIdentity helper used by the production producer and consumer. No core evaluator, handler, proof policy, or Gate code changed, so missing/forged identity remains blocking rather than being weakened. The freshness smoke, full DONE-required evaluator smoke, EEA tamper/security smoke, TypeScript build, process-fact contract, and diff checks all passed; no new blocker found.",
+      "createdAt": "2026-07-19T02:21:38.782Z",
+      "reviewRound": "2026-07-19T02:20:03.166Z",
+      "reviewRunId": "B-955c:RR-025",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Fresh REVIEW required after formal validation exposed an outdated synthetic test receipt; review focused on proving the fix reuses canonical production identity construction without modifying or weakening any production evaluator or Gate."
+      },
+      "_hash": "082b4d1718c022cdcff89a77f1def89598ccadf3895b23ea7d2a2f15db887f90"
     }
   ]
 }
