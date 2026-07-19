@@ -118,7 +118,7 @@ export interface EvidenceEnvironmentCommandSpec {
   readonly cwd: string;
   readonly shell: boolean;
   readonly processEnvironmentDigest: string;
-  readonly executableDigest: string;
+  readonly executableDigest: string | null;
   readonly shellExecutableDigest?: string;
   readonly timeoutMs: number;
   readonly outputLimitBytes: number;
@@ -560,11 +560,13 @@ export function normalizeEvidenceEnvironmentReceipt(
   if (invocation.commandSpec) {
     if (descriptor.mode !== 'execute-local'
       || invocation.commandSpec.policyAuthorized !== true
-      || !isNonEmpty(invocation.commandSpec.executableDigest)
       || !isNonEmpty(invocation.commandSpec.processEnvironmentDigest)
       || (invocation.commandSpec.shell
-        ? !isNonEmpty(invocation.commandSpec.shellExecutableDigest)
-        : invocation.commandSpec.shellExecutableDigest !== undefined)
+        ? (!isNonEmpty(invocation.commandSpec.shellExecutableDigest)
+          || (invocation.commandSpec.executableDigest !== null
+            && !isNonEmpty(invocation.commandSpec.executableDigest)))
+        : (!isNonEmpty(invocation.commandSpec.executableDigest)
+          || invocation.commandSpec.shellExecutableDigest !== undefined))
       || receipt.commandSpecDigest !== digestEvidenceEnvironmentCommandSpec(invocation.commandSpec)) {
       reasons.push('command_spec_mismatch');
     }
@@ -639,8 +641,11 @@ export function projectDoneRequiredReceiptToEnvironment(
   readonly receipt: EvidenceEnvironmentReceipt;
 } {
   if (!receipt.commandSpec) throw new Error('command_spec_mismatch: DONE-required receipt must carry lattice.command-spec.v1');
-  if (!isNonEmpty(receipt.effectiveEnvironmentDigest) || !isNonEmpty(receipt.executableDigest)) {
-    throw new Error('command_spec_mismatch: executor-owned effective environment and executable identities are required');
+  if (!isNonEmpty(receipt.effectiveEnvironmentDigest)) {
+    throw new Error('command_spec_mismatch: executor-owned effective environment identity is required');
+  }
+  if (!receipt.commandSpec.shell && !isNonEmpty(receipt.executableDigest)) {
+    throw new Error('command_spec_mismatch: direct execution requires executor-owned target executable identity');
   }
   if (receipt.commandSpec.shell && !isNonEmpty(receipt.shellExecutableDigest)) {
     throw new Error('command_spec_mismatch: shell execution requires executor-owned shell executable identity');
@@ -652,7 +657,7 @@ export function projectDoneRequiredReceiptToEnvironment(
     cwd: receipt.cwd,
     shell: receipt.commandSpec.shell,
     processEnvironmentDigest: receipt.effectiveEnvironmentDigest,
-    executableDigest: receipt.executableDigest,
+    executableDigest: receipt.executableDigest ?? null,
     ...(receipt.commandSpec.shell ? { shellExecutableDigest: receipt.shellExecutableDigest! } : {}),
     timeoutMs: receipt.commandSpec.timeoutMs,
     outputLimitBytes: 12_000,

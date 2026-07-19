@@ -61,6 +61,7 @@ Implemented now:
 | Quantum reference path | Implemented as read-receipt-only projection after the existing Quantum normalizer accepts the receipt | `projectQuantumReceiptToEnvironment`; Quantum smoke |
 | Proof Admissibility / Gate projection | Implemented in the existing DONE_REQUIRED lifecycle consumer; raw invocation/receipt input is revalidated before the shared proof-surface evaluator runs | `evaluateDoneRequiredEvidence` → `validateDoneRequiredEvidenceEnvironmentProjection` → `evaluateEvidenceEnvironmentGateProjection`; DONE-required smoke |
 | Windows implicit-shell identity | Implemented for the DONE-required path: actual `shell:true` is recorded, target executable identity remains separate, and `ComSpec`/`cmd.exe` content identity is bound as `shellExecutableDigest` by the shared producer/consumer constructor | DONE-required platform-injected regression; validation-evidence-reuse smoke |
+| Compound shell identity | Implemented conditionally: exact command/args/cwd/policy are bound by the CommandSpec digest and the actual shell executable is mandatory; target `executableDigest` may be `null` only when `shell:true` has no single resolvable target executable | DONE-required full-evaluator compound-shell positive and tampered-shell regressions |
 | Host-substitution invariant | Mechanically covered for policy-equivalent normalized inputs | EEA conformance smoke |
 | Producer independence | **Unsupported / fail-closed.** Receipts may reserve an opaque attestation reference, but the implementation exposes no injectable resolver and has no project-owned pinned-key/revocation registry. Distinct-host quorum always returns `distinct_host_quorum_unsupported`; repeated references additionally return `same_producer_not_independent` | EEA conformance smoke |
 
@@ -451,17 +452,18 @@ interface EvidenceEnvironmentCommandSpecBase {
   cwd: string;
   processEnvironmentOverlay: Record<string, string>;
   processEnvironmentDigest: string;
-  executableDigest: string | null;
   timeoutMs: number;
 }
 
 type EvidenceEnvironmentCommandSpec =
   | (EvidenceEnvironmentCommandSpecBase & {
       shell: false;
+      executableDigest: string;
       shellExecutableDigest?: never;
     })
   | (EvidenceEnvironmentCommandSpecBase & {
       shell: true;
+      executableDigest: string | null;
       shellExecutableDigest: string;
     });
 
@@ -524,11 +526,14 @@ identity requires a
 policy-approved redacted or keyed-digest scheme; raw secrets must not be stored
 in receipts.
 
-`executableDigest` reuses the existing routine-validation meaning: digest the
-resolved executable file when a stable local executable can be resolved, else
-record `null` and let policy decide whether unresolved executable identity is
-admissible. It is distinct from `shellExecutableDigest`, which is the content
-digest of the resolved actual shell executable when one is used.
+`executableDigest` reuses the existing routine-validation meaning. Direct
+execution (`shell:false`) requires a non-null resolved target-executable content
+digest. Shell execution (`shell:true`) requires the actual
+`shellExecutableDigest`; its target `executableDigest` is included when one
+executable resolves, but may be `null` for a compound command with no single
+target executable. In that case the exact command text, args, cwd, shell mode,
+environment overlay, timeout, and policy remain bound by the CommandSpec and
+invocation digests.
 
 The implemented `shellExecutableDigest` proves only resolved shell executable
 content identity. It does **not** prove shell implementation/version metadata,
@@ -622,7 +627,7 @@ it is not byte-identical to the EEA invocation command spec.
 | DONE-required `cwd` | `cwd` | Same canonical path semantics |
 | DONE-required `env` | `processEnvironmentOverlay` | Rename the declared non-secret overlay |
 | routine-validation `effectiveEnvironmentDigest` | `processEnvironmentDigest` | Reuse or versionedly reconcile the existing effective-environment canonicalization; do not introduce an unrelated third digest |
-| routine-validation `executableDigest` | `executableDigest` | Reuse resolved-executable content identity and its `null` semantics |
+| routine-validation `executableDigest` | `executableDigest` | Required and non-null for `shell:false`; for `shell:true`, include when one target resolves and allow `null` only when the command has no single target executable |
 | DONE-required/routine declared `shell` | `shell` | Resolve from actual execution, not configuration alone |
 | routine-validation `shellExecutableDigest` | `shellExecutableDigest` | Required when actual `shell:true`; forbidden otherwise; resolved shell executable content only |
 | DONE-required `timeoutMs` | `timeoutMs` | Exact |

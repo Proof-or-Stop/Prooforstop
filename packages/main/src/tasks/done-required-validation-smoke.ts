@@ -738,6 +738,60 @@ function assertDoneRequiredBlocked(
   }
 }
 
+// A policy-authorized compound shell command has no single target executable.
+// Its exact command/args are bound by CommandSpec while /bin/sh identity remains
+// mandatory; the full DONE evaluator must accept that conditional identity.
+{
+  const compound = 'node -e "process.exit(0)" && node -e "process.exit(0)"';
+  const { root, store } = fixture([compound]);
+  try {
+    const policy = resolveDoneRequiredPolicy(root);
+    const command = policy.commands[0]!;
+    const identity = buildDoneRequiredExecutionIdentity({ projectRoot: root, policy }).commands[0]!;
+    assert.equal(command.shell, true, 'compound policy string must resolve as shell execution');
+    assert.equal(identity.executableDigest, null, 'compound shell command has no single target executable');
+    assert.equal(identity.shellExecutableDigest?.length, 64, 'compound shell command must bind actual shell executable');
+    const h = hashes(root);
+    const commandSpec = buildDoneRequiredCommandSpecEnvelope(root, command, {
+      command: command.command,
+      args: command.args,
+      shell: true,
+      cwd: root,
+    });
+    const receipt: DoneRequiredCommandReceipt = {
+      label: command.label,
+      command: command.command,
+      args: command.args,
+      commandSpec,
+      shell: true,
+      cwd: root,
+      status: 'PASS',
+      exitCode: 0,
+      durationMs: 1,
+      outputDigest: 'compound-shell-output',
+      outputTail: '',
+      startedAt: new Date().toISOString(),
+      endedAt: new Date().toISOString(),
+      effectiveEnvironmentDigest: identity.effectiveEnvironmentDigest,
+      executableDigest: null,
+      shellExecutableDigest: identity.shellExecutableDigest,
+      ...(h.headHash ? { headHash: h.headHash } : {}),
+      ...(h.materialHash ? { materialHash: h.materialHash } : {}),
+      ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
+    };
+    writeDoneEvidence(root, store, [receipt]);
+    const pass = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    assert.equal(pass.ok, true, `compound shell full evaluator must pass: ${pass.reasons.join(', ')}`);
+
+    writeDoneEvidence(root, store, [{ ...receipt, shellExecutableDigest: 'tampered-shell' }]);
+    const tampered = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    assert.equal(tampered.ok, false);
+    assert.ok(tampered.reasons.some(reason => reason.includes('shell-executable-digest-mismatch[0]')));
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 // Failing command writes FAIL artifact and blocks.
 {
   const { root, store } = fixture([{ label: 'expected failure', command: 'node', args: ['-e', 'process.exit(7)'] }]);
