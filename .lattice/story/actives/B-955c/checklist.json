@@ -58,7 +58,87 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -121,7 +201,87 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -186,7 +346,87 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -249,7 +489,87 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -316,7 +636,87 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -383,7 +783,87 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process Fact Contract verified the L4 Evidence Environment Gate projection registration and semantics.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process Fact Contract verified the L4 Evidence Environment Gate projection registration and semantics.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process Fact Contract verified the L4 Evidence Environment Gate projection registration and semantics.",
+          "headHash": "8b60c592eaadbf07a261e3f467202b5e7f3c2578",
+          "materialHash": "42deee70c700e7a9e6fb6e702863fd1ded802103960e7b9fd3e73ac4f1a924bf",
+          "storyFilesHash": "8f733318997265a770cb22a9f4b91ed66da864836f96d80123d56442b9e68363",
+          "timestamp": "2026-07-19T00:49:15.177Z"
+        }
+      ]
     }
   ]
 }
