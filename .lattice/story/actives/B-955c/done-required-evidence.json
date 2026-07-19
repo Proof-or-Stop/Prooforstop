@@ -1,0 +1,89 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-955c",
+  "status": "PASS",
+  "startedAt": "2026-07-19T03:04:18.889Z",
+  "endedAt": "2026-07-19T03:10:05.760Z",
+  "durationMs": 346871,
+  "headHash": "3154aa8df4d67ba003f5cd8374b3354e36c255a7",
+  "materialHash": "249cdf9d7a664c74b057be9fe8239f14fb33b560f0fa2b93c98a4a2ceda54620",
+  "storyFilesHash": "9c089338c880d7930f77b290ecdd8d15203d4d94a7c2d40a52ad02946ae52da4",
+  "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+  "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v1",
+        "digest": "44fcd0ec935b7c7b3f3ca04de72c1292e1b4e44d4e31aed365d29c435a4f938a",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 14441,
+      "outputDigest": "eee351fb84147783447cd2f61b4ed2b91021d755acad57017b48966856fe9aad",
+      "outputTail": "\n> @lattice/core@0.3.218 build\n> tsc\n\n",
+      "startedAt": "2026-07-19T03:04:18.890Z",
+      "endedAt": "2026-07-19T03:04:33.331Z",
+      "effectiveEnvironmentDigest": "94c8ebd9d0da92e66c68e407ff355d2248aef63ba7392285f55237fb5281e9dc",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "3154aa8df4d67ba003f5cd8374b3354e36c255a7",
+      "materialHash": "249cdf9d7a664c74b057be9fe8239f14fb33b560f0fa2b93c98a4a2ceda54620",
+      "storyFilesHash": "9c089338c880d7930f77b290ecdd8d15203d4d94a7c2d40a52ad02946ae52da4"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v1",
+        "digest": "0e396ba7f6416de5432b73da8b21b7acbc451768e5ce45ef5076fcb4e78f2965",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 1200000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 332144,
+      "outputDigest": "573d7e2b04e0628694d3413c36a31726507108418d5cee96c27d72cf56e71a1c",
+      "outputTail": "epted\n  ✓ validateResolvedCloseInvariant: resolved close requires evidence refs\n  ✓ validateResolvedCloseInvariant: resolved close requires current material hash\n  ✓ validateResolvedCloseInvariant: resolved close accepts fresh evidence refs\n  ✓ validateResolvedCloseInvariant: blocked close does not require resolved evidence refs\n\n[2] runReviewLoopGate gate behavior\n  ✓ gate passes when no loops exist\n  ✓ gate throws for start record (open loop)\n  ✓ gate message includes loopId\n  ✓ gate message includes decision and nextAction when iteration is latest\n  ✓ gate passes after resolved close\n  ✓ gate passes after blocked close (loop gate clears; other gates still apply separately)\n  ✓ gate passes after escalated close (loop gate clears; other gates still apply separately)\n  ✓ gate throws for open loop even if a different loop is resolved\n  ✓ gate fails closed when review loop records are unreadable\n\n[3] getGuardFailureReason TEST phase with open loop\n  ✓ returns Cannot enter TEST message with open_review_loop tag\n  ✓ shared verdict preserves iteration decision and nextAction diagnostics\n  ✓ returns null (no loop blocker) after resolved close — reviewer gate then controls\n  ✓ blocked close also clears loop gate message\n  ✓ returns fail-closed reason when review loop records are unreadable\n\n[4] Authority/receipt/production field absence\n  ✓ ReviewLoopStart has no authority/receipt/production fields\n  ✓ ReviewLoopIteration has no authority/receipt/production fields\n  ✓ ReviewLoopClose has no authority/receipt/production fields\n\n[5] Reflection context isolation\n  ✓ reusableLearning is stored in reflection only, not at top-level or in evaluation\n  ✓ DEFAULT_REVIEW_LOOP_POLICY has no auto-execution flags set true\n\n[6] Handler projection and duplicate loopId safety\n  ✓ review_loop_status JSON exposes active and latest fields\n  ✓ review_loop_start rejects duplicate explicit loopId\n  ✓ review_loop_start rejects placeholder rollbackRef hashes\n\nreview-loop-smoke: 39 passed, 0 failed\n\n> lattice@0.3.218 test:delivery-context-pack-smoke\n> npm --prefix packages/main run test:delivery-context-pack-smoke\n\n\n> @lattice/core@0.3.218 test:delivery-context-pack-smoke\n> node dist/tasks/delivery-context-pack-smoke.js\n\ndelivery_context_pack smoke passed\n\n> lattice@0.3.218 test:flow-stability-smoke\n> npm --prefix packages/main run test:flow-stability-smoke\n\n\n> @lattice/core@0.3.218 test:flow-stability-smoke\n> node dist/tasks/flow-stability-smoke.js\n\n✓ flow stability smoke passed\n\n> lattice@0.3.218 test:review-assurance-floor-smoke\n> npm --prefix packages/main run test:review-assurance-floor-smoke\n\n\n> @lattice/core@0.3.218 test:review-assurance-floor-smoke\n> node dist/tasks/review-assurance-floor-smoke.js\n\n  ✓ docs-only markdown is not overblocked\n  ✓ zero-review material code is blocked\n  ✓ one fresh local review round passes clean material code\n  ✓ compatibility/retired-only records cannot satisfy the host-verdict assurance floor\n  ✓ stale local review evidence does not count\n  ✓ stale recovery placeholder commands are shell-safe without story or material bindings\n  ✓ stale recovery output truncates ignored verdict details\n  ✓ failure signals require sticky 3x1 local rounds\n  ✓ high-risk lifecycle gate work requires 3x2 or explicit degraded fallback\n  ✓ literal worktree-local guidance executes three complete degraded-only rounds\n  ✓ missing host readiness probe blocks non-human high-risk degraded fallback\n  ✓ temporary host unavailability also requires fresh insufficient-host proof\n  ✓ probe with reviewReadyHostCount below two permits high-risk degraded 3x1\n  ✓ probe with two executable canonical hosts blocks high-risk single-host fallback\n  ✓ explicit-human-approval remains lower assurance without host probe\n  ✓ forged local Authority completion fields remain non-authority\n  ✓ git diff classification detects material code without injected changedFiles\n  ✓ wrapper-root machine DONE guard uses resolved gitCwd\n\nreview-assurance-flo\n...[truncated 78809 chars]",
+      "startedAt": "2026-07-19T03:04:33.507Z",
+      "endedAt": "2026-07-19T03:10:05.651Z",
+      "effectiveEnvironmentDigest": "94c8ebd9d0da92e66c68e407ff355d2248aef63ba7392285f55237fb5281e9dc",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "3154aa8df4d67ba003f5cd8374b3354e36c255a7",
+      "materialHash": "249cdf9d7a664c74b057be9fe8239f14fb33b560f0fa2b93c98a4a2ceda54620",
+      "storyFilesHash": "9c089338c880d7930f77b290ecdd8d15203d4d94a7c2d40a52ad02946ae52da4"
+    }
+  ],
+  "reasons": []
+}
