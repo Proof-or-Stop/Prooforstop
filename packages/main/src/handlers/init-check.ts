@@ -62,7 +62,9 @@ export {
 export const INIT_CHECK_FALLBACK_REASON_MIN = 30;
 
 function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): T {
-  const lockDir = store.storyFilePath(storyId, 'init-check.lock');
+  // B-d877 R3 FIX B: relocate out of the git-tracked story dir to the gitignored
+  // shared `.lattice/locks/init-check/<id>-init-check.lock`.
+  const lockDir = store.runtimeLockDirPath(storyId, 'init-check', 'init-check');
   return withMkdirLock(lockDir, fn, { label: 'init-check metadata' });
 }
 

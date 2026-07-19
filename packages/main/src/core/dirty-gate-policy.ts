@@ -34,6 +34,7 @@ import {
   type DirtyWorktreeClassification,
 } from './dirty-worktree.js';
 import { appendProcessEventRecord } from './process-events.js';
+import { storyRuntimeLockPath } from './validation-execution-lock.js';
 
 export interface DirtyGatePolicyEntry {
   readonly blocking: boolean;
@@ -251,7 +252,11 @@ export function evaluateDirtyGate(
  */
 export function defaultAuditWriter(projectRoot: string, storyDirRel: string, storyId: string): AuditWriter {
   const storyDir = join(projectRoot, storyDirRel, storyId);
+  // B-d877 R3 FIX B: relocate the append lock out of the git-tracked story dir to
+  // the gitignored shared `.lattice/locks/process-events/` prefix so a transient
+  // holder.json cannot be committed and dirty the tree.
+  const lockDir = storyRuntimeLockPath(projectRoot, 'process-events', storyId, 'process-events-append');
   return (event: AuditEvent) => {
-    appendProcessEventRecord(storyDir, event as unknown as Record<string, unknown>);
+    appendProcessEventRecord(storyDir, event as unknown as Record<string, unknown>, lockDir);
   };
 }

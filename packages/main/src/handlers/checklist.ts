@@ -94,11 +94,15 @@ export function renderSlimChecklist(storyId: string, cl: ChecklistData): Record<
 }
 
 /**
- * B-6812 CHK-001: delegates to the shared `withMkdirLock` primitive. Lock path
- * stays `<story>/checklist.lock`; external behavior is unchanged.
+ * B-6812 CHK-001: delegates to the shared `withMkdirLock` primitive.
+ *
+ * B-d877 R3 FIX B: the lock dir is relocated OUT of the git-tracked story dir to
+ * the gitignored shared `.lattice/locks/checklist/<id>-checklist.lock` so the
+ * universal holder.json can never be committed inside `.lattice/story/actives/`
+ * and dirty the tree. External behavior (mutual exclusion) is unchanged.
  */
 function withChecklistLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
-  const lockDir = ctx.store.storyFilePath(storyId, 'checklist.lock');
+  const lockDir = ctx.store.runtimeLockDirPath(storyId, 'checklist', 'checklist');
   return withMkdirLock(lockDir, fn, { label: 'checklist metadata' });
 }
 
