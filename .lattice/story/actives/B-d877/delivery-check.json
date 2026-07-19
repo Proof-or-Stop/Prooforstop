@@ -1,0 +1,64 @@
+{
+  "storyId": "B-d877",
+  "checkedAt": "2026-07-19T12:47:06.644Z",
+  "headHash": "f0e18ade12ddfeeb5c5f68edf2ed2e5898955173",
+  "materialHash": "b2c93cb530b199ec6cdb24642b5d91a8fb1a75f7e225d1c20ce3fe5384882981",
+  "storyFilesHash": "6b1c037caaf4c4f18eca410f76e06656a825ba17e6877c0990365ecfdee912d6",
+  "reviewRound": "2026-07-19T12:09:50.724Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-d877/plan.md#CHK-001",
+      "promise": "dev_finish and dev_merge advance a story phase by calling runStoryTransition (the canonical orchestrator) instead of driving a raw XState actor and writing story.phase directly.",
+      "verifiedBy": "diff/grep + live re-run of transition-integrity-smoke.js",
+      "evidence": "packages/main/src/handlers/worktree.ts diff: dev_finish now `await runStoryTransition(ctx, { storyId, phase: REVIEW })`; dev_merge now `await runStoryTransition(ctx, { storyId, phase: DONE })`; the old createStoryActor/send/story.phase= block is removed from both. Re-ran node packages/main/dist/tasks/transition-integrity-smoke.js myself: CHK-001a (6 checks) confirms dev_finish lands REVIEW with a minted currentReviewRound, one phase_transition event with toPhase=REVIEW, no TEST-mislabeled event; CHK-001b (5 checks) confirms dev_merge throws the identical DONE-gate error as a direct runStoryTransition(DONE) call, proving delegation and no bypass write."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-d877/plan.md#CHK-002",
+      "promise": "A new per-story transition lock (core/story-transition-lock.ts) is held across read-gate-persist in runStoryTransitionInner for every phase so two concurrent same-owner transitions cannot both act on the same pre-transition state and double-mint a review round.",
+      "verifiedBy": "diff/grep + live re-run of transition-integrity-smoke.js",
+      "evidence": "packages/main/src/handlers/transition-orchestrator.ts diff: acquireStoryTransitionLock(ctx.root, args.storyId) taken immediately inside the try before readStory, released in the finally on every exit path; DONE acquires it before acquireDoneMainMergeLock (fixed ordering). New file core/story-transition-lock.ts implements the mkdir-lock-based advisory lock with a liveness classifier. Re-ran the smoke myself: CHK-002a (real 2-process race) yields exactly one currentReviewRound/phase_transition event; CHK-002b proves a throwing critical section releases the lock and DONE does not self-deadlock; CHK-002c checks cover the liveness classifier (PID reuse, dead pid, cross-host defer), lock-path git-common-dir anchoring, in-process re-entrant fail-fast, and CHK-002c6 proves the atomic persist claim alone (advisory lock bypassed) still serializes two REAL concurrent OS processes to exactly one commit."
+    },
+    {
+      "docPath": "packages/main/src/handlers/transition-orchestrator.ts (in-code KNOWN LIMITATION, matches summary.json limitations field)",
+      "promise": "The atomic persist claim used as the authoritative double-mint fence uses a time-based stale reclaim (staleMs=15000) and is therefore not an absolute mutex against a holder that is OS-level frozen (e.g. SIGSTOP) longer than staleMs mid-persist; this is documented in-code as a deliberately-deferred KNOWN LIMITATION, mitigated by the fully-synchronous persist critical section (no await between claim-acquire and release).",
+      "verifiedBy": "grep + read",
+      "evidence": "KNOWN LIMITATION (B-d877 R4, codex #1 residual - deliberately deferred) appears verbatim in both packages/main/src/core/story-transition-lock.ts (near line 46) and packages/main/src/handlers/transition-orchestrator.ts (near line 759), each describing the identical staleMs/SIGSTOP residual and the fully-synchronous-critical-section mitigation claimed in summary.json limitations field. The two in-code copies are textually consistent with each other and with summary.json."
+    },
+    {
+      "docPath": "summary.json#limitations F-017 bounded leak",
+      "promise": "A doubly-degenerate concurrent-release race in the ownership-checked mkdir-lock release can leave a bounded self-healing lock-dir leak, collected by ordinary stale reclaim; smoke CHK-002d4 proves the leak is bounded.",
+      "verifiedBy": "live re-run of transition-integrity-smoke.js",
+      "evidence": "CHK-002d4 in the smoke output scripts the exact interleaving (A isolates token, B release no-ops on the ENOENT window, A restores B now-orphaned token) and asserts (a) the dir is left populated with B orphaned token (documented bounded leak) and (b) a fresh acquire with a short staleMs succeeds, i.e. the orphan is stale-reclaimable/self-healing. Both assertions passed when I ran the smoke myself."
+    },
+    {
+      "docPath": ".gitignore + core/validation-execution-lock.ts storyRuntimeLockPath + core/mkdir-lock.ts universal lockId",
+      "promise": "Per-story runtime locks (checklist/finding/review-run/init-check/prompt-envelopes/process-events) are relocated from the git-tracked story metadata dir to the gitignored shared .lattice/locks/<category>/ prefix, and every mkdir-lock acquire now mints a lockId token so release() is ownership-checked (never an unconditional recursive removal that could delete a successor live lock).",
+      "verifiedBy": "diff/grep + live re-run of transition-integrity-smoke.js",
+      "evidence": ".gitignore adds **/*.lock/ ; checklist.ts/finding.ts/review-run.ts/init-check.ts/agent-prompt.ts/store.ts all switched from store.storyFilePath(id,'checklist.lock') style calls to store.runtimeLockDirPath(id,'category','name') which resolves under .lattice/locks/<category>/. mkdir-lock.ts release() now does atomic renameSync-isolate plus token match or mismatch-restore instead of rmSync(lockDir,{recursive:true,force:true}). Re-ran the smoke: CHK-002c7 confirms all 6 relocated lock categories resolve under .lattice/locks/, not the story dir; CHK-002d/d2/d3 confirm ownership-checked release never deletes a successor lock dir and correctly cleans up holder-owned aux files."
+    },
+    {
+      "docPath": "summary.json#actualTranscript cross-host review and full 3x2 quorum",
+      "promise": "7 cross-host review rounds converged with R7 all 4 lanes PASS (genuine codex host-B plus 3 claude lanes) and a recorded full 3x2 quorum.",
+      "verifiedBy": "lattice review_escalation_status + finding_list",
+      "evidence": "lattice review_escalation_status for B-d877 returns assuranceLevel=full-3x2, ok=true, fullQuorum=3/3 rounds x 2 hosts, bound to the current materialHash/storyFilesHash. lattice finding_list shows 17 of 17 findings across the story with status=resolved (none open/unresolved)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Ran node packages/main/dist/tasks/transition-integrity-smoke.js myself (not trusting prior evidence). CHK-001a (6 checks): dev_finish on a completed DEV fixture story advances to REVIEW (not TEST), mints a non-empty currentReviewRound, appends exactly one phase_transition event with toPhase=REVIEW, and produces no story.events entry mislabeled TEST. CHK-001b (5 checks): dev_merge on a TEST story reaches the orchestrator DONE gate and throws the identical error a direct runStoryTransition(DONE) call throws (proving delegation, not an inline reimplementation), leaves phase=TEST unchanged, and appends zero phase_transition events on the blocked attempt. Full smoke: 79/79 checks passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same live run of transition-integrity-smoke.js. CHK-002a: two real concurrent same-owner DEV to REVIEW transitions for the same story produce exactly one committed transition (the loser observes Cannot transition from REVIEW to REVIEW), exactly one minted currentReviewRound, and exactly one phase_transition event. CHK-002b: a throwing critical section releases the transition lock (no deadlock) and a DONE transition uniformly acquires and releases it without self-deadlocking against acquireDoneMainMergeLock (elapsed 417ms). CHK-002c6: with the advisory lock explicitly bypassed via LATTICE_TEST_DISABLE_TRANSITION_ADVISORY_LOCK, two REAL concurrent OS processes racing the persist still yield exactly one commit and one phase_transition event, because the atomic mkdir persist-claim (not the advisory lock) is the correctness fence; the loser error text is concurrent transition already advancing ... aborting to prevent double-mint. CHK-002c9/F-012: two concurrent IDEA to PLAN transitions with distinct checklists persist exactly the winner checklist; the loser checklist never lands on disk. All 79 checks passed on my own run."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independently re-ran all three requested smokes myself (transition-integrity-smoke 79/79, validate-progress-heartbeat-smoke pass, quorum-submit-smoke 39/39) rather than trusting recorded evidence, and every docs/plan/summary promise I could extract from the diff (runStoryTransition delegation, per-story transition lock, lock relocation and ownership-checked release, the documented KNOWN LIMITATION, and the full-3x2 quorum claim) checked out against the actual code and live CLI state. No unresolved TODO/FIXME/HACK in the diff and all 17 review findings across 7 rounds are resolved."
+  },
+  "_hash": "59a3736f1a9fe9ec0ae17da1d72709a3c5e3af8e690f1f09ce3eac7cffa7ea8d"
+}
