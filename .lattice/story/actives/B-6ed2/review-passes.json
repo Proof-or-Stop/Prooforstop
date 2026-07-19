@@ -138,6 +138,30 @@
       },
       "readDiagnostics": [],
       "_hash": "28205e0b43e8d496bb09917121c263a4933eff96fc5004ef67e402dfcc981efd"
+    },
+    {
+      "id": "B-6ed2:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round-5 incremental concept PASS: F007/F008 are closed by writer-returned exact append identity plus migration of dirty-gate and cross-host production writers to the same cooperative process-event lock. Timestamp/default semantics and the two-row cross-host batch remain intact; focused quorum smoke passed 32/32 and no blocking concept issue remains in the bounded delta.",
+      "createdAt": "2026-07-19T00:17:54.623Z",
+      "reviewRound": "2026-07-19T00:14:28.161Z",
+      "reviewRunId": "B-6ed2:RR-013",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-events.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dirty-gate-policy.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6b2993032a39b45caf242d91a3d8e8d325d3ceb220163223d71a0ce97a14b567"
     }
   ]
 }
