@@ -62,9 +62,31 @@
     "packages/main/templates/agents/lattice-evaluator.md"
   ],
   "scopeChangeReason": "Revised after independent PLAN review: include core review-run gate reconstruction, all three immutable baseline artifacts, host-run usage docs, and binding-race semantics; migrate only five active REVIEW roles.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "Required baseline consumer correction: role-prompt-measurement must measure the same mode-aware modular body actually dispatched by agent_prompt and ReviewRun; leaving the raw compound template would make the declared third baseline materially false.",
+      "timestamp": "2026-07-19T07:41:50.357Z",
+      "paths": [
+        "packages/main/src/core/prompt-measurement.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-measurement.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "35a293c9261dca0caadfef8edc2677e6cf4127a1",
+      "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+      "anchors": [
+        "measureRolePrompts",
+        "readPromptTemplate",
+        "resolvePromptBodyForMode"
+      ]
+    }
+  ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T07:21:58.619Z",
+  "updatedAt": "2026-07-19T07:41:50.357Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -118,6 +140,7 @@
     "packages/main/templates/agents/lattice-review-scope-plan.md": "packages/main/templates/agents/lattice-review-scope-plan.md",
     "packages/main/templates/agents/lattice-implementer.md": "packages/main/templates/agents/lattice-implementer.md",
     "packages/main/templates/agents/lattice-review-delivery.md": "packages/main/templates/agents/lattice-review-delivery.md",
-    "packages/main/templates/agents/lattice-evaluator.md": "packages/main/templates/agents/lattice-evaluator.md"
+    "packages/main/templates/agents/lattice-evaluator.md": "packages/main/templates/agents/lattice-evaluator.md",
+    "packages/main/src/core/prompt-measurement.ts": "packages/main/src/core/prompt-measurement.ts"
   }
 }

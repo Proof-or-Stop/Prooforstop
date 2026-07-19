@@ -815,9 +815,9 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T07:39:07.035Z",
-      "endTime": null,
+      "endTime": "2026-07-19T07:50:19.199Z",
       "verificationIntent": {
         "happy": [
           {
@@ -927,7 +927,153 @@
           "scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "packages/main/src/tasks/quorum-submit-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "reviewer-owner-permission-boundaries",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-smoke.js",
+          "result": "pass",
+          "note": "Reviewer/owner mutation boundaries and lane-specific review-run authority checks passed for migrated roles.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:19.473Z"
+        },
+        {
+          "intentRef": "signed-current-run-admission",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Quorum smoke passed 42 checks for signed same-lane ReviewRun, Prompt Envelope, round/hash freshness, binding-race PASS compatibility, and kind-aware finding admission.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:19.661Z"
+        },
+        {
+          "intentRef": "role-baseline-diff-approval-rollback",
+          "kind": "docs_check",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "All three immutable digest-bound baselines verify selected modular bodies, exact legacy rollback, role-by-role diffs, and approval identity.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:19.818Z"
+        },
+        {
+          "intentRef": "process-contract-docs-synchronized",
+          "kind": "docs_check",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact registry/verifier passed; canonical Story 5 and host usage docs describe selected-body measurement, rollout, rollback, and evidence limits. Owner verify_codex also passed relevant adapter checks.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:19.975Z"
+        },
+        {
+          "intentRef": "old-pass-original-round-only",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-smoke.js",
+          "result": "pass",
+          "note": "Legacy envelope-less pass remains original-round legacy-full-context and cannot establish a modular incremental baseline.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:20.131Z"
+        },
+        {
+          "intentRef": "mixed-role-rollback-gate-equivalence",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "All mixed five-role rollout states passed while required lanes and gate semantics stayed unchanged.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:20.287Z"
+        },
+        {
+          "intentRef": "budget-violation-does-not-weaken-authority",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Budget violation and FULL_CHEAPER_OR_EQUAL remain observation/selection facts and do not weaken authority or correctness-required full review.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:20.444Z"
+        },
+        {
+          "intentRef": "compatibility-retired-artifact-audit-only",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Compatibility and retired artifacts remain audit-readable but receive zero current receipt, assurance-floor, or quorum credit.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:20.653Z"
+        },
+        {
+          "intentRef": "unauthorized-pass-and-lifecycle-writes-rejected",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-smoke.js",
+          "result": "pass",
+          "note": "Unauthorized actor, wrong lane, and owner-gated mutation attempts are rejected without minting reviewer evidence.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:20.838Z"
+        },
+        {
+          "intentRef": "replay-tamper-wrong-lane-signature-rejected",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Wrong-lane, stale, altered envelope/contract/body/baseline digest, and malformed signature/receipt cases receive no quorum credit.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:20.993Z"
+        },
+        {
+          "intentRef": "rollback-cannot-relax-contract-or-retire-role",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Rollback changes only selected prompt body and cannot alter Role Contract permissions, lifecycle status, signature domain, or retired channel policy.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:21.149Z"
+        },
+        {
+          "intentRef": "concurrent-lane-write-and-collector-determinism",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Concurrent lane-scoped evidence and repeated collector aggregation remain deterministic without overwrite or duplicate credit; baselines are immutable digest-bound artifacts.",
+          "headHash": "ebd778fa4b6174d1b4e156ae1d5ea4d575f51b26",
+          "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+          "storyFilesHash": "2b0fd4462af647b2113bdb9311290d3aa418ecba00682899f36768d684078e54",
+          "timestamp": "2026-07-19T07:50:21.312Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -999,6 +1145,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "CHK-003 commit accepted; implementer started authority, baseline, process-contract, docs, and rollback closure.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T07:50:19.199Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Accepted business commit ebd778fa4b after all focused smokes, baseline/process verifiers, replay selfcheck, and owner verify_codex passed.",
       "agent": "lattice-implementer"
     }
   ]
