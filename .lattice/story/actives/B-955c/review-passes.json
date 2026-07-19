@@ -332,6 +332,50 @@
         "scanEscalationReason": null
       },
       "_hash": "f131f9f50997b02eb28d46abb2230a0d3bd79262f41eba0f9c32aec903fe8448"
+    },
+    {
+      "id": "B-955c:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Final convergence quality/security review passed. F-016 is closed end-to-end: the full DONE_REQUIRED evaluator accepts a policy-authorized compound shell receipt with exact CommandSpec, null single-target executableDigest, and bound shellExecutableDigest, while tampering the shell digest blocks with shell-executable-digest-mismatch. Independent contract repro also confirms direct shell:false with null target digest is rejected, compound shell:true with a shell digest normalizes, and missing shell digest is rejected. Earlier controls remain intact: raw Gate inputs are re-normalized, stale/tampered/unknown descriptors stop, arbitrary attestation resolver input has no trust-root API, and distinct-host quorum remains unsupported/fail-closed. Build, EEA, DONE-required, Pack, Quantum, process-fact, documentation, and diff checks passed; no blocker found.",
+      "createdAt": "2026-07-19T01:56:56.782Z",
+      "reviewRound": "2026-07-19T01:54:45.274Z",
+      "reviewRunId": "B-955c:RR-017",
+      "writerSessionId": "sess-78496edb9deef8db49f5f4474f388f8d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/index.ts",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Final convergence review focused on commit 16988f6a57 and the complete F-016 compound-shell identity path, while rechecking all previously identified trust, Gate, registry, quorum, Windows execution-identity, and documentation boundaries."
+      },
+      "_hash": "bee98f9b18d239784c8fa58be540aed54971659f4809cb1a2deaa339ad0cccdb"
     }
   ]
 }
