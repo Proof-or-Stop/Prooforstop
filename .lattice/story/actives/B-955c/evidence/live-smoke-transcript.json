@@ -1,0 +1,20 @@
+{
+  "storyId": "B-955c",
+  "expected": "User sees the architecture rule \"Agent proposes, Environment observes, Proof Admissibility evaluates, Gate decides\" and an explicit current-versus-target support matrix.",
+  "actual": {
+    "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+    "exitCode": 0,
+    "stdout": "\n> @lattice/core@0.3.216 test:evidence-environment-adapter\n> node dist/tasks/evidence-environment-adapter-smoke.js\n\ndefault environment descriptor registry: PASS\ndeterministic normalized envelope: PASS\nidentity, authority, execution, and freshness tamper cases: PASS\nhost substitution semantics and fail-closed unsupported distinct-host quorum: PASS\ncode-runtime execute-local receipt projection: PASS\nquantum read-receipt-only projection: PASS\nevidence environment adapter smoke passed\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-19T02:48:55.357Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "71a49ff17c326054b00bb37fa3254bbf2d692a7f",
+  "materialHash": "c68b8e60ebeba051ab8accb2f84e0c6332175e8ac0fb39c788ac6141b227d105"
+}
