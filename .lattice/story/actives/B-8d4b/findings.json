@@ -55,7 +55,7 @@
       "desc": ".lattice/story/actives/B-8d4b/checklist.json:7-10 marks lattice-experiment-protocol.md as a governing relatedDoc, but that document at lines 184-188 has an explicit Build gate requiring the S3 harness to implement rev3.1 exactly (five A1-A4 arms including provider-backed spend matching, 20-24 tasks, injections, GLMM/FDR). The delivered two-arm offline historical-observation replay intentionally does none of those things. This leaves two incompatible experiment contracts presented as simultaneously authoritative. Either remove this unrelated protocol from CHK-001/plan and state it governs a different experiment, or amend the protocol/canonical cross-reference so the authority boundary is unambiguous before declaring Story 3 delivered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-19T02:11:33.670Z",
@@ -63,7 +63,11 @@
       "reviewRunId": "B-8d4b:RR-003",
       "_hash": "a3bb18f96e5e1f753f3c5764125927ffdc0773acde387930ff4f8bbe54965e3c",
       "signatureTag": "missing|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in e36af72f74: the unrelated five-arm lattice experiment document was removed from governing relatedDocs and README identifies it only as non-authoritative inspiration.",
+      "resolvedAt": "2026-07-19T02:37:09.902Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-004",
