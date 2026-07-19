@@ -1247,6 +1247,60 @@
       },
       "readDiagnostics": [],
       "_hash": "bfa7c7ca879cdcd34549659de7aded58242b68f94f33397705dd32d1a856933f"
+    },
+    {
+      "id": "B-955c:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final coverage review for 5b203d35ba found no test-design blocker. The EEA regression executes current v2 projection/normalization, legacy v1 compatibility, and exact missing-CommandSpec diagnostic wording; build, EEA, worktree-portability, done-required freshness/validation, and diff checks pass. All 36 intents remain uniquely mapped to passing evidence. Checklist evidence is mechanically stale after the story-owned hash change and must be refreshed/revalidated before TEST/DONE; this is freshness convergence, not a coverage-logic failure.",
+      "createdAt": "2026-07-19T03:29:04.599Z",
+      "reviewRound": "2026-07-19T03:23:39.690Z",
+      "reviewRunId": "B-955c:RR-039",
+      "writerSessionId": "sess-208304691ff72fa91f8fde5b3e88d5e2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-955c/done-required-evidence.json",
+          ".lattice/story/actives/B-955c/test-evidence.json",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "lattice.config.json",
+          "packages/main/package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "878f3fe22b18ed1d75c50617f7c89018a63350478886516fd9cb7a93f1eb2dfe"
+      },
+      "readDiagnostics": [],
+      "_hash": "314f0b5cc4b621c8a6b05d2edc5582d1984516a28fb2a45b17b22e478e208b47"
     }
   ]
 }
