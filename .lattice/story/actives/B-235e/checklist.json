@@ -236,6 +236,21 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Starting any migrated reviewer prints context full or incremental plus a stable selection reason; unsafe or stale inputs visibly select full, while an eligible bounded delta remains readable and can explicitly escalate to a fresh full run.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ]
       }
     },
     {
