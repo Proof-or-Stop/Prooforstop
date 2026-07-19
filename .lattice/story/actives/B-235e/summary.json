@@ -1,0 +1,56 @@
+{
+  "storyId": "B-235e",
+  "changes": "Migrated five active reviewer roles to modular full and eligible incremental Prompt Envelopes; preserved legacy rollback; unified runtime-locked review_run_start and agent_prompt writers; refreshed validation and delivery evidence.",
+  "usage": "Reviewers use the normal lattice dispatch and review_run_start flow; eligible fresh passes select incremental context automatically, while drift or uncertainty selects full context.",
+  "expectedOutcome": "Active reviewers render valid modular envelopes with lower repeated context input, while review gates reject stale, wrong-lane, retired, forged, or concurrently corrupted evidence.",
+  "actualTranscript": "Full validation passed, DONE-required build and npm test passed, mixed-writer ABA and 20/20 concurrency smoke passed, delivery check and degraded assurance are current.",
+  "outcomeDiff": "No difference between expected and actual outcome.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No live external LLM quality replay was required; offline replay and provider-availability limitations remain explicitly reported.",
+  "pitfalls": "Main merge caused runtime-lock and smoke-barrier conflicts; resolved by aligning both writers to the shared runtime review lock and updating the ABA fixture path.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 59741
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 45786
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1069816
+    },
+    "DEV": {
+      "count": 11,
+      "durationMs": 9657087
+    },
+    "REVIEW": {
+      "count": 11,
+      "durationMs": 7149021
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 33756803
+    }
+  },
+  "totalDurationMs": 51738637,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-19T21:27:15.132Z",
+  "updatedAt": "2026-07-19T21:27:15.132Z"
+}
