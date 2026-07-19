@@ -195,6 +195,19 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "对有效样本显示可评估结论；对缺失或篡改材料显示 INCONCLUSIVE(reasonCode)；终端同时显示 production evidence before/after digest identical。",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "create": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "test": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ]
       }
     }
   ]
