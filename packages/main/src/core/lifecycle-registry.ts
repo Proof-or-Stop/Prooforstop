@@ -324,6 +324,7 @@ export const LIFECYCLE_ARTIFACTS = [
   'candidate-spec-set.json',
   'delivery-check.json',
   'review-runs.json',
+  'prompt-envelopes.json',
   'findings.json',
   'gap-log-provenance.jsonl',
   'review-passes.json',
@@ -392,12 +393,12 @@ export const LIFECYCLE_PHASE_ARTIFACTS = {
     consumes: ['init-check.json', 'review.json', 'scope-check.json', 'candidate-spec-set.json'],
   },
   DEV: {
-    produces: ['checklist.json', 'candidate-spec-set.json', 'decision-doc-proposals.json'],
-    consumes: ['review.json', 'scope-check.json', 'candidate-spec-set.json', 'checklist.json'],
+    produces: ['checklist.json', 'candidate-spec-set.json', 'decision-doc-proposals.json', 'prompt-envelopes.json'],
+    consumes: ['review.json', 'scope-check.json', 'candidate-spec-set.json', 'checklist.json', 'prompt-envelopes.json'],
   },
   REVIEW: {
-    produces: ['candidate-spec-set.json', 'review-runs.json', 'findings.json', 'review-passes.json', 'delivery-check.json', 'test-evidence.json'],
-    consumes: ['candidate-spec-set.json', 'checklist.json', 'findings.json', 'review-passes.json', 'review-runs.json'],
+    produces: ['candidate-spec-set.json', 'review-runs.json', 'prompt-envelopes.json', 'findings.json', 'review-passes.json', 'delivery-check.json', 'test-evidence.json'],
+    consumes: ['candidate-spec-set.json', 'checklist.json', 'findings.json', 'review-passes.json', 'review-runs.json', 'prompt-envelopes.json'],
   },
   TEST: {
     // transcript-diff.md remains recognized only for legacy story compatibility;

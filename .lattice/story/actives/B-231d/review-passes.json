@@ -1,0 +1,272 @@
+{
+  "passes": [
+    {
+      "id": "B-231d:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "F-001 verified fixed in 1d98a3a7c6. Rebuilt+ran worktree-portability-smoke live: all 16 checks pass incl. cross-root receipt-coverage (no receipt-cwd-mismatch) and genuinely-different-cwd still mismatches. Grepped repo for residual absolute-cwd equality comparisons: none found outside documented v1 legacy migration path. No concept-residue blocker.",
+      "createdAt": "2026-07-19T00:20:46.080Z",
+      "reviewRound": "2026-07-19T00:16:28.435Z",
+      "reviewRunId": "B-231d:RR-005",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "749c3498c3553968855d03e8306bcea0559dd3af5bd1068eec83c2b72780699f"
+    },
+    {
+      "id": "B-231d:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "F-003 verified fixed in 1d98a3a7c6 (repoRelativeLogicalCwd branches abs-vs-relative, absolute in-repo cwd anchors at sharedRootInProjectSpace via realpath offset re-applied to caller path space). Confirmed via built dist: worktree-portability-smoke 16/16 pass, custom symlink repro (raw macOS TMPDIR /var/folders vs realpath /private/var/folders, no caller-side realpathSync) shows identical digest/cwd/lock-path across two worktree roots. No new dead code, no as any, new catch blocks follow existing fallback-to-root pattern. Smoke auto-discovered by run-all-smokes.js, verified running. Full related regression (done-required-freshness, done-required-validation, gitroot-cwd-contract, bare-gate-gitroot-cwd, project-gitroot-cwd, graceful-sites-gitroot-cwd-wrapper-root, gitroot-cwd-routing, storydir-inside-gitroot) all PASS. No I/O-shell isolation concern (no bridge.ts/fn.ts pattern in project). No promised-but-undelivered doc claims (no CLAUDE.md/README changes; inline doc comments match implementation). No new quality finding.",
+      "createdAt": "2026-07-19T00:25:15.706Z",
+      "reviewRound": "2026-07-19T00:16:28.435Z",
+      "reviewRunId": "B-231d:RR-007",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-231d/findings.json",
+          ".lattice/story/actives/B-231d/plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ba5b158b0001a2763d9425b6629dde788a3b26b30d769e6d52b4aa82ace5c48b"
+    },
+    {
+      "id": "B-231d:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 9 verificationIntent lanes (CHK-001/002/003 x happy/edge/adversarial) are genuinely exercised by worktree-portability-smoke.js re-run fresh (16/16 checks pass, exit 0); evidence_inspect reports freshness=fresh, 0 staleRefs; validate reports 9/9 covered, 0 missing; no open findings remain.",
+      "createdAt": "2026-07-19T01:11:24.515Z",
+      "reviewRound": "2026-07-19T01:08:03.737Z",
+      "reviewRunId": "B-231d:RR-009",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2dff0445e4dacf3ddd2fac5ffc4735ccf3714277f0a9ac9ff892d6da70cd3df3"
+    },
+    {
+      "id": "B-231d:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check for schema v1->v2 bump (F-001..F-004 fix commit 1d98a3a7c6). Repo-wide grep for lattice.command-spec.v1/v2 shows all source construction sites use the exported v2 constant for new envelopes or the LEGACY_V1 constant only inside the intentional migration builder (buildLegacyAbsoluteCwdCommandSpecEnvelope, documented as migration-only). No stray hardcoded v1 literal producing a new envelope. .lattice/story/actives/*/done-required-evidence.json v1 hits are pre-existing legacy evidence from OTHER stories -- exactly what the legacy-acceptance path exists to keep verifying, expected not residue. No leftover absolute-cwd digest comparison: normalizedCommandCwd(absolute) is used only for resolvedCwd provenance and the intentional v1 reconstruction; the v2 digest path uses repoRelativeLogicalCwd/receiptLogicalCwd everywhere (validateRequiredReceiptCoverage, isPackagesMainBuild, validateCommandSpecDigestCoverage). validation-types.ts schema union correctly documents v1|v2. Rebuilt packages/main (tsc clean) and ran both smokes live at current HEAD: worktree-portability-smoke.js (16/16 incl. CHK-001/002/003 + F-001/F-002/F-003 regression checks) and done-required-validation-smoke.js both PASS, confirming v2 emitted for new receipts and legacy v1 still verifies. No new concept-cleanup defect found this round.",
+      "createdAt": "2026-07-19T01:12:31.589Z",
+      "reviewRound": "2026-07-19T01:08:03.737Z",
+      "reviewRunId": "B-231d:RR-010",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-231d/checklist.json",
+          ".lattice/story/actives/B-231d/decision.json",
+          ".lattice/story/actives/B-231d/findings.json",
+          ".lattice/story/actives/B-231d/plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/dist/core/done-required-validation.js",
+          "packages/main/dist/core/validation-types.d.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "963d4723bd52fdb8c6746f753757b4e2e8af3b2a1526eb0a033e226609992310"
+    },
+    {
+      "id": "B-231d:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check for f39ef9f967 (sharedRootInProjectSpace deletion). Grepped repo: only 2 hits, both immutable historical audit-trail entries (findings.json F-003 resolvedReason, review-passes.json note) describing the intermediate commit 1d98a3a7c6 state, not current code claims. No source/doc/test residue. v1/v2 command-spec migration intact (DONE_REQUIRED_COMMAND_SPEC_SCHEMA=v2 + LEGACY_V1 constant, buildLegacyAbsoluteCwdCommandSpecEnvelope, both schemas validated in coverage + exercised by worktree-portability-smoke and done-required-validation-smoke). lifecycle-control validationLockPath now delegates to exported validationExecutionLockPath (no orphaned hand-rolled duplicate; old sanitize-regex removed). resolveSharedLockRoot correctly retained for the LOCK path only (CHK-001), distinct from the deleted digest-anchoring concept. Rebuilt packages/main and ran worktree-portability-smoke.js: 25/25 checks pass. done-required-validation-smoke.js also passes.",
+      "createdAt": "2026-07-19T01:32:59.615Z",
+      "reviewRound": "2026-07-19T01:28:28.627Z",
+      "reviewRunId": "B-231d:RR-012",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-231d/findings.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-231d/checklist.json",
+          ".lattice/story/actives/B-231d/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b366fa42eab4306e486191e38a8f54f2dd337e5e3e6a1556866c4d891ada7e5e"
+    },
+    {
+      "id": "B-231d:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Verified commit f39ef9f967 fix for F-005/F-006/F-007, no new defects. F-007: grepped repo-wide for locks/validation joins outside the canonical VALIDATION_EXECUTION_LOCKS_REL constant in validation-execution-lock.ts; only the delegating validationLockPath() in lifecycle-control/runtime/index.ts remains and it now calls the exported validationExecutionLockPath() inside try/catch (empty-string fallback, safe with existsSync). F-006: repoRelativeLogicalCwd anchors absolute cwd at projectRoot via canonicalizeExisting (longest-existing-prefix realpath) on both anchor and target; traced buildDoneRequiredCommandSpecEnvelope call sites and confirmed in-workspace absolute cwd now normalizes identically across two worktree roots while out-of-workspace stays a documented `..`-prefixed limitation. Manually reproduced the symlink case (macOS /tmp -> /private/tmp) against the built dist outside the smoke harness (which pre-resolves its temp base via realpathSync and so never itself exercises canonicalizeExistings fallback branch) and confirmed identical digest/cwd across the symlinked vs realpath forms -- canonicalizeExisting is sound. F-005: confirmed via before/after diff of f39ef9f967 that buildDoneRequiredCommandSpecEnvelope previously ignored the executed param entirely and always digested command.cwd; now digests executed?.cwd ?? command.cwd, and validateCommandSpecDigestCoverage recomputes the expected envelope from receipt.cwd (physical) so a forged/divergent commandSpec.cwd that does not match repoRelativeLogicalCwd(receipt.cwd) is caught as command-spec-digest-mismatch, and validateRequiredReceiptCoverage separately catches configured-vs-executed divergence as receipt-cwd-mismatch. Ran npm run build (tsc, clean) then worktree-portability-smoke (25/25, incl. new F-005/F-006/F-007 checks), validate-execution-lock-smoke (12/12, passed in isolation -- an unrelated file, untouched by this diff, showed load-sensitive flakiness only when run back-to-back with other builds/tests on this machine), lifecycle-control-smoke, done-required-validation-smoke, plus related-regression smokes (gitroot-cwd-contract, bare-gate-gitroot-cwd, project-gitroot-cwd, graceful-sites-gitroot-cwd-wrapper-root, gitroot-cwd-routing, storydir-inside-gitroot, done-oracle-wrapper-root, done-required-freshness) all pass. Dead code: none -- all new imports (execFileSync/realpathSync/basename/dirname/isAbsolute/resolve/join in validation-execution-lock.ts and done-required-validation.ts) are used; resolvedCwd/buildLegacyAbsoluteCwdCommandSpecEnvelope are deliberate non-digested-provenance/migration exports, both consumed. Type safety: no as-any introduced; the two new catch blocks (validationLockPath empty-string fallback, resolveSharedLockRoot pre-existing) follow the existing fallback-to-caller-value pattern used throughout this file, not novel error-swallowing. Proof-metadata job/run.metadata dual-surface check: not applicable, this diff only touches validation-lock/command-spec-digest internals, no job/run/provider metadata semantics. No doc files (README/CLAUDE.md) touched, so no promised-but-undelivered surface. git status clean (dist gitignored) throughout.",
+      "createdAt": "2026-07-19T01:45:46.815Z",
+      "reviewRound": "2026-07-19T01:28:28.627Z",
+      "reviewRunId": "B-231d:RR-011",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7adae938c8ad13a13849fb34e2cbe9a157668aefc2a9209262dbdae0100ea128"
+    },
+    {
+      "id": "B-231d:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review: all 9 must-priority verificationIntent lanes (CHK-001/002/003 x happy/edge/adversarial) covered by manual_transcript evidence re-recorded at fix HEAD 2206d4f; smoke re-run genuinely 25/25 pass. Verified the new checks are non-tautological: F-006 builds corresponding absolute cwds from DISTINCT literals (join(mainRoot,...) vs join(worktreeRoot,...)), F-006 out-of-workspace `..`-limit check, F-005 executed-vs-configured cwd mismatch caught via receipt-cwd-mismatch, F-007 lock-visibility free-then-active transition from a worktree probe. Read implementation fully (done-required-validation.ts, lifecycle-control/runtime/index.ts) confirming repoRelativeLogicalCwd anchors at projectRoot, digest binds executed.cwd, and validationLockPath delegates to validationExecutionLockPath. evidence_inspect freshness=fresh (staleRefs=0) after re-recording; full `lattice validate` re-run clean (46/46 pass) confirms no regression. No blocker found.",
+      "createdAt": "2026-07-19T01:54:05.437Z",
+      "reviewRound": "2026-07-19T01:28:28.627Z",
+      "reviewRunId": "B-231d:RR-013",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lattice-evidence.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "112b6cc00862b2496a7aafa4403824c8afe9bab87922125c9e4d55e0ee49ed13"
+    },
+    {
+      "id": "B-231d:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check: v1->v2 command-spec schema migration + absolute->logical cwd digest concept. Fresh grep of full repo (src/*.ts, docs) plus worktree-portability-smoke.js (29/29 checks pass) confirms v2/logical-cwd is used consistently in every reconstruction/comparison site (validateCommandSpecDigestCoverage, validateRequiredReceiptCoverage, isPackagesMainBuild, receiptLogicalCwd, repoRelativeLogicalCwd); v1/absolute-cwd only remains in the deliberately-named legacy migration path (buildLegacyAbsoluteCwdCommandSpecEnvelope, DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1) and non-digested resolvedCwd provenance, plus pre-existing .lattice story evidence data (expected legacy receipts, not code residue). No stray shared-root-anchoring residue from the superseded F-006 approach. No blocker.",
+      "createdAt": "2026-07-19T02:10:34.579Z",
+      "reviewRound": "2026-07-19T02:06:18.939Z",
+      "reviewRunId": "B-231d:RR-016",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-231d/plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/evidence/types.ts",
+          "packages/main/src/core/repro-intake.ts",
+          "packages/main/src/handlers/repro-intake.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "88476275e1a358f38c70b39270a3bfa021e39170813d80e162c88fad83951692"
+    },
+    {
+      "id": "B-231d:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Independently re-audited all v2 command-spec digest / receipt-cwd reconstruction sites in done-required-validation.ts after 6e69d64dde (F-008/F-009/F-010 fix). Confirmed 9 sites all use portable logical cwd (only buildLegacyAbsoluteCwdCommandSpecEnvelope + resolvedCwd provenance use absolute, as allowed). Grepped whole repo for other commandSpec build/compare sites, none touch this envelope. resolvedCwd structurally excluded from digest payload. resolveSharedLockRoot vs getRepoRoot near-duplicate git-common-dir resolution has a materially different bare-repo fallback (resolveSharedLockRoot guarantees a shared root; getRepoRoot does not) so is justified, not lazy duplication - not filed. No as-any, no empty catches, no dead imports. No bridge.ts (I/O isolation n/a). No job/run/provider metadata touched (proof-metadata dual-surface n/a). No README/CLAUDE.md changes. tsc build clean. worktree-portability-smoke.js 29/29 pass. done-required-validation-smoke.js pass. validate-execution-lock-smoke.js (related untouched file) 12/12 pass. git status clean. No new defects found.",
+      "createdAt": "2026-07-19T02:15:05.430Z",
+      "reviewRound": "2026-07-19T02:06:18.939Z",
+      "reviewRunId": "B-231d:RR-015",
+      "writerSessionId": "sess-ce97acc131a2efbdeeb07741e15b1cbe",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/core/worktree-runtime.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/claim-admissibility/pack-framework.ts",
+          "packages/main/src/core/evidence/types.ts",
+          "packages/main/src/core/lifecycle-control/consumption/index.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/repro-intake.ts",
+          "packages/main/src/handlers/repro-intake.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c35bdec77d34bf18a2661dcba38b1e1fd3aec64ea1423055637bdd2c55862463"
+    },
+    {
+      "id": "B-231d:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-010 verified closed: validateCommandSpecDigestCoverage cross-root now reconstructs from receiptLogicalCwd, not absolute-cwd re-anchored on the verifying root. Live pre/post-fix bite test in an isolated scratch worktree confirms the new F-009/F-010 smoke checks are non-vacuous (pre-fix build fails F-009 with command-spec-digest-mismatch; post-fix build passes all 29). All 9 must verificationIntent lanes (CHK-001/002/003 x happy/edge/adversarial) covered by concrete manual_transcript evidence re-recorded at current HEAD; evidence_inspect freshness=fresh (0 stale refs). Full validate suite (46/46 commands) passed. All 10 findings F-001..F-010 resolved/verified, no open findings.",
+      "createdAt": "2026-07-19T02:18:27.796Z",
+      "reviewRound": "2026-07-19T02:06:18.939Z",
+      "reviewRunId": "B-231d:RR-017",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/tasks/worktree-portability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/validation-types.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "380200ff26bdf8c6f3b066546e0dc7dbf807e0b4f65c6b1b1599d4e303899d05"
+    }
+  ]
+}

@@ -21,6 +21,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import {
+  appendFileSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -85,6 +86,22 @@ function git(root: string, args: string[]): void {
       GIT_COMMITTER_EMAIL: 'validate-progress-heartbeat-smoke@example.test',
     },
   });
+}
+
+function gitOutput(root: string, args: string[]): string {
+  return execFileSync('git', args, {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim();
+}
+
+async function waitForFile(path: string, timeoutMs = 5_000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (!existsSync(path) && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  assert.ok(existsSync(path), `timed out waiting for fixture file: ${path}`);
 }
 
 function commitAll(root: string, message: string): void {
@@ -551,6 +568,7 @@ function assertGreenBehavior(result: CliResult, started: string, finished: strin
 async function assertStoryAdvanceReceivesHeartbeat(): Promise<void> {
   const { root, storyId, started, finished } = setupStoryAdvanceFixture();
   try {
+    git(root, ['checkout', '-b', `story/${storyId}`]);
     const result = await runCli(root, ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })], NON_MAX_HARNESS_CEILING_MS);
     assert.equal(result.status, 0, `story_advance should survive active validate heartbeat:\n${result.stderr}\n${result.stdout}`);
     assert.ok(existsSync(started), 'story_advance internal validate command must start');
@@ -564,6 +582,138 @@ async function assertStoryAdvanceReceivesHeartbeat(): Promise<void> {
     assert.equal(evidence?.failureKind, undefined, 'passing story_advance evidence should not carry failureKind');
     const parsed = JSON.parse(evidence?.output ?? '{}') as ValidateJson;
     assert.equal(parsed.allPass, true, 'story_advance evidence output should be passing validate JSON');
+    const processEventsRel = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+    assert.equal(
+      gitOutput(root, ['status', '--porcelain=v1', '--', processEventsRel]),
+      '',
+      'direct-handler validation_terminal must be closed by the same exact TEST-transition transaction',
+    );
+    const committedEvents = gitOutput(root, ['show', `HEAD:${processEventsRel}`]);
+    assert.match(committedEvents, /"type":"validation_terminal"/,
+      'TEST-transition commit must retain the invocation-owned direct-handler validation terminal');
+    assert.match(committedEvents, /"type":"phase_transition"/,
+      'TEST-transition commit must retain the later phase transition in the same bounded event path');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertMainDirectHandlerClosesTerminal(): Promise<void> {
+  const { root, storyId } = setupStoryAdvanceFixture();
+  try {
+    configureRoutineValidate(root, 0);
+    const result = await runCli(
+      root,
+      ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })],
+      NON_MAX_HARNESS_CEILING_MS,
+    );
+    assert.equal(result.status, 0,
+      `main-branch direct verifier terminal must close independently:\n${result.stderr}\n${result.stdout}`);
+    const processEventsRel = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+    assert.equal(gitOutput(root, ['status', '--porcelain=v1', '--', processEventsRel]), '');
+    const committedEvents = gitOutput(root, ['show', `HEAD:${processEventsRel}`]);
+    assert.match(committedEvents, /"type":"validation_terminal"/);
+    assert.match(committedEvents, /"type":"phase_transition"/);
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'TEST');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
+  const { root, storyId, started } = setupStoryAdvanceFixture();
+  try {
+    const processEventsRel = `.lattice/story/actives/${storyId}/process-events.jsonl`;
+    const processEventsPath = join(root, processEventsRel);
+    const run = runCli(
+      root,
+      ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })],
+      NON_MAX_HARNESS_CEILING_MS,
+    );
+    await waitForFile(started);
+    mkdirSync(dirname(processEventsPath), { recursive: true });
+    const foreignLine = JSON.stringify({
+      type: 'human_confirmation',
+      storyId,
+      phase: 'REVIEW',
+      command: 'mid_validation_foreign_append',
+      result: 'pass',
+    }) + '\n';
+    appendFileSync(processEventsPath, foreignLine, 'utf8');
+
+    const result = await run;
+    assert.notEqual(result.status, 0,
+      'mid-validation foreign canonical append must fail closed instead of joining the TEST transaction');
+    const preservedEvents = readFileSync(processEventsPath, 'utf8');
+    assert.ok(preservedEvents.startsWith(foreignLine),
+      'foreign bytes must remain the exact prefix when the validator appends its dirty-gate audit');
+    assert.match(preservedEvents, /"type":"dirty_gate_audit"/,
+      'existing validation side-effect diagnostics remain preserved after fail-closed persistence');
+    assert.doesNotMatch(preservedEvents, /"type":"validation_terminal"|"type":"phase_transition"/,
+      'rejected persistence must append neither a validation terminal nor TEST transition');
+    assert.match(gitOutput(root, ['status', '--porcelain=v1', '--', processEventsRel]), /^\?\?/,
+      'foreign event must remain visible and uncommitted for human recovery');
+    assert.throws(
+      () => gitOutput(root, ['show', `HEAD:${processEventsRel}`]),
+      /does not exist in|exists on disk, but not in/i,
+      'foreign event must never enter repository history',
+    );
+    assert.equal(new StoryStore(root).readStory(storyId).phase, 'REVIEW',
+      'foreign append rejection must not persist TEST phase');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertFailedStoryAdvancePreservesValidationEvidence(): Promise<void> {
+  const { root, storyId } = setupStoryAdvanceFixture();
+  try {
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+    const configPath = join(root, 'lattice.config.json');
+    const config = JSON.parse(readFileSync(configPath, 'utf8')) as {
+      validate: { commands: Array<Record<string, unknown>> };
+    };
+    config.validate.commands = [{
+      label: 'intentional-validation-failure',
+      command: process.execPath,
+      args: ['-e', 'process.exit(1)'],
+      timeoutMs: 10_000,
+    }];
+    writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
+    commitAll(root, 'configure intentional validation failure');
+
+    const result = await runCli(
+      root,
+      ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })],
+      NON_MAX_HARNESS_CEILING_MS,
+    );
+    assert.notEqual(result.status, 0, 'failed internal validation must block TEST transition');
+    assert.match(`${result.stderr}\n${result.stdout}`, /Cannot enter TEST: lattice validate did not pass/);
+
+    const store = new StoryStore(root);
+    assert.equal(store.readStory(storyId).phase, 'REVIEW',
+      'capture-before-gate must never persist TEST phase when validation fails');
+    const evidence = store.readTestEvidence(storyId);
+    assert.equal(evidence?.result, 'FAIL',
+      'failed direct-handler validation evidence must retain its existing persistence semantics');
+    assert.equal(evidence?.failureKind, 'validation_failure');
+
+    const storyRel = `.lattice/story/actives/${storyId}`;
+    const canonicalPaths = [
+      `${storyRel}/index.json`,
+      `${storyRel}/process-events.jsonl`,
+      `${storyRel}/process-metrics.json`,
+    ];
+    assert.equal(gitOutput(root, ['status', '--porcelain=v1', '--', ...canonicalPaths]), '',
+      'failed validation persistence must leave no staged/worktree transaction residue');
+    const committedStory = JSON.parse(gitOutput(root, ['show', `HEAD:${storyRel}/index.json`])) as StoryInfo;
+    assert.equal(committedStory.phase, 'REVIEW',
+      'failed validation metadata commit must not include a TEST phase mutation');
+    const committedEvents = gitOutput(root, ['show', `HEAD:${storyRel}/process-events.jsonl`]);
+    assert.match(committedEvents, /"type":"validation_terminal"/);
+    assert.match(committedEvents, /"result":"fail"/);
+    assert.doesNotMatch(committedEvents, /"toPhase":"TEST"/,
+      'failed validation must not manufacture a successful TEST phase transition event');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -596,6 +746,26 @@ async function assertTrueHangFailsClosedWithNamedDiagnostics(): Promise<void> {
 void (async () => {
   const { root, started, finished } = setupFixture();
   try {
+    if (process.env.VALIDATE_HEARTBEAT_F011_ONLY === '1') {
+      await assertStoryAdvanceReceivesHeartbeat();
+      console.log('validate-progress-heartbeat F-011 story-branch success PASS');
+      return;
+    }
+    if (process.env.VALIDATE_HEARTBEAT_F010_ONLY === '1') {
+      await assertMidValidationForeignAppendFailsClosed();
+      console.log('validate-progress-heartbeat F-010 foreign-append PASS');
+      return;
+    }
+    if (process.env.VALIDATE_HEARTBEAT_FAILURE_ONLY === '1') {
+      await assertFailedStoryAdvancePreservesValidationEvidence();
+      console.log('validate-progress-heartbeat validation-failure persistence PASS');
+      return;
+    }
+    if (process.env.VALIDATE_HEARTBEAT_MAIN_ONLY === '1') {
+      await assertMainDirectHandlerClosesTerminal();
+      console.log('validate-progress-heartbeat main direct-handler PASS');
+      return;
+    }
     const result = await runValidate(root);
     if (result.status !== 0) {
       assertRedBaseline(result, started, finished);
@@ -605,7 +775,10 @@ void (async () => {
     const finishText = readFileSync(finished, 'utf8').trim();
     assert.match(startText, /^started \d+$/);
     assert.match(finishText, /^finished \d+$/);
+    await assertMainDirectHandlerClosesTerminal();
     await assertStoryAdvanceReceivesHeartbeat();
+    await assertMidValidationForeignAppendFailsClosed();
+    await assertFailedStoryAdvancePreservesValidationEvidence();
     await assertTrueHangFailsClosedWithNamedDiagnostics();
     await assertDirectDoneRequiredTimeoutMatrix();
     await assertDonePrepareRoutineTimeoutMatrix();

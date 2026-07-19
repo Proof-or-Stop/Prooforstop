@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import {
   buildDoneRequiredCommandSpecEnvelope,
+  buildDoneRequiredExecutionIdentity,
   DONE_REQUIRED_EVIDENCE_SCHEMA,
   DONE_REQUIRED_EVIDENCE_VERSION,
   evaluateDoneRequiredEvidence,
@@ -27,6 +28,91 @@ import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, T
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 
 const STORY_ID = 'B-ac25';
+
+// Windows executes validation commands through an implicit command shell. The
+// DONE-required producer and consumer must bind the same ComSpec executable and
+// effective environment instead of emitting evidence that can never validate.
+{
+  const { root, store } = fixture([
+    { label: 'windows implicit shell', command: 'node', args: ['-e', 'process.exit(0)'] },
+  ]);
+  try {
+    const cmdExe = join(root, 'cmd.exe');
+    const nodeExe = join(root, 'node.exe');
+    writeFileSync(cmdExe, 'synthetic windows command shell\n', 'utf8');
+    writeFileSync(nodeExe, 'synthetic windows target executable\n', 'utf8');
+    const policy = resolveDoneRequiredPolicy(root);
+    const processEnvironment = {
+      PATH: root,
+      ComSpec: 'cmd.exe',
+      PATHEXT: '.exe;.cmd',
+    };
+    const producer = buildDoneRequiredExecutionIdentity({
+      projectRoot: root,
+      policy,
+      processEnvironment,
+      platform: 'win32',
+    });
+    const consumer = buildDoneRequiredExecutionIdentity({
+      projectRoot: root,
+      policy,
+      processEnvironment,
+      platform: 'win32',
+    });
+    assert.equal(producer.commands[0]?.shell, true, 'win32 command identity must record implicit shell=true');
+    assert.equal(producer.commands[0]?.executableDigest?.length, 64, 'win32 identity must hash the target node.exe');
+    assert.equal(producer.commands[0]?.shellExecutableDigest?.length, 64, 'win32 identity must hash the resolved ComSpec executable');
+    assert.equal(producer.digest, consumer.digest, 'DONE-required producer and consumer must share win32 shell identity');
+    assert.equal(producer.commands[0]?.effectiveEnvironmentDigest, consumer.commands[0]?.effectiveEnvironmentDigest);
+    assert.equal(producer.commands[0]?.executableDigest, consumer.commands[0]?.executableDigest);
+    assert.equal(producer.commands[0]?.shellExecutableDigest, consumer.commands[0]?.shellExecutableDigest);
+    const command = policy.commands[0]!;
+    const commandSpec = buildDoneRequiredCommandSpecEnvelope(root, command, {
+      command: command.command,
+      args: command.args,
+      shell: true,
+      cwd: root,
+    });
+    assert.equal(commandSpec.shell, true, 'DONE-required receipt command spec must retain actual win32 implicit shell mode');
+    const h = hashes(root);
+    const commandIdentity = producer.commands[0]!;
+    const receipt: DoneRequiredCommandReceipt = {
+      label: command.label,
+      command: command.command,
+      args: command.args,
+      commandSpec,
+      shell: true,
+      cwd: root,
+      status: 'PASS',
+      exitCode: 0,
+      durationMs: 1,
+      outputDigest: 'windows-shaped-output',
+      outputTail: '',
+      startedAt: new Date().toISOString(),
+      endedAt: new Date().toISOString(),
+      effectiveEnvironmentDigest: commandIdentity.effectiveEnvironmentDigest,
+      executableDigest: commandIdentity.executableDigest,
+      shellExecutableDigest: commandIdentity.shellExecutableDigest,
+      ...(h.headHash ? { headHash: h.headHash } : {}),
+      ...(h.materialHash ? { materialHash: h.materialHash } : {}),
+      ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
+    };
+    writeDoneEvidence(root, store, [receipt]);
+    const evaluation = evaluateDoneRequiredEvidence({
+      projectRoot: root,
+      storyId: STORY_ID,
+      store,
+      gitCwd: root,
+      executionIdentityContext: {
+        processEnvironment,
+        platform: 'win32',
+      },
+    });
+    assert.equal(evaluation.ok, true, `Windows-shaped full DONE evaluator must pass: ${evaluation.reasons.join(', ')}`);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
 
 function git(cwd: string, args: string[]): void {
   execFileSync('git', args, {
@@ -133,6 +219,11 @@ function doneRow(rows: DoneCheckRow[], id: string): DoneCheckRow {
 
 function baseReceipt(root: string, overrides: Partial<DoneRequiredCommandReceipt>): DoneRequiredCommandReceipt {
   const h = hashes(root);
+  const policy = resolveDoneRequiredPolicy(root);
+  const identity = buildDoneRequiredExecutionIdentity({
+    projectRoot: root,
+    policy,
+  }).commands[0];
   const receipt: DoneRequiredCommandReceipt = {
     label: 'synthetic',
     command: 'node',
@@ -145,6 +236,9 @@ function baseReceipt(root: string, overrides: Partial<DoneRequiredCommandReceipt
     outputTail: '',
     startedAt: new Date().toISOString(),
     endedAt: new Date().toISOString(),
+    effectiveEnvironmentDigest: identity?.effectiveEnvironmentDigest,
+    executableDigest: identity?.executableDigest,
+    shellExecutableDigest: identity?.shellExecutableDigest ?? null,
     ...(h.headHash ? { headHash: h.headHash } : {}),
     ...(h.materialHash ? { materialHash: h.materialHash } : {}),
     ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
@@ -595,6 +689,22 @@ function assertDoneRequiredBlocked(
     }]);
     assertDoneRequiredBlocked(root, store, /command-spec-digest-mismatch\[0\]/, 'tampered CommandSpec digest must block');
 
+    writeDoneEvidence(root, store, [baseReceipt(root, { effectiveEnvironmentDigest: 'forged-environment' })]);
+    assertDoneRequiredBlocked(
+      root,
+      store,
+      /effective-environment-digest-mismatch\[0\]/,
+      'DONE_REQUIRED lifecycle consumer must reject forged Environment execution identity',
+    );
+
+    writeDoneEvidence(root, store, [baseReceipt(root, { executableDigest: 'forged-executable' })]);
+    assertDoneRequiredBlocked(
+      root,
+      store,
+      /executable-digest-mismatch\[0\]/,
+      'DONE_REQUIRED lifecycle consumer must reject forged executable identity',
+    );
+
     writeDoneEvidence(root, store);
     const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
     assert.equal(evaluation.ok, true, evaluation.reasons.join(', '));
@@ -623,6 +733,60 @@ function assertDoneRequiredBlocked(
   try {
     writeDoneEvidence(root, store, [baseReceipt(root, { label: 'shell command', command: 'node -e "process.exit(0)"', args: [] })]);
     assertDoneRequiredBlocked(root, store, /receipt-shell-mismatch\[0\]/, 'shell receipts must match policy shell identity');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// A policy-authorized compound shell command has no single target executable.
+// Its exact command/args are bound by CommandSpec while /bin/sh identity remains
+// mandatory; the full DONE evaluator must accept that conditional identity.
+{
+  const compound = 'node -e "process.exit(0)" && node -e "process.exit(0)"';
+  const { root, store } = fixture([compound]);
+  try {
+    const policy = resolveDoneRequiredPolicy(root);
+    const command = policy.commands[0]!;
+    const identity = buildDoneRequiredExecutionIdentity({ projectRoot: root, policy }).commands[0]!;
+    assert.equal(command.shell, true, 'compound policy string must resolve as shell execution');
+    assert.equal(identity.executableDigest, null, 'compound shell command has no single target executable');
+    assert.equal(identity.shellExecutableDigest?.length, 64, 'compound shell command must bind actual shell executable');
+    const h = hashes(root);
+    const commandSpec = buildDoneRequiredCommandSpecEnvelope(root, command, {
+      command: command.command,
+      args: command.args,
+      shell: true,
+      cwd: root,
+    });
+    const receipt: DoneRequiredCommandReceipt = {
+      label: command.label,
+      command: command.command,
+      args: command.args,
+      commandSpec,
+      shell: true,
+      cwd: root,
+      status: 'PASS',
+      exitCode: 0,
+      durationMs: 1,
+      outputDigest: 'compound-shell-output',
+      outputTail: '',
+      startedAt: new Date().toISOString(),
+      endedAt: new Date().toISOString(),
+      effectiveEnvironmentDigest: identity.effectiveEnvironmentDigest,
+      executableDigest: null,
+      shellExecutableDigest: identity.shellExecutableDigest,
+      ...(h.headHash ? { headHash: h.headHash } : {}),
+      ...(h.materialHash ? { materialHash: h.materialHash } : {}),
+      ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
+    };
+    writeDoneEvidence(root, store, [receipt]);
+    const pass = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    assert.equal(pass.ok, true, `compound shell full evaluator must pass: ${pass.reasons.join(', ')}`);
+
+    writeDoneEvidence(root, store, [{ ...receipt, shellExecutableDigest: 'tampered-shell' }]);
+    const tampered = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    assert.equal(tampered.ok, false);
+    assert.ok(tampered.reasons.some(reason => reason.includes('shell-executable-digest-mismatch[0]')));
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -737,7 +901,7 @@ function assertDoneRequiredBlocked(
     const evidence = await runDoneRequiredValidation({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
     assert.equal(evidence.status, 'PASS', evidence.reasons.join(', '));
     assert.equal(evidence.receipts.length, 1);
-    assert.equal(evidence.receipts[0].commandSpec?.schema, 'lattice.command-spec.v1');
+    assert.equal(evidence.receipts[0].commandSpec?.schema, 'lattice.command-spec.v2');
     assert.equal(evidence.receipts[0].commandSpec?.command, 'node');
 
     const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });

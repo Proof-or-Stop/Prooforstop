@@ -1,0 +1,71 @@
+{
+  "storyId": "B-360e",
+  "checkedAt": "2026-07-18T19:09:09.535Z",
+  "headHash": "6a2be190edb3ed1ef000be68c32409b83cd67908",
+  "materialHash": "5f74d8469d95ad3b72e8302a4f65e3f168c8238af6933eec17bd3d9c685d02e6",
+  "storyFilesHash": "2f9228fa20474ecf117e1ce2f3521a8ee7d64a3acaacab4eca2dedaac98e54a8",
+  "reviewRound": "2026-07-18T15:22:41.053Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1",
+      "promise": "Define versioned Runtime Contract, Role Contract, Prompt Envelope, and PromptMeasurementRecord structures without creating a Story-bound envelope or changing current prompt bodies.",
+      "status": "verified",
+      "verifiedBy": "Round-19 source review and focused smoke",
+      "evidence": "Current schemas and pinned algorithms remain intact; prompt-contract-measurement-smoke PASS; latest 45f8d4bba2 changes only detector-sensitivity tests; protected prompt bodies and mirrors have no story diff."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1",
+      "promise": "Freeze the exact 16-role lifecycle partition as 12 active, 3 compatibility, and 1 retired with accepted replacements.",
+      "status": "verified",
+      "verifiedBy": "Fresh report and registry smoke",
+      "evidence": "Fresh report and focused mutation checks confirm exactly 16 unique roles, 12/3/1 partition, retired channel, active product reviewer, and accepted compatibility replacements."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-1",
+      "promise": "Provide deterministic three-layer prompt cost reporting with honest unavailable boundaries and read-only execution.",
+      "status": "verified",
+      "verifiedBy": "Fresh JSON/text runs, semantic sidecar comparison, and detector sensitivity control",
+      "evidence": "JSON/text exit 0 and match sidecar; report digest remains b634c584353dce13e035c827bc1e4f9b42e769ce7862806db290f797f4d1cf2d. The smoke proves no status change, then creates a repository marker and proves the detector sees it, removes it, and proves exact status restoration."
+    },
+    {
+      "docPath": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+      "promise": "All 16 existing agent_prompt outputs remain byte/hash identical and mutation drift fails closed.",
+      "status": "verified",
+      "verifiedBy": "Fresh independent replay and proof-or-stop verifier",
+      "evidence": "Fresh 16-role replay reports zero mismatches; proof-or-stop verifier exits 0; sidecar matches; protected baseline and prompt paths have no story diff."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-360e/scope-contract.json",
+      "promise": "Bounded concept-gate hardening and evidence repairs remain fail-closed under current round-19 material.",
+      "status": "verified",
+      "verifiedBy": "Focused smoke, fresh validation, assurance, and finding audit",
+      "evidence": "concept-gate-scope-smoke PASS; round-19 3x2 assurance is fresh; routine validation records 46 commands with zero failures; 42/42 evidence pass; 31 findings resolved and zero open."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Current prompt contract focused smoke PASS on materialHash 5f74d8469d95; versioned schemas, deterministic algorithms, provider accounting, and adversarial fail-closed probes pass."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Fresh report confirms 16 roles and 12 active / 3 compatibility / 1 retired; exact registry lifecycle and replacement mutation probes pass."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Fresh JSON/text CLI runs exit 0 and match the canonical sidecar; 45f8d4bba2 sensitivity control proves the git-status detector catches a temporary repository write and restores the initial state."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Independent replay checks 16 prompt outputs with zero hash/byte mismatches; proof verifier and both focused smokes pass; live smoke exits 0; routine validation is 46/46 and evidence coverage 42/42."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Round-19 delivery PASS on materialHash 5f74d8469d95 and storyFilesHash 2f9228fa2047: detector sensitivity proven, 4/4 checklist done, 42/42 evidence, 46/46 validation, live smoke PASS, 16/16 prompt outputs unchanged, and 31/31 findings resolved with zero open."
+  },
+  "_hash": "0dcffb6340f76b8e915a44e90a068a1d10a1f33ee4fb736bcd36a15caf3a4142"
+}

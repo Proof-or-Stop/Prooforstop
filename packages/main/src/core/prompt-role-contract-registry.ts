@@ -1,0 +1,524 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import {
+  canonicalJsonStringify,
+  domainSeparatedDigest,
+  type RoleContract,
+  type RoleLifecycleStatus,
+  validateRoleContract,
+} from './prompt-contracts.js';
+import {
+  readPromptRegistry,
+  readPromptTemplate,
+  renderPromptEntryForHost,
+  type PromptHost,
+  type PromptRegistrySnapshot,
+} from './prompt-registry.js';
+
+export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
+export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
+export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
+
+export interface ReviewerHostRenderIdentity {
+  schemaVersion: 'proofbound.reviewer-host-render-identity.v1';
+  roleId: string;
+  host: PromptHost;
+  source: 'full-asset' | 'package-registry';
+  packageTemplateDigest: string;
+  hostRenderDigest: string;
+  identityDigest: string;
+}
+
+type ReviewerHostRenderSource = ReviewerHostRenderIdentity['source'];
+
+function readJsonRecord(path: string): Record<string, unknown> | null {
+  if (!existsSync(path)) return null;
+  try {
+    const parsed = JSON.parse(readFileSync(path, 'utf8'));
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : null;
+  } catch {
+    throw new PromptRoleContractRegistryError(`${path} is not valid JSON`);
+  }
+}
+
+function normalizeHostRenderSource(value: unknown): ReviewerHostRenderSource | null {
+  if (typeof value !== 'string') return null;
+  const normalized = value.trim().toLowerCase().replace(/_/g, '-');
+  if (['runtime-owned', 'global-thin', 'thin', 'registry', 'pinned-runtime'].includes(normalized)) {
+    return 'package-registry';
+  }
+  if (['full-asset', 'full', 'legacy-mirror', 'local'].includes(normalized)) {
+    return 'full-asset';
+  }
+  return null;
+}
+
+function globalHostRenderSource(projectRoot: string): ReviewerHostRenderSource | null {
+  for (const relPath of ['.lattice/lattice.json', '.Lattice/lattice.json']) {
+    const manifest = readJsonRecord(join(projectRoot, relPath));
+    if (!manifest) continue;
+    const source = normalizeHostRenderSource(
+      manifest.agentAssetMode ?? manifest.assetMode ?? manifest.promptMode,
+    );
+    if (source) return source;
+  }
+  return null;
+}
+
+function reviewerHostRenderSource(
+  projectRoot: string,
+  host: PromptHost,
+  file: string,
+): ReviewerHostRenderSource {
+  const globalSource = globalHostRenderSource(projectRoot);
+  if (host === 'codex') {
+    const codexManifest = readJsonRecord(join(projectRoot, '.lattice-codex', 'lattice.json'));
+    const codexSource = normalizeHostRenderSource(
+      codexManifest?.agentAssetMode ?? codexManifest?.assetMode ?? codexManifest?.promptMode,
+    );
+    if (codexSource === 'package-registry') return codexSource;
+    if (globalSource === 'package-registry') return globalSource;
+    if (codexSource === 'full-asset') return codexSource;
+    if (
+      codexManifest?.adapterOwner === 'lattice'
+      && codexManifest.adapterKind === 'codex'
+      && codexManifest.promptMode === undefined
+    ) {
+      return 'full-asset';
+    }
+  } else if (globalSource) {
+    return globalSource;
+  }
+  if (globalSource) return globalSource;
+  const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
+  return existsSync(join(projectRoot, relDir, file)) ? 'full-asset' : 'package-registry';
+}
+
+function assertExactHostAsset(path: string, expected: string, host: PromptHost): string {
+  if (!existsSync(path)) throw new PromptRoleContractRegistryError(`missing ${host} reviewer prompt asset: ${path}`);
+  const actual = readFileSync(path, 'utf8');
+  if (actual !== expected) {
+    throw new PromptRoleContractRegistryError(
+      `${host} reviewer prompt asset drift: ${path} does not equal the canonical package render`,
+    );
+  }
+  return actual;
+}
+
+/**
+ * Proves that one host-visible role prompt is the exact deterministic render of
+ * the package registry entry. Runtime-owned/thin hosts bind the package render
+ * without requiring project assets. Explicit full-asset hosts bind only their
+ * own materialized mirror, never another host's files.
+ */
+export function reviewerHostRenderIdentity(
+  projectRoot: string,
+  roleId: string,
+  host: PromptHost = 'codex',
+): ReviewerHostRenderIdentity {
+  const registry = readPromptRegistry();
+  const entry = registry.agents.find(candidate => candidate.agentId === roleId);
+  if (!entry) throw new PromptRoleContractRegistryError(`unknown reviewer prompt role "${roleId}"`);
+  if (!isPromptRoleEligibleForReviewEvidence(roleId)) {
+    throw new PromptRoleContractRegistryError(`role "${roleId}" is not eligible for reviewer host rendering`);
+  }
+  const packageTemplate = readPromptTemplate(entry);
+  const expectedHostRender = renderPromptEntryForHost(entry, host);
+  const source = reviewerHostRenderSource(projectRoot, host, entry.file);
+  const relDir = host === 'claude' ? '.claude/agents' : '.lattice-codex/agents';
+  const hostRender = source === 'package-registry'
+    ? expectedHostRender
+    : assertExactHostAsset(
+      join(projectRoot, relDir, entry.file),
+      expectedHostRender,
+      host,
+    );
+  const semantic = {
+    schemaVersion: 'proofbound.reviewer-host-render-identity.v1' as const,
+    roleId,
+    host,
+    source,
+    packageTemplateDigest: domainSeparatedDigest('reviewer-package-template.raw-utf8.v1', packageTemplate),
+    hostRenderDigest: domainSeparatedDigest(`reviewer-${host}-render.raw-utf8.v1`, hostRender),
+  };
+  return {
+    ...semantic,
+    identityDigest: domainSeparatedDigest('reviewer-host-render-identity.v1', semantic),
+  };
+}
+
+interface RolePolicy {
+  status: RoleLifecycleStatus;
+  replacementAgentType?: string;
+  migrationHint?: string;
+  defaultDispatch: boolean;
+  responsibility: string;
+  requiredInputIds: readonly string[];
+  requiredCheckIds: readonly string[];
+  allowedCommandIds: readonly string[];
+  forbiddenActionIds: readonly string[];
+  requiredOutputIds: readonly string[];
+  stopConditionCodes: readonly string[];
+}
+
+const commonPolicy = {
+  requiredInputIds: ['dispatch-target', 'project-runtime-guide'],
+  requiredCheckIds: ['scope-and-authority-check'],
+  forbiddenActionIds: ['fabricate-authority', 'write-outside-role-boundary'],
+  stopConditionCodes: ['missing-required-input', 'authority-boundary'],
+} as const;
+
+const ACTIVE = 'active' as const;
+const COMPATIBILITY = 'compatibility' as const;
+
+const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
+  'implementation-reviewer': {
+    ...commonPolicy,
+    status: COMPATIBILITY,
+    replacementAgentType: 'lattice-review-quality',
+    migrationHint: 'Use lattice-review-quality first and lattice-review-behavior for behavioral coverage; this compatibility prompt creates no REVIEW lane.',
+    defaultDispatch: false,
+    responsibility: 'Legacy combined implementation review.',
+    allowedCommandIds: [],
+    requiredOutputIds: ['migration-guidance'],
+  },
+  'lattice-evaluator': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Evaluate Lattice outcomes from project evidence.',
+    allowedCommandIds: [],
+    requiredOutputIds: ['evaluation-report'],
+  },
+  'lattice-evaluator-cli': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Evaluate Lattice outcomes through the CLI surface.',
+    allowedCommandIds: [],
+    requiredOutputIds: ['evaluation-report'],
+  },
+  'lattice-implementer': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Implement exactly one DEV checklist item or repair target.',
+    allowedCommandIds: ['checklist_update', 'finding_resolve'],
+    requiredOutputIds: ['implementation-commit', 'verification-evidence'],
+  },
+  'lattice-review-behavior': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Review user-visible behavior and edge conditions.',
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    requiredOutputIds: ['review-finding-or-pass'],
+  },
+  'lattice-review-channel': {
+    ...commonPolicy,
+    status: 'retired',
+    defaultDispatch: false,
+    responsibility: 'Retired normal-channel dispatch coverage reviewer.',
+    allowedCommandIds: [],
+    requiredOutputIds: ['retirement-guidance'],
+  },
+  'lattice-review-concept': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Review concept deletion and residual references.',
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    requiredOutputIds: ['review-finding-or-pass'],
+  },
+  'lattice-review-delivery': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Review TEST delivery evidence against promised outcomes.',
+    allowedCommandIds: ['delivery_check_set'],
+    requiredOutputIds: ['delivery-check'],
+  },
+  'lattice-review-docs': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Review documentation and code consistency.',
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    requiredOutputIds: ['review-finding-or-pass'],
+  },
+  'lattice-review-quality': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Review implementation quality, safety, and maintainability.',
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    requiredOutputIds: ['review-finding-or-pass'],
+  },
+  'lattice-review-scope-plan': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Review PLAN scope and checklist coverage.',
+    allowedCommandIds: ['scope_check_save'],
+    requiredOutputIds: ['scope-check'],
+  },
+  'lattice-review-story-init': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Review INIT story facts and standalone readability.',
+    allowedCommandIds: ['init_check_set'],
+    requiredOutputIds: ['init-check'],
+  },
+  'lattice-review-test-coverage': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Review verification intent and evidence coverage.',
+    allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
+    requiredOutputIds: ['review-finding-or-pass'],
+  },
+  'product-reviewer': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Independently review INIT product outcome completeness.',
+    allowedCommandIds: ['init_check_set'],
+    requiredOutputIds: ['init-check'],
+  },
+  'test-case-reviewer': {
+    ...commonPolicy,
+    status: COMPATIBILITY,
+    replacementAgentType: 'verification-intent',
+    migrationHint: 'Use canonical verification-intent during PLAN.',
+    defaultDispatch: false,
+    responsibility: 'Legacy verification-intent review alias.',
+    allowedCommandIds: ['checklist_update'],
+    requiredOutputIds: ['verification-intent'],
+  },
+  'test-intent': {
+    ...commonPolicy,
+    status: COMPATIBILITY,
+    replacementAgentType: 'verification-intent',
+    migrationHint: 'Use canonical verification-intent during PLAN.',
+    defaultDispatch: false,
+    responsibility: 'Legacy verification-intent authoring alias.',
+    allowedCommandIds: ['checklist_update'],
+    requiredOutputIds: ['verification-intent'],
+  },
+});
+
+export class PromptRoleContractRegistryError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'PromptRoleContractRegistryError';
+  }
+}
+
+function roleSemanticValue(roleId: string, policy: RolePolicy): Record<string, unknown> {
+  return {
+    schemaVersion: 'proofbound.role-contract.v1',
+    registryVersion: PROMPT_ROLE_CONTRACT_REGISTRY_VERSION,
+    roleId,
+    status: policy.status,
+    replacementAgentType: policy.replacementAgentType ?? null,
+    migrationHint: policy.migrationHint ?? null,
+    defaultDispatch: policy.defaultDispatch,
+    responsibility: policy.responsibility,
+    requiredInputIds: policy.requiredInputIds,
+    requiredCheckIds: policy.requiredCheckIds,
+    allowedCommandIds: policy.allowedCommandIds,
+    forbiddenActionIds: policy.forbiddenActionIds,
+    requiredOutputIds: policy.requiredOutputIds,
+    stopConditionCodes: policy.stopConditionCodes,
+  };
+}
+
+export function buildPromptRoleContracts(snapshot: PromptRegistrySnapshot = readPromptRegistry()): RoleContract[] {
+  const expectedIds = snapshot.agents.map(entry => entry.agentId);
+  validatePromptRolePolicyDefinition(ROLE_POLICIES, expectedIds);
+  const contracts = snapshot.agents.map(entry => {
+    const policy = ROLE_POLICIES[entry.agentId]!;
+    const contract: RoleContract = {
+      schemaVersion: 'proofbound.role-contract.v1',
+      roleId: entry.agentId,
+      status: policy.status,
+      ...(policy.replacementAgentType ? { replacementAgentType: policy.replacementAgentType } : {}),
+      ...(policy.migrationHint ? { migrationHint: policy.migrationHint } : {}),
+      defaultDispatch: policy.defaultDispatch,
+      responsibility: policy.responsibility,
+      requiredInputIds: [...policy.requiredInputIds],
+      requiredCheckIds: [...policy.requiredCheckIds],
+      allowedCommandIds: [...policy.allowedCommandIds],
+      forbiddenActionIds: [...policy.forbiddenActionIds],
+      requiredOutputIds: [...policy.requiredOutputIds],
+      stopConditionCodes: [...policy.stopConditionCodes],
+      semanticDigest: domainSeparatedDigest('role-contract.semantic.v1', roleSemanticValue(entry.agentId, policy)),
+      renderDigest: domainSeparatedDigest('role-contract.render.v1', readPromptTemplate(entry)),
+    };
+    validateRoleContract(contract);
+    return contract;
+  });
+  validatePromptRoleContracts(contracts, expectedIds);
+  return contracts;
+}
+
+export function validatePromptRolePolicyDefinition(
+  policies: Readonly<Record<string, unknown>>,
+  expectedRoleIds: readonly string[],
+): void {
+  const actual = Object.keys(policies);
+  const duplicateExpected = expectedRoleIds.find((id, index) => expectedRoleIds.indexOf(id) !== index);
+  if (duplicateExpected) throw new PromptRoleContractRegistryError(`prompt registry contains duplicate role "${duplicateExpected}"`);
+  const expected = new Set(expectedRoleIds);
+  for (const roleId of actual) {
+    if (!expected.has(roleId)) throw new PromptRoleContractRegistryError(`unknown prompt role policy "${roleId}"`);
+  }
+  for (const roleId of expectedRoleIds) {
+    if (!Object.prototype.hasOwnProperty.call(policies, roleId)) throw new PromptRoleContractRegistryError(`missing prompt role policy "${roleId}"`);
+  }
+  if (actual.length !== expectedRoleIds.length) throw new PromptRoleContractRegistryError('prompt role policy registry is not total');
+}
+
+export function validatePromptRoleContracts(contracts: readonly unknown[], expectedRoleIds: readonly string[]): void {
+  const ids: string[] = [];
+  for (const contract of contracts) {
+    try {
+      validateRoleContract(contract);
+    } catch (error) {
+      throw new PromptRoleContractRegistryError(error instanceof Error ? error.message : String(error));
+    }
+    ids.push(contract.roleId);
+  }
+  if (new Set(ids).size !== ids.length) throw new PromptRoleContractRegistryError('prompt role contract registry contains duplicate role IDs');
+  const actualSorted = [...ids].sort();
+  const expectedSorted = [...expectedRoleIds].sort();
+  if (canonicalJsonStringify(actualSorted) !== canonicalJsonStringify(expectedSorted)) {
+    throw new PromptRoleContractRegistryError('prompt role contract registry membership differs from package prompt registry');
+  }
+  const active = contracts.filter(contract => (contract as RoleContract).status === 'active').length;
+  const compatibility = contracts.filter(contract => (contract as RoleContract).status === 'compatibility').length;
+  const retired = contracts.filter(contract => (contract as RoleContract).status === 'retired').length;
+  if (active !== 12 || compatibility !== 3 || retired !== 1) {
+    throw new PromptRoleContractRegistryError(`invalid role partition active=${active} compatibility=${compatibility} retired=${retired}`);
+  }
+  const byId = new Map(contracts.map(contract => [(contract as RoleContract).roleId, contract as RoleContract]));
+  for (const roleId of expectedRoleIds) {
+    const row = byId.get(roleId)!;
+    const policy = ROLE_POLICIES[roleId];
+    if (!policy) throw new PromptRoleContractRegistryError(`missing frozen role policy "${roleId}"`);
+    const expectedFields: Record<string, unknown> = {
+      status: policy.status,
+      replacementAgentType: policy.replacementAgentType,
+      migrationHint: policy.migrationHint,
+      defaultDispatch: policy.defaultDispatch,
+      responsibility: policy.responsibility,
+      requiredInputIds: policy.requiredInputIds,
+      requiredCheckIds: policy.requiredCheckIds,
+      allowedCommandIds: policy.allowedCommandIds,
+      forbiddenActionIds: policy.forbiddenActionIds,
+      requiredOutputIds: policy.requiredOutputIds,
+      stopConditionCodes: policy.stopConditionCodes,
+    };
+    for (const [field, expected] of Object.entries(expectedFields)) {
+      if (canonicalJsonStringify(row[field as keyof RoleContract] ?? null) !== canonicalJsonStringify(expected ?? null)) {
+        throw new PromptRoleContractRegistryError(
+          `${roleId}.${field} differs from the frozen role policy`,
+        );
+      }
+    }
+    const expectedSemanticDigest = domainSeparatedDigest(
+      'role-contract.semantic.v1',
+      roleSemanticValue(roleId, policy),
+    );
+    if (row.semanticDigest !== expectedSemanticDigest) {
+      throw new PromptRoleContractRegistryError(
+        `${roleId}.semanticDigest does not match the frozen role policy`,
+      );
+    }
+  }
+  if (byId.get('lattice-review-channel')?.status !== 'retired' || byId.get('lattice-review-channel')?.defaultDispatch !== false) {
+    throw new PromptRoleContractRegistryError('lattice-review-channel must be retired and non-default');
+  }
+  if (byId.get('product-reviewer')?.status !== 'active') throw new PromptRoleContractRegistryError('product-reviewer must remain active');
+  for (const roleId of ['implementation-reviewer', 'test-intent', 'test-case-reviewer']) {
+    const row = byId.get(roleId);
+    if (row?.status !== 'compatibility' || row.defaultDispatch !== false) {
+      throw new PromptRoleContractRegistryError(`${roleId} must be compatibility and non-default`);
+    }
+  }
+}
+
+export function promptRoleContractRegistryDigest(contracts: readonly RoleContract[]): string {
+  return domainSeparatedDigest('prompt-role-contract-registry.v1', contracts);
+}
+
+function deepFreezeRoleContract(contract: RoleContract): Readonly<RoleContract> {
+  Object.freeze(contract.requiredInputIds);
+  Object.freeze(contract.requiredCheckIds);
+  Object.freeze(contract.allowedCommandIds);
+  Object.freeze(contract.forbiddenActionIds);
+  Object.freeze(contract.requiredOutputIds);
+  Object.freeze(contract.stopConditionCodes);
+  return Object.freeze(contract);
+}
+
+export const PROMPT_ROLE_CONTRACTS = Object.freeze(
+  buildPromptRoleContracts().map(deepFreezeRoleContract),
+);
+
+const PROMPT_ROLE_CONTRACT_BY_ID = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
+
+export function promptRoleContract(roleId: string): Readonly<RoleContract> {
+  const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(roleId);
+  if (!contract) throw new PromptRoleContractRegistryError(`unknown prompt role "${roleId}"`);
+  return contract;
+}
+
+/** Gate evidence is owned only by active canonical REVIEW lanes, never compatibility/retired prompts. */
+export function isPromptRoleEligibleForReviewEvidence(roleId: string | undefined | null): boolean {
+  if (!roleId) return false;
+  const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(roleId);
+  return contract?.status === 'active'
+    && contract.allowedCommandIds.includes('review_run_start')
+    && contract.allowedCommandIds.includes('review_pass_set');
+}
+
+export function resolvePromptEnvelopeRolloutMode(
+  roleId: string,
+  config: unknown,
+): PromptEnvelopeRolloutMode {
+  const contract = promptRoleContract(roleId);
+  if (config === undefined || config === null) return 'legacy-full-context';
+  if (typeof config !== 'object' || Array.isArray(config) || Object.getPrototypeOf(config) !== Object.prototype) {
+    throw new PromptRoleContractRegistryError('promptEnvelope config must be a plain object');
+  }
+  const record = config as Record<string, unknown>;
+  for (const key of Object.keys(record)) {
+    if (!['version', 'roles'].includes(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.${key} is unknown`);
+  }
+  if (record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION) {
+    throw new PromptRoleContractRegistryError(`promptEnvelope.version must be ${PROMPT_ENVELOPE_ROLLOUT_VERSION}`);
+  }
+  if (!record.roles || typeof record.roles !== 'object' || Array.isArray(record.roles) || Object.getPrototypeOf(record.roles) !== Object.prototype) {
+    throw new PromptRoleContractRegistryError('promptEnvelope.roles must be a plain object');
+  }
+  const roles = record.roles as Record<string, unknown>;
+  for (const key of Object.keys(roles)) {
+    if (!PROMPT_ROLE_CONTRACT_BY_ID.has(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.roles contains unknown role "${key}"`);
+    if (!['legacy-full-context', 'full-envelope'].includes(roles[key] as string)) {
+      throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} has unsupported mode`);
+    }
+    if (roles[key] === 'full-envelope' && promptRoleContract(key).status !== 'active') {
+      throw new PromptRoleContractRegistryError(`${key} is ${promptRoleContract(key).status} and cannot enable full-envelope`);
+    }
+  }
+  if (Object.prototype.hasOwnProperty.call(roles, '__proto__') || Object.prototype.hasOwnProperty.call(roles, 'constructor')) {
+    throw new PromptRoleContractRegistryError('promptEnvelope.roles contains a forbidden prototype key');
+  }
+  const configured = roles[contract.roleId];
+  return configured === undefined ? 'legacy-full-context' : configured as PromptEnvelopeRolloutMode;
+}

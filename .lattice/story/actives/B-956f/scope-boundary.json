@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-956f",
+  "mode": "correctness_fix",
+  "allowed": [
+    "8-step precedence chain + non-excludable manifests",
+    "Config-resolved material-code policy service",
+    "Degradation diagnostics from buildScopeDiffPack",
+    "Hash-bound classification snapshot to 3 consumers",
+    "Strict config resolver"
+  ],
+  "excluded": [
+    "New language parsers / semantic anchors beyond TS-JS",
+    "S1 orchestrator routing",
+    "S2 lock/digest portability",
+    "W2 RED evidence subsystem",
+    "W3 enforce flip"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User authorized W1 per language-neutral-gates-execution-plan.md v4.",
+  "createdAt": "2026-07-18T22:43:57.927Z",
+  "updatedAt": "2026-07-18T22:43:57.927Z",
+  "_hash": "777f765719f7923cd45b5aa0af1a36bf3f11f90e0913ea8a3506d57dda52f58f"
+}

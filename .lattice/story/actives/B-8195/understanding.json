@@ -1,0 +1,33 @@
+{
+  "task": "Make routine validation fresh-PASS reuse converge immediately after an authorized TEST lifecycle transition without weakening dirty-state protection.",
+  "outcome": "The first mandatory validate after entering TEST prints Validation PASS reused, disposition=reused and commandExecutions=0, exits successfully, and leaves no canonical lifecycle metadata dirty; pre-existing human or forged metadata still prints a fail-closed refusal.",
+  "facts": [
+    "B-0784 produced provider lattice-verifier-reuse-persistence with infra_failure while reuse had already selected commandExecutions=0.",
+    "The isolated RED reproduces the failure with only process-events.jsonl dirty after a fresh PASS.",
+    "B-914f validation-evidence-reuse smoke manually commits residual .lattice rows before testing reuse, so it does not cover the lifecycle-transition boundary.",
+    "verifier.ts currently rejects any dirty test-evidence/process-events/closeout receipt path before opening its isolated metadata transaction.",
+    "done-prepare-auto-closeout smoke intentionally requires a pre-existing human_confirmation event to remain fail-closed.",
+    "The chosen design makes the TEST transition own atomic closeout of only the lifecycle metadata it generated before returning.",
+    "commitValidationReuseMetadataTransaction already enforces exact paths, immutable hashes, isolated index, HEAD CAS, receipt append and rollback."
+  ],
+  "constraints": [
+    "Use the real worktree-local CLI boundary for the permanent RED.",
+    "Verifier must continue rejecting every dirty managed path at validate entry.",
+    "Unrelated source, config, human/external metadata, malformed evidence, concurrent HEAD movement and commit-hook mutation remain fail-closed.",
+    "Do not change candidate routing, dispatch, validation commands, timeout policy or coverage semantics.",
+    "Run focused smokes during DEV and reserve the root suite for final DONE-required validation."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/auto-commit-metadata.ts",
+    "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+  ],
+  "timestamp": "2026-07-18T10:33:11.914Z"
+}

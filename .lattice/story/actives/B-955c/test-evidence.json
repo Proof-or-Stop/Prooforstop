@@ -1,0 +1,1555 @@
+{
+  "command": "lattice validate --story=B-955c --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=adf3d5e41abb67f648641a2b7314500d8782ab7d54ebfa845acabfd461081b72\",\"commandExecutions=0\",\"Verification intent coverage: 36/36 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via docs_check verdict=success (docs/evidence/evidence-platform-architecture.md) — Inspect the normative architecture and executable ownership registry -> execution, observation, receipt normalization, Proof Admissibility, Evidence Platform storage, and Task/Story/Release Gate decisions each have exactly one named owner that maps to the existing architecture; WHY: prevents a second evidence or lifecycle control plane.\",\"  ✓ CHK-001:happy:1 [happy/must/logic] covered via docs_check verdict=success (docs/evidence/evidence-platform-architecture.md) — Trace one accepted Environment observation from adapter boundary through the existing evidence surface to a Gate consumer -> the trace uses the shared evidence store and existing lifecycle decision path with no adapter-owned Done state; WHY: proves the abstraction is integrated rather than merely documented.\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via docs_check verdict=success (docs/evidence/evidence-platform-architecture.md) — Load legacy evidence that predates Environment Descriptor metadata -> backward-compatible parsing remains available but absent identities are not synthesized into stronger admissibility; WHY: preserves compatibility without laundering weak provenance.\",\"  ✓ CHK-001:edge:1 [edge/must/logic] covered via docs_check verdict=success (docs/evidence/evidence-platform-architecture.md) — Register two environment kinds with different execution models -> both share the normative receipt boundary while domain-specific truth rules remain in their packs/policies; WHY: tests host-neutral ownership without collapsing domain semantics.\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via docs_check verdict=success (docs/evidence/evidence-platform-architecture.md) — Provide an adapter result that asserts pass, Done, or release approval directly -> the architecture and runtime path reject or ignore that authority and require the existing Gate decision; WHY: enforces authority separation.\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via docs_check verdict=success (docs/evidence/evidence-platform-architecture.md) — Search implementation and documentation for a parallel Evidence Environment store, independent admissibility engine, or duplicate Task/Story/Release Gate -> no competing owner is introduced; WHY: prevents architectural split-brain.\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Create a supported-version Environment Descriptor, Invocation Request, and Receipt with subject, environment, invocation, command/executable, policy, and provenance identities -> schema validation succeeds and canonical normalization is byte-stable across repeated runs; WHY: proves the generic contract is identity-bound and reproducible.\",\"  ✓ CHK-002:happy:1 [happy/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Serialize then deserialize a valid contract envelope -> all security, isolation, reproducibility, trust, temporal, and epistemic-scope fields retain their meaning and the normalized digest is unchanged; WHY: guards evidence portability across hosts.\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Validate the minimum supported descriptor/request/receipt and a maximal envelope with permitted optional metadata and reordered object keys -> both normalize deterministically without inventing omitted trust claims; WHY: covers schema boundaries and canonicalization.\",\"  ✓ CHK-002:edge:1 [edge/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Submit an unknown major contract version or unsupported environment kind -> validation fails closed with a structured reason and produces no admissible receipt; WHY: prevents silent semantic drift.\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Alter subject, invocation, environment, executable, shell mode, policy identity, or receipt payload after binding -> validation detects every mismatch and rejects admissibility; WHY: prevents replay and identity substitution.\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Inject unrecognized fields that claim elevated trust, independence, reproducibility, or gate authority -> normalization cannot upgrade the epistemic scope and validation fails or confines the fields as specified; WHY: blocks privilege escalation through extensibility.\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Invoke an allow-listed local validation command through the existing configured executor -> bounded stdout/stderr and exit facts become a normalized Environment receipt stored through the Evidence Platform, with actual cwd, argv/shell mode, effective environment policy, executable identity, timeout, and network posture bound; WHY: proves a safe executable reference path without a new arbitrary runner.\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Read a valid existing Quantum scientific receipt through the receipt-only adapter -> it normalizes to the same generic contract while preserving Quantum-specific claim scope and without executing a solver; WHY: demonstrates one boundary across executable and external-observation environments.\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Run an allowed command that reaches timeout, cancellation, non-zero exit, or output limit -> the receipt records the bounded terminal observation deterministically and never converts it to a pass claim; WHY: covers failure timing and resource limits.\",\"  ✓ CHK-003:edge:1 [edge/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Read a validly shaped Quantum receipt whose source identity, freshness window, or required artifact is absent -> receipt parsing may diagnose it but Proof Admissibility remains fail-closed; WHY: separates normalization from acceptance.\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Attempt command injection, shell-mode substitution, cwd/path escape, executable replacement, forbidden network access, or undeclared environment/secret access -> execution is refused before launch and no admissible success receipt is emitted; WHY: tests the local adapter security boundary.\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Call the adapter with an arbitrary command not present in configured validation policy or search public handlers for a generic command endpoint -> invocation is rejected and no such endpoint exists; WHY: prevents the adapter contract becoming remote code execution.\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Run the Environment Adapter conformance suite against the local-command and Quantum receipt paths -> both pass descriptor, invocation, receipt, deterministic-normalization, authority-separation, and admissibility-scope checks; WHY: makes cross-environment compatibility mechanical.\",\"  ✓ CHK-004:happy:1 [happy/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Evaluate semantically equivalent fresh receipts produced through two host brands under the same subject, invocation, environment semantics, policy, and allowed trust class -> Proof Admissibility and the integrated Gate return the same decision; WHY: proves host-substitution invariance at both admissibility and Gate levels.\",\"  ✓ CHK-004:edge:0 [edge/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Exercise unknown versions, stale receipts, unsafe isolation metadata, checker exceptions, cancellation races, and malformed bounded output -> each case yields a deterministic structured failure and no admissible pass; WHY: verifies fail-closed behavior at operational boundaries.\",\"  ✓ CHK-004:edge:1 [edge/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Run canonicalization under reordered keys, equivalent path spelling allowed by policy, and repeated evaluation -> equivalent inputs produce the same digest while materially different executable or shell semantics do not collide; WHY: tests normalization precision.\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Submit forged producer identity, replayed invocation binding, or two quorum inputs from the same producer lineage -> conformance and Gate checks reject the evidence as non-independent; WHY: prevents provenance forgery and quorum substitution.\",\"  ✓ CHK-004:adversarial:1 [adversarial/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Use a conformant adapter to assert completion, weaken a required Task/Story/Release check, or turn a checker error into success -> the attempt fails and existing lifecycle requirements remain authoritative; WHY: proves conformance does not confer completion power.\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via docs_check verdict=success (docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md) — Validate the paper-facing architecture section and claim-to-evidence matrix -> each stated contribution is labeled by support level, linked to a concrete implementation/conformance/Gate artifact, and bound to an implementation commit or release; WHY: makes publication claims auditable.\",\"  ✓ CHK-005:happy:1 [happy/must/cli] covered via docs_check verdict=success (docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md) — Follow the manuscript handoff instructions from the versioned decision document -> an external paper editor can distinguish the generic contract, implemented reference paths, Gate integration, and future targets without consulting hidden story state; WHY: ensures the deliverable is usable beyond the repository workflow.\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via docs_check verdict=success (docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md) — Review claims for Lean, Rosetta, AlphaFold, PINN solvers, browsers, databases, CI, Kubernetes, and production deployment -> unimplemented integrations are consistently marked as targets/examples rather than current adapters; WHY: prevents scope inflation at the implementation boundary.\",\"  ✓ CHK-005:edge:1 [edge/must/logic] covered via docs_check verdict=success (docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md) — Evaluate the document before and after conformance/Gate evidence is available -> support wording advances only to the level justified by bound evidence and otherwise remains at the lower level; WHY: enforces evidence-dependent claim calibration.\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/cli] covered via docs_check verdict=success (docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md) — Scan public-facing prose for assertions that Proof-or-Stop currently supports arbitrary environments or completed scientific/deployment adapters -> prohibited overclaims are absent or explicitly qualified; WHY: resists paper-language laundering.\",\"  ✓ CHK-005:adversarial:1 [adversarial/must/logic] covered via docs_check verdict=success (docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md) — Remove or stale the referenced implementation commit, release binding, conformance result, or M5 Gate evidence -> the support matrix can no longer report the associated higher claim level; WHY: prevents detached documentation from serving as proof.\",\"  ✓ CHK-006:happy:0 [happy/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Register a normalized fresh Environment receipt under an approved policy and evaluate its declared claim -> the shared proof surface and Proof Admissibility consume it, then the existing Task/Story/Release Gate consumer applies its own required checks; WHY: proves actual lifecycle integration without adapter-owned decisions.\",\"  ✓ CHK-006:happy:1 [happy/must/logic] covered via integration_test verdict=success (scripts/verify-process-fact-contract.mjs) — Configure an approved domain policy that adds stronger evidence requirements -> the Gate enforces the added requirements while retaining every baseline lifecycle requirement; WHY: proves policies may strengthen but never weaken Proof-or-Stop.\",\"  ✓ CHK-006:edge:0 [edge/must/logic] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Submit a diagnostic-only adapter receipt and a backward-compatible legacy receipt -> both remain observable, but neither gains gating force beyond explicitly admitted scope; WHY: preserves diagnostics and compatibility without accidental authority.\",\"  ✓ CHK-006:edge:1 [edge/must/cli] covered via integration_test verdict=success (scripts/verify-process-fact-contract.mjs) — Replace the host brand while keeping subject, invocation, environment semantics, policy, freshness, provenance class, and normalized evidence equivalent -> the Gate decision is unchanged; changing an allowed trust or independence fact may change admissibility with an explicit reason; WHY: precisely bounds host-substitution invariance.\",\"  ✓ CHK-006:adversarial:0 [adversarial/must/cli] covered via logic_test verdict=success (packages/main/src/tasks/evidence-environment-adapter-smoke.ts) — Submit a forged producer, stale/replayed binding, or same-producer evidence as independent quorum inputs -> Proof Admissibility and lifecycle Gate consumers fail closed and record the rejection reason; WHY: prevents fabricated independence from completing a lifecycle objective.\",\"  ✓ CHK-006:adversarial:1 [adversarial/must/logic] covered via integration_test verdict=success (scripts/verify-process-fact-contract.mjs) — Attempt to use an adapter receipt to bypass a missing Task, Story, or Release requirement, downgrade a mandatory check, or write Done directly -> completion remains blocked and no adapter API has direct completion authority; WHY: protects the monotonic Gate invariant.\"],\"warnings\":[],\"timestamp\":\"2026-07-19T03:46:08.250Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":36,\"reason\":\"verificationIntent entries present (36)\"},\"verificationCoverage\":{\"total\":36,\"required\":36,\"covered\":36,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Inspect the normative architecture and executable ownership registry -> execution, observation, receipt normalization, Proof Admissibility, Evidence Platform storage, and Task/Story/Release Gate decisions each have exactly one named owner that maps to the existing architecture; WHY: prevents a second evidence or lifecycle control plane.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/evidence/evidence-platform-architecture.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Trace one accepted Environment observation from adapter boundary through the existing evidence surface to a Gate consumer -> the trace uses the shared evidence store and existing lifecycle decision path with no adapter-owned Done state; WHY: proves the abstraction is integrated rather than merely documented.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/evidence/evidence-platform-architecture.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Load legacy evidence that predates Environment Descriptor metadata -> backward-compatible parsing remains available but absent identities are not synthesized into stronger admissibility; WHY: preserves compatibility without laundering weak provenance.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/evidence/evidence-platform-architecture.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Register two environment kinds with different execution models -> both share the normative receipt boundary while domain-specific truth rules remain in their packs/policies; WHY: tests host-neutral ownership without collapsing domain semantics.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/evidence/evidence-platform-architecture.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Provide an adapter result that asserts pass, Done, or release approval directly -> the architecture and runtime path reject or ignore that authority and require the existing Gate decision; WHY: enforces authority separation.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/evidence/evidence-platform-architecture.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Search implementation and documentation for a parallel Evidence Environment store, independent admissibility engine, or duplicate Task/Story/Release Gate -> no competing owner is introduced; WHY: prevents architectural split-brain.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/evidence/evidence-platform-architecture.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Create a supported-version Environment Descriptor, Invocation Request, and Receipt with subject, environment, invocation, command/executable, policy, and provenance identities -> schema validation succeeds and canonical normalization is byte-stable across repeated runs; WHY: proves the generic contract is identity-bound and reproducible.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Serialize then deserialize a valid contract envelope -> all security, isolation, reproducibility, trust, temporal, and epistemic-scope fields retain their meaning and the normalized digest is unchanged; WHY: guards evidence portability across hosts.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Validate the minimum supported descriptor/request/receipt and a maximal envelope with permitted optional metadata and reordered object keys -> both normalize deterministically without inventing omitted trust claims; WHY: covers schema boundaries and canonicalization.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Submit an unknown major contract version or unsupported environment kind -> validation fails closed with a structured reason and produces no admissible receipt; WHY: prevents silent semantic drift.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Alter subject, invocation, environment, executable, shell mode, policy identity, or receipt payload after binding -> validation detects every mismatch and rejects admissibility; WHY: prevents replay and identity substitution.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Inject unrecognized fields that claim elevated trust, independence, reproducibility, or gate authority -> normalization cannot upgrade the epistemic scope and validation fails or confines the fields as specified; WHY: blocks privilege escalation through extensibility.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Invoke an allow-listed local validation command through the existing configured executor -> bounded stdout/stderr and exit facts become a normalized Environment receipt stored through the Evidence Platform, with actual cwd, argv/shell mode, effective environment policy, executable identity, timeout, and network posture bound; WHY: proves a safe executable reference path without a new arbitrary runner.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"Read a valid existing Quantum scientific receipt through the receipt-only adapter -> it normalizes to the same generic contract while preserving Quantum-specific claim scope and without executing a solver; WHY: demonstrates one boundary across executable and external-observation environments.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Run an allowed command that reaches timeout, cancellation, non-zero exit, or output limit -> the receipt records the bounded terminal observation deterministically and never converts it to a pass claim; WHY: covers failure timing and resource limits.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Read a validly shaped Quantum receipt whose source identity, freshness window, or required artifact is absent -> receipt parsing may diagnose it but Proof Admissibility remains fail-closed; WHY: separates normalization from acceptance.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.281Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Attempt command injection, shell-mode substitution, cwd/path escape, executable replacement, forbidden network access, or undeclared environment/secret access -> execution is refused before launch and no admissible success receipt is emitted; WHY: tests the local adapter security boundary.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Call the adapter with an arbitrary command not present in configured validation policy or search public handlers for a generic command endpoint -> invocation is rejected and no such endpoint exists; WHY: prevents the adapter contract becoming remote code execution.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Run the Environment Adapter conformance suite against the local-command and Quantum receipt paths -> both pass descriptor, invocation, receipt, deterministic-normalization, authority-separation, and admissibility-scope checks; WHY: makes cross-environment compatibility mechanical.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-004:happy:1\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Evaluate semantically equivalent fresh receipts produced through two host brands under the same subject, invocation, environment semantics, policy, and allowed trust class -> Proof Admissibility and the integrated Gate return the same decision; WHY: proves host-substitution invariance at both admissibility and Gate levels.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:1\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Exercise unknown versions, stale receipts, unsafe isolation metadata, checker exceptions, cancellation races, and malformed bounded output -> each case yields a deterministic structured failure and no admissible pass; WHY: verifies fail-closed behavior at operational boundaries.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Run canonicalization under reordered keys, equivalent path spelling allowed by policy, and repeated evaluation -> equivalent inputs produce the same digest while materially different executable or shell semantics do not collide; WHY: tests normalization precision.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:1\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Submit forged producer identity, replayed invocation binding, or two quorum inputs from the same producer lineage -> conformance and Gate checks reject the evidence as non-independent; WHY: prevents provenance forgery and quorum substitution.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Use a conformant adapter to assert completion, weaken a required Task/Story/Release check, or turn a checker error into success -> the attempt fails and existing lifecycle requirements remain authoritative; WHY: proves conformance does not confer completion power.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:1\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Validate the paper-facing architecture section and claim-to-evidence matrix -> each stated contribution is labeled by support level, linked to a concrete implementation/conformance/Gate artifact, and bound to an implementation commit or release; WHY: makes publication claims auditable.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-005:happy:1\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"Follow the manuscript handoff instructions from the versioned decision document -> an external paper editor can distinguish the generic contract, implemented reference paths, Gate integration, and future targets without consulting hidden story state; WHY: ensures the deliverable is usable beyond the repository workflow.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:1\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Review claims for Lean, Rosetta, AlphaFold, PINN solvers, browsers, databases, CI, Kubernetes, and production deployment -> unimplemented integrations are consistently marked as targets/examples rather than current adapters; WHY: prevents scope inflation at the implementation boundary.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"Evaluate the document before and after conformance/Gate evidence is available -> support wording advances only to the level justified by bound evidence and otherwise remains at the lower level; WHY: enforces evidence-dependent claim calibration.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:1\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Scan public-facing prose for assertions that Proof-or-Stop currently supports arbitrary environments or completed scientific/deployment adapters -> prohibited overclaims are absent or explicitly qualified; WHY: resists paper-language laundering.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-005:adversarial:1\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"Remove or stale the referenced implementation commit, release binding, conformance result, or M5 Gate evidence -> the support matrix can no longer report the associated higher claim level; WHY: prevents detached documentation from serving as proof.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:1\",\"kind\":\"docs_check\",\"verdict\":\"success\",\"file\":\"docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md\",\"command\":\"git diff --check\",\"result\":\"pass\",\"note\":\"Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-006:happy:0\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Register a normalized fresh Environment receipt under an approved policy and evaluate its declared claim -> the shared proof surface and Proof Admissibility consume it, then the existing Task/Story/Release Gate consumer applies its own required checks; WHY: proves actual lifecycle integration without adapter-owned decisions.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-006:happy:1\",\"itemId\":\"CHK-006\",\"lane\":\"happy\",\"desc\":\"Configure an approved domain policy that adds stronger evidence requirements -> the Gate enforces the added requirements while retaining every baseline lifecycle requirement; WHY: proves policies may strengthen but never weaken Proof-or-Stop.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:happy:1\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Process Fact Contract verified the L4 Evidence Environment Gate projection registration and semantics.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-006:edge:0\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Submit a diagnostic-only adapter receipt and a backward-compatible legacy receipt -> both remain observable, but neither gains gating force beyond explicitly admitted scope; WHY: preserves diagnostics and compatibility without accidental authority.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-006:edge:1\",\"itemId\":\"CHK-006\",\"lane\":\"edge\",\"desc\":\"Replace the host brand while keeping subject, invocation, environment semantics, policy, freshness, provenance class, and normalized evidence equivalent -> the Gate decision is unchanged; changing an allowed trust or independence fact may change admissibility with an explicit reason; WHY: precisely bounds host-substitution invariance.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:edge:1\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Process Fact Contract verified the L4 Evidence Environment Gate projection registration and semantics.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-006:adversarial:0\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Submit a forged producer, stale/replayed binding, or same-producer evidence as independent quorum inputs -> Proof Admissibility and lifecycle Gate consumers fail closed and record the rejection reason; WHY: prevents fabricated independence from completing a lifecycle objective.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:0\",\"kind\":\"logic_test\",\"verdict\":\"success\",\"file\":\"packages/main/src/tasks/evidence-environment-adapter-smoke.ts\",\"command\":\"npm --prefix packages/main run test:evidence-environment-adapter\",\"result\":\"pass\",\"note\":\"EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}},{\"intentRef\":\"CHK-006:adversarial:1\",\"itemId\":\"CHK-006\",\"lane\":\"adversarial\",\"desc\":\"Attempt to use an adapter receipt to bypass a missing Task, Story, or Release requirement, downgrade a mandatory check, or write Done directly -> completion remains blocked and no adapter API has direct completion authority; WHY: protects the monotonic Gate invariant.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-006:adversarial:1\",\"kind\":\"integration_test\",\"verdict\":\"success\",\"file\":\"scripts/verify-process-fact-contract.mjs\",\"command\":\"node scripts/verify-process-fact-contract.mjs\",\"result\":\"pass\",\"note\":\"Process Fact Contract verified the L4 Evidence Environment Gate projection registration and semantics.\",\"headHash\":\"b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7\",\"materialHash\":\"68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a\",\"storyFilesHash\":\"0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8\",\"timestamp\":\"2026-07-19T03:34:55.282Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"adf3d5e41abb67f648641a2b7314500d8782ab7d54ebfa845acabfd461081b72\"}}",
+  "result": "PASS",
+  "timestamp": "2026-07-19T03:46:08.460Z",
+  "headHash": "35c2b2bf394653f6c4983e27d603dbb66704dd1b",
+  "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+  "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+  "verificationCoverage": {
+    "total": 36,
+    "required": 36,
+    "covered": 36,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Inspect the normative architecture and executable ownership registry -> execution, observation, receipt normalization, Proof Admissibility, Evidence Platform storage, and Task/Story/Release Gate decisions each have exactly one named owner that maps to the existing architecture; WHY: prevents a second evidence or lifecycle control plane.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Trace one accepted Environment observation from adapter boundary through the existing evidence surface to a Gate consumer -> the trace uses the shared evidence store and existing lifecycle decision path with no adapter-owned Done state; WHY: proves the abstraction is integrated rather than merely documented.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Load legacy evidence that predates Environment Descriptor metadata -> backward-compatible parsing remains available but absent identities are not synthesized into stronger admissibility; WHY: preserves compatibility without laundering weak provenance.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Register two environment kinds with different execution models -> both share the normative receipt boundary while domain-specific truth rules remain in their packs/policies; WHY: tests host-neutral ownership without collapsing domain semantics.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Provide an adapter result that asserts pass, Done, or release approval directly -> the architecture and runtime path reject or ignore that authority and require the existing Gate decision; WHY: enforces authority separation.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Search implementation and documentation for a parallel Evidence Environment store, independent admissibility engine, or duplicate Task/Story/Release Gate -> no competing owner is introduced; WHY: prevents architectural split-brain.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Create a supported-version Environment Descriptor, Invocation Request, and Receipt with subject, environment, invocation, command/executable, policy, and provenance identities -> schema validation succeeds and canonical normalization is byte-stable across repeated runs; WHY: proves the generic contract is identity-bound and reproducible.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Serialize then deserialize a valid contract envelope -> all security, isolation, reproducibility, trust, temporal, and epistemic-scope fields retain their meaning and the normalized digest is unchanged; WHY: guards evidence portability across hosts.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Validate the minimum supported descriptor/request/receipt and a maximal envelope with permitted optional metadata and reordered object keys -> both normalize deterministically without inventing omitted trust claims; WHY: covers schema boundaries and canonicalization.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Submit an unknown major contract version or unsupported environment kind -> validation fails closed with a structured reason and produces no admissible receipt; WHY: prevents silent semantic drift.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Alter subject, invocation, environment, executable, shell mode, policy identity, or receipt payload after binding -> validation detects every mismatch and rejects admissibility; WHY: prevents replay and identity substitution.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Inject unrecognized fields that claim elevated trust, independence, reproducibility, or gate authority -> normalization cannot upgrade the epistemic scope and validation fails or confines the fields as specified; WHY: blocks privilege escalation through extensibility.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Invoke an allow-listed local validation command through the existing configured executor -> bounded stdout/stderr and exit facts become a normalized Environment receipt stored through the Evidence Platform, with actual cwd, argv/shell mode, effective environment policy, executable identity, timeout, and network posture bound; WHY: proves a safe executable reference path without a new arbitrary runner.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "Read a valid existing Quantum scientific receipt through the receipt-only adapter -> it normalizes to the same generic contract while preserving Quantum-specific claim scope and without executing a solver; WHY: demonstrates one boundary across executable and external-observation environments.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Run an allowed command that reaches timeout, cancellation, non-zero exit, or output limit -> the receipt records the bounded terminal observation deterministically and never converts it to a pass claim; WHY: covers failure timing and resource limits.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Read a validly shaped Quantum receipt whose source identity, freshness window, or required artifact is absent -> receipt parsing may diagnose it but Proof Admissibility remains fail-closed; WHY: separates normalization from acceptance.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.281Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Attempt command injection, shell-mode substitution, cwd/path escape, executable replacement, forbidden network access, or undeclared environment/secret access -> execution is refused before launch and no admissible success receipt is emitted; WHY: tests the local adapter security boundary.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Call the adapter with an arbitrary command not present in configured validation policy or search public handlers for a generic command endpoint -> invocation is rejected and no such endpoint exists; WHY: prevents the adapter contract becoming remote code execution.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Run the Environment Adapter conformance suite against the local-command and Quantum receipt paths -> both pass descriptor, invocation, receipt, deterministic-normalization, authority-separation, and admissibility-scope checks; WHY: makes cross-environment compatibility mechanical.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:1",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Evaluate semantically equivalent fresh receipts produced through two host brands under the same subject, invocation, environment semantics, policy, and allowed trust class -> Proof Admissibility and the integrated Gate return the same decision; WHY: proves host-substitution invariance at both admissibility and Gate levels.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Exercise unknown versions, stale receipts, unsafe isolation metadata, checker exceptions, cancellation races, and malformed bounded output -> each case yields a deterministic structured failure and no admissible pass; WHY: verifies fail-closed behavior at operational boundaries.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:1",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Run canonicalization under reordered keys, equivalent path spelling allowed by policy, and repeated evaluation -> equivalent inputs produce the same digest while materially different executable or shell semantics do not collide; WHY: tests normalization precision.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Submit forged producer identity, replayed invocation binding, or two quorum inputs from the same producer lineage -> conformance and Gate checks reject the evidence as non-independent; WHY: prevents provenance forgery and quorum substitution.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:1",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Use a conformant adapter to assert completion, weaken a required Task/Story/Release check, or turn a checker error into success -> the attempt fails and existing lifecycle requirements remain authoritative; WHY: proves conformance does not confer completion power.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Validate the paper-facing architecture section and claim-to-evidence matrix -> each stated contribution is labeled by support level, linked to a concrete implementation/conformance/Gate artifact, and bound to an implementation commit or release; WHY: makes publication claims auditable.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:1",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "Follow the manuscript handoff instructions from the versioned decision document -> an external paper editor can distinguish the generic contract, implemented reference paths, Gate integration, and future targets without consulting hidden story state; WHY: ensures the deliverable is usable beyond the repository workflow.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Review claims for Lean, Rosetta, AlphaFold, PINN solvers, browsers, databases, CI, Kubernetes, and production deployment -> unimplemented integrations are consistently marked as targets/examples rather than current adapters; WHY: prevents scope inflation at the implementation boundary.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:1",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "Evaluate the document before and after conformance/Gate evidence is available -> support wording advances only to the level justified by bound evidence and otherwise remains at the lower level; WHY: enforces evidence-dependent claim calibration.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Scan public-facing prose for assertions that Proof-or-Stop currently supports arbitrary environments or completed scientific/deployment adapters -> prohibited overclaims are absent or explicitly qualified; WHY: resists paper-language laundering.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:1",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "Remove or stale the referenced implementation commit, release binding, conformance result, or M5 Gate evidence -> the support matrix can no longer report the associated higher claim level; WHY: prevents detached documentation from serving as proof.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Versioned architecture/support matrix is present, calibrated, and repository diff validation passed.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:0",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "Register a normalized fresh Environment receipt under an approved policy and evaluate its declared claim -> the shared proof surface and Proof Admissibility consume it, then the existing Task/Story/Release Gate consumer applies its own required checks; WHY: proves actual lifecycle integration without adapter-owned decisions.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:happy:1",
+        "itemId": "CHK-006",
+        "lane": "happy",
+        "desc": "Configure an approved domain policy that adds stronger evidence requirements -> the Gate enforces the added requirements while retaining every baseline lifecycle requirement; WHY: proves policies may strengthen but never weaken Proof-or-Stop.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:happy:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process Fact Contract verified the L4 Evidence Environment Gate projection registration and semantics.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:0",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "Submit a diagnostic-only adapter receipt and a backward-compatible legacy receipt -> both remain observable, but neither gains gating force beyond explicitly admitted scope; WHY: preserves diagnostics and compatibility without accidental authority.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:edge:1",
+        "itemId": "CHK-006",
+        "lane": "edge",
+        "desc": "Replace the host brand while keeping subject, invocation, environment semantics, policy, freshness, provenance class, and normalized evidence equivalent -> the Gate decision is unchanged; changing an allowed trust or independence fact may change admissibility with an explicit reason; WHY: precisely bounds host-substitution invariance.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:edge:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process Fact Contract verified the L4 Evidence Environment Gate projection registration and semantics.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:0",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "Submit a forged producer, stale/replayed binding, or same-producer evidence as independent quorum inputs -> Proof Admissibility and lifecycle Gate consumers fail closed and record the rejection reason; WHY: prevents fabricated independence from completing a lifecycle objective.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "command": "npm --prefix packages/main run test:evidence-environment-adapter",
+          "result": "pass",
+          "note": "EEA conformance smoke passed and mechanically covers this identity, boundary, or fail-closed intent.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      },
+      {
+        "intentRef": "CHK-006:adversarial:1",
+        "itemId": "CHK-006",
+        "lane": "adversarial",
+        "desc": "Attempt to use an adapter receipt to bypass a missing Task, Story, or Release requirement, downgrade a mandatory check, or write Done directly -> completion remains blocked and no adapter API has direct completion authority; WHY: protects the monotonic Gate invariant.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-006:adversarial:1",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process Fact Contract verified the L4 Evidence Environment Gate projection registration and semantics.",
+          "headHash": "b52ce7fdcc35cd08a433c34f510dd9fdc77adfa7",
+          "materialHash": "68be62e82f47658df515b0dd35171552ad0a86337b30d3121887338473825c8a",
+          "storyFilesHash": "0ea303c61504a37d7dd63fdb748bc378db1ab4209c1f6624dfccb06428a5f1e8",
+          "timestamp": "2026-07-19T03:34:55.282Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 46,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "010165c8ce87d72ad89ba5712cf2f3b7d463d84aefc1c53429933b614e4a0d07",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-955c",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "2e965175552c7dba6fe09cfb63c017ec4017ebb9a49b6e03c52e05e06a0f8709",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "balanced"
+    },
+    "verificationPolicyDigest": "340af80728c7315b6429c942ee8be6522d1f521586330e7676d27c1a4eac82c9",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v22.13.0"
+    },
+    "digest": "adf3d5e41abb67f648641a2b7314500d8782ab7d54ebfa845acabfd461081b72"
+  }
+}

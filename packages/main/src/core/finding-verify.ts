@@ -326,7 +326,32 @@ export function signReviewPass(
   readLog?: ReviewerReadLogEvidence,
   readDiagnostics?: ReviewerReadDiagnostic[],
   provenance?: ReviewPassWriterProvenance,
+  envelopeId?: string,
 ): string {
+  if (envelopeId !== undefined) {
+    if (!/^[a-f0-9]{64}$/.test(envelopeId)) throw new Error('signReviewPass: envelopeId must be a SHA-256 digest');
+    if (!provenance || typeof provenance.writerSessionId !== 'string' || provenance.writerSessionId.trim().length === 0) {
+      throw new Error('signReviewPass: envelope-bound pass requires writer provenance');
+    }
+    return digestCanonicalJson({
+      version: 4,
+      salt: REVIEW_PASS_SALT,
+      storyId,
+      id,
+      agent,
+      note,
+      timestamp,
+      reviewRound,
+      reviewRunId,
+      envelopeId,
+      writerSessionId: provenance.writerSessionId,
+      sessionSource: provenance.sessionSource ?? '',
+      provenanceFlag: provenance.provenanceFlag ?? '',
+      ...(readManifest !== undefined ? { readManifest: normalizeReviewerReadManifest(readManifest) } : {}),
+      ...(readLog !== undefined ? { readLog: normalizeReviewerReadLogEvidence(readLog) } : {}),
+      ...(readDiagnostics !== undefined ? { readDiagnostics: normalizeReviewerReadDiagnostics(readDiagnostics) } : {}),
+    });
+  }
   if (provenance !== undefined) {
     // Runtime re-validation (CLAUDE.md handler conventions): a provenance-domain
     // signature must never bind an empty writer identity. The RAW values are
@@ -388,10 +413,36 @@ export function verifyReviewPass(
     writerSessionId?: string;
     sessionSource?: string;
     provenanceFlag?: string;
+    envelopeId?: string;
   },
 ): boolean {
   if (!p._hash || !p.createdAt || !p.agent || !p.note) return false;
   const reviewRunId = p.reviewRunId?.trim() || '';
+  if (p.envelopeId !== undefined) {
+    if (typeof p.writerSessionId !== 'string' || p.writerSessionId.trim().length === 0) return false;
+    try {
+      return p._hash === signReviewPass(
+        storyId,
+        p.id,
+        p.agent,
+        p.note,
+        p.createdAt,
+        p.reviewRound || '',
+        reviewRunId,
+        p.readManifest,
+        p.readLog,
+        p.readDiagnostics,
+        {
+          writerSessionId: p.writerSessionId,
+          sessionSource: p.sessionSource ?? '',
+          provenanceFlag: p.provenanceFlag ?? '',
+        },
+        p.envelopeId,
+      );
+    } catch {
+      return false;
+    }
+  }
   // B-3b05: provenance-inclusive records verify ONLY via the version-3 domain —
   // no fallback to legacy domains (mirrors the reviewRunId rule). A record with
   // sessionSource or provenanceFlag but no writerSessionId can only be a

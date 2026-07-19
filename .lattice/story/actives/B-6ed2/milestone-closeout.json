@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-6ed2",
+  "phase": "TEST",
+  "generatedAt": "2026-07-19T02:04:58.104Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "cb0d63ec7a0b69ff734a45fd2af5e60bb4c52cf499685cede0cbc4cbdc82cc1a",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:3b0217487ac84eeb17bea3f013f42091ca89c9a0c032d45b6c88149aa2a545c9"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "e10900bbd02f97d6245e3d04129758863c18ca22",
+    "materialHash": "13651e6db3e63f8b85f492800b277c9100c94674e32f8a4ddbc81d0babc09cab",
+    "storyFilesHash": "f953c86202312564afd676d5e08daf28825d459ece71725c052a506c1a25bee6"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Production-path RED captures quorum-owned metadata residue and downstream validation refusal.",
+      "acceptance": "Committed RED harness proves six emitted rows leave process-events dirty and validation refuses false PASS.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/manual_transcript] git show --numstat --oneline e764c1cd18 note=Immutable production transcript shows the successful quorum_submit transaction committed exactly six additions in only process-events.jsonl.",
+        "CHK-001:happy:0 [pass/integration_test] node packages/main/dist/tasks/quorum-submit-smoke.js note=27-check bounded production-entry integration binds historical RED ffedfb4eb3 and proves dirty validation executes once but returns infra_failure with no false PASS.",
+        "CHK-001:happy:0 [pass/manual_transcript] git show --stat --oneline ffedfb4eb3 note=Immutable RED commit records the beforeHead equals afterHead failure before atomic closeout.",
+        "CHK-001:adversarial:0 [pass/integration_test] node packages/main/dist/tasks/quorum-submit-smoke.js note=Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Successful quorum submission atomically persists the complete six-row batch.",
+      "acceptance": "Local CLI returns six verdicts, one bounded metadata commit, exact bindings, and clean git state.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/integration_test] node packages/main/dist/tasks/quorum-submit-smoke.js note=Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+        "CHK-002:happy:0 [pass/integration_test] node packages/main/dist/tasks/quorum-submit-smoke.js note=Worktree-local node bin/lattice.js production entry creates one exact six-row commit and clean process-events; all adversarial transaction cases pass.",
+        "CHK-002:happy:1 [pass/logic_test] node packages/main/dist/tasks/quorum-submit-smoke.js note=Post-main 39/39 run preserves exact 3x2 binding and countability assertions after semantic conflict resolution."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Persistence and concurrency failures never leave a partial quorum or damage competing bytes.",
+      "acceptance": "Adversarial matrix passes for pre-dirty, foreign append, HEAD race, hook/CAS failure, rollback conflict and retry.",
+      "evidence": [
+        "CHK-003:adversarial:0 [pass/integration_test] node packages/main/dist/tasks/quorum-submit-smoke.js note=Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks.",
+        "CHK-003:adversarial:0 [pass/integration_test] node packages/main/dist/tasks/quorum-submit-smoke.js note=27-check matrix covers full-event tamper, JSON byte ownership, committed duplicate authority, binary Buffer rollback, CLI pre-dirt and validation no-false-PASS.",
+        "CHK-003:adversarial:1 [pass/logic_test] node packages/main/dist/tasks/quorum-submit-smoke.js note=Post-main 39/39 run preserves foreign-byte concurrency and zero-partial-quorum assertions.",
+        "CHK-003:adversarial:2 [pass/integration_test] node packages/main/dist/tasks/quorum-submit-smoke.js note=Post-main semantic merge run PASS 39/39: preserves all 32 atomic quorum, exact rollback, shared writer lock and production CLI checks plus 7 new prompt/reviewer contract checks."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

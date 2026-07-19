@@ -18,7 +18,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'aux_doc_list',
   'capability_list',
   'capability_probe',
-  'agent_prompt',
+  'prompt_measurement_report',
   'baseline_run',
   'baseline_suite',
   'baseline_suite_report',

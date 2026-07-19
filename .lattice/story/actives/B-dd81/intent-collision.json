@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-dd81",
+  "id": "IC-20260718201033",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The candidate ledger covers four full-context outcomes with explicit verificationIntent mappings. Envelope authority is discriminated by dispatchKind: story-dispatch is deterministic audit-only and forbids reviewer authority; review-run is signed. Provider retry preserves ledgerCallId and mints fresh attemptIds. A material/scope-fresh non-latest pass is not revoked by recency alone; cross-run substitution and true freshness drift fail closed.",
+  "acceptedInterpretationHash": "sha256:8435dcd0aa0af09888e2824bf138cf804de15baea87b07762756881d4e1f35bf",
+  "notes": "Re-confirmed after scope reviewer identified and verification intents corrected three conflicts with current runtime and accepted review-run-binding-race semantics.",
+  "ledgerHashBeforeDecision": "sha256:52476042548e5d6404a3fcc7384ef1fccb8171a7f655d319cddf73ef26e99a0b",
+  "confirmedLedgerHash": "sha256:52476042548e5d6404a3fcc7384ef1fccb8171a7f655d319cddf73ef26e99a0b",
+  "createdAt": "2026-07-18T20:10:33.772Z",
+  "updatedAt": "2026-07-18T20:21:51.132Z"
+}

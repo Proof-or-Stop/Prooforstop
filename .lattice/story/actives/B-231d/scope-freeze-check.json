@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-231d",
+  "checkedAt": "2026-07-18T22:46:08.368Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "0922db1c974f2ebedd5e8bd711052c0275ba447ebc21a4a631c7d809e0f96b57",
+  "executionBoundaryHash": "b006e0faa58fa191cbc637897b3246e07de215192c07bfe61d361152922dc25b",
+  "freshnessHash": "265350544d937fc6c4d90b6030a2fa698f063dc9b44b13601f6e10e997a773ff",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "S1 orchestrator routing",
+    "W1 language-neutral classifier",
+    "W2 RED evidence subsystem",
+    "W3 enforce gate"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "S1 orchestrator routing",
+      "source": "scopeBoundary.excluded",
+      "text": "S1 orchestrator routing",
+      "excluded": true
+    },
+    {
+      "keyword": "W1 language-neutral classifier",
+      "source": "scopeBoundary.excluded",
+      "text": "W1 language-neutral classifier",
+      "excluded": true
+    },
+    {
+      "keyword": "W2 RED evidence subsystem",
+      "source": "scopeBoundary.excluded",
+      "text": "W2 RED evidence subsystem",
+      "excluded": true
+    },
+    {
+      "keyword": "W3 enforce gate",
+      "source": "scopeBoundary.excluded",
+      "text": "W3 enforce gate",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "915d7990940bedcef0d8a7e5a4bd82f598454014f7754ecd9595fd5251e9ee72"
+}

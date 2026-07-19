@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6ed2",
+  "mode": "correctness_fix",
+  "allowed": [
+    "atomic exact persistence of the quorum-owned host_verdict batch in process-events.jsonl",
+    "gate-consumed process-fact documentation and contract assertions required by the new persistence semantics",
+    "quorum_submit clean-entry production RED and focused regression harness",
+    "rollback and fail-closed handling for pre-dirty, concurrent mutation, commit hook and CAS failures"
+  ],
+  "excluded": [
+    "broad refactors outside quorum verdict persistence",
+    "candidate routing, remote host execution, release publication, or general validation reuse changes",
+    "host_run usage-ledger binding owned by B-1be5",
+    "validation heap sizing or vocabulary-guard memory isolation"
+  ],
+  "confirmedBy": "codex-wa-final",
+  "confirmationNote": "User explicitly asked to continue development after B-8195 and to eliminate repeated wall-clock waste; this boundary follows the observed B-8195 quorum residue incident.",
+  "createdAt": "2026-07-18T22:12:26.256Z",
+  "updatedAt": "2026-07-18T22:12:26.256Z",
+  "_hash": "db975a1c089b2cac6397d7767e5bfc91cf67cf439f618369415ad426712de115"
+}

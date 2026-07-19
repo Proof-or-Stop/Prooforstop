@@ -1,0 +1,74 @@
+{
+  "storyId": "B-231d",
+  "checkedAt": "2026-07-19T02:55:33.456Z",
+  "headHash": "22888297445e25992c35659a7d112deccfb5e8e6",
+  "materialHash": "857833359301e12d726bf10959beff04f03f9e13663562f20c21a148f1684537",
+  "storyFilesHash": "fbae5863ec01be41c4db20d9bd4c48170efe6eab1f9afbfc8238abe8c587260e",
+  "reviewRound": "2026-07-19T02:06:18.939Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-231d/summary.json#changes:shared-lock-root",
+      "promise": "validationExecutionLockPath roots the per-story lock at the shared git-common-dir root (resolveSharedLockRoot) so all linked worktrees/hosts of one story share ONE lock.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "packages/main/src/core/validation-execution-lock.ts: resolveSharedLockRoot() (git rev-parse --git-common-dir, realpath-normalized, falls back to root on any failure) added; validationExecutionLockPath() now joins on sharedRoot instead of root. worktree-portability-smoke.js CHK-001 checks (lock identity shared across a real linked git worktree vs main root; different storyIds still differ; non-git temp dir falls back without throwing) re-run at current HEAD 2288829744: pass, 29/29 total checks, exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-231d/summary.json#changes:v1-v2-digest",
+      "promise": "The command-spec digest uses a repo-root-relative logical cwd (schema v1 -> v2) instead of an absolute cwd.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "done-required-validation.ts: DONE_REQUIRED_COMMAND_SPEC_SCHEMA bumped to 'lattice.command-spec.v2'; buildDoneRequiredCommandSpecEnvelope now derives cwd via repoRelativeLogicalCwd(projectRoot, executed cwd or command.cwd) instead of an absolute normalizedCommandCwd. worktree-portability-smoke.js CHK-002 checks (identical digest for the same logical command under mainRoot vs a real linked worktree root, schema=v2, cwd='.', genuinely different commands still digest differently, F-002 isolates cwd-only variation) all pass."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-231d/summary.json#changes:legacy-migration",
+      "promise": "buildLegacyAbsoluteCwdCommandSpecEnvelope accepts pre-existing v1 receipts so legacy evidence is not hard-failed by the v2 migration.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "done-required-validation.ts exports buildLegacyAbsoluteCwdCommandSpecEnvelope (schema='lattice.command-spec.v1', absolute-cwd digest) and validateCommandSpecDigestCoverage now checks a stored receipt against BOTH expectedNew (v2) and expectedLegacy (v1) before flagging command-spec-digest-mismatch. worktree-portability-smoke.js CHK-002:edge constructs a genuine v1 receipt via the legacy builder and confirms validateCommandSpecDigestCoverage still accepts it (valid:true)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-231d/summary.json#changes:resolvedCwd-provenance",
+      "promise": "A non-digested resolvedCwd provenance field records the resolved physical workspace path without affecting the portable digest.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "validation-types.ts adds an optional resolvedCwd field to DoneRequiredCommandSpecEnvelope documented as excluded from the digest; commandSpecDigestPayload in done-required-validation.ts intentionally omits resolvedCwd. worktree-portability-smoke.js CHK-003 checks confirm resolvedCwd equals each root's own absolute physical path while the digest stays equal across mainRoot/worktreeRoot, and F-002 confirms varying only the logical cwd (not resolvedCwd) changes the digest."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-231d/summary.json#changes:validateRequiredReceiptCoverage-cwd",
+      "promise": "validateRequiredReceiptCoverage compares a repo-relative logical cwd on both sides (not absolute physical paths) so cross-host/cross-worktree receipts verify.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "done-required-validation.ts: validateRequiredReceiptCoverage now computes expectedCwd/actualCwd via repoRelativeLogicalCwd/receiptLogicalCwd instead of the prior absolute-path normalizedCommandCwd comparison. worktree-portability-smoke.js F-001 checks: a receipt written under a REAL linked worktree root reports 0 mismatch reasons when checked from the main root, and a genuinely different logical cwd still reports receipt-cwd-mismatch (distinguishability preserved)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-231d/summary.json#changes:isPackagesMainBuild-and-digestCoverage-cwd",
+      "promise": "isPackagesMainBuild and validateCommandSpecDigestCoverage also compare on the portable logical cwd, so a build-proof or digest-coverage receipt written in one worktree is still recognized when evaluated from another root.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "done-required-validation.ts: isPackagesMainBuild now uses receiptLogicalCwd/repoRelativeLogicalCwd instead of absolute normalizedCommandCwd; validateCommandSpecDigestCoverage reconstructs the expected v2 envelope from the receipt's STORED logical cwd (receiptLogicalCwd), not from receipt.cwd re-anchored against the verifying root. worktree-portability-smoke.js F-009/F-010 checks: a worktree-written receipt passes digest-coverage AND the full aggregate (receipt-coverage + digest-coverage) under the main root; a receipt with a FORGED logical-cwd field (digest left intact) is still rejected as command-spec-digest-mismatch; a genuinely different logical cwd is still rejected by the aggregate via receipt-cwd-mismatch."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-231d/summary.json#changes:lifecycle-control-lock-delegation",
+      "promise": "The lifecycle-control runtime status probe delegates to the same shared-root lock path as validationExecutionLockPath, so cross-worktree validation-lock visibility is no longer silently defeated by a hand-rolled worktree-local path.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "packages/main/src/core/lifecycle-control/runtime/index.ts: validationLockPath() no longer hand-rolls `${root}/.lattice/locks/validation/<id>.lock`; it now calls validationExecutionLockPath(root, storyId) (falls back to '' on throw). worktree-portability-smoke.js F-007 checks: with no lock held, the worktree probe reports 'free'; after creating the lock directory at the SHARED (main-root) canonical path, the SAME worktree-rooted probe reports 'active' (the prior hand-rolled worktree-local path would have reported this lock as free)."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/worktree-portability-smoke.js re-run fresh at current HEAD 2288829744 (post F-005..F-010 review-round fixes, post main-merge, dist rebuilt from source via `npm --prefix packages/main run build`, tsc exit 0): 29/29 checks pass, exit 0 (checklist.json's own verificationEvidence understates this at a pre-merge head but also already states 29/29; the story's summary.json actualTranscript is STALE at '16 checks', predating the F-005..F-010 fixes). CHK-001 coverage: lock path identical for a REAL linked git worktree vs the main root; different storyIds still get different locks; a non-git temp dir falls back without throwing. F-007 regression: the lifecycle-control runtime probe run FROM the worktree observes a lock held at the shared root as 'active' where the old hand-rolled path would have reported 'free'. Cross-checked with a full fresh `npm test` run (root package.json chain, ~34 chained suites/1190 log lines) at the same HEAD: exit 0, zero failures found via full-log grep for failure markers."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same worktree-portability-smoke.js run: CHK-002 checks pass — buildDoneRequiredCommandSpecEnvelope digests identically for cwd='.' under mainRoot vs a REAL linked worktree root (schema='lattice.command-spec.v2'); genuinely different commands (different args+cwd) digest differently; F-002 isolates cwd-only variation (command/args/shell/env held fixed) and confirms the digest still changes, guarding against a regression that drops cwd from the digest payload; F-006 confirms corresponding absolute in-workspace cwds (built relative to EACH worktree root) digest identically, and an out-of-workspace absolute cwd keeps a stable non-portable '..'-prefixed logical cwd (documented limitation). Edge: a synthesized legacy v1 absolute-cwd receipt (via buildLegacyAbsoluteCwdCommandSpecEnvelope) still passes validateCommandSpecDigestCoverage. Independently re-run: done-required-validation-smoke.js (assertion updated to schema v2) passes; done-required-freshness-smoke.js passes."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Same run: CHK-003 checks pass — envelope.resolvedCwd equals each root's own absolute physical path while envelope.digest stays equal across mainRoot/worktreeRoot; adversarial: altering only resolvedCwd leaves the digest unchanged (F-002 confirms altering the logical cwd DOES change it), directly exercising the digest/provenance isolation this checklist item promises."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 code promises in this story's diff (shared lock root, v1->v2 repo-relative-cwd digest, v1 legacy migration, non-digested resolvedCwd provenance, repo-relative cwd comparison in validateRequiredReceiptCoverage, the same in isPackagesMainBuild/validateCommandSpecDigestCoverage, and lifecycle-control lock delegation) are grounded directly in the diff and independently re-verified against a freshly rebuilt dist at current HEAD: worktree-portability-smoke.js passes 29/29 (not the '16 checks' the story's own summary.json actualTranscript still states -- that wording is stale, predating the F-005..F-010 review-round fixes, though not otherwise inaccurate), and a from-scratch full `npm test` run at the same HEAD is fully green with zero failures. No TODO/FIXME/HACK/XXX introduced in the diff. Caveat outside delivery-check scope: a concurrently-produced, still-uncommitted done-required-evidence.json in this shared worktree recorded npm test as FAIL, but that receipt's own captured output was truncated well before any failure line and the failure was NOT reproducible by my independent, freshly-rebuilt full-suite run at the same head/material hash -- it looks like a resource-contention artifact of this heavily oversubscribed (~4x, load avg ~39 on 10 cores) shared multi-agent host, not a defect in this story's code; the main agent should re-run done_required_validate to obtain a clean receipt before DONE."
+  },
+  "_hash": "69b6d97b9df82630a4eaa4ca4390d131bbf1352a3aaf266e755d11aa1d3f964d"
+}

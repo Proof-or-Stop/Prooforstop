@@ -1,0 +1,570 @@
+{
+  "passes": [
+    {
+      "id": "B-dd81:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept PASS: b4efda425c removes caller-controlled reviewer Prompt/hash, review_run_start returns and signs the exact canonical assembled Prompt, gate consumers reconstruct and verify those bytes against runtime/role/task contracts and lane, and FullTaskContext now digest-binds verificationIntent, candidate files, relatedDocs, and bounded scope facts. Focused build, envelope, ReviewRun, assurance-floor, quorum, and process-fact suites all passed; no remaining concept blocker found.",
+      "createdAt": "2026-07-18T21:55:14.537Z",
+      "reviewRound": "2026-07-18T21:50:02.147Z",
+      "reviewRunId": "B-dd81:RR-004",
+      "writerSessionId": "sess-bbc70cb6a16008e97230e79f211800a2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/prompt-envelope.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b01372cfe2e4bd04e2b46d80e002af2d59ee5489b3b4ed99637311f891cb44f4"
+    },
+    {
+      "id": "B-dd81:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: final merged-head coverage review verified 47/47 unique passing evidence refs on storyFilesHash 6d004528; real machine REVIEW and quorum replay/tamper consumers pass; compatibility/retired-only receipts cannot emit host-verdict floor evidence; host-asset-only drift invalidates the bound run; focused build, prompt-envelope, review-run, assurance-floor, quorum, flow-stability, Codex registry, and process-fact suites pass.",
+      "createdAt": "2026-07-18T22:32:07.593Z",
+      "reviewRound": "2026-07-18T22:27:24.332Z",
+      "reviewRunId": "B-dd81:RR-009",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3fc1e73dc7139c7f08d9587f569df3c1832653d6b0bf1824f1974658f0251bae"
+    },
+    {
+      "id": "B-dd81:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: current merged-head coverage verified 47/47 unique passing evidence refs on storyFilesHash f6e8f71a; global-thin and thin reviewer flow requires zero project prompt assets; explicit full mode verifies and rejects drift only for the selected host; compatibility/retired-only reviewer receipts cannot cross quorum into host-verdict assurance-floor evidence; frozen 16-role baseline, build, prompt-envelope, review-run, assurance 18/18, quorum 18/18, Codex registry, flow-stability, and process-fact suites all pass.",
+      "createdAt": "2026-07-18T23:00:12.989Z",
+      "reviewRound": "2026-07-18T22:53:28.493Z",
+      "reviewRunId": "B-dd81:RR-012",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8007f857aecf2d8d2a931ce8bd4467a99877d7fd9668a75f64558dc223c2a9b6"
+    },
+    {
+      "id": "B-dd81:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review PASS: 47/47 verificationIntent refs have unique current passing evidence bound to current storyFilesHash 0ad9f51f. Independent matrix passed build, prompt full-context, review-run, assurance floor 18/18, quorum-submit 21/21, Codex registry mode, flow stability, frozen 16-role proof-or-stop baseline, and process-fact contract. Quorum covers Claude and Codex full selected-host assets, codex-cli/claude-cli thin zero-assets, unsupported providers fail closed through dispatch-run-gate, replay/tamper, drift, and verdict-floor paths.",
+      "createdAt": "2026-07-18T23:28:47.500Z",
+      "reviewRound": "2026-07-18T23:23:40.222Z",
+      "reviewRunId": "B-dd81:RR-015",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8df9080db0cc01033981cbefab74ec61629bef3042d250d93ac2c2199100133c"
+    },
+    {
+      "id": "B-dd81:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review confirms F011/F012: Claude and Codex providers map explicitly, Antigravity/agy/fake/unknown/absent fail closed before provenance can be minted, and thin/full selected-host outcomes remain intact across the real dispatch-to-ReviewRun-to-gate chain.",
+      "createdAt": "2026-07-18T23:29:30.906Z",
+      "reviewRound": "2026-07-18T23:23:40.222Z",
+      "reviewRunId": "B-dd81:RR-014",
+      "writerSessionId": "sess-bbc70cb6a16008e97230e79f211800a2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2224490438b2154bd4a918361901f98080b871f5cdb6bba21f4661062cf89871"
+    },
+    {
+      "id": "B-dd81:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review PASS after F013: 47/47 verificationIntent refs have unique current passing evidence bound to storyFilesHash 8079b0f. Independent build and regressions passed quorum-submit 22/22, owner-session guardrail, full story-owner-lease smoke, and process-fact contract/inventory (409 entries). Coverage directly proves explicit unsupported mixed-env provider precedence, true-absence host inference, full dispatch-to-ReviewRun-to-REVIEW-gate fail-closed rejection with no persisted provenance, Claude/Codex thin aliases, full selected-host drift, replay/tamper, owner/reviewer lease separation, and 3x2 quorum semantics.",
+      "createdAt": "2026-07-18T23:50:30.921Z",
+      "reviewRound": "2026-07-18T23:43:17.744Z",
+      "reviewRunId": "B-dd81:RR-018",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/owner-session-guardrail.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ab0e3111358729df25bef93fd711a9770f5665007fed9fda6b31a3592e9419bd"
+    },
+    {
+      "id": "B-dd81:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 quality re-review after F013: explicit nonblank unsupported provider is preserved as unknown ahead of Codex/Claude inference; absent provider inference remains intact; rejection occurs before story-review dispatch provenance, ReviewRun, or Prompt Envelope persistence. Build, quorum-submit 22/22, story-owner-lease smoke, and process-fact contract all pass.",
+      "createdAt": "2026-07-18T23:51:03.417Z",
+      "reviewRound": "2026-07-18T23:43:17.744Z",
+      "reviewRunId": "B-dd81:RR-019",
+      "writerSessionId": "sess-cf9f057ddbaef1074fbda1b96368648b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/owner-session.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "017677c345fd8baf6d2537d81e0c4cf1d936004ef88d17e5f1d7b3aac83f8f82"
+    },
+    {
+      "id": "B-dd81:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review confirms F013: an explicit invalid provider remains unknown despite competing Codex or Claude environment variables and fails before any dispatch provenance, ReviewRun or Envelope is persisted, while truly absent provider input retains supported host inference.",
+      "createdAt": "2026-07-18T23:51:09.822Z",
+      "reviewRound": "2026-07-18T23:43:17.744Z",
+      "reviewRunId": "B-dd81:RR-017",
+      "writerSessionId": "sess-bbc70cb6a16008e97230e79f211800a2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/owner-session.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/story-owner-lease-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8990b3f18e7603a6e0a581aa9c49cd7ea4daec8d91c7ec0f607b29ee7c0dc579"
+    },
+    {
+      "id": "B-dd81:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review confirms the producer boundary wording change is semantically equivalent: local host verdicts remain REVIEW-only review-pass evidence with productionDoneEligible=false and cannot establish external Authority acceptance or production-grade readiness.",
+      "createdAt": "2026-07-19T00:24:08.767Z",
+      "reviewRound": "2026-07-19T00:18:12.482Z",
+      "reviewRunId": "B-dd81:RR-020",
+      "writerSessionId": "sess-bbc70cb6a16008e97230e79f211800a2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9a0fc3fcd7d25291bf3c236881f86bb51ad03250774b820385481944dc2ca000"
+    },
+    {
+      "id": "B-dd81:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review PASS for narrow round-8 drift: commit 712f72fc53 only replaces the retired phrase production completion with the semantically equivalent external Authority acceptance or production-grade readiness in the host-verdict producer boundary; it preserves that local REVIEW assurance never proves external/production readiness and changes no allowed claim or consumer. Independent build, retired-authority vocabulary guard, proof-admissibility smoke, and proof-admissibility-hardening smoke all pass. All 47 verificationIntent refs have 47 unique current passing evidence rows, no missing/extra/duplicates, bound to storyFilesHash 70e5f70c.",
+      "createdAt": "2026-07-19T00:24:33.373Z",
+      "reviewRound": "2026-07-19T00:18:12.482Z",
+      "reviewRunId": "B-dd81:RR-022",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7365ff0bab8abc94d4549a3776c6e19ecf6c851b0e5f325af9b8830dfaf55c21"
+    },
+    {
+      "id": "B-dd81:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 quality delta review of 712f72fc53 found no blocker. The host-verdict producer boundary remains local-REVIEW-only and still rejects stronger external Authority acceptance or production-grade readiness claims; admissibility scope, consumers, claims, productionDoneEligible, and gate logic are unchanged. Build, retired-authority vocabulary guard, proof-admissibility smoke, and proof-admissibility hardening smoke all pass.",
+      "createdAt": "2026-07-19T00:24:42.440Z",
+      "reviewRound": "2026-07-19T00:18:12.482Z",
+      "reviewRunId": "B-dd81:RR-021",
+      "writerSessionId": "sess-cf9f057ddbaef1074fbda1b96368648b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5a92c72d1c22f521f69195610d49b2b9196cf5613a4ff8eb2a4807463f58435c"
+      },
+      "readDiagnostics": [],
+      "_hash": "e8ebf4561b2ad5967b72e0e1a3844f44a0367a27ac653534b2ccb737b3da6466"
+    },
+    {
+      "id": "B-dd81:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-attestation confirms the newly persisted canonical validation evidence is PASS, records 46 successful configured executions, and changes only closeout validation metadata while the business storyFilesHash remains 70e5f70c; no concept or authority boundary changed.",
+      "createdAt": "2026-07-19T00:46:18.751Z",
+      "reviewRound": "2026-07-19T00:18:12.482Z",
+      "reviewRunId": "B-dd81:RR-023",
+      "writerSessionId": "sess-bbc70cb6a16008e97230e79f211800a2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-dd81/process-events.jsonl",
+          ".lattice/story/actives/B-dd81/test-evidence.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fe30a3ecd1eccfc93a2789d2d41861dfa757fb6ed5fbd6ce48f49874e6d31b25"
+    },
+    {
+      "id": "B-dd81:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review PASS for canonical validation artifact and refreshed scope binding. test-evidence.json is executed PASS with complete routine identity: 46 configured commands, 46 unique labels, every executable digest present, requiredFailureCount=0 and optionalFailureCount=0; embedded verifier output reports 46 passing configured commands and no failures. Verification coverage is 47/47 required and covered with missingRequired=0, matching 47 unique checklist evidence refs with no missing/extra/duplicates. Validation materialHash 55ae5317 and storyFilesHash 70e5f70c match ReviewRun RR-025; business storyFilesHash is unchanged. The new run is bound to current HEAD 4b90cb8 and the runtime-normalized current scope/diff binding.",
+      "createdAt": "2026-07-19T00:46:31.084Z",
+      "reviewRound": "2026-07-19T00:18:12.482Z",
+      "reviewRunId": "B-dd81:RR-025",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/plan.md",
+          ".lattice/story/actives/B-dd81/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e6ad440b32ea290a7460018760ddd1a4c89961531a8678000427af02fa334c08"
+    },
+    {
+      "id": "B-dd81:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-attestation for canonical validation metadata found no blocker. test-evidence records PASS, complete=true, 46 configured commands, zero required or optional failures, and 47/47 verification-intent coverage. Validation introduced only excluded story metadata; materialHash 55ae5317 and storyFilesHash 70e5f70c remain unchanged. The current material-filtered diffPackHash 3b7c1a05 was mechanically recomputed and matches this ReviewRun scope binding.",
+      "createdAt": "2026-07-19T00:47:11.482Z",
+      "reviewRound": "2026-07-19T00:18:12.482Z",
+      "reviewRunId": "B-dd81:RR-024",
+      "writerSessionId": "sess-cf9f057ddbaef1074fbda1b96368648b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-dd81/test-evidence.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/review-scope-binding.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7d50f15350f10027d29af9dd094aff0c4a7fbb8a70336075987bb5854de9c0be"
+    },
+    {
+      "id": "B-dd81:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Final convergence concept review confirms the main merge adds only unrelated story metadata and repository documentation/licensing/decision material, with no B-dd81 business code or prompt-asset change; storyFilesHash remains 70e5f70c and canonical validation, DONE-required receipts, delivery, live smoke, and accepted summary all preserve the intended non-authority boundary.",
+      "createdAt": "2026-07-19T01:18:43.583Z",
+      "reviewRound": "2026-07-19T01:17:25.068Z",
+      "reviewRunId": "B-dd81:RR-026",
+      "writerSessionId": "sess-bbc70cb6a16008e97230e79f211800a2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/delivery-check.json",
+          ".lattice/story/actives/B-dd81/done-required-evidence.json",
+          ".lattice/story/actives/B-dd81/evidence/live-smoke-transcript.json",
+          ".lattice/story/actives/B-dd81/summary.json",
+          ".lattice/story/actives/B-dd81/test-evidence.json",
+          "CITATION.cff",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "LICENSE",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a56257970a59235a9645d2a1c2cd0176d6e630d41ac8c1655d21110a11dbd938"
+    },
+    {
+      "id": "B-dd81:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final convergence coverage PASS. Current round has exactly one ReviewRun per active lane and this conclusion uses the sole coverage identity RR-028. Post-merge routine validation is a trusted-story-metadata-descendant reuse with PASS, complete 46-command identity, 46 unique labels, every executable digest present, zero required/optional failures, and 47/47 required verification coverage; checklist independently has 47 unique passing evidence refs with no missing/extra/duplicates. DONE-required evidence is PASS for packages/main build and root npm test, both exit 0, bound to materialHash a3464f2a and unchanged storyFilesHash 70e5f70c matching RR-028. Main merge changed only B-955c metadata and CITATION/LICENSE/README/NAV/new decision docs, not Story 2 business source. Delivery, live smoke, and accepted summary are present; no coverage blocker found.",
+      "createdAt": "2026-07-19T01:19:11.271Z",
+      "reviewRound": "2026-07-19T01:17:25.068Z",
+      "reviewRunId": "B-dd81:RR-028",
+      "writerSessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/delivery-check.json",
+          ".lattice/story/actives/B-dd81/done-required-evidence.json",
+          ".lattice/story/actives/B-dd81/evidence/live-smoke-transcript.json",
+          ".lattice/story/actives/B-dd81/plan.md",
+          ".lattice/story/actives/B-dd81/summary.json",
+          ".lattice/story/actives/B-dd81/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          "CITATION.cff",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "LICENSE",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1e05ee2a575c97af3c4037cf89622346962cc122dd408555edd40069035d522"
+    },
+    {
+      "id": "B-dd81:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 final convergence quality review found no blocker. The three merged main commits add only B-955c metadata, public-release documentation, and an EEA proposal explicitly marked not implementation evidence; no Story 2 business code changed and storyFilesHash remains 70e5f70c. Canonical validation is PASS with 46/46 commands and 47/47 intent coverage; DONE-required build and root npm test both PASS; signed delivery has no unresolved TODOs; live smoke records the safe-default legacy path without Authority/production overclaim; accepted summary accurately states rollout limits. Current material-filtered scope hash 3b7c1a05 matches this single ReviewRun.",
+      "createdAt": "2026-07-19T01:19:39.551Z",
+      "reviewRound": "2026-07-19T01:17:25.068Z",
+      "reviewRunId": "B-dd81:RR-027",
+      "writerSessionId": "sess-cf9f057ddbaef1074fbda1b96368648b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-dd81/background.md",
+          ".lattice/story/actives/B-dd81/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-dd81/checklist.json",
+          ".lattice/story/actives/B-dd81/delivery-check.json",
+          ".lattice/story/actives/B-dd81/done-required-evidence.json",
+          ".lattice/story/actives/B-dd81/evidence/live-smoke-transcript.json",
+          ".lattice/story/actives/B-dd81/summary.json",
+          ".lattice/story/actives/B-dd81/test-evidence.json",
+          "CITATION.cff",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "LICENSE",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b8c71f1954c0324dc2468daf8696924e337123b5273d05a7cb9aa23bbace713d"
+    }
+  ]
+}

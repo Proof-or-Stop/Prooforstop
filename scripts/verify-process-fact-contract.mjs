@@ -127,7 +127,7 @@ const requiredProcessFactSemantics = {
   finding_resolve: ['finding-state', 'blocker-state', 'gate-evidence'],
   finding_dismiss: ['finding-state', 'blocker-state', 'gate-evidence'],
   autopilot_review_submit: ['host-verdict', 'execution-evidence', 'freshness-policy', 'schema-contract', 'gate-evidence'],
-  quorum_submit: ['host-verdict', 'execution-evidence', 'gate-evidence'],
+  quorum_submit: ['host-verdict', 'execution-evidence', 'atomic-persistence', 'gate-evidence'],
   decision_doc_proposal: ['schema-contract', 'gate-evidence'],
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
@@ -154,6 +154,9 @@ const requiredProcessFactSemantics = {
   parent_roadmap_evaluate: ['schema-contract', 'verification-policy'],
 };
 const requiredRuntimeFactSemantics = {
+  'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
+  'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
+  'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 };
@@ -166,13 +169,13 @@ const requiredReviewerLanes = [
   'lattice-review-test-coverage',
   'lattice-review-behavior',
   'lattice-review-docs',
-  'lattice-review-channel',
   'lattice-review-delivery',
 ];
 const requiredArtifactFacts = [
   { name: 'artifact:index.json', path: 'index.json', signed: false },
   { name: 'artifact:review.json', path: 'review.json', signed: true, signaturePattern: /sha256\(storyId:timestamp:issueCount:blockerCount/ },
   { name: 'artifact:checklist.json', path: 'checklist.json', signed: false },
+  { name: 'artifact:prompt-envelopes.json', path: 'prompt-envelopes.json', signed: false },
   { name: 'artifact:init-check.json', path: 'init-check.json', signed: true, signaturePattern: /signInitCheck\/recomputeInitCheckHash/ },
   { name: 'artifact:scope-boundary.json', path: 'scope-boundary.json', signed: true, signaturePattern: /stable scope boundary _hash/ },
   { name: 'artifact:execution-boundary.json', path: 'execution-boundary.json', signed: true, signaturePattern: /stable execution boundary _hash/ },
@@ -183,7 +186,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
   { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
-  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; reviewRunId-inclusive records do not fall back to legacy signatures; writerSessionId-inclusive records bind writer session provenance \(writerSessionId \+ sessionSource \+ provenanceFlag, absent flag canonicalized to empty\) in a versioned domain with no legacy fallback/ },
+  { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
   { name: 'artifact:draft-check.json', path: 'draft-check.json', signed: true, signaturePattern: /computeDraftCheckHash/ },
   { name: 'artifact:summary.json', path: 'summary.json', signed: false },
@@ -855,7 +858,7 @@ function assertCloseoutTrustBoundary() {
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
     'd6ca0a50fd24368b13817065278e2ca4d59d38983dc21a79322f9997de497e9e',
-    '966ee4cc3c3af7427588ffab6f03bfdcfc92995a3481eeff66f2218d72702861',
+    '48ca6562b11dda8996163ad992cdb2a9f6e19e6073beaf171290d064f1d106e2',
     '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
     '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
     'f215f9c4e894a84ba7e2e844324902fcd2dec1e208e4259d64e2c447f1c85a83',
@@ -2372,6 +2375,116 @@ function extractBalancedBlock(text, openIndex, openChar, closeChar, label) {
   return '';
 }
 
+function findBalancedCloseIndex(text, openIndex, openChar, closeChar) {
+  let depth = 0;
+  let inString = false;
+  let quote = '';
+  let escaped = false;
+
+  for (let index = openIndex; index < text.length; index += 1) {
+    const char = text[index];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (inString) {
+      if (char === '\\') escaped = true;
+      else if (char === quote) inString = false;
+      continue;
+    }
+    if (char === '"' || char === "'" || char === '`') {
+      inString = true;
+      quote = char;
+      continue;
+    }
+    if (char === openChar) depth += 1;
+    else if (char === closeChar) {
+      depth -= 1;
+      if (depth === 0) return index;
+    }
+  }
+  return -1;
+}
+
+function extractNamedFunctionBody(text, functionName) {
+  const declaration = new RegExp(`\\bfunction\\s+${functionName}\\s*\\(`).exec(text);
+  if (!declaration) return null;
+  const paramsStart = text.indexOf('(', declaration.index);
+  const paramsEnd = findBalancedCloseIndex(text, paramsStart, '(', ')');
+  if (paramsEnd < 0) return null;
+  const bodyStart = text.indexOf('{', paramsEnd);
+  if (bodyStart < 0) return null;
+  const bodyEnd = findBalancedCloseIndex(text, bodyStart, '{', '}');
+  if (bodyEnd < 0) return null;
+  return text.slice(bodyStart + 1, bodyEnd);
+}
+
+function validationPersistenceTransactionIssues(verifierText) {
+  const issues = [];
+  const writerCallCount = [...verifierText.matchAll(/\bcommitValidationReuseMetadataTransaction\s*\(/g)].length;
+  if (writerCallCount !== 2) {
+    issues.push(`verifier must contain exactly two canonical validation transaction writer calls; found ${writerCallCount}`);
+  }
+
+  const localContracts = [
+    {
+      functionName: 'reusedStoryValidationResult',
+      evidenceWriter: 'args.ctx.store.writeTestEvidence',
+    },
+    {
+      functionName: 'persistStoryValidationEvidence',
+      evidenceWriter: 'ctx.store.writeTestEvidence',
+    },
+  ];
+  for (const contract of localContracts) {
+    const body = extractNamedFunctionBody(verifierText, contract.functionName);
+    if (!body) {
+      issues.push(`verifier must declare ${contract.functionName}`);
+      continue;
+    }
+    for (const token of [
+      contract.evidenceWriter,
+      'recordValidationTerminal',
+      'commitValidationReuseMetadataTransaction',
+      "reason: 'validate'",
+      'transaction',
+      "closeoutArtifactPaths: ['test-evidence.json']",
+    ]) {
+      if (!body.includes(token)) {
+        issues.push(`${contract.functionName} must locally bind canonical validation persistence token "${token}"`);
+      }
+    }
+  }
+  return issues;
+}
+
+function assertValidationPersistenceTransactionContract() {
+  const verifierPath = 'packages/main/src/handlers/verifier.ts';
+  const verifierText = read(verifierPath);
+  for (const issue of validationPersistenceTransactionIssues(verifierText)) {
+    fail(`${verifierPath}: ${issue}`);
+  }
+
+  const executedBody = extractNamedFunctionBody(verifierText, 'persistStoryValidationEvidence');
+  assert(Boolean(executedBody), 'validation persistence contract self-test requires the executed-validation function');
+  if (!executedBody) return;
+  const mutatedExecutedBody = executedBody.replace(
+    'commitValidationReuseMetadataTransaction',
+    'removedValidationTransactionWriter',
+  );
+  assert(
+    mutatedExecutedBody !== executedBody,
+    'validation persistence contract self-test must remove the executed-validation writer',
+  );
+  const mutatedVerifier = verifierText.replace(executedBody, mutatedExecutedBody);
+  const mutationIssues = validationPersistenceTransactionIssues(mutatedVerifier);
+  assert(
+    mutationIssues.some(issue => issue.includes('persistStoryValidationEvidence'))
+      && mutationIssues.some(issue => issue.includes('exactly two')),
+    'validation persistence contract bite must fail when executed persistence is deleted while reuse persistence remains',
+  );
+}
+
 function extractExportedObjectBody(text, exportName, relPath) {
   const match = new RegExp(`\\bexport\\s+const\\s+${exportName}\\b(?:\\s*:\\s*[^=]+)?\\s*=\\s*\\{`).exec(text);
   assert(Boolean(match), `${relPath} should export ${exportName}`);
@@ -3579,12 +3692,20 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(quorumRegistryEntry.kind === 'host-verdict', `${processFactRegistryPath}: ${quorumCommand} registry kind must stay host-verdict`);
     assert(quorumRegistryEntry.gateEvidence === true, `${processFactRegistryPath}: ${quorumCommand} registry gateEvidence must stay true`);
     assert(quorumRegistryEntry.artifact?.path === 'process-events.jsonl', `${processFactRegistryPath}: ${quorumCommand} must record process-events.jsonl evidence`);
-    for (const semantic of ['host-verdict', 'execution-evidence', 'gate-evidence']) {
+    for (const semantic of ['host-verdict', 'execution-evidence', 'atomic-persistence', 'gate-evidence']) {
       assert(quorumRegistryEntry.semantics.includes(semantic), `${processFactRegistryPath}: ${quorumCommand} missing ${semantic} semantic`);
+    }
+    for (const token of ['one immutable metadata commit', 'pre-dirty refusal', 'HEAD CAS', 'all-row rollback']) {
+      assert(new RegExp(token, 'i').test(quorumLevelEntry?.rationale || ''), `${processFactLevelRegistryPath}: ${quorumCommand} rationale must name ${token}`);
     }
     assert(/review escalation/i.test(quorumRegistryEntry.consumerGate), `${processFactRegistryPath}: ${quorumCommand} consumerGate drifted (${quorumRegistryEntry.consumerGate})`);
     assert(/review assurance floor/i.test(quorumRegistryEntry.consumerGate), `${processFactRegistryPath}: ${quorumCommand} consumerGate must name review assurance floor (${quorumRegistryEntry.consumerGate})`);
   }
+  const cliEngineText = read('packages/main/src/cli-engine.ts');
+  assert(
+    cliEngineText.includes("if (entry.command === 'quorum_submit') return;"),
+    'packages/main/src/cli-engine.ts: quorum_submit must retain sole ownership of its atomic process-events terminal instead of receiving a generic post-handler codex_cli append',
+  );
 
   const runtimeName = 'runtime:review_escalation_done_gate';
   const runtimeLevel = levelRegistry.get(runtimeName);
@@ -4471,7 +4592,8 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
 
   const promptReviewerLanes = listMarkdown('packages/main/templates/agents')
     .map(relPath => basename(relPath, '.md'))
-    .filter(name => name.startsWith('lattice-review-') || name === 'product-reviewer');
+    .filter(name => (name.startsWith('lattice-review-') || name === 'product-reviewer')
+      && name !== 'lattice-review-channel');
   for (const lane of promptReviewerLanes) {
     assert(
       registry.has(`reviewer-lane:${lane}`),
@@ -5100,6 +5222,35 @@ function assertParentRoadmapTotalityRuntime() {
   }
 }
 
+function assertPromptMeasurementObservationBoundary() {
+  const command = 'prompt_measurement_report';
+  const catalogText = read('packages/main/src/cli/command-catalog.ts');
+  const policyText = read('packages/main/src/core/command-policy.ts');
+  const configText = read('packages/main/src/core/config.ts');
+  const activityText = read('packages/main/src/cli/activity-policy.ts');
+  const levelsText = read('packages/main/src/core/process-fact-levels.ts');
+  const registryText = read('packages/main/src/registry.ts');
+  const handlerText = read('packages/main/src/handlers/prompt-measurement.ts');
+  const verifierText = read('scripts/verify-proof-or-stop-prompt-baseline.mjs');
+
+  assert(catalogText.includes(`name: '${command}'`), `prompt measurement: ${command} missing from command catalog`);
+  assert(
+    policyText.includes(`${command}: { status: 'supported', ownershipClass: 'readOnly', allowedPhases: 'all'`),
+    `prompt measurement: ${command} must remain readOnly and all-phase in command policy`,
+  );
+  assert(configText.includes(`'${command}'`), `prompt measurement: ${command} missing from all-phase tools`);
+  assert(activityText.includes(`'${command}'`), `prompt measurement: ${command} missing from read-only activity policy`);
+  assert(
+    levelsText.includes(`name: '${command}', level: 'L0', category: 'prompt-measurement-read'`),
+    `prompt measurement: ${command} must remain exactly L0 observational`,
+  );
+  assert(registryText.includes('createPromptMeasurementHandlers'), 'prompt measurement: handler factory not wired');
+  assert(!/\b(writeFile|writeFileSync|appendFile|appendFileSync|mkdir|mkdirSync)\b/.test(handlerText), 'prompt measurement: handler must not gain filesystem writes');
+  assert(handlerText.includes('generatePromptMeasurementReport'), 'prompt measurement: handler must use deterministic local generator');
+  assert(verifierText.includes('verifyPromptMeasurementSidecar'), 'prompt measurement: proof-or-stop verifier sidecar check missing');
+  assert(verifierText.includes('PromptMeasurementRecord sidecar verified without refresh authority'), 'prompt measurement: verifier must state non-authoritative no-refresh boundary');
+}
+
 function assertProcessFactCommandInventory() {
   const cliText = read('packages/main/src/cli/command-catalog.ts');
   const configText = read('packages/main/src/core/config.ts');
@@ -5422,7 +5573,7 @@ const inventory = [
           "disposition: 'reused'",
           'canonical-pass-persistence-failed',
           'commitValidationReuseMetadataTransaction',
-          "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
+          "reason: 'validate'",
           "closeoutArtifactPaths: ['test-evidence.json']",
         ],
       },
@@ -5436,12 +5587,37 @@ const inventory = [
     name: 'review_run_start',
     files: [
       {
-        relPath: 'packages/main/src/handlers/review-run.ts',
-        patterns: ['review_run_start', 'resolveReviewRunLane', 'captureReviewRunSnapshot', 'buildReviewRunWorkspaceBinding', 'workspaceBinding', 'signReviewRun', 'writeReviewRuns', 'Review run'],
+        relPath: 'packages/main/src/core/owner-session-adapters.ts',
+        patterns: [
+          'explicitProvider',
+          "return normalizeProvider(explicitProvider) ?? 'unknown'",
+          'CODEX_THREAD_ID',
+          'CLAUDE_CODE_SESSION_ID',
+        ],
       },
       {
-        relPath: 'packages/main/src/cli-engine.ts',
-        patterns: ['review_run_start', 'promptHash: z.string()', 'lane: z.enum'],
+        relPath: 'packages/main/src/handlers/story-dispatch.ts',
+        patterns: [
+          'reviewerPromptHostForProvider',
+          'currentReviewerPromptHost',
+          'unsupported session host provider',
+          'hostRenderHost',
+          'hostRenderIdentityDigest',
+          'dispatchBindingDigest',
+        ],
+      },
+      {
+        relPath: 'packages/main/src/handlers/review-run.ts',
+        patterns: ['review_run_start', 'resolveReviewRunLane', 'captureReviewRunSnapshot', 'buildReviewRunWorkspaceBinding', 'verifyCurrentReviewerDispatchBinding', 'dispatchPrompt', 'hostRenderHost', 'hostRenderIdentityDigest', 'workspaceBinding', 'signReviewRun', 'writeReviewRuns', 'Review run'],
+      },
+      {
+        relPath: 'packages/main/src/cli/command-catalog.ts',
+        patterns: [
+          'review_run_start',
+          'lane: z.enum',
+          'reviewedIntentRefs',
+          { label: 'caller-controlled promptHash removed', absentRegex: /promptHash:\s*z\.string\(\)/ },
+        ],
       },
     ],
   },
@@ -5746,7 +5922,7 @@ const inventory = [
           "disposition: 'reused'",
           'canonical-pass-persistence-failed',
           'commitValidationReuseMetadataTransaction',
-          "autoCommitStoryMetadata(ctx.root, storyId, 'validate'",
+          "reason: 'validate'",
           "closeoutArtifactPaths: ['test-evidence.json']",
         ],
       },
@@ -5846,11 +6022,13 @@ assertPromptEvidenceBoundaries(promptMap);
 assertProofStoryProgressiveBoundary();
 assertProofStoryGateConsumedFacts();
 assertCloseoutTrustBoundary();
+assertValidationPersistenceTransactionContract();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
 assertParentRoadmapIntentTotalityPlan();
 assertParentRoadmapTotalityRuntime();
+assertPromptMeasurementObservationBoundary();
 printProcessFactLevelRegistrySummary();
 
 console.log(`Prompt drift scan: ${reviewerPromptCount} reviewer prompt files checked`);

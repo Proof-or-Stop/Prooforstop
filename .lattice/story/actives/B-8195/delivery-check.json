@@ -1,0 +1,53 @@
+{
+  "storyId": "B-8195",
+  "checkedAt": "2026-07-18T21:55:55.233Z",
+  "headHash": "442ce8b622463cbaa5d974a8023960a46eec6e17",
+  "materialHash": "ed1e0037a6a18fb4ea0de867bdf3e622d839afa633dc7eeb7f5339eb420b2be6",
+  "storyFilesHash": "1249f571d6376da057730055a7e8d213227439320f50b4b5cc46b003509c853a",
+  "reviewRound": "2026-07-18T21:37:54.145Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "promise": "A fresh eligible PASS after REVIEW-to-TEST is persisted and returned as a clean zero-command reused validation without weakening dirty-state admission.",
+      "status": "verified",
+      "verifiedBy": "Post-main-merge formal validation and fresh production CLI transcript",
+      "evidence": "At materialHash ed1e0037a6a1 and storyFilesHash 1249f571d637, formal validation records complete PASS for 46/46 commands; REVIEW-to-TEST reused the fresh PASS and immediate validate reported commandExecutions=0. Fresh transcript exits 0 in 9.3 seconds."
+    },
+    {
+      "docPath": "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "promise": "Lifecycle and CLI writers close only their causally generated bounded metadata and fail closed for human/forged dirt, hooks, races and writer failure.",
+      "status": "verified",
+      "verifiedBy": "Round-9 signed lanes, 3x2 quorum and incremental done-prepare oracle audit",
+      "evidence": "Test-only commit 1ea395a206 corrects the commit-hook oracle to require blockedAt=validate, canonical-validation-persistence-failed, restored index and bytes, unchanged HEAD, and no PASS or reuse claim. It changes no production runtime."
+    },
+    {
+      "docPath": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+      "promise": "B-8195 interposed #7 delivers one-shot routine-validation closeout before host/candidate routing work, without changing DONE-required, routing, dispatch, owner or scope-anchor policy.",
+      "status": "met",
+      "verifiedBy": "Post-main-merge incremental reverse-scan",
+      "evidence": "Main contributes an independent prompt-measurement contract; the only B-8195-owned post-merge product delta is a test oracle correction. No B-8195 runtime or documentation promise changed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Historical pre-fix RED remains preserved. The fresh live-smoke expected selector still quotes that historical RED wording; it remains a documented nonblocking selector mismatch, not the current delivery expectation."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Post-main-merge formal routine validation executed all 46 configured commands successfully; REVIEW-to-TEST then reused the fresh PASS on trusted story-metadata lineage without rerunning the suite."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Immediate validate reported reused PASS and commandExecutions=0 in 10.5 seconds. Fresh captured transcript at materialHash ed1e0037a6a1 exits 0 and reports the same reused zero-command PASS in 9.3 seconds with 20/20 coverage."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Final post-main-merge delivery re-attestation passes. Independent main prompt-measurement changes and the test-only done-prepare oracle correction do not alter product or documentation promises; current formal validation, quorum and live transcript are green and identity-bound. Historical RED expected-selector wording remains explicitly nonblocking."
+  },
+  "_hash": "cffe4baa5902e41ea2a975c978c6b39b4ccec1bc44766b7f4357ff7e34ddb4ab"
+}

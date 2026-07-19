@@ -1,9 +1,9 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { existsSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync, utimesSync, writeFileSync } from 'node:fs';
 import { hostname } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import {
   acquireMkdirLock,
   type AcquiredMkdirLock,
@@ -30,37 +30,6 @@ interface ValidationLockHeartbeatInfo {
 
 function sanitizeLockSegment(value: string): string {
   return value.replace(/[^A-Za-z0-9_.-]/g, '_').replace(/^_+|_+$/g, '') || 'unknown';
-}
-
-/**
- * B-d877 R2 FIX B: resolve the DURABLE SHARED lock root for `root`.
- *
- * Runtime locks anchored here (a) survive story-worktree removal — DONE deletes
- * the worktree, but the lock lives at the main repo root — and (b) are IDENTICAL
- * whether resolved from a story worktree or the main checkout, so cross-worktree
- * and cross-invocation operations for the same story contend on ONE mutex instead
- * of one-lock-per-worktree.
- *
- * The parent of `git rev-parse --path-format=absolute --git-common-dir` is the
- * main repository root and is shared by every linked worktree (this mirrors
- * `partial-done-recovery.ts` `resolveMainRepoRoot`). FAIL-OPEN: a non-git or
- * unreadable `root` falls back to the resolved `root` itself, byte-identical to
- * the previous project-root anchoring for plain repos / hermetic temp fixtures.
- */
-export function resolveSharedLockRoot(root: string): string {
-  const base = String(root ?? '').trim();
-  if (!base) return base;
-  try {
-    const commonDir = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], {
-      cwd: base,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    }).trim();
-    if (!commonDir) return resolve(base);
-    return resolve(dirname(commonDir));
-  } catch {
-    return resolve(base);
-  }
 }
 
 function currentContextOwns(lockKey: string): boolean {
@@ -157,12 +126,48 @@ export function classifyValidationExecutionLock(snapshot: ExistingMkdirLockSnaps
   return 'active';
 }
 
+/**
+ * Resolve the canonical, worktree-independent repository root that anchors
+ * story-scoped coordination state (validation locks). Two linked worktrees of
+ * the same repository must share ONE lock per story so a validation running in
+ * one worktree serializes against a validation in another; keying the lock off
+ * each worktree's own physical root (the old behavior) minted DIFFERENT locks
+ * and defeated cross-worktree/host serialization.
+ *
+ * `git rev-parse --git-common-dir` returns the SAME common git dir for the main
+ * worktree and every linked worktree (e.g. `<repo>/.git`), so it is the stable
+ * shared anchor. On ANY failure (not a git repo, git missing, unusual layout)
+ * this falls back to `root` verbatim, keeping plain-repo behavior byte-identical.
+ */
+export function resolveSharedLockRoot(root: string): string {
+  const projectRoot = String(root ?? '').trim();
+  if (!projectRoot) return projectRoot;
+  try {
+    const commonDirRaw = execFileSync('git', ['-C', projectRoot, 'rev-parse', '--git-common-dir'], {
+      stdio: ['ignore', 'pipe', 'ignore'],
+      encoding: 'utf8',
+    }).trim();
+    if (!commonDirRaw) return projectRoot;
+    // `--git-common-dir` is relative to the queried worktree in the main
+    // worktree (`.git`) and absolute in linked worktrees; resolve against root.
+    const commonDirAbs = isAbsolute(commonDirRaw) ? commonDirRaw : resolve(projectRoot, commonDirRaw);
+    const commonDir = realpathSync(commonDirAbs);
+    // Normal repos: `<mainRoot>/.git` → the main worktree root, shared by all
+    // linked worktrees. Unusual layouts (e.g. a bare repo whose common dir is
+    // the repository itself) use the common dir as the shared anchor directly.
+    return basename(commonDir) === '.git' ? dirname(commonDir) : commonDir;
+  } catch {
+    return projectRoot;
+  }
+}
+
 export function validationExecutionLockPath(root: string, storyId: string): string {
   const projectRoot = String(root ?? '').trim();
   const id = String(storyId ?? '').trim();
   if (!projectRoot) throw new Error('validationExecutionLockPath: root is required');
   if (!id) throw new Error('validationExecutionLockPath: storyId is required');
-  return join(projectRoot, VALIDATION_EXECUTION_LOCKS_REL, `${sanitizeLockSegment(id)}.lock`);
+  const sharedRoot = resolveSharedLockRoot(projectRoot);
+  return join(sharedRoot, VALIDATION_EXECUTION_LOCKS_REL, `${sanitizeLockSegment(id)}.lock`);
 }
 
 /**

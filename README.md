@@ -1,8 +1,22 @@
 # Proof-or-Stop
 
+[![arXiv](https://img.shields.io/badge/arXiv-2607.14890-b31b1b.svg)](https://arxiv.org/abs/2607.14890)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/Proof-or-Stop/Prooforstop)](https://github.com/Proof-or-Stop/Prooforstop/releases/latest)
+
 > An evidence-gated control layer for unattended agent development — every phase advance, review pass, and "done" must present fresh, code-state-bound, mechanically verifiable proof, or the loop stops.
 
-**Proof-or-Stop** is an evidence-gated control layer that lets coding agents (Claude, Codex, …) run an unattended development loop — *plan → execute → review → reflect → done* — where every step forward is admitted only on **mechanically verifiable evidence bound to the current code state**, never on the agent's word. If the evidence isn't there, the loop repairs or stops. The point isn't that an agent *can* run unattended — plenty of frameworks do that. The point is that what an unattended run marks "done" comes with a **mechanically checkable merge-readiness claim** — evidence a reviewer or merge policy can act on.
+**Proof-or-Stop** is an evidence-gated control layer that lets coding agents run an unattended development loop — *plan → execute → review → reflect → done* — where every step forward is admitted only on **mechanically verifiable evidence bound to the current code state**, never on the agent's word. If the evidence isn't there, the loop repairs or stops. The point isn't that an agent *can* run unattended — plenty of frameworks do that. The point is that what an unattended run marks "done" comes with a **mechanically checkable merge-readiness claim** — evidence a reviewer or merge policy can act on.
+
+The host-neutral evidence boundary is formalized as the **Evidence Environment
+Adapter (EEA)** contract: an Agent proposes, an Environment observes, Proof
+Admissibility evaluates, and the existing Gate decides. The current
+implementation includes the generic contract plus bounded code-runtime and
+Quantum receipt projections; the existing DONE_REQUIRED lifecycle evaluator
+consumes the code-runtime projection after revalidating its raw bindings. It
+does not expose an arbitrary runner; Lean,
+Rosetta, AlphaFold, PINN solvers, browsers, databases, CI, Kubernetes, and
+production deployment remain integration targets.
 
 ## Loop Engineering
 
@@ -63,7 +77,10 @@ The empirical result's sharpest cut is **enforcement, not review**: given the *s
 - It does **not** make the agent smarter.
 - It does **not** make development faster — on a clean task it's roughly **2× pure overhead**.
 - It does **not** replace your merge policy — the gate yields a **merge-readiness claim**; the actual merge stays a repo/human decision.
-- Cross-vendor quorum and multi-model generalization are **still future work**.
+- Cross-vendor quorum and multi-model generalization are **still future work**;
+  the Evidence Environment quorum path is explicitly fail-closed unsupported
+  until a project-owned pinned-key, session-bound, revocation-aware producer
+  registry exists.
 
 Its job is narrow and expensive-to-skip: turn the costliest failure — *wrong code silently reaching main* — into something mechanically difficult.
 
@@ -78,6 +95,50 @@ lattice validate        # run the gates
 
 > `lattice` is the CLI command name for historical reasons; the project is **Proof-or-Stop**. (`lattice --version` currently prints `Proofbound CLI` — a rename in progress.)
 
+## Paper
+
+The method, its formal admissibility model, and the full evaluation are described in:
+
+> **Proof-or-Stop: Don't Trust the Agent, Trust the Evidence — Loop Engineering for Verifiable Evidence-Gated Lifecycle Control**
+> Jek Huang, Jeffery Hsia, Jiayi Sun, Freddie Shi, Wei Huang, Ian H. White
+> arXiv:2607.14890 [cs.AI] · [abstract](https://arxiv.org/abs/2607.14890) · [HTML](https://arxiv.org/html/2607.14890v1) · [DOI](https://doi.org/10.48550/arXiv.2607.14890)
+
+The tag [`paper-arxiv-v1`](https://github.com/Proof-or-Stop/Prooforstop/tree/paper-arxiv-v1) marks the code state at the time of the arXiv v1 submission (2026-07-16).
+
+### Where the paper's evidence lives in this repository
+
+| Paper | Repository |
+|---|---|
+| §3 Evidence-gating principle — admissibility predicate & gates | `packages/main/src/core/proof-admissibility-*.ts`, `packages/main/src/core/evidence/admissibility/` |
+| §3 Offline receipt-bundle contract (18 tamper classes) | `.lattice/story/actives/B-4c65/` |
+| §3 Gate-strength self-red-team contract | `.lattice/story/actives/B-7b6e/` |
+| §3 Evidence-instrument characterization (replay campaign M0–M4) | `experiments/pos-instrument-replay/` |
+| §5 Unattended loop — powered control-policy ablation cells | `experiments/multi-model-ablation/` |
+| §6 Recovery under injected failure | `experiments/recovery-runner/` |
+| §7 Host-neutral transfer — git-native handoff & Tier-C receipts | `experiments/handoff-demo/`, `experiments/tier-c-proof/` |
+| §8 Self-application corpus (565 stories / 1,007 findings) | `.lattice/story/actives/` |
+| §9 Experience reuse | `experiments/experience-ablation/` |
+
+### Citation
+
+```bibtex
+@misc{huang2026proofstop,
+      title={Proof-or-Stop: Don't Trust the Agent, Trust the Evidence -- Loop Engineering for Verifiable Evidence-Gated Lifecycle Control},
+      author={Jek Huang and Jeffery Hsia and Jiayi Sun and Freddie Shi and Wei Huang and Ian H. White},
+      year={2026},
+      eprint={2607.14890},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2607.14890}
+}
+```
+
+Or use GitHub's **"Cite this repository"** button (backed by [`CITATION.cff`](CITATION.cff)).
+
 ## Status
 
-Private / active development. Current release: `v0.3.155`.
+Open source, under active development. Current release: [`v0.3.214`](https://github.com/Proof-or-Stop/Prooforstop/releases/tag/v0.3.214).
+
+## License
+
+Code is licensed under the Apache License 2.0 — see [LICENSE](LICENSE). The paper is distributed by arXiv under CC BY-NC-SA 4.0.

@@ -1,0 +1,63 @@
+{
+  "storyId": "B-231d",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/core/done-required-validation.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/worktree-portability-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "validation-types.ts holds the DoneRequiredCommandSpecEnvelope type, which CHK-003 extends with the non-digested resolvedCwd provenance field; done-required-validation-smoke.ts required a v1->v2 schema-constant assertion update as a direct consequence of the CHK-002 schema bump. Both are necessary, in-intent consequences of the declared CHK-002/CHK-003 changes.",
+      "timestamp": "2026-07-18T23:46:11.703Z",
+      "paths": [
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "670fab1bf23c1a8157a74d7f40ded9f7ec079d2d",
+      "materialHash": "7de37fd50c54f8d528e739339177387c69ba87e83963091f592d95a673d4cb73"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-007 (host quality reviewer): this file hand-rolled a duplicate validation lock-path formula that CHK-001's shared-root change silently broke for linked worktrees; fixed by delegating to the exported validationExecutionLockPath. Necessary in-intent consequence of the CHK-001 canonical-lock-root change — a lock-visibility gate would otherwise report 'free' while a lock is held.",
+      "timestamp": "2026-07-19T01:28:26.895Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-control/runtime/index.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-control/runtime/index.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f39ef9f967c25b0bee42ac67603508d619c9a4b7",
+      "materialHash": "ea1ac433d1024a7ec28cfc1c80514b9f7ad77d1ea492113d2727473a50e60913"
+    }
+  ],
+  "createdAt": "2026-07-18T22:55:35.576Z",
+  "updatedAt": "2026-07-19T01:28:26.895Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/validation-execution-lock.ts": "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/core/done-required-validation.ts": "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/tasks/worktree-portability-smoke.ts": "packages/main/src/tasks/worktree-portability-smoke.ts",
+    "packages/main/src/core/validation-types.ts": "packages/main/src/core/validation-types.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/core/lifecycle-control/runtime/index.ts": "packages/main/src/core/lifecycle-control/runtime/index.ts"
+  }
+}

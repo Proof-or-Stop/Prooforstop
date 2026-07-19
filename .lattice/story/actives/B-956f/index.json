@@ -1,0 +1,37 @@
+{
+  "storyId": "B-956f",
+  "name": "w1-language-neutral-gates-20260718",
+  "title": "Make advanced-gate material-code classification language-neutral",
+  "description": "classifyReviewAssuranceFloorPath (review-assurance-floor.ts:518 whitelist, :506-511 prefixes) is TS-centric, so non-JS code and cross-ecosystem build manifests escape material classification, silently disabling repro-first RED and review assurance floors for py/rs/go projects. Introduce a config-resolved material-code policy service threaded via a hash-bound classification snapshot to floor + repro classification + ProofStory triggers; add an 8-step precedence chain with non-excludable cross-ecosystem manifests; produce degradation diagnostics from buildScopeDiffPack. Per language-neutral-gates-execution-plan.md v4 (double cross-host APPROVE-WITH-CHANGES).",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-07-18T22:42:33.112Z",
+  "startedAt": "2026-07-18T22:42:33.112Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-18T22:42:34.194Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-914926b570855757be6f38bf38ee81fc",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-18T22:55:09.089Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-914926b570855757be6f38bf38ee81fc",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-956f",
+    "branch": "story/B-956f",
+    "createdAt": "2026-07-18T22:54:59.733Z"
+  }
+}

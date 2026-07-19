@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6ed2",
+  "checkedAt": "2026-07-18T22:12:28.206Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "db975a1c089b2cac6397d7767e5bfc91cf67cf439f618369415ad426712de115",
+  "executionBoundaryHash": "e4bfaa2fdaf340b83a6e83f570a386c201dfbf29706f06abb855183d58e95c18",
+  "freshnessHash": "7428fc97f5b8a2b7d18e973a32d27a1cf553cede0be28265758c6fd5da545880",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "broad refactors outside quorum verdict persistence",
+    "candidate routing, remote host execution, release publication, or general validation reuse changes",
+    "customerKeyRef",
+    "host_run usage-ledger binding owned by B-1be5",
+    "Layer4",
+    "repair UX",
+    "validation heap sizing or vocabulary-guard memory isolation"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "broad refactors outside quorum verdict persistence",
+      "source": "scopeBoundary.excluded",
+      "text": "broad refactors outside quorum verdict persistence",
+      "excluded": true
+    },
+    {
+      "keyword": "candidate routing, remote host execution, release publication, or general validation reuse changes",
+      "source": "scopeBoundary.excluded",
+      "text": "candidate routing, remote host execution, release publication, or general validation reuse changes",
+      "excluded": true
+    },
+    {
+      "keyword": "host_run usage-ledger binding owned by B-1be5",
+      "source": "scopeBoundary.excluded",
+      "text": "host_run usage-ledger binding owned by B-1be5",
+      "excluded": true
+    },
+    {
+      "keyword": "validation heap sizing or vocabulary-guard memory isolation",
+      "source": "scopeBoundary.excluded",
+      "text": "validation heap sizing or vocabulary-guard memory isolation",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "f902df5f144d3494ea6eacb1a128587f14e32125e4694d3f96cddc962c4de1d2"
+}

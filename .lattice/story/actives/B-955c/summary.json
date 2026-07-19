@@ -1,0 +1,56 @@
+{
+  "storyId": "B-955c",
+  "changes": "implemented generic host-neutral Evidence Environment contract, local code-runtime and Quantum receipt projections, Proof Admissibility/DONE_REQUIRED Gate consumption, conformance/security tests, paper-facing architecture/support matrix, and portable v2 cwd identity with legacy v1 compatibility",
+  "usage": "integrators register an approved descriptor/adapter path, normalize identity-bound receipts, then let existing Proof Admissibility and lifecycle Gates decide",
+  "expectedOutcome": "user sees Agent proposes / Environment observes / Proof Admissibility evaluates / Gate decides plus explicit current-vs-target support matrix",
+  "actualTranscript": "fresh live smoke passed descriptor registry, deterministic envelopes, tamper/freshness blocking, host substitution/fail-closed unsupported distinct-host quorum, local code-runtime and Quantum paths",
+  "outcomeDiff": "no material difference",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "M6 external manuscript binding remains open, distinct-host producer quorum unsupported pending pinned cryptographic registry, Lean/Rosetta/AlphaFold/PINN/browser/database/CI/Kubernetes/deployment are integration targets",
+  "pitfalls": "main advanced repeatedly causing related drift and fresh review/quorum/delivery rounds; formal validation caught legacy receipt test and cross-root cwd identity issue, both fixed with regression coverage",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 4232149
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 72815
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 584595
+    },
+    "DEV": {
+      "count": 12,
+      "durationMs": 3918135
+    },
+    "REVIEW": {
+      "count": 11,
+      "durationMs": 5997805
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1502481
+    }
+  },
+  "totalDurationMs": 16308883,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-19T03:45:31.765Z",
+  "updatedAt": "2026-07-19T03:45:31.765Z"
+}

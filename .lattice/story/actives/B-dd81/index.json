@@ -1,0 +1,249 @@
+{
+  "storyId": "B-dd81",
+  "name": "trusted-full-context-prompt-envelope",
+  "title": "Story 2: trusted full-context assembly and content-addressed Prompt Envelope",
+  "description": "Implement the ordered plan Story 2: move Story-aware full-context prompt assembly behind the trusted agent_prompt CLI path, bind content-addressed Prompt Envelopes to signed ReviewRun, HEAD, review round and reviewer pass, exclude compatibility/retired evidence from gates and quorum, and preserve legacy-full-context compatibility with rollback verification.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-07-18T19:19:00.243Z",
+  "startedAt": "2026-07-18T19:19:00.243Z",
+  "endedAt": "2026-07-19T01:27:03.157Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-18T19:19:00.738Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-18T19:23:09.232Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-18T19:23:47.691Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-18T20:25:50.147Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-18T21:26:11.737Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-18T21:34:24.368Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-18T21:50:02.147Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-18T21:58:57.549Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-18T22:21:50.410Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-18T22:22:16.741Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-18T22:27:24.332Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-18T22:34:57.628Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-18T22:43:05.967Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-18T22:47:29.676Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-18T22:53:28.493Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-18T23:03:07.676Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-18T23:23:40.222Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-18T23:30:12.369Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-18T23:43:17.744Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-19T00:12:36.726Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-19T00:18:12.482Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-19T00:47:55.808Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-19T01:17:23.165Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-19T01:17:25.068Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-19T01:25:30.143Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-19T01:27:03.157Z",
+      "branch": "story/B-dd81",
+      "user": "Harmonygo",
+      "sessionId": "sess-333bd8142ff8f5c1f4f7ae8ae72bade7",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-19T01:17:25.068Z"
+}

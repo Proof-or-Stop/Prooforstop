@@ -3,16 +3,21 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
+  cpSync,
   existsSync,
+  mkdtempSync,
   mkdirSync,
   readFileSync,
+  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { tmpdir } from 'node:os';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BUILT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-registry.js');
+const BUILT_PROMPT_MEASUREMENT_PATH = join(ROOT, 'packages/main/dist/core/prompt-measurement.js');
 const CLI_PATH = join(ROOT, 'bin/lattice.js');
 const BASELINE_PATH = join(
   ROOT,
@@ -21,6 +26,10 @@ const BASELINE_PATH = join(
 const MATRIX_PATH = join(
   ROOT,
   'docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md',
+);
+const PROMPT_MEASUREMENT_BASELINE_PATH = join(
+  ROOT,
+  'docs/requirements/baselines/role-prompt-measurement-baseline.json',
 );
 const EXPECTED_ROLE_COUNT = 16;
 const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v7';
@@ -1894,15 +1903,70 @@ async function loadBuiltRegistry() {
   return registryModule;
 }
 
-async function collectCurrentPromptState() {
+async function verifyPromptMeasurementSidecar(failures) {
+  if (!existsSync(BUILT_PROMPT_MEASUREMENT_PATH)) {
+    failures.push('built prompt measurement module is missing; run packages/main build');
+    return;
+  }
+  if (!existsSync(PROMPT_MEASUREMENT_BASELINE_PATH)) {
+    failures.push('role-prompt measurement sidecar is missing');
+    return;
+  }
+  const measurementModule = await import(
+    `${pathToFileURL(BUILT_PROMPT_MEASUREMENT_PATH).href}?v=${Date.now()}`
+  );
+  const current = measurementModule.generatePromptMeasurementReport();
+  const canonicalCurrent = measurementModule.canonicalPromptMeasurementReportJson(current);
+  const checkedIn = readFileSync(PROMPT_MEASUREMENT_BASELINE_PATH, 'utf8');
+  if (checkedIn !== canonicalCurrent) {
+    failures.push('role-prompt measurement sidecar differs from the deterministic current report');
+  }
+  try {
+    measurementModule.verifyPromptMeasurementReport(JSON.parse(checkedIn));
+  } catch (error) {
+    failures.push(`role-prompt measurement sidecar validation failed: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  if (current.records?.length !== EXPECTED_ROLE_COUNT) {
+    failures.push(`role-prompt measurement sidecar expected ${EXPECTED_ROLE_COUNT} records, got ${current.records?.length ?? 'missing'}`);
+  }
+  if (
+    current.aggregate?.activeRoleCount !== 12 ||
+    current.aggregate?.compatibilityRoleCount !== 3 ||
+    current.aggregate?.retiredRoleCount !== 1
+  ) {
+    failures.push('role-prompt measurement sidecar lifecycle partition must remain 12 active / 3 compatibility / 1 retired');
+  }
+  for (const [index, record] of (current.records ?? []).entries()) {
+    if (record.schemaVersion !== 'proofbound.prompt-measurement.v1') {
+      failures.push(`role-prompt measurement record ${index} has unsupported schema`);
+    }
+    if (record.knownDispatchInputTokens?.availability !== 'unavailable') {
+      failures.push(`role-prompt measurement record ${record.roleId ?? index} must keep no-Story known-dispatch input unavailable`);
+    }
+    if (record.providerProcessedInputTokens?.availability !== 'unavailable') {
+      failures.push(`role-prompt measurement record ${record.roleId ?? index} must keep no-provider processed input unavailable`);
+    }
+  }
+  if (/prompt-envelope|envelopeId|reviewRunId/i.test(checkedIn)) {
+    failures.push('role-prompt measurement sidecar must not instantiate PromptEnvelope or ReviewRun authority');
+  }
+}
+
+async function collectPromptStateFromSource({
+  templateDir,
+  promptOutputCollector,
+  canonicalizeTemplateRelPath = false,
+} = {}) {
   const { readPromptRegistry, readPromptTemplate } = await loadBuiltRegistry();
-  const snapshot = readPromptRegistry();
+  const snapshot = readPromptRegistry(templateDir);
   const roleEntries = [];
   const agentPromptOutputs = [];
 
   for (const entry of snapshot.agents) {
     const content = readPromptTemplate(entry);
-    const stdout = runAgentPrompt(entry.agentId);
+    const stdout = promptOutputCollector
+      ? promptOutputCollector(entry, content)
+      : runAgentPrompt(entry.agentId);
     const stdoutText = stdout.toString('utf8');
     const normalized = normalizeCliPrint(stdoutText);
     if (normalized !== content) {
@@ -1911,7 +1975,9 @@ async function collectCurrentPromptState() {
     roleEntries.push({
       role: entry.agentId,
       file: entry.file,
-      relPath: entry.relPath,
+      relPath: canonicalizeTemplateRelPath
+        ? `templates/agents/${entry.file}`
+        : entry.relPath,
       templateHash: entry.templateHash,
       bytes: entry.bytes,
       lines: countLines(content),
@@ -1926,6 +1992,10 @@ async function collectCurrentPromptState() {
   }
 
   return { snapshot, roleEntries, agentPromptOutputs };
+}
+
+async function collectCurrentPromptState() {
+  return collectPromptStateFromSource();
 }
 
 function buildCurrentBaseline({ snapshot, roleEntries, agentPromptOutputs }) {
@@ -2352,6 +2422,91 @@ function verifyBaselineDriftProbes(current, failures) {
         );
       }
     }
+  }
+}
+
+function buildMechanicalSnapshotFromCollected(reference, promptState) {
+  return {
+    ...structuredClone(reference),
+    registry: {
+      ...structuredClone(reference.registry),
+      schemaVersion: promptState.snapshot.schemaVersion,
+      source: promptState.snapshot.source,
+      agentCount: promptState.snapshot.agentCount,
+      materialHash: promptState.snapshot.materialHash,
+      roles: promptState.roleEntries.map(({ content: _content, ...entry }) => entry),
+    },
+    agentPrompt: {
+      ...structuredClone(reference.agentPrompt),
+      outputs: promptState.agentPromptOutputs,
+    },
+  };
+}
+
+/**
+ * Exercise the same registry/source + assembled-output collection boundary as
+ * normal verification, but against an isolated temporary copy. The repository
+ * prompt tree is never modified. Restoration is mandatory in finally, and the
+ * restored copy must pass the normal mechanical comparisons again.
+ */
+async function verifyRealPromptCollectionBoundaryProbe(current, failures) {
+  const sourceTemplateDir = join(ROOT, 'packages/main/templates/agents');
+  const probeRoot = mkdtempSync(join(tmpdir(), 'proofbound-prompt-baseline-probe-'));
+  const probeTemplateDir = join(probeRoot, 'agents');
+  const collectProbeState = () => collectPromptStateFromSource({
+    templateDir: probeTemplateDir,
+    canonicalizeTemplateRelPath: true,
+    promptOutputCollector: (_entry, content) => Buffer.from(`${content}\n`, 'utf8'),
+  });
+
+  try {
+    cpSync(sourceTemplateDir, probeTemplateDir, { recursive: true });
+    const pristineState = await collectProbeState();
+    const pristine = buildMechanicalSnapshotFromCollected(current, pristineState);
+    const pristineFailures = [];
+    verifyRegistry(pristine, current, pristineFailures);
+    verifyAgentPromptOutputs(pristine, current, pristineFailures);
+    if (pristineFailures.length > 0) {
+      failures.push(`real collection boundary probe: pristine isolated copy did not pass: ${JSON.stringify(pristineFailures)}`);
+      return;
+    }
+
+    const target = join(probeTemplateDir, pristineState.snapshot.agents[0].file);
+    const original = readFileSync(target, 'utf8');
+    try {
+      writeFileSync(target, `${original}\n<!-- isolated assembled prompt drift probe -->`, 'utf8');
+      const mutatedState = await collectProbeState();
+      const mutated = buildMechanicalSnapshotFromCollected(current, mutatedState);
+      const mutationFailures = [];
+      verifyRegistry(mutated, current, mutationFailures);
+      verifyAgentPromptOutputs(mutated, current, mutationFailures);
+      const expectedFragments = [
+        'registry materialHash',
+        `registry ${pristineState.snapshot.agents[0].agentId}.templateHash`,
+        `agent_prompt ${pristineState.snapshot.agents[0].agentId}.sha256`,
+        `agent_prompt ${pristineState.snapshot.agents[0].agentId}.bytes`,
+      ];
+      for (const fragment of expectedFragments) {
+        if (!mutationFailures.some(failure => failure.includes(fragment))) {
+          failures.push(
+            `real collection boundary probe: isolated source/output mutation was not rejected for ${fragment}; got ${JSON.stringify(mutationFailures)}`,
+          );
+        }
+      }
+    } finally {
+      writeFileSync(target, original, 'utf8');
+    }
+
+    const restoredState = await collectProbeState();
+    const restored = buildMechanicalSnapshotFromCollected(current, restoredState);
+    const restoredFailures = [];
+    verifyRegistry(restored, current, restoredFailures);
+    verifyAgentPromptOutputs(restored, current, restoredFailures);
+    if (restoredFailures.length > 0) {
+      failures.push(`real collection boundary probe: restored isolated copy did not pass: ${JSON.stringify(restoredFailures)}`);
+    }
+  } finally {
+    rmSync(probeRoot, { recursive: true, force: true });
   }
 }
 
@@ -3054,6 +3209,7 @@ async function runBaselineDriftProbeCommand() {
   const current = await collectCurrentBaseline();
   const failures = [];
   verifyBaselineDriftProbes(current, failures);
+  await verifyRealPromptCollectionBoundaryProbe(current, failures);
   verifyAgentPromptCommandProbes(failures);
   if (failures.length > 0) {
     console.error('FAIL baseline mechanical drift probes');
@@ -3061,7 +3217,7 @@ async function runBaselineDriftProbeCommand() {
     process.exit(1);
   }
   console.log(
-    'PASS baseline mechanical drift probes: 10 registry/template/role-count/role-identity/agent_prompt snapshot mutations plus unknown-role command rejected',
+    'PASS baseline mechanical drift probes: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected',
   );
 }
 
@@ -3098,6 +3254,7 @@ async function verifyBaseline() {
   verifyRegistry(current, baseline, failures);
   verifyAgentPromptOutputs(current, baseline, failures);
   verifyBaselineDriftProbes(current, failures);
+  await verifyRealPromptCollectionBoundaryProbe(current, failures);
   verifyAgentPromptCommandProbes(failures);
   verifyMatrix(current, baseline, failures);
   verifyRoleMatrixAudit(current, baseline, failures);
@@ -3129,6 +3286,7 @@ async function verifyBaseline() {
   );
   verifyNoUnregisteredDirectStoryWrite(current, baseline, failures);
   verifyDirectStoryClassifierProbes(failures);
+  await verifyPromptMeasurementSidecar(failures);
 
   if (failures.length > 0) {
     console.error('FAIL proof-or-stop prompt baseline');
@@ -3140,7 +3298,7 @@ async function verifyBaseline() {
   console.log('PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified');
   console.log('PASS proof-or-stop prompt baseline: roleCount=16 registry snapshot integrity verified');
   console.log('PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles');
-  console.log('PASS proof-or-stop prompt baseline: 10 baseline mechanical drift mutations and unknown-role agent_prompt command rejected');
+  console.log('PASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected');
   console.log('PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles');
   console.log('PASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected');
   console.log('INFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited');
@@ -3149,6 +3307,7 @@ async function verifyBaseline() {
   console.log('PASS proof-or-stop prompt baseline: direct story-file findings classified');
   console.log(`INFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit ${DIRECT_STORY_REFERENCE_ALLOWLIST.length} exact references inside manifest-approved prompt bodies`);
   console.log('PASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write');
+  console.log('PASS proof-or-stop prompt baseline: deterministic 16-role PromptMeasurementRecord sidecar verified without refresh authority');
 }
 
 if (PROBE_DIRECT_STORY_CLASSIFIER) {
