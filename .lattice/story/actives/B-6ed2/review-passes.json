@@ -162,6 +162,32 @@
         "scanEscalationReason": null
       },
       "_hash": "6b2993032a39b45caf242d91a3d8e8d325d3ceb220163223d71a0ce97a14b567"
+    },
+    {
+      "id": "B-6ed2:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-5 incremental coverage PASS for F-008. Immutable RED 7ec6e7d7f0 holds .process-events-append.lock and detects defaultAuditWriter writing through it (exit 41 before GREEN). GREEN e95d88cfb8 migrates dirty-gate audit and cross-host verdict batch writers to the shared locked raw/record primitive. Focused smoke passed 32/32, including runtime held-lock audit writer waiting until release and AST production scan reporting zero direct appendFileSync process-events writers outside core/process-events.ts. The prior production CLI, historical RED validation infra_failure/no-false-PASS, exact writer identity, rollback, foreign bytes, hook/retry and HEAD CAS cases all remain green. All 27 verificationIntent refs have at least one PASS evidence row matching current materialHash ab46a128... and storyFilesHash e76dbc98...; no missing/current-identity gap.",
+      "createdAt": "2026-07-19T00:18:32.296Z",
+      "reviewRound": "2026-07-19T00:14:28.161Z",
+      "reviewRunId": "B-6ed2:RR-015",
+      "writerSessionId": "codex-wa-final",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/process-events.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/dirty-gate-policy.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/handlers/quorum-submit.ts",
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ae05bc22f4995914217552bf4b8fa56460fd63ac0aefa6a4c6806bf4b2a30766"
     }
   ]
 }
