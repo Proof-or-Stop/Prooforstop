@@ -188,6 +188,27 @@
         "scanEscalationReason": null
       },
       "_hash": "5511a094e00108a932666e335d9d3d66d083c24ea28040121e61a11b46842878"
+    },
+    {
+      "id": "B-235e:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed the corrected shared unique-ticket transaction across review_run_start and Story-aware agent_prompt. Both handlers use the same canonical lock path/helper; review_run_start keeps Prompt Envelope plus ReviewRun persistence in one outer transaction without the legacy nested fixed-path lock. Current-HEAD build, actual mixed-producer dead-A/two-reclaimer/replacement-B smoke, Prompt Envelope smoke, and process-fact verifier all passed; both envelope records survive and the signed ReviewRun remains gate-valid. No blocking quality issue found.",
+      "createdAt": "2026-07-19T11:04:53.873Z",
+      "reviewRound": "2026-07-19T11:02:56.636Z",
+      "reviewRunId": "B-235e:RR-037",
+      "envelopeId": "618e0348df66a80251dd166eee40e9c2dc6661ee73edf114503f8d7dcf448deb",
+      "writerSessionId": "sess-61e583213cb095be130628a3b1ad47cd",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6ec20567163cf39f96a6c0f146e5c338441981cca556da5b89eeaaac75d107ba"
     }
   ]
 }
