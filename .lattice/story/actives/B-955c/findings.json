@@ -303,6 +303,21 @@
       "resolvedAt": "2026-07-19T01:54:58.525Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-955c:F-017",
+      "desc": "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md:114,620,636 and packages/main/src/core/evidence/environment-contract.ts:643 — B-231d changed the currently emitted DONE-required CommandSpec to `lattice.command-spec.v2` (repo-relative logical cwd plus non-digested resolvedCwd provenance), retaining v1 only for legacy receipt verification. The paper-facing execution plan still describes v1 as the existing/current DONE-required identity surface and the EEA projection error still says a receipt “must carry lattice.command-spec.v1”. The M5 projection and tests still pass, and B-231d does not alter named-environment support, M6, or distinct-host quorum boundaries, but the identity-version claim is now stale. Update the support/mapping prose to name v2 as current and v1 as legacy compatibility, document the portability/provenance distinction, and make the projection diagnostic schema-neutral or accurately describe supported versions.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-19T03:17:11.694Z",
+      "reviewRound": "2026-07-19T03:15:15.271Z",
+      "reviewRunId": "B-955c:RR-034",
+      "_hash": "f9ab79f6329763adfb8bc38b99c7277f13b983e2b247fb48c61739d1daac3c95",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
