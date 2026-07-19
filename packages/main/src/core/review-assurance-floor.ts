@@ -758,12 +758,12 @@ function reportBase(
     fullAuthorityDone: false,
     productionDone: false,
     proofAdmissibility: buildProofAdmissibilityDiagnostic({
-      artifactKind: 'review-run',
+      artifactKind: 'host-verdict',
       artifactId: 'review-assurance-floor',
       consumer: 'REVIEW',
       claim: 'review-pass',
       checks: {
-        schemaVersion: 'lattice.review_run.v1',
+        schemaVersion: 'lattice.host_verdict.v1',
         strictShapeValid: true,
         semanticDigestValid: false,
         signatureOrReceiptBindingValid: false,
@@ -899,13 +899,13 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
   const advisories = [...downgradeAdvisories, ...(fallback?.advisories ?? [])];
   const proofPolicy = resolveProofAdmissibilityPolicy(args.projectRoot);
   const proofAdmissibility = buildProofAdmissibilityDiagnostic({
-    artifactKind: 'review-run',
+    artifactKind: 'host-verdict',
     artifactId: storyId ? `${storyId}:review-assurance-floor` : 'review-assurance-floor',
     consumer: 'REVIEW',
     claim: 'review-pass',
     policy: proofPolicy,
     checks: {
-      schemaVersion: 'lattice.review_run.v1',
+      schemaVersion: 'lattice.host_verdict.v1',
       strictShapeValid: true,
       semanticDigestValid: ok,
       signatureOrReceiptBindingValid: fullOk || degradedOk,

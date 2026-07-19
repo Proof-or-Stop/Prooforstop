@@ -22,6 +22,7 @@ import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readPr
 import { loadConfig } from './config.js';
 import { LEGACY_DOCS_STORY_DIR, uniqueRelPaths } from './lattice-paths.js';
 import { normalizeLegacyPhase, phaseRank } from './phase-flow.js';
+import type { PromptEnvelopeData } from './prompt-contracts.js';
 
 type JsonCandidate<T> = {
   filePath: string;
@@ -420,6 +421,18 @@ export class StoryStore {
 
   writeReviewRuns(storyId: string, data: ReviewRunData): void {
     this.writeJson(storyId, 'review-runs.json', data);
+  }
+
+  readPromptEnvelopes(storyId: string): PromptEnvelopeData {
+    try {
+      return this.readJson<PromptEnvelopeData>(storyId, 'prompt-envelopes.json');
+    } catch {
+      return { envelopes: [] };
+    }
+  }
+
+  writePromptEnvelopes(storyId: string, data: PromptEnvelopeData): void {
+    this.writeJson(storyId, 'prompt-envelopes.json', data);
   }
 
   // ── Clusters (B-e8c8 / B-9d95 CHK-005: finding clustering) ──

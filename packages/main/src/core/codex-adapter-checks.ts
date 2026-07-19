@@ -335,15 +335,31 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
   const targetSet = new Set(targetFiles);
   const sourceSet = new Set(sourceFiles);
   const issues: string[] = [];
+  const registry = readPromptRegistry();
+  const registryByFile = new Map(registry.agents.map(entry => [entry.file, entry]));
   for (const file of sourceFiles) {
+    const registryEntry = registryByFile.get(file);
+    if (!registryEntry) {
+      issues.push(`unregistered .claude/agents/${file}`);
+      continue;
+    }
+    const packagePrompt = readText(registryEntry.sourcePath);
+    const claudePrompt = readText(join(claudeDir, file));
+    if (packagePrompt !== claudePrompt) {
+      issues.push(`package/Claude drift ${file}`);
+      continue;
+    }
     const targetPath = join(codexDir, file);
     if (!targetSet.has(file)) {
       issues.push(`missing .lattice-codex/agents/${file}`);
       continue;
     }
-    const expected = renderCodexAgentContent(readText(join(claudeDir, file))).trim();
-    const actual = readText(targetPath).trim();
+    const expected = renderCodexAgentContent(packagePrompt);
+    const actual = readText(targetPath);
     if (expected !== actual) issues.push(`drift .lattice-codex/agents/${file}`);
+  }
+  for (const file of registryByFile.keys()) {
+    if (!sourceSet.has(file)) issues.push(`missing .claude/agents/${file}`);
   }
   for (const file of targetFiles) {
     if (!sourceSet.has(file)) issues.push(`stale .lattice-codex/agents/${file}`);
