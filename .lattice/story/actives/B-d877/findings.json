@@ -299,7 +299,7 @@
       "desc": "packages/main/src/core/mkdir-lock.ts:328-361 (release(), B-d877 R4 codex-#2 fix) leaks the lock directory on EVERY clean release for any caller that stores auxiliary files inside lockDir alongside holder.json. release() now does rmSync(join(lockDir, holder.json)) then removeEmptyLockDirNonRecursive(lockDir) i.e. a non-recursive rmdirSync that silently no-ops on ENOTEMPTY. packages/main/src/core/validation-execution-lock.ts writeValidationHeartbeat() writes heartbeat.json into that SAME lockDir (VALIDATION_EXECUTION_LOCK_HEARTBEAT_FILE, used by withValidationExecutionLock, the wrapper around every lattice validate --story=X call in handlers/verifier.ts:1206/1284 and handlers/done-required-validation.ts). After a clean release, holder.json is removed but heartbeat.json remains, so rmdirSync fails ENOTEMPTY and the dir leaks (now holder-less) until VALIDATION_EXECUTION_LOCK_STALE_MS=120000ms elapses, blocking every subsequent validate/done_required_validate call on that story with a false already-running refusal. Verified deterministically (100% repro, not load-related): patched a throwaway dist copy of validate-progress-heartbeat-smoke.ts with a debug probe and confirmed the testCase=command scenario leaves .lattice/locks/validation/<story>.lock containing ONLY heartbeat.json after the first done_required_validate call completes cleanly, then the immediate retry fails with refusalReasons=[already running...by another Proofbound process (holder details unavailable), heartbeat 1s ago...]. This is a real regression from this round: prior to 580d28eee0 release() used rmSync(lockDir,{recursive:true,force:true}) which always fully removed heartbeat.json too. Consequence: running node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js (validate.commands[9] of the 46 configured lattice.config.json validate commands) FAILS deterministically (10/10 reproductions) with command timeout must permit a successful immediate rerun / 1 !== 0, so lattice validate --story=B-d877 does not genuinely pass end-to-end. None of the storys verificationEvidence (all citing only transition-integrity-smoke.js, which never puts an auxiliary file inside a released mkdir-lock dir) or the new CHK-002c8/CHK-002c9 checks cover a lockDir containing files other than holder.json, so this cross-cutting regression in shared production code (mkdir-lock.ts is not listed in CHK-001 or CHK-002 files.modify/create despite being touched in 580d28eee0) is uncovered by the checklists must-intents.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T11:00:40.132Z",
@@ -312,7 +312,9 @@
         "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-19T11:29:41.145Z",
+      "resolutionType": "fixed"
     }
   ]
 }
