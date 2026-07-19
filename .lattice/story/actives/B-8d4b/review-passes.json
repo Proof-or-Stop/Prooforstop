@@ -1,0 +1,36 @@
+{
+  "passes": [
+    {
+      "id": "B-8d4b:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Second-round concept review PASS: repairs remove synthetic arm prompt bytes and caller-authored detections from canonical history. Exact prompt cost, finding recall, provider usage, cache and dispatch dimensions now fail closed as unavailable/INCONCLUSIVE; only explicitly hermetic non-historical fixtures are EVALUABLE. Signed historical rows are identity context, not replay output. Re-ran the 43-check selfcheck, canonical JSON replay and isolated ledger analysis; F-001 through F-010 resolutions match implementation and no production/gate authority is claimed.",
+      "createdAt": "2026-07-19T02:43:40.204Z",
+      "reviewRound": "2026-07-19T02:36:39.599Z",
+      "reviewRunId": "B-8d4b:RR-008",
+      "writerSessionId": "sess-582f49a50504746237e21d3db45549a4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6e41f6fe7afb5bc59fada470e2c2f90f74bb00b155bf2d3703dbf47a6451f019"
+    }
+  ]
+}
