@@ -102,6 +102,35 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Reviewer rollout status lists concept, quality, test-coverage, behavior, and docs independently as modular or legacy-full-context; retired channel is absent, and disabling one flag restores the exact legacy prompt only for that role.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/config.ts",
+          "lattice.config.json",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".claude/agents/lattice-review-behavior.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-docs.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ]
       }
     },
     {
