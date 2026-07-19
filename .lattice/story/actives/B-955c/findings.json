@@ -157,7 +157,7 @@
       "desc": "packages/main/src/tasks/evidence-environment-adapter-smoke.ts:141-193 — MEDIUM: the plan explicitly requires error/timeout handling, and the contract defines fail/error/timeout/cancelled/unavailable statuses, but the smoke never constructs any non-pass status (the only `timeout` occurrences are timeoutMs configuration). Add normalization/Gate cases for fail, error, timeout, cancelled, and unavailable with stable reason expectations so status semantics cannot regress silently.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T00:53:44.370Z",
@@ -165,7 +165,11 @@
       "reviewRunId": "B-955c:RR-002",
       "_hash": "b1e9950f07716f504e1cc4f10c9093839d635d78c2aadf4efbcdaa126259557e",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: smoke covered only pass status despite five non-pass contract statuses. Root cause: missing status matrix. Fix: Gate-level fail, error, timeout, cancelled, and unavailable cases now assert deterministic stop reason codes receipt_failed, checker_error, receipt_timeout, receipt_cancelled, receipt_unavailable. Evidence-environment smoke PASS at b31b29b522.",
+      "resolvedAt": "2026-07-19T01:10:40.788Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
