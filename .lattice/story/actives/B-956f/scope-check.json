@@ -414,11 +414,12 @@
       "q": "Is real orchestrator-level wiring (resolving the classification snapshot once at the actual runStoryTransition/machine.ts entry point and consuming it from the live XState DEV->REVIEW guard so it governs real production required=true decisions) in scope for this story (W1/B-956f), or is it explicitly deferred to Workstream 3?",
       "evidence": "language-neutral-gates-execution-plan.md Change A: \"The policy AND the main...HEAD diff classification are resolved ONCE at the transition boundary (machine/transition-orchestrator level, which has projectRoot)\" — stated as part of this story's own Change A. Contrast: repro-first-gate-enforce-execution-plan.md Workstream 3 (sequenced strictly after W1): \"Single hash-bound classification snapshot resolved at runStoryTransition entry; ONE pure DEV->REVIEW evaluator consumed by the XState guard, the compatibility path, AND a fail-closed pre-write recheck (machine.ts:909, :837; transition-orchestrator.ts:550); classifier-driven ProofStory triggers (the original core fix)\". understanding.json unknowns also lists: \"Exact orchestrator call-site shape for resolving the snapshot once per transition (which machine/transition-orchestrator function owns resolution and threads it to all three consumers)\" as unresolved. decision.json constraint \"Ordering binding: this lands before or with the repro-first enforce flip\" and the program Sequencing line \"W1 (now) -> W2 spec story -> W2 implementation -> W3 -> enforce flip\" both suggest the live enforce-flip wiring is W3's job, not W1's — but neither B-956f's own decision.json nor the checklist explicitly states this deferral.",
       "sourcePointers": [
-        "docs/requirements/decisions/language-neutral-gates-execution-plan.md:16-17 (Change A)",
-        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md:19-20,25-26,28-29 (Workstream 1 / Workstream 3 / Sequencing)",
-        ".lattice/story/actives/B-956f/understanding.json (unknowns[0])",
-        ".lattice/story/actives/B-956f/decision.json (constraints: \"Ordering binding\")"
-      ]
+        "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+        "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+        "CHK-001"
+      ],
+      "resolution": "Orchestrator-level wiring is EXPLICITLY part of Workstream 3, not this story. The program plan repro-first-gate-enforce-execution-plan.md assigns to Workstream 3: single hash-bound classification snapshot resolved at runStoryTransition entry, consumed by the XState guard, classifier-driven ProofStory triggers, and the enforce flip — sequenced strictly after W1. language-neutral-gates-execution-plan.md Change A describes the SHAPE of transition-boundary resolution that W1 must make possible (the resolveMaterialCodePolicy service + snapshot API + consumers accepting a snapshot), not the live orchestrator call-site. W1 delivers the classification service, snapshot construction, precedence chain, strict resolver, and the three consumers accepting the snapshot in their existing (non-enforce) evaluation paths, verified by harness/smoke; the production runStoryTransition/machine.ts call-site wiring and the live required=true enforcement flip land in W3 (with S1 transition-integrity and W2 RED-evidence as prerequisites).",
+      "resolvedAt": "2026-07-19T15:36:15.718Z"
     }
   ]
 }
