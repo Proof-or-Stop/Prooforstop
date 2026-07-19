@@ -324,7 +324,99 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "reviewer-owner-permission-boundaries",
+            "desc": "For all five migrated roles, main and implementer cannot write reviewer pass, reviewers can write only their authorized lane pass/findings after review_run_start, reviewers cannot run owner-gated lifecycle mutations, and delivery-check remains delivery-reviewer only.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "signed-current-run-admission",
+            "desc": "Pass and finding admission, evidence collection, receipt, assurance floor, and quorum accept only the latest same-lane signed ReviewRun whose Prompt Envelope, review round, HEAD/material/storyFiles, role contract, context, and assembled prompt digests verify.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "role-baseline-diff-approval-rollback",
+            "desc": "Each role has a separately reviewable legacy-versus-modular baseline diff, explicit reviewer approval bound to the exact digests, and a tested flag rollback that restores the legacy prompt for that role without weakening gates or changing other roles.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "process-contract-docs-synchronized",
+            "desc": "Role registry, flags, Prompt Envelope schema, permissions, incremental/full selection, legacy-pass rules, metrics, process-fact registry/verifier, CLI help, and canonical decision/usage docs agree and executable contract checks pass.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "old-pass-original-round-only",
+            "desc": "A valid pre-migration pass without a Prompt Envelope remains readable as legacy-full-context only in its recorded review round, cannot establish a new incremental baseline, and cannot be replayed after material or role-contract drift.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "mixed-role-rollback-gate-equivalence",
+            "desc": "Every mixed modular/legacy role combination preserves the same required active lanes, finding severity semantics, pass admission, floor, receipt, quorum, and DONE behavior; rolling back one role neither rolls back nor bypasses another.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "budget-violation-does-not-weaken-authority",
+            "desc": "Incremental or full budget violations are recorded separately; they cannot truncate required sections, accept stale evidence, skip a required lane, force incremental, or grant baseline approval, while correctness-required full review remains executable.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "compatibility-retired-artifact-audit-only",
+            "desc": "Historical compatibility or retired artifacts remain readable according to their recorded status for audit, but never count toward current active lane pass, receipt, floor, quorum, delivery, or DONE.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "unauthorized-pass-and-lifecycle-writes-rejected",
+            "desc": "Main, implementer, compatibility/retired roles, wrong active lanes, and forged actor labels cannot write or inherit an active reviewer pass; reviewer attempts at validate, story_advance, or other owner mutations are rejected without state change.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "replay-tamper-wrong-lane-signature-rejected",
+            "desc": "Replayed old signatures, wrong-lane ReviewRuns, altered envelope/contract/baseline digests, stale hashes, changed rounds, malformed receipts, or post-signature prompt mutation receive no gate credit and yield explicit stable rejection reasons.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "rollback-cannot-relax-contract-or-retire-role",
+            "desc": "A rollback flag changes prompt assembly only: it cannot remove forbidden actions, expand commands, alter signature domains, mark an active role compatibility/retired, enable retired channel, or substitute legacy evidence as current proof.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "concurrent-lane-write-and-collector-determinism",
+            "desc": "Concurrent five-role pass/finding writes remain signed and lane scoped; shared registry/baseline updates serialize under the main write lock, and repeated collectors deterministically aggregate without overwrite, lost update, duplicate credit, or hybrid modular/legacy state.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
