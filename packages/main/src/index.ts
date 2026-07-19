@@ -57,11 +57,9 @@ export {
   type EvidenceEnvironmentGateProjection,
   type EvidenceEnvironmentInvocationRequest,
   type EvidenceEnvironmentNormalizationResult,
-  type EvidenceEnvironmentAttestationResolver,
   type EvidenceEnvironmentReceipt,
   type EvidenceEnvironmentReasonCode,
   type NormalizedEvidenceEnvironmentEnvelope,
-  type VerifiedEvidenceEnvironmentProducerIdentity,
 } from './core/evidence/environment-contract.js';
 export {
   createVerificationContextPack,

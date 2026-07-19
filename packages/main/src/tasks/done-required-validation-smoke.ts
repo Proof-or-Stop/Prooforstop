@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import {
   buildDoneRequiredCommandSpecEnvelope,
+  buildDoneRequiredExecutionIdentity,
   DONE_REQUIRED_EVIDENCE_SCHEMA,
   DONE_REQUIRED_EVIDENCE_VERSION,
   evaluateDoneRequiredEvidence,
@@ -25,9 +26,55 @@ import {
 } from '../core/validation-executor.js';
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
-import { buildRoutineValidationIdentity } from '../core/validation-evidence-reuse.js';
 
 const STORY_ID = 'B-ac25';
+
+// Windows executes validation commands through an implicit command shell. The
+// DONE-required producer and consumer must bind the same ComSpec executable and
+// effective environment instead of emitting evidence that can never validate.
+{
+  const { root } = fixture([
+    { label: 'windows implicit shell', command: 'node', args: ['-e', 'process.exit(0)'] },
+  ]);
+  try {
+    const cmdExe = join(root, 'cmd.exe');
+    writeFileSync(cmdExe, 'synthetic windows command shell\n', 'utf8');
+    const policy = resolveDoneRequiredPolicy(root);
+    const processEnvironment = {
+      PATH: root,
+      ComSpec: 'cmd.exe',
+      PATHEXT: '.EXE;.CMD',
+    };
+    const producer = buildDoneRequiredExecutionIdentity({
+      projectRoot: root,
+      policy,
+      processEnvironment,
+      platform: 'win32',
+    });
+    const consumer = buildDoneRequiredExecutionIdentity({
+      projectRoot: root,
+      policy,
+      processEnvironment,
+      platform: 'win32',
+    });
+    assert.equal(producer.commands[0]?.shell, true, 'win32 command identity must record implicit shell=true');
+    assert.equal(producer.commands[0]?.shellExecutableDigest?.length, 64, 'win32 identity must hash the resolved ComSpec executable');
+    assert.equal(producer.digest, consumer.digest, 'DONE-required producer and consumer must share win32 shell identity');
+    assert.equal(producer.commands[0]?.effectiveEnvironmentDigest, consumer.commands[0]?.effectiveEnvironmentDigest);
+    assert.equal(producer.commands[0]?.executableDigest, consumer.commands[0]?.executableDigest);
+    assert.equal(producer.commands[0]?.shellExecutableDigest, consumer.commands[0]?.shellExecutableDigest);
+    const command = policy.commands[0]!;
+    const commandSpec = buildDoneRequiredCommandSpecEnvelope(root, command, {
+      command: command.command,
+      args: command.args,
+      shell: true,
+      cwd: root,
+    });
+    assert.equal(commandSpec.shell, true, 'DONE-required receipt command spec must retain actual win32 implicit shell mode');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
 
 function git(cwd: string, args: string[]): void {
   execFileSync('git', args, {
@@ -135,16 +182,9 @@ function doneRow(rows: DoneCheckRow[], id: string): DoneCheckRow {
 function baseReceipt(root: string, overrides: Partial<DoneRequiredCommandReceipt>): DoneRequiredCommandReceipt {
   const h = hashes(root);
   const policy = resolveDoneRequiredPolicy(root);
-  const identity = buildRoutineValidationIdentity({
+  const identity = buildDoneRequiredExecutionIdentity({
     projectRoot: root,
-    sourceKind: 'configured',
-    sourceInputs: policy.commands,
-    commands: policy.commands,
-    profile: 'done-required',
-    verificationPolicyInputs: {
-      policyHash: policy.policyHash,
-      commandSetHash: policy.commandSetHash,
-    },
+    policy,
   }).commands[0];
   const receipt: DoneRequiredCommandReceipt = {
     label: 'synthetic',
@@ -160,6 +200,7 @@ function baseReceipt(root: string, overrides: Partial<DoneRequiredCommandReceipt
     endedAt: new Date().toISOString(),
     effectiveEnvironmentDigest: identity?.effectiveEnvironmentDigest,
     executableDigest: identity?.executableDigest,
+    shellExecutableDigest: identity?.shellExecutableDigest ?? null,
     ...(h.headHash ? { headHash: h.headHash } : {}),
     ...(h.materialHash ? { materialHash: h.materialHash } : {}),
     ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),

@@ -77,7 +77,10 @@ The empirical result's sharpest cut is **enforcement, not review**: given the *s
 - It does **not** make the agent smarter.
 - It does **not** make development faster — on a clean task it's roughly **2× pure overhead**.
 - It does **not** replace your merge policy — the gate yields a **merge-readiness claim**; the actual merge stays a repo/human decision.
-- Cross-vendor quorum and multi-model generalization are **still future work**.
+- Cross-vendor quorum and multi-model generalization are **still future work**;
+  the Evidence Environment quorum path is explicitly fail-closed unsupported
+  until a project-owned pinned-key, session-bound, revocation-aware producer
+  registry exists.
 
 Its job is narrow and expensive-to-skip: turn the costliest failure — *wrong code silently reaching main* — into something mechanically difficult.
 

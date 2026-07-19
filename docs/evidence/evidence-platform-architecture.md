@@ -47,10 +47,13 @@ Current bounded reference projections are:
 - Quantum: reads only receipts already accepted by the existing Quantum
   normalizer and never runs a solver.
 
-An environment receipt may contain only an opaque producer-attestation
-reference. Verified producer lineage, key, session, and trust class come from a
-verifier-owned resolver outside the receipt. Caller-written host labels,
-identity strings, or booleans cannot create trusted or independent evidence.
+An environment receipt may reserve only an opaque producer-attestation
+reference. B-955c does not implement the project-owned pinned-key,
+signed-session, revocation-aware registry needed to verify that reference, and
+does not expose an injectable resolver as a substitute trust root. Distinct-host
+quorum is therefore explicitly unsupported and fail-closed. Caller-written host
+labels, identity strings, booleans, or callback-returned identities cannot
+create trusted or independent evidence.
 
 Lean, Rosetta, AlphaFold, PINN solvers, browsers, databases, CI, Kubernetes, and
 production deployment are integration targets, not implemented adapters.

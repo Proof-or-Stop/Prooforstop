@@ -9,6 +9,7 @@ import type {
   DoneRequiredCommandReceipt,
   DoneRequiredEvidenceData,
   DoneRequiredEvidenceStatus,
+  RoutineValidationIdentity,
   ValidationCommand,
   ValidationCommandResult,
   ValidationProgressReporter,
@@ -69,6 +70,32 @@ export interface DoneRequiredGateEvaluation {
   policy: DoneRequiredPolicy;
   evidence: DoneRequiredEvidenceData | null;
   proofAdmissibility: ProofAdmissibilityDiagnostic;
+}
+
+/**
+ * Single producer/consumer identity constructor for DONE-required execution.
+ * Platform/env seams are exposed only for deterministic cross-platform tests;
+ * production callers use the current process values.
+ */
+export function buildDoneRequiredExecutionIdentity(args: {
+  projectRoot: string;
+  policy: DoneRequiredPolicy;
+  processEnvironment?: NodeJS.ProcessEnv;
+  platform?: NodeJS.Platform;
+}): RoutineValidationIdentity {
+  return buildRoutineValidationIdentity({
+    projectRoot: args.projectRoot,
+    sourceKind: 'configured',
+    sourceInputs: args.policy.commands,
+    commands: args.policy.commands,
+    profile: 'done-required',
+    verificationPolicyInputs: {
+      policyHash: args.policy.policyHash,
+      commandSetHash: args.policy.commandSetHash,
+    },
+    ...(args.processEnvironment ? { processEnvironment: args.processEnvironment } : {}),
+    ...(args.platform ? { platform: args.platform } : {}),
+  });
 }
 
 interface DoneRequiredValidationRuntimeOptions {
@@ -589,16 +616,9 @@ function validateDoneRequiredExecutionIdentityCoverage(
   projectRoot: string,
   policy: DoneRequiredPolicy,
 ): string[] {
-  const currentIdentity = buildRoutineValidationIdentity({
+  const currentIdentity = buildDoneRequiredExecutionIdentity({
     projectRoot,
-    sourceKind: 'configured',
-    sourceInputs: policy.commands,
-    commands: policy.commands,
-    profile: 'done-required',
-    verificationPolicyInputs: {
-      policyHash: policy.policyHash,
-      commandSetHash: policy.commandSetHash,
-    },
+    policy,
   });
   const reasons: string[] = [];
   for (let i = 0; i < policy.commands.length; i++) {
@@ -611,8 +631,15 @@ function validateDoneRequiredExecutionIdentityCoverage(
     if (!receipt.effectiveEnvironmentDigest || receipt.effectiveEnvironmentDigest !== commandIdentity.effectiveEnvironmentDigest) {
       reasons.push(`effective-environment-digest-mismatch[${i}]`);
     }
-    if (!receipt.executableDigest || receipt.executableDigest !== commandIdentity.executableDigest) {
+    if (receipt.executableDigest !== commandIdentity.executableDigest) {
       reasons.push(`executable-digest-mismatch[${i}]`);
+    }
+    const expectedShellDigest = commandIdentity.shellExecutableDigest ?? null;
+    const receiptShellDigest = receipt.shellExecutableDigest ?? null;
+    if ((receipt.shell === true) !== commandIdentity.shell
+      || receiptShellDigest !== expectedShellDigest
+      || (commandIdentity.shell && !receiptShellDigest)) {
+      reasons.push(`shell-executable-digest-mismatch[${i}]`);
     }
   }
   return reasons;
@@ -632,16 +659,9 @@ export async function runDoneRequiredValidation(args: {
   const startedAt = new Date(startedMs).toISOString();
   const receipts: DoneRequiredCommandReceipt[] = [];
   const reasons: string[] = [];
-  const executionIdentity = buildRoutineValidationIdentity({
+  const executionIdentity = buildDoneRequiredExecutionIdentity({
     projectRoot: args.projectRoot,
-    sourceKind: 'configured',
-    sourceInputs: policy.commands,
-    commands: policy.commands,
-    profile: 'done-required',
-    verificationPolicyInputs: {
-      policyHash: policy.policyHash,
-      commandSetHash: policy.commandSetHash,
-    },
+    policy,
   });
 
   if (!policy.required) {
@@ -687,10 +707,11 @@ export async function runDoneRequiredValidation(args: {
         startedAt: receiptStartedAt,
         endedAt: receiptEndedAt,
         ...(result.timedOut ? { timedOut: true } : {}),
-        ...(process.platform !== 'win32' && commandIdentity
+        ...(commandIdentity
           ? {
               effectiveEnvironmentDigest: commandIdentity.effectiveEnvironmentDigest,
               executableDigest: commandIdentity.executableDigest,
+              shellExecutableDigest: commandIdentity.shellExecutableDigest ?? null,
             }
           : {}),
         ...(headHash ? { headHash } : {}),

@@ -75,6 +75,7 @@ export type EvidenceEnvironmentReasonCode =
   | 'producer_mismatch'
   | 'producer_attestation_missing'
   | 'producer_attestation_invalid'
+  | 'distinct_host_quorum_unsupported'
   | 'same_producer_not_independent'
   | 'stale_receipt'
   | 'unsafe_isolation'
@@ -115,9 +116,10 @@ export interface EvidenceEnvironmentCommandSpec {
   readonly executable: string;
   readonly args: readonly string[];
   readonly cwd: string;
-  readonly shell: false;
+  readonly shell: boolean;
   readonly processEnvironmentDigest: string;
   readonly executableDigest: string;
+  readonly shellExecutableDigest?: string;
   readonly timeoutMs: number;
   readonly outputLimitBytes: number;
   readonly network: 'denied' | 'policy-bound';
@@ -145,27 +147,6 @@ export interface EvidenceEnvironmentInvocationRequest {
   readonly commandSpec?: EvidenceEnvironmentCommandSpec;
 }
 
-export interface VerifiedEvidenceEnvironmentProducerIdentity {
-  readonly attestationRef: string;
-  readonly producerId: string;
-  readonly lineageId: string;
-  readonly keyId: string;
-  readonly sessionId: string;
-  readonly trustClass: EvidenceEnvironmentTrustClass;
-  readonly verifiedAt: string;
-}
-
-export interface EvidenceEnvironmentAttestationResolver {
-  readonly resolve: (
-    attestationRef: string,
-    context: {
-      readonly descriptorId: string;
-      readonly invocationDigest: string;
-      readonly subjectDigest: string;
-    },
-  ) => VerifiedEvidenceEnvironmentProducerIdentity | undefined;
-}
-
 export interface EvidenceEnvironmentReceipt {
   readonly receiptVersion: typeof EVIDENCE_ENVIRONMENT_RECEIPT_VERSION;
   readonly receiptDigest: string;
@@ -182,7 +163,11 @@ export interface EvidenceEnvironmentReceipt {
   readonly observedAt: string;
   readonly completedAt: string;
   readonly commandSpecDigest?: string;
-  /** Opaque reference only. Identity/trust fields are resolved outside the receipt. */
+  /**
+   * Reserved opaque reference. The current implementation has no project-owned,
+   * pinned producer trust registry, so this field never upgrades evidence to an
+   * independent-host quorum.
+   */
   readonly producerAttestationRef?: string;
   readonly isolation: {
     readonly kind: EvidenceEnvironmentDescriptor['isolation'];
@@ -214,7 +199,6 @@ export interface NormalizedEvidenceEnvironmentEnvelope {
   readonly freshnessDeadline: string;
   readonly trustClass: EvidenceEnvironmentTrustClass;
   readonly reproducibilityClass: EvidenceEnvironmentReproducibilityClass;
-  readonly verifiedProducerIdentity?: VerifiedEvidenceEnvironmentProducerIdentity;
   readonly commandSpecDigest?: string;
   readonly semanticDigest: string;
   readonly policyInputDigest: string;
@@ -517,7 +501,6 @@ export function normalizeEvidenceEnvironmentReceipt(
   now = new Date(),
   options: {
     readonly registry?: EvidenceEnvironmentRegistry;
-    readonly attestationResolver?: EvidenceEnvironmentAttestationResolver;
   } = {},
 ): EvidenceEnvironmentNormalizationResult {
   const reasons: EvidenceEnvironmentReasonCode[] = [...validateEnvironmentDescriptor(descriptor)];
@@ -577,9 +560,11 @@ export function normalizeEvidenceEnvironmentReceipt(
   if (invocation.commandSpec) {
     if (descriptor.mode !== 'execute-local'
       || invocation.commandSpec.policyAuthorized !== true
-      || invocation.commandSpec.shell !== false
       || !isNonEmpty(invocation.commandSpec.executableDigest)
       || !isNonEmpty(invocation.commandSpec.processEnvironmentDigest)
+      || (invocation.commandSpec.shell
+        ? !isNonEmpty(invocation.commandSpec.shellExecutableDigest)
+        : invocation.commandSpec.shellExecutableDigest !== undefined)
       || receipt.commandSpecDigest !== digestEvidenceEnvironmentCommandSpec(invocation.commandSpec)) {
       reasons.push('command_spec_mismatch');
     }
@@ -588,24 +573,11 @@ export function normalizeEvidenceEnvironmentReceipt(
   }
   if (descriptor.mode === 'read-receipt-only' && invocation.commandSpec) reasons.push('forbidden_execution');
   if (receipt.status === 'error') reasons.push('checker_error');
-  let verifiedProducerIdentity: VerifiedEvidenceEnvironmentProducerIdentity | undefined;
   if (receipt.producerAttestationRef) {
-    verifiedProducerIdentity = options.attestationResolver?.resolve(receipt.producerAttestationRef, {
-      descriptorId: descriptor.id,
-      invocationDigest: invocation.invocationDigest,
-      subjectDigest: invocation.subject.digest,
-    });
-    if (!verifiedProducerIdentity
-      || verifiedProducerIdentity.attestationRef !== receipt.producerAttestationRef
-      || verifiedProducerIdentity.trustClass !== descriptor.trustClass
-      || !isNonEmpty(verifiedProducerIdentity.producerId)
-      || !isNonEmpty(verifiedProducerIdentity.lineageId)
-      || !isNonEmpty(verifiedProducerIdentity.keyId)
-      || !isNonEmpty(verifiedProducerIdentity.sessionId)
-      || !isIsoDate(verifiedProducerIdentity.verifiedAt)) {
-      reasons.push('producer_attestation_invalid');
-      verifiedProducerIdentity = undefined;
-    }
+    // Fail closed until a project-owned registry can verify a pinned public key,
+    // signed session binding, invocation/subject binding, and revocation state.
+    // A caller callback is deliberately not accepted as a trust root.
+    reasons.push('producer_attestation_invalid');
   } else if (descriptor.trustClass === 'external-attested') {
     reasons.push('producer_attestation_missing');
   }
@@ -634,7 +606,6 @@ export function normalizeEvidenceEnvironmentReceipt(
     freshnessDeadline: invocation.freshnessDeadline,
     trustClass: descriptor.trustClass,
     reproducibilityClass: descriptor.reproducibilityClass,
-    ...(verifiedProducerIdentity ? { verifiedProducerIdentity: Object.freeze({ ...verifiedProducerIdentity }) } : {}),
     ...(receipt.commandSpecDigest ? { commandSpecDigest: receipt.commandSpecDigest } : {}),
     policyInputDigest: digestCanonicalJson(semantic),
     boundary: Object.freeze({
@@ -668,18 +639,21 @@ export function projectDoneRequiredReceiptToEnvironment(
   readonly receipt: EvidenceEnvironmentReceipt;
 } {
   if (!receipt.commandSpec) throw new Error('command_spec_mismatch: DONE-required receipt must carry lattice.command-spec.v1');
-  if (receipt.commandSpec.shell) throw new Error('command_spec_mismatch: EEA reference path requires shell=false');
   if (!isNonEmpty(receipt.effectiveEnvironmentDigest) || !isNonEmpty(receipt.executableDigest)) {
     throw new Error('command_spec_mismatch: executor-owned effective environment and executable identities are required');
+  }
+  if (receipt.commandSpec.shell && !isNonEmpty(receipt.shellExecutableDigest)) {
+    throw new Error('command_spec_mismatch: shell execution requires executor-owned shell executable identity');
   }
   const commandSpec: EvidenceEnvironmentCommandSpec = Object.freeze({
     commandId: receipt.commandSpec.digest,
     executable: receipt.command,
     args: Object.freeze([...receipt.args]),
     cwd: receipt.cwd,
-    shell: false,
+    shell: receipt.commandSpec.shell,
     processEnvironmentDigest: receipt.effectiveEnvironmentDigest,
     executableDigest: receipt.executableDigest,
+    ...(receipt.commandSpec.shell ? { shellExecutableDigest: receipt.shellExecutableDigest! } : {}),
     timeoutMs: receipt.commandSpec.timeoutMs,
     outputLimitBytes: 12_000,
     network: 'policy-bound',
@@ -913,7 +887,6 @@ export function evaluateEvidenceEnvironmentQuorum(
       readonly invocation: EvidenceEnvironmentInvocationRequest;
       readonly receipt: EvidenceEnvironmentReceipt;
     }[];
-    readonly attestationResolver: EvidenceEnvironmentAttestationResolver;
     readonly requiredCount?: number;
     readonly now?: Date;
   },
@@ -923,13 +896,16 @@ export function evaluateEvidenceEnvironmentQuorum(
 } {
   const reasons: EvidenceEnvironmentReasonCode[] = [];
   const requiredCount = input.requiredCount ?? 2;
-  const lineages = new Set<string>();
-  const keys = new Set<string>();
-  const sessions = new Set<string>();
+  const attestationRefs = new Set<string>();
   if (!Number.isInteger(requiredCount) || requiredCount < 2 || input.items.length < requiredCount) {
     reasons.push('quorum_cardinality_missing');
   }
   for (const item of input.items) {
+    const attestationRef = item.receipt.producerAttestationRef;
+    if (attestationRef) {
+      if (attestationRefs.has(attestationRef)) reasons.push('same_producer_not_independent');
+      attestationRefs.add(attestationRef);
+    }
     const descriptor = DEFAULT_ENVIRONMENT_REGISTRY.resolve(item.descriptorId);
     if (!descriptor) {
       reasons.push('unknown_environment_descriptor');
@@ -940,28 +916,21 @@ export function evaluateEvidenceEnvironmentQuorum(
       item.invocation,
       item.receipt,
       input.now ?? new Date(),
-      {
-        registry: DEFAULT_ENVIRONMENT_REGISTRY,
-        attestationResolver: input.attestationResolver,
-      },
+      { registry: DEFAULT_ENVIRONMENT_REGISTRY },
     );
     if (!normalized.ok) {
       reasons.push(...normalized.reasons);
       continue;
     }
-    const envelope = normalized.envelope;
-    const attestation = envelope.verifiedProducerIdentity;
-    if (!attestation) {
+    if (!attestationRef) {
       reasons.push('producer_attestation_missing');
       continue;
     }
-    if (lineages.has(attestation.lineageId)
-      || keys.has(attestation.keyId)
-      || sessions.has(attestation.sessionId)) reasons.push('same_producer_not_independent');
-    lineages.add(attestation.lineageId);
-    keys.add(attestation.keyId);
-    sessions.add(attestation.sessionId);
   }
+  // No project-owned, key-pinned, revocation-aware producer registry exists yet.
+  // Therefore producerId/lineageId/keyId/sessionId independence cannot be
+  // established and distinct-host quorum is intentionally unsupported.
+  reasons.push('distinct_host_quorum_unsupported');
   const unique = Object.freeze([...new Set(reasons)]);
-  return Object.freeze({ independent: unique.length === 0 && input.items.length >= requiredCount, reasons: unique });
+  return Object.freeze({ independent: false, reasons: unique });
 }

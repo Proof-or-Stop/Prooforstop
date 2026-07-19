@@ -17,10 +17,8 @@ import {
   projectDoneRequiredReceiptToEnvironment,
   projectQuantumReceiptToEnvironment,
   type EvidenceEnvironmentCommandSpec,
-  type EvidenceEnvironmentAttestationResolver,
   type EvidenceEnvironmentInvocationRequest,
   type EvidenceEnvironmentReceipt,
-  type VerifiedEvidenceEnvironmentProducerIdentity,
 } from '../core/evidence/environment-contract.js';
 import type { DoneRequiredCommandReceipt } from '../core/validation-types.js';
 import {
@@ -197,44 +195,17 @@ function expectBlock(
 }
 
 {
-  const firstAttestation: VerifiedEvidenceEnvironmentProducerIdentity = {
-    attestationRef: 'attestation:codex',
-    producerId: 'codex-host',
-    lineageId: 'lineage-codex',
-    keyId: 'key-codex',
-    sessionId: 'session-codex',
-    trustClass: 'local-runtime-owned',
-    verifiedAt: '2026-07-19T00:00:00.000Z',
-  };
-  const secondAttestation: VerifiedEvidenceEnvironmentProducerIdentity = {
-    attestationRef: 'attestation:claude',
-    producerId: 'claude-host',
-    lineageId: 'lineage-claude',
-    keyId: 'key-claude',
-    sessionId: 'session-claude',
-    trustClass: 'local-runtime-owned',
-    verifiedAt: '2026-07-19T00:00:00.000Z',
-  };
-  const attestationRows = new Map<string, VerifiedEvidenceEnvironmentProducerIdentity>([
-    [firstAttestation.attestationRef, firstAttestation],
-    [secondAttestation.attestationRef, secondAttestation],
-  ]);
-  const attestationResolver: EvidenceEnvironmentAttestationResolver = {
-    resolve: (ref) => attestationRows.get(ref),
-  };
   const first = normalizeEvidenceEnvironmentReceipt(
     CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR,
     invocation,
-    receipt(firstAttestation.attestationRef),
+    receipt(),
     new Date('2026-07-19T00:30:00.000Z'),
-    { attestationResolver },
   );
   const second = normalizeEvidenceEnvironmentReceipt(
     CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR,
     invocation,
-    receipt(secondAttestation.attestationRef),
+    receipt(),
     new Date('2026-07-19T00:30:00.000Z'),
-    { attestationResolver },
   );
   assert.equal(first.ok, true);
   assert.equal(second.ok, true);
@@ -246,7 +217,6 @@ function expectBlock(
     invocation,
     receipt('attestation:caller-invented'),
     new Date('2026-07-19T00:30:00.000Z'),
-    { attestationResolver },
   );
   assert.equal(forged.ok, false, 'caller-declared producer identity cannot self-attest');
   if (forged.ok) throw new Error('forged producer unexpectedly normalized');
@@ -384,52 +354,45 @@ function expectBlock(
     invocation,
     receipt: receipt(attestationRef),
   });
-  assert.equal(evaluateEvidenceEnvironmentQuorum({
-    items: [quorumItem(firstAttestation.attestationRef), quorumItem(secondAttestation.attestationRef)],
-    attestationResolver,
+  const injectedResolverQuorum = evaluateEvidenceEnvironmentQuorum({
+    items: [quorumItem('attestation:codex'), quorumItem('attestation:claude')],
     now: new Date('2026-07-19T00:30:00.000Z'),
-  }).independent, true);
-  const sameProducer = {
-    ...secondAttestation,
-    attestationRef: 'attestation:same-producer',
-    lineageId: firstAttestation.lineageId,
-    keyId: firstAttestation.keyId,
-    sessionId: firstAttestation.sessionId,
-  };
-  attestationRows.set(sameProducer.attestationRef, sameProducer);
-  const sameLineage = normalizeEvidenceEnvironmentReceipt(
-    CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR,
-    invocation,
-    receipt(sameProducer.attestationRef),
-    new Date('2026-07-19T00:30:00.000Z'),
-    { attestationResolver },
-  );
-  assert.equal(sameLineage.ok, true);
-  if (!sameLineage.ok) throw new Error('same-lineage fixture should normalize before quorum evaluation');
+    // An extra callback-shaped property cannot become a trust root.
+    attestationResolver: {
+      resolve: (ref: string) => ({
+        producerId: 'same-producer',
+        lineageId: `caller-lineage:${ref}`,
+        keyId: `caller-key:${ref}`,
+        sessionId: `caller-session:${ref}`,
+      }),
+    },
+  } as any);
+  assert.equal(injectedResolverQuorum.independent, false);
+  assert.ok(injectedResolverQuorum.reasons.includes('distinct_host_quorum_unsupported'));
+
+  // Until a pinned registry exists, even allegedly distinct producer/lineage/key/
+  // session tuples are not accepted. A repeated principal reference is also
+  // explicitly classified as same-producer, covering producerId independence.
   const quorum = evaluateEvidenceEnvironmentQuorum({
-    items: [quorumItem(firstAttestation.attestationRef), quorumItem(sameProducer.attestationRef)],
-    attestationResolver,
+    items: [quorumItem('attestation:same-producer'), quorumItem('attestation:same-producer')],
     now: new Date('2026-07-19T00:30:00.000Z'),
   });
   assert.equal(quorum.independent, false);
   assert.ok(quorum.reasons.includes('same_producer_not_independent'));
   assert.equal(evaluateEvidenceEnvironmentQuorum({
     items: [],
-    attestationResolver,
   }).independent, false);
   assert.ok(evaluateEvidenceEnvironmentQuorum({
-    items: [quorumItem(firstAttestation.attestationRef)],
-    attestationResolver,
+    items: [quorumItem('attestation:single')],
     now: new Date('2026-07-19T00:30:00.000Z'),
   }).reasons.includes('quorum_cardinality_missing'));
   const unverifiedQuorum = evaluateEvidenceEnvironmentQuorum({
     items: [quorumItem('attestation:missing-1'), quorumItem('attestation:missing-2')],
-    attestationResolver,
     now: new Date('2026-07-19T00:30:00.000Z'),
   });
   assert.equal(unverifiedQuorum.independent, false);
   assert.ok(unverifiedQuorum.reasons.includes('producer_attestation_invalid'));
-  console.log('host substitution and distinct-producer quorum: PASS');
+  console.log('host substitution semantics and fail-closed unsupported distinct-host quorum: PASS');
 }
 
 {

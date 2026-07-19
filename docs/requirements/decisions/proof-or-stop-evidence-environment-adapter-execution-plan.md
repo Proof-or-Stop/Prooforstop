@@ -60,8 +60,9 @@ Implemented now:
 | Code-runtime reference path | Implemented as a projection of existing policy-authorized DONE-required/routine-validation identities and receipts | `projectDoneRequiredReceiptToEnvironment`; no new process launcher or public command endpoint |
 | Quantum reference path | Implemented as read-receipt-only projection after the existing Quantum normalizer accepts the receipt | `projectQuantumReceiptToEnvironment`; Quantum smoke |
 | Proof Admissibility / Gate projection | Implemented in the existing DONE_REQUIRED lifecycle consumer; raw invocation/receipt input is revalidated before the shared proof-surface evaluator runs | `evaluateDoneRequiredEvidence` → `validateDoneRequiredEvidenceEnvironmentProjection` → `evaluateEvidenceEnvironmentGateProjection`; DONE-required smoke |
+| Windows implicit-shell identity | Implemented for the DONE-required path: actual `shell:true` is recorded, target executable identity remains separate, and `ComSpec`/`cmd.exe` content identity is bound as `shellExecutableDigest` by the shared producer/consumer constructor | DONE-required platform-injected regression; validation-evidence-reuse smoke |
 | Host-substitution invariant | Mechanically covered for policy-equivalent normalized inputs | EEA conformance smoke |
-| Producer independence | Receipt carries only an opaque attestation reference; a verifier-owned resolver outside the receipt supplies verified identity, and quorum fails closed for unresolved identity, insufficient cardinality, or duplicate lineage/key/session | EEA conformance smoke |
+| Producer independence | **Unsupported / fail-closed.** Receipts may reserve an opaque attestation reference, but the implementation exposes no injectable resolver and has no project-owned pinned-key/revocation registry. Distinct-host quorum always returns `distinct_host_quorum_unsupported`; repeated references additionally return `same_producer_not_independent` | EEA conformance smoke |
 
 This implementation does **not** add an arbitrary runner, a second evidence
 store, an adapter-owned lifecycle transition, production authority, or a generic
@@ -237,7 +238,10 @@ session, legacy/external Authority-derived identity, or equivalent verifier-owne
 attestation.
 Caller-supplied `hostId`, provider, session, key, or trust strings are provenance
 claims only and cannot satisfy an independence policy. Missing or unverifiable
-producer attestation fails closed.
+producer attestation fails closed. The current implementation has no trusted
+producer registry and therefore treats every distinct-Host quorum request as
+unsupported; an arbitrary callback is never accepted as a verifier-owned trust
+root.
 
 ### I2. Authority separation
 
@@ -635,11 +639,13 @@ routine-validation identity, and the derived EEA mapping remain independently
 verifiable; callers cannot submit only the derived fields and claim that either
 legacy identity verification passed.
 
-Current Windows execution is a known identity gap: `validation-executor.ts`
-enables a shell when `process.platform === 'win32'` even when the configured
-command has `shell:false`, while the legacy result/command envelope can retain
-the declared mode. M3a must derive EEA shell identity from actual execution, and
-M4 must include a Windows implicit-shell regression case.
+The Windows identity gap is closed for the DONE-required reference path:
+`validation-executor.ts` records the actual implicit `shell:true` result,
+and the shared routine/DONE identity constructor resolves and hashes
+`ComSpec`/`cmd.exe`. Producer and consumer use the same constructor. A
+platform-injected regression with a synthetic `cmd.exe` proves stable
+environment, shell-mode, and executable identity without requiring a Windows
+test host.
 
 ## 10. Executable implementation plan
 
@@ -734,7 +740,7 @@ Acceptance:
   expired windows under the active policy;
 - remote and externally attested receipts reject missing, unknown, revoked, or
   invalid producer attestations;
-- a project-owned pinned-producer registry introduced by M2, or a separately
+- a future project-owned pinned-producer registry, or a separately
   configured legacy/external Authority trust service, owns signer authorization,
   public-key binding, session binding, and revocation state; the adapter may
   verify against that source but cannot write or elevate it. The M2 registry
@@ -742,6 +748,10 @@ Acceptance:
   `authority-signing.ts` and the strict shape/public-key binding lessons in
   `receipt-bundle.ts`; it is a new trust-policy registry, not a claim that either
   existing module already provides producer authorization or revocation.
+
+This pinned-producer registry is **not implemented in B-955c**. Consequently
+the public contract does not accept a caller-supplied resolver and distinct-host
+quorum is fail-closed unsupported.
 
 The existing `ActorTrustRegistry` remains the evidence-quality registry for
 logical actor ids and revoked actor-id strings. It is not sufficient for
@@ -979,13 +989,16 @@ Kubernetes merely because Levels A–C exist.
 
 ### Host-neutrality statement
 
-> Host identity contributes provenance and may satisfy explicit independence
+> Host identity contributes provenance but, in the current implementation,
+> cannot satisfy explicit independence
 > policies, but it does not otherwise alter Gate semantics. Under equivalent
 > subject, invocation, environment, policy, trust, and freshness bindings,
 > semantically equivalent evidence from substitutable hosts yields the same Gate
-> decision. When a policy requires Host independence, each producer identity
-> must be bound to a separately verified key, session, or trusted attestation;
-> provider labels alone are not evidence of independence.
+> decision. A future Host-independence implementation must bind each producer
+> identity to a separately verified pinned key, signed session/invocation/
+> subject binding, and revocation state. Until that registry exists, the quorum
+> API fails closed as unsupported; provider labels or injected callbacks are
+> never evidence of independence.
 
 ### Cross-domain statement
 
@@ -1037,7 +1050,7 @@ environment from an example in this document.
 | Arbitrary command execution | Generic adapter becomes an RCE/secrets boundary | Reuse allowlisted executors; no arbitrary shell; explicit network/fs/env policy |
 | Unsafe caching | Old or different-environment receipt reused | Full identity key; temporal/stochastic non-cache defaults |
 | Host-brand special cases | Gate result changes because provider string changes | Host-substitution conformance suite |
-| False host equivalence | Quorum independence erased or forged with renamed provider strings | Condition substitution on trust class and explicit independence policy; require separately verified producer attestations |
+| False host equivalence | Quorum independence erased or forged with renamed provider strings | Current implementation rejects all distinct-host quorum as unsupported; future enablement requires a project-owned pinned-key, session-bound, revocation-aware registry |
 | Descriptor trust escalation | An untrusted Pack registers itself as executable or high-trust | Separate registration from execution authority; policy-owned provenance and trust classification |
 | Shell/environment identity drift | A command is identified under one process/shell context and runs under another | Prefer `shell:false`; bind effective process environment and shell identity; conformance-test supported shell paths |
 | Paper outruns implementation | Lean/Rosetta/AlphaFold shown as supported | Claim ladder and per-adapter support matrix |
@@ -1055,8 +1068,9 @@ The architecture is paper-ready only when:
 5. all identity, stale, unsafe, checker-error, and authority-bypass cases fail
    closed;
 6. host substitution passes under equivalent policy inputs;
-7. distinct-host quorum remains distinct, binds each producer to separately
-   verified attestation, and cannot be satisfied by caller-renamed substitution;
+7. distinct-host quorum either binds every producer to a project-owned,
+   pinned-key, signed-session and revocation-checked attestation, or remains
+   explicitly unsupported and fail-closed (the current implementation);
 8. adapter outputs enter the shared Evidence Platform and Proof Admissibility
    path rather than a parallel store;
 9. no adapter directly mutates lifecycle or claims production completion;
