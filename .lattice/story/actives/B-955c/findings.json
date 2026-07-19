@@ -341,6 +341,21 @@
       "resolvedAt": "2026-07-19T03:24:03.725Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-955c:F-019",
+      "desc": "packages/main/src/core/evidence/environment-contract.ts:657-684 contradicts docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md:620-643 after the F-017/F-018 resolution. The v2 design says EEA identity must use commandSpec.cwd (portable logical cwd) and must not promote the physical worktree path, but projectDoneRequiredReceiptToEnvironment still sets EEA commandSpec.cwd from receipt.cwd (the absolute physical execution path). digestEvidenceEnvironmentInvocation canonicalizes the whole EEA command spec, so equivalent v2 executions in different worktree/host roots receive different EEA invocation and command-spec digests. The new smoke only changes its fixture to v2 and checks projection succeeds; it does not compare two physical roots or assert that commandSpec.cwd equals the portable logical cwd. This leaves the claimed portable/host-neutral mapping mechanically false. Map v2 from receipt.commandSpec.cwd, keep physical receipt.cwd/resolvedCwd as provenance outside portable command identity, define the legacy-v1 resolver explicitly, and add cross-root equality plus physical-path-tamper/provenance tests.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-19T03:25:42.383Z",
+      "reviewRound": "2026-07-19T03:23:39.690Z",
+      "reviewRunId": "B-955c:RR-040",
+      "_hash": "6f02743d3f056698f0dbee91c3d18b20617bda80cc477d22cd9814500d4432b5",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
