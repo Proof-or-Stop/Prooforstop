@@ -144,7 +144,7 @@
           }
         ]
       },
-      "userSees": "终端报告隔离 experiment ledger 的 attempt 数、assembled/dispatch/provider/cache 可用性和 findings；不可用字段显示 unavailable(reason)，并标明 gateEvidence=false。",
+      "userSees": "用户查看分析时看到：\"Experiment ledger: PASS gateEvidence=false attempts=<n>\"；缺失 provider/cache 字段显示 \"unavailable(<reason>)\"，不会显示为 0。",
       "files": {
         "modify": [],
         "create": [
