@@ -666,6 +666,27 @@
         "scanEscalationReason": null
       },
       "_hash": "9926caf4c822b2be92b4a23daf1e24aaaf7fac903cf11863807c2b579bd3b96a"
+    },
+    {
+      "id": "B-235e:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Round16 authoritative Prompt Envelope eligibility re-attestation. Current review_run_start recomputed a fresh eligibility digest and selected incremental/SAFE_INCREMENTAL with changedFiles=[], ELIGIBLE_NO_MATERIAL_CHANGE and ELIGIBLE_TRUSTED_PRIOR_BINDINGS, bound to prior quality pass RP-023, ReviewRun RR-055 and Prompt Envelope 5c786c4. Since RP-023 only closeout/index/process/review/test metadata changed; implementation and contracts remain unchanged. No unresolved findings or blocking quality issue found.",
+      "createdAt": "2026-07-19T22:53:55.532Z",
+      "reviewRound": "2026-07-19T22:52:21.293Z",
+      "reviewRunId": "B-235e:RR-057",
+      "envelopeId": "5846fe1b3979c75371a8b28de4236d40374235c7ec824e8ba03ca96aa5c436c4",
+      "writerSessionId": "sess-61e583213cb095be130628a3b1ad47cd",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "29c99ad22868c2e1e041b177d154eaa331867a32e5a7688119d509f20d605e86"
     }
   ]
 }
