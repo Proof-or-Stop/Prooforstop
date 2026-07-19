@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Gate evidence must be atomically durable before a writer reports success.",
+    "Causal exact deltas are admissible; path-shaped or text-shaped dirt is not.",
+    "Failure rolls back framework-owned bytes without modifying competing user data."
+  ],
+  "drivers": [
+    "Prevent long validations from being invalidated by quorum-owned residue.",
+    "Preserve independent reviewer/host submission semantics without owner self-signing.",
+    "Reuse proven short exact metadata transaction primitives instead of inventing a broad exception."
+  ],
+  "options": [
+    {
+      "name": "A: Exact quorum-local metadata transaction",
+      "pros": [
+        "Binds admission to the current invocation",
+        "Can commit all six verdicts atomically",
+        "Supports rollback and CAS checks",
+        "Keeps verifier strict"
+      ],
+      "cons": [
+        "Requires a focused transaction wrapper and failure tests"
+      ]
+    },
+    {
+      "name": "B: Teach validate to accept dirty host verdict rows",
+      "pros": [
+        "Small verifier-side change"
+      ],
+      "cons": [
+        "Launders pre-existing or forged verdict-shaped dirt",
+        "Moves responsibility to the wrong writer",
+        "Can absorb unrelated rows"
+      ]
+    },
+    {
+      "name": "C: Host manually commits after quorum_submit",
+      "pros": [
+        "No runtime code change"
+      ],
+      "cons": [
+        "Relies on memory and shell discipline",
+        "Already caused a nine-minute wasted run",
+        "Cannot guarantee atomic rollback or prevent partial quorum"
+      ]
+    }
+  ],
+  "chosen": "A: Exact quorum-local metadata transaction",
+  "rationale": "Only option A preserves the verifier fail-closed boundary while making quorum_submit responsible for the exact L4 evidence it emits. It eliminates the observed residue without granting a path-based trust exception.",
+  "preMortem": [
+    {
+      "scenario": "The transaction commits pre-existing or forged process-event rows together with the quorum batch.",
+      "trigger": "process-events.jsonl is dirty before quorum_submit or changes outside the captured exact suffix.",
+      "consequence": "Untrusted evidence can enter a trusted commit and influence DONE assurance.",
+      "mitigation": "Require a clean bounded entry state, capture exact pre-bytes/HEAD, compare the post suffix structurally and fail closed without staging on mismatch."
+    },
+    {
+      "scenario": "A hook or commit failure leaves three of six verdicts or a dirty file behind.",
+      "trigger": "Git hook rejects the commit or persistence throws after some append operations.",
+      "consequence": "A partial quorum may be consumed or the next validation is poisoned.",
+      "mitigation": "Capture before mutation, emit in memory/bounded file transaction, rollback exact bytes and index on any failure, then assert no current-material verdict remains."
+    },
+    {
+      "scenario": "A concurrent writer appends a legitimate process event while quorum_submit is closing.",
+      "trigger": "HEAD or process-events bytes move between emission and commit.",
+      "consequence": "Quorum may overwrite, absorb or delete another writer’s evidence.",
+      "mitigation": "CAS recheck both HEAD and exact content; abort and preserve competing bytes with a classified retryable infra failure."
+    },
+    {
+      "scenario": "Duplicate retry creates a second six-row quorum after the first commit succeeded.",
+      "trigger": "Caller retries after losing terminal output.",
+      "consequence": "Duplicate runIds pollute assurance and audit history.",
+      "mitigation": "Retain same-material duplicate detection before emission and add an idempotent retry regression."
+    }
+  ],
+  "timestamp": "2026-07-18T22:13:47.751Z"
+}

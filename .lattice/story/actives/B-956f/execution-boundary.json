@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-956f",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/material-code-policy.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/repro-evidence-binding-gate.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/handlers/validate-concept.ts",
+    "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "main-agent",
+  "createdAt": "2026-07-18T22:43:58.827Z",
+  "updatedAt": "2026-07-18T22:43:58.827Z",
+  "_hash": "dfd88de974bc9ba825e89e991afc09719a7544a8a0e0c3416f1440f4cd452a03"
+}

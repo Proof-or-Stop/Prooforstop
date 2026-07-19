@@ -88,6 +88,86 @@ export interface PromptMeasurementRecord {
   providerProcessedInputTokens: PromptInputLayerAvailability;
 }
 
+export interface KnownExecutionEnvironment {
+  schemaVersion: 'proofbound.known-execution-environment.v1';
+  nodeVersion: string;
+  platform: string;
+  architecture: string;
+  cliVersion: string;
+  source: 'trusted-local-runtime';
+}
+
+export const FULL_TASK_CONTEXT_LIMITS = Object.freeze({
+  checklistItems: 256,
+  verificationIntentsPerLane: 256,
+  pathsPerList: 512,
+  fileRules: 512,
+  textBytes: 65_536,
+});
+
+export interface FullTaskVerificationIntent {
+  id: string;
+  desc: string;
+  type: 'logic' | 'cli' | 'browser' | 'manual' | 'docs';
+  requiredIn?: 'light' | 'balanced' | 'strict';
+  priority?: 'must' | 'should' | 'nice';
+}
+
+export interface FullTaskScopeContext {
+  mode: 'local' | 'shadow' | 'enforce';
+  allowedModify: string[];
+  allowedCreate: string[];
+  allowedTest: string[];
+  protectedFiles: string[];
+  explicitExcludes: string[];
+  protectedAnchors: string[];
+  fileRules: Array<{
+    path: string;
+    allowedAnchors: string[];
+    deniedAnchors: string[];
+    protectedAnchors: string[];
+    allowedChangeKinds: string[];
+    intentRefs: string[];
+  }>;
+  pathCanonicalizerVersion?: string;
+  pathCanonicalizationMode?: 'off' | 'warn' | 'enforce';
+  anchorParserVersion?: string;
+  anchorArtifactVersion?: string;
+  astAnchorMode?: 'off' | 'warn' | 'enforce';
+}
+
+export interface FullTaskContext {
+  schemaVersion: 'proofbound.full-task-context.v1';
+  storyId: string;
+  title: string;
+  description: string;
+  phase: string;
+  priority: string;
+  checklist: Array<{
+    id: string;
+    title: string;
+    status: string;
+    context?: string;
+    userSees?: string;
+    relatedDocs: string[];
+    files: {
+      modify: string[];
+      create: string[];
+      test: string[];
+    };
+    verificationIntent: {
+      happy: FullTaskVerificationIntent[];
+      edge: FullTaskVerificationIntent[];
+      adversarial: FullTaskVerificationIntent[];
+    };
+  }>;
+  headHash: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+  scopeContractDigest?: string;
+  scope?: FullTaskScopeContext;
+}
+
 export interface PromptEnvelope {
   schemaVersion: 'proofbound.prompt-envelope.v1';
   envelopeId: string;
@@ -96,6 +176,7 @@ export interface PromptEnvelope {
   dispatchKind: 'story-dispatch' | 'review-run';
   reviewRunId?: string;
   reviewRound?: string;
+  lane?: string;
   createdAt: string;
   headHash: string;
   runtimeContractVersion: string;
@@ -121,11 +202,17 @@ export interface PromptEnvelope {
   toolPolicyDigest?: string;
   systemInstructionDigest?: string;
   requestedModelId?: string;
+  dispatchPromptDigest?: string;
+  hostRenderIdentityDigest?: string;
   assembledPromptDigest: string;
   bytes: number;
   lines: number;
   estimatedTokens: number;
   tokenEstimatorVersion: string;
+}
+
+export interface PromptEnvelopeData {
+  envelopes: PromptEnvelope[];
 }
 
 export interface DispatchUsageObservation {
@@ -254,6 +341,20 @@ export function domainSeparatedDigest(domain: string, value: unknown): string {
     .digest('hex');
 }
 
+export function reviewerDispatchPromptDigest(prompt: string): string {
+  return domainSeparatedDigest('reviewer-story-dispatch.raw-utf8.v1', prompt);
+}
+
+export function reviewerDispatchBindingDigest(value: {
+  storyId: string;
+  lane: string;
+  reviewRound: string;
+  dispatchPromptDigest: string;
+  hostRenderIdentityDigest: string;
+}): string {
+  return domainSeparatedDigest('reviewer-dispatch-binding.v1', value);
+}
+
 export function promptUtf8Bytes(text: string): number {
   requireString(text, 'prompt text');
   return Buffer.byteLength(text, 'utf8');
@@ -321,6 +422,21 @@ function requireStringArray(value: unknown, label: string): asserts value is str
     throw new PromptContractValidationError(`${label} must be an array of nonblank strings`);
   }
   if (new Set(value).size !== value.length) throw new PromptContractValidationError(`${label} contains duplicates`);
+}
+
+function requireBoundedText(value: unknown, label: string): asserts value is string {
+  requireNonblank(value, label);
+  if (Buffer.byteLength(value, 'utf8') > FULL_TASK_CONTEXT_LIMITS.textBytes) {
+    throw new PromptContractValidationError(`${label} exceeds ${FULL_TASK_CONTEXT_LIMITS.textBytes} UTF-8 bytes`);
+  }
+}
+
+function requireBoundedStringArray(value: unknown, label: string): asserts value is string[] {
+  requireStringArray(value, label);
+  if (value.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList) {
+    throw new PromptContractValidationError(`${label} exceeds ${FULL_TASK_CONTEXT_LIMITS.pathsPerList} entries`);
+  }
+  value.forEach((item, index) => requireBoundedText(item, `${label}[${index}]`));
 }
 
 function requireExactKeys(record: Record<string, unknown>, required: readonly string[], optional: readonly string[], label: string): void {
@@ -441,8 +557,9 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
     'estimatedTokens', 'tokenEstimatorVersion',
   ];
   const optional = [
-    'reviewRunId', 'reviewRound', 'priorPassRef', 'materialHash', 'storyFilesHash', 'policyHash',
+    'reviewRunId', 'reviewRound', 'lane', 'priorPassRef', 'materialHash', 'storyFilesHash', 'policyHash',
     'freshnessClassification', 'toolPolicyDigest', 'systemInstructionDigest', 'requestedModelId',
+    'dispatchPromptDigest', 'hostRenderIdentityDigest',
   ];
   requireExactKeys(record, required, optional, 'PromptEnvelope');
   if (record.schemaVersion !== 'proofbound.prompt-envelope.v1') throw new PromptContractValidationError('PromptEnvelope.schemaVersion is unsupported');
@@ -456,17 +573,191 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   if (record.dispatchKind === 'review-run') {
     requireNonblank(record.reviewRunId, 'PromptEnvelope.reviewRunId');
     requireNonblank(record.reviewRound, 'PromptEnvelope.reviewRound');
-  } else if (record.reviewRunId !== undefined || record.reviewRound !== undefined) {
+    requireNonblank(record.lane, 'PromptEnvelope.lane');
+    if (record.roleId !== record.lane) {
+      throw new PromptContractValidationError('review-run PromptEnvelope.roleId must equal PromptEnvelope.lane');
+    }
+    requireDigest(record.dispatchPromptDigest, 'PromptEnvelope.dispatchPromptDigest');
+    requireDigest(record.hostRenderIdentityDigest, 'PromptEnvelope.hostRenderIdentityDigest');
+  } else if (record.reviewRunId !== undefined || record.reviewRound !== undefined || record.lane !== undefined) {
     throw new PromptContractValidationError('story-dispatch PromptEnvelope cannot carry review authority');
+  } else if (record.dispatchPromptDigest !== undefined || record.hostRenderIdentityDigest !== undefined) {
+    throw new PromptContractValidationError('story-dispatch PromptEnvelope cannot carry reviewer host dispatch authority');
   }
-  if (record.contextMode === 'incremental') requireNonblank(record.priorPassRef, 'PromptEnvelope.priorPassRef');
-  const optionalDigests = ['materialHash', 'storyFilesHash', 'policyHash', 'toolPolicyDigest', 'systemInstructionDigest'];
+  if (record.contextMode !== 'full' || record.eligibilityDecision !== 'full' || record.priorPassRef !== undefined) {
+    throw new PromptContractValidationError('Story 2 PromptEnvelope supports full context only');
+  }
+  const optionalDigests = [
+    'materialHash', 'storyFilesHash', 'policyHash', 'toolPolicyDigest', 'systemInstructionDigest',
+    'dispatchPromptDigest', 'hostRenderIdentityDigest',
+  ];
   for (const key of optionalDigests.filter(key => record[key] !== undefined)) {
     requireDigest(record[key], `PromptEnvelope.${key}`);
   }
   const optionalText = ['priorPassRef', 'freshnessClassification', 'requestedModelId'];
   for (const key of optionalText.filter(key => record[key] !== undefined)) {
     requireNonblank(record[key], `PromptEnvelope.${key}`);
+  }
+}
+
+export function validateKnownExecutionEnvironment(value: unknown): asserts value is KnownExecutionEnvironment {
+  const record = asRecord(value, 'KnownExecutionEnvironment');
+  requireExactKeys(
+    record,
+    ['schemaVersion', 'nodeVersion', 'platform', 'architecture', 'cliVersion', 'source'],
+    [],
+    'KnownExecutionEnvironment',
+  );
+  if (record.schemaVersion !== 'proofbound.known-execution-environment.v1') {
+    throw new PromptContractValidationError('KnownExecutionEnvironment.schemaVersion is unsupported');
+  }
+  for (const key of ['nodeVersion', 'platform', 'architecture', 'cliVersion']) {
+    requireNonblank(record[key], `KnownExecutionEnvironment.${key}`);
+  }
+  if (record.source !== 'trusted-local-runtime') {
+    throw new PromptContractValidationError('KnownExecutionEnvironment.source is invalid');
+  }
+}
+
+export function validateFullTaskContext(value: unknown): asserts value is FullTaskContext {
+  const record = asRecord(value, 'FullTaskContext');
+  requireExactKeys(
+    record,
+    ['schemaVersion', 'storyId', 'title', 'description', 'phase', 'priority', 'checklist', 'headHash'],
+    ['materialHash', 'storyFilesHash', 'scopeContractDigest', 'scope'],
+    'FullTaskContext',
+  );
+  if (record.schemaVersion !== 'proofbound.full-task-context.v1') {
+    throw new PromptContractValidationError('FullTaskContext.schemaVersion is unsupported');
+  }
+  for (const key of ['storyId', 'title', 'description', 'phase', 'priority', 'headHash']) {
+    requireBoundedText(record[key], `FullTaskContext.${key}`);
+  }
+  for (const key of ['materialHash', 'storyFilesHash', 'scopeContractDigest']) {
+    if (record[key] !== undefined) requireDigest(record[key], `FullTaskContext.${key}`);
+  }
+  if ((record.scopeContractDigest === undefined) !== (record.scope === undefined)) {
+    throw new PromptContractValidationError(
+      'FullTaskContext.scope and FullTaskContext.scopeContractDigest must be present together',
+    );
+  }
+  if (!Array.isArray(record.checklist)) throw new PromptContractValidationError('FullTaskContext.checklist must be an array');
+  if (record.checklist.length > FULL_TASK_CONTEXT_LIMITS.checklistItems) {
+    throw new PromptContractValidationError(`FullTaskContext.checklist exceeds ${FULL_TASK_CONTEXT_LIMITS.checklistItems} items`);
+  }
+  const seen = new Set<string>();
+  for (const [index, raw] of record.checklist.entries()) {
+    const item = asRecord(raw, `FullTaskContext.checklist[${index}]`);
+    requireExactKeys(
+      item,
+      ['id', 'title', 'status', 'relatedDocs', 'files', 'verificationIntent'],
+      ['context', 'userSees'],
+      `FullTaskContext.checklist[${index}]`,
+    );
+    for (const key of ['id', 'title', 'status']) requireBoundedText(item[key], `FullTaskContext.checklist[${index}].${key}`);
+    if (item.context !== undefined) requireBoundedText(item.context, `FullTaskContext.checklist[${index}].context`);
+    if (item.userSees !== undefined) requireBoundedText(item.userSees, `FullTaskContext.checklist[${index}].userSees`);
+    requireBoundedStringArray(item.relatedDocs, `FullTaskContext.checklist[${index}].relatedDocs`);
+    const files = asRecord(item.files, `FullTaskContext.checklist[${index}].files`);
+    requireExactKeys(files, ['modify', 'create', 'test'], [], `FullTaskContext.checklist[${index}].files`);
+    for (const key of ['modify', 'create', 'test']) {
+      requireBoundedStringArray(files[key], `FullTaskContext.checklist[${index}].files.${key}`);
+    }
+    const verificationIntent = asRecord(
+      item.verificationIntent,
+      `FullTaskContext.checklist[${index}].verificationIntent`,
+    );
+    requireExactKeys(
+      verificationIntent,
+      ['happy', 'edge', 'adversarial'],
+      [],
+      `FullTaskContext.checklist[${index}].verificationIntent`,
+    );
+    const intentIds = new Set<string>();
+    for (const lane of ['happy', 'edge', 'adversarial'] as const) {
+      const intents = verificationIntent[lane];
+      if (!Array.isArray(intents)) {
+        throw new PromptContractValidationError(`FullTaskContext.checklist[${index}].verificationIntent.${lane} must be an array`);
+      }
+      if (intents.length > FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane) {
+        throw new PromptContractValidationError(
+          `FullTaskContext.checklist[${index}].verificationIntent.${lane} exceeds ${FULL_TASK_CONTEXT_LIMITS.verificationIntentsPerLane} entries`,
+        );
+      }
+      for (const [intentIndex, rawIntent] of intents.entries()) {
+        const label = `FullTaskContext.checklist[${index}].verificationIntent.${lane}[${intentIndex}]`;
+        const intent = asRecord(rawIntent, label);
+        requireExactKeys(intent, ['id', 'desc', 'type'], ['requiredIn', 'priority'], label);
+        requireBoundedText(intent.id, `${label}.id`);
+        requireBoundedText(intent.desc, `${label}.desc`);
+        if (!['logic', 'cli', 'browser', 'manual', 'docs'].includes(intent.type as string)) {
+          throw new PromptContractValidationError(`${label}.type is invalid`);
+        }
+        if (intent.requiredIn !== undefined && !['light', 'balanced', 'strict'].includes(intent.requiredIn as string)) {
+          throw new PromptContractValidationError(`${label}.requiredIn is invalid`);
+        }
+        if (intent.priority !== undefined && !['must', 'should', 'nice'].includes(intent.priority as string)) {
+          throw new PromptContractValidationError(`${label}.priority is invalid`);
+        }
+        if (intentIds.has(intent.id as string)) {
+          throw new PromptContractValidationError(`FullTaskContext.checklist[${index}] contains duplicate verification intent id ${intent.id}`);
+        }
+        intentIds.add(intent.id as string);
+      }
+    }
+    if (seen.has(item.id as string)) throw new PromptContractValidationError(`FullTaskContext.checklist contains duplicate id ${item.id}`);
+    seen.add(item.id as string);
+  }
+  if (record.scope !== undefined) {
+    const scope = asRecord(record.scope, 'FullTaskContext.scope');
+    requireExactKeys(
+      scope,
+      [
+        'mode', 'allowedModify', 'allowedCreate', 'allowedTest', 'protectedFiles',
+        'explicitExcludes', 'protectedAnchors', 'fileRules',
+      ],
+      [
+        'pathCanonicalizerVersion', 'pathCanonicalizationMode', 'anchorParserVersion',
+        'anchorArtifactVersion', 'astAnchorMode',
+      ],
+      'FullTaskContext.scope',
+    );
+    if (!['local', 'shadow', 'enforce'].includes(scope.mode as string)) {
+      throw new PromptContractValidationError('FullTaskContext.scope.mode is invalid');
+    }
+    for (const key of [
+      'allowedModify', 'allowedCreate', 'allowedTest', 'protectedFiles',
+      'explicitExcludes', 'protectedAnchors',
+    ]) {
+      requireBoundedStringArray(scope[key], `FullTaskContext.scope.${key}`);
+    }
+    if (!Array.isArray(scope.fileRules)) throw new PromptContractValidationError('FullTaskContext.scope.fileRules must be an array');
+    if (scope.fileRules.length > FULL_TASK_CONTEXT_LIMITS.fileRules) {
+      throw new PromptContractValidationError(`FullTaskContext.scope.fileRules exceeds ${FULL_TASK_CONTEXT_LIMITS.fileRules} entries`);
+    }
+    for (const [index, rawRule] of scope.fileRules.entries()) {
+      const label = `FullTaskContext.scope.fileRules[${index}]`;
+      const rule = asRecord(rawRule, label);
+      requireExactKeys(
+        rule,
+        ['path', 'allowedAnchors', 'deniedAnchors', 'protectedAnchors', 'allowedChangeKinds', 'intentRefs'],
+        [],
+        label,
+      );
+      requireBoundedText(rule.path, `${label}.path`);
+      for (const key of ['allowedAnchors', 'deniedAnchors', 'protectedAnchors', 'allowedChangeKinds', 'intentRefs']) {
+        requireBoundedStringArray(rule[key], `${label}.${key}`);
+      }
+    }
+    for (const key of ['pathCanonicalizerVersion', 'anchorParserVersion', 'anchorArtifactVersion']) {
+      if (scope[key] !== undefined) requireBoundedText(scope[key], `FullTaskContext.scope.${key}`);
+    }
+    if (scope.pathCanonicalizationMode !== undefined && !['off', 'warn', 'enforce'].includes(scope.pathCanonicalizationMode as string)) {
+      throw new PromptContractValidationError('FullTaskContext.scope.pathCanonicalizationMode is invalid');
+    }
+    if (scope.astAnchorMode !== undefined && !['off', 'warn', 'enforce'].includes(scope.astAnchorMode as string)) {
+      throw new PromptContractValidationError('FullTaskContext.scope.astAnchorMode is invalid');
+    }
   }
 }
 

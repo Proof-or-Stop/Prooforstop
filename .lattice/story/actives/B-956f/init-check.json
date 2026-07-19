@@ -1,0 +1,32 @@
+{
+  "storyId": "B-956f",
+  "checkedAt": "2026-07-18T22:54:04.548Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md and index.json never introduce or number the W1/W2/W3/S1/S2 workstream program codes; they only appear in .lattice/story/actives/B-956f/scope-boundary.json (excluded list + confirmationNote: W1=this story, W2=RED evidence subsystem, W3=enforce flip, S1=orchestrator routing, S2=lock/digest portability). A fresh reader relying only on background.md/index.json/checklist.json has no map of the larger initiative this story is one slice of. Collision risk remains: CLAUDE.md line ~35 already uses S1 for an unrelated meaning (lattice-review-channel retirement)."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-18T22:45:25.810Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-18T22:54:04.548Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md and index.json never introduce or number the W1/W2/W3/S1/S2 workstream program codes; they only appear in .lattice/story/actives/B-956f/scope-boundary.json (excluded list + confirmationNote: W1=this story, W2=RED evidence subsystem, W3=enforce flip, S1=orchestrator routing, S2=lock/digest portability). A fresh reader relying only on background.md/index.json/checklist.json has no map of the larger initiative this story is one slice of. Collision risk remains: CLAUDE.md line ~35 already uses S1 for an unrelated meaning (lattice-review-channel retirement)."
+        }
+      ]
+    }
+  ],
+  "_hash": "17c77c2262d8b06ae9025d165019c5ec06609bb23bdb02a18247549f2f56a49a"
+}

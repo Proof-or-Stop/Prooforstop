@@ -455,6 +455,30 @@ try {
     assert.equal(report.productionDone, false);
   });
 
+  check('compatibility/retired-only records cannot satisfy the host-verdict assurance floor', () => {
+    const findings = ['implementation-reviewer', 'test-intent', 'lattice-review-channel'].map((agent, index) =>
+      finding({
+        id: `${STORY_ID}:COMPAT-F-${index + 1}`,
+        agent,
+        severity: 'high',
+        status: 'open',
+      }));
+    const report = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story(),
+      changedFiles: ['packages/main/src/index.ts'],
+      findings,
+      processEvents: [],
+      materialHash,
+    });
+    assert.equal(report.ok, false);
+    assert.equal(report.requiredAssurance, 'one-local-round');
+    assert.equal(report.failureSignals.length, 0, 'compatibility/retired roles cannot manufacture reviewer authority');
+    assert.equal(report.localRounds.validRounds.length, 0);
+    assert.match(report.reasons.join('\n'), /requires 1 fresh local PASS round/);
+    assert.equal(report.proofAdmissibility.artifactKind, 'host-verdict');
+  });
+
   check('stale local review evidence does not count', () => {
     const report = evaluateReviewAssuranceFloor({
       projectRoot: root,
