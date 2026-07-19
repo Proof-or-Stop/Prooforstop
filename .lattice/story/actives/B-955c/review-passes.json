@@ -788,6 +788,63 @@
         "scanEscalationReason": null
       },
       "_hash": "447d5bf32120ec790b3f89a623a0a1ec91abef0f9576374480d474046903c17c"
+    },
+    {
+      "id": "B-955c:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Docs/claims delta review PASS for 3b5b5cfd99. The only product-tree change is packages/main/src/tasks/done-required-freshness-smoke.ts; the remaining changed files are Lattice lifecycle metadata. The smoke now derives synthetic receipt environment/executable/shell digests from the canonical production buildDoneRequiredExecutionIdentity helper. README.md, docs/evidence/, and docs/requirements/ have no diff in this commit, so the documented boundaries remain unchanged: distinct-host quorum is unsupported/fail-closed pending a project-owned pinned registry; named external environments remain integration targets; and external manuscript M6 remains pending/Level B. npm run test:done-required-freshness-smoke passed and git diff --check reported no issues.",
+      "createdAt": "2026-07-19T02:22:29.336Z",
+      "reviewRound": "2026-07-19T02:20:03.166Z",
+      "reviewRunId": "B-955c:RR-026",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-955c/index.json",
+          ".lattice/story/actives/B-955c/process-events.jsonl",
+          ".lattice/story/actives/B-955c/process-metrics.json",
+          ".lattice/story/actives/B-955c/scope-contract.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "679032960f48987e84e197c8681078ebccf70deccaa94f3842568822086c9d70"
+      },
+      "readDiagnostics": [],
+      "_hash": "c2e79a78592eef5c60af7b0c9d38984bf4aae8b56e2635b04b1454e867b752e1"
     }
   ]
 }
