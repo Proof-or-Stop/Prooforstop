@@ -104,7 +104,8 @@ import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { signReviewPass } from '../core/finding-verify.js';
-import { signReviewRun } from '../core/review-run.js';
+import { hashReviewPrompt, signReviewRun } from '../core/review-run.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 import { realpathSync } from 'node:fs';
 import type {
   ChecklistData,
@@ -115,6 +116,13 @@ import type {
   ReviewRun,
   StoryInfo,
 } from '../core/types.js';
+
+function legacyPromptHash(agent: string): string {
+  return hashReviewPrompt(resolvePromptRoleBody(agent, {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [agent]: 'legacy-full-context' },
+  }).body);
+}
 
 const STORY_ID = 'B-36ba-smoke';
 const BRANCH = 'story/B-36ba-smoke';
@@ -759,10 +767,10 @@ function story(): StoryInfo {
         headHash,
         materialHash,
         storyFilesHash,
-        promptHash: 'wrapper-root-done-review',
+        promptHash: legacyPromptHash(agent),
         _hash: signReviewRun(
           DONE_STORY_ID, reviewRunId, agent, agent, 'round-1', startedAt,
-          headHash, materialHash, 'wrapper-root-done-review', undefined, undefined, storyFilesHash,
+          headHash, materialHash, legacyPromptHash(agent), undefined, undefined, storyFilesHash,
         ),
       };
     });
