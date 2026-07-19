@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-19T02:07:15.718Z",
-      "endTime": "2026-07-19T02:08:44.817Z",
+      "endTime": "2026-07-19T02:34:59.484Z",
       "verificationIntent": {
         "happy": [
           {
@@ -57,11 +57,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun: protocol/corpus validation PASS with 3 classes, 6 samples, 3 repeats, 4 independently adjudicated critical/high oracles and stable experimentId f3d3798a.",
-          "headHash": "dc3e2e35e99e4434c65413d185ba612124dcaaab",
-          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
-          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
-          "timestamp": "2026-07-19T02:08:46.911Z"
+          "note": "Owner rerun: 43 checks PASS; protocol pins 3 classes, 6 samples, >=3 repeats, 4 seeded oracles and 2 real signed historical findings. Both finding v1 hashes and the corpus snapshot digest recompute exactly; category/evidenceState/sourceRefs are explicitly corpus-bound rather than misrepresented as v1-signed.",
+          "headHash": "6cf3fc7c47dce243f93295d2ede47323ae04b7be",
+          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
+          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
+          "timestamp": "2026-07-19T02:35:00.305Z"
         },
         {
           "intentRef": "availability-aware-preregistered-boundaries",
@@ -69,11 +69,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun proves all unbound dispatch/provider/cache metrics are unavailable(reason), unavailable has no tokens field, and even unbound reported zero is rejected.",
-          "headHash": "dc3e2e35e99e4434c65413d185ba612124dcaaab",
-          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
-          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
-          "timestamp": "2026-07-19T02:08:47.910Z"
+          "note": "Owner rerun proves absent prompt snapshots, finding outputs and provider/cache usage remain unavailable with stable reasons and cannot become numeric zero or an EVALUABLE historical claim.",
+          "headHash": "6cf3fc7c47dce243f93295d2ede47323ae04b7be",
+          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
+          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
+          "timestamp": "2026-07-19T02:35:01.150Z"
         },
         {
           "intentRef": "contract-corpus-posthoc-tamper-rejected",
@@ -81,11 +81,11 @@
           "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
           "result": "pass",
-          "note": "Owner rerun rejects frozen contract mutation, repeat/class floors, duplicate samples, missing adjudication, material/finding digest drift and protocol/corpus version skew.",
-          "headHash": "dc3e2e35e99e4434c65413d185ba612124dcaaab",
-          "materialHash": "eee97038246a619161e37f2db52710b5bf653e6d33f17295539e4231d5cb86f7",
-          "storyFilesHash": "0fd8c5fda2fe15b1defd2468ca346701a0aca35750340a3b4a7571d1c8ecc70b",
-          "timestamp": "2026-07-19T02:08:48.362Z"
+          "note": "Owner rerun rejects frozen contract/corpus mutation, forged historical finding hash, cross-Story ReviewRun reference, repeat/class floors, duplicates, digest drift and version skew; current experimentId is e3dae65713844e276b9a15f65b3bb0cb554bdee387037f3500934d29879b95b1.",
+          "headHash": "6cf3fc7c47dce243f93295d2ede47323ae04b7be",
+          "materialHash": "846f37f29b5c72c45dc4f658c8d1b7e47a35ce8797b569426da9dae81f56db7a",
+          "storyFilesHash": "d16e34ca7e123506048e412571ab77cee9e4d8c0a9f7ceacfff2ef313d4c4fd8",
+          "timestamp": "2026-07-19T02:35:01.846Z"
         }
       ]
     },
@@ -482,6 +482,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "REVIEW findings F-001 through F-010 require implementation repair and fresh evidence.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:34:59.484Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Owner independently reran the repaired 43-check fail-closed harness and bound fresh evidence without promoting unavailable historical metrics.",
       "agent": "main"
     }
   ]
