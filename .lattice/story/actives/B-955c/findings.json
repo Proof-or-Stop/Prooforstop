@@ -214,7 +214,7 @@
       "desc": "packages/main/src/core/done-required-validation.ts:690-695 and 587-617 — HIGH: runDoneRequiredValidation explicitly omits effectiveEnvironmentDigest/executableDigest on process.platform === win32, while evaluateDoneRequiredEvidence unconditionally calls validateDoneRequiredExecutionIdentityCoverage, which rejects every missing value. Therefore any Windows project with a configured DONE-required policy will produce its own evidence and then deterministically fail with effective-environment-digest-mismatch/executable-digest-mismatch; no Windows/platform-branch test covers this. Preserve fail-closed identity semantics with a Windows-capable producer/validator contract rather than emitting evidence that can never pass.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T01:14:48.452Z",
@@ -222,7 +222,11 @@
       "reviewRunId": "B-955c:RR-005",
       "_hash": "af48db0359113501c8605f40e3971fcb3b9da3bb15544aacab52972a2f3000c8",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Repro: Windows producer omitted effectiveEnvironmentDigest/executableDigest while the consumer required them, making every configured DONE-required Gate fail. Root cause: execution used an implicit Windows shell but identity recorded only declared shell mode and producer skipped identity entirely. Fix: producer and consumer now share buildDoneRequiredExecutionIdentity; receipts always persist environment, target executable, and conditional shellExecutableDigest; validation-executor records actual Windows shell=true; win32 resolves and hashes ComSpec/cmd.exe separately from the target executable. Regression: platform-injected fake cmd.exe asserts producer/consumer digest equality and actual commandSpec shell=true; DONE-required and validation-evidence-reuse smokes PASS at c0c3eeddde.",
+      "resolvedAt": "2026-07-19T01:28:53.659Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
