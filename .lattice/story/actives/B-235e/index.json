@@ -4,7 +4,7 @@
   "title": "Migrate active reviewer roles to modular full and incremental Prompt Envelopes",
   "description": "Execute Story 5 of the canonical role-prompt modularization plan: migrate concept, quality, test-coverage, behavior, and docs reviewers while excluding retired channel; preserve authority/signature gates and prove quality and budget outcomes with preregistered A/B replay and per-role rollback.",
   "type": "refactor",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-5",
   "depends": [
@@ -31,6 +31,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-19T07:05:56.619Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-dd30b61925971c0a67808f2fb1d9dc71",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-235e",
+    "branch": "story/B-235e",
+    "createdAt": "2026-07-19T07:05:54.327Z"
+  }
 }

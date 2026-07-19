@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-235e",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git log*",
+    "git status*",
+    "node bin/lattice.js *",
+    "node scripts/*",
+    "npm --prefix packages/main *",
+    "npm test*",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Claude CLI review",
+    "Codex subagents",
+    "Glob",
+    "Grep",
+    "Read"
+  ],
+  "allowedPaths": [
+    ".claude/agents",
+    ".lattice-codex/agents",
+    "docs/host-run-usage.md",
+    "docs/requirements/decisions",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks",
+    "packages/main/templates/agents",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "git restore*",
+    "omx*"
+  ],
+  "excludedTools": [
+    "OMX",
+    "remote publish"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Story 5 may edit prompt/runtime/test/doc assets through the active worktree only. Story and fixture metadata remain CLI-only. No remote publishing or destructive git operations.",
+  "createdAt": "2026-07-19T07:05:29.166Z",
+  "updatedAt": "2026-07-19T07:05:29.166Z",
+  "_hash": "08350412d4fd3f154d8eaca207b6cf61453f17145f06212b1049ae111226f50d"
+}
