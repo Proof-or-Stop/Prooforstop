@@ -135,6 +135,65 @@
         "scanEscalationReason": null
       },
       "_hash": "bc0614386214980a0c0387b0696b2c966300799f945457efbe4386ab7b4c31b3"
+    },
+    {
+      "id": "B-955c:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Final re-review of 9576d35896 found no documentation blocker. F-013 is resolved: current distinct-host quorum is consistently unsupported/fail-closed and pinned-key/session/revocation-backed acceptance is future-only. F-015 is resolved: normative and implementation vocabulary now use shellExecutableDigest for resolved shell executable content only; shell version/login/init posture is explicitly future work, and the Windows actual-shell audit row is current. M6 remains open and the unbound external manuscript remains Level B. Build, EEA smoke, DONE-required smoke, and validation-evidence-reuse smoke passed.",
+      "createdAt": "2026-07-19T01:49:29.214Z",
+      "reviewRound": "2026-07-19T01:42:44.743Z",
+      "reviewRunId": "B-955c:RR-013",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "679032960f48987e84e197c8681078ebccf70deccaa94f3842568822086c9d70"
+      },
+      "readDiagnostics": [],
+      "_hash": "de061a1551d039c62f5f90801449b443ee92e6769cd1d536ddcf7fbe3631eb93"
     }
   ]
 }
