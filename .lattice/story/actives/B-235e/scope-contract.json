@@ -400,10 +400,41 @@
         "lifecycle_evidence_gates",
         "post_merge_regression_coverage"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This runtime closeout fix changes the CLI patch version and the incremental eligibility resolver; these files are necessary to ship and verify the metadata-only prior-pass cutoff.",
+      "timestamp": "2026-07-19T23:55:19.401Z",
+      "paths": [
+        "package-lock.json",
+        "package.json",
+        "packages/main/package-lock.json",
+        "packages/main/package.json",
+        "packages/main/src/core/lattice-brand.ts",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package-lock.json",
+        "package.json",
+        "packages/main/package-lock.json",
+        "packages/main/package.json",
+        "packages/main/src/core/lattice-brand.ts",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "38f197554dec831d5abd89b44831ece8b35ff24c",
+      "materialHash": "e3a95d8d958afc1ae0f407b42af6d0472d030997d684c2d1d01a75c6444b14fc",
+      "anchors": [
+        "review_run_eligibility",
+        "metadata_only_closeout",
+        "cli_patch_version"
+      ]
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T21:32:32.815Z",
+  "updatedAt": "2026-07-19T23:55:19.401Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -483,6 +514,12 @@
     "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
     "packages/main/src/tasks/review-assurance-floor-smoke.ts": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
     "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts": "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
-    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "package-lock.json": "package-lock.json",
+    "package.json": "package.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts"
   }
 }
