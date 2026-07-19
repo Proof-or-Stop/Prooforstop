@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#story-3建立-ab-replay-与-usage-测量"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-19T02:07:15.718Z",
       "endTime": "2026-07-19T02:53:17.142Z",
       "verificationIntent": {
@@ -602,6 +602,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Owner accepted implementer commit 1623374107 after independent 47-check, replay-order and scope verification.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-07-19T02:57:20.940Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "F-017 requires canonical decision wording to match the isolated production-evidence no-drift proof.",
       "agent": "main"
     }
   ]
