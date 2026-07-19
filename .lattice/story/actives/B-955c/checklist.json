@@ -211,6 +211,44 @@
         "test": [
           "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the Environment Adapter conformance suite against the local-command and Quantum receipt paths -> both pass descriptor, invocation, receipt, deterministic-normalization, authority-separation, and admissibility-scope checks; WHY: makes cross-environment compatibility mechanical.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Evaluate semantically equivalent fresh receipts produced through two host brands under the same subject, invocation, environment semantics, policy, and allowed trust class -> Proof Admissibility and the integrated Gate return the same decision; WHY: proves host-substitution invariance at both admissibility and Gate levels.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exercise unknown versions, stale receipts, unsafe isolation metadata, checker exceptions, cancellation races, and malformed bounded output -> each case yields a deterministic structured failure and no admissible pass; WHY: verifies fail-closed behavior at operational boundaries.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run canonicalization under reordered keys, equivalent path spelling allowed by policy, and repeated evaluation -> equivalent inputs produce the same digest while materially different executable or shell semantics do not collide; WHY: tests normalization precision.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Submit forged producer identity, replayed invocation binding, or two quorum inputs from the same producer lineage -> conformance and Gate checks reject the evidence as non-independent; WHY: prevents provenance forgery and quorum substitution.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Use a conformant adapter to assert completion, weaken a required Task/Story/Release check, or turn a checker error into success -> the attempt fails and existing lifecycle requirements remain authoritative; WHY: proves conformance does not confer completion power.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
