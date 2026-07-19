@@ -58,6 +58,26 @@
       ],
       "signatureTag": "missing|ts|verificationevidence-remains-bound",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-004",
+      "desc": "CHK-004 edge intent mixed-role-rollback-gate-equivalence is still not exercised at the gate boundary. prompt-registry-smoke iterates all 32 mode maps but only asserts resolvePromptEnvelopeRolloutMode returns the requested body mode; it never starts mixed legacy/modular ReviewRuns or submits their passes/findings to admission, collector, assurance-floor, receipt, quorum, delivery, or DONE consumers. The new five-role concurrent test uses all five roles in full-envelope mode only. A regression that rejects legacy-mode evidence or changes gate behavior under one mixed mask would still pass every cited assertion, so the verificationEvidence note that all mixed states preserve gate semantics is not substantiated.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-19T08:41:15.432Z",
+      "reviewRound": "2026-07-19T08:38:05.631Z",
+      "reviewRunId": "B-235e:RR-010",
+      "_hash": "96d0c4115188fea3d5c1132a4a2e854eafb1f5845ae0f090b112b1ff608fc9bd",
+      "files": [
+        "packages/main/src/tasks/prompt-registry-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-intent-mixed",
+      "signatureTagSource": "auto"
     }
   ]
 }
