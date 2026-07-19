@@ -86,6 +86,39 @@
         "scanEscalationReason": null
       },
       "_hash": "9c9e8903f3fd0181f7ba973ffb5622550ce1632f5c324d44d876162506de6688"
+    },
+    {
+      "id": "B-03ac:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Verified F-012 repair against the strict PromptEnvelope validator and conditional assembler. Story 4 selection fields are scoped to trusted conditional review-run envelopes; SAFE_INCREMENTAL omits optional budgetViolation and escalationReason rather than writing null; legacy, story-dispatch, and first-pass safety-full semantics are accurately bounded; docs/private implementation remain full in v1; and Stories 5-7 are explicitly not claimed complete. Targeted incremental, envelope, quorum, and process-fact smokes pass.",
+      "createdAt": "2026-07-19T06:40:52.002Z",
+      "reviewRound": "2026-07-19T06:38:01.826Z",
+      "reviewRunId": "B-03ac:RR-012",
+      "writerSessionId": "sess-1e209330545542f95d80bd870d58b3ad",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-03ac/background.md",
+          ".lattice/story/actives/B-03ac/checklist.json",
+          ".lattice/story/actives/B-03ac/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "04e87a1030f87a9713e050b29e9195155922adac7c8d507084a62cfbec367510"
     }
   ]
 }
