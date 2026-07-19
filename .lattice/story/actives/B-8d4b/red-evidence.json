@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-8d4b",
+  "records": [
+    {
+      "id": "RED-20260719014232",
+      "trigger": "Story 3 acceptance claim has no executable replay harness before implementation.",
+      "acceptanceTargetRef": "sha256:7c0fb4568fdf9de14d707c04b78d4d58db6e7d280a2497ae16fb6fbcfad179e8",
+      "baselineHeadHash": "60b9528e7783ba64ca60d2ee31d706297eddb6a9",
+      "baselineMaterialHash": "98cdb98a36cef36974f84b9db4e1b17ed0378271e7b5451b1d276801d01c2276",
+      "observedFailure": "node cannot load experiments/role-prompt-ab-replay/selfcheck.mjs because the isolated replay harness does not yet exist (MODULE_NOT_FOUND).",
+      "failingCommand": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+      "expectedGreenCommand": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+      "greenRelation": {
+        "targetRef": "sha256:7c0fb4568fdf9de14d707c04b78d4d58db6e7d280a2497ae16fb6fbcfad179e8",
+        "relation": "same_acceptance",
+        "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs"
+      },
+      "note": "Genuine pre-implementation red state captured before DEV; green must exercise the same user-facing harness command.",
+      "createdAt": "2026-07-19T01:42:32.380Z"
+    }
+  ],
+  "createdAt": "2026-07-19T01:42:32.380Z",
+  "updatedAt": "2026-07-19T01:42:32.380Z"
+}

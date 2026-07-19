@@ -1,0 +1,627 @@
+{
+  "passes": [
+    {
+      "id": "B-8d4b:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Second-round concept review PASS: repairs remove synthetic arm prompt bytes and caller-authored detections from canonical history. Exact prompt cost, finding recall, provider usage, cache and dispatch dimensions now fail closed as unavailable/INCONCLUSIVE; only explicitly hermetic non-historical fixtures are EVALUABLE. Signed historical rows are identity context, not replay output. Re-ran the 43-check selfcheck, canonical JSON replay and isolated ledger analysis; F-001 through F-010 resolutions match implementation and no production/gate authority is claimed.",
+      "createdAt": "2026-07-19T02:43:40.204Z",
+      "reviewRound": "2026-07-19T02:36:39.599Z",
+      "reviewRunId": "B-8d4b:RR-008",
+      "writerSessionId": "sess-582f49a50504746237e21d3db45549a4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6e41f6fe7afb5bc59fada470e2c2f90f74bb00b155bf2d3703dbf47a6451f019"
+    },
+    {
+      "id": "B-8d4b:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Fifth-round concept review PASS: a4b3a20ce6 now recursively snapshots the entire isolated sandbox .lattice tree, including directory membership, raw file bytes and symlink targets; sibling-Story pass and separate usage-artifact mutation bites both change the same detector. The copied replay/ledger/analyze entrypoints leave the full production-evidence tree byte-identical. Canonical prompt cost and finding recall remain INCONCLUSIVE, provider/dispatch/cache dimensions remain unavailable rather than zero, and hermetic fixtures remain explicitly non-historical. F-022 through F-025 resolutions match the implementation and 49-check selfcheck exits zero.",
+      "createdAt": "2026-07-19T03:10:28.594Z",
+      "reviewRound": "2026-07-19T03:09:14.657Z",
+      "reviewRunId": "B-8d4b:RR-020",
+      "writerSessionId": "sess-582f49a50504746237e21d3db45549a4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "012659edaa6bea8e1230ad3fb183d59a0e723d4df3f3da85286038ba0aa78281"
+    },
+    {
+      "id": "B-8d4b:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Fifth-round docs review found no blocker: whole isolated .lattice recursive snapshot, mutation bites, availability semantics, signed-field boundary, INCONCLUSIVE scope, and runnable commands match current implementation and 49-check selfcheck.",
+      "createdAt": "2026-07-19T03:10:37.596Z",
+      "reviewRound": "2026-07-19T03:09:14.657Z",
+      "reviewRunId": "B-8d4b:RR-019",
+      "writerSessionId": "sess-b9a6de1a476a204be31251f5a1a12144",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2d578518583bf413725e90f8c367f29d4814cb0582dd2d6180da515f272a0e18"
+    },
+    {
+      "id": "B-8d4b:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality round 5 found no remaining blocker after independently rerunning 49 selfchecks and adversarially checking the full isolated .lattice tree snapshot, sibling Story and usage mutation bites, prompt/usage availability cross-fields, ledger locks, path confinement, chain integrity, and privacy rejection.",
+      "createdAt": "2026-07-19T03:10:50.420Z",
+      "reviewRound": "2026-07-19T03:09:14.657Z",
+      "reviewRunId": "B-8d4b:RR-017",
+      "writerSessionId": "sess-f7a2a0f533e1e60cdc80160470ffbf35",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-experiment-protocol.md",
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c91c7be774994e13b040e1072ff955a94b7ab554afbd52940697e02c50c68eb8"
+    },
+    {
+      "id": "B-8d4b:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "All 12 verification intents independently rechecked. Selfcheck 49/49, package build, 36-cell reverse replay, exact A/B set attacks, signed finding mutations, empty/unavailable usage summaries, stale-lock/retry/privacy/consumer rejection, and full isolated .lattice-tree sibling Story plus production usage mutation bites pass. Canonical historical prompt and recall remain explicitly INCONCLUSIVE; no new blocker found.",
+      "createdAt": "2026-07-19T03:10:56.350Z",
+      "reviewRound": "2026-07-19T03:09:14.657Z",
+      "reviewRunId": "B-8d4b:RR-018",
+      "writerSessionId": "sess-4926941cc12944671d541e92cc4babe0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5c4488e8f4877a765fe4823e61eedf1ec5e337a1ca9639b271d0e88abee4e252"
+      },
+      "readDiagnostics": [],
+      "_hash": "034960a3d7fd3e481d94daadc291fc8b1c0beb3d4f748886d89d0c42d8853854"
+    },
+    {
+      "id": "B-8d4b:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 quality re-review found the English planning metadata semantically equivalent to the prior Chinese metadata, scope evidence complete, and no business implementation drift. Current storyFilesHash and scope hashes match the prior clean quality round; selfcheck remains 49/49 and reverse replay remains fail-closed.",
+      "createdAt": "2026-07-19T03:51:28.183Z",
+      "reviewRound": "2026-07-19T03:50:19.464Z",
+      "reviewRunId": "B-8d4b:RR-021",
+      "writerSessionId": "sess-f7a2a0f533e1e60cdc80160470ffbf35",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/scope-check.json",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-experiment-protocol.md",
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "af747df57e64b187ea2a3dff7ec80ff038abbed2a56364973d70489aeb4537d0"
+    },
+    {
+      "id": "B-8d4b:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-6 concept review PASS: compared against prior accepted pass 4ff6d77 and found no changes under docs, experiments, packages, scripts, config, or package files; only Lattice-owned Story metadata/evidence changed. The English understanding, decision, checklist user-visible text, and refreshed scope coverage preserve the prior task, exclusions, fail-closed boundaries, and four-checklist intent. Current ReviewRun retains the same storyFilesHash 3b4f0b0 and scope/diff binding e84204c/9e08889 as RR-020. Re-ran the 49-check selfcheck with exit 0 and canonical replay remains prompt/recall INCONCLUSIVE with no fabricated provider usage.",
+      "createdAt": "2026-07-19T03:51:36.612Z",
+      "reviewRound": "2026-07-19T03:50:19.464Z",
+      "reviewRunId": "B-8d4b:RR-024",
+      "writerSessionId": "sess-582f49a50504746237e21d3db45549a4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/scope-check.json",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b15a80775fdcc1f65f59d0d4f9467fc579db070151d8b0f9d2078e2b4c5ad37a"
+    },
+    {
+      "id": "B-8d4b:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-6 metadata-only re-review passed. The canonical digest of all 12 verificationIntent objects is byte-identical before and after the English translation; business implementation and storyFilesHash remain unchanged. Current selfcheck 49/49, package build, and 36-cell reverse replay pass, and every evidence row remains bound to the current storyFilesHash/materialHash. No open finding or test-coverage regression found.",
+      "createdAt": "2026-07-19T03:51:55.311Z",
+      "reviewRound": "2026-07-19T03:50:19.464Z",
+      "reviewRunId": "B-8d4b:RR-022",
+      "writerSessionId": "sess-4926941cc12944671d541e92cc4babe0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5c4488e8f4877a765fe4823e61eedf1ec5e337a1ca9639b271d0e88abee4e252"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd5e35d60e7b74ac02cc1cbcdba9ae80344ea73c4a857f2be115c18a383f7f7a"
+    },
+    {
+      "id": "B-8d4b:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round-7 docs review confirms F-026 is resolved: translated CHK-001/002/004 userSees and understanding outcome now match current fail-closed selfcheck semantics; historical prompt cost and recall remain INCONCLUSIVE, only the hermetic fixture is EVALUABLE with historicalEvidence=false, and canonical docs/business implementation are unchanged.",
+      "createdAt": "2026-07-19T03:54:40.607Z",
+      "reviewRound": "2026-07-19T03:53:52.508Z",
+      "reviewRunId": "B-8d4b:RR-025",
+      "writerSessionId": "sess-b9a6de1a476a204be31251f5a1a12144",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d9e94b9a24a7362e7467dfe3b57efdce565d9c3868ce7e98a8904e628b0b150e"
+    },
+    {
+      "id": "B-8d4b:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 quality recheck confirms F-026 metadata now matches the exact 49-check fail-closed transcript, no experiments/docs/packages/scripts business files changed since the prior pass, and current story/scope hashes remain unchanged from the clean implementation round.",
+      "createdAt": "2026-07-19T03:55:05.696Z",
+      "reviewRound": "2026-07-19T03:53:52.508Z",
+      "reviewRunId": "B-8d4b:RR-026",
+      "writerSessionId": "sess-f7a2a0f533e1e60cdc80160470ffbf35",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/scope-check.json",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-experiment-protocol.md",
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cbabcba82fea72199ab1aefd9cfa1a392890740125ca7e348ba9904fb36015fb"
+    },
+    {
+      "id": "B-8d4b:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-7 metadata-only re-review passed. F-026 user-visible transcript now matches the current fail-closed selfcheck output, with equivalent per-cell replay output. All 12 verificationIntent objects retain the same canonical digest; all 12 evidence records pass and retain the current storyFilesHash/materialHash. Selfcheck 49/49, replay, and package build pass, with no open findings.",
+      "createdAt": "2026-07-19T03:55:20.303Z",
+      "reviewRound": "2026-07-19T03:53:52.508Z",
+      "reviewRunId": "B-8d4b:RR-027",
+      "writerSessionId": "sess-4926941cc12944671d541e92cc4babe0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5c4488e8f4877a765fe4823e61eedf1ec5e337a1ca9639b271d0e88abee4e252"
+      },
+      "readDiagnostics": [],
+      "_hash": "df166c08c2463cf57dbadd9f2f3917d0010c09d54a406249f2f7d856ea3fe4c1"
+    },
+    {
+      "id": "B-8d4b:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Round-7 concept review PASS: F-026 exact transcript metadata matches the 49-check fail-closed output. Historical prompt cost and recall remain INCONCLUSIVE; only the hermetic non-historical fixture is EVALUABLE; the isolation line is current. No business-file changes since b768b83, and scope remains 13 covered, 4 excluded, 0 gaps, 0 drift.",
+      "createdAt": "2026-07-19T03:55:28.641Z",
+      "reviewRound": "2026-07-19T03:53:52.508Z",
+      "reviewRunId": "B-8d4b:RR-028",
+      "writerSessionId": "sess-582f49a50504746237e21d3db45549a4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/scope-check.json",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5c4488e8f4877a765fe4823e61eedf1ec5e337a1ca9639b271d0e88abee4e252"
+      },
+      "readDiagnostics": [],
+      "_hash": "af15b588c56005d01e9b4f04d0b9baa71ac9eb1621cb3b017d2b377d5e7e1066"
+    },
+    {
+      "id": "B-8d4b:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Round-8 docs re-review after merge-main convergence found no Story-owned documentation or implementation drift. F-026 transcript fields, canonical decision, README, commands, historical INCONCLUSIVE scope, hermetic historicalEvidence=false boundary, and 49-check selfcheck remain aligned; only the whole-tree material binding changed while storyFilesHash stayed stable.",
+      "createdAt": "2026-07-19T04:30:27.428Z",
+      "reviewRound": "2026-07-19T04:29:33.613Z",
+      "reviewRunId": "B-8d4b:RR-031",
+      "writerSessionId": "sess-b9a6de1a476a204be31251f5a1a12144",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4becaccc2bfac050c365897ee1b1d65fe4607466f35f3c32ecba9e764cf88a5c"
+    },
+    {
+      "id": "B-8d4b:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "Round 8 quality review found no merge-main interaction regression: the merge changed no Story-owned experiment or decision files, current package build passes, all 49 selfchecks pass against the merged framework, and the signed run binds materialHash 10b34aa with unchanged storyFilesHash 3b4f0b0.",
+      "createdAt": "2026-07-19T04:30:42.773Z",
+      "reviewRound": "2026-07-19T04:29:33.613Z",
+      "reviewRunId": "B-8d4b:RR-029",
+      "writerSessionId": "sess-f7a2a0f533e1e60cdc80160470ffbf35",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/scope-check.json",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-experiment-protocol.md",
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5fefe7c2da8255398658a937414dbca9e184d6bfd155a28ae5a3b8aaf705ff69"
+    },
+    {
+      "id": "B-8d4b:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-8 merge-main convergence review passed. All 12 verificationIntent objects retain the pre-merge canonical digest and Story-owned storyFilesHash. Fresh routine validation under merged Lattice 0.3.220 is PASS with 46 commands, 0 required failures, and 12/12 coverage at materialHash 10b34aa. Focused selfcheck 49/49, build, and 36-cell reverse replay also pass; no open finding found.",
+      "createdAt": "2026-07-19T04:31:13.719Z",
+      "reviewRound": "2026-07-19T04:29:33.613Z",
+      "reviewRunId": "B-8d4b:RR-030",
+      "writerSessionId": "sess-4926941cc12944671d541e92cc4babe0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "5c4488e8f4877a765fe4823e61eedf1ec5e337a1ca9639b271d0e88abee4e252"
+      },
+      "readDiagnostics": [],
+      "_hash": "c5c970f1ff8622c812de8ef12570c5fb8a1fffd79f77695aee6bebe788d3f0fc"
+    },
+    {
+      "id": "B-8d4b:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Round-8 concept review PASS after merge-main convergence. Story-owned experiment and canonical role-plan files are byte-unchanged from RP-012 (storyFilesHash 3b4f0b0). The merged Evidence Environment, proof-admissibility, process-fact, validation, quorum, and version changes do not alter Story 3 experiment semantics or grant experiment rows authority. Fresh selfcheck passes 49/49, including normal consumer rejection and recursive production-evidence no-drift; replay identity/result remain unchanged and historical prompt cost/recall remain INCONCLUSIVE.",
+      "createdAt": "2026-07-19T04:32:24.038Z",
+      "reviewRound": "2026-07-19T04:29:33.613Z",
+      "reviewRunId": "B-8d4b:RR-032",
+      "writerSessionId": "sess-582f49a50504746237e21d3db45549a4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-8d4b/background.md",
+          ".lattice/story/actives/B-8d4b/checklist.json",
+          ".lattice/story/actives/B-8d4b/decision.json",
+          ".lattice/story/actives/B-8d4b/plan.md",
+          ".lattice/story/actives/B-8d4b/scope-check.json",
+          ".lattice/story/actives/B-8d4b/understanding.json",
+          "experiments/role-prompt-ab-replay/analyze.mjs",
+          "experiments/role-prompt-ab-replay/corpus.json",
+          "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+          "experiments/role-prompt-ab-replay/lib/replay.mjs",
+          "experiments/role-prompt-ab-replay/protocol.json",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/run.mjs",
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ee7bc1e50bc056602f7d578a1646fe6f0a1e0794b8f7cc387b716d8d3247f95e"
+      },
+      "readDiagnostics": [],
+      "_hash": "96e3a9a336d913172e056297ba33d8e3686525c9415e3d4d7eda25763e1ce7cb"
+    }
+  ]
+}

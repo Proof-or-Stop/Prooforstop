@@ -1,0 +1,34 @@
+{
+  "task": "Establish an isolated, reproducible, fail-closed historical A/B replay and usage measurement tool for modular role prompts.",
+  "outcome": "After the user runs selfcheck, the terminal shows \"Replay: PASS sameInput=true deterministic=true\", \"Prompt cost: INCONCLUSIVE reason=PROMPT_SNAPSHOT_UNAVAILABLE\", and \"Recall: INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED\" for the historical corpus. It separately shows \"Hermetic fixture: EVALUABLE scope=hermetic-selfcheck-only historicalEvidence=false cells=2\", \"Experiment ledger: PASS gateEvidence=false attempts=3\", and \"Isolated production evidence drift: NONE\" without claiming unavailable historical prompt metrics or recall.",
+  "facts": [
+    "Story 1 fixed the Prompt Contract, role-module boundaries, and measurement baseline.",
+    "Story 2 core/prompt-envelope provides pure assembly and completeness semantics; the production agent_prompt handler persists metadata, so the experiment must not call that write handler.",
+    "prompt-contracts and prompt-measurement define canonical JSON, digests, bytes, estimated tokens, repetitions, and availability semantics for read-only reuse.",
+    "usage-ledger defines normalized provider-reported and unavailable semantics for read-only reuse; the experiment ledger is separate and has gateEvidence=false.",
+    "Existing historical lab reviewer assets lack seeded and adjudicated critical/high finding ground truth across the three required classes, so they cannot serve as a valid corpus.",
+    "Provider usage may be unavailable for offline historical samples; it must remain unavailable rather than fabricated, and real dispatch is not a prerequisite that this Story may invent.",
+    "An independent scope review confirmed that four checklist items completely cover Story 3, exclude Stories 4 through 7 and production evidence writes, and introduce zero scope gaps or drift."
+  ],
+  "constraints": [
+    "Experiment writes must remain completely isolated from production Story evidence and must not write review passes, findings, review runs, or lifecycle evidence.",
+    "Historical material and both arms must be pinned by digest so the same input can reproduce measurements and finding comparisons.",
+    "Assembled bytes or token estimates must never be presented as provider usage; unobservable dimensions must remain unavailable.",
+    "Unreconstructable historical material, a missing arm, missing adjudication, or insufficient samples must fail closed as INCONCLUSIVE.",
+    "Story 3 does not enable incremental policy, migrate active or complex roles, or strengthen the budget gate.",
+    "Referenced decision documents and core source files are read-only inputs to this Story; the implementation reuses their published semantics."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "experiments/role-prompt-ab-replay/protocol.json",
+    "experiments/role-prompt-ab-replay/corpus.json",
+    "experiments/role-prompt-ab-replay/run.mjs",
+    "experiments/role-prompt-ab-replay/analyze.mjs",
+    "experiments/role-prompt-ab-replay/lib/replay.mjs",
+    "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+    "experiments/role-prompt-ab-replay/selfcheck.mjs",
+    "experiments/role-prompt-ab-replay/README.md"
+  ],
+  "timestamp": "2026-07-19T03:52:35.541Z"
+}

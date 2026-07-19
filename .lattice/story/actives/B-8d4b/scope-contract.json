@@ -1,0 +1,54 @@
+{
+  "storyId": "B-8d4b",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "experiments/role-prompt-ab-replay/protocol.json",
+    "experiments/role-prompt-ab-replay/corpus.json",
+    "experiments/role-prompt-ab-replay/run.mjs",
+    "experiments/role-prompt-ab-replay/lib/replay.mjs",
+    "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+    "experiments/role-prompt-ab-replay/analyze.mjs",
+    "experiments/role-prompt-ab-replay/runtime/.gitignore",
+    "experiments/role-prompt-ab-replay/selfcheck.mjs",
+    "experiments/role-prompt-ab-replay/README.md"
+  ],
+  "allowedTest": [
+    "experiments/role-prompt-ab-replay/selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src",
+    "packages/main/templates",
+    "docs/story",
+    "tests/fixtures",
+    ".lattice/story",
+    ".lattice/usage"
+  ],
+  "scopeChangeReason": "F-004 adds only experiments/role-prompt-ab-replay/runtime/.gitignore so documented opt-in ledger output does not dirty the worktree; all production paths remain excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-19T01:55:09.766Z",
+  "updatedAt": "2026-07-19T02:14:49.548Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "experiments/role-prompt-ab-replay/protocol.json": "experiments/role-prompt-ab-replay/protocol.json",
+    "experiments/role-prompt-ab-replay/corpus.json": "experiments/role-prompt-ab-replay/corpus.json",
+    "experiments/role-prompt-ab-replay/run.mjs": "experiments/role-prompt-ab-replay/run.mjs",
+    "experiments/role-prompt-ab-replay/lib/replay.mjs": "experiments/role-prompt-ab-replay/lib/replay.mjs",
+    "experiments/role-prompt-ab-replay/lib/ledger.mjs": "experiments/role-prompt-ab-replay/lib/ledger.mjs",
+    "experiments/role-prompt-ab-replay/analyze.mjs": "experiments/role-prompt-ab-replay/analyze.mjs",
+    "experiments/role-prompt-ab-replay/runtime/.gitignore": "experiments/role-prompt-ab-replay/runtime/.gitignore",
+    "experiments/role-prompt-ab-replay/selfcheck.mjs": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+    "experiments/role-prompt-ab-replay/README.md": "experiments/role-prompt-ab-replay/README.md",
+    "packages/main/src": "packages/main/src",
+    "packages/main/templates": "packages/main/templates",
+    "docs/story": "docs/story",
+    "tests/fixtures": "tests/fixtures",
+    ".lattice/story": ".lattice/story",
+    ".lattice/usage": ".lattice/usage"
+  }
+}

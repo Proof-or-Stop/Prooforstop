@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-8d4b",
+  "phase": "TEST",
+  "generatedAt": "2026-07-19T04:38:11.643Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "7b1a00bba64d978a7a83ef08728af2288bfa0c87073add06c7d1ab420da0084e",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:df6bf40f75f19d0012cfca90b622d587150c28473b842637ed659a37158147b7"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "25d720f75147894042cd847809d46f2f50cdadf0",
+    "materialHash": "10b34aa74efaf1481f008be2f0ae3087ce949bb55620eb6ceed315d823ca3a92",
+    "storyFilesHash": "3b4f0b02e35ae0302cfc4cf32b37ff885a96327bc35bdc703ef41c1ba999acf8"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "固定 A/B replay 合同、三类样本与裁决集",
+      "acceptance": "协议和 corpus manifest 均由 digest 绑定，固定两条 arm、重复次数、模型/contract 版本、seeded/adjudicated findings 与 INCONCLUSIVE 规则。",
+      "evidence": [
+        "pinned-ab-contract-and-corpus [pass/integration_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+        "availability-aware-preregistered-boundaries [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+        "contract-corpus-posthoc-tamper-rejected [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "只读重放同一 pinned 历史输入",
+      "acceptance": "两条 arm 仅 prompt 形态不同；重复运行可复算 bytes、tokens、digest 和 finding 对比。",
+      "evidence": [
+        "same-input-deterministic-readonly-replay [pass/integration_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+        "replay-order-path-and-repeat-invariance [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+        "replay-no-caller-substitution-or-write-path [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "隔离记录 usage/cache 与实验 finding",
+      "acceptance": "实验 ledger 分列 assembled、known dispatch、provider/cache availability、attempt、版本与 findings，且明确 gateEvidence=false。",
+      "evidence": [
+        "isolated-append-only-experiment-ledger [pass/integration_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+        "usage-availability-retry-and-summary-semantics [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage.",
+        "experiment-ledger-non-authoritative-and-private [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun after a4b3a20ce6 preserves this intent, all prior fail-closed/ledger/replay attacks, and full isolated .lattice drift coverage."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "不可重建时 INCONCLUSIVE 且生产证据零漂移",
+      "acceptance": "缺失、篡改、版本偏差、partial usage 和 retry 对抗场景均停止召回结论；运行前后生产 Story evidence 摘要完全相同。",
+      "evidence": [
+        "valid-reconstruction-evaluable-with-zero-production-drift [pass/integration_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun recursively snapshots the entire isolated .lattice tree; legitimate copied entrypoints preserve it and sibling Story plus usage mutation bites both detect drift.",
+        "partial-observation-remains-honest [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun recursively snapshots the entire isolated .lattice tree; legitimate copied entrypoints preserve it and sibling Story plus usage mutation bites both detect drift.",
+        "tamper-unreconstructable-fails-inconclusive [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Owner 49-check rerun recursively snapshots the entire isolated .lattice tree; legitimate copied entrypoints preserve it and sibling Story plus usage mutation bites both detect drift."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
