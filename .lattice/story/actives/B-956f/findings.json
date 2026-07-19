@@ -39,7 +39,7 @@
       "desc": "NEW regression (fix-round side effect): readMaterialCodeConfig (packages/main/src/core/material-code-policy.ts:348-364) throws MaterialCodePolicyError on ANY unparseable lattice.config.json (not just a malformed materialCode block), and this propagates UNCAUGHT through classifyReviewAssuranceFloorPath (review-assurance-floor.ts:490-496, calls resolveMaterialCodePolicy with no try/catch) and evaluateReviewAssuranceFloor (review-assurance-floor.ts:774: `listed.files.map(path => classifyReviewAssuranceFloorPath(...))`, no try/catch). Before this diff review-assurance-floor.ts never read lattice.config.json at all (confirmed: `git show main:packages/main/src/core/review-assurance-floor.ts` has zero loadConfig/config reads), so a malformed config file was harmless to the floor. Now 5 of the 6 real production callers of evaluateReviewAssuranceFloor have NO enclosing try/catch: machine.ts canFinishGuard (~line 769-831, the TEST->DONE transition guard) and getGuardFailureReason (~line 1002-1262); done-oracle.ts buildDoneChecklist (~line 861); handlers/review-escalation.ts review_escalation_status (~line 287); handlers/done-prepare.ts buildDonePrepareReviewAssurancePlan (~line 1254). Only handlers/transition-effects.ts renderReviewAssuranceBeforeDoneAdvisory (line 169-201) is protected by its own advisory try/catch. LIVE VERIFIED: built dist on this worktree AND a clean main checkout; created a fixture repo whose ONLY lattice.config.json defect is a plain JSON syntax error (trailing comma, no materialCode key at all, not even referencing this feature). On main, classifyReviewAssuranceFloorPath(\"x.ts\", root) returns normally ({materialCode:true,...}). On this branch, evaluateReviewAssuranceFloor({projectRoot,gitCwd,changedFiles:[\"x.ts\"],storyId,store}) throws uncaught: `MaterialCodePolicyError: material-code policy config invalid [lattice.config.json]: config file is not valid JSON...`. Net effect: for ANY project (TS-only or not, materialCode-configured or not) whose lattice.config.json has a JSON syntax error that loadConfig elsewhere in the codebase silently tolerates (per this storys own docstring at material-code-policy.ts:344, loadConfig swallows parse errors), lattice story_advance into DONE and other DONE-readiness commands (done_prepare, review_escalation_status, done-checklist rendering) now hard-fail with an opaque, feature-unrelated material-code-policy error instead of proceeding as before -- a new fail-closed blast radius far wider than this storys own CHK-002 adversarial scope (a malformed materialCode BLOCK fails closed) and inconsistent with the fix rounds own byte-identical-for-existing-projects framing (F-002 fix).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-19T17:42:23.878Z",
@@ -47,7 +47,9 @@
       "reviewRunId": "B-956f:RR-004",
       "_hash": "a2451da51ee3846d23f7d315ecf29c6eb0d9435a0668955c99a2fcc75eab6721",
       "signatureTag": "adversarial|unknown|regression-round-side",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-19T18:18:28.407Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-956f:F-004",
