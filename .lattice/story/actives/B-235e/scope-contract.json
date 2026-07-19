@@ -160,10 +160,95 @@
       "anchors": [
         "runCloseoutTrustSmoke"
       ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required host-level rollback repair for F-002: the five Claude/Codex full-asset reviewer files must become canonical role-specific bootstraps that select exactly one signed runtime body, and Codex adapter verification must validate those bootstraps instead of requiring the old prompt mirror; a shared renderer prevents divergent bootstrap formats.",
+      "timestamp": "2026-07-19T08:47:37.176Z",
+      "paths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/core/global-agents.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/core/global-agents.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "ba27ee0090ce3f77d05a548a8e7c1c3d07a826ba",
+      "materialHash": "7c861c4de515720b9d0ebe47f161be31c753778d792a3639cbfa6c980b45d9c5",
+      "anchors": [
+        "reviewerHostRenderIdentity",
+        "renderReviewerBootstrap"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required regeneration closure for F-002: project init must materialize the same canonical reviewer bootstrap instead of overwriting repaired Codex assets with role bodies, with focused registry-mode and token-cost regression coverage; existing runtime-assets and quorum tests remain within the original test scope.",
+      "timestamp": "2026-07-19T08:50:09.134Z",
+      "paths": [
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+        "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+        "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "ba27ee0090ce3f77d05a548a8e7c1c3d07a826ba",
+      "materialHash": "7c861c4de515720b9d0ebe47f161be31c753778d792a3639cbfa6c980b45d9c5",
+      "anchors": [
+        "materializeCodexAgents",
+        "runCodexRegistryModeSmoke",
+        "runPromptTokenCostSmoke"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required runtime resolution closure for F-002: full-asset discovery currently compares the five repaired reviewer bootstraps against package role bodies, falsely marks canonical assets stale, and falls back away from the selected host; these five roles must use the shared bootstrap renderer as expected bytes while all other roles retain existing comparison behavior.",
+      "timestamp": "2026-07-19T08:55:33.497Z",
+      "paths": [
+        "packages/main/src/core/agent-asset-resolution.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/agent-asset-resolution.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ba27ee0090ce3f77d05a548a8e7c1c3d07a826ba",
+      "materialHash": "7c861c4de515720b9d0ebe47f161be31c753778d792a3639cbfa6c980b45d9c5",
+      "anchors": [
+        "resolveAgentAsset"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required managed-asset closure for F-002: after init writes the five canonical reviewer bootstraps, the upgrade/check path still expects package role bodies and marks those correct assets STALE_SAFE; these five roles must share the bootstrap expected bytes while all non-migrated agents keep existing full-asset semantics.",
+      "timestamp": "2026-07-19T08:58:11.347Z",
+      "paths": [
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ba27ee0090ce3f77d05a548a8e7c1c3d07a826ba",
+      "materialHash": "7c861c4de515720b9d0ebe47f161be31c753778d792a3639cbfa6c980b45d9c5",
+      "anchors": [
+        "collectManagedAssets"
+      ]
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T08:28:37.565Z",
+  "updatedAt": "2026-07-19T08:58:11.347Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -222,6 +307,13 @@
     "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
     "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
-    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts"
+    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/core/codex-adapter-checks.ts": "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/global-agents.ts": "packages/main/src/core/global-agents.ts",
+    "packages/main/src/cli-init.ts": "packages/main/src/cli-init.ts",
+    "packages/main/src/tasks/codex-registry-mode-smoke.ts": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts": "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/core/agent-asset-resolution.ts": "packages/main/src/core/agent-asset-resolution.ts",
+    "packages/main/src/core/managed-assets.ts": "packages/main/src/core/managed-assets.ts"
   }
 }
