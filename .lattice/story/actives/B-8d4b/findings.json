@@ -302,7 +302,7 @@
       "desc": "experiments/role-prompt-ab-replay/lib/replay.mjs:405-417,420-485 — MEDIUM: the hermetic positive-path evaluator checks only arms.length===2 and reviewerOutputs.length===2; it does not require two unique registered arm IDs or a one-to-one output mapping. Independent repro constructed arms=[A,A], outputs=[A,A], repinned all prompt/output/adjudication digests, and evaluateBoundFixture returned status=EVALUABLE with cellArms=[A,A]. Since this hermetic path is the sole positive proof that exact A/B prompt/finding measurement works, it must reject duplicate/missing arms and outputs rather than allowing one arm to masquerade as an A/B comparison; add unique-set and exact-set validation plus an adversarial regression.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T02:43:48.517Z",
@@ -310,7 +310,11 @@
       "reviewRunId": "B-8d4b:RR-006",
       "_hash": "631ba750c6ae13676675c4d5b1f0b8ff7ba579deda87bc87927fcfff4b81cf99",
       "signatureTag": "adversarial|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 1623374107: hermetic evaluator requires exactly one A and one B arm plus exactly one matching output for each; duplicate/missing/extra sets fail with stable HERMETIC errors.",
+      "resolvedAt": "2026-07-19T02:55:56.900Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d4b:F-017",
