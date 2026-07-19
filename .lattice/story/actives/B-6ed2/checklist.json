@@ -57,14 +57,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "integration_test",
-          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "kind": "manual_transcript",
+          "command": "git show --stat --oneline 7ec6e7d7f0",
           "result": "pass",
-          "note": "Fresh current-storyFiles run: quorum_submit focused smoke PASS 32/32 with exit 0; covers atomic six-row commit, production CLI, shared writer lock, exact rollback, concurrency, failure and retry behavior.",
-          "headHash": "2c9d7fe9c7ac573a1fd88c1f141162626dc8cd1d",
+          "note": "Immutable RED transcript confirms a production audit writer bypassed the held process-event lock before the shared-writer fix; the current 32-check GREEN run proves the same boundary now waits and preserves exact bytes.",
+          "headHash": "3aef41e11571636265bd923b05c8c74629897ea2",
           "materialHash": "ff433a6939f5e0ddc355aeb3067dea6107bde47fb063d514c88c6babcc0da5e1",
           "storyFilesHash": "ebc74cf8134a8d12c18f7b25129525ccf71eeccae4f48894731407239b7c8e12",
-          "timestamp": "2026-07-19T00:47:07.880Z"
+          "timestamp": "2026-07-19T00:47:33.182Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -239,14 +239,14 @@
         },
         {
           "intentRef": "CHK-002:happy:1",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "Fresh current-storyFiles run: quorum_submit focused smoke PASS 32/32 with exit 0; covers atomic six-row commit, production CLI, shared writer lock, exact rollback, concurrency, failure and retry behavior.",
-          "headHash": "2c9d7fe9c7ac573a1fd88c1f141162626dc8cd1d",
+          "note": "Fresh 32/32 logic run proves the committed six rows preserve 3x2 bindings and become countable only after the exact metadata commit succeeds.",
+          "headHash": "3aef41e11571636265bd923b05c8c74629897ea2",
           "materialHash": "ff433a6939f5e0ddc355aeb3067dea6107bde47fb063d514c88c6babcc0da5e1",
           "storyFilesHash": "ebc74cf8134a8d12c18f7b25129525ccf71eeccae4f48894731407239b7c8e12",
-          "timestamp": "2026-07-19T00:47:07.880Z"
+          "timestamp": "2026-07-19T00:47:33.183Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -487,14 +487,14 @@
         },
         {
           "intentRef": "CHK-003:adversarial:1",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
           "result": "pass",
-          "note": "Fresh current-storyFiles run: quorum_submit focused smoke PASS 32/32 with exit 0; covers atomic six-row commit, production CLI, shared writer lock, exact rollback, concurrency, failure and retry behavior.",
-          "headHash": "2c9d7fe9c7ac573a1fd88c1f141162626dc8cd1d",
+          "note": "Fresh 32/32 logic run proves every production process-event writer shares the lock and rollback preserves foreign bytes while leaving zero partial countable quorum.",
+          "headHash": "3aef41e11571636265bd923b05c8c74629897ea2",
           "materialHash": "ff433a6939f5e0ddc355aeb3067dea6107bde47fb063d514c88c6babcc0da5e1",
           "storyFilesHash": "ebc74cf8134a8d12c18f7b25129525ccf71eeccae4f48894731407239b7c8e12",
-          "timestamp": "2026-07-19T00:47:07.880Z"
+          "timestamp": "2026-07-19T00:47:33.183Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
