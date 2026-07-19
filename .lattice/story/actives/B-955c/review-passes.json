@@ -1008,6 +1008,72 @@
       },
       "readDiagnostics": [],
       "_hash": "75352a2c6bbc92d7e7c984c89df0ac9c0aed25124ab1ffff295c9ed8ba722974"
+    },
+    {
+      "id": "B-955c:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Merged-main docs/claims review PASS. The B-955c claim surface and Evidence Environment implementation are byte-unchanged from prior PASS b56ae688: README, evidence-platform architecture, EEA execution plan, environment-contract, and EEA smoke have no delta. M0-M5 remain accurately calibrated: terminology/ownership, descriptor registry, identity-bound normalization, bounded code-runtime and Quantum receipt-only projections, fail-closed conformance, and the real DONE_REQUIRED Proof Admissibility/Gate projection are implemented and freshly tested. M6 remains open because no external manuscript path/version or B-955c release binding exists; repository Level C evidence does not upgrade the external manuscript beyond Level B. Merged main adds local-review-quorum host-verdict evidence, but proof-admissibility limits it to REVIEW review-pass with productionDoneEligible=false; it is not the EEA cryptographic producer-independence quorum. The EEA quorum still always returns distinct_host_quorum_unsupported without a pinned producer registry. Named Lean/Rosetta/AlphaFold/PINN/browser/database/CI/Kubernetes/deployment adapters remain integration targets, with no matching implementation introduced. EEA, Pack, Quantum, DONE-required validation/freshness, and process-fact contract tests passed on current HEAD.",
+      "createdAt": "2026-07-19T03:13:26.210Z",
+      "reviewRound": "2026-07-19T03:10:30.771Z",
+      "reviewRunId": "B-955c:RR-031",
+      "writerSessionId": "sess-1d226ecda11696ffb955d2d997648ab6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-955c/background.md",
+          ".lattice/story/actives/B-955c/checklist.json",
+          ".lattice/story/actives/B-955c/plan.md",
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+          "packages/main/src/core/evidence/environment-contract.ts",
+          "packages/main/src/tasks/evidence-environment-adapter-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/artifact-releases.jsonl",
+          ".lattice/capability-releases.jsonl",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "docs/requirements/NAV.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/done-required-freshness-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": "Merged-main scopeChanged review: inspected the changed proof-admissibility host-verdict surface and the two newly changed decision documents to distinguish local REVIEW quorum from Evidence Environment producer-independence claims."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+          "docs/requirements/decisions/project-vision.md",
+          "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "b97bf724bf414e4b19374e8c9f03c9d527419b97649a5b7ccaab315730e38a0a"
+      },
+      "readDiagnostics": [],
+      "_hash": "067bb936005b987d5b8c965f15231ab3e1c5f314d96c2e47d6b4d4a7b7388790"
     }
   ]
 }
