@@ -66,7 +66,8 @@ import {
   lifecycleCommandsByPhase,
   lifecycleResolvedCommandsForPhase,
 } from '../core/lifecycle-registry.js';
-import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
@@ -183,12 +184,29 @@ function seedReviewRuns(root: string, store: StoryStore, storyId: string, review
       startedAt,
       headHash,
       materialHash,
-      promptHash: '',
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, ''),
+      promptHash: legacyPromptHash(agent),
+      _hash: signReviewRun(
+        storyId,
+        reviewRunId,
+        agent,
+        agent,
+        reviewRound,
+        startedAt,
+        headHash,
+        materialHash,
+        legacyPromptHash(agent),
+      ),
     };
   });
   store.writeReviewRuns(storyId, { runs });
   return new Map(runs.map((run) => [run.agent, run.reviewRunId]));
+}
+
+function legacyPromptHash(agent: string): string {
+  return hashReviewPrompt(resolvePromptRoleBody(agent, {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [agent]: 'legacy-full-context' },
+  }).body);
 }
 
 function createReviewStore(root: string): { store: StoryStore; storyId: string; reviewRound: string } {
@@ -1386,9 +1404,9 @@ function signedReviewRunOverHead(
     startedAt,
     headHash,
     materialHash,
-    promptHash: '',
+    promptHash: legacyPromptHash(agent),
     ...(storyFilesHash ? { storyFilesHash } : {}),
-    _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, '', undefined, undefined, storyFilesHash),
+    _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, legacyPromptHash(agent), undefined, undefined, storyFilesHash),
   };
 }
 
@@ -1507,9 +1525,9 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
       startedAt: '2026-06-24T11:10:00.000Z',
       headHash: emptyHead,
       materialHash: emptyMaterial,
-      promptHash: '',
+      promptHash: legacyPromptHash(agent),
       storyFilesHash: EMPTY_STORY_FILES_HASH,
-      _hash: signReviewRun(storyId, emptyRunId, agent, agent, reviewRound, '2026-06-24T11:10:00.000Z', emptyHead, emptyMaterial, '', undefined, undefined, EMPTY_STORY_FILES_HASH),
+      _hash: signReviewRun(storyId, emptyRunId, agent, agent, reviewRound, '2026-06-24T11:10:00.000Z', emptyHead, emptyMaterial, legacyPromptHash(agent), undefined, undefined, EMPTY_STORY_FILES_HASH),
     };
     assert.equal(emptyRun.storyFilesHash, EMPTY_STORY_FILES_HASH, 'empty-signal run must carry the empty-set storyFilesHash');
     store.writeReviewRuns(storyId, { runs: [run1, run2, emptyRun] });
@@ -1588,9 +1606,9 @@ function assertReviewRunStoryFilesHashBindingIsSigned(): void {
       startedAt,
       headHash,
       materialHash,
-      promptHash: '',
+      promptHash: legacyPromptHash(agent),
       workspaceBinding,
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, '', undefined, workspaceBinding.bindingHash),
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, legacyPromptHash(agent), undefined, workspaceBinding.bindingHash),
     };
     assert.equal(verifyReviewRun(run), true, 'review run with storyFilesHash workspace binding must verify');
 
@@ -1854,8 +1872,8 @@ function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
       headHash: recordedHead,
       materialHash: recordedMaterial,
       storyFilesHash: recordedStoryFiles,
-      promptHash: '',
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, recordedHead, recordedMaterial, '', undefined, undefined, recordedStoryFiles),
+      promptHash: legacyPromptHash(agent),
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, recordedHead, recordedMaterial, legacyPromptHash(agent), undefined, undefined, recordedStoryFiles),
     };
     store.writeReviewRuns(storyId, { runs: [run] });
     store.writeReviewPasses(storyId, {
