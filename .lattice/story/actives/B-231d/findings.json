@@ -82,6 +82,20 @@
       "resolvedReason": "Re-recorded all 9 verificationIntent evidence entries at fix HEAD 1d98a3a via verification_evidence_batch_add; evidence_inspect now reports freshness=fresh, staleRefs=0. Smoke re-run confirmed PASS (16 checks) at current HEAD.",
       "resolvedAt": "2026-07-19T00:26:34.463Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-231d:F-005",
+      "desc": "[host-B codex] done-required-validation.ts:~170 digests the CONFIGURED command.cwd, not executed.cwd. A command configured for packages/main but recorded as executed at repo root passes both receipt and digest validation, weakening execution-evidence binding. Fix: digest the EXECUTED logical cwd, then independently compare stored logical cwd against policy.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-07-19T01:12:47.106Z",
+      "reviewRound": "2026-07-19T01:08:03.737Z",
+      "_hash": "d1e2147b25be81cc8568039a3d0d1d5a0ce5da914cb5b2756a773f9a6e45b0b8",
+      "signatureTag": "missing|unknown|host-codex-required",
+      "signatureTagSource": "auto"
     }
   ]
 }
