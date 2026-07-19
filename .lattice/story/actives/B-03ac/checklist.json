@@ -122,6 +122,77 @@
           "packages/main/src/tasks/review-incremental-context-smoke.ts",
           "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "review-basis-bounded-current-complete",
+            "desc": "Eligible incremental context contains compact Runtime and complete Role contracts, prior pass and hash bindings, changed and impacted files, finding deltas, scope acknowledgement, impacted intents, re-review reason, current claims, invariants, unresolved findings, affected contracts, and authoritative references.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "context-mode-safe-then-cheapest",
+            "desc": "Safety eligibility is decided before cost comparison; when both modes are safe and final incremental is smaller than full, incremental is selected and both measured sizes and digests are auditable.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "review-basis-authoritative-read-through",
+            "desc": "Incremental assembly preserves repository-relative current authoritative references and the reviewer contract permits reading them on demand rather than treating omitted injection as a prohibition.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "full-cheaper-or-equal-selected",
+            "desc": "When final incremental size is equal to or larger than final full size, full is selected with FULL_CHEAPER_OR_EQUAL without rewriting the prior safety decision.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "review-basis-change-deltas-exact",
+            "desc": "Added, resolved, and dismissed findings plus impacted intents retain stable identities and current states; unrelated material is omitted only when closure proves it outside the basis.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "reviewer-basis-incomplete-escalates",
+            "desc": "A reasoned reviewer request for missing or non-closed context produces a full-context run rather than silently expanding an incremental payload under the same identity.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "review-basis-stale-substitution-rejected",
+            "desc": "Stale prior prose, historical contracts, caller-authored file lists, or references outside the trusted current workspace cannot replace authoritative sources or produce a valid reviewBasis digest.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "review-basis-omission-fails-closed",
+            "desc": "Omitting an affected contract, open finding, impacted intent, invariant dependency, or changed fixture makes completeness unverifiable and selects full.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "cost-never-overrides-safety",
+            "desc": "A tiny attacker-crafted incremental payload cannot win when eligibility requires full, and an oversized full payload cannot cause incremental fallback to evade correctness.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
