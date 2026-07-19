@@ -357,7 +357,7 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
     });
     assert.equal(timed.status, 1, 'structured command timeout must exit nonzero');
     assert.equal(JSON.parse(timed.stdout).timeoutLayer, 'command');
-    assert.ok(existsSync(pidFile), 'descendant fixture must record grandchild pid');
+    await waitForFile(pidFile, 5_000);
     await new Promise((resolve) => setTimeout(resolve, 150));
     const descendantPid = Number(readFileSync(pidFile, 'utf8'));
     assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'command timeout must kill descendant process group');
@@ -448,7 +448,7 @@ async function assertOuterWatchdogsKillDescendants(): Promise<void> {
       const parsed = JSON.parse(result.stdout);
       assert.equal(parsed.result, 'timed_out');
       assert.equal(parsed.timeoutLayer, testCase.name);
-      assert.ok(existsSync(pidFile));
+      await waitForFile(pidFile, 5_000);
       await new Promise((resolve) => setTimeout(resolve, 150));
       const descendantPid = Number(readFileSync(pidFile, 'utf8'));
       assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, `${testCase.name} watchdog must kill descendants before structured return`);
