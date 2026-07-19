@@ -483,7 +483,7 @@
       "desc": "experiments/role-prompt-ab-replay/README.md:87-94 and the canonical decision at lines 1103-1107 say selfcheck compares the complete isolated evidence-root tree and detects any new production artifact/event. selfcheck.mjs:203-206 snapshots only .lattice/story/actives/B-sentinel plus .lattice/process-events.jsonl; lines 310-313 check only the immediate .lattice top-level names. A new artifact under an existing unsnapshotted subtree such as .lattice/story/actives/B-other/ would leave both assertions unchanged. Either snapshot the whole isolated .lattice tree recursively before/after (while excluding nothing in this sandbox), or narrow both documents to the actual sentinel-subtree/top-level-membership proof. The current wording overstates the executable no-write evidence.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-19T03:05:50.915Z",
@@ -491,7 +491,11 @@
       "reviewRunId": "B-8d4b:RR-015",
       "_hash": "5004081d6f3042a369893452bddbf8a0442eee83877f4e21dcaf8a0dd6e9574c",
       "signatureTag": "edge|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in a4b3a20ce6: isolated proof recursively snapshots the entire sandbox .lattice tree including directory membership, raw bytes and symlink targets; sibling Story pass and independent usage-artifact mutation bites both detect drift.",
+      "resolvedAt": "2026-07-19T03:09:25.577Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
