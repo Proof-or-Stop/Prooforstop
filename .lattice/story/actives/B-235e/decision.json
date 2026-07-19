@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Correctness and reviewer independence precede token savings.",
+    "Every migration decision must be mechanical, versioned, and reversible per role.",
+    "Measurements may prove savings or say INCONCLUSIVE, but must never invent equivalence."
+  ],
+  "drivers": [
+    "Reuse the trusted full-envelope and fail-closed incremental contracts already shipped.",
+    "Reduce repeated reviewer context without deleting role-specific critical lenses.",
+    "Preserve old passes and give operators a bounded rollback path during migration."
+  ],
+  "options": [
+    {
+      "name": "A: Per-role modular migration on shared envelope contracts",
+      "pros": [
+        "Small independent blast radius and rollback",
+        "Reuses B-dd81/B-03ac facts rather than redefining them",
+        "Supports role-by-role A/B and approval"
+      ],
+      "cons": [
+        "More registry and test rows",
+        "Temporary coexistence with legacy templates"
+      ]
+    },
+    {
+      "name": "B: Rewrite all reviewer prompts into one universal template",
+      "pros": [
+        "Maximum textual deduplication",
+        "Fewer physical assets"
+      ],
+      "cons": [
+        "Erases role-specific review lenses",
+        "Creates coupled rollback and authority risk",
+        "A/B attribution becomes ambiguous"
+      ]
+    },
+    {
+      "name": "C: Keep full legacy prompts and only trim prose",
+      "pros": [
+        "Minimal runtime changes",
+        "Simple rollback"
+      ],
+      "cons": [
+        "Does not implement trusted conditional assembly",
+        "Cannot prove incremental budget benefit",
+        "Leaves duplication and drift untreated"
+      ]
+    }
+  ],
+  "chosen": "A: Per-role modular migration on shared envelope contracts",
+  "rationale": "Choose A because it delivers the canonical Story 5 outcome while keeping each reviewer independently reversible and keeping all safety decisions in existing machine-enforced contracts. B optimizes text at the cost of reviewer separation; C cannot satisfy the full/incremental migration goal.",
+  "preMortem": [
+    {
+      "scenario": "A modularized role silently loses a seeded critical/high finding lens.",
+      "trigger": "The shared core replaces role-specific instructions or replay corpus lacks the omitted behavior.",
+      "consequence": "Token metrics improve while review quality regresses.",
+      "mitigation": "Preregister seeded findings per role, require detection parity, and return INCONCLUSIVE rather than approve an underpowered replay."
+    },
+    {
+      "scenario": "Incremental dispatch is selected after contract, policy, scope, freshness, or authority drift.",
+      "trigger": "A new dispatch path bypasses B-03ac eligibility or trusts a caller-provided flag.",
+      "consequence": "A reviewer sees incomplete evidence and a signed pass may be inadmissibly accepted.",
+      "mitigation": "Centralize selection in the existing policy, add drift/tamper adversarial tests, and bind the assembled envelope to ReviewRun/pass checks."
+    },
+    {
+      "scenario": "A rollout failure cannot be isolated to one reviewer role.",
+      "trigger": "One global feature flag controls all five roles or legacy pass reading is removed.",
+      "consequence": "Operators must disable the entire review wave or strand in-flight Stories.",
+      "mitigation": "Use per-role flags, preserve legacy-full-context reads, and test mixed-mode and role-specific rollback."
+    },
+    {
+      "scenario": "The 40 percent target drives deletion of necessary instructions.",
+      "trigger": "Budget status is treated as a gate stronger than correctness evidence.",
+      "consequence": "The implementation claims success through smaller prompts despite worse findings.",
+      "mitigation": "Keep budget violation non-blocking for correctness execution, require quality parity first, and record target misses transparently."
+    }
+  ],
+  "timestamp": "2026-07-19T07:07:30.274Z"
+}

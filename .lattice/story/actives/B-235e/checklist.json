@@ -10,7 +10,99 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "active-five-role-migration",
+            "desc": "Exactly concept, quality, test-coverage, behavior, and docs resolve to versioned modular Role Contracts and trusted prompt assembly when each role flag is enabled; each role keeps its existing reviewer lane identity, commands, stop conditions, and finding/pass authority.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "independent-role-flags",
+            "desc": "Each of the five active reviewer roles has an independent rollback flag whose enabled and disabled states select modular and legacy assembled prompts only for that role, with no cross-role flag coupling.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "active-roster-retired-exclusion",
+            "desc": "Registry and default dispatch report the five migrated roles as active while lattice-review-channel remains retired, defaultDispatch=false, absent from active counts, wave budgets, assurance floor, receipt, and quorum collection.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "legacy-full-readable",
+            "desc": "With a role flag disabled, the role can still execute through the legacy assembled prompt and existing envelope-less historical reviewer artifacts remain readable only as legacy-full-context in their recorded round.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "mixed-rollout-states",
+            "desc": "All mixed flag combinations are supported: any subset of the five roles may use modular prompts while the rest use legacy prompts, and every lane retains its own contract and evidence identity.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "missing-or-invalid-flag-fails-safe",
+            "desc": "Missing, malformed, duplicated, or unknown per-role flag configuration fails to the documented legacy-safe state or an explicit error; it never silently enables another role or retired channel.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "compatibility-not-active",
+            "desc": "Compatibility roles remain explicitly callable only under their compatibility contract and are excluded from active role counts and default reviewer waves without being incorrectly retired.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "role-contract-semantics-preserved",
+            "desc": "A role-by-role baseline diff proves required sections, forbidden actions, allowed commands, stop conditions, lane identity, and current authority are preserved; any semantic deletion blocks approval even when rendered text is shorter.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "retired-channel-dispatch-rejected",
+            "desc": "Direct, aliased, mixed-case, or flag-assisted attempts to dispatch lattice-review-channel for a new review are explicitly rejected and cannot fall through to an active role.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "flag-bleed-and-role-substitution-rejected",
+            "desc": "Changing one role flag, agentType, registry index, or cached prompt cannot cause another role contract or prompt to be served; role, contract, and envelope digests must agree.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "retired-evidence-cannot-count",
+            "desc": "A valid-looking pass or finding from retired or compatibility roles cannot satisfy any active lane, current-round receipt, assurance floor, delivery check, or quorum requirement.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "concurrent-flag-baseline-writes-serialized",
+            "desc": "Concurrent role migrations, rollback requests, and baseline approvals cannot lose updates or produce a hybrid registry or baseline; shared writes use the main write lock while lane evidence remains signed and lane scoped.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
