@@ -436,6 +436,33 @@
         "scanEscalationReason": "Incremental basis reports no changed files; prior full concept scan remains applicable."
       },
       "_hash": "22a420418c36f61e84e57629c3a41f2a982dd7295803ec31049d79f0db31c69a"
+    },
+    {
+      "id": "B-407c:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Fresh current-HEAD quality re-review after quorum staleness. Incremental basis is eligible with prior RP-013; no material code change. Reconfirmed analyzer 15-case mutation matrix, production dispatch smoke, role migration smoke, build, and truthful INCONCLUSIVE provider semantics. No quality blocker.",
+      "createdAt": "2026-07-20T22:26:03.165Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-025",
+      "envelopeId": "43d1926394a783e742c7b5cc80e281701a9c53ec1d9dcabe6d9fdfcab1a86829",
+      "writerSessionId": "sess-e3ccd7ac1a845e8f65384f6aee635052",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-ab-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "afb1179bc333bf17b134c04e7d12504f5f924c5179a6a692ed796640b97ddb19"
     }
   ]
 }
