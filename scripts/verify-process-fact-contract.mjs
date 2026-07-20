@@ -5241,14 +5241,19 @@ function assertParentRoadmapTotalityRuntime() {
   assert(read('packages/main/src/handlers/review-run.ts').includes('passesCutoffAt: startedAt'), 'review_run_start assembly must use the same prior-pass cutoff as verification');
   assert(read('packages/main/src/tasks/review-incremental-context-smoke.ts').includes('passesCutoffAt'), 'incremental review smoke must exercise the prior-pass cutoff contract');
   const taskContextSource = read('packages/main/src/core/prompt-envelope.ts');
-  assert(taskContextSource.includes('phase: _phase') && taskContextSource.includes("phase: 'REVIEW'"), 'model-relevant TaskContext digest must preserve REVIEW-produced bytes across lifecycle phase metadata');
+  assert(
+    taskContextSource.includes('phase: _phase')
+      && taskContextSource.includes("context.phase === 'TEST' ? 'REVIEW' : context.phase")
+      && taskContextSource.includes('phase: semanticPhase'),
+    'model-relevant TaskContext digest must equate only TEST with REVIEW while preserving every other actual phase',
+  );
   const incrementalLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:incremental_review_eligibility_gate');
-  for (const token of ['canonicalizes lifecycle phase to REVIEW', 'mandatory REVIEW-to-TEST transition', 'checklist', 'scope mutations remain fail-closed']) {
+  for (const token of ['only TEST as equivalent', 'mandatory REVIEW-to-TEST transition', 'DEV, DONE, DISCARDED', 'malformed or unknown phases remain distinct', 'checklist', 'scope mutations']) {
     assert(incrementalLevel?.rationale.includes(token), `incremental review eligibility rationale missing lifecycle semantic boundary: ${token}`);
   }
   assert(incrementalLevel?.gateConsumer.includes('DONE/done_prepare') && incrementalLevel?.gateConsumer.includes('collectReviewerEvidenceState'), 'incremental review eligibility must identify the shared DONE/done_prepare evidence oracle');
   const incrementalSmoke = read('packages/main/src/tasks/review-incremental-context-smoke.ts');
-  for (const token of ['REVIEW-TO-TEST TASK SNAPSHOT', 'phase metadata is stable', 'title/checklist mutations fail closed', 'DONE oracle agrees']) {
+  for (const token of ['REVIEW-TO-TEST TASK SNAPSHOT', 'only REVIEW/TEST are equivalent', 'DEV/DONE/DISCARDED/unknown', 'title/checklist mutations fail closed', 'DONE oracle agrees']) {
     assert(incrementalSmoke.includes(token), `incremental review smoke missing lifecycle task-context proof token: ${token}`);
   }
   assert(

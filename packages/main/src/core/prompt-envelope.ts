@@ -231,12 +231,13 @@ export function fullTaskSemanticDigest(context: FullTaskContext): string {
     ...modelRelevant
   } = context;
   // Review evidence is produced in REVIEW and consumed again after the
-  // mandatory REVIEW -> TEST transition. Canonicalizing that lifecycle-only
-  // field to its producer phase preserves the digest bytes of existing REVIEW
-  // envelopes while keeping every actual task semantic field fail-closed.
+  // mandatory REVIEW -> TEST transition. Only TEST is mapped back to that
+  // producer phase: DEV, DONE, DISCARDED, and malformed phases must remain
+  // distinct so evidence from an inadmissible lifecycle state fails closed.
+  const semanticPhase = context.phase === 'TEST' ? 'REVIEW' : context.phase;
   return domainSeparatedDigest('full-task-context.model-relevant.v1', {
     ...modelRelevant,
-    phase: 'REVIEW',
+    phase: semanticPhase,
   });
 }
 

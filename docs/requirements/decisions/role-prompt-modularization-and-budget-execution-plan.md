@@ -1180,10 +1180,11 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
   freshness classification、changed/impacted file digests、reviewBasis digest 和
   stable reason codes。HEAD/material/storyFiles 仍由 ReviewRun/Envelope 独立签名，
   不由 Host 从 raw hash 自行解释。TaskContext 仍在 Prompt 中记录实际 phase，
-  但 model-relevant digest 将 lifecycle phase 规范为 producer phase `REVIEW`：
+  但 model-relevant digest 仅将 `TEST` 规范为 producer phase `REVIEW`：
   mandatory REVIEW→TEST/closeout metadata 不得让已通过的 REVIEW envelope 自失效；
+  `DEV`、`DONE`、`DISCARDED` 与 malformed/unknown phase 必须保持不同并 fail closed，
   title、description、priority、checklist、verification intent 和 scope 等真实语义
-  变化仍必须 fail closed。`verifyReviewRunPromptEnvelope` 是 REVIEW、quorum、
+  变化也必须 fail closed。`verifyReviewRunPromptEnvelope` 是 REVIEW、quorum、
   `done_prepare` 与 `story_advance DONE` 共享的同一判定边界。
 - 安全 eligibility 先于成本。安全允许 incremental 后，只有最终 incremental
   bytes 小于 full 且未超 incremental budget 时才选择 `SAFE_INCREMENTAL`；

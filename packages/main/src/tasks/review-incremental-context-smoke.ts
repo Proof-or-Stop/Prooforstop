@@ -575,10 +575,16 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       storyFilesHash: runB.storyFilesHash,
       scopeContract: store.readScopeContract(storyId),
     });
+    assert.equal(testTaskContext.phase, 'TEST', 'Prompt TaskContext must retain the actual TEST phase');
     assert.equal(
       fullTaskSemanticDigest(testTaskContext),
       envelopeB.taskSemanticDigest,
       'the canonical REVIEW snapshot must preserve taskSemanticDigest in TEST',
+    );
+    assert.equal(
+      fullTaskSemanticDigest({ ...testTaskContext, phase: 'REVIEW' }),
+      fullTaskSemanticDigest(testTaskContext),
+      'only the admissible REVIEW and TEST closeout states share a task semantic digest',
     );
     const {
       headHash: _legacyHeadHash,
@@ -603,6 +609,52 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     );
 
     const testPhaseStory = store.readStory(storyId);
+    const inadmissiblePhaseDigests = new Set<string>();
+    for (const inadmissiblePhase of ['DEV', 'DONE', 'DISCARDED', 'MALFORMED_PHASE'] as const) {
+      store.writeStory(storyId, {
+        ...testPhaseStory,
+        phase: inadmissiblePhase as typeof testPhaseStory.phase,
+      });
+      const inadmissibleTaskContext = buildFullTaskContext({
+        story: store.readStory(storyId),
+        checklist: store.readChecklist(storyId),
+        headHash: currentGitHead(root)!,
+        materialHash: runB.materialHash,
+        storyFilesHash: runB.storyFilesHash,
+        scopeContract: store.readScopeContract(storyId),
+      });
+      assert.equal(
+        inadmissibleTaskContext.phase,
+        inadmissiblePhase,
+        `Prompt TaskContext must retain the actual ${inadmissiblePhase} phase`,
+      );
+      const inadmissiblePhaseDigest = fullTaskSemanticDigest(inadmissibleTaskContext);
+      inadmissiblePhaseDigests.add(inadmissiblePhaseDigest);
+      assert.notEqual(
+        inadmissiblePhaseDigest,
+        envelopeB.taskSemanticDigest,
+        `${inadmissiblePhase} must not collide with the REVIEW/TEST task semantic digest`,
+      );
+      const phaseMutation = verifyReviewRunPromptEnvelope(store, runB);
+      assert.equal(phaseMutation.ok, false, `${inadmissiblePhase} must invalidate a REVIEW envelope`);
+      assert.match(phaseMutation.reason ?? '', /taskSemanticDigest/);
+      const inadmissibleDoneEvidence = collectReviewerEvidenceState(store, storyId, root);
+      assert.equal(
+        inadmissibleDoneEvidence.valid.some(evidence => evidence.id === passB.id),
+        false,
+        `the shared DONE oracle must reject B in ${inadmissiblePhase}`,
+      );
+      assert.ok(
+        inadmissibleDoneEvidence.invalid.some(evidence => evidence.reviewRunId === runB.reviewRunId),
+        `the shared DONE oracle must report B invalid in ${inadmissiblePhase}`,
+      );
+    }
+    assert.equal(
+      inadmissiblePhaseDigests.size,
+      4,
+      'DEV, DONE, DISCARDED, and malformed phases must also remain distinct from each other',
+    );
+    store.writeStory(storyId, testPhaseStory);
     store.writeStory(storyId, { ...testPhaseStory, title: `${testPhaseStory.title} mutated` });
     const titleMutation = verifyReviewRunPromptEnvelope(store, runB);
     assert.equal(titleMutation.ok, false, 'a real Story title mutation must invalidate the bound REVIEW envelope');
@@ -623,7 +675,7 @@ function runProductionVerifierTemporalCutoffRegression(): void {
     assert.match(checklistMutation.reason ?? '', /taskSemanticDigest/);
     store.writeChecklist(storyId, originalChecklist);
     assert.deepEqual(verifyReviewRunPromptEnvelope(store, runB), { ok: true }, 'restoring task semantics restores verifier agreement');
-    console.log(`${MARKER} REVIEW-TO-TEST TASK SNAPSHOT: phase metadata is stable; title/checklist mutations fail closed; DONE oracle agrees`);
+    console.log(`${MARKER} REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees`);
     console.log(`${MARKER} PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails`);
   } finally {
     resetConfigCache();
