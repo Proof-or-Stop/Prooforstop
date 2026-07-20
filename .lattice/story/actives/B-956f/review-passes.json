@@ -530,6 +530,31 @@
         "scanEscalationReason": null
       },
       "_hash": "f8840ce66210cb5d1fae99cc320b06b745d7ce43ea67947dad409673d96d7514"
+    },
+    {
+      "id": "B-956f:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "R9 delta (F-014 coverage fix, commit e410889012): checked the extraction of the inline story_review gitCwd-resolution/material-classification wiring into the named export buildStoryReviewMaterialClassification. No concept was deleted or replaced this round (behavior-preserving refactor: inline logic -> named export, one production call site). Verified: (1) exactly one definition of buildStoryReviewMaterialClassification and exactly one production call site (story-review.ts:161), via repo-wide grep; (2) no leftover duplicate inline copy of the resolveGitCwd+tryBuildMaterialClassificationSnapshotForDiagnostics block at the original handler site -- it now just calls the extracted function; (3) the new export doc comment claim of being identical in shape to the three sibling diagnostics sites (machine.ts, phase-gates.ts, proofstory.ts) verified true by direct comparison; (4) smoke R8-a compiled/ran green as part of language-neutral-gates-smoke.ts (39/39 checks). No stale/dangling references found. No blocker.",
+      "createdAt": "2026-07-20T13:54:06.855Z",
+      "reviewRound": "2026-07-20T13:51:09.589Z",
+      "reviewRunId": "B-956f:RR-028",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/material-code-policy.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "706e988460ebac2871e26bd3fc6064ae2a8c6ecfb1b2998dd6b8b795c803ef2a"
     }
   ]
 }
