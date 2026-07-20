@@ -2983,6 +2983,35 @@
       },
       "readDiagnostics": [],
       "_hash": "693e03f8ace461a75b1ed529e6320e726c0c06ae60facbe349163ee9b3f36065"
+    },
+    {
+      "id": "B-235e:RP-079",
+      "agent": "lattice-review-docs",
+      "note": "PASS: Round-26 F-028 correction is consistent at current HEAD 468c015. Extracted 285 changed exported symbols and compared the 3 taskSemanticDigest/phase-semantic paragraphs in the canonical role-prompt decision against the focused implementation and process-fact contract. buildFullTaskContext preserves the actual phase rendered into Prompt TaskContext; review_run_start produces reviewer envelopes only in REVIEW; fullTaskSemanticDigest maps only TEST back to REVIEW for post-transition verifier reuse, while every other phase retains its own digest input and therefore fails closed. The L4 rationale, smoke assertions (truthful TEST/inadmissible phases plus DONE oracle), and verify-process-fact-contract checks encode the same boundary. The focused process-fact verifier passed; no docs/process-fact blocker found.",
+      "createdAt": "2026-07-20T16:54:43.793Z",
+      "reviewRound": "2026-07-20T16:37:55.531Z",
+      "reviewRunId": "B-235e:RR-123",
+      "envelopeId": "96581d2e93a3364e42166b5753ff2bfd5c6e4df780a6a4747ca54be1a285747b",
+      "writerSessionId": "sess-docs-b235e-round26-f028",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Focused F-028 re-review: inspected commit 4db954c6e3, traced all fullTaskSemanticDigest call sites and producer/verifier phase boundaries, compared 285 changed exported symbols with 3 relevant canonical doc paragraphs, and ran the process-fact contract verifier."
+      },
+      "_hash": "e8c0729878c5f9c8531ce2ac5149c10fc7f259ace161b246106f9528fb6e10a8"
     }
   ]
 }
