@@ -122,6 +122,26 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-20T10:07:43.158Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-956f:F-008",
+      "desc": "packages/main/src/core/repro-evidence-binding-gate.ts:418 (evaluateStoryEvidenceBindingGate) + packages/main/src/handlers/story-create.ts:133 (STORY_INTAKE repro-first preflight) call buildMaterialClassificationSnapshot(projectRoot) with NO gitCwd override, so gitCwd internally defaults to projectRoot instead of the resolveGitCwd-resolved git ROOT that review-assurance-floor.ts consumers correctly thread (machine.ts:822/1262 via resolveGitCwd, done-oracle.ts:861, done-prepare.ts:1254, transition-effects.ts:180, review-escalation.ts:287). On a wrapper-root layout this defeats the R6 wrapper-root namespace fix for these two consumers: buildMaterialClassificationSnapshotAtRef computes namespacePrefix = projectRepoPrefix(gitCwd=projectRoot, projectRoot) = '' (identity, since gitCwd===projectRoot), but the git diff --name-status command it actually runs still emits TRUE repo-root-relative paths (e.g. project/bin/tool) regardless of which subdirectory cwd it is invoked from -- so the un-stripped git-namespace path leaks through as the snapshot file.path, and pathPrefixes/codeExtensions matching against it silently misclassifies material code as non-material. REPRODUCED against compiled dist: wrapper-root repo with gitRoot/project/bin/tool (extensionless executable script) changed in a main...feature diff; buildMaterialClassificationSnapshot(projectRoot) (exact call pattern of both call sites) yields path='project/bin/tool', materialCode=false, reason='default non-material'; correctly threading gitCwd = the real git root on the SAME diff yields path='bin/tool', materialCode=true, reason='extensionless shebang/executable script'. This means the repro-first DEV gate (wired via machine.ts:552,584,600,1054,1102 and handlers/session.ts:78) and the STORY_INTAKE repro-first preflight silently fail open on wrapper-root projects for exactly the class of material-code changes this story exists to classify correctly -- contradicting the module doc header's contract that review-assurance floor, repro-evidence-binding gate, and the ProofStory trigger all share one wrapper-root-safe classification snapshot boundary (only the floor consumer is actually wired through resolveGitCwd).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-20T12:21:46.659Z",
+      "reviewRound": "2026-07-20T12:07:59.609Z",
+      "reviewRunId": "B-956f:RR-024",
+      "_hash": "1919d698acb9bd03d989327bca8a7a90ed3c87afc31173cf004166683c8799a9",
+      "files": [
+        "packages/main/src/core/repro-evidence-binding-gate.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/core/material-code-policy.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
