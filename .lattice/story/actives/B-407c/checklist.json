@@ -7,18 +7,22 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
-      "status": "done",
+      "status": "pending",
       "startTime": "2026-07-20T21:43:02.211Z",
       "endTime": "2026-07-20T21:43:04.155Z",
-      "userSees": "用户看到五个复杂角色均显示 modular Prompt Envelope dispatch receipt，且 role/status/Task Context 字段与迁移前一致。",
+      "userSees": "用户看到五行类似 \"role=lattice-implementer rollout=full-envelope dispatchKind=story-dispatch envelope=<digest> persisted=true\"，且每个角色 legacy rollback 保持原语义。",
       "files": {
         "modify": [
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
           "packages/main/src/core/prompt-envelope.ts",
-          "packages/main/src/handlers/dispatch.ts",
-          "packages/main/src/roles/",
-          ".claude/agents/",
-          ".lattice-codex/agents/",
-          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/evaluate.ts"
         ],
         "create": [],
         "test": [
@@ -28,21 +32,21 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "每个复杂角色都由 registry 解析到 modular Prompt Envelope 并完成真实 dispatch",
+            "desc": "五个复杂角色分别经真实生产入口生成并持久化 role-bound modular story-dispatch Prompt Envelope receipt",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "legacy role alias 与缺省可选字段仍能绑定同一 Task Context",
+            "desc": "逐角色 legacy rollback 保留原 prompt/authority/Task Context 语义且不会串改其他角色",
             "type": "logic",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "篡改 role 或 Task Context digest 时 dispatch/review gate 拒绝并留下结构化证据",
+            "desc": "篡改 role、dispatchKind、Task Context 或 envelope digest 时消费方拒绝，story-dispatch artifact 不能获得 REVIEW credit",
             "type": "logic",
             "priority": "must"
           }
@@ -85,6 +89,10 @@
           "storyFilesHash": "3f59d76b305411826a018445701c08dfbb5e1f1be0b54bfd94efe883f74e5f55",
           "timestamp": "2026-07-20T21:43:05.155Z"
         }
+      ],
+      "excludes": [
+        "Story 7 legacy asset isolation",
+        "role status or Task Context schema changes"
       ]
     },
     {
@@ -282,6 +290,15 @@
       "from": "done",
       "to": "pending",
       "reason": "Human clarified strict /tmp Story 6 scope; observe/warn wording means nonblocking observation only and does not authorize Story 7 promotion."
+    },
+    {
+      "timestamp": "2026-07-20T21:46:28.990Z",
+      "phase": "PLAN",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "pending",
+      "reason": "Human clarified strict /tmp Story 6 scope."
     }
   ]
 }
