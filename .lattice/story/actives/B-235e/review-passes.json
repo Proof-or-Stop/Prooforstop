@@ -1759,6 +1759,62 @@
       },
       "readDiagnostics": [],
       "_hash": "c51c3250b218ee5adf52287b44bb3edab37d9b33092175c3fc1bf4b438204bc1"
+    },
+    {
+      "id": "B-235e:RP-055",
+      "agent": "lattice-review-quality",
+      "note": "Round-20 quality review found no blocker. Commit 4fa6f4f7dc changes only lattice.config.json root full test suite timeoutMs from 1200000 to finite 7200000. Read-only production policy resolution reports required=true/configErrors=[] and preserves both mandatory commands, exact npm test argv, build-before-test ordering, and requiresBuildProof=packages-main-build; no test, argument, proof dependency, or gate was removed/weakened. The two-hour cap remains enforced rather than unbounded and is operationally justified by the extensive root chain including the costly default review concurrency smoke. Latest-HEAD focused --cutoff-verifier-only passed: real B stays verifier-valid/bound to A after C and no-cutoff mutation bites. No full npm test or default 20-round smoke was run.",
+      "createdAt": "2026-07-20T11:57:57.471Z",
+      "reviewRound": "2026-07-20T11:52:00.521Z",
+      "reviewRunId": "B-235e:RR-095",
+      "envelopeId": "aeda9613d69c3a524adbfba28c696606c9a7a86c3870f4e2a4e757015c5ec7a9",
+      "writerSessionId": "sess-b235equalityr20a1b2c3d4e5f6",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/checklist.json",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "6cc26ec137e92b06caa21160e246b4f9ec480875d30ca867c73084217d65dd2d"
+      },
+      "readDiagnostics": [],
+      "_hash": "0e7d0a01b07149fb183f40ee0f7e8376249a953d7441a84d80fdf864807c9b97"
     }
   ]
 }
