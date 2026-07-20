@@ -105,7 +105,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户看到每个复杂角色各有 legacy/full 与 modular A/B dispatch receipt，provider 不可用维度明确标为 INCONCLUSIVE。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/story6-ab-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story6-ab-dispatch-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "五个角色均完成真实 A/B dispatch 并保存 provider usage/cache/latency/output 证据",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "缺失 provider 维度显示 INCONCLUSIVE 而非零值",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "伪造或重复 receipt、缺失 role 绑定时 A/B 汇总拒绝",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
