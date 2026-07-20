@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { storyRuntimeLockPath } from '../core/runtime-artifact-registry.js';
+import { storyRuntimeLockPath } from '../core/validation-execution-lock.js';
 import { createAgentPromptHandlers } from '../handlers/agent-prompt.js';
 
 const roles = [
