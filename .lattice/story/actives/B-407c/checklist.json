@@ -348,15 +348,15 @@
         },
         {
           "intentRef": "CHK-004:edge:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
-          "command": "node scripts/verify-process-fact-contract.mjs",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
           "result": "pass",
-          "note": "process-fact registry/verifier 登记 agent_prompt、复杂角色 warn-only budget 语义；Story7 enforce 未引入。",
-          "headHash": "e5c9c895fa111efb32825ee3c59368428e8af8f8",
-          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
-          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
-          "timestamp": "2026-07-20T21:49:51.228Z"
+          "note": "Task Context/digest integrity 与缺证据边界保持稳定。",
+          "headHash": "7c0745611950075c355097637e41309e937799e4",
+          "materialHash": "9080056cc8012893aab03491ce372f9907ab6a8ab5c3e1fbf2e9c5c9f509c84a",
+          "storyFilesHash": "812bf56b77218edab971946ee58d631ee67ba0c1d91f8b747ac3a4f45c8a7f0f",
+          "timestamp": "2026-07-20T22:08:11.188Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
