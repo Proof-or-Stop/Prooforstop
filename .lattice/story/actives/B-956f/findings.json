@@ -212,7 +212,7 @@
       "desc": "Fourth call site of tryBuildMaterialClassificationSnapshotForDiagnostics is inconsistent with the other three: story-review.ts:124 calls tryBuildMaterialClassificationSnapshotForDiagnostics(ctx.root) with NO gitCwd argument at all, while the three sibling call sites touched by this story machine.ts:144 (proofStoryMaterialClassification), phase-gates.ts:125 (proofStoryMaterialClassification), and proofstory.ts:110 (materialClassification) all first resolve gitCwd = resolveGitCwd({store, storyId, metadataRoot, projectRoot}) before calling the same helper. Because tryBuildMaterialClassificationSnapshotForDiagnostics(root) internally calls buildMaterialClassificationSnapshot(root) with gitCwd defaulting to root, the story_review command diagnostic-input materialClassification field is subject to the identical wrapper-root namespace mismatch as F-011 (a project-relative pathPrefixes/excludePaths entry silently fails to apply) whenever story_review is run against a wrapper-root project (config in <gitRoot>/subdir/). Lower severity than F-011 because this field is documented DIAGNOSTIC/advisory only (see the FIX G comment at phase-gates.ts:113-117: broken policy/config surfaces through the fail-closed resolve/floor/repro consumers, never by breaking a phase gate) -- it drives story_review advisory issues/prompt content, not a blocking gate -- but it means story_reviews own ProofStory materialClassification-driven advisories can be silently wrong (miss a material file, or misjudge repro-first-required framing) in exactly the wrapper-root topology this round exists to fix, while three near-identical helper functions in the same diff round were made correct.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-20T12:23:36.601Z",
@@ -223,7 +223,9 @@
         "packages/main/src/handlers/story-review.ts"
       ],
       "signatureTag": "adversarial|ts|fourth-call-site",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-20T13:10:39.643Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-956f:F-013",
