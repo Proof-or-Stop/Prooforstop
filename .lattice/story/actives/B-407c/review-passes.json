@@ -381,6 +381,33 @@
       },
       "readDiagnostics": [],
       "_hash": "d75902c1b83d1b760bfd97e047586b2792a8a7ea0030dc20728beb5adef67c7d"
+    },
+    {
+      "id": "B-407c:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round-5 quality review: build, production dispatch smoke, and Story 6 analyzer selfcheck pass. The 15-case mutation matrix rejects malformed provenance, wrong role/sample/arm/host/repetition, digest/campaign mismatches, duplicate cells, and gateEvidence/provider claim mutations. No quality blocker found; provider campaign remains INCONCLUSIVE unless externally executed and independently adjudicated.",
+      "createdAt": "2026-07-20T22:24:41.071Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-021",
+      "envelopeId": "153a1e3bcf90b56691eef9da71e648629da88f440e2d720eb1a5d83303341260",
+      "writerSessionId": "sess-e3ccd7ac1a845e8f65384f6aee635052",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-ab-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5a9cb69f757430960d43dc9eff5f32cccdd92e4f14f3c925972334fd0d985618"
     }
   ]
 }
