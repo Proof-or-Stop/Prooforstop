@@ -55,15 +55,15 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
-          "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
+          "command": "lattice agent_prompt --role=<complex-role> --storyId=B-407c --format=json",
           "result": "pass",
-          "note": "五个 complex role IDs 均生成 trusted full Prompt Envelope 与 Task Context。",
-          "headHash": "ebc49d5e399948cae77e6ab45544f76a5019427d",
+          "note": "生产入口五角色均返回 mode=full-envelope、role-bound envelopeId 与 assembledPromptDigest；这补足了持久化 trusted story-dispatch receipt 的 manual transcript。",
+          "headHash": "2c2215aa2f3a3065f9d79ccd70bd5554ed83f1ca",
           "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
           "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
-          "timestamp": "2026-07-20T21:50:07.913Z"
+          "timestamp": "2026-07-20T21:52:32.836Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
