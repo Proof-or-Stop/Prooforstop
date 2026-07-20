@@ -2,19 +2,19 @@
   "storyId": "B-235e",
   "expected": "User sees \"role=lattice-review-concept rollout=full-envelope\" for an enabled role and \"role=lattice-review-quality rollout=legacy-full-context legacyBytesRestored=true\" after independently rolling back only quality; \"lattice-review-channel\" is absent from active roles.",
   "actual": {
-    "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+    "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
     "exitCode": 0,
-    "stdout": "prompt full-context envelope smoke: PASS\n"
+    "stdout": "review-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-19T22:27:44.580Z",
+  "capturedAtIso": "2026-07-20T11:17:17.085Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "2db79abc1f67c668f3c78a214b79ca3679dc99bb",
-  "materialHash": "f108b0b3a21990e18ad252ed56fe66097a3250374cb6305855612191011e424c"
+  "headHash": "f46504ba20c9596d6c19b7e1b11dd9228822679d",
+  "materialHash": "c4e86e1bd86b11c71da6d417ec1e8120cea23bba7aeb692c4a0265119aad9c09"
 }
