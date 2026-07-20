@@ -286,9 +286,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-20T21:49:48.450Z",
-      "endTime": null,
+      "endTime": "2026-07-20T21:49:50.511Z",
       "userSees": "用户看到 \"complex-role invariants: PASS\"；任何错误签名、越权、错误作者、缺失 evaluator/delivery/scope 证据或 Task Context 漂移都显示稳定 reason code。",
       "files": {
         "modify": [
@@ -331,6 +331,44 @@
       "excludes": [
         "Story 7 compatibility cleanup",
         "new role authority or Task Context schema"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/lifecycle-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-dispatch-smoke.js",
+          "result": "pass",
+          "note": "现有 dispatch lifecycle receipt/权限和兼容路径回归通过；Story6 evaluator 返回 envelope receipt 的代码路径已编译。",
+          "headHash": "e5c9c895fa111efb32825ee3c59368428e8af8f8",
+          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
+          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
+          "timestamp": "2026-07-20T21:49:50.872Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "process-fact registry/verifier 登记 agent_prompt、复杂角色 warn-only budget 语义；Story7 enforce 未引入。",
+          "headHash": "e5c9c895fa111efb32825ee3c59368428e8af8f8",
+          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
+          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
+          "timestamp": "2026-07-20T21:49:51.228Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "full envelope digest、Task Context 和签名完整性 adversarial smoke 通过；错误上下文不能伪造可信 envelope。",
+          "headHash": "e5c9c895fa111efb32825ee3c59368428e8af8f8",
+          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
+          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
+          "timestamp": "2026-07-20T21:49:51.559Z"
+        }
       ]
     }
   ],
