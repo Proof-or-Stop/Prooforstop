@@ -17,6 +17,42 @@ node experiments/role-prompt-ab-replay/analyze.mjs \
   --ledger=runtime/operator-run.jsonl
 ```
 
+## Story 6 live complex-role campaign
+
+`story6-live.mjs` extends the frozen corpus into a real provider matrix: three
+historical Story classes, two samples per class, legacy/modular arms, three
+repetitions, all five migrated complex roles, and both Codex CLI and Claude
+CLI. This short command validates the 72-cell preregistration without spending
+provider tokens:
+
+```bash
+npm --prefix packages/main run build
+node experiments/role-prompt-ab-replay/story6-live.mjs --selfcheck
+```
+
+Execution is deliberately one cell per invocation so the host can serialize
+the long campaign and avoid duplicate processes. Exact model IDs are mandatory
+pinned inputs. For example:
+
+```bash
+node experiments/role-prompt-ab-replay/story6-live.mjs --execute \
+  --campaign-id=story6-YYYYMMDD-v1 \
+  --cell=clean-pass-01.lattice-review-story-init.codex-cli.legacy.r1 \
+  --codex-model=<exact-model-id> --claude-model=<exact-model-id>
+```
+
+Receipts stay under ignored `runtime/story6/`, are `gateEvidence=false`, and
+report provider/cache/latency/output dimensions separately. A successful call
+remains `PENDING_INDEPENDENT_ADJUDICATION`; missing provider metrics or an
+independent adjudication remains `INCONCLUSIVE`, never a bytes-only success.
+After the serialized campaign, analyze it with:
+
+```bash
+node experiments/role-prompt-ab-replay/story6-analyze.mjs \
+  --campaign-id=story6-YYYYMMDD-v1 \
+  --adjudication=/absolute/path/to/independent-adjudication.json
+```
+
 The ordinary replay is read-only. Ledger output is opt-in and is confined to
 `experiments/role-prompt-ab-replay/runtime/*.jsonl`; that directory is runtime
 output. Its committed `.gitignore` excludes generated rows and lock files, so
