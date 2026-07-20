@@ -190,7 +190,7 @@
       "desc": "R6 wrapper-root namespace translation is INERT (never engages) at the repro-first evidence-binding gate and the STORY_INTAKE preflight, two of the three consumers CHK-001/the R6 commit message explicitly claim to fix. projectRepoPrefix(gitCwd, projectRoot) (material-code-policy.ts:291) only produces a non-empty prefix when gitCwd is resolved to the TRUE git root (an ancestor of projectRoot in the <gitRoot>/project/ shape the fix targets). evaluateStoryEvidenceBindingGate (repro-evidence-binding-gate.ts:387) has NO gitCwd parameter in its signature at all, and its internal call buildMaterialClassificationSnapshot(projectRoot) (repro-evidence-binding-gate.ts:418) passes no gitCwd override, so buildMaterialClassificationSnapshot defaults gitCwd=projectRoot (material-code-policy.ts:1057: `opts.gitCwd ?? projectRoot ?? process.cwd()`) -> projectRepoPrefix(gitCwd=projectRoot, projectRoot) is always the empty/identity prefix regardless of the real repo layout. story-create.ts:133 (STORY_INTAKE repro-first preflight) has the identical pattern. Only the review-assurance-floor path is actually protected, because ITS production callers (machine.ts:822/1262, done-oracle.ts:861, transition-effects.ts:180, done-prepare.ts:1254, review-escalation.ts:287) explicitly resolve gitCwd via resolveGitCwd(...) before calling evaluateReviewAssuranceFloor. LIVE REPRO (isolated scratch copy, built dist, config in <root>/project/, materialCode.excludePaths=[legacy/], diff adds project/legacy/old.py): buildMaterialClassificationSnapshot(projectRoot) [[the exact repro-gate/story-create call shape]] classifies project/legacy/old.py as materialCode:true, reason=code extension -- the excludePaths exclusion is SILENTLY DEFEATED. The SAME inputs with buildMaterialClassificationSnapshot(projectRoot, { gitCwd: root }) [[the review-assurance-floor call shape]] correctly classify it materialCode:false, reason=config excludePaths. This is exactly the class of silent-escape bug this story exists to close (background.md Trigger Event), and it means a wrapper-root deployment (ClawCreek shape) can still silently escape repro-first RED-required classification and STORY_INTAKE preflight protection via excludePaths/pathPrefixes even after the R6 fix, while the floor alone is protected. The new R6 smoke checks (language-neutral-gates-smoke.ts:1104,1124) only call buildMaterialClassificationSnapshot(projectRoot, { gitCwd: root }) directly -- they never exercise the actual evaluateStoryEvidenceBindingGate/story-create.ts production call path in a wrapper-root layout, so this gap is untested.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-20T12:23:10.970Z",
@@ -203,7 +203,9 @@
         "packages/main/src/core/material-code-policy.ts"
       ],
       "signatureTag": "adversarial|ts|wrapper-root-namespace",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-20T13:10:38.254Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-956f:F-012",
