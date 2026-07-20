@@ -545,7 +545,7 @@
       "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:377-402 now proves core prior-pass selection (A-before-B, C-after-B exclusion, equal timestamp, and a no-cutoff mutation bite), but it still never exercises verifyReviewRunPromptEnvelope for B after C is appended. trustedReviewEvidence builds full envelopes without incremental eligibility fields, and the only verifyReviewRunPromptEnvelope call later in the file belongs to an unrelated concurrency fixture. Therefore F-017/F-020 are only partially fixed: add an incremental B envelope assembled as-of B.startedAt, append valid later pass C, assert verifyReviewRunPromptEnvelope(store, B).ok remains true and priorPassRef stays A, then mutate verifier/producer cutoff wiring (or >= to > for equal time) and prove this end-to-end assertion fails. Current process-fact string checks do not behaviorally prove producer/verifier symmetry.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-20T00:12:39.187Z",
@@ -559,7 +559,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 1b2e9bafd4. The focused production-path smoke creates a real A ReviewRun/pass, produces incremental B through dispatch plus review_run_start with priorPassRef A, appends a real later C ReviewRun/pass, and proves verifyReviewRunPromptEnvelope(store, B) remains {ok:true} with priorPassRef A. A no-passesCutoffAt mutation selects C and changes eligibilityDigest, proving the verifier mutation rejects B. npm build, review-run smoke, process-fact contract, and --cutoff-verifier-only pass; current coverage review RR-083/RP-041 confirms F-024 satisfied with 48/48 must intents and no new blocker.",
+      "resolvedAt": "2026-07-20T10:24:08.181Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
