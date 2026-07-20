@@ -2,31 +2,53 @@
   "storyId": "B-407c",
   "mode": "enforce",
   "allowedModify": [
-    "packages/main/src/roles/**",
+    "lattice.config.json",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/package-lock.json",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
     "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/prompt-contracts.ts",
     "packages/main/src/core/prompt-budget.ts",
-    "packages/main/src/core/task-context.ts",
-    "packages/main/src/handlers/dispatch.ts",
-    "packages/main/src/core/delivery-check.ts",
-    "packages/main/src/core/scope-contract.ts",
-    "packages/main/src/core/review-run.ts",
-    ".claude/agents/**",
-    ".lattice-codex/agents/**",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/evaluate.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "scripts/verify-process-fact-contract.mjs",
     "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
   ],
   "allowedCreate": [
-    "packages/main/src/tasks/story6-*.ts"
+    "packages/main/src/tasks/story6-role-migration-smoke.ts",
+    "packages/main/src/tasks/story6-budget-smoke.ts",
+    "packages/main/src/tasks/story6-ab-dispatch.ts",
+    "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+    "packages/main/src/tasks/story6-invariants-smoke.ts"
   ],
   "allowedTest": [
-    "packages/main/src/tasks/story6-*.ts"
+    "packages/main/src/tasks/story6-*.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
   ],
   "protectedFiles": [
-    "packages/main/src/core/types.ts"
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts"
   ],
   "explicitExcludes": [
-    "packages/main/src/Story 7 budget enforce implementation"
+    "packages/main/src/Story 7 legacy asset isolation",
+    "packages/main/src/Story 7 observe-to-warn rollout promotion",
+    "packages/main/src/compatibility role cleanup",
+    "packages/main/src/budget enforce implementation",
+    "packages/main/src/Task Context schema changes",
+    "packages/main/src/role status or authority changes"
   ],
-  "scopeChangeReason": "Story 6 frozen scope covers complex role migration, observe/warn budgets, A/B evidence, and invariants; Story 7 enforce is excluded.",
+  "scopeChangeReason": "Human clarified strict /tmp Story 6: complex-role migration, temporary nonblocking budget violations, real production dispatch A/B, and invariant verification only.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -55,7 +77,11 @@
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-20T21:38:50.689Z",
+  "updatedAt": "2026-07-20T21:47:40.058Z",
+  "protectedAnchors": [
+    "AGENT_DISPATCH_REGISTRY",
+    "buildFullTaskContext"
+  ],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -75,6 +101,37 @@
     "packages/main/src/Story 7 budget enforce implementation": "Story 7 budget enforce implementation",
     "lattice.config.json": "lattice.config.json",
     "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
-    "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts"
-  }
+    "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/prompt-contracts.ts": "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/agent-prompt.ts": "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/evaluate.ts": "packages/main/src/handlers/evaluate.ts",
+    "packages/main/src/handlers/delivery-check.ts": "packages/main/src/handlers/delivery-check.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/story6-role-migration-smoke.ts": "packages/main/src/tasks/story6-role-migration-smoke.ts",
+    "packages/main/src/tasks/story6-budget-smoke.ts": "packages/main/src/tasks/story6-budget-smoke.ts",
+    "packages/main/src/tasks/story6-ab-dispatch.ts": "packages/main/src/tasks/story6-ab-dispatch.ts",
+    "packages/main/src/tasks/story6-ab-dispatch-smoke.ts": "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+    "packages/main/src/tasks/story6-invariants-smoke.ts": "packages/main/src/tasks/story6-invariants-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts": "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/Story 7 legacy asset isolation": "Story 7 legacy asset isolation",
+    "packages/main/src/Story 7 observe-to-warn rollout promotion": "Story 7 observe-to-warn rollout promotion",
+    "packages/main/src/compatibility role cleanup": "compatibility role cleanup",
+    "packages/main/src/budget enforce implementation": "budget enforce implementation",
+    "packages/main/src/Task Context schema changes": "Task Context schema changes",
+    "packages/main/src/role status or authority changes": "role status or authority changes"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
 }
