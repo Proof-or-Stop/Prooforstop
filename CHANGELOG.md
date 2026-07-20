@@ -2,6 +2,40 @@
 
 ## Unreleased
 
+## Proofbound 0.3.223 - 2026-07-20
+
+Rolls up CLI versions 0.3.215 through 0.3.223 — ten stories landed since v0.3.214.
+The theme is **modular role prompts and lifecycle convergence**: reviewer prompts
+move onto content-addressed Prompt Envelopes with a measured no-drift baseline, and
+story transitions, quorum closeout, and validation metadata writes converge
+atomically across worktrees and hosts.
+
+**Highlights**
+
+- **Modular Prompt Envelope pipeline (B-360e, B-dd81, B-8d4b, B-235e).** The
+  role-prompt modularization series lands end to end: Story 1 establishes
+  role-prompt contracts and a no-output-drift measurement baseline; Story 2 adds
+  trusted full-context assembly and a content-addressed Prompt Envelope; Story 3
+  builds isolated role-prompt A/B replay with usage measurement; and the final
+  migration moves all active reviewer roles onto modular full and incremental
+  Prompt Envelopes.
+- **Fail-closed incremental review (B-03ac).** Incremental review eligibility and
+  impact classification are now fail-closed — a reviewer only gets the cheaper
+  incremental path when eligibility is mechanically provable, otherwise the full
+  review runs.
+- **Transition and metadata convergence (B-d877, B-6ed2, B-8195).** `dev_finish`
+  and `dev_merge` are routed through `runStoryTransition` with same-owner
+  transitions mutexed, closing a double-writer seam; `quorum_submit` closes
+  host-verdict metadata atomically; and fresh validation reuse converges across
+  trusted lifecycle metadata writes instead of re-running on every metadata
+  touch.
+- **Worktree and host portability (B-231d).** Validation lock identity and the
+  command-spec digest are portable across worktrees and hosts, so a proof minted
+  in one worktree no longer goes stale when consumed from another.
+- **Evidence Environment Adapter (B-955c).** The host-neutral Evidence
+  Environment Adapter contract is formalized and implemented, giving evidence
+  producers a single seam for host-specific environment access.
+
 ## Proofbound 0.3.214 - 2026-07-18
 
 Rolls up CLI versions 0.3.213 and 0.3.214 — three stories landed since v0.3.212.
