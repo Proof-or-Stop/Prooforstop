@@ -447,10 +447,32 @@
       "phase": "DEV",
       "headHash": "edf2d243ac2c4008aabd662183b189c8a3715634",
       "materialHash": "0c255f91b873afdb1558aabb7c0bafd5fcf7f3af4a2656fb02405554d7da3daa"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-025 and F-026 require canonical documentation and end-to-end done_prepare transcript regression updates for the pre-TEST exemption and post-TEST fail-closed reviewer re-attestation boundary.",
+      "timestamp": "2026-07-20T14:10:08.111Z",
+      "paths": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "125d999b8fd7859c138225c9fdbfbdfa0b0673f4",
+      "materialHash": "4ef91643173df5c32e36dda9df1acbcee23df0c3734ea46619696117a439e705"
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-20T13:56:27.045Z",
+  "updatedAt": "2026-07-20T14:10:08.111Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -537,6 +559,10 @@
     "packages/main/package.json": "packages/main/package.json",
     "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
     "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
-    "packages/main/src/handlers/done-prepare.ts": "packages/main/src/handlers/done-prepare.ts"
+    "packages/main/src/handlers/done-prepare.ts": "packages/main/src/handlers/done-prepare.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
   }
 }
