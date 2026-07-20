@@ -2843,6 +2843,61 @@
         "scanEscalationReason": "Reviewed the focused commit diff and searched the producer/verifier TaskContext phase and digest paths; compared 876 changed-line symbols/paragraph lines across the cumulative story diff, then ran the process-fact contract verifier."
       },
       "_hash": "f0cd4fd3838b648d73679e4b2e939f9af6ecb2500253ac891d82fe76881a69ae"
+    },
+    {
+      "id": "B-235e:RP-076",
+      "agent": "lattice-review-concept",
+      "note": "Round-26 final concept re-review found no blocker. F-028 is correctly fixed in 4db954c6e3: fullTaskSemanticDigest maps only TEST to the REVIEW producer phase; REVIEW remains unchanged and DEV, DONE, DISCARDED, and malformed/unknown phases retain their actual bytes. A direct current-build digest probe produced REVIEW=TEST but distinct DEV/DONE/DISCARDED/MALFORMED digests (five unique digests total). Fresh RR-121 assembled prompt truthfully contains phase REVIEW, and production verifyReviewRun/verifyReviewRunPromptEnvelope returned true/{ok:true}. The production regression asserts actual TEST TaskContext, REVIEW/TEST equivalence, separate inadmissible phase digests, verifier rejection, and shared collectReviewerEvidenceState DONE-oracle rejection for every inadmissible phase; title/checklist semantic mutation negatives remain. F-028 has strong resolution evidence, process-fact/docs/verifier match the bounded equivalence, and no non-metadata source change follows 4db954c6e3. No residual overbroad normalization or promised-but-undelivered behavior was found.",
+      "createdAt": "2026-07-20T16:54:17.962Z",
+      "reviewRound": "2026-07-20T16:37:55.531Z",
+      "reviewRunId": "B-235e:RR-121",
+      "envelopeId": "2df392a332750768b3fde603097dbef219855291680b04cf2daab2a14f6a5c5e",
+      "writerSessionId": "concept-b235e-r26-rr121",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "2698744167b94597f9134be776ec9fb4989741d4332802364df6f03409716e06"
+      },
+      "readDiagnostics": [],
+      "_hash": "0aef021ec84213eb7860e1bdee965ea58dd42a85d117806a86e0118b51acd251"
     }
   ]
 }
