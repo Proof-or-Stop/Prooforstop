@@ -51,10 +51,10 @@
           "command": "node tmp/w1-red/red-language-degradation.cjs",
           "result": "pass",
           "note": "RED harness 9/11 fail on baseline -> 11/11 pass (exit 0) against the fixed worktree dist: .py/.rs/.go/.java/.cpp sources AND go.mod/Cargo.toml/pyproject.toml/pom.xml all classify material; doc exemptions still hold.",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,10 +62,10 @@
           "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
           "result": "pass",
           "note": "language-neutral-gates-smoke check 2: floor, repro classification, and ProofStory trigger input consume the SAME HEAD+materialHash-bound snapshot object in one evaluation; a stale-hash snapshot is re-resolved, not consumed.",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,10 +73,10 @@
           "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
           "result": "pass",
           "note": "smoke check 3: collectMaterialCodeFiles REQUIRES the snapshot (config-blind signature removed at compile level); no consumer re-derives classification from raw paths.",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         }
       ]
     },
@@ -131,10 +131,10 @@
           "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
           "result": "pass",
           "note": "smoke check 4: go.mod/Cargo.toml/pyproject.toml/pom.xml at repo root classify material with no prefix/extension help (level-1 immutable manifest set, first hit wins).",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -142,10 +142,10 @@
           "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
           "result": "pass",
           "note": "smoke check 5: precedence pairs hold — src/design.pptx non-material (docs beats prefix); README under scripts/ non-material while extensionless shebang script under bin/ material; src-old/x.py does not match src/ (segment-aware); storyDir metadata excluded without hardcoding .lattice.",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,10 +153,10 @@
           "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
           "result": "pass",
           "note": "smoke check 6: excludePaths naming go.mod or a backend/ entry covering a real backend/go.mod is rejected at BOTH layers (config-resolve + filesystem preflight); malformed materialCode fails CLOSED with the offending key named.",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         }
       ]
     },
@@ -211,10 +211,10 @@
           "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
           "result": "pass",
           "note": "smoke check 7: a no-scope-contract story with exactly one material .go file yields exactly one deduped semantic_analysis_unavailable process event during the mutating validation path.",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -222,10 +222,10 @@
           "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
           "result": "pass",
           "note": "smoke check 8: buildScopeDiffPack normalizes semantic_analysis_unavailable per extension (same-ext dedupe to one entry); TS/JS files produce none.",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -233,10 +233,10 @@
           "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
           "result": "pass",
           "note": "smoke check 9: pure builder returns diagnostics only; read-only gate checks emit NO process event; only the mutating caller writes the deduped union-typed event (no spam, no suppression).",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         }
       ]
     },
@@ -290,10 +290,10 @@
           "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
           "result": "pass",
           "note": "smoke check 10: a .go/.rs-only story emits the validate-concept skip diagnostic naming those files (not silently absent).",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -301,10 +301,10 @@
           "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
           "result": "pass",
           "note": "smoke check 11: mixed .ts+.go diff — TS files get real concept analysis, non-TS appear only in the skip diagnostic; no leakage either way.",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -312,10 +312,10 @@
           "command": "node packages/main/dist/tasks/language-neutral-gates-smoke.js",
           "result": "pass",
           "note": "smoke check 12: the concept skip diagnostic and the scope-diff semantic_analysis_unavailable events are DISTINCT channels — suppressing one does not suppress the other; no file double-reports as analyzed and skipped.",
-          "headHash": "0b01d9e9530560fc897b31b99274a37f7d9f3edc",
-          "materialHash": "069fc8b5a5e62b29cf1da90a902dc962917b0a57e8c8293989d43cc5a9a99718",
-          "storyFilesHash": "03f790cce6f09613d232d0c43b0becea28ab56ed359f9342ca9383caa0c8b6ca",
-          "timestamp": "2026-07-20T11:45:46.434Z"
+          "headHash": "d6707048adfc8f411f49d45c70209ea5b402d87e",
+          "materialHash": "25e2f0594bd841382041b59a19b8b2ed64b18d388aa59426416b046ac2827e94",
+          "storyFilesHash": "06bb61636c949b349750d637090ea5c62e78e81cdfee40aec1e27b5b2caea1f7",
+          "timestamp": "2026-07-20T13:00:17.383Z"
         }
       ]
     }
