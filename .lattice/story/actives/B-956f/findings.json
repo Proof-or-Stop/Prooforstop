@@ -216,6 +216,26 @@
       ],
       "signatureTag": "adversarial|ts|fourth-call-site",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-956f:F-013",
+      "desc": "CHK-001:edge:0 and CHK-001:adversarial:0 verificationEvidence (language-neutral-gates-smoke.js checks 2-3) and the R6 wrapper-root checks (checks 33-34) do not cover the actual repro-evidence-binding-gate.ts:418 / story-create.ts:133 production call path. Both call buildMaterialClassificationSnapshot(projectRoot) with NO gitCwd override (grep-confirmed), so gitCwd defaults to projectRoot (material-code-policy.ts:1057) and projectRepoPrefix(gitCwd=projectRoot, projectRoot) is always the empty/identity prefix regardless of real repo layout -- the R6 translation never engages for these two consumers. I independently live-reproduced this in an isolated build (wrapper-root fixture, config in <root>/project/, excludePaths=[legacy/], diff adds project/legacy/old.py): buildMaterialClassificationSnapshot(projectRoot) [exact repro-gate/story-create shape] classifies legacy/old.py as materialCode=true reason=code extension (exclusion silently defeated), while buildMaterialClassificationSnapshot(projectRoot,{gitCwd:root}) [review-assurance-floor shape] correctly classifies materialCode=false reason=config excludePaths. So CHK-001 edge (All three consumers... receive the SAME HEAD+materialHash-bound snapshot) is NOT validated by any automated check for 2 of the 3 named consumers on a wrapper-root layout -- the 34-check smoke suite only exercises buildMaterialClassificationSnapshot directly with an explicit gitCwd override, never the real no-gitCwd call shape used in production. Overlaps with already-open B-956f:F-008 (lattice-review-concept) and F-011 (lattice-review-quality) on the underlying code defect; this finding records the independent test-coverage confirmation that no verificationEvidence in the checklist actually covers this call path.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-20T12:34:50.909Z",
+      "reviewRound": "2026-07-20T12:07:59.609Z",
+      "reviewRunId": "B-956f:RR-022",
+      "_hash": "8fc6ea1c2798859801c9daa31e7a0bb7306c62325e1b031ea5a2eb8d61164c3f",
+      "files": [
+        "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+        "packages/main/src/core/repro-evidence-binding-gate.ts",
+        "packages/main/src/handlers/story-create.ts"
+      ],
+      "signatureTag": "missing|ts|edge-adversarial-verificationevidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
