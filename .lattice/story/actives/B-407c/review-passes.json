@@ -249,6 +249,33 @@
         "scanEscalationReason": null
       },
       "_hash": "c38bdaa8c907c3d8ba7302953778b6b1a9affe2e5f7990507c822f3f2b550592"
+    },
+    {
+      "id": "B-407c:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed round-4 analyzer/provenance changes and reran story6-live --selfcheck, story6-analyze against a missing campaign (truthful INCONCLUSIVE), production-dispatch smoke, role-migration smoke, and build. Analyzer now validates role/sample/arm/host/repetition, campaign/material/finding digests, production-provider provenance, duplicate keys, missing-cell floor, and adjudication before any claim; provider or campaign absence remains INCONCLUSIVE with no savings/recall claim. No quality blocker found.",
+      "createdAt": "2026-07-20T22:21:01.509Z",
+      "reviewRound": "2026-07-20T22:19:33.690Z",
+      "reviewRunId": "B-407c:RR-018",
+      "envelopeId": "2fb63ae3a0fdb580e9ffc39f7b352f817f089f5dcd1f35826d5fd68e525e7d67",
+      "writerSessionId": "sess-e3ccd7ac1a845e8f65384f6aee635052",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-ab-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "abb778396e72f0213733a16160b6ecc07f4c6cacb1a746d3f6e88e482173258a"
     }
   ]
 }
