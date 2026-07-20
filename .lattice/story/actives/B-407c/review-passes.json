@@ -341,6 +341,46 @@
         "scanEscalationReason": null
       },
       "_hash": "ad924a81242b7ff0ca04a19fb2c57aa25f56b4895db4a38ce14b92d49c262569"
+    },
+    {
+      "id": "B-407c:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified all 12 must intents across four checklist items; production dispatch, warn-only budget, invariants, and 15-case A/B receipt mutation matrix are covered. Provider-unavailable dimensions remain explicitly INCONCLUSIVE.",
+      "createdAt": "2026-07-20T22:24:29.057Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-022",
+      "envelopeId": "14865e06619b8b5e19ff30bd64d7f79daa74902ef386bba2d7ae23c2d265073d",
+      "writerSessionId": "sess-c486175098654596183696ccb1b23174",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "d75902c1b83d1b760bfd97e047586b2792a8a7ea0030dc20728beb5adef67c7d"
     }
   ]
 }
