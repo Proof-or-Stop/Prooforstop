@@ -1,0 +1,26 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Publish the milestone-based closeout integrity hardening execution plan",
+      "context": "Synthesize the reproduced defects into bounded milestones. Preserve existing routine validation reuse, done_prepare, lifecycle artifact, and convergence contracts; explicitly distinguish immediate containment from runtime implementation and require prompt plus mechanical gate updates for process facts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "AGENTS.md#流程事实双层契约"
+      ],
+      "userSees": "A milestone-based Markdown execution plan that can be implemented story by story.",
+      "excludes": [
+        "Runtime code changes",
+        "Changes to lifecycle gates",
+        "Remote publishing"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
