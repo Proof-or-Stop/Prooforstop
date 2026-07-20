@@ -103,10 +103,37 @@
         "modular_role_body",
         "prompt_registry"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story 6 requires a serialized real-provider A/B campaign definition across five complex roles; these experiment assets pre-register cells and keep unavailable provider dimensions INCONCLUSIVE without claiming savings.",
+      "timestamp": "2026-07-20T22:03:17.998Z",
+      "paths": [
+        "experiments/role-prompt-ab-replay/README.md",
+        "experiments/role-prompt-ab-replay/story6-live.mjs",
+        "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+        "experiments/role-prompt-ab-replay/story6-output.schema.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/role-prompt-ab-replay/README.md",
+        "experiments/role-prompt-ab-replay/story6-live.mjs",
+        "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+        "experiments/role-prompt-ab-replay/story6-output.schema.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "cdafd92ef3ae64eeb69bccba1fce1e27b54f279f",
+      "materialHash": "780b2f9680635bb32d8691d747052b8d4d722b0cf5c4d8dfc005dffd1f371668",
+      "anchors": [
+        "story6_ab_campaign",
+        "provider_inconclusive",
+        "complex_role_baseline"
+      ]
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-20T21:57:26.215Z",
+  "updatedAt": "2026-07-20T22:03:17.998Z",
   "protectedAnchors": [
     "AGENT_DISPATCH_REGISTRY",
     "buildFullTaskContext"
@@ -163,7 +190,11 @@
     "packages/main/templates/agents/lattice-implementer.md": "packages/main/templates/agents/lattice-implementer.md",
     "packages/main/templates/agents/lattice-review-delivery.md": "packages/main/templates/agents/lattice-review-delivery.md",
     "packages/main/templates/agents/lattice-review-scope-plan.md": "packages/main/templates/agents/lattice-review-scope-plan.md",
-    "packages/main/templates/agents/lattice-review-story-init.md": "packages/main/templates/agents/lattice-review-story-init.md"
+    "packages/main/templates/agents/lattice-review-story-init.md": "packages/main/templates/agents/lattice-review-story-init.md",
+    "experiments/role-prompt-ab-replay/README.md": "experiments/role-prompt-ab-replay/README.md",
+    "experiments/role-prompt-ab-replay/story6-live.mjs": "experiments/role-prompt-ab-replay/story6-live.mjs",
+    "experiments/role-prompt-ab-replay/story6-analyze.mjs": "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+    "experiments/role-prompt-ab-replay/story6-output.schema.json": "experiments/role-prompt-ab-replay/story6-output.schema.json"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",

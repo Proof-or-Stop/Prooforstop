@@ -14,19 +14,18 @@
       "files": {
         "modify": [
           "lattice.config.json",
-          "packages/main/src/core/config.ts",
           "packages/main/src/core/prompt-registry.ts",
           "packages/main/src/core/prompt-role-contract-registry.ts",
-          "packages/main/src/core/prompt-envelope.ts",
-          "packages/main/src/core/prompt-contracts.ts",
-          "packages/main/src/core/agent-dispatch-registry.ts",
-          "packages/main/src/handlers/story-dispatch.ts",
           "packages/main/src/handlers/agent-prompt.ts",
-          "packages/main/src/handlers/evaluate.ts"
+          "packages/main/src/handlers/story-dispatch.ts",
+          ".claude/agents/",
+          ".lattice-codex/agents/",
+          "packages/main/templates/agents/"
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
         ]
       },
       "verificationIntent": {
