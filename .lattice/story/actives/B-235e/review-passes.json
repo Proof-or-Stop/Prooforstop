@@ -1167,6 +1167,57 @@
       },
       "readDiagnostics": [],
       "_hash": "5eaceaaf79248ccfbe43dd2ede228b56e5d75c556f030efba775a275725610a1"
+    },
+    {
+      "id": "B-235e:RP-044",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-review after owner resolved F-024: RR-085 reports no changed or impacted files, preserves storyFilesHash 1982698 and the prior scope binding, and uses RP-043/RR-081 as its trusted baseline. F-024 strong resolution accurately cites 1b2e9bafd4 and the production A-before-B/later-C verifier regression plus no-cutoff mutation; no business or story-owned file changed after the reviewed test commit. No new concept residue or promised-but-undelivered blocker.",
+      "createdAt": "2026-07-20T10:25:53.350Z",
+      "reviewRound": "2026-07-20T10:18:58.704Z",
+      "reviewRunId": "B-235e:RR-085",
+      "envelopeId": "4d74b27140af136a0ebd238c9d00bf6b591058a272eb4c7e07816594f32b8f24",
+      "writerSessionId": "concept-b235e-refresh-rr085",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "f5255cc067f5bc583d0c9e8424fae6a8b603bcd22efb8df822866216213383ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "d4724a61dc951a89483b028ad9554f4fcc27d759a918ad825a5c4b57e5e0408a"
     }
   ]
 }
