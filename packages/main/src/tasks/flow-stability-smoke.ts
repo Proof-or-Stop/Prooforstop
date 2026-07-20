@@ -4395,7 +4395,13 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     const attemptMaterial = currentMaterialHash(root, 'HEAD', root)!;
     const attemptStoryFiles = currentStoryFilesHash(root, 'HEAD', root)!;
     const reviewRound = '2026-01-01T00:00:00.000Z';
-    const makeCompletedReview = (suffix: string, startedAt: string, completedAt: string, round = reviewRound) => {
+    const makeCompletedReview = (
+      suffix: string,
+      startedAt: string,
+      completedAt: string,
+      round = reviewRound,
+      binding: { materialHash?: string; storyFilesHash?: string } = {},
+    ) => {
       const reviewRunId = `${storyId}:RR-${suffix}`;
       const agent = 'lattice-review-quality';
       const run: ReviewRun = {
@@ -4406,8 +4412,8 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         reviewRound: round,
         startedAt,
         headHash: currentGitHead(root)!,
-        materialHash: attemptMaterial,
-        storyFilesHash: attemptStoryFiles,
+        materialHash: binding.materialHash ?? attemptMaterial,
+        storyFilesHash: binding.storyFilesHash ?? attemptStoryFiles,
         promptHash: 'prompt',
       };
       run._hash = signReviewRun(
@@ -4494,6 +4500,90 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       /done_prepare convergence invariant failed/,
       'post-TEST reviewer re-attestation must fail PASS convergence',
     );
+
+    const interleavedLate = makeCompletedReview('INT-A', '2026-01-01T00:01:00.000Z', '2026-01-01T00:06:00.000Z');
+    const interleavedEarly = makeCompletedReview('INT-B', '2026-01-01T00:03:00.000Z', '2026-01-01T00:04:00.000Z');
+    const invalidRunSignature = makeCompletedReview('BAD-RUN', '2026-01-01T00:01:30.000Z', '2026-01-01T00:02:30.000Z');
+    invalidRunSignature.run._hash = 'invalid';
+    const invalidPassSignature = makeCompletedReview('BAD-PASS', '2026-01-01T00:01:40.000Z', '2026-01-01T00:02:40.000Z');
+    invalidPassSignature.pass._hash = 'invalid';
+    const wrongMaterial = makeCompletedReview(
+      'WRONG-MATERIAL',
+      '2026-01-01T00:01:50.000Z',
+      '2026-01-01T00:02:50.000Z',
+      reviewRound,
+      { materialHash: 'wrong-material' },
+    );
+    const wrongStoryFiles = makeCompletedReview(
+      'WRONG-STORY-FILES',
+      '2026-01-01T00:02:00.000Z',
+      '2026-01-01T00:03:00.000Z',
+      reviewRound,
+      { storyFilesHash: 'wrong-story-files' },
+    );
+    const missingPass = makeCompletedReview('MISSING-PASS', '2026-01-01T00:02:10.000Z', '2026-01-01T00:03:10.000Z');
+    store.writeReviewRuns(storyId, { runs: [
+      interleavedLate.run,
+      invalidRunSignature.run,
+      wrongStoryFiles.run,
+      interleavedEarly.run,
+      invalidPassSignature.run,
+      wrongMaterial.run,
+      missingPass.run,
+      historicalRound.run,
+    ] });
+    store.writeReviewPasses(storyId, { passes: [
+      interleavedLate.pass,
+      wrongStoryFiles.pass,
+      invalidRunSignature.pass,
+      interleavedEarly.pass,
+      invalidPassSignature.pass,
+      wrongMaterial.pass,
+      historicalRound.pass,
+    ] });
+    const interleavedCollected = collectDonePrepareConvergenceFacts(ctx, storyId);
+    assert.deepEqual(
+      interleavedCollected?.reviewerIdentityIds,
+      [interleavedLate.run.reviewRunId],
+      'the first completed identity is the lane baseline even when it started later',
+    );
+    assert.deepEqual(
+      interleavedCollected?.postTestReviewerIdentityIds,
+      [interleavedLate.run.reviewRunId],
+      'an earlier-started identity that completes after TEST must remain a blocking re-attestation',
+    );
+    for (const excludedId of [
+      invalidRunSignature.run.reviewRunId,
+      invalidPassSignature.run.reviewRunId,
+      wrongMaterial.run.reviewRunId,
+      wrongStoryFiles.run.reviewRunId,
+      missingPass.run.reviewRunId,
+      historicalRound.run.reviewRunId,
+    ]) {
+      assert.equal(interleavedCollected?.reviewerIdentityIds.includes(excludedId), false, `${excludedId} must not count as a completed same-binding identity`);
+    }
+    const interleavedConvergence = deriveDonePreparePassConvergence([
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any, { blockers: [] } as any, interleavedCollected);
+    assert.equal(interleavedConvergence?.postTestReviewerReattestations, 1);
+    assert.throws(
+      () => assertDonePreparePassConvergence(interleavedConvergence!),
+      /done_prepare convergence invariant failed/,
+      'interleaved completion order must not hide a post-TEST re-attestation',
+    );
+    const tieHigh = makeCompletedReview('TIE-Z', '2026-01-01T00:01:00.000Z', '2026-01-01T00:04:30.000Z');
+    const tieLow = makeCompletedReview('TIE-A', '2026-01-01T00:02:00.000Z', '2026-01-01T00:04:30.000Z');
+    store.writeReviewRuns(storyId, { runs: [tieHigh.run, tieLow.run] });
+    store.writeReviewPasses(storyId, { passes: [tieHigh.pass, tieLow.pass] });
+    const tiedCollected = collectDonePrepareConvergenceFacts(ctx, storyId);
+    assert.deepEqual(
+      tiedCollected?.reviewerIdentityIds,
+      [tieHigh.run.reviewRunId],
+      'equal completion timestamps must choose the lexically first reviewRunId as baseline regardless of storage order',
+    );
+    assert.deepEqual(tiedCollected?.postTestReviewerIdentityIds, []);
 
     const transcript = [
       'DONE prepare: PASS',

@@ -1514,10 +1514,9 @@ export function collectDonePrepareConvergenceFacts(
       && run.materialHash === anchor.materialHash
       && run.storyFilesHash === anchor.storyFilesHash
       && verifyReviewRun(run)
-    ))
-    .sort((left, right) => left.startedAt.localeCompare(right.startedAt));
+    ));
   const runsById = new Map(runs.map((run) => [run.reviewRunId, run]));
-  const completedAtByRunId = new Map<string, string>();
+  const completedIdentityByRunId = new Map<string, { reviewRunId: string; completedAt: string; passId: string }>();
   for (const pass of ctx.store.readReviewPasses(storyId).passes
     .filter((pass) => {
       if (pass.createdAt < anchor.timestamp || pass.reviewRound !== anchor.reviewRound || !verifyReviewPass(storyId, pass)) {
@@ -1526,22 +1525,37 @@ export function collectDonePrepareConvergenceFacts(
       const run = pass.reviewRunId ? runsById.get(pass.reviewRunId) : undefined;
       return Boolean(run && pass.agent === run.agent);
     })
-    .sort((left, right) => left.createdAt.localeCompare(right.createdAt))) {
-    if (!completedAtByRunId.has(pass.reviewRunId!)) completedAtByRunId.set(pass.reviewRunId!, pass.createdAt);
+    .sort((left, right) => (
+      left.createdAt.localeCompare(right.createdAt)
+      || (left.reviewRunId ?? '').localeCompare(right.reviewRunId ?? '')
+      || left.id.localeCompare(right.id)
+    ))) {
+    if (!completedIdentityByRunId.has(pass.reviewRunId!)) {
+      completedIdentityByRunId.set(pass.reviewRunId!, {
+        reviewRunId: pass.reviewRunId!,
+        completedAt: pass.createdAt,
+        passId: pass.id,
+      });
+    }
   }
-  const completedRunsByLane = new Map<string, Array<{ reviewRunId: string; completedAt: string }>>();
-  for (const run of runs) {
-    const completedAt = completedAtByRunId.get(run.reviewRunId);
-    if (!completedAt) continue;
+  const completedRunsByLane = new Map<string, Array<{ reviewRunId: string; completedAt: string; passId: string }>>();
+  for (const identity of completedIdentityByRunId.values()) {
+    const run = runsById.get(identity.reviewRunId)!;
     completedRunsByLane.set(run.lane, [
       ...(completedRunsByLane.get(run.lane) ?? []),
-      { reviewRunId: run.reviewRunId, completedAt },
+      identity,
     ]);
   }
   // The first completed identity per lane is the attempt baseline. Any later
   // identity on the same material/story/round is a real re-attestation,
   // including one completed while still in REVIEW before the TEST entry.
-  const reviewerIdentities = [...completedRunsByLane.values()].flatMap((identities) => identities.slice(1));
+  const reviewerIdentities = [...completedRunsByLane.values()].flatMap((identities) => identities
+    .sort((left, right) => (
+      left.completedAt.localeCompare(right.completedAt)
+      || left.reviewRunId.localeCompare(right.reviewRunId)
+      || left.passId.localeCompare(right.passId)
+    ))
+    .slice(1));
   const reviewerIdentityIds = reviewerIdentities.map((identity) => identity.reviewRunId);
   const postTestReviewerIdentityIds = reviewerIdentities
     .filter((identity) => identity.completedAt >= currentTestEntry.timestamp)

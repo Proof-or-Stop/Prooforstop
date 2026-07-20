@@ -1270,7 +1270,7 @@ export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
     level: 'L4',
     producer: 'handlers/review-run review_run_start + handlers/finding review_pass_set',
     consumerGate: 'done_prepare convergence acceptance',
-    rationale: 'Signed completed reviewer run/pass pairs on the same attempt, materialHash, storyFilesHash, and reviewRound remain total telemetry. Re-attestations completed before TEST entry are exempt; completion at or after TEST entry increments the fail-closed post-TEST counter.',
+    rationale: 'Signed completed reviewer run/pass pairs on the same attempt, materialHash, storyFilesHash, and reviewRound remain total telemetry. The first completed identity per lane is ordered by verified ReviewPass.createdAt with reviewRunId/pass id tie-breakers, independent of run start order. Re-attestations completed before TEST entry are exempt; completion at or after TEST entry increments the fail-closed post-TEST counter.',
   },
   {
     name: 'runtime:closeout_human_confirmation',

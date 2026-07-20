@@ -729,7 +729,7 @@ tests. It only removes repeated closure orchestration.
 
 ## B-c163 convergence contract (implemented)
 
-- Reviewer re-attestation convergence uses two counters with one explicit TEST-entry boundary. `reviewerReattestations` is total observable telemetry for additional signed, completed reviewer run/pass identities on the same `attemptId`, `materialHash`, `storyFilesHash`, and `reviewRound`. `postTestReviewerReattestations` is the blocking subset whose first valid pass completes at or after the matching REVIEW-to-TEST transition.
+- Reviewer re-attestation convergence uses two counters with one explicit TEST-entry boundary. `reviewerReattestations` is total observable telemetry for additional signed, completed reviewer run/pass identities on the same `attemptId`, `materialHash`, `storyFilesHash`, and `reviewRound`. The first completed identity per lane is the baseline, ordered by verified `ReviewPass.createdAt` with `reviewRunId` and pass id as deterministic tie-breakers; run start order is not authoritative. `postTestReviewerReattestations` is the blocking subset whose first valid pass completes at or after the matching REVIEW-to-TEST transition.
 
 - A same-binding re-attestation completed strictly before TEST entry is legitimate REVIEW work and is exempt from the PASS hard-fail while remaining visible in the total counter. A re-attestation completed at or after TEST entry fails closed because it changes reviewer evidence inside the convergence window. Metadata rollback, human confirmation, repeated unchanged-suite execution, and unsuccessful-closeout constraints remain independently blocking.
 
