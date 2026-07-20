@@ -75,7 +75,7 @@
       "desc": "CHK-003:adversarial:0 is still not covered at the A/B aggregation boundary. story6-production-dispatch-smoke.ts now proves Prompt Envelope role/head/context mutations fail verifyPromptEnvelopeIntegrity, but experiments/role-prompt-ab-replay/story6-analyze.mjs accepts receipt JSON without validating schemaVersion, campaignBindingDigest, roleId, promptDigest, materialDigest, or production provenance; its key and duplicate checks use only sampleId/host/arm/repeat. A forged or wrong-role/stale receipt with a valid cell key can therefore enter aggregation. The must intent requires duplicate, forged, stale, wrong-role, and non-production receipts to be rejected by the A/B summary, not only by a separate envelope smoke.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-20T22:16:45.450Z",
@@ -114,7 +114,11 @@
         "experiments/role-prompt-ab-replay/story6-live.mjs"
       ],
       "signatureTag": "adversarial|mjs|adversarial-still-covered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 85b30d07b3: A/B analyzer validates schemaVersion, campaign binding, expected role/sample, prompt/material/finding digests, production provenance, observedAt, and duplicate keys; selfcheck proves forged provenance is rejected.",
+      "resolvedAt": "2026-07-20T22:18:58.215Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
