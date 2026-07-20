@@ -382,7 +382,7 @@
       "desc": "packages/main/src/core/review-incremental-context.ts:171-184 and packages/main/src/core/review-run.ts:727-740 add the gate-consumed passesCutoffAt rule, but commit 38f197554d changes no test and repository test sources contain no passesCutoffAt reference. Existing prior-pass evidence is bound to old storyFilesHash 6450808..., while current review run binds 454e0e3..., so it cannot prove the fix. Add a deterministic regression that creates signed pass A before ReviewRun B, appends a different valid signed pass C after B.startedAt, then proves verifyReviewRunPromptEnvelope(B) still selects A / remains valid at DONE; also prove a pass before the cutoff is accepted and the test fails when the cutoff is removed. Without this, the exact stale-eligibility bug can regress undetected.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T23:58:45.491Z",
@@ -396,7 +396,11 @@
         "packages/main/src/tasks/review-run-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 39d6c313e1 and 22c3cc15e2: producer/verifier use signed startedAt cutoff; equal timestamps fail closed; temporal smoke proves A/B/C and mutation bite; build and focused smokes pass.",
+      "resolvedAt": "2026-07-20T00:14:54.881Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-018",
