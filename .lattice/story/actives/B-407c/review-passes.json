@@ -312,6 +312,35 @@
         "scanEscalationReason": null
       },
       "_hash": "a719d1ebf11bfe49f082ea074a03ea7246720a234a47c22216b93f21cd008a77"
+    },
+    {
+      "id": "B-407c:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Round-5 docs review passed. The 15-case receipt mutation matrix is verification-only and introduces no undocumented runtime contract. Story 6 README and canonical plan remain aligned: production provenance validation, 72-cell coverage, provider/adjudication INCONCLUSIVE boundaries, gateEvidence=false, observe-only budget, and explicit Story 7 exclusion. No promised behavior is missing from the documented implementation.",
+      "createdAt": "2026-07-20T22:24:15.245Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-023",
+      "envelopeId": "075990ef9722962fef1054501a2d673fb886de6063ef7ef9e1696fd5934dce4e",
+      "writerSessionId": "sess-355a6279c64d7b1326bc478e4a65c0fb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ad924a81242b7ff0ca04a19fb2c57aa25f56b4895db4a38ce14b92d49c262569"
     }
   ]
 }
