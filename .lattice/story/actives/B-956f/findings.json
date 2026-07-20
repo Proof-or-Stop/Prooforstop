@@ -150,7 +150,7 @@
       "desc": "packages/main/src/core/material-code-policy.ts classifyDeclaredPaths (around line 1268, workingTreeScriptSignal(snapshot.gitCwd, path) fallback for a declared path absent from the diff) joins the caller-declared path directly onto snapshot.gitCwd without applying the R6 projectRepoPrefix/repoPathToProjectRelative reverse translation. classifyDeclaredPaths's own doc comment says 'declared paths' are checklist-relative (project-relative), and the module header explicitly lists classifyDeclaredPaths as part of 'the snapshot boundary ... that touches git/the filesystem' alongside buildMaterialClassificationSnapshot -- but only buildMaterialClassificationSnapshotAtRef received the namespace-translation treatment this round; classifyDeclaredPaths's own hint-read fallback did not. This is currently unreachable in production only because finding B-956f:F-008's callers (evaluateStoryEvidenceBindingGate / story-create.ts) never thread a gitCwd distinct from projectRoot into the snapshot they build -- so fixing F-008 naively (by threading resolveGitCwd's true git root into those two callers) would immediately break classifyDeclaredPaths's fallback: workingTreeScriptSignal(trueGitRoot, 'bin/tool') would look for <gitRoot>/bin/tool instead of the real <gitRoot>/project/bin/tool, silently flipping the same class of extensionless-script declared files back to non-material. Verified analytically from the code: repoPathToProjectRelative/projectRepoPrefix are exported specifically to reverse this translation but are never imported/used inside classifyDeclaredPaths or workingTreeScriptSignal.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-20T12:22:16.740Z",
@@ -161,7 +161,9 @@
         "packages/main/src/core/material-code-policy.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-20T13:10:35.654Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-956f:F-010",
