@@ -2817,6 +2817,32 @@
       },
       "readDiagnostics": [],
       "_hash": "1596fba10c05802f37fc3ace9c7f1c82d146d3cfc1f89bc3f1c1ddc9e717f5b9"
+    },
+    {
+      "id": "B-235e:RP-075",
+      "agent": "lattice-review-docs",
+      "note": "PASS: Reviewed the phase-normalized TaskContext semantic digest contract at commit 98173017e5. The canonical decision doc states that the prompt TaskContext retains the actual lifecycle phase while only the model-relevant digest canonicalizes phase to REVIEW; prompt-envelope.ts implements exactly that non-mutating projection. The L4 incremental-review eligibility rationale names the REVIEW-to-TEST stability boundary, fail-closed semantic fields, and shared REVIEW/quorum/DONE/done_prepare consumer chain; the runtime registry adds normalization-policy; and verify-process-fact-contract mechanically checks the implementation, rationale, registry, consumer, and smoke proof tokens. The focused process-fact contract verifier passed. No docs/process-fact blocker found.",
+      "createdAt": "2026-07-20T16:32:29.886Z",
+      "reviewRound": "2026-07-20T16:18:48.131Z",
+      "reviewRunId": "B-235e:RR-120",
+      "envelopeId": "e40137a08d946581839796201d700d8dc225455290f839bf7db9f84cd344a2d1",
+      "writerSessionId": "sess-docs-b235e-round25-phase-digest",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Reviewed the focused commit diff and searched the producer/verifier TaskContext phase and digest paths; compared 876 changed-line symbols/paragraph lines across the cumulative story diff, then ran the process-fact contract verifier."
+      },
+      "_hash": "f0cd4fd3838b648d73679e4b2e939f9af6ecb2500253ac891d82fe76881a69ae"
     }
   ]
 }
