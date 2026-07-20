@@ -10,6 +10,18 @@ const EXPECTED_SAMPLES = ['clean-pass-01', 'clean-pass-02', 'critical-01', 'crit
 const EXPECTED_ARMS = ['legacy', 'modular'];
 const EXPECTED_HOSTS = ['codex-cli', 'claude-cli'];
 const EXPECTED_REPEATS = [1, 2, 3];
+const EXPECTED_ROLES = new Set([
+  'lattice-review-story-init', 'lattice-review-scope-plan', 'lattice-implementer',
+  'lattice-review-delivery', 'lattice-evaluator',
+]);
+const SAMPLE_ROLE = Object.freeze({
+  'clean-pass-01': 'lattice-review-story-init',
+  'clean-pass-02': 'lattice-review-scope-plan',
+  'critical-01': 'lattice-implementer',
+  'critical-02': 'lattice-evaluator',
+  'closeout-01': 'lattice-review-delivery',
+  'closeout-02': 'lattice-implementer',
+});
 
 function digest(value) {
   return createHash('sha256').update(JSON.stringify(value), 'utf8').digest('hex');
@@ -39,7 +51,38 @@ async function main() {
   const files = (await readdir(RUNTIME).catch(() => []))
     .filter(file => file.startsWith(`${options.campaignId}.`) && file.endsWith('.json'));
   const receipts = await Promise.all(files.map(async file => JSON.parse(await readFile(path.join(RUNTIME, file), 'utf8'))));
-  const byKey = new Map(receipts.map(row => [`${row.cell.sampleId}|${row.cell.host}|${row.cell.arm}|${row.cell.repeat}`, row]));
+  const corpus = JSON.parse(await readFile(path.join(HERE, 'corpus.json'), 'utf8'));
+  const samples = new Map(corpus.samples.map(sample => [sample.id, sample]));
+  const byKey = new Map();
+  let campaignBindingDigest = null;
+  const provenanceErrors = [];
+  for (const [index, row] of receipts.entries()) {
+    const cell = row?.cell;
+    const key = cell && `${cell.sampleId}|${cell.host}|${cell.arm}|${cell.repeat}`;
+    const expectedSample = cell && samples.get(cell.sampleId);
+    const requiredDigest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
+    const valid = row?.schemaVersion === 'proofbound.story6-live-ab-receipt.v1'
+      && row.campaignId === options.campaignId
+      && cell && typeof cell.cellId === 'string'
+      && EXPECTED_ROLES.has(cell.roleId)
+      && cell.roleId === SAMPLE_ROLE[cell.sampleId]
+      && EXPECTED_HOSTS.includes(cell.host) && EXPECTED_ARMS.includes(cell.arm)
+      && EXPECTED_REPEATS.includes(cell.repeat)
+      && row.campaignBindingDigest && requiredDigest(row.campaignBindingDigest)
+      && row.promptDigest && requiredDigest(row.promptDigest)
+      && row.materialDigest && requiredDigest(row.materialDigest)
+      && row.findingSetDigest && requiredDigest(row.findingSetDigest)
+      && row.provenance?.kind === 'production-provider-dispatch'
+      && row.provenance?.gateEvidence === false
+      && typeof row.observedAt === 'string' && !Number.isNaN(Date.parse(row.observedAt))
+      && expectedSample && row.materialDigest === expectedSample.materialDigest
+      && row.findingSetDigest === expectedSample.findingSetDigest;
+    if (!valid) provenanceErrors.push(`${index}: invalid production receipt provenance`);
+    if (row?.campaignBindingDigest && campaignBindingDigest === null) campaignBindingDigest = row.campaignBindingDigest;
+    if (campaignBindingDigest !== null && row?.campaignBindingDigest !== campaignBindingDigest) provenanceErrors.push(`${index}: campaignBindingDigest mismatch`);
+    if (key && byKey.has(key)) provenanceErrors.push(`${index}: duplicate cell key`);
+    if (key) byKey.set(key, row);
+  }
   const receiptCellIds = receipts.map(row => row.cell.cellId);
   if (new Set(receiptCellIds).size !== receiptCellIds.length) throw new Error('duplicate receipt cellId');
   const missingCells = expectedKeys().filter(key => !byKey.has(key));
@@ -81,6 +124,7 @@ async function main() {
       && row.commandMisuseCount >= 0);
   const reasonCodes = [];
   if (missingCells.length) reasonCodes.push('REPEAT_FLOOR_INCOMPLETE');
+  if (provenanceErrors.length) reasonCodes.push('RECEIPT_PROVENANCE_INVALID');
   if (unavailableDimensions.length) reasonCodes.push('PROVIDER_USAGE_UNAVAILABLE');
   if (!adjudicationValid) reasonCodes.push('ADJUDICATION_EVIDENCE_UNVERIFIED');
   const status = reasonCodes.length ? 'INCONCLUSIVE' : 'EVALUABLE';
@@ -93,6 +137,7 @@ async function main() {
     expectedReceiptCount: 72,
     missingCells,
     unavailableDimensions,
+    provenanceErrors,
     independentAdjudication: adjudicationValid ? { adjudicatorId: adjudication.adjudicatorId, digest: digest(adjudication) } : null,
     savingsClaim: null,
     recallClaim: null,

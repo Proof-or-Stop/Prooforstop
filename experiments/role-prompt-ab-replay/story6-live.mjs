@@ -328,6 +328,11 @@ async function main() {
     promptBytes: Buffer.byteLength(prompt, 'utf8'),
     materialDigest: sample.materialDigest,
     findingSetDigest: sample.findingSetDigest,
+    observedAt: new Date().toISOString(),
+    provenance: {
+      kind: 'production-provider-dispatch',
+      gateEvidence: false,
+    },
     provider,
     outcome: provider.availability === 'available' ? 'PENDING_INDEPENDENT_ADJUDICATION' : 'INCONCLUSIVE',
     gateEvidence: false,
