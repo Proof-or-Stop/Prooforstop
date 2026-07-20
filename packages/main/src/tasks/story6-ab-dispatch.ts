@@ -1,10 +1,10 @@
 import {
   assembleFullPromptEnvelope,
-  type FullTaskContext,
 } from '../core/prompt-envelope.js';
 import {
   estimatePromptTokens,
   promptUtf8Bytes,
+  type FullTaskContext,
 } from '../core/prompt-contracts.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
