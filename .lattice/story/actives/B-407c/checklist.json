@@ -337,14 +337,14 @@
         {
           "intentRef": "CHK-004:happy:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/lifecycle-dispatch-smoke.ts",
-          "command": "node packages/main/dist/tasks/lifecycle-dispatch-smoke.js",
+          "file": "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-invariants-smoke.js",
           "result": "pass",
-          "note": "现有 dispatch lifecycle receipt/权限和兼容路径回归通过；Story6 evaluator 返回 envelope receipt 的代码路径已编译。",
-          "headHash": "e5c9c895fa111efb32825ee3c59368428e8af8f8",
-          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
-          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
-          "timestamp": "2026-07-20T21:49:50.872Z"
+          "note": "真实 production evaluator/dispatch receipts、scope_contract_check、delivery_context_pack 和 lattice-implementer author binding 均通过。",
+          "headHash": "62ecf246157adeece19bd07110c59a8c81f63352",
+          "materialHash": "9080056cc8012893aab03491ce372f9907ab6a8ab5c3e1fbf2e9c5c9f509c84a",
+          "storyFilesHash": "812bf56b77218edab971946ee58d631ee67ba0c1d91f8b747ac3a4f45c8a7f0f",
+          "timestamp": "2026-07-20T22:08:09.092Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
