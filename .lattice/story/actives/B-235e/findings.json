@@ -570,7 +570,7 @@
       "desc": "doc-code-drift: packages/main/src/handlers/done-prepare.ts:1596 changes the gate-consumed done_prepare convergence predicate so reviewerReattestations > 0 no longer blocks DONE prepare PASS (and the public text/JSON contract can now report PASS with reviewerReattestations=1), but packages/main/src/core/process-fact-registry.ts:1256 registers only phase-transition, human-confirmation, and validation-terminal convergence facts, scripts/verify-process-fact-contract.mjs:1580 asserts only those three, and the canonical done_prepare decision docs do not define the reviewer re-attestation exemption or its same-attempt/material/round/completed-pass boundary. Per the process-fact dual-layer contract this DONE convergence semantic needs an explicit L4 registry/verifier entry and synchronized decision/output documentation; otherwise future changes can silently broaden which repeated reviewer identities are treated as nonblocking.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-20T13:58:35.537Z",
@@ -587,7 +587,11 @@
         "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
       ],
       "signatureTag": "missing|ts|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 125d999b8f and 37947a3da5: DONE convergence semantics are registered at L4; canonical docs and process-fact verifier agree on first-completed verified identity ordering and post-TEST-only blocking. Round-23 docs RP-066 and fresh full npm test PASS.",
+      "resolvedAt": "2026-07-20T15:22:43.044Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-026",
