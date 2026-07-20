@@ -2898,6 +2898,55 @@
       },
       "readDiagnostics": [],
       "_hash": "0aef021ec84213eb7860e1bdee965ea58dd42a85d117806a86e0118b51acd251"
+    },
+    {
+      "id": "B-235e:RP-077",
+      "agent": "lattice-review-quality",
+      "note": "Round-26 F-028 re-review passed: production fullTaskSemanticDigest equates exactly TEST with REVIEW; DEV, DONE, DISCARDED, and malformed phases remain pairwise distinct and differ from REVIEW. RR-124 assembled prompt truthfully contains phase REVIEW and verifyReviewRunPromptEnvelope returns ok. The focused regression asserts shared collectReviewerEvidenceState/DONE-oracle rejection for each inadmissible phase, while fresh 46/46 validation and the process-fact contract pass. No quality blocker remains.",
+      "createdAt": "2026-07-20T16:54:33.698Z",
+      "reviewRound": "2026-07-20T16:37:55.531Z",
+      "reviewRunId": "B-235e:RR-124",
+      "envelopeId": "34c33d2a69ac843192ffc5f369f5af5d6e821de90b27102bc7cd40c8b623efcd",
+      "writerSessionId": "sess-b235equalityr26-f028",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/checklist.json",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "c97cfbbb39a7297176b72830d4c20c2b94679c7162156bcd3e0dc51caa164bc3"
+      },
+      "readDiagnostics": [],
+      "_hash": "1b969c352b8f82129ea4168f2fe60a3d8e50048cefede9513b231878fc1d82b0"
     }
   ]
 }
