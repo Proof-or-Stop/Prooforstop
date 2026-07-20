@@ -28,9 +28,10 @@
  */
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
-import { closeSync, openSync, readFileSync, readSync, statSync } from 'fs';
+import { closeSync, existsSync, openSync, readFileSync, readSync, realpathSync, statSync } from 'fs';
 import { isAbsolute, join, relative, resolve } from 'path';
-import { LATTICE_CONFIG_FILENAME } from './config.js';
+import { loadConfig, LATTICE_CONFIG_FILENAME, type LatticeConfig } from './config.js';
+import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
   currentGitHead,
   currentMaterialHash,
@@ -290,13 +291,29 @@ export function matchesScopePathEntry(entry: string, path: string): boolean {
  */
 export function projectRepoPrefix(gitCwd: string | undefined, projectRoot: string | undefined): string {
   if (!projectRoot || !gitCwd) return '';
-  const rel = normalizeMaterialPath(relative(resolve(gitCwd), resolve(projectRoot)));
+  // B-956f FIX 1 (R7 F-008): canonicalize BOTH sides (realpath when on disk) before
+  // the relative() computation. The production gitCwd resolvers return REALPATHED
+  // git roots (e.g. /private/var/… on macOS) while callers commonly hold a
+  // symlinked projectRoot spelling (/var/…); comparing mixed spellings pushes rel
+  // into the `..`-fallback below and silently disables the wrapper-root
+  // translation even though the paths name the same tree.
+  const rel = normalizeMaterialPath(relative(canonicalAbsolutePath(gitCwd), canonicalAbsolutePath(projectRoot)));
   // projectRoot === gitCwd → '' (identity, common single-root layout). A projectRoot
   // that escapes the git tree at gitCwd (rel begins with '..' or is absolute) cannot
   // be translated by a simple prefix strip, so fall back to identity (never worse
   // than prior behavior).
   if (!rel || rel === '.' || rel.startsWith('../') || rel === '..' || isAbsolute(rel)) return '';
   return rel.replace(/\/+$/, '');
+}
+
+/** realpath-when-on-disk absolute path (namespace comparisons must not mix symlink spellings). */
+function canonicalAbsolutePath(path: string): string {
+  const abs = resolve(path);
+  try {
+    return existsSync(abs) ? realpathSync(abs) : abs;
+  } catch {
+    return abs;
+  }
 }
 
 /**
@@ -786,11 +803,14 @@ export function assertMaterialCodeExclusionsAgainstTree(
       effectiveRef = sha;
       // B-956f FIX 3: key by the RECOMPUTED digest (== the now-validated embedded
       // digest) only, so a forged digest can never select a cached row.
-      // B-956f FIX 1: the verdict now also depends on the project-relative namespace
-      // translation, so bind the resolved projectRoot into the key — two wrapper-root
-      // projects sharing a (sha, policyDigest) but living under different prefixes must
-      // never alias each other's exclusion verdict.
-      cacheKey = `${sha} ${recomputedDigest} ${projectRoot ?? ''}`;
+      // B-956f FIX 1 (R7): the verdict is a pure function of (tree sha, policy,
+      // NAMESPACE PREFIX) — the prefix, not the raw projectRoot spelling, decides
+      // how tree paths translate before comparison. Key by the computed prefix so
+      // (a) two wrapper-root projects under different prefixes never alias each
+      // other's verdict, and (b) the SAME (sha, digest, projectRoot) evaluated with
+      // DIFFERENT gitCwds (an untranslated projectRoot-cwd call vs a resolved-root
+      // call) can never replay the other shape's verdict.
+      cacheKey = `${sha} ${recomputedDigest} ${projectRepoPrefix(cwd, projectRoot)}`;
       const cached = _preflightVerdictCache.get(cacheKey);
       if (cached) {
         throwOnExclusionViolation(cached);
@@ -841,6 +861,18 @@ function listTrackedFiles(gitCwd: string, ref: string): string[] {
 // ── hash-bound classification snapshot ──
 
 export interface BuildMaterialClassificationSnapshotOptions {
+  /**
+   * Resolved git root override. When OMITTED, the builder resolves a SAFE default
+   * itself (B-956f R7 F-008/F-011/F-013): the id-independent project git root via
+   * resolveProjectGitCwd (a valid configured gitRoot, else the projectRoot's own
+   * `git rev-parse --show-toplevel`), so a bare
+   * buildMaterialClassificationSnapshot(projectRoot) on a wrapper-root layout
+   * still translates git-emitted repo-relative paths into the project namespace.
+   * Callers holding a STORY-scoped resolution (worktree bindings) must still
+   * thread it explicitly — resolveGitCwd(...) is strictly more informed than the
+   * project-level default. Never pass a bare projectRoot here "as a default";
+   * that re-introduces the untranslated wrapper-root misclassification.
+   */
   gitCwd?: string;
   policy?: MaterialCodePolicy;
   /** Override the classified changed-file set (else `git diff --name-only main...HEAD`). */
@@ -1045,6 +1077,38 @@ function workingTreeScriptSignal(gitCwd: string, path: string): boolean {
  */
 const MAX_SNAPSHOT_HEAD_STABILITY_RETRIES = 2;
 
+/**
+ * B-956f FIX 1 (R7 F-008/F-011/F-013 — safe default gitCwd): the previous default
+ * (`gitCwd = projectRoot`) computed an IDENTITY projectRepoPrefix while git — which
+ * walks upward to find the repository — still emitted repo-root-relative diff/tree
+ * paths, so every no-override caller (the repro-evidence-binding gate, the
+ * STORY_INTAKE preflight, diagnostics builds without a resolvable story) silently
+ * skipped the wrapper-root namespace translation: material files misclassified
+ * ({path:"project/bin/tool", materialCode:false} instead of {path:"bin/tool",
+ * materialCode:true}) and project-relative excludePaths never applied. Default to
+ * the id-independent resolved project git root instead (a valid configured
+ * gitRoot, else the projectRoot's own `git rev-parse --show-toplevel`). A plain
+ * single-root layout resolves to the projectRoot's own toplevel (identity prefix —
+ * byte-identical classification); a non-git projectRoot falls back to projectRoot
+ * verbatim (unchanged fail-closed behavior downstream). Config-load failures fall
+ * back to config-less resolution — a malformed lattice.config.json already fails
+ * closed in resolveMaterialCodePolicyConfigOnly BEFORE this default is consulted.
+ */
+function resolveDefaultSnapshotGitCwd(projectRoot: string | undefined): string {
+  if (!projectRoot) return process.cwd();
+  try {
+    let config: LatticeConfig | undefined;
+    try {
+      config = loadConfig(projectRoot);
+    } catch {
+      config = undefined;
+    }
+    return resolveProjectGitCwd(projectRoot, projectRoot, config);
+  } catch {
+    return projectRoot;
+  }
+}
+
 export function buildMaterialClassificationSnapshot(
   projectRoot?: string,
   opts: BuildMaterialClassificationSnapshotOptions = {},
@@ -1054,7 +1118,7 @@ export function buildMaterialClassificationSnapshot(
   // to a tree the policy was never validated against). The tree-bound exclusion
   // preflight runs against the PINNED sha inside the loop below instead.
   const policy = opts.policy ?? resolveMaterialCodePolicyConfigOnly(projectRoot);
-  const gitCwd = opts.gitCwd ?? projectRoot ?? process.cwd();
+  const gitCwd = opts.gitCwd ?? resolveDefaultSnapshotGitCwd(projectRoot);
 
   // B-956f FIX 1 (codex HIGH — HEAD-move race): capture HEAD as ONE immutable
   // commit sha, run the tree-bound exclusion preflight AND all diff/hint
@@ -1257,6 +1321,15 @@ export function classifyDeclaredPaths(
   paths: readonly string[],
 ): MaterialClassification[] {
   const bySnapshotPath = new Map(snapshot.files.map((file) => [file.path, file]));
+  // B-956f FIX 2 (R7 F-009 — declared-path hint reads in the wrong namespace):
+  // declared paths are PROJECT-relative, but the working-tree/blob hint readers run
+  // at snapshot.gitCwd — the resolved git ROOT under the FIX 1 threading. Translate
+  // a declared path in the REVERSE direction (project → git namespace: prepend the
+  // project's repo-relative prefix) before the hint read, or a wrapper-root layout
+  // stats/ls-trees `<gitRoot>/bin/deploy` instead of `<gitRoot>/project/bin/deploy`
+  // and a declared extensionless script silently loses its shebang/exec-bit signal.
+  // Identity when projectRoot === gitCwd (single-root layout).
+  const namespacePrefix = projectRepoPrefix(snapshot.gitCwd, snapshot.projectRoot);
   return paths.map((rawPath) => {
     const path = normalizeMaterialPath(rawPath);
     const fromSnapshot = bySnapshotPath.get(path);
@@ -1265,7 +1338,8 @@ export function classifyDeclaredPaths(
     }
     const ext = materialPathExtension(path);
     const underPrefix = !ext && snapshot.policy.pathPrefixes.some((prefix) => matchesScopePathEntry(prefix, path));
-    const shebangOrExecutable = underPrefix ? workingTreeScriptSignal(snapshot.gitCwd, path) : undefined;
+    const gitNamespacePath = namespacePrefix ? `${namespacePrefix}/${path}` : path;
+    const shebangOrExecutable = underPrefix ? workingTreeScriptSignal(snapshot.gitCwd, gitNamespacePath) : undefined;
     return classifyMaterialCodePath(snapshot.policy, path, { projectRoot: snapshot.projectRoot, shebangOrExecutable });
   });
 }

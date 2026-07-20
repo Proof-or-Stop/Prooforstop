@@ -684,13 +684,6 @@ const FUNCTION_LIKE_KINDS = new Set([
 function isFunctionLike(node) {
   return FUNCTION_LIKE_KINDS.has(node.kind);
 }
-/** callee identifier text for a CallExpression (Identifier or PropertyAccess). */
-function calleeName(callExpr) {
-  const e = callExpr.expression;
-  if (ts.isIdentifier(e)) return e.text;
-  if (ts.isPropertyAccessExpression(e)) return e.name.text;
-  return undefined;
-}
 /** Resolve the callee's (alias-followed) symbol. */
 function resolveCalleeSymbol(callExpr) {
   getMaterialProgram();
@@ -700,12 +693,6 @@ function resolveCalleeSymbol(callExpr) {
     try { sym = _materialChecker.getAliasedSymbol(sym); } catch { /* keep original */ }
   }
   return sym;
-}
-/** True when the callee symbol resolves to a declaration whose file path includes moduleSubstr. */
-function calleeResolvesToModule(callExpr, moduleSubstr) {
-  const sym = resolveCalleeSymbol(callExpr);
-  const decls = sym?.getDeclarations?.() ?? [];
-  return decls.some((d) => d.getSourceFile().fileName.includes(moduleSubstr));
 }
 /**
  * B-956f FIX 2 (codex MED — verifier false positive on aliased imports): identify a

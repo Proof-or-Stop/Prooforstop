@@ -17,6 +17,7 @@ import type {
   SpikeReviewPayload,
   StoryEvidenceBindingPayload,
 } from './evidence/types.js';
+import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import type { StoryStore } from './store.js';
 import type { ChecklistData, StoryInfo } from './types.js';
 
@@ -409,13 +410,28 @@ export function evaluateStoryEvidenceBindingGate(
     checklist = null;
   }
 
+  // B-956f FIX 1 (R7 F-008 — triple-confirmed integration gap): thread the
+  // resolveGitCwd-resolved git root into the snapshot build, the SAME threading
+  // the review-assurance-floor consumers use (machine.ts DONE guard/failure
+  // reason: `gitCwd: resolveGitCwd({ store, storyId, metadataRoot, projectRoot })`).
+  // Without it the builder's gitCwd stayed projectRoot: `git diff` (which walks
+  // upward to the real repository) still emitted repo-root-relative paths on a
+  // wrapper-root layout, so material files leaked through UNTRANSLATED
+  // (project/bin/tool non-material instead of bin/tool material) and
+  // project-relative excludePaths silently failed. resolveGitCwd never throws:
+  // on a plain repo it resolves the metadata git root (identity translation), and
+  // only when NO signed workspace resolves at all (e.g. absent story metadata)
+  // does it fall back to projectRoot — the same fallback contract the machine.ts
+  // floor/escalation consumers rely on.
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
+
   // B-956f FIX 5: the shared classifier fails CLOSED (throws MaterialCodePolicyError)
   // on a malformed lattice.config.json or an unverifiable git-snapshot. Catch it
   // here — the SAME narrow catch as the review-assurance floor — so the raw error
   // never escapes uncaught through the PLAN/DEV guard boolean or getGuardFailureReason.
   let classification: ReproFirstRequirementClassification;
   try {
-    const snapshot = buildMaterialClassificationSnapshot(projectRoot);
+    const snapshot = buildMaterialClassificationSnapshot(projectRoot, { gitCwd });
     classification = classifyReproFirstRequirement(story, checklist, snapshot);
   } catch (err) {
     if (err instanceof MaterialCodePolicyError) return materialPolicyErrorResult(mode, err);

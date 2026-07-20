@@ -7,7 +7,7 @@ import { writeFileSync, mkdirSync, existsSync, readFileSync, rmSync, realpathSyn
 import { join, relative, isAbsolute } from 'path';
 import { createHash } from 'crypto';
 import { buildMilestoneLedger } from '../core/proofstory.js';
-import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { resolveGitCwd, resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { createSafeInitCommitOnHead } from '../core/safe-init-commit.js';
 import { computeDraftCheckHash } from '../core/draft-check-hash.js';
 import { computeChecklistHash } from './init-check.js';
@@ -27,7 +27,7 @@ import {
   resolveReproFirstPreflightMode,
 } from '../core/repro-evidence-binding-gate.js';
 import { buildMaterialClassificationSnapshot, MaterialCodePolicyError } from '../core/material-code-policy.js';
-import { LATTICE_CONFIG_FILENAME } from '../core/config.js';
+import { loadConfig, LATTICE_CONFIG_FILENAME } from '../core/config.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
 
@@ -94,7 +94,10 @@ function isPreLifecycleStoryCreatePhase(phase: StoryPhase): boolean {
   return phase === 'IDEA' || phase === 'INIT';
 }
 
-function renderReproFirstStoryCreatePreflight(args: {
+// Exported for the language-neutral-gates smoke (B-956f R7 F-008/F-011/F-013):
+// the smoke drives THIS production STORY_INTAKE preflight on a wrapper-root
+// fixture and asserts the snapshot build translates repo-relative paths.
+export function renderReproFirstStoryCreatePreflight(args: {
   projectRoot: string;
   storyId: string;
   name: string;
@@ -128,9 +131,26 @@ function renderReproFirstStoryCreatePreflight(args: {
   // here — the SAME narrow catch as the floor/repro gate — so the raw error never
   // escapes uncaught out of story creation. Convert it to a structured message
   // naming the file + remediation (enforce → throw; warn → advisory).
+  // B-956f FIX 1 (R7 F-008): thread the resolved project git root into the snapshot
+  // build. STORY_INTAKE runs BEFORE the story exists, so the story-scoped
+  // resolveGitCwd (which reads story metadata) cannot resolve here; use the
+  // id-independent resolveProjectGitCwd from the SAME resolver module (a valid
+  // configured gitRoot, else the projectRoot's own git toplevel — the documented
+  // project-level variant). Without this the builder ran with gitCwd=projectRoot
+  // and wrapper-root layouts misclassified material files (untranslated
+  // repo-relative paths; project-relative excludePaths silently ignored).
+  // Config-load failure falls back to config-less resolution; a malformed config
+  // still fails closed through the snapshot build below.
+  let gitRootConfig;
+  try {
+    gitRootConfig = loadConfig(args.projectRoot);
+  } catch {
+    gitRootConfig = undefined;
+  }
+  const gitCwd = resolveProjectGitCwd(args.projectRoot, args.projectRoot, gitRootConfig);
   let classification;
   try {
-    const snapshot = buildMaterialClassificationSnapshot(args.projectRoot);
+    const snapshot = buildMaterialClassificationSnapshot(args.projectRoot, { gitCwd });
     classification = classifyReproFirstRequirement(candidateStory, args.checklist, snapshot);
   } catch (err) {
     if (err instanceof MaterialCodePolicyError) {

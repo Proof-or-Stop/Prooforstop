@@ -103,6 +103,7 @@ import {
   conceptSkipDiagnostics,
 } from '../handlers/validate-concept.js';
 import { proofStoryDiagnosticInput } from '../handlers/phase-gates.js';
+import { renderReproFirstStoryCreatePreflight } from '../handlers/story-create.js';
 import { resetConfigCache } from '../core/config.js';
 import type { ProcessEvent } from '../core/types.js';
 
@@ -1151,12 +1152,125 @@ check('R6: wrapper-root layout — classification translates git-root-relative d
   );
 });
 
+// ── R7 (F-008/F-009/F-011/F-013): the wrapper-root translation must engage through
+// the EXACT production call shapes — no manual gitCwd in the driven calls. ──
+
+/**
+ * Wrapper-root fixture for the R7 consumer-call-shape checks: config in
+ * <root>/project/ with a project-relative exclusion, a shebang script
+ * project/bin/tool DELETED by the feature diff (old-tree identity — the case a
+ * projectRoot-cwd fallback hint read can NEVER recover), and an excluded
+ * project/legacy/old.py modified by the diff.
+ */
+function makeR7WrapperFixture(): { root: string; projectRoot: string } {
+  const root = initRepo('lattice-lngwrap-');
+  writeFile(root, 'project/lattice.config.json', JSON.stringify({
+    reproFirstPreflight: { mode: 'warn' },
+    materialCode: { excludePaths: ['legacy/'] },
+  }, null, 2));
+  writeFile(root, 'project/bin/tool', '#!/bin/sh\necho tool\n');
+  writeFile(root, 'project/src/keep.py', 'k = 1\n');
+  commitAll(root, 'base');
+  git(root, ['checkout', '-q', '-b', 'feature']);
+  git(root, ['rm', '-q', 'project/bin/tool']);
+  writeFile(root, 'project/legacy/old.py', 'g = 1\n');
+  commitAll(root, 'change');
+  resetConfigCache();
+  resetMaterialCodePolicyCache();
+  return { root, projectRoot: join(root, 'project') };
+}
+const r7Checklist = { items: [{ files: { modify: ['bin/tool', 'legacy/old.py'], create: [], test: [] } }] };
+
+check('R7-a: evaluateStoryEvidenceBindingGate (production call shape, NO manual gitCwd) translates wrapper-root paths — the deleted bin/tool script is material, the project-relative exclusion applies', () => {
+  const { projectRoot } = makeR7WrapperFixture();
+  // Minimal story-backed store: resolveGitCwd inside the gate resolves the
+  // signed workspace THROUGH this store (metadata-git-root probe → the wrapper
+  // git root); the gate then reads the same story/checklist for classification.
+  const store = {
+    readStory: () => ({ storyId: 'B-lng-wrap', phase: 'DEV', type: 'bug', priority: 'medium', riskSignals: [] }),
+    readChecklist: () => r7Checklist,
+    storyDirPath: (id: string) => join(projectRoot, '.lattice', 'story', 'actives', id),
+  } as any;
+  const result = evaluateStoryEvidenceBindingGate(projectRoot, store, 'B-lng-wrap', { mode: 'enforce' });
+  // Pre-FIX the snapshot held UNTRANSLATED repo-relative paths (project/bin/tool →
+  // default non-material; the deleted script's old-tree identity unreachable from a
+  // projectRoot-cwd hint read) → required=false, gate silently ok. Post-FIX the
+  // declared bin/tool matches the translated snapshot entry (old-tree shebang) and
+  // the story is repro-first required with no binding.
+  assert.equal(result.required, true, 'the deleted wrapper-root bin/tool script classifies material through the production gate call');
+  assert.equal(result.reasonCode, 'missing_story_evidence_binding', 'repro-first requirement surfaces (no binding bound)');
+  assert.equal(result.ok, false, 'enforce mode blocks');
+  assert.equal(result.blocking, true, 'enforce mode blocks the transition');
+  const details = (result.requirementDetails ?? []).join(' | ');
+  assert.ok(/material code files: .*bin\/tool/.test(details), `requirement details name the translated bin/tool (got: ${details})`);
+  assert.ok(!details.includes('legacy/old.py'), 'the project-relative excludePaths entry applies through the production call shape');
+});
+
+check('R7-b: story_create STORY_INTAKE preflight (production call shape, NO manual gitCwd) translates wrapper-root paths and flags the repro-first requirement', () => {
+  const { projectRoot } = makeR7WrapperFixture();
+  const rendered = renderReproFirstStoryCreatePreflight({
+    projectRoot,
+    storyId: 'B-lng-wrap2',
+    name: 'wrapper-root-intake',
+    title: 'wrapper root intake sample',
+    description: 'change the deleted tool script behavior',
+    type: 'bug',
+    phase: 'INIT',
+    priority: 'medium',
+    checklist: r7Checklist as any,
+  });
+  // Pre-FIX the untranslated snapshot classified NO material code → the preflight
+  // returned '' (not required). Post-FIX it warns with the missing-binding reason.
+  assert.ok(rendered.includes('missing_story_evidence_binding'), `STORY_INTAKE preflight flags the repro-first requirement (got: ${JSON.stringify(rendered)})`);
+  assert.ok(rendered.includes('bin/tool'), 'the classifier names the translated material bin/tool');
+  assert.ok(!rendered.includes('legacy/old.py'), 'the excluded legacy/old.py is not reported as material');
+});
+
+check('R7-c: classifyDeclaredPaths fallback translates a declared PROJECT-relative extensionless script into the git namespace before the working-tree hint read (FIX 2)', () => {
+  // bin/deploy is committed on the BASE (off-diff → absent from the snapshot file
+  // set → the fallback hint path is exercised) and present in the working tree at
+  // <root>/project/bin/deploy with a shebang and no exec bit.
+  const { root, projectRoot } = makeWrapperRootConfigRoot(
+    'project',
+    { materialCode: {} },
+    { 'project/bin/deploy': '#!/usr/bin/env python3\nprint(1)\n', 'project/src/keep.py': 'k = 1\n' },
+    { 'project/src/app.py': 'a = 1\n' },
+  );
+  const snap = buildMaterialClassificationSnapshot(projectRoot, { gitCwd: root });
+  assert.equal(snap.files.some((f) => f.path.endsWith('bin/deploy')), false, 'bin/deploy is off-diff — classification must come from the declared-path fallback');
+  const [declared] = classifyDeclaredPaths(snap, ['bin/deploy']);
+  // Without the reverse translation the hint read stats <gitRoot>/bin/deploy (absent)
+  // and ls-trees the git namespace bin/deploy (absent) → shebang lost → non-material.
+  assert.equal(declared.materialCode, true, 'the declared extensionless script keeps its shebang signal in a wrapper-root layout');
+  assert.equal(declared.reason, 'extensionless shebang/executable script', 'material via the shebang/exec rule, not an extension accident');
+});
+
+check('R7-d: a BARE buildMaterialClassificationSnapshot(projectRoot) — no gitCwd option — resolves the wrapper git root itself and translates (safe default)', () => {
+  const { root, projectRoot } = makeWrapperRootConfigRoot(
+    'project',
+    { materialCode: { excludePaths: ['legacy/'] } },
+    { 'project/src/keep.py': 'k = 1\n' },
+    {
+      'project/src/app.py': 'a = 1\n',      // inside project → material
+      'project/legacy/old.py': 'g = 1\n',   // inside project → excluded by config
+      'sibling/outside.py': 'o = 1\n',      // outside the project subtree → dropped
+    },
+  );
+  const snap = buildMaterialClassificationSnapshot(projectRoot); // production default — no override anywhere
+  assert.equal(snap.gitCwd, git(root, ['rev-parse', '--show-toplevel']), 'the default gitCwd resolves to the wrapper git toplevel, not projectRoot');
+  const appFile = snap.files.find((f) => f.path === 'src/app.py');
+  const legacyFile = snap.files.find((f) => f.path === 'legacy/old.py');
+  assert.ok(appFile && appFile.materialCode === true, 'project code under src/ classifies material through the safe default');
+  assert.ok(legacyFile && legacyFile.materialCode === false && legacyFile.reason === 'config excludePaths', 'the project-relative exclusion applies through the safe default');
+  assert.equal(snap.files.some((f) => f.path.includes('sibling') || f.path.includes('outside')), false, 'outside-project files are dropped through the safe default');
+});
+
 for (const root of tempRoots) {
   try { rmSync(root, { recursive: true, force: true }); } catch { /* best effort cleanup */ }
 }
 
 if (failures === 0) {
-  console.log('\nlanguage-neutral-gates smoke passed (34 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks + 2 R4 fix-round production-boundary checks + 3 R5 fix-round production-boundary checks + 2 R6 wrapper-root path-namespace checks)');
+  console.log('\nlanguage-neutral-gates smoke passed (38 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks + 2 R4 fix-round production-boundary checks + 3 R5 fix-round production-boundary checks + 2 R6 wrapper-root path-namespace checks + 4 R7 production-call-shape wrapper-root checks)');
 } else {
   console.error(`\nlanguage-neutral-gates smoke FAILED (${failures})`);
   process.exit(1);

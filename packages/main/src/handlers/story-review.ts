@@ -33,6 +33,7 @@ import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWit
 import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
 import { evaluateProofStoryDiagnostics, renderProofStoryDiagnosticReport } from '../core/proofstory.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
 
 // B-7c05 CHK-004: RENDER-ONLY brief projection of the story_review result.
@@ -121,7 +122,18 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // sites below (advisory issues + review prompt). Resolution failures
       // yield undefined — the field is DIAGNOSTIC; a broken policy/config
       // surfaces through the fail-closed resolve/floor/repro consumers.
-      const materialClassification = tryBuildMaterialClassificationSnapshotForDiagnostics(ctx.root);
+      // B-956f FIX 3 (R7 F-012): resolve gitCwd through resolveGitCwd like the
+      // three sibling diagnostics sites (machine.ts, phase-gates.ts,
+      // proofstory.ts) — this was the one of four
+      // tryBuildMaterialClassificationSnapshotForDiagnostics call sites left
+      // running from the bare metadata root on wrapper-root layouts.
+      let materialGitCwd: string | undefined;
+      try {
+        materialGitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+      } catch {
+        materialGitCwd = undefined;
+      }
+      const materialClassification = tryBuildMaterialClassificationSnapshotForDiagnostics(ctx.root, materialGitCwd);
 
       const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; message: string; legacyEvidenceWithoutIntent?: boolean; repairCommand?: string }> = [];
       const info: Array<{ type: string; message: string }> = [];
