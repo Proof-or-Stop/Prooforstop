@@ -6,6 +6,7 @@ import { join } from 'node:path';
 
 import { storyRuntimeLockPath } from '../core/validation-execution-lock.js';
 import { createAgentPromptHandlers } from '../handlers/agent-prompt.js';
+import { verifyPromptEnvelopeIntegrity } from '../core/prompt-envelope.js';
 
 const roles = [
   'lattice-review-story-init',
@@ -50,12 +51,18 @@ try {
     appendProcessEvent: (_storyId: string, event: any) => events.push(event),
   };
   const handlers = createAgentPromptHandlers({ root, scanRoot: root, store: store as never });
+  const receipts: Array<{ roleId: string; arm: 'legacy' | 'modular'; provider: 'INCONCLUSIVE'; envelopeId?: string }> = [];
   for (const role of roles) {
+    const legacy = handlers.agent_prompt({ role });
+    assert.equal(typeof legacy, 'string');
+    assert.match(legacy, new RegExp(role));
+    receipts.push({ roleId: role, arm: 'legacy', provider: 'INCONCLUSIVE' });
     const response = JSON.parse(handlers.agent_prompt({ role, storyId: 'B-story6-production', format: 'json' }));
     assert.equal(response.auditOnly, true);
     assert.equal(response.canMintReviewEvidence, false);
     assert.equal(response.envelope.roleId, role);
     assert.equal(response.envelope.dispatchKind, 'story-dispatch');
+    receipts.push({ roleId: role, arm: 'modular', provider: 'INCONCLUSIVE', envelopeId: response.envelope.envelopeId });
     assert.ok(envelopes.some(envelope => envelope.envelopeId === response.envelope.envelopeId));
     const event = events.find(candidate => candidate.promptEnvelopeId === response.envelope.envelopeId);
     assert.equal(event?.targetKind, 'story-dispatch');
@@ -66,7 +73,15 @@ try {
       assert.equal(response.promptBudget, undefined, 'evaluator is migrated but not budgeted by Story 6');
       assert.equal(event?.promptBudget, undefined);
     }
+    // Adversarial receipt checks: role substitution, stale head, and digest
+    // mutation must fail the content-addressed integrity check.
+    const wrongRole = role === 'lattice-evaluator' ? 'lattice-implementer' : 'lattice-evaluator';
+    assert.equal(verifyPromptEnvelopeIntegrity({ ...response.envelope, roleId: wrongRole }), false);
+    assert.equal(verifyPromptEnvelopeIntegrity({ ...response.envelope, headHash: 'f'.repeat(40) }), false);
+    assert.equal(verifyPromptEnvelopeIntegrity({ ...response.envelope, contextDigest: 'e'.repeat(64) }), false);
   }
+  assert.equal(receipts.length, roles.length * 2, 'legacy and modular arms must both be recorded per role');
+  assert.ok(receipts.every(receipt => receipt.provider === 'INCONCLUSIVE'), 'provider A/B dimensions must remain honest');
   assert.equal(envelopes.length, roles.length, 'each migrated role has one durable content-addressed receipt');
   assert.equal(events.length, roles.length, 'each receipt has an audit-only dispatch event');
   console.log(`story6-production-dispatch-smoke: PASS (${roles.length} roles; isolated temp repository)`);
