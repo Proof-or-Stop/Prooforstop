@@ -62,7 +62,12 @@ import {
   reviewIncrementalContext,
 } from '../core/review-incremental-context.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
-import { assembleFullPromptEnvelope } from '../core/prompt-envelope.js';
+import { domainSeparatedDigest } from '../core/prompt-contracts.js';
+import {
+  assembleFullPromptEnvelope,
+  buildFullTaskContext,
+  fullTaskSemanticDigest,
+} from '../core/prompt-envelope.js';
 import {
   promptRoleContract,
   resolvePromptRoleBody,
@@ -499,6 +504,14 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       { ok: true },
       'production verifier accepts B before a later pass is appended',
     );
+    runCli('review_pass_set', {
+      storyId,
+      agent: role,
+      reviewRunId: runB.reviewRunId,
+      note: 'B found no blocker before the mandatory TEST transition.',
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+    }, role);
+    const passB = store.readReviewPasses(storyId).passes.find(pass => pass.reviewRunId === runB.reviewRunId)!;
 
     runCli('review_run_start', { storyId, agent: role }, role);
     const runC = store.readReviewRuns(storyId).runs.at(-1)!;
@@ -536,6 +549,81 @@ function runProductionVerifierTemporalCutoffRegression(): void {
       verifierWithoutCutoff.eligibilityDigest,
       'mutation bite: a verifier without passesCutoffAt rejects the production B envelope',
     );
+
+    const reviewPhaseStory = store.readStory(storyId);
+    store.writeStory(storyId, { ...reviewPhaseStory, phase: 'TEST' });
+    store.appendProcessEvent(storyId, {
+      type: 'phase_transition',
+      storyId,
+      attemptId: round,
+      fromPhase: 'REVIEW',
+      toPhase: 'TEST',
+      materialHash: runB.materialHash,
+      storyFilesHash: runB.storyFilesHash,
+      reviewRound: round,
+    });
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'the production verifier must preserve a valid REVIEW envelope across the mandatory TEST metadata transition',
+    );
+    const testTaskContext = buildFullTaskContext({
+      story: store.readStory(storyId),
+      checklist: store.readChecklist(storyId),
+      headHash: currentGitHead(root)!,
+      materialHash: runB.materialHash,
+      storyFilesHash: runB.storyFilesHash,
+      scopeContract: store.readScopeContract(storyId),
+    });
+    assert.equal(
+      fullTaskSemanticDigest(testTaskContext),
+      envelopeB.taskSemanticDigest,
+      'the canonical REVIEW snapshot must preserve taskSemanticDigest in TEST',
+    );
+    const {
+      headHash: _legacyHeadHash,
+      materialHash: _legacyMaterialHash,
+      storyFilesHash: _legacyStoryFilesHash,
+      ...legacyPhaseSensitiveContext
+    } = testTaskContext;
+    assert.notEqual(
+      domainSeparatedDigest('full-task-context.model-relevant.v1', legacyPhaseSensitiveContext),
+      envelopeB.taskSemanticDigest,
+      'mutation bite: the old phase-sensitive digest rejects the valid REVIEW envelope after transition to TEST',
+    );
+    const doneEvidence = collectReviewerEvidenceState(store, storyId, root);
+    assert.ok(
+      doneEvidence.valid.some(evidence => evidence.id === passB.id),
+      'the shared DONE evidence oracle must accept the same B pass after REVIEW to TEST metadata',
+    );
+    assert.equal(
+      doneEvidence.invalid.some(evidence => evidence.reviewRunId === runB.reviewRunId),
+      false,
+      'done_prepare and story_advance DONE must not disagree about B Prompt Envelope validity',
+    );
+
+    const testPhaseStory = store.readStory(storyId);
+    store.writeStory(storyId, { ...testPhaseStory, title: `${testPhaseStory.title} mutated` });
+    const titleMutation = verifyReviewRunPromptEnvelope(store, runB);
+    assert.equal(titleMutation.ok, false, 'a real Story title mutation must invalidate the bound REVIEW envelope');
+    for (const field of ['eligibilityDigest', 'eligibilityReasonCodes', 'reviewBasisDigest', 'taskSemanticDigest']) {
+      assert.match(titleMutation.reason ?? '', new RegExp(field), `title mutation must report ${field} drift`);
+    }
+    store.writeStory(storyId, testPhaseStory);
+
+    const originalChecklist = store.readChecklist(storyId);
+    store.writeChecklist(storyId, {
+      ...originalChecklist,
+      items: originalChecklist.items.map(item => item.id === 'CHK-001'
+        ? { ...item, title: `${item.title} mutated` }
+        : item),
+    });
+    const checklistMutation = verifyReviewRunPromptEnvelope(store, runB);
+    assert.equal(checklistMutation.ok, false, 'a real checklist semantic mutation must invalidate the bound REVIEW envelope');
+    assert.match(checklistMutation.reason ?? '', /taskSemanticDigest/);
+    store.writeChecklist(storyId, originalChecklist);
+    assert.deepEqual(verifyReviewRunPromptEnvelope(store, runB), { ok: true }, 'restoring task semantics restores verifier agreement');
+    console.log(`${MARKER} REVIEW-TO-TEST TASK SNAPSHOT: phase metadata is stable; title/checklist mutations fail closed; DONE oracle agrees`);
     console.log(`${MARKER} PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails`);
   } finally {
     resetConfigCache();

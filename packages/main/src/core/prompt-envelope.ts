@@ -227,9 +227,17 @@ export function fullTaskSemanticDigest(context: FullTaskContext): string {
     headHash: _headHash,
     materialHash: _materialHash,
     storyFilesHash: _storyFilesHash,
+    phase: _phase,
     ...modelRelevant
   } = context;
-  return domainSeparatedDigest('full-task-context.model-relevant.v1', modelRelevant);
+  // Review evidence is produced in REVIEW and consumed again after the
+  // mandatory REVIEW -> TEST transition. Canonicalizing that lifecycle-only
+  // field to its producer phase preserves the digest bytes of existing REVIEW
+  // envelopes while keeping every actual task semantic field fail-closed.
+  return domainSeparatedDigest('full-task-context.model-relevant.v1', {
+    ...modelRelevant,
+    phase: 'REVIEW',
+  });
 }
 
 export function captureKnownExecutionEnvironment(): KnownExecutionEnvironment {

@@ -5240,9 +5240,20 @@ function assertParentRoadmapTotalityRuntime() {
   assert(read('packages/main/src/core/review-run.ts').includes('passesCutoffAt: run.startedAt'), 'review-run verifier must bind prior-pass eligibility to signed run.startedAt');
   assert(read('packages/main/src/handlers/review-run.ts').includes('passesCutoffAt: startedAt'), 'review_run_start assembly must use the same prior-pass cutoff as verification');
   assert(read('packages/main/src/tasks/review-incremental-context-smoke.ts').includes('passesCutoffAt'), 'incremental review smoke must exercise the prior-pass cutoff contract');
+  const taskContextSource = read('packages/main/src/core/prompt-envelope.ts');
+  assert(taskContextSource.includes('phase: _phase') && taskContextSource.includes("phase: 'REVIEW'"), 'model-relevant TaskContext digest must preserve REVIEW-produced bytes across lifecycle phase metadata');
+  const incrementalLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:incremental_review_eligibility_gate');
+  for (const token of ['canonicalizes lifecycle phase to REVIEW', 'mandatory REVIEW-to-TEST transition', 'checklist', 'scope mutations remain fail-closed']) {
+    assert(incrementalLevel?.rationale.includes(token), `incremental review eligibility rationale missing lifecycle semantic boundary: ${token}`);
+  }
+  assert(incrementalLevel?.gateConsumer.includes('DONE/done_prepare') && incrementalLevel?.gateConsumer.includes('collectReviewerEvidenceState'), 'incremental review eligibility must identify the shared DONE/done_prepare evidence oracle');
+  const incrementalSmoke = read('packages/main/src/tasks/review-incremental-context-smoke.ts');
+  for (const token of ['REVIEW-TO-TEST TASK SNAPSHOT', 'phase metadata is stable', 'title/checklist mutations fail closed', 'DONE oracle agrees']) {
+    assert(incrementalSmoke.includes(token), `incremental review smoke missing lifecycle task-context proof token: ${token}`);
+  }
   assert(
-    registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
-    'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/freshness contract',
+    registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
+    'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/normalization/freshness contract',
   );
   assert(levelText.includes('runtime:prompt_role_body_rollout_gate'), 'process-fact-levels: prompt role-body rollout gate fact missing');
   assert(

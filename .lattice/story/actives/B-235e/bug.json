@@ -16,6 +16,14 @@
         "fixEvidence": "Commit edf2d243ac keeps reviewerReattestations observable but removes it from hard-fail predicate; build, flow-stability smoke, and process-fact contract pass while metadata rollback, human confirmation, duplicate suite, and failed closeout remain blocking",
         "reproTest": "node packages/main/dist/tasks/flow-stability-smoke.js"
       }
+    },
+    {
+      "id": "BUG-002",
+      "title": "REVIEW Prompt Envelopes become unverifiable after mandatory REVIEW-to-TEST transition while done_prepare incorrectly reports DONE ready",
+      "status": "open",
+      "foundAt": "2026-07-20T16:05:56.902Z",
+      "fixedAt": null,
+      "checklistId": "CHK-004"
     }
   ]
 }
