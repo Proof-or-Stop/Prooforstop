@@ -40,6 +40,8 @@ async function main() {
     .filter(file => file.startsWith(`${options.campaignId}.`) && file.endsWith('.json'));
   const receipts = await Promise.all(files.map(async file => JSON.parse(await readFile(path.join(RUNTIME, file), 'utf8'))));
   const byKey = new Map(receipts.map(row => [`${row.cell.sampleId}|${row.cell.host}|${row.cell.arm}|${row.cell.repeat}`, row]));
+  const receiptCellIds = receipts.map(row => row.cell.cellId);
+  if (new Set(receiptCellIds).size !== receiptCellIds.length) throw new Error('duplicate receipt cellId');
   const missingCells = expectedKeys().filter(key => !byKey.has(key));
   const unavailableDimensions = [];
   for (const [key, row] of byKey) {
@@ -50,13 +52,33 @@ async function main() {
   }
   let adjudication = null;
   if (options.adjudication) adjudication = JSON.parse(await readFile(path.resolve(options.adjudication), 'utf8'));
+  const adjudicationCellIds = Array.isArray(adjudication?.cells) ? adjudication.cells.map(row => row.cellId) : [];
+  const exactAdjudicationCells = adjudicationCellIds.length === receiptCellIds.length
+    && new Set(adjudicationCellIds).size === adjudicationCellIds.length
+    && [...adjudicationCellIds].sort().join('\n') === [...receiptCellIds].sort().join('\n');
   const adjudicationValid = adjudication?.schemaVersion === 'proofbound.story6-independent-adjudication.v1'
     && adjudication.campaignId === options.campaignId
     && typeof adjudication.adjudicatorId === 'string'
     && adjudication.adjudicatorId.trim().length > 0
+    && !['main', 'main-agent', 'lattice-implementer'].includes(adjudication.adjudicatorId.trim())
+    && typeof adjudication.method === 'string'
+    && adjudication.method.trim().length > 0
+    && typeof adjudication.evidenceDigest === 'string'
+    && /^[a-f0-9]{64}$/.test(adjudication.evidenceDigest)
     && Array.isArray(adjudication.cells)
-    && adjudication.cells.length === receipts.length
-    && adjudication.cells.every(row => typeof row.cellId === 'string' && ['detected', 'not-detected', 'not-applicable'].includes(row.oracleVerdict));
+    && exactAdjudicationCells
+    && adjudication.cells.every(row =>
+      typeof row.cellId === 'string'
+      && Array.isArray(row.oracleResults)
+      && row.oracleResults.every(result =>
+        typeof result.oracleId === 'string'
+        && ['detected', 'not-detected', 'not-applicable'].includes(result.verdict)
+        && typeof result.evidence === 'string'
+        && result.evidence.trim().length > 0)
+      && Number.isSafeInteger(row.falsePositiveCount)
+      && row.falsePositiveCount >= 0
+      && Number.isSafeInteger(row.commandMisuseCount)
+      && row.commandMisuseCount >= 0);
   const reasonCodes = [];
   if (missingCells.length) reasonCodes.push('REPEAT_FLOOR_INCOMPLETE');
   if (unavailableDimensions.length) reasonCodes.push('PROVIDER_USAGE_UNAVAILABLE');

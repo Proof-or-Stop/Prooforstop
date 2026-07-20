@@ -247,6 +247,10 @@ async function main() {
     roleAssignment: SAMPLE_ROLE,
     tools: TOOLS,
     order: ORDER,
+    sampling: {
+      temperature: { availability: 'unavailable', reason: 'Codex CLI and Claude CLI do not expose one shared temperature control in this harness.' },
+      providerSeed: { availability: 'unavailable', reason: 'Neither pinned CLI surface exposes one shared deterministic provider seed.' },
+    },
     outputSchemaDigest: digest('output-schema', requireSchema.cache),
     gateEvidence: false,
   };
