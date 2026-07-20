@@ -1378,6 +1378,60 @@
       },
       "readDiagnostics": [],
       "_hash": "f27cd300c21ab49560db4aac14f3402dd600ebac82a01cabaa70ed9c46185c7d"
+    },
+    {
+      "id": "B-235e:RP-048",
+      "agent": "lattice-review-docs",
+      "note": "Final docs re-attestation found no blocker: the story diff still contains 235 changed declarations (21 exported production symbols), with the same 7 relevant documentation sections compared. Since RP-045, only canonical Story evidence metadata changed (verification evidence refresh, reviewer passes, and fresh validate); no business, test-source, config, or documentation path changed. The trusted RR-090 basis is SAFE_INCREMENTAL with priorPassRef RP-045 and empty changedFiles/impactedFiles/unresolvedFindings, consistent with the refreshed 46/46 allPass evidence and the existing cutoff/process-fact documentation conclusion.",
+      "createdAt": "2026-07-20T11:06:29.218Z",
+      "reviewRound": "2026-07-20T10:18:58.704Z",
+      "reviewRunId": "B-235e:RR-090",
+      "envelopeId": "b318e62e22bf71612526555bd5a03845b86b21c6028b2673c082c13f87a452e2",
+      "writerSessionId": "sess-docs-b235e-20260720-final-reattest",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "fa5319ac2338f6a24edebab554907725e8429643c5bedf921747f88f41914d39"
+      },
+      "readDiagnostics": [],
+      "_hash": "6c17595b83a13f911f39b0d58cd9450746a9e788bfa20471be573de93a119eea"
     }
   ]
 }
