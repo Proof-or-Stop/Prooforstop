@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
+import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -163,7 +164,46 @@ function buildPrompt(sample, roleId, arm) {
   }).prompt;
 }
 
-function hostInvocation(cell, options) {
+function assertClaudeSchemaEquivalent(canonicalSchema, claudeSchema) {
+  if (!canonicalSchema || typeof canonicalSchema !== 'object' || Array.isArray(canonicalSchema)) {
+    throw new Error('committed output schema must be a JSON object');
+  }
+  if (canonicalSchema.$schema !== 'https://json-schema.org/draft/2020-12/schema') {
+    throw new Error('committed output schema must retain the pinned draft-2020-12 identity');
+  }
+  if (Object.hasOwn(claudeSchema, '$schema')) {
+    throw new Error('Claude-compatible schema must omit the unsupported root $schema annotation');
+  }
+  const expected = structuredClone(canonicalSchema);
+  delete expected.$schema;
+  if (canonicalJsonStringify(claudeSchema) !== canonicalJsonStringify(expected)) {
+    throw new Error('Claude-compatible schema may differ from the committed schema only by removing root $schema');
+  }
+}
+
+function deriveClaudeCompatibleSchema(canonicalSchema) {
+  const derived = structuredClone(canonicalSchema);
+  delete derived.$schema;
+  assertClaudeSchemaEquivalent(canonicalSchema, derived);
+  return derived;
+}
+
+function assertClaudeSchemaMutationBites(canonicalSchema, claudeSchema) {
+  const weakenedRequired = structuredClone(claudeSchema);
+  weakenedRequired.required = weakenedRequired.required.filter(field => field !== 'findings');
+  assert.throws(
+    () => assertClaudeSchemaEquivalent(canonicalSchema, weakenedRequired),
+    /may differ .* only by removing root \$schema/,
+  );
+  const weakenedAdditionalProperties = structuredClone(claudeSchema);
+  weakenedAdditionalProperties.properties.findings.items.additionalProperties = true;
+  assert.throws(
+    () => assertClaudeSchemaEquivalent(canonicalSchema, weakenedAdditionalProperties),
+    /may differ .* only by removing root \$schema/,
+  );
+}
+
+function hostInvocation(cell, options, claudeSchema) {
   if (cell.host === 'codex-cli') return {
     command: 'codex',
     args: ['exec', '--ephemeral', '--ignore-user-config', '--ignore-rules', '--json', '--sandbox', 'read-only', '--model', options.codexModel, '--cd', ROOT, '--output-schema', SCHEMA_PATH, '-'],
@@ -171,7 +211,7 @@ function hostInvocation(cell, options) {
   };
   return {
     command: 'claude',
-    args: ['--print', '--no-session-persistence', '--output-format', 'json', '--model', options.claudeModel, '--permission-mode', 'dontAsk', '--allowedTools', ...TOOLS, '--json-schema', JSON.stringify(JSON.parse(requireSchema.cache))],
+    args: ['--print', '--no-session-persistence', '--output-format', 'json', '--model', options.claudeModel, '--permission-mode', 'dontAsk', '--allowedTools', ...TOOLS, '--json-schema', JSON.stringify(claudeSchema)],
     model: options.claudeModel,
   };
 }
@@ -229,11 +269,20 @@ function parseProvider(cell, result) {
   }
 }
 
-const requireSchema = { cache: null };
-
 async function main() {
   const options = parseArgs(process.argv.slice(2));
-  requireSchema.cache = await readFile(SCHEMA_PATH, 'utf8');
+  const canonicalSchemaText = await readFile(SCHEMA_PATH, 'utf8');
+  const canonicalSchema = JSON.parse(canonicalSchemaText);
+  const claudeSchema = deriveClaudeCompatibleSchema(canonicalSchema);
+  assertClaudeSchemaMutationBites(canonicalSchema, claudeSchema);
+  const claudeSelfcheckInvocation = hostInvocation(
+    { host: 'claude-cli' },
+    { claudeModel: 'selfcheck-model' },
+    claudeSchema,
+  );
+  const schemaArgIndex = claudeSelfcheckInvocation.args.indexOf('--json-schema') + 1;
+  assert.ok(schemaArgIndex > 0 && schemaArgIndex < claudeSelfcheckInvocation.args.length);
+  assertClaudeSchemaEquivalent(canonicalSchema, JSON.parse(claudeSelfcheckInvocation.args[schemaArgIndex]));
   const { protocol, corpus, identity } = await loadInputs();
   const cells = buildCells(corpus);
   assertCampaignFloor(corpus, cells);
@@ -251,11 +300,12 @@ async function main() {
       temperature: { availability: 'unavailable', reason: 'Codex CLI and Claude CLI do not expose one shared temperature control in this harness.' },
       providerSeed: { availability: 'unavailable', reason: 'Neither pinned CLI surface exposes one shared deterministic provider seed.' },
     },
-    outputSchemaDigest: digest('output-schema', requireSchema.cache),
+    outputSchemaDigest: digest('output-schema', canonicalSchemaText),
+    claudeCompatibleOutputSchemaDigest: digest('claude-compatible-output-schema', claudeSchema),
     gateEvidence: false,
   };
   if (!options.execute) {
-    process.stdout.write(`story6-live selfcheck: PASS classes=3 samples=${corpus.samples.length} cells=${cells.length} roles=5 hosts=2 repetitions=3 gateEvidence=false\n`);
+    process.stdout.write(`story6-live selfcheck: PASS classes=3 samples=${corpus.samples.length} cells=${cells.length} roles=5 hosts=2 repetitions=3 claudeSchemaMutationsRejected=2 gateEvidence=false\n`);
     process.stdout.write(`protocolBindingDigest=${digest('protocol-binding', protocolBinding)}; execution not requested => provider outcome INCONCLUSIVE\n`);
     return;
   }
@@ -263,7 +313,7 @@ async function main() {
   if (!cell) throw new Error(`unknown --cell; choose one of: ${cells.map(candidate => candidate.cellId).join(', ')}`);
   const sample = corpus.samples.find(candidate => candidate.id === cell.sampleId);
   const prompt = buildPrompt(sample, cell.roleId, cell.arm);
-  const invocation = hostInvocation(cell, options);
+  const invocation = hostInvocation(cell, options, claudeSchema);
   const campaignBinding = { ...protocolBinding, campaignId: options.campaignId, models: { 'codex-cli': options.codexModel, 'claude-cli': options.claudeModel } };
   const result = await runProcess(invocation, prompt, options.timeoutMs);
   const provider = parseProvider(cell, result);
