@@ -2096,6 +2096,56 @@
       },
       "readDiagnostics": [],
       "_hash": "85bfdcca34234ff4abb8120f5aa554ab7e127217d9992289537f7fd6cb6c8a0e"
+    },
+    {
+      "id": "B-235e:RP-061",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-21 test-coverage review passed at 7e93b5b. Flow-stability smoke now collects a real same-binding reviewer re-attestation, asserts reviewerReattestations=1 is observable and accepted by assertDonePreparePassConvergence, and verifies JSON transcript parsing preserves the non-zero count. Negative coverage remains fail-closed for TEST-to-DEV metadata rollback, human confirmation, duplicate unchanged-suite execution, and blocked/failed closeout. Handler and smoke have no diff after edf2d243ac; BUG-001 records build, focused flow-stability smoke, and process-fact contract PASS. Original checklist coverage remains 48/48 must intents, 0 failing, 0 waivers. No new blocker; reviewer did not run full npm test or the default 20-round smoke.",
+      "createdAt": "2026-07-20T13:59:13.051Z",
+      "reviewRound": "2026-07-20T13:56:32.127Z",
+      "reviewRunId": "B-235e:RR-103",
+      "envelopeId": "3489b8601fe255342f403d612c2298097f4273101130818f9fe53d67ab7f925b",
+      "writerSessionId": "sess-b235e-coverage-r21-20260720",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "e74bc024b6cfd298244a45f6e3aa244546ff4803a5ef24719909ba076e18392a"
+      },
+      "readDiagnostics": [],
+      "_hash": "250b1326c2618ca4d38ab46d5344430cb52fe52e3728616be57ec5fcfa9ce378"
     }
   ]
 }
