@@ -66,6 +66,32 @@
         "scanEscalationReason": null
       },
       "_hash": "baa460c080e6846b1153ccad845145de830beb833ce2f8f3b72632a31fc53547"
+    },
+    {
+      "id": "B-407c:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs/code consistency review passed: Story 6 defaults budget mode to observe; only init/scope/implementer/delivery are budgeted, while Story 7 owns observe-to-warn promotion and later enforce. Live A/B docs honestly retain provider/cache/latency INCONCLUSIVE and pending adjudication; no undocumented command or behavior drift found.",
+      "createdAt": "2026-07-20T22:12:42.256Z",
+      "reviewRound": "2026-07-20T22:10:29.128Z",
+      "reviewRunId": "B-407c:RR-008",
+      "envelopeId": "4c32137aa122a177185ba057f17fb87dfcfb99ba142250b71c36498e3b84e601",
+      "writerSessionId": "sess-355a6279c64d7b1326bc478e4a65c0fb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7b911db35abdf57ea8844594ee24c613e261aa91817708381f95a740464eaf70"
     }
   ]
 }
