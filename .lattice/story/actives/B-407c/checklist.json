@@ -361,14 +361,14 @@
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
-          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "file": "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-invariants-smoke.js",
           "result": "pass",
-          "note": "full envelope digest、Task Context 和签名完整性 adversarial smoke 通过；错误上下文不能伪造可信 envelope。",
-          "headHash": "e5c9c895fa111efb32825ee3c59368428e8af8f8",
-          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
-          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
-          "timestamp": "2026-07-20T21:49:51.559Z"
+          "note": "scope/delivery/evaluator/author invariants smoke 通过；错误路径仍由 full-envelope gate 保护。",
+          "headHash": "cbd0fa279e9ef2b3c188d185003f66669e7ee5c6",
+          "materialHash": "9080056cc8012893aab03491ce372f9907ab6a8ab5c3e1fbf2e9c5c9f509c84a",
+          "storyFilesHash": "812bf56b77218edab971946ee58d631ee67ba0c1d91f8b747ac3a4f45c8a7f0f",
+          "timestamp": "2026-07-20T22:08:13.383Z"
         }
       ]
     }
