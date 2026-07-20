@@ -62,7 +62,7 @@ for (const roleId of ACTIVE_MODULAR_COMPLEX_ROLE_IDS) {
     bytes: assembly.envelope.bytes,
     estimatedTokens: assembly.envelope.estimatedTokens,
   });
-  assert.equal(budget.mode, 'warn');
+  assert.equal(budget.mode, 'observe');
 }
 
 const overBudget = observeComplexRolePromptBudget({

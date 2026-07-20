@@ -40,7 +40,7 @@ export function observeComplexRolePromptBudget(args: {
     schemaVersion: 'proofbound.prompt-budget-observation.v1',
     roleId: args.roleId,
     contextMode: args.contextMode,
-    mode: args.mode ?? 'warn',
+    mode: args.mode ?? 'observe',
     bytes: args.bytes,
     estimatedTokens: args.estimatedTokens,
     limitBytes,

@@ -166,6 +166,20 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         }
         return persisted;
       });
+      // Story 6 production receipt: the same trusted envelope persisted above
+      // is also visible in the append-only dispatch event stream. This is
+      // diagnostic/audit evidence only and cannot mint REVIEW evidence.
+      ctx.store.appendProcessEvent(storyId, {
+        type: 'dispatch',
+        storyId,
+        phase: story.phase,
+        source: 'lattice agent_prompt',
+        targetKind: 'story-dispatch',
+        agentType: role,
+        promptEnvelopeId: envelope.envelopeId,
+        promptEnvelopeDigest: envelope.contextDigest,
+        assembledPromptDigest: envelope.assembledPromptDigest,
+      });
       if (args.format === 'json') {
         return canonicalJsonStringify({
           schemaVersion: 'proofbound.agent-prompt-response.v1',
