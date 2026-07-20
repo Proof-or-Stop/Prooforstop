@@ -4027,6 +4027,59 @@
         "bindingHash": "bcde3d414ff0e6a65e22ad82a86eb96bd27b17a8d1f3214390c6fa4e79762f21"
       },
       "_hash": "0ecdc8f7cab071e2f93cc0dc98a1daf26556621e9029c49f4b0e1b96cb5fe213"
+    },
+    {
+      "reviewRunId": "B-956f:RR-030",
+      "storyId": "B-956f",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-07-20T13:51:09.589Z",
+      "startedAt": "2026-07-20T14:08:43.842Z",
+      "headHash": "33e540580d15079a1b9225ce5612cbe41fbde09e",
+      "materialHash": "f1f05bc49d4885ee072b937db5fb16d6dcad833de14894cdd9b176924be3ff5b",
+      "storyFilesHash": "309917450770c5ed46621a92ac1313dbc73d3185b45293b1b0b3094d35f8dc60",
+      "promptHash": "145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0",
+      "scopeBinding": {
+        "scopeContractHash": "29cced5ad0c8916272dad5fec32eb9e9b859fab45c96953d9346aa8b9c4ebc86",
+        "diffPackHash": "bae681491d97a09bc92338703b1e31befc57e8f33500344d9496dfea0b0c4698",
+        "reviewedChangedFiles": [
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [],
+        "bindingHash": "2755842147006fb7f61d2ec7a030264276edc3f98d66b1944975f900545539ae"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-956f",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-956f",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-956f",
+        "workspaceMode": "story-worktree",
+        "headHash": "33e540580d15079a1b9225ce5612cbe41fbde09e",
+        "materialHash": "f1f05bc49d4885ee072b937db5fb16d6dcad833de14894cdd9b176924be3ff5b",
+        "storyFilesHash": "309917450770c5ed46621a92ac1313dbc73d3185b45293b1b0b3094d35f8dc60",
+        "bindingHash": "f38e2c2fbeea81505e28e34a882a289d1179e1ca4fb72d1cbbaab7d4657fdb46"
+      },
+      "_hash": "b6771767cf79068910d038de6ba833865c40f6ef78bad1cc9801f2582a18d13b"
     }
   ]
 }
