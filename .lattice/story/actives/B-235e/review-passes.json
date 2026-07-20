@@ -2039,6 +2039,63 @@
       },
       "readDiagnostics": [],
       "_hash": "14453c340542af1063e43af6bfbd5130407498f05a11f3447370f859525728dc"
+    },
+    {
+      "id": "B-235e:RP-060",
+      "agent": "lattice-review-concept",
+      "note": "Round-21 concept review found no blocker. edf2d243ac keeps reviewerReattestations mechanically collected and rendered in transcript/JSON but removes only that historical telemetry count from the convergence hard-fail predicate, resolving DONE unreachability after legitimate same-binding re-review. metadataRollbacks, humanConfirmations, unchangedSuiteExecutions, and successfulCloseout constraints remain unchanged; tests retain negative cases for rollback, human intervention, duplicate suite execution, and blocked closeout, while the real collector case proves same-round re-attestation is observed and old-round evidence ignored. No post-fix story-owned changes or concept residue found.",
+      "createdAt": "2026-07-20T13:59:07.858Z",
+      "reviewRound": "2026-07-20T13:56:32.127Z",
+      "reviewRunId": "B-235e:RR-101",
+      "envelopeId": "31c303b7e1330057d806a7b9bb2052464a83cb60b2dff8a86e172aeca0f13ae7",
+      "writerSessionId": "concept-b235e-r21-rr101",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "dd7fe2a7d83dbb34911e9eadd055750321372c55232199213daee2f05d77903d"
+      },
+      "readDiagnostics": [],
+      "_hash": "85bfdcca34234ff4abb8120f5aa554ab7e127217d9992289537f7fd6cb6c8a0e"
     }
   ]
 }
