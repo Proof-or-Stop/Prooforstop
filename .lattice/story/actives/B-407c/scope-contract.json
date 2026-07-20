@@ -74,10 +74,39 @@
         "prompt_envelope_rollout",
         "story6_dispatch"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story 6 role asset migration must update package templates alongside materialized Claude/Codex role assets; generated modular bodies are the canonical source used by prompt registry and production dispatch.",
+      "timestamp": "2026-07-20T21:57:26.215Z",
+      "paths": [
+        "packages/main/templates/agents/lattice-evaluator.md",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-scope-plan.md",
+        "packages/main/templates/agents/lattice-review-story-init.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/templates/agents/lattice-evaluator.md",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-scope-plan.md",
+        "packages/main/templates/agents/lattice-review-story-init.md"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "e0e8d70716aaf48e85aa4f7a94a974b0acbbf17b",
+      "materialHash": "336e99307988e22aee53aa90033f1c8a6437e2311bea54ba02026c5db15585d2",
+      "anchors": [
+        "complex_role_assets",
+        "modular_role_body",
+        "prompt_registry"
+      ]
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-20T21:47:40.058Z",
+  "updatedAt": "2026-07-20T21:57:26.215Z",
   "protectedAnchors": [
     "AGENT_DISPATCH_REGISTRY",
     "buildFullTaskContext"
@@ -129,7 +158,12 @@
     "packages/main/src/compatibility role cleanup": "compatibility role cleanup",
     "packages/main/src/budget enforce implementation": "budget enforce implementation",
     "packages/main/src/Task Context schema changes": "Task Context schema changes",
-    "packages/main/src/role status or authority changes": "role status or authority changes"
+    "packages/main/src/role status or authority changes": "role status or authority changes",
+    "packages/main/templates/agents/lattice-evaluator.md": "packages/main/templates/agents/lattice-evaluator.md",
+    "packages/main/templates/agents/lattice-implementer.md": "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/templates/agents/lattice-review-delivery.md": "packages/main/templates/agents/lattice-review-delivery.md",
+    "packages/main/templates/agents/lattice-review-scope-plan.md": "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-review-story-init.md": "packages/main/templates/agents/lattice-review-story-init.md"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",
