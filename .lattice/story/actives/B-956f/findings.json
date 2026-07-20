@@ -160,6 +160,24 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-956f:F-010",
+      "desc": "scripts/verify-process-fact-contract.mjs: calleeName (line 688) and calleeResolvesToModule (line 705) are now dead code -- each has exactly one occurrence in the file (its own definition), zero remaining call sites -- after R6 replaced every prior caller of the spelling+module-substring matching pair with the new alias-followed-symbol-identity helper calleeSymbolMatches (functionBodyHasResolvedCall and initializerDelegatesToTry both now call calleeSymbolMatches instead). The R6 commit message states the verifier 'matches required calls by alias-followed symbol identity ... spelling never consulted', i.e. the old calleeName/calleeResolvesToModule spelling-based approach is the exact concept being replaced. These two now-unused functions are leftover residue of that replaced concept and should be removed so a future check cannot accidentally be added against the non-alias-safe matcher.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-20T12:22:23.288Z",
+      "reviewRound": "2026-07-20T12:07:59.609Z",
+      "reviewRunId": "B-956f:RR-024",
+      "_hash": "db13249082e19b4246b76311f5668d9a15c3506156be6de47fb792eea2133200",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|mjs|scripts-verify-process",
+      "signatureTagSource": "auto"
     }
   ]
 }
