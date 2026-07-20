@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-235e",
+  "phase": "TEST",
+  "generatedAt": "2026-07-20T17:33:45.460Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "8df92f0c3d92384f099b715cb9a8909ae2b805c6dc4a60b1e27a7a9f01e45a8f",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:a81ce01d493c687946d502ba2a06af343f38122e257b8f3be47cd6bca4890f91"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "f18fa5956fe43d61a54557ad2395afdcc5168afa",
+    "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+    "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "All five active reviewer roles use modular prompt assets with independent rollback, while retired channel remains excluded.",
+      "acceptance": "Concept, quality, test-coverage, behavior, and docs have role-specific migrated paths, exact legacy fallback tests pass, and no active channel migration path exists.",
+      "evidence": [
+        "active-five-role-migration [pass/integration_test] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=Prompt registry smoke passed and exercises the exact five active reviewer modular role bodies, preserving each lane identity and authority contract.",
+        "independent-role-flags [pass/logic_test] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=Prompt registry smoke passed the five independent rollout flags and proves one role can change mode without cross-role coupling.",
+        "active-roster-retired-exclusion [pass/logic_test] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=Registry smoke passed active roster assertions and proves retired channel remains defaultDispatch=false and excluded from migrated roles.",
+        "legacy-full-readable [pass/integration_test] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=Content-addressed legacy resolver tests passed and restore exact pre-migration bytes when a role is legacy-full-context.",
+        "mixed-rollout-states [pass/integration_test] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=All 32 five-role mixed rollout combinations passed with lane-specific body resolution.",
+        "missing-or-invalid-flag-fails-safe [pass/logic_test] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=Malformed and unknown rollout configuration rejection or legacy-safe behavior passed without enabling another role.",
+        "compatibility-not-active [pass/logic_test] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=Compatibility roles remain non-active and excluded from the five-role rollout matrix.",
+        "role-contract-semantics-preserved [pass/docs_check] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=Role contract and modular prompt checks passed for required role-specific semantics after shared runtime boilerplate extraction.",
+        "retired-channel-dispatch-rejected [pass/integration_test] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=Retired channel enablement and modular-body resolution attempts are rejected by registry policy.",
+        "flag-bleed-and-role-substitution-rejected [pass/integration_test] node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js file=packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts note=Runtime-owned asset smoke and identity checks passed for package, Claude, and Codex mirrors with no cross-role substitution.",
+        "retired-evidence-cannot-count [pass/integration_test] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=Registry eligibility assertions passed and retired or compatibility roles cannot enter migrated reviewer evidence identity paths.",
+        "concurrent-flag-baseline-writes-serialized [pass/logic_test] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=Immutable content-addressed legacy/modular artifact digest checks passed; no mutable runtime baseline writer or hybrid state was introduced."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Reviewer dispatch selects trusted full or mechanically eligible incremental Prompt Envelopes and fails closed on drift.",
+      "acceptance": "Full and incremental assembly, ReviewRun binding, drift escalation, authoritative read-through, tamper, and race tests pass for all five roles.",
+      "evidence": [
+        "five-role-trusted-full-envelope [pass/integration_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Real five-role mask 31 dispatch and signed ReviewRun flow passed with each active lane minting a current full-envelope run and concurrent collection preserving unique gate evidence.",
+        "eligible-role-incremental-envelope [pass/integration_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Five-role full/incremental assembler matrix passed mechanically eligible bounded delta assembly and exact reviewBasis, freshness, role, and digest binding.",
+        "drift-selects-full-per-role [pass/logic_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Drift matrix passed deterministic full selection and stable reason codes for unsafe categories and stale evidence.",
+        "incremental-read-through-and-escalation [pass/manual_transcript] node packages/main/dist/tasks/review-run-smoke.js file=packages/main/src/tasks/review-run-smoke.ts note=Review-run smoke transcript exposes selected rollout/body/context/reason/budget and verifies explicit reviewer-requested-full creates a distinct trusted selection.",
+        "prior-pass-lane-signature-freshness [pass/logic_test] node packages/main/dist/tasks/review-run-smoke.js file=packages/main/src/tasks/review-run-smoke.ts note=Review-run baseline checks passed same-lane signed current-round and freshness requirements while respecting binding-race PASS semantics.",
+        "semantic-render-vs-metadata-drift [pass/logic_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Envelope smoke passed semantic/render digest invalidation and integrity reconstruction against the selected mode-aware role body.",
+        "correctness-before-budget-selection [pass/logic_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Safety-before-cost, FULL_CHEAPER_OR_EQUAL, incremental oversize, and full budget-violation separation checks passed.",
+        "legacy-pass-never-upgraded [pass/integration_test] node packages/main/dist/tasks/review-run-smoke.js file=packages/main/src/tasks/review-run-smoke.ts note=Legacy envelope-less pass remains legacy-full-context and is not upgraded into an incremental baseline.",
+        "caller-cannot-force-role-incremental [pass/integration_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Caller-controlled force/context fields remain unavailable and unsafe inputs mechanically select full.",
+        "envelope-signature-digest-tamper-rejected [pass/integration_test] node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js file=packages/main/src/tasks/prompt-full-context-envelope-smoke.ts note=Prompt Envelope body, contract, context, run, hash, and signature tamper cases are rejected by integrity consumers.",
+        "mixed-mode-role-substitution-rejected [pass/integration_test] node packages/main/dist/tasks/review-run-smoke.js file=packages/main/src/tasks/review-run-smoke.ts note=Mode-aware role-body identity prevents modular/legacy and cross-role substitution in start and gate reconstruction.",
+        "concurrent-run-snapshot-race-fails-closed [pass/integration_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Eight concurrent real CLI calls passed read-only neutrality and snapshot-safe deterministic selection without hybrid evidence."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Preregistered per-role replay proves quality-equivalent reductions or reports INCONCLUSIVE without overclaiming.",
+      "acceptance": "Each role has seeded finding comparison and honest token accounting; eligible incremental context reduction reaches at least 50 percent, assembled target is reported, and insufficient evidence yields INCONCLUSIVE.",
+      "evidence": [
+        "preregistered-per-role-replay-matrix [pass/docs_check] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/README.md note=Story 5 campaign protocol is versioned and content-addressed for five roles, three arms, three repetitions, pinned ordering and exact body digests; selfcheck passed.",
+        "seeded-critical-high-quality-gate [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Quality evaluator requires verified seeded critical/high adjudication and returns INCONCLUSIVE for every role when those inputs are absent.",
+        "incremental-context-reduction-50 [pass/manual_transcript] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Campaign output does not fabricate a 50 percent context reduction because exact historical per-role envelopes are unavailable; affected role rows explicitly report INCONCLUSIVE.",
+        "assembled-prompt-per-role-40-target [pass/manual_transcript] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Campaign reports exact legacy/modular role-body token observations but refuses to claim the 40 percent assembled target without exact assembled dispatch snapshots.",
+        "inconclusive-on-insufficient-quality-evidence [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Missing envelopes, reviewer outputs, independent adjudication, or provider receipts deterministically yields per-role INCONCLUSIVE reason codes.",
+        "honest-provider-usage-availability [pass/manual_transcript] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Provider usage and cache fields render unavailable with a reason instead of fabricated zero.",
+        "seed-and-order-limitations-recorded [pass/docs_check] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/README.md note=Campaign manifest and README record repetition, order, seed support limitations, pinned versions, and evidence gaps.",
+        "false-positive-and-command-misuse-guard [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Quality-equivalence acceptance remains unavailable without adjudicated false-positive and command-misuse observations.",
+        "denominator-seed-erasure-detected [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Manifest and oracle denominator mutation checks reject erased, relabeled, duplicated, or downgraded applicable evidence.",
+        "cache-and-gross-token-gaming-rejected [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Role-aware report separates body, context, assembled, provider, and cache measures and rejects aggregate substitution.",
+        "experiment-production-evidence-isolated [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Production evidence isolation checks prove campaign findings, passes, usage, and run identifiers cannot satisfy Story gates.",
+        "cherry-pick-reconstruction-tamper-inconclusive [pass/logic_test] node experiments/role-prompt-ab-replay/selfcheck.mjs file=experiments/role-prompt-ab-replay/selfcheck.mjs note=Selfcheck rejects body substitution, repetition cherry-picking, arm/order mutation, cross-role mismatch, and digest reconstruction tamper."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Migration preserves reviewer permissions, signatures, pass admissibility, legacy reads, and rollback safety.",
+      "acceptance": "Authority, signature, process-fact, old-pass, mixed rollback, exact baseline approval, host mirror, and documentation checks pass.",
+      "evidence": [
+        "reviewer-owner-permission-boundaries [pass/integration_test] node packages/main/dist/tasks/agent-dispatch-registry-smoke.js file=packages/main/src/tasks/agent-dispatch-registry-smoke.ts note=Dispatch permission probes passed reviewerWrite authority and rejected main, implementer, wrong-lane, owner-gated lifecycle, and delivery-only mutation paths.",
+        "signed-current-run-admission [pass/integration_test] node packages/main/dist/tasks/quorum-submit-smoke.js file=packages/main/src/tasks/quorum-submit-smoke.ts note=Quorum smoke passed 42 checks for signed same-lane ReviewRun, Prompt Envelope, round/hash freshness, binding-race PASS compatibility, and kind-aware finding admission.",
+        "role-baseline-diff-approval-rollback [pass/docs_check] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=scripts/verify-proof-or-stop-prompt-baseline.mjs note=All three immutable digest-bound baselines verify selected modular bodies, exact legacy rollback, role-by-role diffs, and approval identity.",
+        "process-contract-docs-synchronized [pass/docs_check] node scripts/verify-process-fact-contract.mjs file=scripts/verify-process-fact-contract.mjs note=Process-fact registry/verifier passed; canonical Story 5 and host usage docs describe selected-body measurement, rollout, rollback, and evidence limits. Owner verify_codex also passed relevant adapter checks.",
+        "old-pass-original-round-only [pass/logic_test] node packages/main/dist/tasks/review-run-smoke.js file=packages/main/src/tasks/review-run-smoke.ts note=Legacy envelope-less pass remains original-round legacy-full-context and cannot establish a modular incremental baseline.",
+        "mixed-role-rollback-gate-equivalence [pass/integration_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Real mixed masks 10 and 21 plus full mask 31 passed dispatch, ReviewRun admission, legacy/full envelope distinction, concurrent collection, lane uniqueness, and canPassReviewGuard.",
+        "budget-violation-does-not-weaken-authority [pass/logic_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Budget violation and FULL_CHEAPER_OR_EQUAL remain observation/selection facts and do not weaken authority or correctness-required full review.",
+        "compatibility-retired-artifact-audit-only [pass/integration_test] node packages/main/dist/tasks/quorum-submit-smoke.js file=packages/main/src/tasks/quorum-submit-smoke.ts note=Compatibility and retired artifacts remain audit-readable but receive zero current receipt, assurance-floor, or quorum credit.",
+        "unauthorized-pass-and-lifecycle-writes-rejected [pass/integration_test] node packages/main/dist/tasks/agent-dispatch-registry-smoke.js file=packages/main/src/tasks/agent-dispatch-registry-smoke.ts note=Dispatch permission probes passed reviewerWrite authority and rejected main, implementer, wrong-lane, owner-gated lifecycle, and delivery-only mutation paths.",
+        "replay-tamper-wrong-lane-signature-rejected [pass/integration_test] node packages/main/dist/tasks/quorum-submit-smoke.js file=packages/main/src/tasks/quorum-submit-smoke.ts note=Wrong-lane, stale, altered envelope/contract/body/baseline digest, and malformed signature/receipt cases receive no quorum credit.",
+        "rollback-cannot-relax-contract-or-retire-role [pass/logic_test] node packages/main/dist/tasks/prompt-registry-smoke.js file=packages/main/src/tasks/prompt-registry-smoke.ts note=Rollback changes only selected prompt body and cannot alter Role Contract permissions, lifecycle status, signature domain, or retired channel policy.",
+        "concurrent-lane-write-and-collector-determinism [pass/integration_test] node packages/main/dist/tasks/review-incremental-context-smoke.js file=packages/main/src/tasks/review-incremental-context-smoke.ts note=Five-lane concurrent review_run_start plus pass/finding writers passed masks 31 and 10 once and mask 21 for 20/20 stress iterations with zero lost runs, zero overwritten findings, zero invalid collector records, and stable canPassReviewGuard evidence."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
