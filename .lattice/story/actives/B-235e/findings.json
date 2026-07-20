@@ -598,7 +598,7 @@
       "desc": "packages/main/src/handlers/done-prepare.ts:1507-1534 collects every later completed same-round/same-binding reviewer identity after REVIEW entry but does not bound runs or passes at testEntry. edf2d243ac then removes reviewerReattestations from the hard-fail predicate at lines 1596-1604 wholesale. This correctly admits the covered pre-TEST re-attestation, but also admits a post-TEST re-attestation created during DONE convergence while still rendering one-pass PASS. packages/main/src/tasks/flow-stability-smoke.ts:4428-4468 covers only the pre-TEST positive and deletes the prior nonzero-reviewer negative, so the timing boundary is unproved. Split or classify pre-TEST observational re-attestations from post-TEST convergence rework and add both sides of the timing matrix; retain the current hard failures for metadata rollback, human confirmation, repeated unchanged-suite execution, and unsuccessful closeout.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-20T14:00:42.128Z",
@@ -647,7 +647,11 @@
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 125d999b8f and completed by 37947a3da5: total reviewerReattestations stays telemetry; only additional verified identities completed at or after TEST entry increment the blocking counter. Round-23 quality RP-068 and flow-stability/full npm test PASS cover before/equal/after TEST.",
+      "resolvedAt": "2026-07-20T15:22:46.770Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-027",
