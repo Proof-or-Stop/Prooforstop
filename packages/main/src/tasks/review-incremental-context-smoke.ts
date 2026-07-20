@@ -254,6 +254,13 @@ function assertGateUnchangedByHelper(
     for (const candidate of repeated) {
       assert.deepEqual(candidate, incremental, `${label}: repeated advisory calls are deterministic for ${role}`);
     }
+    // Eligibility baselines are evaluated as-of the signed run start. The
+    // cutoff option is intentionally exercised here so later metadata-only
+    // passes cannot rewrite an older ReviewRun's priorPassRef.
+    const cutoffBound = reviewIncrementalContext(store, projectRoot, storyId, role, {
+      passesCutoffAt: new Date().toISOString(),
+    });
+    assert.equal(cutoffBound.role, role, `${label}: as-of-run prior-pass cutoff preserves role identity`);
   }
   const afterHelper = gateInputSnapshot(store, storyId);
   assert.equal(afterHelper, before, `${label}: reviewIncrementalContext must perform no store writes / leave gate inputs byte-identical`);

@@ -206,6 +206,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           }
           const incremental = reviewIncrementalContext(store, signedWorkspaceRoot, args.storyId, lane, {
             findingsCutoffAt: startedAt,
+            passesCutoffAt: startedAt,
           });
           const assembly = assembleConditionalReviewPromptEnvelope({
             roleContract: promptRoleContract(lane),

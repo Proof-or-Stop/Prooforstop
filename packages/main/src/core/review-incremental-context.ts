@@ -181,7 +181,10 @@ function latestTrustedPriorPass(
   const cutoff = passesCutoffAt ? verdictTime(passesCutoffAt) : Number.POSITIVE_INFINITY;
   for (const pass of passes) {
     const passTime = verdictTime(pass.createdAt);
-    if (passTime > cutoff) continue;
+    // Equal timestamps are conservatively treated as post-cutoff. A reviewer
+    // pass created in the same millisecond as run.startedAt could otherwise be
+    // observed by assembly and rejected by verifier, creating an ABA race.
+    if (Number.isFinite(cutoff) && passTime >= cutoff) continue;
     if (pass.agent !== role || !verifyReviewPass(storyId, pass) || !pass.reviewRunId) continue;
     if (pass.reviewRunId === excludedReviewRunId) continue;
     const run = runs.find(candidate => candidate.reviewRunId === pass.reviewRunId);
