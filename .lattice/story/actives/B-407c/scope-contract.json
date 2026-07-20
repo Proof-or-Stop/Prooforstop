@@ -130,10 +130,44 @@
         "provider_inconclusive",
         "complex_role_baseline"
       ]
+    },
+    {
+      "actor": "story6-executor",
+      "reason": "These mirrored role prompt assets are required to keep Claude and Codex adapters synchronized with the Story 6 modular Prompt Envelope migration.",
+      "timestamp": "2026-07-20T22:10:13.960Z",
+      "paths": [
+        ".claude/agents/lattice-evaluator.md",
+        ".claude/agents/lattice-implementer.md",
+        ".claude/agents/lattice-review-delivery.md",
+        ".claude/agents/lattice-review-scope-plan.md",
+        ".claude/agents/lattice-review-story-init.md",
+        ".lattice-codex/agents/lattice-evaluator.md",
+        ".lattice-codex/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-review-delivery.md",
+        ".lattice-codex/agents/lattice-review-scope-plan.md",
+        ".lattice-codex/agents/lattice-review-story-init.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".claude/agents/lattice-evaluator.md",
+        ".claude/agents/lattice-implementer.md",
+        ".claude/agents/lattice-review-delivery.md",
+        ".claude/agents/lattice-review-scope-plan.md",
+        ".claude/agents/lattice-review-story-init.md",
+        ".lattice-codex/agents/lattice-evaluator.md",
+        ".lattice-codex/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-review-delivery.md",
+        ".lattice-codex/agents/lattice-review-scope-plan.md",
+        ".lattice-codex/agents/lattice-review-story-init.md"
+      ],
+      "affectedPathCount": 10,
+      "phase": "DEV",
+      "headHash": "e3542824c417621db6830558f9b48b05b513fe9c",
+      "materialHash": "051cbb20988fd64b71c0ff12949695ffe8851c814088692dbee16d3ec622e1ae"
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-20T22:03:17.998Z",
+  "updatedAt": "2026-07-20T22:10:13.960Z",
   "protectedAnchors": [
     "AGENT_DISPATCH_REGISTRY",
     "buildFullTaskContext"
@@ -194,7 +228,17 @@
     "experiments/role-prompt-ab-replay/README.md": "experiments/role-prompt-ab-replay/README.md",
     "experiments/role-prompt-ab-replay/story6-live.mjs": "experiments/role-prompt-ab-replay/story6-live.mjs",
     "experiments/role-prompt-ab-replay/story6-analyze.mjs": "experiments/role-prompt-ab-replay/story6-analyze.mjs",
-    "experiments/role-prompt-ab-replay/story6-output.schema.json": "experiments/role-prompt-ab-replay/story6-output.schema.json"
+    "experiments/role-prompt-ab-replay/story6-output.schema.json": "experiments/role-prompt-ab-replay/story6-output.schema.json",
+    ".claude/agents/lattice-evaluator.md": ".claude/agents/lattice-evaluator.md",
+    ".claude/agents/lattice-implementer.md": ".claude/agents/lattice-implementer.md",
+    ".claude/agents/lattice-review-delivery.md": ".claude/agents/lattice-review-delivery.md",
+    ".claude/agents/lattice-review-scope-plan.md": ".claude/agents/lattice-review-scope-plan.md",
+    ".claude/agents/lattice-review-story-init.md": ".claude/agents/lattice-review-story-init.md",
+    ".lattice-codex/agents/lattice-evaluator.md": ".lattice-codex/agents/lattice-evaluator.md",
+    ".lattice-codex/agents/lattice-implementer.md": ".lattice-codex/agents/lattice-implementer.md",
+    ".lattice-codex/agents/lattice-review-delivery.md": ".lattice-codex/agents/lattice-review-delivery.md",
+    ".lattice-codex/agents/lattice-review-scope-plan.md": ".lattice-codex/agents/lattice-review-scope-plan.md",
+    ".lattice-codex/agents/lattice-review-story-init.md": ".lattice-codex/agents/lattice-review-story-init.md"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",
