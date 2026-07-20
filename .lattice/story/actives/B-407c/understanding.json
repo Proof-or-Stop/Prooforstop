@@ -1,0 +1,32 @@
+{
+  "task": "将五个复杂角色迁移到模块化 Prompt Envelope，并在 observe/warn 预算语义下保持正确性与权限不回归。",
+  "outcome": "用户运行真实 dispatch 时，story-init、scope-plan、implementer、delivery、evaluator 都得到一致的模块化上下文；超预算只显示结构化警告和 violation，不会跳过完整正确性审查，交付与签名门禁仍然通过。",
+  "facts": [
+    "Story 1 已冻结 Prompt Envelope 字段与角色注册表。",
+    "Story 2 已提供可信 full-context assembly 与 Task Context 绑定。",
+    "Story 5 已验证 review-run incremental eligibility 与 closeout 证据。",
+    "决策文档将 Story 6 定义为复杂角色迁移与 observe/warn，Story 7 才评估 enforce。"
+  ],
+  "constraints": [
+    "不得修改 Task Context schema 或重定义 role status。",
+    "full review 必须始终可用，预算超限不得阻塞 correctness。",
+    "provider usage/cache/latency 缺失时记录 INCONCLUSIVE，不得填零。",
+    "所有角色写操作必须保留权限、签名、delivery promise、scope gap、evaluator evidence 门禁。"
+  ],
+  "unknowns": [
+    "五个角色现有 legacy 入口与模块化装配点是否完全一致。",
+    "真实 dispatch A/B 可观测的 provider 维度与稳定延迟范围。",
+    "现有预算 violation 记录是否覆盖所有复杂角色路径。"
+  ],
+  "touchpoints": [
+    "packages/main/src/roles/",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/task-context.ts",
+    "packages/main/src/handlers/dispatch.ts",
+    "packages/main/src/core/review-run.ts",
+    ".claude/agents/",
+    ".lattice-codex/agents/",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+  ],
+  "timestamp": "2026-07-20T21:32:22.897Z"
+}

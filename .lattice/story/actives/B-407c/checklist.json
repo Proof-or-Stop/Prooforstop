@@ -9,7 +9,46 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "用户看到五个复杂角色均显示 modular Prompt Envelope dispatch receipt，且 role/status/Task Context 字段与迁移前一致。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/handlers/dispatch.ts",
+          "packages/main/src/roles/story-init.ts",
+          "packages/main/src/roles/scope-plan.ts",
+          "packages/main/src/roles/implementer.ts",
+          "packages/main/src/roles/delivery.ts",
+          "packages/main/src/roles/evaluator.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "每个复杂角色都由 registry 解析到 modular Prompt Envelope 并完成真实 dispatch",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "legacy role alias 与缺省可选字段仍能绑定同一 Task Context",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "篡改 role 或 Task Context digest 时 dispatch/review gate 拒绝并留下结构化证据",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
