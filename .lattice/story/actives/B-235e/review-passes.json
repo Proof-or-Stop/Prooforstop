@@ -2202,6 +2202,62 @@
       },
       "readDiagnostics": [],
       "_hash": "2deef93356f2ffe8fe8eb161e749600d506abfd95a26b9a80fa9591d308054ed"
+    },
+    {
+      "id": "B-235e:RP-063",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-22 test-coverage review passed at a837b1b. Flow-stability smoke covers pre-TEST positive behavior (total reviewerReattestations remains observable while postTestReviewerReattestations=0 passes) and at/after-TEST negative behavior (boundary timestamp and later completed passes enter the blocking counter and fail PASS convergence). Transcript rendering and donePrepareJsonResult parser preserve the new field. Auto-closeout, closure-heartbeat JSON, and merge-rerun smokes assert the expanded successful convergence transcript; process-fact contract verifies the L4 run/pass producer, done_prepare consumer, attempt/material/storyFiles/reviewRound and fail-closed boundary semantics. Original checklist coverage remains 48/48 must, 0 failing, 0 waivers. No new blocker; no long tests were run by this reviewer.",
+      "createdAt": "2026-07-20T14:12:35.590Z",
+      "reviewRound": "2026-07-20T14:10:14.730Z",
+      "reviewRunId": "B-235e:RR-107",
+      "envelopeId": "6cda45e44e15255215a6a5d447ca3808c213f9341dba2e8afc9a0086fbc8d946",
+      "writerSessionId": "sess-b235e-coverage-r22-20260720",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "2a2bf1c880d15dc2f577b0569ae6698c524b535caef35b81e627d9f124d7cfc0"
+      },
+      "readDiagnostics": [],
+      "_hash": "df4dd6f5a35b3e4c988bf42f525cc4e28e2d6ac2831fc6ef4023bcc537f80614"
     }
   ]
 }
