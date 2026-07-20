@@ -658,7 +658,7 @@
       "desc": "packages/main/src/handlers/done-prepare.ts:1510-1547 still orders valid completed identities by ReviewRun.startedAt before slice(1), although the comment and convergence contract define the first completed identity as the lane baseline. With supported overlapping runs, A can start first and pass after TEST while B starts later and passes before TEST: the array is [A,B], slice(1) drops post-TEST A as the baseline, and only pre-TEST B is classified as a re-attestation, leaving postTestReviewerIdentityIds empty and falsely allowing one-pass convergence. The new flow-stability matrix at packages/main/src/tasks/flow-stability-smoke.ts:4428-4496 uses monotonic start/completion order, so it proves >= at/equal-after boundaries but misses this inversion. Order completed lane identities by valid pass createdAt (with deterministic tie-breaker) before choosing the baseline, and add the overlapping completion negative. The implementation otherwise binds the selected TEST transition to attempt/material/storyFiles/round and verifies run/pass signatures, but the targeted regression also lacks explicit negatives for invalid signatures, wrong material/storyFiles/attempt, and missing pass.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-20T14:15:07.041Z",
@@ -712,7 +712,11 @@
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 37947a3da5: baseline identity is ordered by verified ReviewPass.createdAt with deterministic reviewRunId/pass-id ties, independent of run start/storage order. Inversion and invalid signature/binding/round/missing-pass negatives pass. Round-23 RP-065/RP-066/RP-067/RP-068, routine 46/46 and DONE-required full npm test PASS.",
+      "resolvedAt": "2026-07-20T15:22:49.348Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
