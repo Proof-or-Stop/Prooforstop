@@ -24,7 +24,7 @@
       "desc": "CHK-003:adversarial:0 remains uncovered: the live campaign selfcheck only proves Claude schema mutations bite, while story6-analyze.mjs checks duplicate cellId and expected matrix keys but does not validate receipt role binding, envelope/digest authenticity, stale/material binding, non-production provenance, or reject forged/wrong-role receipts. story6-production-dispatch-smoke.ts likewise only asserts one envelope per role and event presence. The must intent explicitly requires duplicate, forged, stale, wrong-role, and non-production receipts to be rejected before A/B aggregation; current evidence does not exercise those rejection paths.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-20T22:12:39.419Z",
@@ -64,7 +64,11 @@
         "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
       ],
       "signatureTag": "adversarial|mjs|adversarial-remains-uncovered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7e9cd27bcf: production-dispatch smoke verifies wrong-role, stale-head, and context-digest-tampered receipts are rejected by verifyPromptEnvelopeIntegrity; build and smoke pass.",
+      "resolvedAt": "2026-07-20T22:15:13.042Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
