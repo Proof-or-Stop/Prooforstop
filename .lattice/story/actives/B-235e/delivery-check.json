@@ -1,85 +1,103 @@
 {
   "storyId": "B-235e",
-  "checkedAt": "2026-07-20T13:38:45.069Z",
-  "headHash": "e51f408a046ba2d19f7160118a069ccf1efe475e",
-  "materialHash": "67c7ac5eba42a6d17a20d657c79d4986baad0447290bfa1093399ccb04ec6986",
-  "storyFilesHash": "a3e0101d5ba22c23a545b4db8990d895e77b1224ab768666f0cb3fff1547a194",
-  "reviewRound": "2026-07-20T11:52:00.521Z",
+  "checkedAt": "2026-07-20T15:19:51.772Z",
+  "headHash": "5c958c09196224db149fff3fb1883aa615fef9f3",
+  "materialHash": "b6c172a7ed6c9c14e45ee4ea112e818ea7fdf46334f4e89edd95afe1df7b28a5",
+  "storyFilesHash": "484bc8e192b36b53fee11a0546364e25d59f7b31e008a5dcba574b3800bfafae",
+  "reviewRound": "2026-07-20T14:20:36.579Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
       "promise": "Five active reviewer roles use independently rollbackable modular/full prompt assembly, trusted conditional incremental envelopes, and honest replay reporting without weakening authority.",
       "status": "verified",
-      "verifiedBy": "final delivery review against current diff, 48/48 evidence, and canonical validation",
-      "evidence": "Current implementation and focused smokes cover the five-role rollout matrix, legacy rollback, cutoff-bound incremental assembly, process facts, and honest INCONCLUSIVE replay semantics."
+      "verifiedBy": "final delivery reverse-scan on current binding",
+      "evidence": "Current implementation and 48/48 evidence cover the five-role rollout matrix, legacy rollback, cutoff-bound incremental assembly, process facts, and honest INCONCLUSIVE replay semantics."
     },
     {
       "docPath": "docs/requirements/decisions/role-separation.md",
       "promise": "Reviewer and delivery authority remain separated; only the delivery reviewer writes delivery evidence and reviewers cannot take owner lifecycle actions.",
       "status": "verified",
-      "verifiedBy": "dispatch provenance and final permission evidence",
-      "evidence": "This delivery check is written under lattice-review-delivery provenance; reviewer permission smokes and four final reviewer lanes passed."
+      "verifiedBy": "current dispatch provenance and permission evidence",
+      "evidence": "This check uses lattice-review-delivery provenance; four round-23 reviewer lanes independently passed before TEST transition."
     },
     {
       "docPath": "docs/requirements/decisions/review-run-binding-race.md",
       "promise": "Review evidence remains bound to valid signed runs while material/scope freshness and finding semantics fail closed.",
       "status": "verified",
-      "verifiedBy": "review-run and quorum validation evidence",
-      "evidence": "Current 46/46 validation includes review-run and quorum coverage, with all final lane passes bound to current material."
+      "verifiedBy": "current review-run, cutoff, and quorum evidence",
+      "evidence": "F-024 production A/B/C verifier E2E passes; current review assurance is full-3x2 from independent Codex and Claude hosts."
     },
     {
       "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
       "promise": "DONE-required, review-assurance, and delivery claims consume current digest-bound admissible evidence.",
       "status": "verified",
-      "verifiedBy": "done-required receipts and canonical assurance status",
-      "evidence": "Build plus complete root npm test passed; current review assurance reports ok=true and degraded-single-host under explicit human approval B-235e:REF-mrt9r24u."
+      "verifiedBy": "fresh DONE-required receipts and assurance status",
+      "evidence": "Current binding has build plus complete root npm test PASS and review_assurance_floor_satisfied at full-3x2."
     },
     {
       "docPath": "docs/host-run-usage.md",
       "promise": "Host-facing reviewer prompt assembly is trusted and replay limitations are reported honestly rather than overstating savings.",
       "status": "verified",
-      "verifiedBy": "live transcript plus documentation/replay checks",
-      "evidence": "Live cutoff-verifier transcript exited zero; replay documentation and selfcheck preserve per-role INCONCLUSIVE results where exact historical envelopes are unavailable."
+      "verifiedBy": "fresh live production transcript and replay checks",
+      "evidence": "Production cutoff-verifier transcript exits zero; replay remains explicitly INCONCLUSIVE where historical receipts are unavailable."
     },
     {
       "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
-      "promise": "High-risk material satisfies the configured review assurance floor or an eligible explicit degraded fallback.",
+      "promise": "High-risk material satisfies the configured review assurance floor with current-material independent host evidence.",
       "status": "verified",
-      "verifiedBy": "review_escalation_status on current binding",
-      "evidence": "Current materialHash 67c7ac5e and storyFilesHash a3e0101d report review_assurance_floor_satisfied, assuranceLevel=degraded-single-host, fallback_satisfied."
+      "verifiedBy": "canonical review_escalation_status",
+      "evidence": "materialHash b6c172a7 and storyFilesHash 484bc8e1 report assuranceLevel=full-3x2 with 3/3 rounds and two independent Codex/Claude hosts."
     },
     {
       "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
-      "promise": "Review escalation and fallback evidence remain explicit, independently written, and current-material bound.",
+      "promise": "Three-round two-host evidence is explicit, independently written, and current-material bound.",
       "status": "verified",
-      "verifiedBy": "canonical review escalation diagnostics",
-      "evidence": "Escalation itself is not required; high-risk assurance uses the separately recorded explicit human-approved fallback and current reviewer-host evidence."
+      "verifiedBy": "canonical host verdict diagnostics",
+      "evidence": "Current full-3x2 assurance is complete and bound to the final material/storyFiles hashes."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "DONE convergence treats only valid pre-TEST reviewer re-attestations as nonblocking telemetry and fails closed on at-or-after-TEST rework.",
+      "status": "verified",
+      "verifiedBy": "F-025/F-026/F-027 reverse-scan and canonical validation",
+      "evidence": "Current implementation selects each lane baseline by verified pass completion time with stable tie-breakers, blocks post-TEST identities, and covers interleaved completion, equal timestamps, invalid signatures, wrong bindings, and missing pass negatives."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "promise": "Prompt-envelope/review metadata persistence remains bounded, review-retained only under valid current bindings, and independent from artifact approval.",
+      "status": "verified",
+      "verifiedBy": "process-fact and closeout validation evidence",
+      "evidence": "Current process-fact verifier and closeout/review smokes pass; metadata-only commits after round-23 do not alter story-owned material."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Canonical routine validation commit 44da5dcd01 executed 46/46 configured commands with PASS; final concept, quality, coverage, and docs lanes signed current material."
+      "transcript": "Fresh routine validation executed all 46 configured commands with PASS on material b6c172a7/storyFiles 484bc8e1; all four round-23 lanes passed before TEST."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Live real-machine command node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only exited 0. It creates real A pass and production incremental B envelope, appends later C, verifies B remains valid and bound to A, and proves the no-cutoff mutation fails."
+      "transcript": "Fresh live command node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only exited 0, proving real production incremental B remains bound to A after later C and the no-cutoff mutation fails."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Canonical validation exercised the preregistered role replay/selfcheck; outputs preserve honest per-role INCONCLUSIVE status where historical Prompt Envelope receipts are unavailable and make no unsupported savings claim."
+      "transcript": "Fresh validation exercised the preregistered replay/selfcheck and preserves honest per-role INCONCLUSIVE outcomes without unsupported savings claims."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "DONE-required execution completed packages/main build and the complete root npm test suite with PASS; final reviewer lanes pass and current review assurance is satisfied through explicit approved degraded-single-host evidence."
+      "transcript": "Fresh DONE-required execution passed packages/main build and the complete root npm test suite; canonical review assurance is full-3x2 from real Codex and Claude hosts."
+    },
+    {
+      "featureId": "CHK-004:F-025-F-027",
+      "transcript": "Fresh flow-stability/process-contract coverage proves pre-TEST versus post-TEST re-attestation boundaries, completion-order baseline selection, deterministic ties, interleaving, invalid signatures, wrong material/storyFiles, and missing-pass fail-closed cases."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Final current-binding delivery review found no blocker: F-024 is covered by a real production verifier A/B/C cutoff E2E plus mutation bite; 48/48 verification evidence and 46/46 routine validation pass; live transcript passes; full DONE-required build and root suite pass; all four reviewer lanes pass; scope warnings are advisory and consistent with the declared migration; worktree was clean before reviewer provenance writes."
+    "summary": "Final current-binding delivery review found no blocker. Reverse-scan main...HEAD matches the reviewer migration, trusted Prompt Envelope, replay, authority, and DONE-convergence promises. F-024 has production A/B/C cutoff verifier E2E plus mutation bite. F-025/F-026/F-027 are older-round open records whose substance is repaired and covered; four round-23 lanes passed the repaired material and REVIEW advanced to TEST. Routine validation is 46/46 PASS, live transcript PASS, DONE-required build plus complete root suite PASS, assurance is full-3x2, scope warnings are advisory, and the worktree was clean before this legal delivery write."
   },
-  "_hash": "616c479a59b77d089300e2e0ddc528f6e4bf3404c3b39e1a9e5e2f120f82ec64"
+  "_hash": "fe48906edf39373cc3cad666920ffd0938058ba30f03a0b750bb6026b25d01be"
 }
