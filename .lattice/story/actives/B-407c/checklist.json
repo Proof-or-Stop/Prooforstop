@@ -101,9 +101,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": "2026-07-20T21:43:17.964Z",
-      "endTime": "2026-07-20T21:50:10.488Z",
+      "endTime": "2026-07-20T22:07:49.204Z",
       "userSees": "用户看到预算内为 \"budgetViolation=none\"；超限为 \"budgetViolation=full fullExecuted=true baselineAccepted=false\"，不会出现 blocking/enforce 或 Story 7 rollout。",
       "files": {
         "modify": [
@@ -151,11 +151,11 @@
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
-          "note": "五角色预算内路径记录 warn observation 并继续 dispatch。",
-          "headHash": "ac27e3be696559a730ab0c1c2ec6efb3c0edf545",
-          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
-          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
-          "timestamp": "2026-07-20T21:50:10.872Z"
+          "note": "预算 observation mode=observe；预算内复杂角色正常执行。",
+          "headHash": "b88dc92f1fef2e62e695b28ab2ffabb98608e47e",
+          "materialHash": "9080056cc8012893aab03491ce372f9907ab6a8ab5c3e1fbf2e9c5c9f509c84a",
+          "storyFilesHash": "812bf56b77218edab971946ee58d631ee67ba0c1d91f8b747ac3a4f45c8a7f0f",
+          "timestamp": "2026-07-20T22:07:49.607Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -163,11 +163,11 @@
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
-          "note": "44,001 bytes 超限记录 violation/reason，继续 full correctness dispatch。",
-          "headHash": "ac27e3be696559a730ab0c1c2ec6efb3c0edf545",
-          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
-          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
-          "timestamp": "2026-07-20T21:50:11.287Z"
+          "note": "超预算记录 violation，correctnessExecution=continue-full，baselineAccepted=false。",
+          "headHash": "b88dc92f1fef2e62e695b28ab2ffabb98608e47e",
+          "materialHash": "9080056cc8012893aab03491ce372f9907ab6a8ab5c3e1fbf2e9c5c9f509c84a",
+          "storyFilesHash": "812bf56b77218edab971946ee58d631ee67ba0c1d91f8b747ac3a4f45c8a7f0f",
+          "timestamp": "2026-07-20T22:07:49.974Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -175,11 +175,11 @@
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
-          "note": "warn-only violation 不成为 blocking gate。",
-          "headHash": "ac27e3be696559a730ab0c1c2ec6efb3c0edf545",
-          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
-          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
-          "timestamp": "2026-07-20T21:50:11.617Z"
+          "note": "不存在 warn/enforce 分支，Story7 才负责 observe→warn。",
+          "headHash": "b88dc92f1fef2e62e695b28ab2ffabb98608e47e",
+          "materialHash": "9080056cc8012893aab03491ce372f9907ab6a8ab5c3e1fbf2e9c5c9f509c84a",
+          "storyFilesHash": "812bf56b77218edab971946ee58d631ee67ba0c1d91f8b747ac3a4f45c8a7f0f",
+          "timestamp": "2026-07-20T22:07:50.382Z"
         }
       ],
       "excludes": [
