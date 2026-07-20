@@ -431,10 +431,26 @@
         "metadata_only_closeout",
         "cli_patch_version"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "BUG-001 directly blocks this story from reaching DONE after legitimate reviewer re-attestation; the minimal gate fix is required for lifecycle convergence and preserves all other hard-fail counters.",
+      "timestamp": "2026-07-20T13:56:27.045Z",
+      "paths": [
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "edf2d243ac2c4008aabd662183b189c8a3715634",
+      "materialHash": "0c255f91b873afdb1558aabb7c0bafd5fcf7f3af4a2656fb02405554d7da3daa"
     }
   ],
   "createdAt": "2026-07-19T07:16:42.767Z",
-  "updatedAt": "2026-07-19T23:55:19.401Z",
+  "updatedAt": "2026-07-20T13:56:27.045Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -520,6 +536,7 @@
     "packages/main/package-lock.json": "packages/main/package-lock.json",
     "packages/main/package.json": "packages/main/package.json",
     "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
-    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts"
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/handlers/done-prepare.ts": "packages/main/src/handlers/done-prepare.ts"
   }
 }
