@@ -4452,24 +4452,29 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       [metadataReattestation.run.reviewRunId],
       'collector must count a same-binding REVIEW re-attestation completed before TEST and ignore an old round',
     );
-    assert.equal(
-      deriveDonePreparePassConvergence([
+    const collectedConvergence = deriveDonePreparePassConvergence([
         { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
         { id: 'doneClosure', status: 'pass' },
         { id: 'cleanTree', status: 'pass' },
-      ] as any, { blockers: [] } as any, collected)?.reviewerReattestations,
+      ] as any, { blockers: [] } as any, collected);
+    assert.equal(
+      collectedConvergence?.reviewerReattestations,
       1,
       'real collector history must make reviewerReattestations non-zero',
+    );
+    assert.doesNotThrow(
+      () => assertDonePreparePassConvergence(collectedConvergence!),
+      'legitimate reviewer re-attestations must remain observable without blocking PASS convergence',
     );
 
     const transcript = [
       'DONE prepare: PASS',
       `storyId: ${storyId}`,
-      'convergence: metadataRollbacks=0 reviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1',
+      'convergence: metadataRollbacks=0 reviewerReattestations=1 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1',
     ].join('\n');
     assert.deepEqual(donePrepareJsonResult(storyId, transcript).convergence, {
       metadataRollbacks: 0,
-      reviewerReattestations: 0,
+      reviewerReattestations: 1,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
       successfulCloseout: 1,
@@ -4541,7 +4546,6 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     );
     for (const negative of [
       { ...baseFacts, phaseTransitions: [{ type: 'phase_transition', timestamp: '2026-01-01T00:03:00.000Z', fromPhase: 'TEST', toPhase: 'DEV', materialHash: 'material-1', storyFilesHash: 'story-1' }] },
-      { ...baseFacts, reviewerIdentityIds: ['B-convergence:RR-002'] },
       { ...baseFacts, humanConfirmations: [{ type: 'human_confirmation', timestamp: '2026-01-01T00:03:00.000Z' }] },
     ] as any[]) {
       assert.throws(
@@ -4549,6 +4553,16 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         /done_prepare convergence invariant failed/,
       );
     }
+    const failedCloseout = deriveDonePreparePassConvergence([
+      ...passSteps,
+      { id: 'doneClosure', status: 'blocked', reason: 'closeout blocker remains' },
+    ] as any, { blockers: [] } as any, baseFacts);
+    assert.equal(failedCloseout?.successfulCloseout, 0, 'a blocked closeout must not count as successful convergence');
+    assert.throws(
+      () => assertDonePreparePassConvergence(failedCloseout!),
+      /done_prepare convergence invariant failed/,
+      'a failed closeout must never render PASS',
+    );
     assert.equal(deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, null), null, 'legacy/missing attempt telemetry must omit the convergence claim');
     assert.doesNotThrow(() => assertDonePreparePassConvergence(derived!));
     assert.equal(donePrepareJsonResult(storyId, 'DONE prepare: BLOCKED\nblockedAt: cleanTree\nreason: materialHash changed').convergence, undefined);

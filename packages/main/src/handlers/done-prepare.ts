@@ -1594,9 +1594,10 @@ export function deriveDonePreparePassConvergence(
 }
 
 export function assertDonePreparePassConvergence(convergence: DonePrepareConvergence): void {
+  // Reviewer re-attestations are legitimate repeated review evidence. Keep
+  // reporting their count, but do not treat their presence as failed convergence.
   if (
     convergence.metadataRollbacks !== 0
-    || convergence.reviewerReattestations !== 0
     || convergence.humanConfirmations !== 0
     || convergence.unchangedSuiteExecutions !== 0
     || convergence.successfulCloseout !== 1
