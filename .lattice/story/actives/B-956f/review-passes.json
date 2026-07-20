@@ -487,6 +487,49 @@
         "scanEscalationReason": null
       },
       "_hash": "6a611cee309a20d7e30f6473be04c6e28eb0bfa587e296ba7cb95bbf2fb1e638"
+    },
+    {
+      "id": "B-956f:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: R7-a/R7-b independently confirmed load-bearing in an isolated worktree copy (revert of resolveGitCwd/resolveProjectGitCwd threading in repro-evidence-binding-gate.ts + story-create.ts AND the buildMaterialClassificationSnapshot safe default in material-code-policy.ts -> R7-a and R7-b each independently FAIL non-vacuously; restore -> 38/38). CHK-001 edge/adversarial evidence is now accurate for all three named consumers (floor review-assurance-floor.ts:774, repro classification repro-evidence-binding-gate.ts:426-434, ProofStory machine.ts:136-145/handlers/proofstory.ts:97-110) which all thread resolveGitCwd/resolveProjectGitCwd; story-create.ts STORY_INTAKE preflight (R7-b) also fixed. lattice validate end-to-end: allPass=true, 46/46 commands passed, verificationCoverage 12/12 covered/required, 0 missingRequired, 0 warnings. Smoke (packages/main/dist/tasks/language-neutral-gates-smoke.js) run 5x consecutively: 38/38 deterministic every time. RED harness (tmp/w1-red/red-language-degradation.cjs) run 3x: 11/11 GREEN every time. Noted for main agent: B-956f:F-014 (lattice-review-quality, medium, RR-025) remains OPEN this round -- missing regression coverage for story-review.ts createStoryReviewHandlers wrapper-root wiring; outside my verificationIntent-coverage mandate (not one of CHK-001s three named consumers) so not duplicated here, but the round is not fully clean until it resolves.",
+      "createdAt": "2026-07-20T13:28:01.102Z",
+      "reviewRound": "2026-07-20T13:10:32.059Z",
+      "reviewRunId": "B-956f:RR-027",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/process-events.jsonl",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/index.json",
+          ".lattice/story/actives/B-956f/review-passes.json",
+          ".lattice/story/actives/B-956f/review-runs.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8840ce66210cb5d1fae99cc320b06b745d7ce43ea67947dad409673d96d7514"
     }
   ]
 }
