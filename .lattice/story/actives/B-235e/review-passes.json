@@ -2304,6 +2304,63 @@
       },
       "readDiagnostics": [],
       "_hash": "cdc4fc0ce8adb45097700879b4431df70165bbfe9c424ae8b794d157cbc07d46"
+    },
+    {
+      "id": "B-235e:RP-065",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-23 test-coverage review passed at 318daa4. Flow-stability regression orders each lane baseline by verified ReviewPass.createdAt, proving inverted start/completion order: the later-started earlier-completed identity is baseline and the earlier-started later-completed identity remains a blocking post-TEST re-attestation. Equal completion timestamps use deterministic reviewRunId then pass-id tie-breakers independent of storage order. Negative matrix excludes invalid ReviewRun signature, invalid ReviewPass signature, wrong materialHash, wrong storyFilesHash, wrong reviewRound, and run with missing pass. Existing production verifyReviewRunPromptEnvelope A/B/C cutoff E2E and no-cutoff mutation bite remain unchanged since 1b2e9bafd4 and still run by default smoke. Checklist coverage remains 48/48 must, 0 failing, 0 waivers. No new blocker; no long/full suite was run.",
+      "createdAt": "2026-07-20T14:24:09.255Z",
+      "reviewRound": "2026-07-20T14:20:36.579Z",
+      "reviewRunId": "B-235e:RR-109",
+      "envelopeId": "63f375c3622f02ab015b2b20eb3a63584a5264e3192c8d8a3579126f3b964388",
+      "writerSessionId": "sess-b235e-coverage-r23-20260720",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "2a2bf1c880d15dc2f577b0569ae6698c524b535caef35b81e627d9f124d7cfc0"
+      },
+      "readDiagnostics": [],
+      "_hash": "1a9a669c98b3db9919a2b9c99c40b3b86ddd671db60bd84d7049d1379ea39f70"
     }
   ]
 }
