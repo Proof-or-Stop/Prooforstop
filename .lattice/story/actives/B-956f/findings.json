@@ -107,7 +107,7 @@
       "desc": "Test-coverage gap tied to lattice-review-quality F-006 (open, RR-015, verified, same round): CHK-001:adversarial:0 (repro classification fails closed on config-blind/regressed input) and CHK-002:adversarial:0 (excludePaths covering a real manifest is rejected at BOTH layers) verificationEvidence overstates what the automated smoke suite actually proves. language-neutral-gates-smoke.ts:376-383 tests fail-closed behavior for resolveMaterialCodePolicy(nonGitRoot) only; NO check in the 29-check suite (including R4-a/R4-b) calls buildMaterialClassificationSnapshot on a non-git-HEAD root with excludePaths covering a real level-1 manifest -- the actual production-consumed builder used by repro-evidence-binding-gate.ts, story-create.ts, and review-assurance-floor.ts. Live-reproduced against this worktree dist: resolveMaterialCodePolicy(nonGitDir) throws MaterialCodePolicyError as the smoke asserts, but buildMaterialClassificationSnapshot(sameNonGitDir) returns a snapshot with NO throw and policy.excludePaths still [\"backend/\"] unvalidated (material-code-policy.ts:978 `if (headRef)` guards the tree-bound preflight call, so an undefined headRef skips it entirely instead of failing closed). The must-priority adversarial verificationEvidence for CHK-001 and CHK-002 therefore does not concretely cover this reproducible fail-open path; add a smoke check for buildMaterialClassificationSnapshot+non-git-HEAD+covered-exclusion once F-006 is fixed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-19T20:23:15.476Z",
@@ -119,7 +119,9 @@
         "packages/main/src/tasks/language-neutral-gates-smoke.ts"
       ],
       "signatureTag": "missing|ts|test-coverage-tied",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-20T10:07:43.158Z",
+      "resolutionType": "fixed"
     }
   ]
 }
