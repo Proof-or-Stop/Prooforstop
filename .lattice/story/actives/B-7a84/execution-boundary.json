@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7a84",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git status*",
+    "lattice *",
+    "node *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Bash",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-closeout-integrity-hardening-execution-plan.md"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset*"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/story",
+    "packages/main/src",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Documentation-only execution.",
+  "createdAt": "2026-07-20T11:49:44.328Z",
+  "updatedAt": "2026-07-20T11:49:44.328Z",
+  "_hash": "41c74edfaedc671e5e7bb200254e899e141a509b6ddb4dd0e69d1ebacc4b105b"
+}
