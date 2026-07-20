@@ -2459,6 +2459,59 @@
       },
       "readDiagnostics": [],
       "_hash": "3431adcd20e8578da5cc3dec1a92c27fc6f9b7340e390c0a43301973dc0cf28e"
+    },
+    {
+      "id": "B-235e:RP-068",
+      "agent": "lattice-review-quality",
+      "note": "Round 23 quality re-review approves 37947a3: verified ReviewPass.createdAt selects the first completed lane baseline with deterministic createdAt/reviewRunId/pass-id ordering; overlapping start/completion inversion leaves the post-TEST identity blocking; equal and after TEST boundaries fail closed; invalid run/pass signatures, wrong material/storyFiles/round, and missing pass are excluded. No quality, safety, maintainability, or scope blocker remains for F-027.",
+      "createdAt": "2026-07-20T14:26:13.388Z",
+      "reviewRound": "2026-07-20T14:20:36.579Z",
+      "reviewRunId": "B-235e:RR-110",
+      "envelopeId": "6e8e8c558e614f249cdfcd9c98242f3098b4612797dcc8caeef05f732ca818f1",
+      "writerSessionId": "sess-b235equalityr23f027",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/checklist.json",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "2a2bf1c880d15dc2f577b0569ae6698c524b535caef35b81e627d9f124d7cfc0"
+      },
+      "readDiagnostics": [],
+      "_hash": "6580e7f26dd48defceed8bb1ac0f6d4bdccfead81a802fbbbf8ab8c9714670c4"
     }
   ]
 }
