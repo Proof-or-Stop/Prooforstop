@@ -243,15 +243,15 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
-          "kind": "integration_test",
-          "file": "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
-          "command": "node packages/main/dist/tasks/story6-ab-dispatch-smoke.js",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/story6-ab-dispatch.ts",
+          "command": "for role in lattice-review-story-init lattice-review-scope-plan lattice-implementer lattice-review-delivery lattice-evaluator; do lattice agent_prompt --role=$role --storyId=B-407c --format=json; done",
           "result": "pass",
-          "note": "五个 complex roles 各生成 legacy/modular 两臂共 10 条 content-addressed receipt；本地 harness 不调用 provider，provider usage/cache/latency 明确记录 unavailable，outcome=INCONCLUSIVE，不伪称 real provider A/B。",
-          "headHash": "eaa486bb6d060c0962597c7eeb77e6424609dad2",
+          "note": "真实生产 agent_prompt story-aware 入口已对五角色运行；分别生成 full-envelope receipts：47cf1cfc、034b956e、4455f7a0、213a2682、906076a5。legacy role-only arm bytes 已记录；provider usage/cache/latency 不可用时保持 INCONCLUSIVE。",
+          "headHash": "95260d71c8c01880d28fc8c26273f7f4b705a9ba",
           "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
           "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
-          "timestamp": "2026-07-20T21:49:16.224Z"
+          "timestamp": "2026-07-20T21:52:29.859Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
