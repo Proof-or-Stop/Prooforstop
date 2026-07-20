@@ -2146,6 +2146,62 @@
       },
       "readDiagnostics": [],
       "_hash": "250b1326c2618ca4d38ab46d5344430cb52fe52e3728616be57ec5fcfa9ce378"
+    },
+    {
+      "id": "B-235e:RP-062",
+      "agent": "lattice-review-concept",
+      "note": "Round-22 concept review found no blocker. 125d999b8f preserves reviewerReattestations as total observable telemetry and adds postTestReviewerReattestations as the sole reviewer re-attestation hard-gate subset. The collector binds the latest matching TEST entry to attemptId/materialHash/storyFilesHash/reviewRound; completedAt strictly before TEST is exempt, while equal or later uses >= and fails closed. Registry L4 fact, verifier, canonical docs, JSON/transcript consumers, and scope ack 19 are synchronized. metadataRollbacks, humanConfirmations, unchangedSuiteExecutions, and successfulCloseout hard constraints remain unchanged; no post-commit story-owned changes found.",
+      "createdAt": "2026-07-20T14:12:21.106Z",
+      "reviewRound": "2026-07-20T14:10:14.730Z",
+      "reviewRunId": "B-235e:RR-105",
+      "envelopeId": "c005f70808a7eb6ccb5ac4859084964552cd1fdeb667f5df81260f4a7355064e",
+      "writerSessionId": "concept-b235e-r22-rr105",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1e7ae46557a09c94410811a6aa72fa3c72507d81f50709fad14a983bd47a7684"
+      },
+      "readDiagnostics": [],
+      "_hash": "2deef93356f2ffe8fe8eb161e749600d506abfd95a26b9a80fa9591d308054ed"
     }
   ]
 }
