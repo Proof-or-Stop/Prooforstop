@@ -32,7 +32,7 @@ import { createHash } from 'crypto';
 import { VERIFICATION_LANES, collectVerificationIntents, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { surfaceExperienceHints } from '../core/experience-hint-surface.js';
 import { evaluateProofStoryDiagnostics, renderProofStoryDiagnosticReport } from '../core/proofstory.js';
-import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
+import { tryBuildMaterialClassificationSnapshotForDiagnostics, type MaterialClassificationSnapshot } from '../core/material-code-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { truncateOneLine } from '../cli/output-verbosity.js';
 
@@ -106,6 +106,35 @@ export function decompositionAdvisoryIssues(
   return advisories.map((message) => ({ type: 'decomposition_advisory' as const, severity: 'advisory' as const, message }));
 }
 
+/**
+ * B-956f R8 (quality F-014): the story_review ProofStory diagnostic-input
+ * material-classification wiring, extracted as a named export so the
+ * language-neutral smoke can drive THIS production call site directly against a
+ * wrapper-root fixture (mirroring how R7-a drives evaluateStoryEvidenceBindingGate).
+ * The inline form could not be exercised without standing up the full handler.
+ *
+ * Behavior is identical to the three sibling diagnostics sites (machine.ts,
+ * phase-gates.ts, proofstory.ts): resolve the story's signed git workspace via
+ * resolveGitCwd (fail-safe to undefined on any resolver throw) so the snapshot
+ * enumerates and translates in the wrapper-root's git namespace, then build the
+ * diagnostic-only snapshot. Passing metadataRoot alone as the gitCwd (the pre-R7
+ * root-as-gitCwd form) left this one of four sites classifying from the bare
+ * metadata root — untranslated `project/…` paths on a wrapper-root layout.
+ */
+export function buildStoryReviewMaterialClassification(
+  store: HandlerContext['store'],
+  storyId: string,
+  metadataRoot: string,
+): MaterialClassificationSnapshot | undefined {
+  let materialGitCwd: string | undefined;
+  try {
+    materialGitCwd = resolveGitCwd({ store, storyId, metadataRoot, projectRoot: metadataRoot });
+  } catch {
+    materialGitCwd = undefined;
+  }
+  return tryBuildMaterialClassificationSnapshotForDiagnostics(metadataRoot, materialGitCwd);
+}
+
 export function createStoryReviewHandlers(ctx: HandlerContext) {
   const { store } = ctx;
 
@@ -126,14 +155,10 @@ export function createStoryReviewHandlers(ctx: HandlerContext) {
       // three sibling diagnostics sites (machine.ts, phase-gates.ts,
       // proofstory.ts) — this was the one of four
       // tryBuildMaterialClassificationSnapshotForDiagnostics call sites left
-      // running from the bare metadata root on wrapper-root layouts.
-      let materialGitCwd: string | undefined;
-      try {
-        materialGitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-      } catch {
-        materialGitCwd = undefined;
-      }
-      const materialClassification = tryBuildMaterialClassificationSnapshotForDiagnostics(ctx.root, materialGitCwd);
+      // running from the bare metadata root on wrapper-root layouts. Extracted
+      // to buildStoryReviewMaterialClassification (R8 F-014) so the smoke can
+      // drive this exact site against a wrapper-root fixture.
+      const materialClassification = buildStoryReviewMaterialClassification(store, args.storyId, ctx.root);
 
       const issues: Array<{ type: string; severity: 'blocker' | 'advisory'; itemId?: string; message: string; legacyEvidenceWithoutIntent?: boolean; repairCommand?: string }> = [];
       const info: Array<{ type: string; message: string }> = [];

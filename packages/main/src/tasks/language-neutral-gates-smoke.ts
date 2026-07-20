@@ -104,6 +104,7 @@ import {
 } from '../handlers/validate-concept.js';
 import { proofStoryDiagnosticInput } from '../handlers/phase-gates.js';
 import { renderReproFirstStoryCreatePreflight } from '../handlers/story-create.js';
+import { buildStoryReviewMaterialClassification } from '../handlers/story-review.js';
 import { resetConfigCache } from '../core/config.js';
 import type { ProcessEvent } from '../core/types.js';
 
@@ -1265,12 +1266,46 @@ check('R7-d: a BARE buildMaterialClassificationSnapshot(projectRoot) — no gitC
   assert.equal(snap.files.some((f) => f.path.includes('sibling') || f.path.includes('outside')), false, 'outside-project files are dropped through the safe default');
 });
 
+// ── R8 (quality F-014): the story_review diagnostic-input builder must engage the
+// wrapper-root translation through the SAME production call shape — the sibling
+// site R7 was fixed at but had no smoke coverage until now. ──
+
+check('R8-a: story_review diagnostic builder (buildStoryReviewMaterialClassification, production call shape, NO manual gitCwd) resolves the wrapper git root via resolveGitCwd and translates — the deleted bin/tool script is material at its PROJECT-relative path, the project-relative exclusion applies', () => {
+  const { root, projectRoot } = makeR7WrapperFixture();
+  // Minimal story-backed store, identical shape to R7-a: resolveGitCwd inside the
+  // builder resolves the signed workspace THROUGH this store (metadata-git-root
+  // probe → the wrapper git toplevel), never a second resolver.
+  const store = {
+    readStory: () => ({ storyId: 'B-lng-wrap3', phase: 'DEV', type: 'bug', priority: 'medium', riskSignals: [] }),
+    readChecklist: () => r7Checklist,
+    storyDirPath: (id: string) => join(projectRoot, '.lattice', 'story', 'actives', id),
+  } as any;
+  // In production ctx.root IS the metadata root (== projectRoot on a wrapper-root
+  // layout). The pre-R7 form passed that bare root AS the gitCwd; the fixed form
+  // threads resolveGitCwd so the snapshot enumerates/translates in the git-root
+  // namespace. The negative control below reverts THIS site and reproduces the
+  // untranslated `project/…` misclassification.
+  const snap = buildStoryReviewMaterialClassification(store, 'B-lng-wrap3', projectRoot);
+  assert.ok(snap, 'the diagnostic snapshot builds (fail-safe undefined is only for a resolver/policy throw)');
+  assert.equal(
+    snap!.gitCwd,
+    git(root, ['rev-parse', '--show-toplevel']),
+    'resolveGitCwd resolved the WRAPPER git toplevel, not the bare metadata/projectRoot (the pre-R7 root-as-gitCwd form records projectRoot here)',
+  );
+  const toolFile = snap!.files.find((f) => f.path === 'bin/tool');
+  assert.ok(toolFile, 'the deleted script is present at its PROJECT-relative path bin/tool (not the untranslated project/bin/tool)');
+  assert.equal(toolFile!.materialCode, true, 'the deleted wrapper-root bin/tool script classifies material through the story_review diagnostic builder');
+  const legacyFile = snap!.files.find((f) => f.path === 'legacy/old.py');
+  assert.ok(legacyFile && legacyFile.materialCode === false && legacyFile.reason === 'config excludePaths', 'the project-relative excludePaths entry applies through the story_review diagnostic builder');
+  assert.equal(snap!.files.some((f) => f.path.startsWith('project/')), false, 'no path is left in the untranslated git-root namespace (project/…)');
+});
+
 for (const root of tempRoots) {
   try { rmSync(root, { recursive: true, force: true }); } catch { /* best effort cleanup */ }
 }
 
 if (failures === 0) {
-  console.log('\nlanguage-neutral-gates smoke passed (38 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks + 2 R4 fix-round production-boundary checks + 3 R5 fix-round production-boundary checks + 2 R6 wrapper-root path-namespace checks + 4 R7 production-call-shape wrapper-root checks)');
+  console.log('\nlanguage-neutral-gates smoke passed (39 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks + 2 R4 fix-round production-boundary checks + 3 R5 fix-round production-boundary checks + 2 R6 wrapper-root path-namespace checks + 4 R7 production-call-shape wrapper-root checks + 1 R8 story-review diagnostic-builder wrapper-root check)');
 } else {
   console.error(`\nlanguage-neutral-gates smoke FAILED (${failures})`);
   process.exit(1);
