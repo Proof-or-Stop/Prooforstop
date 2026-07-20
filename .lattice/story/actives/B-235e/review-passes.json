@@ -2728,6 +2728,60 @@
       },
       "readDiagnostics": [],
       "_hash": "e78322fabbc9c873322f84264562e523d349685d2e434a2adb3e1a9a669f412c"
+    },
+    {
+      "id": "B-235e:RP-073",
+      "agent": "lattice-review-concept",
+      "note": "Round-25 BUG-002 concept review found no blocker. Commit 98173017e5 canonicalizes only fullTaskSemanticDigest phase to the REVIEW producer phase; buildFullTaskContext and the exact assembled prompt retain the truthful actual phase (fresh RR-117 prompt contains phase REVIEW). All other model-relevant fields remain in the canonical digest object, so title, description, priority, checklist including verificationIntent, and scope changes remain fail-closed. The production REVIEW-to-TEST regression proves a signed REVIEW envelope/pass remains valid through mandatory TEST metadata and is accepted by the shared collectReviewerEvidenceState DONE oracle, while legacy phase-sensitive digest mutation fails and title/checklist mutations are rejected. Current real ReviewRun signature and verifyReviewRunPromptEnvelope returned true/{ok:true}; process-fact L4 registry/verifier/docs name the normalization and shared REVIEW/quorum/DONE/done_prepare boundary. No non-metadata changes follow 98173017e5 and no concept residue or promised-but-undelivered behavior was found.",
+      "createdAt": "2026-07-20T16:31:25.831Z",
+      "reviewRound": "2026-07-20T16:18:48.131Z",
+      "reviewRunId": "B-235e:RR-117",
+      "envelopeId": "ad672add8a668691fafb65a8030402b69dae6bb0c16f37b1e61966212b22eb36",
+      "writerSessionId": "concept-b235e-r25-rr117",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "2698744167b94597f9134be776ec9fb4989741d4332802364df6f03409716e06"
+      },
+      "readDiagnostics": [],
+      "_hash": "e0ef14c914ea163bc64fb9584832e65735b5697221fbc97790090f89f2217cb6"
     }
   ]
 }
