@@ -5,7 +5,7 @@
       "desc": "experiments/role-prompt-ab-replay/story6-live.mjs:246-294 and packages/main/src/tasks/story6-production-dispatch-smoke.ts:40-75 still do not provide the required real A/B acceptance. The live script only selfchecks unless an external operator runs every serialized provider cell and leaves runtime receipts; the production smoke invokes agent_prompt only for the modular arm and never constructs/runs the legacy arm or provider usage/cache/latency pair. CHK-003 explicitly requires five production legacy/modular pairs, and unavailable dimensions may be INCONCLUSIVE but cannot be replaced by an unexecuted campaign.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-20T22:12:04.750Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-407c:RR-007",
       "_hash": "5cbd928e2a0078e28cf0c0766dc5649c7b23f3e2eb4ed27befe6f43f5a4d8962",
       "signatureTag": "missing|unknown|experiments-role-prompt",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7e9cd27bcf: production-dispatch smoke now runs paired legacy role-only and story-aware modular agent_prompt arms for all five roles and records provider A/B as INCONCLUSIVE when no provider is available; build and smoke pass.",
+      "resolvedAt": "2026-07-20T22:15:10.995Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-407c:F-002",
