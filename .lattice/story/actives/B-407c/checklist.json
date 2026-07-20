@@ -196,9 +196,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-20T21:49:13.827Z",
-      "endTime": null,
+      "endTime": "2026-07-20T21:49:15.870Z",
       "userSees": "用户看到五行 \"role=<role> legacy=<digest> modular=<digest> providerUsage=<value|INCONCLUSIVE> cache=<value|INCONCLUSIVE> latency=<value|INCONCLUSIVE> receipt=valid\"。",
       "files": {
         "modify": [
@@ -239,6 +239,44 @@
       "excludes": [
         "synthetic-only envelope loops counted as real dispatch A/B",
         "zero-filled unavailable provider dimensions"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-ab-dispatch-smoke.js",
+          "result": "pass",
+          "note": "五个 complex roles 各生成 legacy/modular 两臂共 10 条 content-addressed receipt；本地 harness 不调用 provider，provider usage/cache/latency 明确记录 unavailable，outcome=INCONCLUSIVE，不伪称 real provider A/B。",
+          "headHash": "eaa486bb6d060c0962597c7eeb77e6424609dad2",
+          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
+          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
+          "timestamp": "2026-07-20T21:49:16.224Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-ab-dispatch-smoke.js",
+          "result": "pass",
+          "note": "每个角色两臂均保留 assembledPromptBytes/estimatedTokens；不可用 provider 维度不是零值而是 INCONCLUSIVE/unavailable(reason)。",
+          "headHash": "eaa486bb6d060c0962597c7eeb77e6424609dad2",
+          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
+          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
+          "timestamp": "2026-07-20T21:49:16.648Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-ab-dispatch-smoke.js",
+          "result": "pass",
+          "note": "smoke 严格断言每角色恰有 legacy+modular 两臂及 schemaVersion，避免重复/伪造 receipt 进入汇总。",
+          "headHash": "eaa486bb6d060c0962597c7eeb77e6424609dad2",
+          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
+          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
+          "timestamp": "2026-07-20T21:49:17.188Z"
+        }
       ]
     },
     {
