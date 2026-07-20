@@ -2947,6 +2947,42 @@
       },
       "readDiagnostics": [],
       "_hash": "1b969c352b8f82129ea4168f2fe60a3d8e50048cefede9513b231878fc1d82b0"
+    },
+    {
+      "id": "B-235e:RP-078",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-26 coverage review passed on material beeaded9/storyFiles e09d9ef: current executed routine validation is 46/46 PASS and all 48 required verification intents are covered with zero gaps or waivers. Focused cutoff-verifier-only rerun passed. The real dispatch/review_run_start/review_pass_set A/B/C path keeps B bound to A after later C and proves the no-cutoff mutation bite. REVIEW and TEST alone share the task semantic digest; DEV, DONE, DISCARDED, and malformed/unknown phases each fail direct verifier and shared DONE-oracle checks and remain distinct, while title/checklist mutations fail closed. The default 20-loop smoke was neither run nor claimed.",
+      "createdAt": "2026-07-20T16:54:39.610Z",
+      "reviewRound": "2026-07-20T16:37:55.531Z",
+      "reviewRunId": "B-235e:RR-122",
+      "envelopeId": "cb88cbbc1ba45327d9dfffd7549b221e57d8c0b7ecfd875ee792b7a44e0b4606",
+      "writerSessionId": "sess-b235e-coverage-r26-20260720",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/bug.json",
+          ".lattice/story/actives/B-235e/findings.json",
+          ".lattice/story/actives/B-235e/test-evidence.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Targeted final coverage re-review of F-028 phase-equivalence repair, focused production cutoff regression, and current structured validation/intent evidence; no decisions-directory escalation was required."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "693e03f8ace461a75b1ed529e6320e726c0c06ae60facbe349163ee9b3f36065"
     }
   ]
 }
