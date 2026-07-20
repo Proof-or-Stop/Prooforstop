@@ -83,7 +83,7 @@ async function main() {
     if (key && byKey.has(key)) provenanceErrors.push(`${index}: duplicate cell key`);
     if (key) byKey.set(key, row);
   }
-  const receiptCellIds = receipts.map(row => row.cell.cellId);
+  const receiptCellIds = receipts.map(row => row?.cell?.cellId).filter(cellId => typeof cellId === 'string');
   if (new Set(receiptCellIds).size !== receiptCellIds.length) throw new Error('duplicate receipt cellId');
   const missingCells = expectedKeys().filter(key => !byKey.has(key));
   const unavailableDimensions = [];

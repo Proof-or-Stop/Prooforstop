@@ -26,8 +26,9 @@ async function runRejected(name, mutate, duplicate = false) {
   const files = await readdir(runtime).catch(() => []);
   await Promise.all(files.filter(file => file.startsWith(`${campaignId}.`)).map(file => rm(path.join(runtime, file), { force: true })));
   const first = base();
+  const firstFileCellId = first.cell.cellId;
   mutate(first);
-  await writeFile(path.join(runtime, `${campaignId}.${first.cell.cellId}.json`), `${JSON.stringify(first)}\n`);
+  await writeFile(path.join(runtime, `${campaignId}.${firstFileCellId}.json`), `${JSON.stringify(first)}\n`);
   if (duplicate) {
     const second = base();
     second.cell.cellId = `${second.cell.cellId}.duplicate`;
@@ -37,6 +38,24 @@ async function runRejected(name, mutate, duplicate = false) {
     exec(process.execPath, [path.join(here, 'story6-analyze.mjs'), `--campaign-id=${campaignId}`]),
     error => /RECEIPT_PROVENANCE_INVALID/.test(error?.stdout ?? ''),
     `mutation ${name} must be rejected`,
+  );
+}
+
+async function runBindingMismatchRejected() {
+  const files = await readdir(runtime).catch(() => []);
+  await Promise.all(files.filter(file => file.startsWith(`${campaignId}.`)).map(file => rm(path.join(runtime, file), { force: true })));
+  const first = base();
+  const second = base();
+  second.cell.repeat = 2;
+  second.cell.cellId = second.cell.cellId.replace(/\.r1$/, '.r2');
+  second.campaignBindingDigest = 'c'.repeat(64);
+  await writeFile(path.join(runtime, `${campaignId}.${first.cell.cellId}.json`), `${JSON.stringify(first)}\n`);
+  await writeFile(path.join(runtime, `${campaignId}.${second.cell.cellId}.json`), `${JSON.stringify(second)}\n`);
+  await assert.rejects(
+    exec(process.execPath, [path.join(here, 'story6-analyze.mjs'), `--campaign-id=${campaignId}`]),
+    error => /RECEIPT_PROVENANCE_INVALID/.test(error?.stdout ?? '')
+      && /campaignBindingDigest mismatch/.test(error?.stdout ?? ''),
+    'valid-looking receipts from different campaign bindings must be rejected',
   );
 }
 
@@ -57,10 +76,12 @@ try {
     ['productionProvenance', row => { row.provenance.kind = 'synthetic-forged'; }],
     ['observedAt', row => { row.observedAt = 'not-a-date'; }],
     ['staleReceipt', row => { delete row.observedAt; }],
+    ['missingCell', row => { delete row.cell; }],
   ];
   for (const [name, mutate] of mutations) await runRejected(name, mutate);
   await runRejected('duplicate-cell-key', row => { row.cell.cellId = baseCell.cellId; }, true);
-  console.log(`story6-analyze-selfcheck: PASS (${mutations.length + 1} receipt mutations rejected)`);
+  await runBindingMismatchRejected();
+  console.log(`story6-analyze-selfcheck: PASS (${mutations.length + 2} receipt mutations rejected)`);
 } finally {
   const files = await readdir(runtime).catch(() => []);
   await Promise.all(files.filter(file => file.startsWith(`${campaignId}.`)).map(file => rm(path.join(runtime, file), { force: true })));
