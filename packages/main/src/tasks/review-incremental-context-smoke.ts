@@ -61,6 +61,13 @@ import {
   fixtureCaseClosure,
   reviewIncrementalContext,
 } from '../core/review-incremental-context.js';
+import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
+import { assembleFullPromptEnvelope } from '../core/prompt-envelope.js';
+import {
+  promptRoleContract,
+  resolvePromptRoleBody,
+  reviewerHostRenderIdentity,
+} from '../core/prompt-role-contract-registry.js';
 import { canPassReviewGuard, type StoryMachineContext } from '../core/machine.js';
 import { resetConfigCache } from '../core/config.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
@@ -70,6 +77,7 @@ import {
 } from '../core/evidence-freshness.js';
 import {
   collectReviewerEvidenceState,
+  signReviewRun,
   verifyReviewRun,
   verifyReviewRunPromptEnvelope,
 } from '../core/review-run.js';
@@ -138,6 +146,7 @@ interface FixtureStoreInput {
   scopeContract?: unknown | null;
   reviewLoopRecords?: unknown[];
   checklistItems?: unknown[];
+  promptEnvelopes?: unknown[];
 }
 
 function buildFixtureStore(input: FixtureStoreInput): StoryStore {
@@ -156,6 +165,7 @@ function buildFixtureStore(input: FixtureStoreInput): StoryStore {
     readScopeContract: (storyId: string) => { guard(storyId); return (input.scopeContract ?? null) as never; },
     readReviewLoopRecords: (storyId: string) => { guard(storyId); return (input.reviewLoopRecords ?? []) as never; },
     readChecklist: (storyId: string) => { guard(storyId); return { items: input.checklistItems ?? [] } as never; },
+    readPromptEnvelopes: (storyId: string) => { guard(storyId); return { envelopes: input.promptEnvelopes ?? [] } as never; },
     readDecision: (storyId: string) => { guard(storyId); return null as never; },
     readUnderstanding: (storyId: string) => { guard(storyId); return null as never; },
   } as unknown as StoryStore;
@@ -328,6 +338,68 @@ function buildIncrementalRepo(): { root: string; baseSha: string; headSha: strin
   const headSha = currentGitHead(root)!;
 
   return { root, baseSha, headSha };
+}
+
+function trustedReviewEvidence(storyId: string, role: string, runId: string, startedAt: string, passAt: string, boundHeadHash: string) {
+  const rollout = { version: 'proofbound.prompt-envelope-rollout.v1', roles: { [role]: 'full-envelope' } };
+  const roleBody = resolvePromptRoleBody(role, rollout).body;
+  const dispatchPrompt = `As ${role}, review story ${storyId} in full.`;
+  const host = reviewerHostRenderIdentity(process.cwd(), role, 'codex', 'full-envelope');
+  const headHash = boundHeadHash;
+  const materialHash = 'b'.repeat(64);
+  const storyFilesHash = 'c'.repeat(64);
+  const envelopeResult = assembleFullPromptEnvelope({
+    roleContract: promptRoleContract(role),
+    runtimeContract: BASELINE_RUNTIME_CONTRACT,
+    rolePrompt: roleBody,
+    taskContext: {
+      schemaVersion: 'proofbound.full-task-context.v1', storyId, title: 'cutoff regression',
+      description: 'Bind prior review evidence to its signed run start.', phase: 'REVIEW', priority: 'high',
+      checklist: [{ id: 'CHK-001', title: 'Bind', status: 'done', relatedDocs: [], files: { modify: ['src/feature.ts'], create: [], test: [] },
+        verificationIntent: { happy: [{ id: 'CHK-001:happy:0', desc: 'Cutoff is respected.', type: 'logic' }], edge: [], adversarial: [] } }],
+      headHash, materialHash, storyFilesHash,
+    },
+    dispatchKind: 'review-run', reviewRunId: runId, reviewRound: 'round-1', lane: role,
+    dispatchPrompt, hostRenderIdentityDigest: host.identityDigest, createdAt: startedAt,
+  });
+  const run: ReviewRun = { reviewRunId: runId, storyId, agent: role, lane: role, reviewRound: 'round-1', startedAt,
+    headHash, materialHash, storyFilesHash, promptHash: envelopeResult.envelope.assembledPromptDigest,
+    envelopeId: envelopeResult.envelope.envelopeId, assembledPrompt: envelopeResult.prompt };
+  run._hash = signReviewRun(storyId, runId, role, role, 'round-1', startedAt, headHash, materialHash,
+    run.promptHash, undefined, undefined, storyFilesHash, run.envelopeId);
+  const pass = signedPass(storyId, `${runId}:PASS`, role, passAt, 'round-1');
+  pass.reviewRunId = runId;
+  pass.envelopeId = run.envelopeId;
+  pass.writerSessionId = `${runId}-session`;
+  pass.sessionSource = 'smoke';
+  pass._hash = signReviewPass(storyId, pass.id, pass.agent, pass.note, pass.createdAt, pass.reviewRound || '', runId,
+    undefined, undefined, undefined, { writerSessionId: pass.writerSessionId, sessionSource: pass.sessionSource }, run.envelopeId);
+  return { run, pass, envelope: envelopeResult.envelope };
+}
+
+function runTemporalCutoffRegression(root: string): void {
+  const storyId = 'B-f675';
+  const role = 'lattice-review-quality';
+  const story = reviewStory(storyId, 2, 'round-1');
+  const boundHeadHash = currentGitHead(root)!;
+  const a = trustedReviewEvidence(storyId, role, 'RR-A', ts(5), ts(6), boundHeadHash);
+  const b = trustedReviewEvidence(storyId, role, 'RR-B', ts(20), ts(21), boundHeadHash);
+  const c = trustedReviewEvidence(storyId, role, 'RR-C', ts(30), ts(31), boundHeadHash);
+  const store = buildFixtureStore({ story, runs: [a.run, b.run, c.run], passes: [a.pass, b.pass, c.pass],
+    promptEnvelopes: [a.envelope, b.envelope, c.envelope] });
+  const asOfB = reviewIncrementalContext(store, root, storyId, role, {
+    excludedReviewRunId: b.run.reviewRunId, passesCutoffAt: b.run.startedAt,
+  });
+  assert.equal(asOfB.priorPassRef, a.pass.id, 'A-before-B is the only eligible prior pass for B');
+  assert.equal(asOfB.priorReviewRunId, a.run.reviewRunId, 'B must bind to A, never the later C pass');
+  const withoutCutoff = reviewIncrementalContext(store, root, storyId, role, { excludedReviewRunId: b.run.reviewRunId });
+  assert.equal(withoutCutoff.priorPassRef, c.pass.id, 'mutation bite: removing cutoff must select later C');
+  assert.notEqual(asOfB.eligibilityDigest, withoutCutoff.eligibilityDigest, 'cutoff changes authoritative eligibility digest');
+  const equal = trustedReviewEvidence(storyId, role, 'RR-EQUAL', ts(20), ts(20), boundHeadHash);
+  const equalStore = buildFixtureStore({ story, runs: [a.run, equal.run], passes: [a.pass, equal.pass], promptEnvelopes: [a.envelope, equal.envelope] });
+  const equalAsOfB = reviewIncrementalContext(equalStore, root, storyId, role, { passesCutoffAt: ts(20) });
+  assert.equal(equalAsOfB.priorPassRef, a.pass.id, 'equal-timestamp pass is fail-closed and excluded');
+  console.log(`${MARKER} TEMPORAL CUTOFF: A-before-B selected; C-after-B and equal-timestamp passes excluded; mutation bite confirmed`);
 }
 
 function assertLargeDiffReviewMetadataStability(): void {
@@ -509,6 +581,7 @@ function runIncrementalCases(): void {
       console.log(`${MARKER} (e) INVALID BOUND RUN: isFirstPass=true, priorHeadHash=null, contextMode=full, full diff changedFiles=${JSON.stringify(ctx.changedFiles)}`);
     }
 
+    runTemporalCutoffRegression(root);
     void headSha; // headSha is HEAD; referenced for clarity in fixture wiring above.
   } finally {
     rmSync(root, { recursive: true, force: true });
