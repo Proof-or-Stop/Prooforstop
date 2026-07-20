@@ -363,7 +363,7 @@
       "desc": "packages/main/src/handlers/review-run.ts:207-209 and packages/main/src/core/review-run.ts:729-742: prior-pass cutoff is applied only during verifier recomputation, not during the authoritative assembly call. review_run_start captures startedAt before snapshot/scope work, then calls reviewIncrementalContext with only findingsCutoffAt; a concurrent same-lane review_pass_set created after startedAt but before that call can become the assembled priorPassRef. Later verification recomputes with passesCutoffAt=run.startedAt, excludes that pass, and rejects the freshly created run. Thread passesCutoffAt: startedAt into the production assembly call and add a deterministic concurrent/post-cutoff regression proving assembly and recomputation choose the same prior pass.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-19T23:58:03.324Z",
@@ -371,7 +371,11 @@
       "reviewRunId": "B-235e:RR-069",
       "_hash": "594e6890cda97efd9c5b155b4000ef0e8d98cfa2edc78b0453bdcba5dc1ee9c4",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 39d6c313e1 and 22c3cc15e2: producer/verifier use signed startedAt cutoff; equal timestamps fail closed; temporal smoke proves A/B/C and mutation bite; build and focused smokes pass.",
+      "resolvedAt": "2026-07-20T00:14:52.346Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-017",
