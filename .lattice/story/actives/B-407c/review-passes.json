@@ -408,6 +408,34 @@
         "scanEscalationReason": null
       },
       "_hash": "5a9cb69f757430960d43dc9eff5f32cccdd92e4f14f3c925972334fd0d985618"
+    },
+    {
+      "id": "B-407c:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Fresh current-HEAD concept review completed from the trusted incremental basis. No material concept deletion or rename was introduced after RP-010; modular migration, legacy reconstruction, compatibility references, and Story 7 exclusion remain unchanged and intentional. No concept-residue blocker found.",
+      "createdAt": "2026-07-20T22:25:58.591Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-024",
+      "envelopeId": "765dd4645aa76b3e413c73a53745b7d49b9274669276031a5510eb9b89463ae9",
+      "writerSessionId": "sess-6049ab32b2a270dcbcd45c1b536ae028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "scanEscalationReason": "Incremental basis reports no changed files; prior full concept scan remains applicable."
+      },
+      "_hash": "22a420418c36f61e84e57629c3a41f2a982dd7295803ec31049d79f0db31c69a"
     }
   ]
 }
