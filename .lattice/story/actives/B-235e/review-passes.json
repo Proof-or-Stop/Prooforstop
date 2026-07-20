@@ -1930,6 +1930,61 @@
       },
       "readDiagnostics": [],
       "_hash": "5a816303f71e7ca15e35b2cd2af5bdec55f29eed4a04362445937c9acf09be56"
+    },
+    {
+      "id": "B-235e:RP-058",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-20 final test-coverage re-attestation passed at cf021e7. Canonically refreshed evidence covers all 48/48 required intents across four completed checklist items, with 0 failing and 0 waivers. Fresh routine validation artifact is disposition=executed, commandExecutions=46, status=pass, allPass=true, and reports verification coverage 48 required/48 covered/0 missing. Its storyFilesHash a3e0101d5ba22c23a545b4db8990d895e77b1224ab768666f0cb3fff1547a194 matches the latest reviewer task context; no non-story-metadata files changed after the timeout-only commit. No coverage blocker.",
+      "createdAt": "2026-07-20T12:16:54.134Z",
+      "reviewRound": "2026-07-20T11:52:00.521Z",
+      "reviewRunId": "B-235e:RR-099",
+      "envelopeId": "31de58c0bc8047b792049b3d2df226e6bc973c599fd1a18898ca72e8e3752c9b",
+      "writerSessionId": "sess-b235e-coverage-r20-final-20260720",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          ".lattice/story/actives/B-235e/test-evidence.json",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "e74bc024b6cfd298244a45f6e3aa244546ff4803a5ef24719909ba076e18392a"
+      },
+      "readDiagnostics": [],
+      "_hash": "97639062d31c3c59f09f6a86b559e79be4b80ef2d80210ea8b33c184a9e5f72f"
     }
   ]
 }
