@@ -94,15 +94,20 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
-      "status": "done",
+      "status": "pending",
       "startTime": "2026-07-20T21:43:17.964Z",
       "endTime": "2026-07-20T21:43:19.941Z",
-      "userSees": "用户看到复杂角色 prompt budget 的 observe/warn 结果和结构化 budget violation；即使超限，系统仍继续完整 correctness review。",
+      "userSees": "用户看到预算内为 \"budgetViolation=none\"；超限为 \"budgetViolation=full fullExecuted=true baselineAccepted=false\"，不会出现 blocking/enforce 或 Story 7 rollout。",
       "files": {
         "modify": [
           "packages/main/src/core/prompt-budget.ts",
-          "packages/main/src/handlers/dispatch.ts",
-          "packages/main/src/core/review-run.ts"
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/evaluate.ts"
         ],
         "create": [],
         "test": [
@@ -112,21 +117,21 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "预算内 prompt 记录 usage 与预算状态并继续 dispatch",
+            "desc": "预算内复杂角色 dispatch 记录 bytes/tokens/limit 且正常完成",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "预算超限只记录 violation/reason，不阻塞 full review",
+            "desc": "超预算记录 full violation、继续完整 correctness dispatch，并明确 baselineAccepted=false",
             "type": "logic",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "将 warn 误改为 blocking gate 时回归测试失败",
+            "desc": "把 violation 改为 blocking、enforce、Story 7 warn-promotion 或 baselineAccepted=true 时回归测试失败",
             "type": "logic",
             "priority": "must"
           }
@@ -169,6 +174,11 @@
           "storyFilesHash": "48cae0452d8dd0b724de3a7574a848c149208e3d1343dc3ff244e0927180f6f7",
           "timestamp": "2026-07-20T21:43:21.334Z"
         }
+      ],
+      "excludes": [
+        "Story 7 legacy asset isolation",
+        "Story 7 observe-to-warn rollout promotion",
+        "any budget enforce gate"
       ]
     },
     {
@@ -261,6 +271,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-20T21:46:09.774Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "pending",
+      "reason": "Human clarified strict /tmp Story 6 scope; observe/warn wording means nonblocking observation only and does not authorize Story 7 promotion."
     }
   ]
 }

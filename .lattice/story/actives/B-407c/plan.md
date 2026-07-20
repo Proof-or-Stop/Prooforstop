@@ -1,26 +1,16 @@
-"# Story 6 execution plan
+# Story 6 execution plan
 
 ## CHK-001
-- Inspect frozen Story 1 registry and Story 2 trusted full-context assembly.
-- Migrate story-init, scope-plan, implementer, delivery, and evaluator assets to existing modular Prompt Envelope producer path.
-- Preserve role/status semantics, Task Context schema, permission checks, and signed run bindings.
+Generalize the existing trusted story-dispatch Prompt Envelope path to exactly story-init, scope-plan, implementer, delivery, and evaluator. Preserve registry status, authority, Task Context schema, dispatchKind=story-dispatch, and exact legacy rollback. Persist content-addressed envelope/receipt audit facts without granting REVIEW evidence.
 
 ## CHK-002
-- Apply complex-role prompt budgets from the decision document.
-- Implement observe/warn: record structured budget violation and reason when over budget while retaining full correctness review.
-- Verify under-budget and over-budget paths and prove warning cannot become a blocking gate.
+Apply the temporary complex-role byte budgets from Story 6. Under budget records a normal observation. Over budget records a structured violation, continues the full correctness dispatch, and sets baseline acceptance false. Do not introduce Story 7 observe-to-warn promotion or any blocking/enforce branch.
 
 ## CHK-003
-- Run one real dispatch A/B comparison for each migrated role against the legacy/full path.
-- Record prompt path, output, provider usage/cache/latency where available, and explicit INCONCLUSIVE values for unavailable provider dimensions.
-- Reject duplicate, forged, or role-mismatched receipts.
+Execute real legacy-versus-modular dispatch A/B for all five roles through production entrypoints. Bind each pair to role, prompt/envelope digests, output, provider usage/cache/latency when available, and explicit INCONCLUSIVE values when unavailable. Reject duplicate, forged, stale, or wrong-role receipts.
 
 ## CHK-004
-- Verify delivery promises, scope-gap classification, implementer author, evaluator evidence, permission-gated mutations, signed runs, and Task Context digest binding.
-- Exercise happy, missing-evidence, invalid-signature, unauthorized-mutation, and wrong-context cases.
-- Record evidence for each checklist intent and delivery/review artifacts needed for TEST and DONE.
+Mechanically verify delivery promises, scope gaps, implementer commit author, evaluator evidence, mutation authority, signatures, Task Context binding, and the inability of story-dispatch envelopes to mint REVIEW evidence. Register every new gate-consumed fact and process-contract assertion.
 
 ## Out of scope
-- Story 7 budget enforce promotion and any enforce gate.
-- Changes to Task Context schema or role status definitions.
-- Rewriting Story 1/2/5 shared Prompt Envelope, review, or closeout contracts beyond integration fixes required by this migration."
+Story 7 legacy asset isolation, observe-to-warn promotion, compatibility cleanup, and all budget enforce decisions are excluded. Task Context schema and role status/authority are frozen.
