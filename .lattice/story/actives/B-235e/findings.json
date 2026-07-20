@@ -499,7 +499,7 @@
       "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:254-263 and scripts/verify-process-fact-contract.mjs:5225-5227: F-016 functional code path is now aligned, but the claimed regression test does not exercise the failure mode. It calls reviewIncrementalContext with a current cutoff and asserts only that the returned role string is unchanged; it never constructs a valid pass after/equal to the cutoff and never asserts priorPassRef/eligibility digest or assembly-versus-verifier identity. The process-fact check is source-string presence only. Add a deterministic behavioral case with a pre-cutoff valid pass plus post-cutoff and equal-timestamp valid passes, asserting both assembly and recomputation select the same pre-cutoff priorPassRef and the resulting ReviewRun verifies.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-20T00:05:09.045Z",
@@ -507,7 +507,11 @@
       "reviewRunId": "B-235e:RR-074",
       "_hash": "35c688e29dd3db77d55d4a85968fcfee248b56d083c520b238d629b8381c0d42",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 39d6c313e1 and 22c3cc15e2: producer/verifier use signed startedAt cutoff; equal timestamps fail closed; temporal smoke proves A/B/C and mutation bite; build and focused smokes pass.",
+      "resolvedAt": "2026-07-20T00:15:04.735Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-023",
