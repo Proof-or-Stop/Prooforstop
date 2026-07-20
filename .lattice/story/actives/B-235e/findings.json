@@ -469,6 +469,44 @@
       "_hash": "f2172f77bbe35495201183fae87f7e8f25745aec5787334cffa03ab05f7b3f52",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-022",
+      "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:254-263 and scripts/verify-process-fact-contract.mjs:5225-5227: F-016 functional code path is now aligned, but the claimed regression test does not exercise the failure mode. It calls reviewIncrementalContext with a current cutoff and asserts only that the returned role string is unchanged; it never constructs a valid pass after/equal to the cutoff and never asserts priorPassRef/eligibility digest or assembly-versus-verifier identity. The process-fact check is source-string presence only. Add a deterministic behavioral case with a pre-cutoff valid pass plus post-cutoff and equal-timestamp valid passes, asserting both assembly and recomputation select the same pre-cutoff priorPassRef and the resulting ReviewRun verifies.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-20T00:05:09.045Z",
+      "reviewRound": "2026-07-19T23:55:41.162Z",
+      "reviewRunId": "B-235e:RR-074",
+      "_hash": "35c688e29dd3db77d55d4a85968fcfee248b56d083c520b238d629b8381c0d42",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-023",
+      "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:254-261 does not satisfy F-018 regression proof. It merely calls reviewIncrementalContext with passesCutoffAt=new Date().toISOString() and asserts the returned role identity; it never creates an earlier valid baseline pass plus a later pass, never asserts priorPassRef remains bound to the earlier pass, and never exercises the equal-createdAt/run.startedAt fail-closed boundary added in review-incremental-context.ts. scripts/verify-process-fact-contract.mjs only checks that the source text contains passesCutoffAt, so both checks pass even if cutoff comparison semantics regress. Production assembly, verifier wiring, and L4 rationale are now aligned, but F-018 explicitly required behavioral cutoff coverage because this exact gap caused DONE self-invalidation. Keep F-018 open and replace/extend the smoke with assertions that (1) pre-cutoff valid pass is selectable, (2) post-cutoff later pass cannot change priorPassRef/eligibilityDigest for the signed run, and (3) equal timestamp is excluded; make the contract verifier assert stable behavioral test anchors rather than token presence alone.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-20T00:05:09.381Z",
+      "reviewRound": "2026-07-19T23:55:41.162Z",
+      "reviewRunId": "B-235e:RR-075",
+      "_hash": "3df083676234d66e9ab3778b147483fae7818b2ae28fe69b066138e83b06c2ae",
+      "files": [
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
