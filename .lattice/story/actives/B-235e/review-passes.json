@@ -895,6 +895,43 @@
         "scanEscalationReason": null
       },
       "_hash": "e13f141b8005f5d41bf4eb5473621492d2e4a08cdfec3ca7b97a7809c575ff62"
+    },
+    {
+      "id": "B-235e:RP-038",
+      "agent": "lattice-review-docs",
+      "note": "Fresh docs/process review passed for cutoff fix through HEAD 22c3cc15e2 plus current reviewer metadata. Production review_run_start assembly and verifyReviewRunPromptEnvelope both bind prior-pass selection to the signed run startedAt; equal timestamps fail closed; runtime:incremental_review_eligibility_gate documents the L4 temporal binding; process-fact verifier checks production/verifier/smoke wiring. The behavioral smoke passed with A-before-B selected, C-after-B and equal-timestamp passes excluded, and a mutation bite proving removal of cutoff changes priorPassRef/eligibilityDigest. Step 1 extracted 2 new non-exported smoke helper symbols (trustedReviewEvidence and runTemporalCutoffRegression); Step 2 found 0 documentation paragraphs referencing them. Existing decision prose already requires immutable Envelope eligibility and authoritative recomputation, so no docs change is justified. No current blocker remains in this lane.",
+      "createdAt": "2026-07-20T00:14:14.296Z",
+      "reviewRound": "2026-07-19T23:55:41.162Z",
+      "reviewRunId": "B-235e:RR-080",
+      "envelopeId": "9c1fbcfb57611f5c59344ac662ee2100fa942aad5111aa19185351f3bacfc0b2",
+      "writerSessionId": "sess-476100f59d979f9fd34feeeb69b7f272",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "5a2fc01a20129b62e771cab2c6ebcb8a823d026759aad9131d943dc5a7c23590"
     }
   ]
 }
