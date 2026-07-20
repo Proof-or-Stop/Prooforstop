@@ -1,10 +1,12 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const root = process.cwd();
-const storyId = 'B-407c';
+import { storyRuntimeLockPath } from '../core/runtime-artifact-registry.js';
+import { createAgentPromptHandlers } from '../handlers/agent-prompt.js';
+
 const roles = [
   'lattice-review-story-init',
   'lattice-review-scope-plan',
@@ -12,33 +14,62 @@ const roles = [
   'lattice-review-delivery',
   'lattice-evaluator',
 ];
-const lease = JSON.parse(readFileSync(join(root, '.lattice/story/actives', storyId, 'owner-lease.json'), 'utf8')) as { sessionId?: string };
-assert.match(lease.sessionId ?? '', /^sess-/);
-const env = { ...process.env, LATTICE_SESSION_ID: lease.sessionId };
-const run = (args: string[]) => {
-  const text = execFileSync('node', ['bin/lattice.js', ...args], { cwd: root, env, encoding: 'utf8' }).trim();
-  try { return JSON.parse(text) as any; } catch {
-    const lastLine = text.split('\n').at(-1) ?? text;
-    try { return JSON.parse(lastLine) as any; } catch { return text; }
+const budgeted = new Set(roles.filter(role => role !== 'lattice-evaluator'));
+const root = mkdtempSync(join(tmpdir(), 'story6-production-dispatch-'));
+try {
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: '.', testsDir: 'tests', fixturesDir: 'tests/fixtures',
+    storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+    promptEnvelope: {
+      version: 'proofbound.prompt-envelope-rollout.v1',
+      roles: Object.fromEntries(roles.map(role => [role, 'full-envelope'])),
+    },
+  }));
+  execFileSync('git', ['init', '-q'], { cwd: root });
+  execFileSync('git', ['config', 'user.email', 'story6@example.invalid'], { cwd: root });
+  execFileSync('git', ['config', 'user.name', 'Story 6 Smoke'], { cwd: root });
+  execFileSync('git', ['add', 'lattice.config.json'], { cwd: root });
+  execFileSync('git', ['commit', '-qm', 'initial'], { cwd: root });
+
+  const envelopes: any[] = [];
+  const events: any[] = [];
+  const storyDir = join(root, '.lattice', 'story', 'actives', 'B-story6-production');
+  mkdirSync(storyDir, { recursive: true });
+  const store = {
+    readStory: () => ({ storyId: 'B-story6-production', title: 'Story 6 production', description: 'Trusted entrypoint smoke', phase: 'DEV', priority: 'high' }),
+    readChecklist: () => ({ items: [{
+      id: 'CHK-001', title: 'Migrate roles', context: 'Story 6', status: 'in_progress', relatedDocs: [],
+      files: { modify: [], create: [], test: [] }, verificationIntent: { happy: [], edge: [], adversarial: [] },
+    }] }),
+    readScopeContract: () => null,
+    storyDirPath: () => storyDir,
+    storyFilePath: (_storyId: string, file: string) => join(storyDir, file),
+    runtimeLockDirPath: (storyId: string, category: string, name: string) => storyRuntimeLockPath(root, category, storyId, name),
+    readPromptEnvelopes: () => ({ envelopes }),
+    writePromptEnvelopes: (_storyId: string, data: { envelopes: any[] }) => envelopes.splice(0, envelopes.length, ...data.envelopes),
+    appendProcessEvent: (_storyId: string, event: any) => events.push(event),
+  };
+  const handlers = createAgentPromptHandlers({ root, scanRoot: root, store: store as never });
+  for (const role of roles) {
+    const response = JSON.parse(handlers.agent_prompt({ role, storyId: 'B-story6-production', format: 'json' }));
+    assert.equal(response.auditOnly, true);
+    assert.equal(response.canMintReviewEvidence, false);
+    assert.equal(response.envelope.roleId, role);
+    assert.equal(response.envelope.dispatchKind, 'story-dispatch');
+    assert.ok(envelopes.some(envelope => envelope.envelopeId === response.envelope.envelopeId));
+    const event = events.find(candidate => candidate.promptEnvelopeId === response.envelope.envelopeId);
+    assert.equal(event?.targetKind, 'story-dispatch');
+    if (budgeted.has(role)) {
+      assert.equal(response.promptBudget.mode, 'observe');
+      assert.equal(response.promptBudget.baselineAccepted, true);
+    } else {
+      assert.equal(response.promptBudget, undefined, 'evaluator is migrated but not budgeted by Story 6');
+      assert.equal(event?.promptBudget, undefined);
+    }
   }
-};
-const receipts = [] as Array<{ roleId: string; arm: string; envelopeId?: string; prompt?: string }>;
-for (const role of roles) {
-  const legacy = run(['agent_prompt', `--role=${role}`]);
-  assert.ok(typeof legacy === 'string' || typeof legacy.prompt === 'string');
-  receipts.push({ roleId: role, arm: 'legacy', prompt: typeof legacy === 'string' ? legacy : legacy.prompt });
-  const modular = run(['agent_prompt', `--role=${role}`, `--storyId=${storyId}`, '--format=json']);
-  assert.equal(modular.auditOnly, true);
-  assert.equal(modular.envelope.roleId, role);
-  assert.match(modular.envelope.envelopeId, /^[a-f0-9]{64}$/);
-  receipts.push({ roleId: role, arm: 'modular', envelopeId: modular.envelope.envelopeId, prompt: modular.prompt });
+  assert.equal(envelopes.length, roles.length, 'each migrated role has one durable content-addressed receipt');
+  assert.equal(events.length, roles.length, 'each receipt has an audit-only dispatch event');
+  console.log(`story6-production-dispatch-smoke: PASS (${roles.length} roles; isolated temp repository)`);
+} finally {
+  rmSync(root, { recursive: true, force: true });
 }
-const envelopes = JSON.parse(readFileSync(join(root, '.lattice/story/actives', storyId, 'prompt-envelopes.json'), 'utf8')) as { envelopes: Array<{ envelopeId: string; roleId: string }> };
-const events = readFileSync(join(root, '.lattice/story/actives', storyId, 'process-events.jsonl'), 'utf8');
-for (const role of roles) {
-  const receipt = receipts.find(row => row.roleId === role && row.arm === 'modular')!;
-  assert.ok(envelopes.envelopes.some(row => row.envelopeId === receipt.envelopeId && row.roleId === role));
-  assert.ok(receipt.envelopeId);
-  assert.match(events, new RegExp(receipt.envelopeId));
-}
-console.log(`story6-production-dispatch-smoke: PASS (${roles.length} roles; provider usage INCONCLUSIVE)`);
