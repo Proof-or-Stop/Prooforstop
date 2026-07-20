@@ -1,0 +1,35 @@
+{
+  "passes": [
+    {
+      "id": "B-407c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement is introduced in Story 6; migration adds modular complex-role assets while explicitly preserving legacy compatibility and excluding Story 7 cleanup. Diff and plan were scanned for replacement terminology and no residue blocker was found.",
+      "createdAt": "2026-07-20T21:52:00.634Z",
+      "reviewRound": "2026-07-20T21:50:24.109Z",
+      "reviewRunId": "B-407c:RR-001",
+      "envelopeId": "85323979810b58498a567a19e88e93f04b20dcc1668dbbd4a3bbb63f77cbf3c6",
+      "writerSessionId": "sess-6049ab32b2a270dcbcd45c1b536ae028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-ab-dispatch.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "68df984c63b9243beafb82318545417317dde4e31e238ba2b91deca27524a07b"
+    }
+  ]
+}
