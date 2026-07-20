@@ -492,6 +492,46 @@
         "scanEscalationReason": null
       },
       "_hash": "b8ad2ce6f33a9d30ee40b9baaf67fce32956f4c3925871b054b2a30beaf7a1b8"
+    },
+    {
+      "id": "B-407c:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "coverage re-attestation passed after F-004 resolution: prior RP-012 remains valid through trusted incremental basis; current mutation-matrix evidence covers 15 receipt tamper classes, production dispatch, budget, and invariants with no new coverage gap.",
+      "createdAt": "2026-07-20T22:27:14.979Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-027",
+      "envelopeId": "0d2c6d128973b44adf8bb8abc76ce060209723856143dfcdf3c37435308846c5",
+      "writerSessionId": "sess-c486175098654596183696ccb1b23174",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "2184f5402aeae3a0c77b284f7bae06e560ad1b55682c20fc44dca1ddf9903f19"
     }
   ]
 }
