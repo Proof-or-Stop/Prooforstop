@@ -2258,6 +2258,52 @@
       },
       "readDiagnostics": [],
       "_hash": "df4dd6f5a35b3e4c988bf42f525cc4e28e2d6ac2831fc6ef4023bcc537f80614"
+    },
+    {
+      "id": "B-235e:RP-064",
+      "agent": "lattice-review-docs",
+      "note": "Round-22 docs re-review found no blocker: Step 1 extracted 256 changed declarations (22 exported production symbols), and 11 relevant documentation/process-contract sections were compared. F-025 is addressed: the exported L4 closeout_reviewer_reattestation_boundary registry entry binds signed run/pass producers, same attempt/materialHash/storyFilesHash/reviewRound, total telemetry, pre-TEST exemption, >= TEST-entry fail-closed subset, and done_prepare convergence consumer; verify-process-fact-contract structurally parses the telemetry array and asserts level/producer/consumer/rationale tokens, and the verifier passed. The canonical done-prepare automation decision documents both counters and the exact boundary; text/JSON output and code use the same postTestReviewerReattestations predicate.",
+      "createdAt": "2026-07-20T14:12:43.269Z",
+      "reviewRound": "2026-07-20T14:10:14.730Z",
+      "reviewRunId": "B-235e:RR-106",
+      "envelopeId": "6368cdd047b343f2877e6de25136add31fe779b4a94de15bbae05cf2ad9ae3a7",
+      "writerSessionId": "sess-docs-b235e-round22-f025",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "286c409ea4f9d7b708b2c7d7422832a90843d6a067775d4265e86847e8480681"
+      },
+      "readDiagnostics": [],
+      "_hash": "cdc4fc0ce8adb45097700879b4431df70165bbfe9c424ae8b794d157cbc07d46"
     }
   ]
 }
