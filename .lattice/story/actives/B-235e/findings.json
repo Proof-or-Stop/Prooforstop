@@ -717,6 +717,21 @@
       "resolvedAt": "2026-07-20T15:22:49.348Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-235e:F-028",
+      "desc": "packages/main/src/core/prompt-envelope.ts:225-240 — BUG-002 phase normalization is overbroad: fullTaskSemanticDigest discards every live phase and unconditionally hashes phase=REVIEW. A focused mutation showed REVIEW, TEST, DEV, DONE, DISCARDED, and CORRUPT_PHASE all produce the identical digest. Only the mandatory REVIEW-to-TEST consumer transition should retain the producer digest; rollback, terminal, discarded, or malformed phases must fail closed. As written, collectReviewerEvidenceState/done_prepare/DONE share an oracle that can accept a semantically wrong or corrupted phase, while the regression proves title/checklist mutations but omits phase-whitelist negatives. Restrict normalization to the explicitly allowed REVIEW/TEST pair (or otherwise require a valid producer/consumer phase transition) and add DEV/DONE/DISCARDED/unknown mutation bites plus shared-oracle rejection assertions.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-20T16:32:28.098Z",
+      "reviewRound": "2026-07-20T16:18:48.131Z",
+      "reviewRunId": "B-235e:RR-119",
+      "_hash": "fe58a1cbd8132fa51b64543afa2d27e4868850b01df4ef554e72a57b08e178c2",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
