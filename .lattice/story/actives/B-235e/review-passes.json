@@ -932,6 +932,30 @@
       },
       "readDiagnostics": [],
       "_hash": "5a2fc01a20129b62e771cab2c6ebcb8a823d026759aad9131d943dc5a7c23590"
+    },
+    {
+      "id": "B-235e:RP-039",
+      "agent": "lattice-review-quality",
+      "note": "No blocker on HEAD 22c3cc15e2. Producer and verifier both pass the same signed run-start cutoff (startedAt/run.startedAt); core excludes pass timestamps >= cutoff. The new behavioral regression creates trusted pre-cutoff, post-cutoff, and equal-timestamp evidence, asserts the pre-cutoff priorPassRef, verifies eligibilityDigest changes when the cutoff is removed, and includes a mutation bite that selects the later pass without the cutoff. TypeScript build passed; focused smoke reached TEMPORAL CUTOFF PASS. The remaining long concurrent-smoke tail was intentionally not repeated.",
+      "createdAt": "2026-07-20T00:14:25.885Z",
+      "reviewRound": "2026-07-19T23:55:41.162Z",
+      "reviewRunId": "B-235e:RR-078",
+      "envelopeId": "8608d4518c9725469bb7d249caa0205872dda7fb5b5d726d560d1624250370c1",
+      "writerSessionId": "sess-61e583213cb095be130628a3b1ad47cd",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Re-review bounded to cutoff producer/verifier symmetry and the new behavioral regression introduced by 22c3cc15e2."
+      },
+      "_hash": "a421d6896c74c7066e9d0a7d3c4d7783fde4c355d704dfba7ce1be5b7970245c"
     }
   ]
 }
