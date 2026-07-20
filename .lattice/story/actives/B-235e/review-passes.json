@@ -2782,6 +2782,41 @@
       },
       "readDiagnostics": [],
       "_hash": "e0ef14c914ea163bc64fb9584832e65735b5697221fbc97790090f89f2217cb6"
+    },
+    {
+      "id": "B-235e:RP-074",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-25 coverage review passed: current full Prompt Envelope binds material a8cddfa/storyFiles 4422bc7; fresh executed routine validation reports 46 command executions PASS and verification coverage 48/48 required with zero gaps or waivers. Focused cutoff verifier rerun passed. The regression uses real dispatch/review_run_start/review_pass_set producer evidence, verifies B directly in REVIEW and after REVIEW-to-TEST, checks the shared DONE evidence oracle, proves the old phase-sensitive digest mutation bites, and keeps title/checklist semantic mutations fail-closed. No 20-round stress run was executed or claimed in this review.",
+      "createdAt": "2026-07-20T16:32:23.364Z",
+      "reviewRound": "2026-07-20T16:18:48.131Z",
+      "reviewRunId": "B-235e:RR-118",
+      "envelopeId": "0fc227636bf24e62eb81c490a669e5ef8824f4414a519f4b5a43bfba5449d562",
+      "writerSessionId": "sess-b235e-coverage-r25-20260720",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/bug.json",
+          ".lattice/story/actives/B-235e/test-evidence.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Targeted current-material coverage review of commit 98173017e5 and its focused regression/evidence surfaces; no decisions-directory escalation was needed."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1596fba10c05802f37fc3ace9c7f1c82d146d3cfc1f89bc3f1c1ddc9e717f5b9"
     }
   ]
 }
