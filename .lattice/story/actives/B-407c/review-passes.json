@@ -156,6 +156,35 @@
         "scanEscalationReason": null
       },
       "_hash": "bb9f9f44286bb5887c8cb441d63ebaa745abbbec1b9d0d31c81e4f6686373359"
+    },
+    {
+      "id": "B-407c:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed current Story 6 diff and reran build plus story6-production-dispatch-smoke and story6-role-migration-smoke. Production smoke now invokes both legacy and modular production agent_prompt paths for all five roles, records provider dimensions as INCONCLUSIVE, persists modular envelopes/events, and mutation checks reject wrong role/head/context digests. Live provider campaign remains explicitly optional/unexecuted and therefore no provider savings or quality claim is made.",
+      "createdAt": "2026-07-20T22:17:06.073Z",
+      "reviewRound": "2026-07-20T22:15:32.054Z",
+      "reviewRunId": "B-407c:RR-014",
+      "envelopeId": "2a13bdedaf104f40983a78fb580a47b49ace008e7432adca50c2f96f9823be03",
+      "writerSessionId": "sess-e3ccd7ac1a845e8f65384f6aee635052",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c5f1a4ef5832c4fe0f1fbf9d809378477050873a18f7464fb83cbb7549e96b8a"
     }
   ]
 }
