@@ -2406,6 +2406,59 @@
       },
       "readDiagnostics": [],
       "_hash": "4451c2714b24bb515a2ad6ed1f07bc483afd66b3da5717718effd24dcdc0a05c"
+    },
+    {
+      "id": "B-235e:RP-067",
+      "agent": "lattice-review-concept",
+      "note": "Round-23 concept review found no blocker. The DONE convergence collector now establishes each lane baseline by verified ReviewPass.createdAt, with deterministic reviewRunId then pass-id tie-breakers, rather than ReviewRun.startedAt. Invalid signatures, wrong material/story binding, missing passes, and historical rounds are excluded before ordering; equal or post-TEST completion remains fail-closed. Interleaving and equal-timestamp focused fixtures cover the regression, process-fact rationale/verifier and decision docs match, other convergence hard constraints are unchanged, and no non-metadata story-owned changes follow implementation commit 37947a3. No concept deletion/replacement was introduced this round; residue check found no blocker.",
+      "createdAt": "2026-07-20T14:24:58.067Z",
+      "reviewRound": "2026-07-20T14:20:36.579Z",
+      "reviewRunId": "B-235e:RR-112",
+      "envelopeId": "3d8fe81de2b2569d71eea06410e8384e43bf5bdeb49ff6ecae3e78f7edcdc906",
+      "writerSessionId": "concept-b235e-r23-rr112",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "1e7ae46557a09c94410811a6aa72fa3c72507d81f50709fad14a983bd47a7684"
+      },
+      "readDiagnostics": [],
+      "_hash": "3431adcd20e8578da5cc3dec1a92c27fc6f9b7340e390c0a43301973dc0cf28e"
     }
   ]
 }
