@@ -69,6 +69,52 @@
       "resolvedAt": "2026-07-20T22:15:13.042Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-003",
+      "desc": "CHK-003:adversarial:0 is still not covered at the A/B aggregation boundary. story6-production-dispatch-smoke.ts now proves Prompt Envelope role/head/context mutations fail verifyPromptEnvelopeIntegrity, but experiments/role-prompt-ab-replay/story6-analyze.mjs accepts receipt JSON without validating schemaVersion, campaignBindingDigest, roleId, promptDigest, materialDigest, or production provenance; its key and duplicate checks use only sampleId/host/arm/repeat. A forged or wrong-role/stale receipt with a valid cell key can therefore enter aggregation. The must intent requires duplicate, forged, stale, wrong-role, and non-production receipts to be rejected by the A/B summary, not only by a separate envelope smoke.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-20T22:16:45.450Z",
+      "reviewRound": "2026-07-20T22:15:32.054Z",
+      "reviewRunId": "B-407c:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "08a9a876c14791c05f383075c9b82ecbeb967bc34782722492ad2c11802b2510",
+      "files": [
+        "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+        "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+        "experiments/role-prompt-ab-replay/story6-live.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|adversarial-still-covered",
+      "signatureTagSource": "auto"
     }
   ]
 }
