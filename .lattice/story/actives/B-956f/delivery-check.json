@@ -1,0 +1,84 @@
+{
+  "storyId": "B-956f",
+  "checkedAt": "2026-07-20T15:18:09.223Z",
+  "headHash": "052f4a5bcd6d74c05ee02600a11457067b0cfe37",
+  "materialHash": "c8dfed3ade43ccd9f42a3fe8ed85e815185233dbd430e1c346df88746b22b812",
+  "storyFilesHash": "40ecc3b2df195d74f55cabbfd0d10ac4e2d1ac7bec64d67bac8c2d8bf4f1195b",
+  "reviewRound": "2026-07-20T14:34:02.622Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "plan.md#CHK-001",
+      "promise": "One config-resolved resolveMaterialCodePolicy(projectRoot) + hash-bound buildMaterialClassificationSnapshot service is threaded into the review-assurance floor, collectMaterialCodeFiles (repro gate, snapshot now REQUIRED, old config-blind signature removed), and ProofStoryDiagnosticInput.materialClassification, so a bug story in .py/.rs/.go/.java/.cpp flips required=true identically to .ts.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "packages/main/src/core/material-code-policy.ts (new, resolveMaterialCodePolicy/buildMaterialClassificationSnapshot); repro-evidence-binding-gate.ts collectMaterialCodeFiles(checklist, snapshot) now takes a required snapshot param and classifyReproFirstRequirement(story, checklist, snapshot); review-assurance-floor.ts classifyReviewAssuranceFloorPath delegates to classifyMaterialCodePath; proofstory.ts ProofStoryDiagnosticInput.materialClassification + materialClassificationHasMaterialCode; node tmp/w1-red/red-language-degradation.cjs 11/11 GREEN exit 0; node packages/main/dist/tasks/language-neutral-gates-smoke.js CHK-001 happy/edge/adversarial all pass (39/39 total)"
+    },
+    {
+      "docPath": "plan.md#CHK-002",
+      "promise": "Flat whitelist replaced by an 8-step first-hit-wins precedence chain; level-1 immutable cross-ecosystem manifests (go.mod/Cargo.toml/pyproject.toml/pom.xml/gradle family) cannot be excluded by any config key, enforced both at config-resolve time AND by a filesystem-aware transition preflight; strict resolver normalizes extensions/paths and fails closed on malformed materialCode config naming the offending key.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "material-code-policy.ts classifyMaterialCodePath (steps 0-8), IMMUTABLE_MANIFEST_BASENAMES/PATTERNS, buildMaterialCodePolicy config-resolve rejection (excludePaths/paths naming a manifest throws MaterialCodePolicyError), preflightMaterialCodeExclusions + assertMaterialCodeExclusionsAgainstTree (tree-bound filesystem preflight); language-neutral-gates-smoke CHK-002 happy/edge/adversarial pass; RED harness go.mod/Cargo.toml/pyproject.toml/pom.xml assertions GREEN"
+    },
+    {
+      "docPath": "plan.md#CHK-003",
+      "promise": "buildScopeDiffPack returns normalized, deduped semantic_analysis_unavailable diagnostic entries for material non-TS/JS files, including on the no-scope-contract early-return path; only the mutating validation caller writes the deduped process event, pure builder and read-only checks emit nothing.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "scope-diff-pack.ts collectSemanticAnalysisUnavailable/buildSemanticDegradationEvent; scope-contract.ts runScopeGateAndDiffPack + emitSemanticDegradationEvent (sole writer); phase-gates.ts runScopeTransitionGate builds a diff pack on the no-contract path too and always calls emitSemanticDegradationEvent; types.ts adds semantic_analysis_unavailable to ProcessEventType and ScopeDiffPack.semanticAnalysisUnavailable; smoke CHK-003 happy/edge/adversarial pass"
+    },
+    {
+      "docPath": "plan.md#CHK-004",
+      "promise": "validate-concept keeps its own distinct skip diagnostic naming skipped non-TS/py material files, never conflated with buildScopeDiffPack semantic_analysis_unavailable channel; a mixed .ts+.go diff analyzes TS and lists only non-TS in the skip diagnostic with no leakage.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "validate-concept.ts analyzeDeletedSymbols gains skipDiagnostics as a channel distinct from diagnostics; conceptSkipDiagnostics exported; checkConcept threads deps.projectRoot and returns skipDiagnostics alongside every outcome; smoke CHK-004 happy/edge/adversarial pass"
+    },
+    {
+      "docPath": "background.md / plan.md CHK-001 edge and adversarial acceptance",
+      "promise": "All three consumers observe the SAME HEAD+materialHash-bound snapshot within one evaluation; a stale or config-drifted snapshot is re-resolved, never silently consumed; repro classification cannot regress to the config-blind call because the snapshot parameter is compile-time required.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "material-code-policy.ts ensureFreshMaterialClassificationSnapshot / materialClassificationSnapshotStale checks policyDigest vs live config and headHash/materialHash vs live tree, throwing on unverifiable freshness; classifyReproFirstRequirement's snapshot parameter has no default in the TypeScript signature, and evaluateStoryEvidenceBindingGate builds and threads it; smoke checks FIX-A and R3-d confirm stale-snapshot re-resolution against real consumers"
+    },
+    {
+      "docPath": "background.md wrapper-root namespace translation",
+      "promise": "On a wrapper-root layout, git-emitted repo-relative paths are translated into the project-relative namespace before classification and exclusion comparison, at every consumer (floor, repro gate, story_create STORY_INTAKE, story_review), using a safe default gitCwd when no explicit resolution is threaded.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "material-code-policy.ts projectRepoPrefix/repoPathToProjectRelative + resolveDefaultSnapshotGitCwd; repro-evidence-binding-gate.ts and story-create.ts thread resolveGitCwd/resolveProjectGitCwd explicitly; story-review.ts buildStoryReviewMaterialClassification uses resolveGitCwd for story-aware resolution rather than the project default; smoke checks R6 (2), R7-a through R7-d (4), and R8-a (1) = 7 wrapper-root/production-call-shape checks pass"
+    },
+    {
+      "docPath": "process-fact-levels.ts runtime:review_assurance_floor_done_gate rationale",
+      "promise": "The DONE review-assurance-floor process-fact rationale names the language-neutral material-code policy semantics (fail-closed config resolution, hash-bound snapshot freshness re-verification, diff-enumeration hard-block, shared classifier with repro-evidence-binding) as part of the gate contract.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "process-fact-levels.ts rationale text updated; scripts/verify-process-fact-contract.mjs assertReviewAssuranceFloorContract asserts the rationale contains language-neutral, material-code policy, snapshot freshness, diff enumeration, and repro-evidence-binding tokens; node scripts/verify-process-fact-contract.mjs exits 0"
+    },
+    {
+      "docPath": "test-evidence.json limitations field (Workstream 3 scope and diagnosticOnly design)",
+      "promise": "ProofStory materialClassification-driven triggers are diagnosticOnly and must not change enforce outcomes for any existing project until a later program Workstream-3 enforce flip; the live orchestrator single-resolution entry point and the repro-first enforce flip are explicitly out of this story's scope.",
+      "verifiedBy": "diff/grep + real-machine test",
+      "evidence": "proofstory.ts pushTrigger/classifyTriggers set a diagnosticOnly flag; evaluateProofStoryDiagnostics filters to enforceableTriggers (non-diagnosticOnly) before gap creation; smoke check FIX-G explicitly asserts red.diagnosticOnly is true AND that enforce blocking, gap set, and hardening level are byte-identical with vs without the populated snapshot, so the scope-limitation claim is machine-verified rather than only prose"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node tmp/w1-red/red-language-degradation.cjs: 11/11 PASS, exit 0, re-run independently by this reviewer. node packages/main/dist/tasks/language-neutral-gates-smoke.js: CHK-001 happy/edge/adversarial lines all PASS as part of the full 39/39 run, re-run independently."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/language-neutral-gates-smoke.js: CHK-002 happy (root manifests classify material with no prefix/extension help), edge (precedence pairs hold), and adversarial (exclusion rejected at both enforcement layers, malformed config fails closed) all PASS, re-run independently by this reviewer as part of the 39/39 run."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/language-neutral-gates-smoke.js: CHK-003 happy (no-contract .go diff yields exactly one deduped event), edge (same-extension dedupe, TS/JS produce none), and adversarial (pure builder vs mutating emitter separation) all PASS, re-run independently by this reviewer."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/language-neutral-gates-smoke.js: CHK-004 happy (.go/.rs diff surfaces the skip diagnostic), edge (mixed .ts+.go diff, no leakage), and adversarial (skip channel vs scope-diff channel stay distinct) all PASS, re-run independently by this reviewer."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independently re-ran all three specified real-machine tests from a fresh context: language-neutral-gates-smoke 39/39, RED harness 11/11 exit 0, and verify-process-fact-contract.mjs exit 0 with structural TypeScript-AST assertions (not string includes) binding doc promises to the actual production call sites in review-assurance-floor.ts, repro-evidence-binding-gate.ts, phase-gates.ts, and proofstory.ts. Reverse-scanned the 20-file src/scripts diff against plan.md CHK-001 through CHK-004 and background.md; every promise (8-step precedence chain, non-excludable manifests, hash-bound snapshot sharing, degradation diagnostics, distinct concept-skip channel, wrapper-root translation) has concrete code evidence, and the diagnosticOnly and Workstream-3 scope-limitation claim is itself machine-verified by the FIX-G smoke check, which asserts byte-identical enforce outcomes with vs without the populated snapshot. No TODO, FIXME, or HACK markers found in the diff. No CLAUDE.md or package docs changed in this diff; the promise source was plan.md, background.md, and checklist.json acceptance criteria plus the process-fact-levels.ts rationale contract enforced by the verifier script."
+  },
+  "_hash": "b67a4d25c080b1719ca38cf5113a65c1d257a13934ef4936afeda26a21a1fac3"
+}
