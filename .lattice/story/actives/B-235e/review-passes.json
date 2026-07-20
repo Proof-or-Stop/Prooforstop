@@ -1432,6 +1432,58 @@
       },
       "readDiagnostics": [],
       "_hash": "6c17595b83a13f911f39b0d58cd9450746a9e788bfa20471be573de93a119eea"
+    },
+    {
+      "id": "B-235e:RP-049",
+      "agent": "lattice-review-concept",
+      "note": "Final concept re-attestation after canonical evidence refresh and routine validation: RR-089 is SAFE_INCREMENTAL from RP-044 with no changed/impacted files, unchanged storyFilesHash 1982698 and scope binding. Refreshed checklist contains 48/48 pass evidence entries, all bound to material c4e86e1/storyFiles 1982698; fresh executed validation is PASS with allPass=true, 46 command executions, coverage 48/48 and missingRequired=0. Story-owned implementation and prior concept-residue conclusion remain unchanged; no new blocker.",
+      "createdAt": "2026-07-20T11:06:35.514Z",
+      "reviewRound": "2026-07-20T10:18:58.704Z",
+      "reviewRunId": "B-235e:RR-089",
+      "envelopeId": "274fa9528a9d8ce6e9dbfa980efbaa881eff99b0df43174f564746479cd9d518",
+      "writerSessionId": "concept-b235e-final-rr089",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/test-evidence.json",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "f5255cc067f5bc583d0c9e8424fae6a8b603bcd22efb8df822866216213383ad"
+      },
+      "readDiagnostics": [],
+      "_hash": "9b699909ffdc2e7ebcabf65c3d10aab75ad50dc0eba6039ac10d30c034b56f99"
     }
   ]
 }
