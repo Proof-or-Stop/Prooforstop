@@ -115,11 +115,23 @@ export function decompositionAdvisoryIssues(
  *
  * Behavior is identical to the three sibling diagnostics sites (machine.ts,
  * phase-gates.ts, proofstory.ts): resolve the story's signed git workspace via
- * resolveGitCwd (fail-safe to undefined on any resolver throw) so the snapshot
- * enumerates and translates in the wrapper-root's git namespace, then build the
- * diagnostic-only snapshot. Passing metadataRoot alone as the gitCwd (the pre-R7
- * root-as-gitCwd form) left this one of four sites classifying from the bare
- * metadata root — untranslated `project/…` paths on a wrapper-root layout.
+ * resolveGitCwd (fail-safe to undefined on any resolver throw), then build the
+ * diagnostic-only snapshot from that resolved git root.
+ *
+ * The distinguishing value over a bare
+ * tryBuildMaterialClassificationSnapshotForDiagnostics(metadataRoot) call is
+ * STORY-AWARE resolution (test-coverage F-015): resolveGitCwd's first branch is the
+ * STORY's registered worktree (resolveStorySignedWorkspace: story.worktree.path →
+ * story-worktree), whereas the bare call falls through to
+ * buildMaterialClassificationSnapshot's project-root-based safe default
+ * (resolveDefaultSnapshotGitCwd). When a story's worktree is a different git root
+ * than the metadataRoot's own default — the norm in the multi-worktree story flow —
+ * only this threaded form enumerates the STORY's tree. On a single-root wrapper
+ * layout where the two coincide, the safe default already resolves the wrapper git
+ * toplevel and translates project-relative paths, so the two agree there; the extra
+ * value here is specifically the story-worktree divergence. (R8-a in the
+ * language-neutral smoke drives this exact site and is revert-proof: reverting to
+ * the bare call makes it resolve the project default root, not the story worktree.)
  */
 export function buildStoryReviewMaterialClassification(
   store: HandlerContext['store'],

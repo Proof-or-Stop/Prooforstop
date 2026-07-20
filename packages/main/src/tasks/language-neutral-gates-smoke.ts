@@ -75,6 +75,7 @@ import {
   preflightMaterialCodeExclusions,
   resolveMaterialCodePolicy,
   resetMaterialCodePolicyCache,
+  tryBuildMaterialClassificationSnapshotForDiagnostics,
   __setAfterHeadCaptureHookForTest,
   MaterialCodePolicyError,
   type MaterialClassificationSnapshot,
@@ -1266,38 +1267,107 @@ check('R7-d: a BARE buildMaterialClassificationSnapshot(projectRoot) — no gitC
   assert.equal(snap.files.some((f) => f.path.includes('sibling') || f.path.includes('outside')), false, 'outside-project files are dropped through the safe default');
 });
 
-// ── R8 (quality F-014): the story_review diagnostic-input builder must engage the
-// wrapper-root translation through the SAME production call shape — the sibling
-// site R7 was fixed at but had no smoke coverage until now. ──
+// ── R8 (quality F-014 + test-coverage F-015): the story_review diagnostic-input
+// builder's distinguishing value over the SAFE DEFAULT is STORY-AWARE git-root
+// resolution. buildMaterialClassificationSnapshot's default gitCwd
+// (resolveDefaultSnapshotGitCwd, material-code-policy.ts) is project-root based —
+// it probes the metadataRoot's OWN git toplevel (or a configured gitRoot). The
+// story_review builder instead threads resolveGitCwd(store, storyId, …), whose
+// FIRST resolution branch is the STORY's registered worktree
+// (resolveStorySignedWorkspace: story.worktree.path → story-worktree). When a
+// story's worktree is a DIFFERENT git root than the project default — the norm in
+// the multi-worktree story flow (`.worktrees/B-xxxx` on `story/B-xxxx`) — the two
+// resolutions diverge, and only the story-aware one enumerates the STORY's tree.
+//
+// F-015 correction: R7-d already proves the SAFE DEFAULT resolves a wrapper git
+// toplevel and translates. A bare one-arg revert of this site
+// (tryBuildMaterialClassificationSnapshotForDiagnostics(projectRoot)) would be
+// RESCUED by that same safe default whenever the story worktree == the project
+// default root — so a wrapper-root-only R8-a would duplicate R7-d and its
+// "revert-proof" claim would be hollow. This fixture makes the two resolutions
+// DIFFER (story worktree = separate repo B; project default = repo A) so the bare
+// revert observably fails: it resolves repo A, never the story's repo B. ──
 
-check('R8-a: story_review diagnostic builder (buildStoryReviewMaterialClassification, production call shape, NO manual gitCwd) resolves the wrapper git root via resolveGitCwd and translates — the deleted bin/tool script is material at its PROJECT-relative path, the project-relative exclusion applies', () => {
-  const { root, projectRoot } = makeR7WrapperFixture();
-  // Minimal story-backed store, identical shape to R7-a: resolveGitCwd inside the
-  // builder resolves the signed workspace THROUGH this store (metadata-git-root
-  // probe → the wrapper git toplevel), never a second resolver.
+/**
+ * F-015 fixture: two SEPARATE git repos whose resolutions diverge.
+ *   repoA — the metadata/project root (`<repoA>/project`, config here). This is
+ *           what resolveDefaultSnapshotGitCwd (the bare-call safe default) picks:
+ *           it probes projectRoot's OWN git toplevel = repoA. Its main...HEAD diff
+ *           adds src/appA.go.
+ *   repoB — a DISTINCT git repo registered as the story's worktree
+ *           (story.worktree.path). resolveGitCwd's story-worktree branch resolves
+ *           THIS root (story-aware). Its main...HEAD diff adds src/appB.go.
+ * The two roots — and thus the two enumerated diffs — are observably different.
+ */
+function makeR8StoryAwareFixture(): {
+  projectRoot: string; repoAToplevel: string; repoBToplevel: string; storyBranch: string;
+} {
+  const { root: repoA, projectRoot } = makeWrapperRootConfigRoot(
+    'project',
+    { materialCode: {} },
+    { 'project/src/keepA.py': 'k = 1\n' },
+    { 'project/src/appA.go': 'package a\n' }, // repoA (default-root) diff
+  );
+  // makeGitRepo leaves HEAD on `feature`; that is the story worktree's branch.
+  const repoB = makeGitRepo(
+    { 'src/keepB.py': 'k = 1\n' },
+    { 'src/appB.go': 'package b\n' }, // repoB (story-worktree) diff
+  );
+  const repoAToplevel = git(repoA, ['rev-parse', '--show-toplevel']);
+  const repoBToplevel = git(repoB, ['rev-parse', '--show-toplevel']);
+  resetConfigCache();
+  resetMaterialCodePolicyCache();
+  return { projectRoot, repoAToplevel, repoBToplevel, storyBranch: 'feature' };
+}
+
+check('R8-a: story_review diagnostic builder (buildStoryReviewMaterialClassification) resolves the STORY worktree via resolveGitCwd (story-aware) — NOT the project default git root (revert-proof: the bare one-arg call resolves the DEFAULT root instead)', () => {
+  const { projectRoot, repoAToplevel, repoBToplevel, storyBranch } = makeR8StoryAwareFixture();
+  // The story is registered against repoB (a distinct git root). resolveGitCwd's
+  // FIRST branch — story.worktree.path — resolves it THROUGH this store, so the
+  // snapshot enumerates repoB's tree, not the project default root (repoA).
   const store = {
-    readStory: () => ({ storyId: 'B-lng-wrap3', phase: 'DEV', type: 'bug', priority: 'medium', riskSignals: [] }),
+    readStory: () => ({
+      storyId: 'B-lng-wrap3',
+      phase: 'DEV',
+      type: 'bug',
+      priority: 'medium',
+      riskSignals: [],
+      worktree: { path: repoBToplevel, branch: storyBranch },
+    }),
     readChecklist: () => r7Checklist,
     storyDirPath: (id: string) => join(projectRoot, '.lattice', 'story', 'actives', id),
   } as any;
-  // In production ctx.root IS the metadata root (== projectRoot on a wrapper-root
-  // layout). The pre-R7 form passed that bare root AS the gitCwd; the fixed form
-  // threads resolveGitCwd so the snapshot enumerates/translates in the git-root
-  // namespace. The negative control below reverts THIS site and reproduces the
-  // untranslated `project/…` misclassification.
+
+  // Precondition: the two resolutions genuinely differ (else R8-a would just
+  // re-prove R7-d's safe default).
+  assert.notEqual(repoBToplevel, repoAToplevel, 'the story worktree (repoB) and the project default root (repoA) are distinct git roots');
+
   const snap = buildStoryReviewMaterialClassification(store, 'B-lng-wrap3', projectRoot);
   assert.ok(snap, 'the diagnostic snapshot builds (fail-safe undefined is only for a resolver/policy throw)');
-  assert.equal(
-    snap!.gitCwd,
-    git(root, ['rev-parse', '--show-toplevel']),
-    'resolveGitCwd resolved the WRAPPER git toplevel, not the bare metadata/projectRoot (the pre-R7 root-as-gitCwd form records projectRoot here)',
-  );
-  const toolFile = snap!.files.find((f) => f.path === 'bin/tool');
-  assert.ok(toolFile, 'the deleted script is present at its PROJECT-relative path bin/tool (not the untranslated project/bin/tool)');
-  assert.equal(toolFile!.materialCode, true, 'the deleted wrapper-root bin/tool script classifies material through the story_review diagnostic builder');
-  const legacyFile = snap!.files.find((f) => f.path === 'legacy/old.py');
-  assert.ok(legacyFile && legacyFile.materialCode === false && legacyFile.reason === 'config excludePaths', 'the project-relative excludePaths entry applies through the story_review diagnostic builder');
-  assert.equal(snap!.files.some((f) => f.path.startsWith('project/')), false, 'no path is left in the untranslated git-root namespace (project/…)');
+  // STORY-AWARE resolution: gitCwd is the story's worktree (repoB), NOT the
+  // metadata/project default root (repoA).
+  assert.equal(snap!.gitCwd, repoBToplevel, 'resolveGitCwd resolved the STORY worktree (repoB), the story-aware git root');
+  assert.notEqual(snap!.gitCwd, repoAToplevel, 'the story-aware resolution is NOT the project default git root (repoA)');
+  // The enumerated diff is repoB's, confirming the snapshot reflects the story tree.
+  const appB = snap!.files.find((f) => f.path === 'src/appB.go');
+  assert.ok(appB && appB.materialCode === true, 'the snapshot enumerates repoB (the story worktree) main...HEAD diff — src/appB.go is material');
+  assert.equal(snap!.files.some((f) => f.path.includes('appA')), false, 'no repoA (default-root) file leaks into the story-aware snapshot');
+
+  // GENUINE REVERT-PROOF (baked-in negative control): the pre-R7 bare one-arg form
+  // — tryBuildMaterialClassificationSnapshotForDiagnostics(projectRoot), i.e.
+  // buildStoryReviewMaterialClassification WITHOUT the resolveGitCwd thread — falls
+  // through to the SAFE DEFAULT (resolveDefaultSnapshotGitCwd), which resolves the
+  // project's OWN git toplevel = repoA, NEVER the story's repoB. So the two
+  // assertions above (snap.gitCwd === repoB / enumerates src/appB.go) FAIL under
+  // that revert. This is exactly the divergence R7-d cannot exhibit — R7-d has one
+  // repo, so its default and any story-aware resolution coincide.
+  const reverted = tryBuildMaterialClassificationSnapshotForDiagnostics(projectRoot);
+  assert.ok(reverted, 'the bare-call control snapshot builds');
+  assert.equal(reverted!.gitCwd, repoAToplevel, 'the bare one-arg revert resolves the project DEFAULT git root (repoA)');
+  assert.notEqual(reverted!.gitCwd, repoBToplevel, 'the bare revert loses story-awareness — it never reaches the story worktree (repoB)');
+  const revertedAppA = reverted!.files.find((f) => f.path === 'src/appA.go');
+  assert.ok(revertedAppA && revertedAppA.materialCode === true, 'the reverted default snapshot enumerates repoA (src/appA.go), not the story tree');
+  assert.equal(reverted!.files.some((f) => f.path.includes('appB')), false, 'the bare revert never sees the story worktree diff (src/appB.go)');
 });
 
 for (const root of tempRoots) {
@@ -1305,7 +1375,7 @@ for (const root of tempRoots) {
 }
 
 if (failures === 0) {
-  console.log('\nlanguage-neutral-gates smoke passed (39 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks + 2 R4 fix-round production-boundary checks + 3 R5 fix-round production-boundary checks + 2 R6 wrapper-root path-namespace checks + 4 R7 production-call-shape wrapper-root checks + 1 R8 story-review diagnostic-builder wrapper-root check)');
+  console.log('\nlanguage-neutral-gates smoke passed (39 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks + 2 R4 fix-round production-boundary checks + 3 R5 fix-round production-boundary checks + 2 R6 wrapper-root path-namespace checks + 4 R7 production-call-shape wrapper-root checks + 1 R8 story-review story-aware git-root resolution check (revert-proof against the bare project-default call))');
 } else {
   console.error(`\nlanguage-neutral-gates smoke FAILED (${failures})`);
   process.exit(1);
