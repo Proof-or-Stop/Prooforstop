@@ -564,6 +564,30 @@
       "resolvedAt": "2026-07-20T10:24:08.181Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-235e:F-025",
+      "desc": "doc-code-drift: packages/main/src/handlers/done-prepare.ts:1596 changes the gate-consumed done_prepare convergence predicate so reviewerReattestations > 0 no longer blocks DONE prepare PASS (and the public text/JSON contract can now report PASS with reviewerReattestations=1), but packages/main/src/core/process-fact-registry.ts:1256 registers only phase-transition, human-confirmation, and validation-terminal convergence facts, scripts/verify-process-fact-contract.mjs:1580 asserts only those three, and the canonical done_prepare decision docs do not define the reviewer re-attestation exemption or its same-attempt/material/round/completed-pass boundary. Per the process-fact dual-layer contract this DONE convergence semantic needs an explicit L4 registry/verifier entry and synchronized decision/output documentation; otherwise future changes can silently broaden which repeated reviewer identities are treated as nonblocking.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-20T13:58:35.537Z",
+      "reviewRound": "2026-07-20T13:56:32.127Z",
+      "reviewRunId": "B-235e:RR-102",
+      "_hash": "afb03f0fb0766162140bed7520925b0734bd47334d6ab0c94a1cb5c3c88733da",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+        "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
