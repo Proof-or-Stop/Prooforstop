@@ -447,6 +447,46 @@
         "scanEscalationReason": null
       },
       "_hash": "f3e9d0680d55d7bca6803390367c4761f65a04566529c855d30b25ccf7f9077d"
+    },
+    {
+      "id": "B-956f:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "R8 delta verification of R7 fix commit d6707048ad (F-008/F-009/F-010/F-012). Concept-deletion check: calleeName/calleeResolvesToModule removed from scripts/verify-process-fact-contract.mjs, grep confirms zero code residue repo-wide (only a historical mention inside findings.json, the finding record itself). No other concept word was renamed/replaced this round -- the change is a safe-default addition (buildMaterialClassificationSnapshot gitCwd now defaults via resolveProjectGitCwd) plus explicit resolveGitCwd/resolveProjectGitCwd threading at repro-evidence-binding-gate.ts, story-create.ts STORY_INTAKE preflight, and story-review.ts (now aligned with its 3 siblings machine.ts/handlers/proofstory.ts/handlers/phase-gates.ts, all confirmed consistent via grep). Independently re-ran the F-008 repro against compiled dist with a fresh wrapper-root git fixture at both exact production call shapes (evaluateStoryEvidenceBindingGate with no gitCwd option, and renderReproFirstStoryCreatePreflight): both now correctly translate bin/newtool to material=true (previously misclassified as project/bin/newtool non-material). Ran packages/main build (clean), node dist/tasks/language-neutral-gates-smoke.js (38/38 pass including R7-a..R7-d production-call-shape checks), and scripts/verify-process-fact-contract.mjs (verified, confirming the calleeName/calleeResolvesToModule removal did not break the verifier). No concept residue found; no blocker.",
+      "createdAt": "2026-07-20T13:17:20.446Z",
+      "reviewRound": "2026-07-20T13:10:32.059Z",
+      "reviewRunId": "B-956f:RR-026",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/findings.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6a611cee309a20d7e30f6473be04c6e28eb0bfa587e296ba7cb95bbf2fb1e638"
     }
   ]
 }
