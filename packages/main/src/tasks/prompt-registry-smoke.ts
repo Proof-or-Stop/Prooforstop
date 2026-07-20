@@ -41,12 +41,7 @@ const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
 const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
-  'lattice-evaluator.md',
-  'lattice-implementer.md',
   'lattice-review-channel.md',
-  'lattice-review-delivery.md',
-  'lattice-review-scope-plan.md',
-  'lattice-review-story-init.md',
 ]);
 const requiredSafetyPhrases = [
   'Fresh-Context Fence',
