@@ -1,11 +1,11 @@
 /**
  * agent-prompt.ts — `lattice agent_prompt --role=<name>` (B-097f CHK-002)
  *
- * Host-neutral shared content endpoint. Returns the canonical role prompt BODY
- * straight from the package prompt registry (`readPromptRegistry()` over
- * `templates/agents`), byte-for-byte identical to what the Codex manifest
- * resolves. Claude thin-shims fetch from this command; Codex resolves the same
- * registry. There is ONE content source.
+ * Host-neutral package-registry endpoint. Role-only calls return the canonical
+ * host render: a body-free `review_run_start` bootstrap for the five migrated
+ * reviewers, and the package role body for ordinary roles. For migrated
+ * reviewers, `review_run_start` selects and returns exactly one legacy or
+ * modular body. Codex registry mode resolves the same bootstrap/body split.
  *
  * Contract: docs/requirements/decisions/lifecycle-artifact-scope.md
  *   §"Policy: host-neutral prompt content, thin host adapters (B-097f)" point 2.
@@ -17,15 +17,16 @@
  */
 
 import {
+  isModularReviewerRoleId,
   readPromptRegistry,
-  readPromptTemplate,
+  renderPromptEntryForHost,
   type PromptRegistryEntry,
 } from '../core/prompt-registry.js';
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import {
   promptRoleContract,
-  resolvePromptEnvelopeRolloutMode,
+  resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
@@ -35,7 +36,7 @@ import {
 } from '../core/prompt-envelope.js';
 import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { canonicalJsonStringify } from '../core/prompt-contracts.js';
-import { withMkdirLock } from '../core/mkdir-lock.js';
+import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 import {
   acquireOrRefreshOwnerLease,
   formatNonOwnerError,
@@ -96,16 +97,20 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         );
       }
 
-      const rolePrompt = readPromptTemplate(entry);
-      if (!args.storyId || !ctx) return rolePrompt;
-
-      const mode = resolvePromptEnvelopeRolloutMode(
+      const resolvedRoleBody = resolvePromptRoleBody(
         role,
-        loadConfig(ctx.root).promptEnvelope,
+        ctx ? loadConfig(ctx.root).promptEnvelope : undefined,
       );
+      const rolePrompt = resolvedRoleBody.body;
+      if (!args.storyId || !ctx) {
+        return isModularReviewerRoleId(role)
+          ? renderPromptEntryForHost(entry, 'claude')
+          : rolePrompt;
+      }
+
       // Rollback is exact: a disabled role follows the original no-Story path
       // even when a host still supplies storyId/format during rollout.
-      if (mode === 'legacy-full-context') return rolePrompt;
+      if (resolvedRoleBody.mode === 'legacy-full-context') return rolePrompt;
 
       const storyId = args.storyId.trim();
       const leaseResult = acquireOrRefreshOwnerLease(ctx.store.storyDirPath(storyId), {
@@ -141,8 +146,8 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       // B-d877 R3 FIX B: relocate out of the git-tracked story dir to the gitignored
       // shared `.lattice/locks/prompt-envelopes/<id>-prompt-envelopes.lock` (same
       // canonical lock the review_run_start prompt-envelope write uses).
-      const lockDir = ctx.store.runtimeLockDirPath(storyId, 'prompt-envelopes', 'prompt-envelopes');
-      const envelope = withMkdirLock(lockDir, () => {
+      const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
+      const envelope = withReviewMetadataTicketLock(lockDir, `agent_prompt for ${storyId}/${role}`, () => {
         const data = ctx.store.readPromptEnvelopes(storyId);
         const existing = data.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
         if (existing) {
@@ -160,11 +165,13 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
           throw new Error(`agent_prompt: envelope ${assembly.envelope.envelopeId} was not durably persisted`);
         }
         return persisted;
-      }, { label: 'prompt-envelopes metadata' });
+      });
       if (args.format === 'json') {
         return canonicalJsonStringify({
           schemaVersion: 'proofbound.agent-prompt-response.v1',
-          mode,
+          mode: resolvedRoleBody.mode,
+          roleBodyDigest: resolvedRoleBody.bodyDigest,
+          legacyBytesRestored: resolvedRoleBody.legacyBytesRestored,
           auditOnly: true,
           canMintReviewEvidence: false,
           prompt: assembly.prompt,
@@ -174,9 +181,9 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         });
       }
 
-      // Return the canonical body byte-for-byte from the registry (the same
-      // source the Codex manifest resolves via readPromptTemplate). No host
-      // transform is applied — this is the single neutral content source.
+      // Story-aware assembly returns the selected canonical body plus trusted
+      // context. Migrated role-only calls above intentionally return only the
+      // bootstrap and enter this path through review_run_start instead.
       return assembly.prompt;
     },
   };

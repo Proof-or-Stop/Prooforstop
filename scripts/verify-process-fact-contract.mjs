@@ -37,6 +37,13 @@ const requiredReviewerRunIdPromptFiles = new Set([
   'lattice-review-scope-plan.md',
   'lattice-review-story-init.md',
 ]);
+const modularReviewerBootstrapFiles = new Set([
+  'lattice-review-behavior.md',
+  'lattice-review-concept.md',
+  'lattice-review-docs.md',
+  'lattice-review-quality.md',
+  'lattice-review-test-coverage.md',
+]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
 const flowFactPolicyPath = 'packages/main/src/core/flow-fact-policy.ts';
@@ -156,7 +163,9 @@ const requiredProcessFactSemantics = {
 const requiredRuntimeFactSemantics = {
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
+  'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
+  'runtime:review_run_atomic_persistence_gate': ['runtime-behavior', 'atomic-persistence', 'prompt-envelope', 'review-run', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 };
@@ -857,7 +866,7 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
-    'd6ca0a50fd24368b13817065278e2ca4d59d38983dc21a79322f9997de497e9e',
+    '235d6921b553cf992430f8e36324aca0bb7eefaa745195a1a67fb3d953032ca1',
     '48ca6562b11dda8996163ad992cdb2a9f6e19e6073beaf171290d064f1d106e2',
     '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
     '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
@@ -1567,13 +1576,21 @@ function assertCloseoutTrustBoundary() {
   }
   assert(read(lifecycleRegistryPath).includes("'closeout-write-receipts.jsonl'"), `${lifecycleRegistryPath}: receipt ledger must remain classified lifecycle metadata`);
   const lifecycleText = read(lifecycleRegistryPath);
-  assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'") && lifecycleText.includes("'owner-lease.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed and registry-backed`);
+  assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'prompt-envelopes.json'") && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'") && lifecycleText.includes("'owner-lease.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed, prompt-envelope complete, and registry-backed`);
   for (const fact of [
     'runtime:closeout_phase_transition',
+    'runtime:closeout_reviewer_reattestation_boundary',
     'runtime:closeout_human_confirmation',
     'runtime:closeout_validation_terminal',
   ]) {
     assert(read(processFactRegistryPath).includes(`name: '${fact}'`), `${processFactRegistryPath}: missing durable closeout convergence fact ${fact}`);
+  }
+  const reattestationBoundaryFact = registry.get('runtime:closeout_reviewer_reattestation_boundary');
+  assert(reattestationBoundaryFact?.level === 'L4', `${processFactRegistryPath}: reviewer re-attestation boundary must remain L4`);
+  assert(reattestationBoundaryFact?.producer.includes('review_run_start') && reattestationBoundaryFact?.producer.includes('review_pass_set'), `${processFactRegistryPath}: reviewer re-attestation boundary must identify review run/pass producers`);
+  assert(reattestationBoundaryFact?.consumerGate === 'done_prepare convergence acceptance', `${processFactRegistryPath}: reviewer re-attestation boundary must identify the done_prepare consumer`);
+  for (const token of ['same attempt', 'materialHash', 'storyFilesHash', 'reviewRound', 'first completed identity per lane', 'ReviewPass.createdAt', 'reviewRunId/pass id tie-breakers', 'independent of run start order', 'completed before TEST entry', 'at or after TEST entry', 'fail-closed']) {
+    assert(reattestationBoundaryFact?.rationale.includes(token), `${processFactRegistryPath}: reviewer re-attestation boundary rationale missing ${token}`);
   }
   assert(read(processFactRegistryPath).includes('...PROCESS_FACT_CLOSEOUT_TELEMETRY'), `${processFactRegistryPath}: durable closeout convergence facts must be included in the final registry`);
 
@@ -1919,6 +1936,13 @@ function comparePromptSemantics(promptMap) {
       const mirrorRel = `${mirrorDir}/${name}`;
       if (!promptMap.has(mirrorRel)) {
         warn(`${mirrorRel} missing; no semantic drift comparison available`);
+        continue;
+      }
+      if (modularReviewerBootstrapFiles.has(name)) {
+        const bootstrap = promptMap.get(mirrorRel);
+        if (!bootstrap.includes('review_run_start') || bootstrap.includes('finding_add') || bootstrap.includes('review_pass_set')) {
+          fail(`${mirrorRel} must be a body-free reviewer bootstrap that selects exactly one runtime prompt`);
+        }
         continue;
       }
       const mirrorTokens = promptSemanticTokens(promptMap.get(mirrorRel));
@@ -3124,8 +3148,15 @@ function parseProcessFactRegistry() {
     reviewerLane: '',
     rationale: entry.rationale,
   }));
+  const closeoutTelemetryEntries = parseRegistryArrayEntriesFromSource(sourceText, 'PROCESS_FACT_CLOSEOUT_TELEMETRY');
 
-  cachedProcessFactRegistryEntries = [...commandEntries, ...laneEntries, ...artifactEntries, ...flowPolicyEntries];
+  cachedProcessFactRegistryEntries = [
+    ...commandEntries,
+    ...laneEntries,
+    ...artifactEntries,
+    ...flowPolicyEntries,
+    ...closeoutTelemetryEntries,
+  ];
   return cachedProcessFactRegistryEntries;
 }
 
@@ -5206,10 +5237,58 @@ function assertParentRoadmapTotalityRuntime() {
   assert(levelText.includes('runtime:agent_dispatch_role_authority_gate'), 'process-fact-levels: typed agent dispatch authority fact missing');
   assert(registryFactText.includes("'runtime:agent_dispatch_role_authority_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence']"), 'process-fact-registry: typed dispatch authority must remain a gate-consumed reviewer-lane schema contract');
   assert(levelText.includes('runtime:incremental_review_eligibility_gate'), 'process-fact-levels: incremental review eligibility fact missing');
+  assert(read('packages/main/src/core/review-run.ts').includes('passesCutoffAt: run.startedAt'), 'review-run verifier must bind prior-pass eligibility to signed run.startedAt');
+  assert(read('packages/main/src/handlers/review-run.ts').includes('passesCutoffAt: startedAt'), 'review_run_start assembly must use the same prior-pass cutoff as verification');
+  assert(read('packages/main/src/tasks/review-incremental-context-smoke.ts').includes('passesCutoffAt'), 'incremental review smoke must exercise the prior-pass cutoff contract');
+  const taskContextSource = read('packages/main/src/core/prompt-envelope.ts');
   assert(
-    registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
-    'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/freshness contract',
+    taskContextSource.includes('phase: _phase')
+      && taskContextSource.includes("context.phase === 'TEST' ? 'REVIEW' : context.phase")
+      && taskContextSource.includes('phase: semanticPhase'),
+    'model-relevant TaskContext digest must equate only TEST with REVIEW while preserving every other actual phase',
   );
+  const incrementalLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:incremental_review_eligibility_gate');
+  for (const token of ['only TEST as equivalent', 'mandatory REVIEW-to-TEST transition', 'DEV, DONE, DISCARDED', 'malformed or unknown phases remain distinct', 'checklist', 'scope mutations']) {
+    assert(incrementalLevel?.rationale.includes(token), `incremental review eligibility rationale missing lifecycle semantic boundary: ${token}`);
+  }
+  assert(incrementalLevel?.gateConsumer.includes('DONE/done_prepare') && incrementalLevel?.gateConsumer.includes('collectReviewerEvidenceState'), 'incremental review eligibility must identify the shared DONE/done_prepare evidence oracle');
+  const incrementalSmoke = read('packages/main/src/tasks/review-incremental-context-smoke.ts');
+  for (const token of ['REVIEW-TO-TEST TASK SNAPSHOT', 'only REVIEW/TEST are equivalent', 'DEV/DONE/DISCARDED/unknown', 'title/checklist mutations fail closed', 'DONE oracle agrees']) {
+    assert(incrementalSmoke.includes(token), `incremental review smoke missing lifecycle task-context proof token: ${token}`);
+  }
+  assert(
+    registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
+    'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/normalization/freshness contract',
+  );
+  assert(levelText.includes('runtime:prompt_role_body_rollout_gate'), 'process-fact-levels: prompt role-body rollout gate fact missing');
+  assert(
+    registryFactText.includes("'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence']"),
+    'process-fact-registry: prompt role-body rollout must remain a gate-consumed role/envelope contract',
+  );
+  const roleBodyRolloutLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:prompt_role_body_rollout_gate');
+  assert(roleBodyRolloutLevel?.level === 'L4', 'prompt role-body rollout must remain L4');
+  for (const token of ['five active REVIEW lanes', 'content-addressed', 'byte-exact legacy role body', 'Every supported host mode binds both', 'total model input explicit', 'Compatibility and retired']) {
+    assert(roleBodyRolloutLevel?.rationale.includes(token), `prompt role-body rollout rationale must preserve ${token}`);
+  }
+  const reviewAtomicLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:review_run_atomic_persistence_gate');
+  assert(reviewAtomicLevel?.level === 'L4', 'review-run atomic persistence must remain L4');
+  for (const token of ['Every Prompt Envelope producer', 'Story-aware agent_prompt', 'bakery-style unique-ticket', 'never-reused UUID ticket path', 'stale reclaim removes only the exact dead acquisition path', 'fixed-path ABA', 'nests no fixed-path Prompt Envelope lock']) {
+    assert(reviewAtomicLevel?.rationale.includes(token), `review-run atomic persistence rationale must preserve ${token}`);
+  }
+  const mkdirLockText = read('packages/main/src/core/mkdir-lock.ts');
+  const reviewRunHandlerText = read('packages/main/src/handlers/review-run.ts');
+  const agentPromptHandlerText = read('packages/main/src/handlers/agent-prompt.ts');
+  const incrementalSmokeText = read('packages/main/src/tasks/review-incremental-context-smoke.ts');
+  for (const token of ['acquireMkdirTicketLock', '.choosing', '.ticket', 'randomUUID()', 'rmSync(candidate.path']) {
+    assert(mkdirLockText.includes(token), `mkdir ticket lock must preserve identity-conditional reclaim marker ${token}`);
+  }
+  assert(reviewRunHandlerText.includes('withReviewMetadataTicketLock'), 'review_run_start must use the shared review metadata transaction lock');
+  assert(agentPromptHandlerText.includes('withReviewMetadataTicketLock'), 'Story-aware agent_prompt must use the shared review metadata transaction lock');
+  assert(!reviewRunHandlerText.includes("'prompt-envelopes.lock'"), 'review_run_start must not nest the legacy fixed-path Prompt Envelope lock');
+  assert(!agentPromptHandlerText.includes("'prompt-envelopes.lock'"), 'Story-aware agent_prompt must not use the legacy fixed-path Prompt Envelope lock');
+  for (const token of ['MIXED WRITER LOCK ABA:', "'review_run_start'", "'agent_prompt'", 'observed-w2', 'observed-w1', 'allow-remove-w2', 'acquired-w2', 'allow-remove-w1', 'actual mixed producers preserve both Prompt Envelope records', 'verifyReviewRunPromptEnvelope']) {
+    assert(incrementalSmokeText.includes(token), `review incremental smoke must preserve deterministic ABA barrier ${token}`);
+  }
   const dispatchAuthorityLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:agent_dispatch_role_authority_gate');
   assert(dispatchAuthorityLevel?.level === 'L4', 'typed agent dispatch authority must remain L4');
   assert(/dispatch prompt admission and role-gated checklist\/reviewer evidence mutation consumers/.test(dispatchAuthorityLevel?.gateConsumer || ''), 'typed agent dispatch authority must name prompt and mutation consumers');

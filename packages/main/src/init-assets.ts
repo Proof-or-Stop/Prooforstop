@@ -205,7 +205,7 @@ export function renderLatticeCodexAdapterManifest(options: RenderCodexAdapterMan
     promptRegistry: options.promptRegistry ?? promptRegistryManifest(),
     notes: [
       ...LATTICE_CODEX_ADAPTER_MANIFEST.notes,
-      'Thin asset mode uses the package prompt registry instead of materializing .lattice-codex/agents prompt copies.',
+      'Thin asset mode uses the package prompt registry instead of materializing .lattice-codex/agents prompt copies. Migrated reviewers resolve to the canonical body-free review_run_start bootstrap; that command supplies exactly one selected role body.',
     ],
   }, null, 2)}\n`;
 }
@@ -264,7 +264,7 @@ const CODEX_README_THIN_APPENDIX = `
 
 This repository uses registry-backed Codex prompts:
 
-- \`.lattice-codex/lattice.json\` records \`promptMode=registry\` and the package prompt registry hash.
+- \`.lattice-codex/lattice.json\` records \`promptMode=registry\` and the package prompt registry hash. The five migrated reviewers resolve to a body-free \`review_run_start\` bootstrap; the command returns the single selected role body.
 - \`.lattice-codex/agents\` prompt copies are not required for Proofbound adapter verification in this mode.
 - Legacy full-mode repositories may still materialize \`.lattice-codex/agents\`; both modes remain supported.
 - This is adapter hygiene only. It does not replace validation evidence, receipts, or release-readiness assurance.

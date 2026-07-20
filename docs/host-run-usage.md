@@ -96,6 +96,20 @@ command never throws and `exitCode` is a field.
 
 ### Reviewer launch
 
+Reviewer Prompt 不应由调用方手工拼接或假定某个 rollout mode。先由
+`review_run_start` 按当前 Story、lane 和 `promptEnvelope.roles` 的逐角色 flag
+选择可信正文与 full/incremental context，再将它返回的 dispatch Prompt 交给
+`host_run`。当前可独立启用 `lattice-review-concept`、
+`lattice-review-quality`、`lattice-review-test-coverage`、
+`lattice-review-behavior`、`lattice-review-docs`；未启用角色保持
+`legacy-full-context`，retired channel 不可进入该 rollout。
+
+ReviewRun 摘要会记录 rollout mode、role-body/context/assembled digest、selection
+reason 和预算判定。reviewer 如发现增量材料不足，必须通过既有 escalation
+reason 请求 full context；feature flag 本身不会授予 incremental eligibility，
+也不会改变 pass/finding 的签名与 freshness 门禁。在途 legacy pass 仍只按其
+原始 ReviewRun/round/Envelope 解释，不能因后来切换 flag 被重新绑定。
+
 ```
 lattice host_run --host codex --storyId B-xxxx --agentType reviewer \
   --reviewRunId B-xxxx:RR-001 --lane lattice-review-quality \
@@ -163,6 +177,11 @@ Provider truth is preferred over estimates; an absence is recorded as an explici
 
 A parse miss (no `turn.completed` event, no `result` usage) records an
 `unavailable` final with a reason rather than inventing counts.
+
+同样的诚实口径适用于 reviewer A/B：缺少 exact per-role historical envelope、
+reviewer output、adjudication bytes 或 provider receipt 时结果是
+`INCONCLUSIVE`，不是“0 token”或已证明的节省。B-235e 的独立 replay campaign
+因此不声称达到计划中的 50% incremental / 40% assembled 降幅。
 
 The one-line usage summary reflects the **actual append outcome**, not merely
 that the provider envelope parsed. When the ledger append itself fails (a corrupt

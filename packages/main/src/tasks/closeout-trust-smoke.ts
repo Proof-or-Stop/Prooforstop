@@ -38,7 +38,8 @@ import {
 import { StoryStore } from '../core/store.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
-import { currentScopeContextForStory, evaluatePersistedReviewToTestIndexTransition, evaluateReviewRunMetadataRetention, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { currentScopeContextForStory, evaluatePersistedReviewToTestIndexTransition, evaluateReviewRunMetadataRetention, hashReviewPrompt, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import { createStoryActor, evaluateReviewVerdict, getGuardFailureReason, getStateName } from '../core/machine.js';
 import type { Finding, ReviewRun } from '../core/types.js';
@@ -57,6 +58,11 @@ import type { HandlerContext } from '../handlers/context.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { createLegacyLocalOnlyDeliveryClaims } from '../core/legacy-delivery-claims-compat.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
+
+const legacyPromptHash = (roleId: string): string => hashReviewPrompt(resolvePromptRoleBody(roleId, {
+  version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+  roles: { [roleId]: 'legacy-full-context' },
+}).body);
 
 const storyId = 'B-closeout';
 const ledger = buildMilestoneLedger({
@@ -325,7 +331,9 @@ try {
   const indexRun = {
     reviewRunId: `${indexStoryId}:RR-001`, storyId: indexStoryId, agent: 'lattice-review-quality', lane: 'lattice-review-quality',
     reviewRound: indexRound, startedAt: indexRound, headHash: currentGitHead(indexRepo)!, materialHash: currentMaterialHash(indexRepo, 'HEAD', indexRepo)!,
-    storyFilesHash: currentStoryFilesHash(indexRepo, 'HEAD', indexRepo)!, promptHash: 'prompt', scopeBinding: indexBinding,
+    storyFilesHash: currentStoryFilesHash(indexRepo, 'HEAD', indexRepo)!,
+    promptHash: legacyPromptHash('lattice-review-quality'),
+    scopeBinding: indexBinding,
   } as ReviewRun;
   indexRun._hash = signReviewRun(
     indexRun.storyId, indexRun.reviewRunId, indexRun.agent, indexRun.lane, indexRun.reviewRound, indexRun.startedAt,
@@ -432,7 +440,9 @@ try {
   const run = {
     reviewRunId: `${runtimeStoryId}:RR-001`, storyId: runtimeStoryId, agent: 'lattice-review-quality', lane: 'lattice-review-quality',
     reviewRound: 'round-1', startedAt: new Date().toISOString(), headHash: baselineHead, materialHash: baselineMaterial,
-    storyFilesHash: baselineStoryFiles, promptHash: 'prompt', scopeBinding: runtimeBinding,
+    storyFilesHash: baselineStoryFiles,
+    promptHash: legacyPromptHash('lattice-review-quality'),
+    scopeBinding: runtimeBinding,
   } as ReviewRun;
   run._hash = signReviewRun(
     run.storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound, run.startedAt,
@@ -637,6 +647,7 @@ try {
       headHash: currentHead,
       materialHash: currentMaterial,
       storyFilesHash: currentStoryFiles,
+      promptHash: legacyPromptHash(agent),
     } as ReviewRun;
     freshRun._hash = signReviewRun(
       freshRun.storyId, freshRun.reviewRunId, freshRun.agent, freshRun.lane, freshRun.reviewRound,
@@ -657,7 +668,8 @@ try {
 
   store.writeReviewRuns(runtimeStoryId, { runs: [freshRuns[0]] });
   store.writeReviewPasses(runtimeStoryId, { passes: [freshPasses[0]] });
-  assert.equal(evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo }).code, 'review_lane_missing');
+  const missingLaneVerdict = evaluateReviewVerdict({ storyId: runtimeStoryId, store, projectRoot: repo, gitCwd: repo });
+  assert.equal(missingLaneVerdict.code, 'review_lane_missing', JSON.stringify(missingLaneVerdict));
   const missingLaneActor = createStoryActor(runtimeStoryId, store, 'TEST', repo, repo);
   missingLaneActor.start();
   missingLaneActor.send({ type: 'FINISH' });
@@ -844,7 +856,7 @@ try {
     headHash: currentGitHead(wrapperRepo)!,
     materialHash: currentMaterialHash(wrapperRepo, 'HEAD', wrapper)!,
     storyFilesHash: currentStoryFilesHash(wrapperRepo, 'HEAD', wrapper)!,
-    promptHash: 'prompt',
+    promptHash: legacyPromptHash('lattice-review-quality'),
     scopeBinding: wrapperBinding,
   });
   const preCloseoutRun = makeWrapperRun('RR-001');

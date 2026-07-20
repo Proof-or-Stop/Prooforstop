@@ -18,17 +18,27 @@ import {
   type IncrementalReviewBasis,
 } from '../core/prompt-contracts.js';
 import {
+  ACTIVE_MODULAR_REVIEWER_ROLE_IDS,
   PROMPT_ENVELOPE_ROLLOUT_VERSION,
   promptRoleContract,
   resolvePromptEnvelopeRolloutMode,
+  resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { createAgentPromptHandlers, findRoleEntry } from '../handlers/agent-prompt.js';
 import { readPromptTemplate } from '../core/prompt-registry.js';
 import { isReviewerAgent, resolveReviewRunLane } from '../core/review-run.js';
+import { storyRuntimeLockPath } from '../core/validation-execution-lock.js';
 import { parseForceReviewers } from '../handlers/reviewer-list.js';
 
 const role = promptRoleContract('lattice-review-quality');
+const fullRollout = {
+  version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+  roles: {
+    'lattice-review-quality': 'full-envelope',
+    'lattice-review-behavior': 'full-envelope',
+  },
+} as const;
 const taskContext: FullTaskContext = {
   schemaVersion: 'proofbound.full-task-context.v1',
   storyId: 'B-envelope',
@@ -73,7 +83,7 @@ const taskContext: FullTaskContext = {
 const common = {
   roleContract: role,
   runtimeContract: BASELINE_RUNTIME_CONTRACT,
-  rolePrompt: readPromptTemplate(findRoleEntry(role.roleId)!),
+  rolePrompt: resolvePromptRoleBody(role.roleId, fullRollout).body,
   taskContext,
   dispatchKind: 'review-run' as const,
   reviewRunId: 'B-envelope:RR-001',
@@ -150,6 +160,43 @@ assert.equal(safeIncremental.selectionReason, 'SAFE_INCREMENTAL');
 assert.ok(safeIncremental.envelope.incrementalContextBytes! < safeIncremental.envelope.fullContextBytes!);
 assert.equal(verifyPromptEnvelopeIntegrity(safeIncremental.envelope), true);
 
+for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
+  const roleContract = promptRoleContract(roleId);
+  const rolePrompt = resolvePromptRoleBody(roleId, {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [roleId]: 'full-envelope' },
+  }).body;
+  const roleCommon = {
+    ...common,
+    roleContract,
+    rolePrompt,
+    lane: roleId,
+    reviewRunId: `B-envelope:RR-${roleId}`,
+  };
+  const fullLaunch = assembleFullPromptEnvelope({
+    ...roleCommon,
+    createdAt: '2026-07-18T00:00:04.000Z',
+  });
+  assert.equal(fullLaunch.envelope.roleId, roleId, `${roleId} trusted full launch binds its own role`);
+  assert.equal(verifyPromptEnvelopeIntegrity(fullLaunch.envelope), true);
+  const incrementalLaunch = assembleConditionalReviewPromptEnvelope({
+    ...roleCommon,
+    createdAt: '2026-07-18T00:00:05.000Z',
+    eligibilityDigest: '2'.repeat(64),
+    eligibilityReasonCodes: reviewBasis.reReviewReasonCodes,
+    freshnessClassification: 'CURRENT_MATERIAL',
+    impactPolicyVersion: 'proofbound.impact-classification.v1',
+    priorPassRef: reviewBasis.priorPassRef,
+    changedFilesDigest: '3'.repeat(64),
+    impactedFilesDigest: '4'.repeat(64),
+    reviewBasis: { ...reviewBasis, lane: roleId },
+    incrementalEligible: true,
+  });
+  assert.equal(incrementalLaunch.envelope.roleId, roleId);
+  assert.equal(incrementalLaunch.envelope.contextMode, 'incremental', `${roleId} trusted incremental launch stays role-bound`);
+  assert.equal(verifyPromptEnvelopeIntegrity(incrementalLaunch.envelope), true);
+}
+
 const safetyFull = assembleConditionalReviewPromptEnvelope({
   ...conditionalCommon,
   incrementalEligible: false,
@@ -218,7 +265,7 @@ assert.throws(
 assert.throws(
   () => assembleFullPromptEnvelope({
     ...common,
-    rolePrompt: readPromptTemplate(findRoleEntry('lattice-review-behavior')!),
+    rolePrompt: resolvePromptRoleBody('lattice-review-behavior', fullRollout).body,
     createdAt: '2026-07-18T00:00:01.000Z',
   }),
   /renderDigest does not match/,
@@ -296,6 +343,8 @@ try {
     }),
     readScopeContract: () => null,
     storyDirPath: () => storyDir,
+    runtimeLockDirPath: (storyId: string, category: string, name: string) =>
+      storyRuntimeLockPath(tempRoot, category, storyId, name),
     storyFilePath: (_storyId: string, file: string) => {
       mkdirSync(storyDir, { recursive: true });
       return join(storyDir, file);

@@ -10,7 +10,8 @@ import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { signReviewPass } from '../core/finding-verify.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
-import { signReviewRun } from '../core/review-run.js';
+import { hashReviewPrompt, signReviewRun } from '../core/review-run.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 import { StoryStore } from '../core/store.js';
 import {
   canFinishGuard,
@@ -37,6 +38,13 @@ const STORY_ID = 'B-review-assurance-floor';
 const REVIEW_ROUND = '2026-06-19T10:00:00.000Z';
 const SMOKE_PROMPT = 'Reply READY and do not run tools.';
 const DIST_CLI_PATH = join(dirname(fileURLToPath(import.meta.url)), '..', 'cli.js');
+
+function legacyPromptHash(agent: string): string {
+  return hashReviewPrompt(resolvePromptRoleBody(agent, {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [agent]: 'legacy-full-context' },
+  }).body);
+}
 
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -312,7 +320,7 @@ function fakeDoneStore(metadataRoot: string, gitRoot: string, headHash: string, 
       headHash,
       materialHash,
       storyFilesHash,
-      promptHash: `prompt-${reviewer.name}`,
+      promptHash: legacyPromptHash(agent),
     };
     run._hash = signReviewRun(
       run.storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound,

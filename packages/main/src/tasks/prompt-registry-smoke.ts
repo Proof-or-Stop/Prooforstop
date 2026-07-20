@@ -18,12 +18,23 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  MODULAR_REVIEWER_ROLE_IDS,
   PROMPT_REGISTRY_SOURCE,
   PROMPT_REGISTRY_VERSION,
   listPromptTemplateFiles,
   readPromptRegistry,
   renderPromptEntryForHost,
+  restoreLegacyPromptTemplate,
 } from '../core/prompt-registry.js';
+import { assertNoDuplicatePromptEnvelopeRoleKeys } from '../core/config.js';
+import {
+  ACTIVE_MODULAR_REVIEWER_ROLE_IDS,
+  PROMPT_ENVELOPE_ROLLOUT_VERSION,
+  PromptRoleContractRegistryError,
+  resolvePromptEnvelopeRolloutMode,
+  resolvePromptRoleBody,
+  reviewerHostRenderIdentity,
+} from '../core/prompt-role-contract-registry.js';
 import { renderCodexAgentContent } from '../init-assets.js';
 
 const registry = readPromptRegistry();
@@ -32,12 +43,8 @@ const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
   'lattice-evaluator.md',
   'lattice-implementer.md',
-  'lattice-review-behavior.md',
   'lattice-review-channel.md',
-  'lattice-review-concept.md',
   'lattice-review-delivery.md',
-  'lattice-review-docs.md',
-  'lattice-review-quality.md',
   'lattice-review-scope-plan.md',
   'lattice-review-story-init.md',
 ]);
@@ -49,10 +56,9 @@ const requiredSafetyPhrases = [
   'finding_add',
   'reviewRunId',
   'verificationEvidence',
-  'receiptVerified',
-  'productionDone',
-  'authorityDone',
-  'fullAuthorityDone',
+  'admissibilityStatus',
+  'assuranceLevel',
+  'evidenceScope',
 ];
 const qualityProofMetadataPhrases = [
   'job.metadata',
@@ -79,12 +85,21 @@ for (const entry of registry.agents) {
   const source = readFileSync(entry.sourcePath, 'utf8');
   const sourceHash = createHash('sha256').update(source).digest('hex');
   assert.equal(entry.templateHash, sourceHash, `${entry.file} template hash matches source`);
-  assert.equal(renderPromptEntryForHost(entry, 'claude'), source, `${entry.file} claude render matches template`);
-  assert.equal(
-    renderPromptEntryForHost(entry, 'codex'),
-    renderCodexAgentContent(source),
-    `${entry.file} codex render matches legacy transform`,
-  );
+  const expectedClaude = MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])
+    ? renderPromptEntryForHost(entry, 'claude')
+    : source;
+  const expectedCodex = renderPromptEntryForHost(entry, 'codex');
+  if (MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
+    assert.match(expectedClaude, /review_run_start/, `${entry.file} Claude registry render is bootstrap-only`);
+    assert.match(expectedCodex, /review_run_start/, `${entry.file} Codex registry render is bootstrap-only`);
+    assert.doesNotMatch(expectedClaude, /proofbound:modular-role-body:v1/, `${entry.file} Claude registry excludes role body`);
+    assert.doesNotMatch(expectedCodex, /proofbound:modular-role-body:v1/, `${entry.file} Codex registry excludes role body`);
+  } else {
+    assert.equal(expectedClaude, source, `${entry.file} Claude render matches template`);
+  }
+  if (!MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
+    assert.equal(expectedCodex, renderCodexAgentContent(source), `${entry.file} Codex render matches legacy transform`);
+  }
   if (loadBearingPromptFiles.has(entry.file)) {
     assert.equal(extractLatticeBlock(source), LOAD_BEARING_LATTICE_PROMPT_SLICE, `${entry.file} uses canonical load-bearing prompt slice`);
     for (const phrase of requiredSafetyPhrases) {
@@ -98,14 +113,108 @@ for (const entry of registry.agents) {
   }
   const claudeMirrorPath = join(projectRoot, '.claude', 'agents', entry.file);
   if (existsSync(claudeMirrorPath)) {
-    assert.equal(readFileSync(claudeMirrorPath, 'utf8'), source, `${entry.file} .claude mirror matches package template`);
+    assert.equal(readFileSync(claudeMirrorPath, 'utf8'), expectedClaude, `${entry.file} .claude asset matches its canonical host input`);
   }
   const codexMirrorPath = join(projectRoot, '.lattice-codex', 'agents', entry.file);
   if (existsSync(codexMirrorPath)) {
-    assert.equal(readFileSync(codexMirrorPath, 'utf8'), renderCodexAgentContent(source), `${entry.file} .lattice-codex mirror matches codex render`);
+    assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .lattice-codex asset matches its canonical host input`);
   }
   material.update(`${entry.file}\0${entry.templateHash}\0${entry.bytes}\n`);
 }
 assert.equal(registry.materialHash, material.digest('hex'), 'registry material hash is deterministic');
+
+assert.deepEqual(
+  [...ACTIVE_MODULAR_REVIEWER_ROLE_IDS],
+  [...MODULAR_REVIEWER_ROLE_IDS],
+  'the modular rollout roster is exactly the five active REVIEW lanes',
+);
+const fullRoles = Object.fromEntries(MODULAR_REVIEWER_ROLE_IDS.map(roleId => [roleId, 'full-envelope']));
+const fullConfig = { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: fullRoles };
+for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
+  const entry = registry.agents.find(candidate => candidate.agentId === roleId)!;
+  const legacy = resolvePromptRoleBody(roleId, {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [roleId]: 'legacy-full-context' },
+  });
+  const modular = resolvePromptRoleBody(roleId, fullConfig);
+  assert.equal(legacy.body, restoreLegacyPromptTemplate(entry), `${roleId} rollback restores frozen bytes`);
+  assert.equal(legacy.legacyBytesRestored, true);
+  assert.equal(modular.mode, 'full-envelope');
+  assert.equal(modular.legacyBytesRestored, false);
+  assert.ok(Buffer.byteLength(modular.body) < Buffer.byteLength(legacy.body), `${roleId} modular body is smaller`);
+  assert.notEqual(modular.bodyDigest, legacy.bodyDigest, `${roleId} bodies are independently content-addressed`);
+  assert.equal(modular.body, readFileSync(entry.sourcePath, 'utf8'), `${roleId} package asset is the actual modular body`);
+  assert.equal(extractLatticeBlock(modular.body), null, `${roleId} modular body contains no legacy Runtime Guide`);
+  assert.ok(modular.body.includes('proofbound:modular-role-body:v1'), `${roleId} keeps the legacy reconstruction anchor`);
+  for (const host of ['claude', 'codex'] as const) {
+    const identity = reviewerHostRenderIdentity(projectRoot, roleId, host, 'full-envelope');
+    assert.equal(identity.rolloutMode, 'full-envelope');
+    assert.ok(identity.hostRenderDigest.length > 0, `${roleId}/${host} binds the actual modular host render`);
+    assert.ok(identity.selectedRoleBodyDigest.length > 0, `${roleId}/${host} binds the selected role body`);
+    assert.ok(identity.bootstrapDigest?.length, `${roleId}/${host} binds the canonical bootstrap in ${identity.source} mode`);
+  }
+
+  const oneRoleConfig = {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [roleId]: 'full-envelope' },
+  };
+  for (const otherRoleId of MODULAR_REVIEWER_ROLE_IDS) {
+    assert.equal(
+      resolvePromptEnvelopeRolloutMode(otherRoleId, oneRoleConfig),
+      otherRoleId === roleId ? 'full-envelope' : 'legacy-full-context',
+      `${roleId} rollout flag does not bleed into ${otherRoleId}`,
+    );
+  }
+}
+for (let mask = 0; mask < 2 ** MODULAR_REVIEWER_ROLE_IDS.length; mask += 1) {
+  const roles = Object.fromEntries(MODULAR_REVIEWER_ROLE_IDS.map((roleId, index) => [
+    roleId,
+    (mask & (1 << index)) === 0 ? 'legacy-full-context' : 'full-envelope',
+  ]));
+  const config = { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles };
+  for (const [roleId, expected] of Object.entries(roles)) {
+    assert.equal(resolvePromptEnvelopeRolloutMode(roleId, config), expected, `mixed rollout mask ${mask} keeps ${roleId}`);
+  }
+}
+assert.equal(resolvePromptEnvelopeRolloutMode('lattice-review-concept', undefined), 'legacy-full-context');
+for (const roles of [
+  { 'lattice-review-channel': 'full-envelope' },
+  { 'implementation-reviewer': 'full-envelope' },
+  { 'unknown-reviewer': 'full-envelope' },
+]) {
+  assert.throws(
+    () => resolvePromptEnvelopeRolloutMode('lattice-review-concept', {
+      version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+      roles,
+    }),
+    PromptRoleContractRegistryError,
+  );
+}
+for (const [source, expected] of [
+  [
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{}},"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"lattice-review-quality":"full-envelope"}}}',
+    /duplicate promptEnvelope key/,
+  ],
+  [
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{},"roles":{"lattice-review-quality":"full-envelope"}}}',
+    /duplicate promptEnvelope\.roles key/,
+  ],
+  [
+    '{"promptEnvelope":{"version":"proofbound.prompt-envelope-rollout.v1","roles":{"lattice-review-quality":"full-envelope","lattice-review-quality":"legacy-full-context"}}}',
+    /duplicate promptEnvelope\.roles\.lattice-review-quality key/,
+  ],
+] as const) {
+  assert.throws(() => assertNoDuplicatePromptEnvelopeRoleKeys(source), expected);
+}
+for (const malformed of [
+  { version: 'proofbound.prompt-envelope-rollout.v0', roles: {} },
+  { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { 'lattice-review-quality': 'unknown-mode' } },
+  { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: JSON.parse('{"__proto__":"full-envelope"}') },
+]) {
+  assert.throws(
+    () => resolvePromptEnvelopeRolloutMode('lattice-review-quality', malformed),
+    PromptRoleContractRegistryError,
+  );
+}
 
 console.log(`✓ prompt registry smoke passed: ${registry.agentCount} agents rendered for claude and codex`);

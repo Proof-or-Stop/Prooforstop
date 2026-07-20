@@ -175,7 +175,8 @@ function makeFixture(
     const assetDir = selectedHost === 'codex' ? '.lattice-codex/agents' : '.claude/agents';
     for (const lane of REVIEW_LANES) {
       const entry = promptRegistry.agents.find(candidate => candidate.agentId === lane)!;
-      write(root, `${assetDir}/${entry.file}`, renderPromptEntryForHost(entry, selectedHost));
+      const hostTemplate = renderPromptEntryForHost(entry, selectedHost);
+      write(root, `${assetDir}/${entry.file}`, hostTemplate);
     }
   }
   write(root, 'README.md', 'quorum submit smoke\n');
@@ -285,7 +286,11 @@ function assertQuorumRefuses(registry: ReturnType<typeof createMainRegistry>, st
   assert.equal(verdictFileCount(root), beforeVerdicts, `${label}: no verdict files written`);
 }
 
-function startRunAndPass(registry: ReturnType<typeof createMainRegistry>, lane: string): void {
+function startRunAndPass(
+  registry: ReturnType<typeof createMainRegistry>,
+  lane: string,
+  mode: 'legacy-full-context' | 'full-envelope' = 'full-envelope',
+): void {
   const dispatch = registry.get('dispatch');
   const start = registry.get('review_run_start');
   const pass = registry.get('review_pass_set');
@@ -300,7 +305,13 @@ function startRunAndPass(registry: ReturnType<typeof createMainRegistry>, lane: 
   }));
   const match = output.match(/Review run (\S+) started/);
   assert.ok(match?.[1], `review_run_start output contains reviewRunId for ${lane}`);
-  assert.match(output, /BEGIN EXACT ASSEMBLED REVIEW PROMPT/, 'review_run_start delivers the exact bound prompt bytes');
+  assert.match(
+    output,
+    mode === 'full-envelope'
+      ? /BEGIN EXACT ASSEMBLED REVIEW PROMPT/
+      : /BEGIN EXACT SELECTED LEGACY ROLE BODY/,
+    `review_run_start delivers the selected ${mode} prompt bytes`,
+  );
   pass({
     storyId: STORY_ID,
     agent: lane,
@@ -847,6 +858,33 @@ try {
       assert.equal(git(fixture.root, ['status', '--porcelain=v1']), '');
       assert.equal(hostVerdictEventCount(fixture.store), 6);
       assert.equal(verdictFileCount(fixture.root), 6);
+    });
+  });
+
+  check('mixed legacy/full reviewer evidence crosses collector, REVIEW gate, and quorum admission', () => {
+    withFreshFixture((fixture) => {
+      const configPath = join(fixture.root, 'lattice.config.json');
+      const config = JSON.parse(readFileSync(configPath, 'utf8'));
+      const modes = {
+        'lattice-review-concept': 'legacy-full-context',
+        'lattice-review-quality': 'full-envelope',
+        'lattice-review-test-coverage': 'legacy-full-context',
+      } as const;
+      config.promptEnvelope.roles = modes;
+      write(fixture.root, 'lattice.config.json', `${JSON.stringify(config, null, 2)}\n`);
+      git(fixture.root, ['add', 'lattice.config.json']);
+      git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'select mixed reviewer rollout']);
+      resetConfigCache();
+
+      withSessionProvider('codex', () => {
+        for (const lane of REVIEW_LANES) startRunAndPass(fixture.registry, lane, modes[lane]);
+      });
+      const evidence = collectReviewerEvidenceState(fixture.store, STORY_ID, fixture.root);
+      assert.equal(evidence.invalid.length, 0, `mixed collector invalid=${JSON.stringify(evidence.invalid)}`);
+      assert.equal(evidence.valid.length, REVIEW_LANES.length);
+      assert.equal(canPassReviewGuard({ storyId: STORY_ID, store: fixture.store, projectRoot: fixture.root }), true);
+      const result: any = fixture.registry.get('quorum_submit')!(quorumArgs());
+      assert.equal(result.emittedCount, 6, 'mixed reviewer passes authorize the same 3x2 quorum batch');
     });
   });
 

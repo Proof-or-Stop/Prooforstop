@@ -236,16 +236,18 @@ receipt-backed authority remain separate gate inputs.
 
 ## Policy: host-neutral prompt content, thin host adapters (B-097f)
 
-The single source of truth for every Proofbound agent prompt **body** is the package
-prompt registry (`packages/main/templates/agents/*.md` via
-`promptRegistryManifest()`). **No host materializes prompt content.** Each host
-keeps only a *thin adapter* that points back at the registry; the adapter shape is
-dictated by that host's loader, but the content source is identical across hosts.
+The package prompt registry (`packages/main/templates/agents/*.md` via
+`promptRegistryManifest()`) is the single source for ordinary role bodies and
+for the five migrated reviewer definitions. The registry host resolver exposes
+those five reviewers as a body-free bootstrap; `review_run_start` selects and
+returns exactly one legacy or modular role body. Each host keeps only a *thin
+adapter* or that canonical bootstrap. The adapter shape is dictated by the
+host's loader, but the selected-body source remains the package registry.
 
 | Host | Thin adapter (what lives in the project/global) | Prompt content source |
 | --- | --- | --- |
-| Codex | `.lattice-codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package prompt registry |
-| Claude | `.claude/agents/*.md` **thin shim** (frontmatter `name`/`description`/`tools` + a "fetch from CLI" body) | package prompt registry, served by `lattice agent_prompt` |
+| Codex | `.lattice-codex/lattice.json` manifest (`promptMode: 'registry'`) — B-4ee0 | package registry host render: reviewer bootstrap or ordinary role body |
+| Claude | `.claude/agents/*.md` **thin shim/bootstrap** (frontmatter `name`/`description`/`tools` + a CLI pointer) | migrated reviewers use `review_run_start`; ordinary roles use `lattice agent_prompt` |
 
 B-4ee0 already collapsed the **Codex** side: in global-thin/thin mode Codex does
 not materialize `.lattice-codex/agents`; it resolves prompts from the registry via its
@@ -257,17 +259,27 @@ keeps one file per role, but that file is a **content-free shim**.
 
 **Contract:**
 
-1. **Prompt content never lives under a host.** A Claude shim contains only
+1. **Selected reviewer role content never lives under a host.** A migrated
+   reviewer bootstrap contains only
    frontmatter (`name`, `description`, `tools`) plus a body instructing the agent
-   to fetch its authoritative instructions from the Proofbound CLI. The role prompt
-   body is **not** copied or symlinked into any host directory.
+   to call `review_run_start`; that command returns the single selected role
+   body. Ordinary roles retain their `agent_prompt` shim contract. No migrated
+   reviewer role body is copied or symlinked into a host directory.
 
-2. **`lattice agent_prompt --role=<name>` is the shared content endpoint.** It
-   returns the canonical role body by reading the package registry template
-   (`templates/agents/<role>.md`) — the same template set the prompt registry
-   manifest (`promptRegistryManifest()`) is built from and that the Codex manifest
-   resolves against. Claude shims fetch from this command; Codex resolves the same
-   template set. There is one content source, byte-for-byte.
+2. **The registry host render is the shared bootstrap/body endpoint.**
+   `lattice agent_prompt --role=<name>` returns the canonical registry host
+   render: a body-free `review_run_start` bootstrap for the five migrated
+   reviewers, and the canonical role body for ordinary roles. Codex registry
+   mode resolves the same host render. For migrated reviewers,
+   `review_run_start` alone supplies exactly one selected role body.
+
+   `review_run_start` and Story-aware `agent_prompt` share one bakery-style
+   unique-ticket transaction lock for Prompt Envelope metadata; the review-run
+   path nests no fixed-path envelope lock. Each acquisition owns a never-reused
+   UUID path; stale recovery deletes only that exact dead ticket. This is
+   gate-consumed evidence behavior: two reclaimers cannot delete a replacement
+   holder through fixed-path ABA, overlap the two producers, and lose a reviewer
+   lane.
 
 3. **Shims live in global `~/.claude/agents`; projects get zero agent files.** The
    16 shims are generated once into the user-global `~/.claude/agents` so Claude

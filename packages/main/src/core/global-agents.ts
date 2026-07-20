@@ -14,7 +14,9 @@
  *   *thin shim* file: the registry template's frontmatter (name/description/tools,
  *   plus model if present) followed by a standard imperative body that tells the
  *   agent to fetch its authoritative instructions from the Proofbound CLI via
- *   `lattice agent_prompt --role=<name>`. The shim contains NO role body.
+ *   `lattice agent_prompt --role=<name>`. The five modular REVIEW roles instead
+ *   use the canonical `review_run_start` bootstrap so the host receives exactly
+ *   one mode-selected role body. Every shim contains NO role body.
  *
  *   Keeping the `tools:` frontmatter verbatim preserves each host's read-only
  *   sandbox (e.g. `lattice-review-*` stay read-only). Thinning the body does not
@@ -38,6 +40,17 @@ import {
 import { homedir as osHomedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  extractTemplateFrontmatter,
+  isModularReviewerRoleId,
+  renderReviewerRunBootstrap,
+} from './prompt-registry.js';
+export {
+  buildReviewerRunBootstrapBody,
+  extractTemplateFrontmatter,
+  renderReviewerRunBootstrap,
+  renderReviewerRunBootstrapForTemplate,
+} from './prompt-registry.js';
 
 /**
  * Resolve the user-global Claude agents directory: `<home>/.claude/agents`.
@@ -140,51 +153,6 @@ export function listManagedAgentBasenames(
  * whether inline `tools: A, B` or a multi-line YAML list) so the host's
  * mechanical role sandbox is preserved exactly.
  */
-export function extractTemplateFrontmatter(
-  raw: string,
-  file: string,
-): { frontmatter: string; name: string } {
-  // Normalize CRLF so delimiter detection is line-ending agnostic.
-  const text = raw.replace(/\r\n/g, '\n');
-  const lines = text.split('\n');
-  if (lines[0]?.trim() !== '---') {
-    throw new Error(
-      `Proofbound agent template ${file} is missing YAML frontmatter (must start with '---'). ` +
-        `Cannot generate a Claude thin-shim without a frontmatter block.`,
-    );
-  }
-  let endIdx = -1;
-  for (let i = 1; i < lines.length; i++) {
-    if (lines[i].trim() === '---') {
-      endIdx = i;
-      break;
-    }
-  }
-  if (endIdx === -1) {
-    throw new Error(
-      `Proofbound agent template ${file} has an unterminated frontmatter block (no closing '---').`,
-    );
-  }
-  const frontmatterLines = lines.slice(1, endIdx);
-  const frontmatter = frontmatterLines.join('\n');
-
-  // Parse `name:` — the first top-level (non-indented) `name:` key wins.
-  let name = '';
-  for (const line of frontmatterLines) {
-    const m = /^name:\s*(.+?)\s*$/.exec(line);
-    if (m) {
-      name = m[1].replace(/^["']|["']$/g, '').trim();
-      break;
-    }
-  }
-  if (!name) {
-    throw new Error(
-      `Proofbound agent template ${file} frontmatter has no 'name:' field; cannot register a subagent_type.`,
-    );
-  }
-  return { frontmatter, name };
-}
-
 /**
  * Build the standard imperative shim body. The body intentionally contains NO
  * role prompt content — it points the agent at the Proofbound CLI single source of
@@ -207,6 +175,12 @@ export function renderAgentShim(frontmatter: string, role: string): string {
   return `---\n${frontmatter}\n---\n${buildShimBody(role)}\n`;
 }
 
+/**
+ * Project-local full-asset hosts still load this small bootstrap before the
+ * reviewer asks Lattice for its mode-selected prompt. The bootstrap contains no
+ * role instructions, so exactly one selected role body reaches the reviewer:
+ * frozen legacy bytes or the assembled full/incremental envelope.
+ */
 /**
  * Generate a thin shim into the global agents dir for every `*.md` template.
  *
@@ -267,7 +241,9 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
     // Shim filename follows the role name so Claude resolves subagent_type:<name>.
     const shimFile = `${name}.md`;
     const shimPath = join(globalDir, shimFile);
-    const expected = renderAgentShim(frontmatter, name);
+    const expected = isModularReviewerRoleId(name)
+      ? renderReviewerRunBootstrap(frontmatter, name)
+      : renderAgentShim(frontmatter, name);
 
     // Probe lstat independently so a stale symlink / broken link is detected and
     // replaced (a broken symlink reports existsSync=false but lstat succeeds).

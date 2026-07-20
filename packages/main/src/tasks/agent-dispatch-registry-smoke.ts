@@ -65,7 +65,11 @@ assert.equal(new Set(canonicalNames).size, canonicalNames.length, 'canonical age
 
 const allNames = AGENT_DISPATCH_REGISTRY.flatMap((entry) => [entry.canonicalName, ...entry.aliases]);
 assert.equal(new Set(allNames).size, allNames.length, 'canonical names and aliases must not collide');
-assert.deepEqual(AGENT_DISPATCH_ACCEPTED_TYPES, [...allNames].sort(), 'accepted type list must enumerate the full table');
+assert.deepEqual(
+  AGENT_DISPATCH_ACCEPTED_TYPES,
+  allNames.filter(name => name !== 'lattice-review-channel').sort(),
+  'accepted type list must enumerate every non-retired role while excluding channel',
+);
 assert.deepEqual(
   REVIEW_RUN_LANES,
   AGENT_DISPATCH_REGISTRY
@@ -118,6 +122,14 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
     }
   }
 
+  if (entry.canonicalName === 'lattice-review-channel') {
+    assert.throws(
+      () => resolveAgentDispatchType(entry.canonicalName),
+      /retired agentType/,
+      'retired channel remains registry-readable but cannot be dispatched',
+    );
+    continue;
+  }
   const canonical = resolveAgentDispatchType(entry.canonicalName);
   assert.equal(canonical.entry, entry);
   assert.equal(canonical.canonicalType, entry.canonicalName);
@@ -205,6 +217,7 @@ for (const entry of AGENT_DISPATCH_REGISTRY) {
   coveredPromptBuilders.add(entry.promptBuilder);
   const names = [entry.canonicalName, ...entry.aliases];
   for (const alias of entry.aliases) coveredAliases.add(alias);
+  if (entry.canonicalName === 'lattice-review-channel') continue;
   for (const agentType of names) {
     for (const phase of ALL_PHASES) {
       for (let mask = 0; mask < 8; mask += 1) {
@@ -524,6 +537,46 @@ try {
   );
   assert.equal(store.readReviewPasses(storyId).passes.length, 0, 'denied review_pass_set must have no side effect');
   assert.throws(
+    () => findingHandlers.review_pass_set({
+      storyId, agent: 'main', note: 'main must not self-sign reviewer pass evidence',
+      reviewRunId: 'RR-main-denied',
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+    }),
+    /not a registered REVIEW reviewer/,
+    'trusted main host still cannot mint reviewer pass evidence',
+  );
+  assert.equal(store.readReviewPasses(storyId).passes.length, 0, 'main pass rejection must have no side effect');
+  {
+    const savedAgent = process.env.LATTICE_AGENT;
+    process.env.LATTICE_AGENT = 'lattice-review-quality';
+    try {
+      assert.throws(
+        () => findingHandlers.review_pass_set({
+          storyId, agent: 'lattice-review-behavior', note: 'wrong lane must not sign another reviewer pass',
+          reviewRunId: 'RR-wrong-lane', readManifest: { routedCandidates: [], fullyRead: [], triaged: [] },
+        }),
+        /agent_dispatch_identity_conflict/,
+        'one reviewer lane cannot submit a pass as another lane',
+      );
+      assert.throws(
+        () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'lattice-review-quality' }),
+        /agent_dispatch_mutation_denied/,
+        'reviewer cannot take owner/implementer lifecycle mutation through the real checklist handler',
+      );
+      assert.throws(
+        () => deliveryCheckHandlers.delivery_check_set({
+          storyId, docsPromises: [], realMachineTests: [], closingSelfCheck: { summary: 'quality cannot sign delivery-only evidence' },
+        }),
+        /agent_dispatch_mutation_denied/,
+        'delivery evidence remains delivery-reviewer-only',
+      );
+    } finally {
+      if (savedAgent === undefined) delete process.env.LATTICE_AGENT;
+      else process.env.LATTICE_AGENT = savedAgent;
+    }
+  }
+  assert.equal(store.readReviewPasses(storyId).passes.length, 0, 'wrong-lane pass rejection must have no side effect');
+  assert.throws(
     () => reviewRunHandlers.review_run_start({ storyId, agent: 'lattice-implementer' }),
     /agent_dispatch_mutation_denied/,
   );
@@ -598,7 +651,7 @@ try {
   );
   store.writeStory(storyId, { ...store.readStory(storyId), phase: 'REVIEW' });
   const reviewPrompt = handlers.dispatch({ storyId, agentType: 'lattice-review-quality' }).prompt;
-  assert.match(reviewPrompt, /review story .* in full/);
+  assert.match(reviewPrompt, /review story .* using the trusted context selected by review_run_start/);
   assert.doesNotMatch(reviewPrompt, /git commit|checklist_update/);
   assert.throws(
     () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-review-quality' }),
@@ -619,6 +672,7 @@ try {
   };
   const actualPromptCoverage = new Set<string>();
   for (const entry of AGENT_DISPATCH_REGISTRY) {
+    if (entry.canonicalName === 'lattice-review-channel') continue;
     for (const agentType of [entry.canonicalName, ...entry.aliases]) {
       for (const identifierKind of entry.targetCardinality === 'story-only' ? [null] : entry.identifierKinds) {
         store.writeStory(storyId, { ...store.readStory(storyId), phase: entry.allowedPhases[0] });

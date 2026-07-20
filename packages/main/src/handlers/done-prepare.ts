@@ -130,10 +130,12 @@ export interface DonePrepareConvergenceFacts {
     storyFilesHash: string;
     reviewRound: string;
   };
+  testEntryAt: string;
   phaseTransitions: ProcessEvent[];
   humanConfirmations: ProcessEvent[];
   validationTerminals: ProcessEvent[];
   reviewerIdentityIds: string[];
+  postTestReviewerIdentityIds: string[];
   closeoutWriterSequence: string[];
 }
 
@@ -198,6 +200,7 @@ export interface DonePrepareJsonResult {
   convergence?: {
     metadataRollbacks: number;
     reviewerReattestations: number;
+    postTestReviewerReattestations: number;
     humanConfirmations: number;
     unchangedSuiteExecutions: number;
     successfulCloseout: number;
@@ -1071,7 +1074,7 @@ export function donePrepareJsonResult(storyId: string, transcript: string): Done
   const timeoutLayer = transcript.match(/timeoutLayer=(command|phase|idle|max)/)?.[1] as Exclude<DonePrepareJsonResult['timeoutLayer'], null> | undefined;
   const refusalText = transcript.match(/refusalReasons=([^;\n]*?)(?=\s+timeoutLayer=|\s+existingEvidenceBasis=|;|$)/)?.[1];
   const convergenceMatch = transcript.match(
-    /convergence: metadataRollbacks=(\d+) reviewerReattestations=(\d+) humanConfirmations=(\d+) unchangedSuiteExecutions=(\d+) successfulCloseout=(\d+)/,
+    /convergence: metadataRollbacks=(\d+) reviewerReattestations=(\d+) postTestReviewerReattestations=(\d+) humanConfirmations=(\d+) unchangedSuiteExecutions=(\d+) successfulCloseout=(\d+)/,
   );
   return {
     schemaVersion: 'lattice.done_prepare.v1',
@@ -1089,9 +1092,10 @@ export function donePrepareJsonResult(storyId: string, transcript: string): Done
       convergence: {
         metadataRollbacks: Number(convergenceMatch[1]),
         reviewerReattestations: Number(convergenceMatch[2]),
-        humanConfirmations: Number(convergenceMatch[3]),
-        unchangedSuiteExecutions: Number(convergenceMatch[4]),
-        successfulCloseout: Number(convergenceMatch[5]),
+        postTestReviewerReattestations: Number(convergenceMatch[3]),
+        humanConfirmations: Number(convergenceMatch[4]),
+        unchangedSuiteExecutions: Number(convergenceMatch[5]),
+        successfulCloseout: Number(convergenceMatch[6]),
       },
     } : {}),
   };
@@ -1479,14 +1483,19 @@ export function collectDonePrepareConvergenceFacts(
     .sort((left, right) => left.timestamp.localeCompare(right.timestamp));
   const currentTestEntry = transitions.filter((event) => eventText(event, 'toPhase') === 'TEST').at(-1);
   if (!currentTestEntry) return null;
+  const currentAttemptId = eventText(currentTestEntry, 'attemptId');
   const currentMaterial = eventText(currentTestEntry, 'materialHash');
   const currentStoryFiles = eventText(currentTestEntry, 'storyFilesHash');
-  const anchorEvent = transitions.find((event) => (
+  const currentReviewRound = eventText(currentTestEntry, 'reviewRound');
+  if (!currentAttemptId || !currentMaterial || !currentStoryFiles || !currentReviewRound) return null;
+  const anchorEvent = transitions.filter((event) => (
     eventText(event, 'toPhase') === 'REVIEW'
     && event.timestamp <= currentTestEntry.timestamp
+    && eventText(event, 'attemptId') === currentAttemptId
     && eventText(event, 'materialHash') === currentMaterial
     && eventText(event, 'storyFilesHash') === currentStoryFiles
-  ));
+    && eventText(event, 'reviewRound') === currentReviewRound
+  )).at(-1);
   if (!anchorEvent) return null;
   const anchor = {
     timestamp: anchorEvent.timestamp,
@@ -1498,12 +1507,6 @@ export function collectDonePrepareConvergenceFacts(
   if (!anchor.attemptId || !anchor.materialHash || !anchor.storyFilesHash || !anchor.reviewRound) return null;
   const windowEvents = events.filter((event) => event.timestamp >= anchor.timestamp);
   const phaseTransitions = transitions.filter((event) => event.timestamp >= anchor.timestamp);
-  const testEntry = phaseTransitions.find((event) => (
-    eventText(event, 'toPhase') === 'TEST'
-    && eventText(event, 'materialHash') === anchor.materialHash
-    && eventText(event, 'storyFilesHash') === anchor.storyFilesHash
-  ));
-  if (!testEntry) return null;
   const runs = ctx.store.readReviewRuns(storyId).runs
     .filter((run) => (
       run.startedAt >= anchor.timestamp
@@ -1511,10 +1514,10 @@ export function collectDonePrepareConvergenceFacts(
       && run.materialHash === anchor.materialHash
       && run.storyFilesHash === anchor.storyFilesHash
       && verifyReviewRun(run)
-    ))
-    .sort((left, right) => left.startedAt.localeCompare(right.startedAt));
+    ));
   const runsById = new Map(runs.map((run) => [run.reviewRunId, run]));
-  const completedRunIds = new Set(ctx.store.readReviewPasses(storyId).passes
+  const completedIdentityByRunId = new Map<string, { reviewRunId: string; completedAt: string; passId: string }>();
+  for (const pass of ctx.store.readReviewPasses(storyId).passes
     .filter((pass) => {
       if (pass.createdAt < anchor.timestamp || pass.reviewRound !== anchor.reviewRound || !verifyReviewPass(storyId, pass)) {
         return false;
@@ -1522,24 +1525,51 @@ export function collectDonePrepareConvergenceFacts(
       const run = pass.reviewRunId ? runsById.get(pass.reviewRunId) : undefined;
       return Boolean(run && pass.agent === run.agent);
     })
-    .map((pass) => pass.reviewRunId!));
-  const completedRunsByLane = new Map<string, string[]>();
-  for (const run of runs) {
-    if (!completedRunIds.has(run.reviewRunId)) continue;
-    completedRunsByLane.set(run.lane, [...(completedRunsByLane.get(run.lane) ?? []), run.reviewRunId]);
+    .sort((left, right) => (
+      left.createdAt.localeCompare(right.createdAt)
+      || (left.reviewRunId ?? '').localeCompare(right.reviewRunId ?? '')
+      || left.id.localeCompare(right.id)
+    ))) {
+    if (!completedIdentityByRunId.has(pass.reviewRunId!)) {
+      completedIdentityByRunId.set(pass.reviewRunId!, {
+        reviewRunId: pass.reviewRunId!,
+        completedAt: pass.createdAt,
+        passId: pass.id,
+      });
+    }
+  }
+  const completedRunsByLane = new Map<string, Array<{ reviewRunId: string; completedAt: string; passId: string }>>();
+  for (const identity of completedIdentityByRunId.values()) {
+    const run = runsById.get(identity.reviewRunId)!;
+    completedRunsByLane.set(run.lane, [
+      ...(completedRunsByLane.get(run.lane) ?? []),
+      identity,
+    ]);
   }
   // The first completed identity per lane is the attempt baseline. Any later
   // identity on the same material/story/round is a real re-attestation,
   // including one completed while still in REVIEW before the TEST entry.
-  const reviewerIdentityIds = [...completedRunsByLane.values()].flatMap((ids) => ids.slice(1));
+  const reviewerIdentities = [...completedRunsByLane.values()].flatMap((identities) => identities
+    .sort((left, right) => (
+      left.completedAt.localeCompare(right.completedAt)
+      || left.reviewRunId.localeCompare(right.reviewRunId)
+      || left.passId.localeCompare(right.passId)
+    ))
+    .slice(1));
+  const reviewerIdentityIds = reviewerIdentities.map((identity) => identity.reviewRunId);
+  const postTestReviewerIdentityIds = reviewerIdentities
+    .filter((identity) => identity.completedAt >= currentTestEntry.timestamp)
+    .map((identity) => identity.reviewRunId);
   let receipts: ReturnType<typeof readCloseoutWriteReceipts> = [];
   try { receipts = readCloseoutWriteReceipts(ctx.store.storyDirPath(storyId)); } catch { return null; }
   return {
     anchor,
+    testEntryAt: currentTestEntry.timestamp,
     phaseTransitions,
     humanConfirmations: windowEvents.filter((event) => event.type === 'human_confirmation'),
     validationTerminals: windowEvents.filter((event) => event.type === 'validation_terminal'),
     reviewerIdentityIds,
+    postTestReviewerIdentityIds,
     closeoutWriterSequence: receipts
       .filter((receipt) => receipt.timestamp >= anchor.timestamp)
       .map((receipt) => `${receipt.writerCommand}:${receipt.artifactPath}`),
@@ -1559,6 +1589,7 @@ export function deriveDonePreparePassConvergence(
     && eventText(event, 'storyFilesHash') === facts.anchor.storyFilesHash
   )).length;
   const reviewerReattestations = facts.reviewerIdentityIds.length;
+  const postTestReviewerReattestations = facts.postTestReviewerIdentityIds.length;
   const humanConfirmations = facts.humanConfirmations.length;
   const validationGroups = new Map<string, ProcessEvent[]>();
   for (const event of facts.validationTerminals) {
@@ -1587,6 +1618,7 @@ export function deriveDonePreparePassConvergence(
   return {
     metadataRollbacks,
     reviewerReattestations,
+    postTestReviewerReattestations,
     humanConfirmations,
     unchangedSuiteExecutions,
     successfulCloseout,
@@ -1596,7 +1628,7 @@ export function deriveDonePreparePassConvergence(
 export function assertDonePreparePassConvergence(convergence: DonePrepareConvergence): void {
   if (
     convergence.metadataRollbacks !== 0
-    || convergence.reviewerReattestations !== 0
+    || convergence.postTestReviewerReattestations !== 0
     || convergence.humanConfirmations !== 0
     || convergence.unchangedSuiteExecutions !== 0
     || convergence.successfulCloseout !== 1
@@ -1630,6 +1662,7 @@ function renderPass(args: {
     `worktreeClean: ${ensureStep(args.steps, 'cleanTree').status.toUpperCase()}`,
     `closeoutWriteSequence: ${args.convergenceFacts?.closeoutWriterSequence.join('->') || 'unavailable'}`,
     ...(convergence ? [`convergence: metadataRollbacks=${convergence.metadataRollbacks} reviewerReattestations=${convergence.reviewerReattestations} ` +
+      `postTestReviewerReattestations=${convergence.postTestReviewerReattestations} ` +
       `humanConfirmations=${convergence.humanConfirmations} unchangedSuiteExecutions=${convergence.unchangedSuiteExecutions} ` +
       `successfulCloseout=${convergence.successfulCloseout}`] : [
       'convergenceUnavailable: missing durable REVIEW-to-TEST attempt window; no zero-cost convergence claim emitted',

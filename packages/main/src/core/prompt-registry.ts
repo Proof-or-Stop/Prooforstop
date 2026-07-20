@@ -19,6 +19,38 @@ import { fileURLToPath } from 'node:url';
 export const PROMPT_REGISTRY_VERSION = 'lattice.prompt-registry.v1';
 export const PROMPT_REGISTRY_SOURCE = '@lattice/core/templates/agents';
 export const SUPPORTED_PROMPT_HOSTS = ['claude', 'codex'] as const;
+export const MODULAR_ROLE_BODY_MARKER = '<!-- proofbound:modular-role-body:v1 -->';
+export const MODULAR_REVIEWER_ROLE_IDS = [
+  'lattice-review-behavior',
+  'lattice-review-concept',
+  'lattice-review-docs',
+  'lattice-review-quality',
+  'lattice-review-test-coverage',
+] as const;
+export type ModularReviewerRoleId = typeof MODULAR_REVIEWER_ROLE_IDS[number];
+
+const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, string>> = Object.freeze({
+  'lattice-review-behavior': 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2',
+  'lattice-review-concept': 'cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a',
+  'lattice-review-docs': '9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59',
+  'lattice-review-quality': 'f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280',
+  'lattice-review-test-coverage': '145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0',
+});
+
+const TEST_COVERAGE_LEGACY_PROCESS_CONTRACT = `
+## Two-Layer Process Fact Contract
+
+Process facts require both prompt guidance and a hardcoded CLI/handler/gate fallback. The prompt tells the agent which command to call and how to express scope; the code entrypoint is responsible for final adjudication, normalization, signing, rejection, and gate consumption. Any wording that would change process state or audit facts cannot live only in the prompt.
+
+Scope is limited to process facts: phase / state transition, pass / no-issue confirmations, finding category / severity / role / agent, review pass, verificationEvidence, init check, scope check, delivery check, REVIEW / TEST / DONE gate artifact. Ordinary explanatory prose, background, and design rationale are not process facts unless the CLI or gate reads them as evidence.
+
+Execution rules:
+- Reviewer conclusions like no finding / no blocker / check passed must be recorded with \`review_pass_set\`; if a reviewer incorrectly uses a pass-only \`finding_add\`, the handler must convert it into a review pass.
+- For the current REVIEW round, reviewer evidence must first call \`lattice review_run_start {"storyId":"B-xxx","agent":"<reviewer-name>"}\` to obtain a \`reviewRunId\`; every \`finding_add\` / \`review_pass_set\` from that reviewer in this round must then carry this current \`reviewRunId\`.
+- The \`category\` field of \`finding_add\` only accepts the current canonical \`happy|edge|adversarial|missing\`. Known legacy values \`cleanup|doc-promise-undelivered|doc-code-drift|spec-boundary\` are accepted as compatibility inputs and normalized to \`missing\`, but must not continue to propagate as active prompt examples.
+- Gates consume structured facts: signatures, hashes, verificationEvidence, review pass, init/scope/delivery check, and validate evidence. Do not let gates infer process facts from ordinary text like "passed / no problem".
+- When changing reviewer prompts, CLI schema, handlers, or gates, run \`npm run test:process-fact-contract\` to confirm the prompt has not drifted and the process fact inventory still proves the hard fallback exists.
+`;
 export const LOAD_BEARING_LATTICE_PROMPT_SLICE = `<!-- lattice:start -->
 # Lattice Load-Bearing Runtime Guide
 
@@ -102,14 +134,9 @@ normalization, signing, validation, and gate consumption.
 
 ## Local Admissibility And Handoff Boundaries
 
-- Local Lattice evidence can be proof-admissible when it carries current
-  gate-consumed evidence, local review quorum assurance, and signed/offline
-  receipt-bundle evidence where required.
-- Do not claim receipt-bundle admissibility, local assurance acceptance, or
-  release readiness from local tests, prompt text, or story metadata alone.
-- Handoff packs are bounded overflow execution. Story ownership, merge
-  control, DONE control, receipt-bundle submission, and release-admissibility
-  claims remain with the local lifecycle gates.
+- Local Proofbound evidence can be admissible when it is fresh, scoped, and gate-consumed through \`admissibilityStatus\`, \`assuranceLevel\`, and \`evidenceScope\`.
+- Local tests, prompt text, and story metadata may support local admissibility only when they are recorded as structured gate evidence.
+- Handoff packs are bounded overflow execution. Story ownership, merge responsibility, DONE readiness, signed/offline receipt bundles, and local review quorum assurance remain local Proofbound responsibilities unless a human explicitly changes the boundary.
 
 ## Debugging Contract
 
@@ -164,6 +191,47 @@ export function listPromptTemplateFiles(templateDir = defaultPromptTemplateDir()
 
 function sha256(content: string): string {
   return createHash('sha256').update(content).digest('hex');
+}
+
+export function isModularReviewerRoleId(roleId: string): roleId is ModularReviewerRoleId {
+  return (MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(roleId);
+}
+
+/**
+ * Reconstructs the frozen pre-B-235e body from the modular repository asset.
+ * The expected digest makes both representations immutable and content
+ * addressed without introducing a mutable baseline writer.
+ */
+export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string {
+  const modular = readPromptTemplate(entry);
+  if (!isModularReviewerRoleId(entry.agentId)) return modular;
+  if (!modular.includes(MODULAR_ROLE_BODY_MARKER)) {
+    throw new Error(`modular reviewer prompt ${entry.agentId} is missing ${MODULAR_ROLE_BODY_MARKER}`);
+  }
+  const restored = modular.replace(
+    MODULAR_ROLE_BODY_MARKER,
+    entry.agentId === 'lattice-review-test-coverage'
+      ? TEST_COVERAGE_LEGACY_PROCESS_CONTRACT
+      : LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  );
+  const actualDigest = sha256(restored);
+  const expectedDigest = LEGACY_REVIEWER_TEMPLATE_SHA256[entry.agentId];
+  if (actualDigest !== expectedDigest) {
+    throw new Error(
+      `legacy reviewer prompt reconstruction drift for ${entry.agentId}: expected ${expectedDigest}, got ${actualDigest}`,
+    );
+  }
+  return restored;
+}
+
+export function resolvePromptTemplateBody(
+  entry: PromptRegistryEntry,
+  mode: 'legacy-full-context' | 'full-envelope',
+): string {
+  if (mode === 'legacy-full-context') return restoreLegacyPromptTemplate(entry);
+  const source = readPromptTemplate(entry);
+  if (!isModularReviewerRoleId(entry.agentId)) return source;
+  return source;
 }
 
 export function renderCodexPromptContent(content: string): string {
@@ -221,6 +289,60 @@ export function readPromptTemplate(entry: PromptRegistryEntry): string {
   return readFileSync(entry.sourcePath, 'utf8');
 }
 
+export function extractTemplateFrontmatter(
+  raw: string,
+  file: string,
+): { frontmatter: string; name: string } {
+  const lines = raw.replace(/\r\n/g, '\n').split('\n');
+  if (lines[0]?.trim() !== '---') {
+    throw new Error(
+      `Proofbound agent template ${file} is missing YAML frontmatter (must start with '---'). ` +
+        'Cannot generate a host bootstrap without a frontmatter block.',
+    );
+  }
+  const endIdx = lines.findIndex((line, index) => index > 0 && line.trim() === '---');
+  if (endIdx === -1) {
+    throw new Error(
+      `Proofbound agent template ${file} has an unterminated frontmatter block (no closing '---').`,
+    );
+  }
+  const frontmatterLines = lines.slice(1, endIdx);
+  const frontmatter = frontmatterLines.join('\n');
+  let name = '';
+  for (const line of frontmatterLines) {
+    const match = /^name:\s*(.+?)\s*$/.exec(line);
+    if (!match) continue;
+    name = match[1].replace(/^["']|["']$/g, '').trim();
+    break;
+  }
+  if (!name) {
+    throw new Error(
+      `Proofbound agent template ${file} frontmatter has no 'name:' field; cannot register a subagent_type.`,
+    );
+  }
+  return { frontmatter, name };
+}
+
+export function buildReviewerRunBootstrapBody(role: string): string {
+  return [
+    'Proofbound selects this reviewer role body at runtime.',
+    `FIRST run: \`lattice review_run_start '{"storyId":"<storyId from dispatch>","agent":"${role}"}'\`.`,
+    'Follow only the exact prompt returned by that command; this bootstrap intentionally contains no role body.',
+  ].join('\n');
+}
+
+export function renderReviewerRunBootstrap(frontmatter: string, role: string): string {
+  return `---\n${frontmatter}\n---\n${buildReviewerRunBootstrapBody(role)}\n`;
+}
+
+export function renderReviewerRunBootstrapForTemplate(raw: string, file: string): string {
+  const { frontmatter, name } = extractTemplateFrontmatter(raw, file);
+  return renderReviewerRunBootstrap(frontmatter, name);
+}
+
 export function renderPromptEntryForHost(entry: PromptRegistryEntry, host: PromptHost): string {
-  return renderPromptForHost(readPromptTemplate(entry), host);
+  const hostTemplate = renderPromptForHost(readPromptTemplate(entry), host);
+  return isModularReviewerRoleId(entry.agentId)
+    ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file)
+    : hostTemplate;
 }

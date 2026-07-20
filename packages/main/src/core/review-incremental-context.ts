@@ -175,9 +175,16 @@ function latestTrustedPriorPass(
   passes: ReviewPass[],
   runs: ReviewRun[],
   excludedReviewRunId?: string,
+  passesCutoffAt?: string,
 ): TrustedPriorPass | null {
   const candidates: TrustedPriorPass[] = [];
+  const cutoff = passesCutoffAt ? verdictTime(passesCutoffAt) : Number.POSITIVE_INFINITY;
   for (const pass of passes) {
+    const passTime = verdictTime(pass.createdAt);
+    // Equal timestamps are conservatively treated as post-cutoff. A reviewer
+    // pass created in the same millisecond as run.startedAt could otherwise be
+    // observed by assembly and rejected by verifier, creating an ABA race.
+    if (Number.isFinite(cutoff) && passTime >= cutoff) continue;
     if (pass.agent !== role || !verifyReviewPass(storyId, pass) || !pass.reviewRunId) continue;
     if (pass.reviewRunId === excludedReviewRunId) continue;
     const run = runs.find(candidate => candidate.reviewRunId === pass.reviewRunId);
@@ -318,12 +325,20 @@ export function reviewIncrementalContext(
   projectRoot: string,
   storyId: string,
   role: string,
-  options: { excludedReviewRunId?: string; findingsCutoffAt?: string } = {},
+  options: { excludedReviewRunId?: string; findingsCutoffAt?: string; passesCutoffAt?: string } = {},
 ): ReviewIncrementalContext {
   const passes = store.readReviewPasses(storyId).passes || [];
   const runs = store.readReviewRuns(storyId).runs || [];
   const findings = store.readFindings(storyId).findings || [];
-  const prior = latestTrustedPriorPass(store, storyId, role, passes, runs, options.excludedReviewRunId);
+  const prior = latestTrustedPriorPass(
+    store,
+    storyId,
+    role,
+    passes,
+    runs,
+    options.excludedReviewRunId,
+    options.passesCutoffAt,
+  );
   const currentHead = currentGitHead(projectRoot) ?? null;
   const currentMaterial = currentMaterialHash(projectRoot, 'HEAD', projectRoot) ?? null;
   const currentStoryFiles = currentStoryFilesHash(projectRoot, 'HEAD', projectRoot) ?? null;

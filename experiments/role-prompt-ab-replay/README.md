@@ -1,4 +1,4 @@
-# Role-prompt A/B replay (Story 3)
+# Role-prompt A/B replay (Story 3 + B-235e campaign)
 
 This directory is an experiment-only, read-only replay harness. It measures a
 frozen six-sample historical observation corpus; it does not dispatch a model,
@@ -28,6 +28,24 @@ unrelated five-arm lifecycle ablation. It is design inspiration for
 pre-registration discipline only; it is not this experiment's governing
 protocol or acceptance source. `protocol.json`, `corpus.json`, and the canonical
 role-prompt decision are the Story 3 contract.
+
+`lib/replay.mjs` also contains the separately versioned, content-addressed
+`B-235e-active-reviewers-v1` campaign. It does not alter `protocol.json`,
+`corpus.json`, their digests, sample semantics, or the Story 3 result. The
+campaign pins the five active reviewer roles, three arms
+(`legacy-full`, `modular-full`, `modular-incremental`), exact legacy/modular
+role-body bytes and SHA-256 digests, the six frozen Story 3 sample IDs, model,
+tools, three symmetric repetitions, order, thresholds, and an independent
+adjudication-plan digest.
+
+The committed corpus still lacks exact per-role historical Prompt Envelope
+bytes, reviewer outputs, independent adjudication evidence, and provider
+receipts. Consequently the B-235e report is deliberately `INCONCLUSIVE` for
+every role. It reports exact role-body token estimates, but reports incremental
+context reduction, assembled-prompt reduction, seeded recall, false positives,
+command misuse, and provider/cache usage as unavailable—not zero. No role enters
+the savings denominator, and neither the 50% incremental threshold nor the 40%
+assembled target is claimed as met.
 
 ## Claim boundary
 

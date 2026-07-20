@@ -1179,7 +1179,13 @@ tokens、review findings 和流程收敛数据。模型、token estimator、cont
 - Prompt Envelope 额外绑定 model-relevant TaskContext digest、canonical
   freshness classification、changed/impacted file digests、reviewBasis digest 和
   stable reason codes。HEAD/material/storyFiles 仍由 ReviewRun/Envelope 独立签名，
-  不由 Host 从 raw hash 自行解释。
+  不由 Host 从 raw hash 自行解释。TaskContext 仍在 Prompt 中记录实际 phase，
+  但 model-relevant digest 仅将 `TEST` 规范为 producer phase `REVIEW`：
+  mandatory REVIEW→TEST/closeout metadata 不得让已通过的 REVIEW envelope 自失效；
+  `DEV`、`DONE`、`DISCARDED` 与 malformed/unknown phase 必须保持不同并 fail closed，
+  title、description、priority、checklist、verification intent 和 scope 等真实语义
+  变化也必须 fail closed。`verifyReviewRunPromptEnvelope` 是 REVIEW、quorum、
+  `done_prepare` 与 `story_advance DONE` 共享的同一判定边界。
 - 安全 eligibility 先于成本。安全允许 incremental 后，只有最终 incremental
   bytes 小于 full 且未超 incremental budget 时才选择 `SAFE_INCREMENTAL`；
   否则分别记录 `FULL_CHEAPER_OR_EQUAL` 或 `INCREMENTAL_BUDGET_EXCEEDED`。
@@ -1218,6 +1224,79 @@ node scripts/verify-process-fact-contract.mjs
 - 现有 `review_incremental_context` smoke 继续证明只读调用不改变 gate。
 
 #### Story 5：迁移 active reviewer 角色与增量装配
+
+实现记录（B-235e）：
+
+- concept、quality、test-coverage、behavior、docs 五个 active reviewer 现已各有
+  独立 `full-envelope` feature flag；未配置时仍选择冻结且内容寻址的
+  `legacy-full-context` 正文。五个 flag 的 32 种组合均有机械覆盖，
+  `lattice-review-channel` 因 retired 明确不在 rollout 集合中。
+- package registry 物理保存模块化正文，不再携带旧共享 Runtime Guide；
+  Claude/Codex full-asset 文件只保存 canonical role-specific thin bootstrap，
+  bootstrap 本身不含任何 reviewer role body，并要求 reviewer 先调用
+  `review_run_start` 执行其返回的唯一 selected prompt。legacy rollback 由模块化
+  正文中的冻结 anchor 加 canonical guide 确定性重建，并以预批准 SHA-256 拒绝
+  漂移。这里的“精确”只指 selected legacy role body，不虚称总模型输入
+  byte-exact：所有支持的 host mode 总输入都明确为已绑定 bootstrap 加一个
+  selected body；global Claude sync、Codex registry mode 和 project full-asset
+  复用同一 canonical bootstrap renderer。package registry 的实际
+  `renderPromptEntryForHost` resolver 对五个迁移角色直接返回 bootstrap-only
+  bytes，而不是只在 identity 中合成 digest；`review_run_start` 随后只补一个
+  selected body。host identity 分别绑定 bootstrap
+  digest、selected role-body digest 和 host render digest，
+  从而拒绝 modular+legacy 双正文或 bootstrap/正文替换。
+- incremental eligibility 仍完全由 Story 4 的 impact policy 决定。本 Story
+  没有新增“精简即 incremental”的捷径；未知、contract/policy/scope drift
+  继续 fail closed 到 full。
+- 在途旧 pass 仍按其原 ReviewRun、round、Prompt Envelope 和 host identity
+  验证；切换 feature flag 不会把旧正文重新解释成新正文，也不会让非当前
+  round、compatibility 或 retired evidence 获得 gate authority。无
+  `envelopeId` 的 legacy run 不再无条件通过：必须重验冻结 legacy body、
+  canonical Role Contract 和 Claude/Codex host render；已存在 dispatch
+  binding 时任何 body/host/round 漂移均拒绝，仅保留旧同轮 binding-race
+  记录缺少 dispatch binding 的 bounded compatibility。
+- REVIEW metadata retention 明确包含 `prompt-envelopes.json`。scope diff reader
+  使用显式大输出上限，超过 1 MiB 的业务 diff 在提交 reviewer metadata 前后
+  保持相同 material diff binding，不会因静默丢失 hunks 而让新 run 自失效。
+  真实 CLI 并发回归在两组互补 mixed legacy/full masks 下同时启动五个 reviewer
+  run，再并发写三条 pass 和两条 finding，断言每个 full lane 有 envelope、
+  legacy lane 没有伪 envelope、全部 evidence 唯一保留、collector 无
+  invalid/重复计数且 REVIEW gate 通过；独立三 lane mixed mask 继续穿过 quorum
+  admission。
+- 三份审批基线已绑定五个角色的 legacy/modular 正文 hash、role
+  semantic/render digest，以及 Claude/Codex 两种模式的 host render digest。
+  baseline verifier、process-fact registry/verifier 和 smoke tests 同步保护该
+  边界。
+- Story 3 的冻结 corpus/protocol 未修改。B-235e 使用独立、版本化且
+  content-addressed 的三臂 replay campaign（legacy/full/incremental）重算；
+  由于缺少逐角色 exact historical envelopes、reviewer outputs、独立
+  adjudication bytes 和 provider receipts，五个角色全部诚实输出
+  `INCONCLUSIVE`。因此本 Story 不宣称已达到 50%/40% 降幅，也不把
+  unavailable provider usage 当成 0；Claude/Codex 的 input、output、
+  cacheRead、cacheCreation、uncached、latency、providerProcessed 每一维均保留
+  `unavailable(reason)`。
+- raw `lattice.config.json` 的重复顶层 `promptEnvelope`、重复 `roles` 容器和
+  重复逐角色 flag key 都会在 `JSON.parse` 前拒绝；错误 rollout
+  version/mode、prototype key、unknown/retired role 继续 fail closed。真实
+  handler 权限回归同时拒绝 main/implementer/wrong-lane pass、
+  reviewer owner/implementer mutation 和非 delivery reviewer 的 delivery
+  evidence。
+
+实现证据命令：
+
+```bash
+npm --prefix packages/main run build
+node packages/main/dist/tasks/prompt-registry-smoke.js
+node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js
+node packages/main/dist/tasks/review-run-smoke.js
+node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js
+node packages/main/dist/tasks/review-incremental-context-smoke.js
+node packages/main/dist/tasks/quorum-submit-smoke.js
+node experiments/role-prompt-ab-replay/selfcheck.mjs
+node scripts/verify-proof-or-stop-prompt-baseline.mjs
+node scripts/verify-process-fact-contract.mjs
+node bin/lattice.js verify_codex
+```
 
 目标：
 
@@ -1415,8 +1494,8 @@ node scripts/verify-process-fact-contract.mjs
 - [ ] 实现机械 incremental eligibility。
 - [ ] 实现自动 full-review escalation。
 - [ ] 验证 `FULL_CHEAPER_OR_EQUAL` 和 budget violation。
-- [ ] 迁移五个 active reviewer 角色。
-- [ ] 实现旧 pass `legacy-full-context` 兼容和 per-role rollback。
+- [x] 迁移五个 active reviewer 角色（B-235e；逐角色 flag、32 组合、mode-aware gate/host binding）。
+- [x] 实现旧 pass `legacy-full-context` 兼容和 per-role rollback（B-235e；精确冻结正文与 digest）。
 - [ ] 迁移 init/scope/implementer/delivery/evaluator。
 - [ ] 隔离 legacy 角色。
 - [ ] 完成三类、每类至少两个历史 Story A/B。
@@ -1424,7 +1503,7 @@ node scripts/verify-process-fact-contract.mjs
 - [ ] 将预算从 observe 升到 warn。
 - [ ] 输出 enforce-readiness；证据充分时另建条件性 enforce Story。
 - [ ] 验证 budget violation 和 main-write-lock 并发路径。
-- [ ] 更新 baseline 和相关决策文档。
+- [x] 更新 Story 5 baseline 和相关决策文档（B-235e；不提前声称 Story 6/7 完成）。
 
 ## Operational Rules
 

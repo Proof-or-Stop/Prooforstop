@@ -227,9 +227,18 @@ export function fullTaskSemanticDigest(context: FullTaskContext): string {
     headHash: _headHash,
     materialHash: _materialHash,
     storyFilesHash: _storyFilesHash,
+    phase: _phase,
     ...modelRelevant
   } = context;
-  return domainSeparatedDigest('full-task-context.model-relevant.v1', modelRelevant);
+  // Review evidence is produced in REVIEW and consumed again after the
+  // mandatory REVIEW -> TEST transition. Only TEST is mapped back to that
+  // producer phase: DEV, DONE, DISCARDED, and malformed phases must remain
+  // distinct so evidence from an inadmissible lifecycle state fails closed.
+  const semanticPhase = context.phase === 'TEST' ? 'REVIEW' : context.phase;
+  return domainSeparatedDigest('full-task-context.model-relevant.v1', {
+    ...modelRelevant,
+    phase: semanticPhase,
+  });
 }
 
 export function captureKnownExecutionEnvironment(): KnownExecutionEnvironment {

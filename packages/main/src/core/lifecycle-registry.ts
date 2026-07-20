@@ -645,6 +645,7 @@ export const LATTICE_LIFECYCLE_ARTIFACT_FILENAMES: ReadonlySet<string> = new Set
  */
 export const REVIEW_RETENTION_PROTOCOL_METADATA_PATHS: ReadonlySet<string> = new Set([
   'review-runs.json',
+  'prompt-envelopes.json',
   'review-passes.json',
   'findings.json',
   'process-events.jsonl',

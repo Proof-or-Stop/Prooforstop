@@ -66,7 +66,8 @@ import {
   lifecycleCommandsByPhase,
   lifecycleResolvedCommandsForPhase,
 } from '../core/lifecycle-registry.js';
-import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
@@ -183,12 +184,29 @@ function seedReviewRuns(root: string, store: StoryStore, storyId: string, review
       startedAt,
       headHash,
       materialHash,
-      promptHash: '',
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, ''),
+      promptHash: legacyPromptHash(agent),
+      _hash: signReviewRun(
+        storyId,
+        reviewRunId,
+        agent,
+        agent,
+        reviewRound,
+        startedAt,
+        headHash,
+        materialHash,
+        legacyPromptHash(agent),
+      ),
     };
   });
   store.writeReviewRuns(storyId, { runs });
   return new Map(runs.map((run) => [run.agent, run.reviewRunId]));
+}
+
+function legacyPromptHash(agent: string): string {
+  return hashReviewPrompt(resolvePromptRoleBody(agent, {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [agent]: 'legacy-full-context' },
+  }).body);
 }
 
 function createReviewStore(root: string): { store: StoryStore; storyId: string; reviewRound: string } {
@@ -1386,9 +1404,9 @@ function signedReviewRunOverHead(
     startedAt,
     headHash,
     materialHash,
-    promptHash: '',
+    promptHash: legacyPromptHash(agent),
     ...(storyFilesHash ? { storyFilesHash } : {}),
-    _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, '', undefined, undefined, storyFilesHash),
+    _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, legacyPromptHash(agent), undefined, undefined, storyFilesHash),
   };
 }
 
@@ -1507,9 +1525,9 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
       startedAt: '2026-06-24T11:10:00.000Z',
       headHash: emptyHead,
       materialHash: emptyMaterial,
-      promptHash: '',
+      promptHash: legacyPromptHash(agent),
       storyFilesHash: EMPTY_STORY_FILES_HASH,
-      _hash: signReviewRun(storyId, emptyRunId, agent, agent, reviewRound, '2026-06-24T11:10:00.000Z', emptyHead, emptyMaterial, '', undefined, undefined, EMPTY_STORY_FILES_HASH),
+      _hash: signReviewRun(storyId, emptyRunId, agent, agent, reviewRound, '2026-06-24T11:10:00.000Z', emptyHead, emptyMaterial, legacyPromptHash(agent), undefined, undefined, EMPTY_STORY_FILES_HASH),
     };
     assert.equal(emptyRun.storyFilesHash, EMPTY_STORY_FILES_HASH, 'empty-signal run must carry the empty-set storyFilesHash');
     store.writeReviewRuns(storyId, { runs: [run1, run2, emptyRun] });
@@ -1588,9 +1606,9 @@ function assertReviewRunStoryFilesHashBindingIsSigned(): void {
       startedAt,
       headHash,
       materialHash,
-      promptHash: '',
+      promptHash: legacyPromptHash(agent),
       workspaceBinding,
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, '', undefined, workspaceBinding.bindingHash),
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, legacyPromptHash(agent), undefined, workspaceBinding.bindingHash),
     };
     assert.equal(verifyReviewRun(run), true, 'review run with storyFilesHash workspace binding must verify');
 
@@ -1854,8 +1872,8 @@ function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
       headHash: recordedHead,
       materialHash: recordedMaterial,
       storyFilesHash: recordedStoryFiles,
-      promptHash: '',
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, recordedHead, recordedMaterial, '', undefined, undefined, recordedStoryFiles),
+      promptHash: legacyPromptHash(agent),
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, recordedHead, recordedMaterial, legacyPromptHash(agent), undefined, undefined, recordedStoryFiles),
     };
     store.writeReviewRuns(storyId, { runs: [run] });
     store.writeReviewPasses(storyId, {
@@ -4377,7 +4395,13 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     const attemptMaterial = currentMaterialHash(root, 'HEAD', root)!;
     const attemptStoryFiles = currentStoryFilesHash(root, 'HEAD', root)!;
     const reviewRound = '2026-01-01T00:00:00.000Z';
-    const makeCompletedReview = (suffix: string, startedAt: string, completedAt: string, round = reviewRound) => {
+    const makeCompletedReview = (
+      suffix: string,
+      startedAt: string,
+      completedAt: string,
+      round = reviewRound,
+      binding: { materialHash?: string; storyFilesHash?: string } = {},
+    ) => {
       const reviewRunId = `${storyId}:RR-${suffix}`;
       const agent = 'lattice-review-quality';
       const run: ReviewRun = {
@@ -4388,8 +4412,8 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         reviewRound: round,
         startedAt,
         headHash: currentGitHead(root)!,
-        materialHash: attemptMaterial,
-        storyFilesHash: attemptStoryFiles,
+        materialHash: binding.materialHash ?? attemptMaterial,
+        storyFilesHash: binding.storyFilesHash ?? attemptStoryFiles,
         promptHash: 'prompt',
       };
       run._hash = signReviewRun(
@@ -4409,6 +4433,8 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     };
     const initialReview = makeCompletedReview('001', '2026-01-01T00:01:00.000Z', '2026-01-01T00:02:00.000Z');
     const metadataReattestation = makeCompletedReview('002', '2026-01-01T00:03:00.000Z', '2026-01-01T00:04:00.000Z');
+    const atTestEntryReattestation = makeCompletedReview('003', '2026-01-01T00:04:30.000Z', '2026-01-01T00:05:00.000Z');
+    const postTestReattestation = makeCompletedReview('004', '2026-01-01T00:05:30.000Z', '2026-01-01T00:06:00.000Z');
     const historicalRound = makeCompletedReview('OLD', '2026-01-01T00:03:30.000Z', '2026-01-01T00:04:30.000Z', '2025-12-31T00:00:00.000Z');
     assert.equal(verifyReviewRun(initialReview.run), true);
     assert.equal(verifyReviewRun(metadataReattestation.run), true);
@@ -4434,24 +4460,140 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       [metadataReattestation.run.reviewRunId],
       'collector must count a same-binding REVIEW re-attestation completed before TEST and ignore an old round',
     );
+    assert.deepEqual(collected?.postTestReviewerIdentityIds, [], 'pre-TEST reviewer re-attestations must not enter the blocking counter');
+    const collectedConvergence = deriveDonePreparePassConvergence([
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any, { blockers: [] } as any, collected);
     assert.equal(
-      deriveDonePreparePassConvergence([
-        { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
-        { id: 'doneClosure', status: 'pass' },
-        { id: 'cleanTree', status: 'pass' },
-      ] as any, { blockers: [] } as any, collected)?.reviewerReattestations,
+      collectedConvergence?.reviewerReattestations,
       1,
       'real collector history must make reviewerReattestations non-zero',
     );
+    assert.doesNotThrow(
+      () => assertDonePreparePassConvergence(collectedConvergence!),
+      'legitimate reviewer re-attestations must remain observable without blocking PASS convergence',
+    );
+    store.writeReviewRuns(storyId, { runs: [historicalRound.run, initialReview.run, metadataReattestation.run, atTestEntryReattestation.run, postTestReattestation.run] });
+    store.writeReviewPasses(storyId, { passes: [historicalRound.pass, initialReview.pass, metadataReattestation.pass, atTestEntryReattestation.pass, postTestReattestation.pass] });
+    const postTestCollected = collectDonePrepareConvergenceFacts(ctx, storyId);
+    assert.deepEqual(
+      postTestCollected?.reviewerIdentityIds,
+      [metadataReattestation.run.reviewRunId, atTestEntryReattestation.run.reviewRunId, postTestReattestation.run.reviewRunId],
+      'total reviewer re-attestation telemetry must include pre- and post-TEST completed passes',
+    );
+    assert.deepEqual(
+      postTestCollected?.postTestReviewerIdentityIds,
+      [atTestEntryReattestation.run.reviewRunId, postTestReattestation.run.reviewRunId],
+      'a completed reviewer pass at or after TEST entry must enter the blocking counter',
+    );
+    const postTestConvergence = deriveDonePreparePassConvergence([
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any, { blockers: [] } as any, postTestCollected);
+    assert.equal(postTestConvergence?.reviewerReattestations, 3);
+    assert.equal(postTestConvergence?.postTestReviewerReattestations, 2);
+    assert.throws(
+      () => assertDonePreparePassConvergence(postTestConvergence!),
+      /done_prepare convergence invariant failed/,
+      'post-TEST reviewer re-attestation must fail PASS convergence',
+    );
+
+    const interleavedLate = makeCompletedReview('INT-A', '2026-01-01T00:01:00.000Z', '2026-01-01T00:06:00.000Z');
+    const interleavedEarly = makeCompletedReview('INT-B', '2026-01-01T00:03:00.000Z', '2026-01-01T00:04:00.000Z');
+    const invalidRunSignature = makeCompletedReview('BAD-RUN', '2026-01-01T00:01:30.000Z', '2026-01-01T00:02:30.000Z');
+    invalidRunSignature.run._hash = 'invalid';
+    const invalidPassSignature = makeCompletedReview('BAD-PASS', '2026-01-01T00:01:40.000Z', '2026-01-01T00:02:40.000Z');
+    invalidPassSignature.pass._hash = 'invalid';
+    const wrongMaterial = makeCompletedReview(
+      'WRONG-MATERIAL',
+      '2026-01-01T00:01:50.000Z',
+      '2026-01-01T00:02:50.000Z',
+      reviewRound,
+      { materialHash: 'wrong-material' },
+    );
+    const wrongStoryFiles = makeCompletedReview(
+      'WRONG-STORY-FILES',
+      '2026-01-01T00:02:00.000Z',
+      '2026-01-01T00:03:00.000Z',
+      reviewRound,
+      { storyFilesHash: 'wrong-story-files' },
+    );
+    const missingPass = makeCompletedReview('MISSING-PASS', '2026-01-01T00:02:10.000Z', '2026-01-01T00:03:10.000Z');
+    store.writeReviewRuns(storyId, { runs: [
+      interleavedLate.run,
+      invalidRunSignature.run,
+      wrongStoryFiles.run,
+      interleavedEarly.run,
+      invalidPassSignature.run,
+      wrongMaterial.run,
+      missingPass.run,
+      historicalRound.run,
+    ] });
+    store.writeReviewPasses(storyId, { passes: [
+      interleavedLate.pass,
+      wrongStoryFiles.pass,
+      invalidRunSignature.pass,
+      interleavedEarly.pass,
+      invalidPassSignature.pass,
+      wrongMaterial.pass,
+      historicalRound.pass,
+    ] });
+    const interleavedCollected = collectDonePrepareConvergenceFacts(ctx, storyId);
+    assert.deepEqual(
+      interleavedCollected?.reviewerIdentityIds,
+      [interleavedLate.run.reviewRunId],
+      'the first completed identity is the lane baseline even when it started later',
+    );
+    assert.deepEqual(
+      interleavedCollected?.postTestReviewerIdentityIds,
+      [interleavedLate.run.reviewRunId],
+      'an earlier-started identity that completes after TEST must remain a blocking re-attestation',
+    );
+    for (const excludedId of [
+      invalidRunSignature.run.reviewRunId,
+      invalidPassSignature.run.reviewRunId,
+      wrongMaterial.run.reviewRunId,
+      wrongStoryFiles.run.reviewRunId,
+      missingPass.run.reviewRunId,
+      historicalRound.run.reviewRunId,
+    ]) {
+      assert.equal(interleavedCollected?.reviewerIdentityIds.includes(excludedId), false, `${excludedId} must not count as a completed same-binding identity`);
+    }
+    const interleavedConvergence = deriveDonePreparePassConvergence([
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any, { blockers: [] } as any, interleavedCollected);
+    assert.equal(interleavedConvergence?.postTestReviewerReattestations, 1);
+    assert.throws(
+      () => assertDonePreparePassConvergence(interleavedConvergence!),
+      /done_prepare convergence invariant failed/,
+      'interleaved completion order must not hide a post-TEST re-attestation',
+    );
+    const tieHigh = makeCompletedReview('TIE-Z', '2026-01-01T00:01:00.000Z', '2026-01-01T00:04:30.000Z');
+    const tieLow = makeCompletedReview('TIE-A', '2026-01-01T00:02:00.000Z', '2026-01-01T00:04:30.000Z');
+    store.writeReviewRuns(storyId, { runs: [tieHigh.run, tieLow.run] });
+    store.writeReviewPasses(storyId, { passes: [tieHigh.pass, tieLow.pass] });
+    const tiedCollected = collectDonePrepareConvergenceFacts(ctx, storyId);
+    assert.deepEqual(
+      tiedCollected?.reviewerIdentityIds,
+      [tieHigh.run.reviewRunId],
+      'equal completion timestamps must choose the lexically first reviewRunId as baseline regardless of storage order',
+    );
+    assert.deepEqual(tiedCollected?.postTestReviewerIdentityIds, []);
 
     const transcript = [
       'DONE prepare: PASS',
       `storyId: ${storyId}`,
-      'convergence: metadataRollbacks=0 reviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1',
+      'convergence: metadataRollbacks=0 reviewerReattestations=1 postTestReviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1',
     ].join('\n');
     assert.deepEqual(donePrepareJsonResult(storyId, transcript).convergence, {
       metadataRollbacks: 0,
-      reviewerReattestations: 0,
+      reviewerReattestations: 1,
+      postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
       successfulCloseout: 1,
@@ -4464,6 +4606,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         storyFilesHash: 'story-1',
         reviewRound: 'round-1',
       },
+      testEntryAt: '2026-01-01T00:00:30.000Z',
       phaseTransitions: [],
       humanConfirmations: [],
       validationTerminals: [{
@@ -4476,6 +4619,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         commandExecutions: 1,
       }],
       reviewerIdentityIds: [],
+      postTestReviewerIdentityIds: [],
       closeoutWriterSequence: ['validate:test-evidence.json'],
     } as any;
     assert.deepEqual(buildPhaseTransitionProcessEvent({
@@ -4504,6 +4648,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     assert.deepEqual(derived, {
       metadataRollbacks: 0,
       reviewerReattestations: 0,
+      postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
       successfulCloseout: 1,
@@ -4523,7 +4668,6 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     );
     for (const negative of [
       { ...baseFacts, phaseTransitions: [{ type: 'phase_transition', timestamp: '2026-01-01T00:03:00.000Z', fromPhase: 'TEST', toPhase: 'DEV', materialHash: 'material-1', storyFilesHash: 'story-1' }] },
-      { ...baseFacts, reviewerIdentityIds: ['B-convergence:RR-002'] },
       { ...baseFacts, humanConfirmations: [{ type: 'human_confirmation', timestamp: '2026-01-01T00:03:00.000Z' }] },
     ] as any[]) {
       assert.throws(
@@ -4531,6 +4675,16 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         /done_prepare convergence invariant failed/,
       );
     }
+    const failedCloseout = deriveDonePreparePassConvergence([
+      ...passSteps,
+      { id: 'doneClosure', status: 'blocked', reason: 'closeout blocker remains' },
+    ] as any, { blockers: [] } as any, baseFacts);
+    assert.equal(failedCloseout?.successfulCloseout, 0, 'a blocked closeout must not count as successful convergence');
+    assert.throws(
+      () => assertDonePreparePassConvergence(failedCloseout!),
+      /done_prepare convergence invariant failed/,
+      'a failed closeout must never render PASS',
+    );
     assert.equal(deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, null), null, 'legacy/missing attempt telemetry must omit the convergence claim');
     assert.doesNotThrow(() => assertDonePreparePassConvergence(derived!));
     assert.equal(donePrepareJsonResult(storyId, 'DONE prepare: BLOCKED\nblockedAt: cleanTree\nreason: materialHash changed').convergence, undefined);

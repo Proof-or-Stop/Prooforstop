@@ -37,7 +37,12 @@ import {
   runManagedAssetCheck,
   scanProjectLocalManagedAgents,
 } from './core/managed-assets.js';
-import { resolveAgentTemplateDir, syncGlobalAgents } from './core/global-agents.js';
+import {
+  renderReviewerRunBootstrapForTemplate,
+  resolveAgentTemplateDir,
+  syncGlobalAgents,
+} from './core/global-agents.js';
+import { isModularReviewerRoleId } from './core/prompt-registry.js';
 import {
   LATTICE_RUNTIME_IGNORE_BLOCK_END,
   LATTICE_RUNTIME_IGNORE_BLOCK_START,
@@ -928,7 +933,11 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
   for (const file of agentPromptFiles) {
     const src = join(agentTemplateDir, file);
     const dst = join(codexAgentDir, file);
-    const content = renderCodexAgentContent(readFileSync(src, 'utf-8'));
+    const packageContent = renderCodexAgentContent(readFileSync(src, 'utf-8'));
+    const roleId = file.replace(/\.md$/, '');
+    const content = isModularReviewerRoleId(roleId)
+      ? renderReviewerRunBootstrapForTemplate(packageContent, file)
+      : packageContent;
     if (existsSync(dst)) {
       try {
         const stat = lstatSync(dst);
