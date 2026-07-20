@@ -164,10 +164,26 @@
       "phase": "DEV",
       "headHash": "e3542824c417621db6830558f9b48b05b513fe9c",
       "materialHash": "051cbb20988fd64b71c0ff12949695ffe8851c814088692dbee16d3ec622e1ae"
+    },
+    {
+      "actor": "story6-executor",
+      "reason": "The A/B analyzer selfcheck is a required Story 6 test asset proving forged provenance receipts are rejected before aggregation.",
+      "timestamp": "2026-07-20T22:19:27.122Z",
+      "paths": [
+        "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d4236a30f0ef68bc6e89c33caf16eac6045005e1",
+      "materialHash": "9ed32ce9dc4f59f0f4eba9327b4a764c076a3b7d79b646544ee597b8121e1416"
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-20T22:10:13.960Z",
+  "updatedAt": "2026-07-20T22:19:27.122Z",
   "protectedAnchors": [
     "AGENT_DISPATCH_REGISTRY",
     "buildFullTaskContext"
@@ -238,7 +254,8 @@
     ".lattice-codex/agents/lattice-implementer.md": ".lattice-codex/agents/lattice-implementer.md",
     ".lattice-codex/agents/lattice-review-delivery.md": ".lattice-codex/agents/lattice-review-delivery.md",
     ".lattice-codex/agents/lattice-review-scope-plan.md": ".lattice-codex/agents/lattice-review-scope-plan.md",
-    ".lattice-codex/agents/lattice-review-story-init.md": ".lattice-codex/agents/lattice-review-story-init.md"
+    ".lattice-codex/agents/lattice-review-story-init.md": ".lattice-codex/agents/lattice-review-story-init.md",
+    "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs": "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",
