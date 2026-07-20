@@ -15,11 +15,10 @@
         "modify": [
           "packages/main/src/core/prompt-envelope.ts",
           "packages/main/src/handlers/dispatch.ts",
-          "packages/main/src/roles/story-init.ts",
-          "packages/main/src/roles/scope-plan.ts",
-          "packages/main/src/roles/implementer.ts",
-          "packages/main/src/roles/delivery.ts",
-          "packages/main/src/roles/evaluator.ts"
+          "packages/main/src/roles/",
+          ".claude/agents/",
+          ".lattice-codex/agents/",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
         ],
         "create": [],
         "test": [
