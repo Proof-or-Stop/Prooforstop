@@ -119,6 +119,51 @@
       "resolvedAt": "2026-07-20T22:18:58.215Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-004",
+      "desc": "CHK-003:adversarial:0 evidence now runs story6-analyze-selfcheck.mjs, but the selfcheck only writes one forged receipt with synthetic-forged provenance and asserts the analyzer returns RECEIPT_PROVENANCE_INVALID. It does not exercise the claimed schema/campaign/role/sample/prompt/material/finding digest, observedAt, duplicate-key, stale, or wrong-role rejection cases; the checklist note currently overclaims that all of those are verified. The analyzer source has guards for these fields, but the must intent requires tested rejection of duplicate, forged, stale, wrong-role, and non-production receipts. Add mutation cases (or narrow the intent/evidence note) before passing.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-20T22:21:50.214Z",
+      "reviewRound": "2026-07-20T22:19:33.690Z",
+      "reviewRunId": "B-407c:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "1ffe6131509b9213110a8cbcdabe092b3861ebd4db1056296570c0a94d6fbb65",
+      "files": [
+        "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+        "experiments/role-prompt-ab-replay/story6-analyze.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|adversarial-evidence-runs",
+      "signatureTagSource": "auto"
     }
   ]
 }
