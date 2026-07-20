@@ -178,6 +178,44 @@
       ],
       "signatureTag": "missing|mjs|scripts-verify-process",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-956f:F-011",
+      "desc": "R6 wrapper-root namespace translation is INERT (never engages) at the repro-first evidence-binding gate and the STORY_INTAKE preflight, two of the three consumers CHK-001/the R6 commit message explicitly claim to fix. projectRepoPrefix(gitCwd, projectRoot) (material-code-policy.ts:291) only produces a non-empty prefix when gitCwd is resolved to the TRUE git root (an ancestor of projectRoot in the <gitRoot>/project/ shape the fix targets). evaluateStoryEvidenceBindingGate (repro-evidence-binding-gate.ts:387) has NO gitCwd parameter in its signature at all, and its internal call buildMaterialClassificationSnapshot(projectRoot) (repro-evidence-binding-gate.ts:418) passes no gitCwd override, so buildMaterialClassificationSnapshot defaults gitCwd=projectRoot (material-code-policy.ts:1057: `opts.gitCwd ?? projectRoot ?? process.cwd()`) -> projectRepoPrefix(gitCwd=projectRoot, projectRoot) is always the empty/identity prefix regardless of the real repo layout. story-create.ts:133 (STORY_INTAKE repro-first preflight) has the identical pattern. Only the review-assurance-floor path is actually protected, because ITS production callers (machine.ts:822/1262, done-oracle.ts:861, transition-effects.ts:180, done-prepare.ts:1254, review-escalation.ts:287) explicitly resolve gitCwd via resolveGitCwd(...) before calling evaluateReviewAssuranceFloor. LIVE REPRO (isolated scratch copy, built dist, config in <root>/project/, materialCode.excludePaths=[legacy/], diff adds project/legacy/old.py): buildMaterialClassificationSnapshot(projectRoot) [[the exact repro-gate/story-create call shape]] classifies project/legacy/old.py as materialCode:true, reason=code extension -- the excludePaths exclusion is SILENTLY DEFEATED. The SAME inputs with buildMaterialClassificationSnapshot(projectRoot, { gitCwd: root }) [[the review-assurance-floor call shape]] correctly classify it materialCode:false, reason=config excludePaths. This is exactly the class of silent-escape bug this story exists to close (background.md Trigger Event), and it means a wrapper-root deployment (ClawCreek shape) can still silently escape repro-first RED-required classification and STORY_INTAKE preflight protection via excludePaths/pathPrefixes even after the R6 fix, while the floor alone is protected. The new R6 smoke checks (language-neutral-gates-smoke.ts:1104,1124) only call buildMaterialClassificationSnapshot(projectRoot, { gitCwd: root }) directly -- they never exercise the actual evaluateStoryEvidenceBindingGate/story-create.ts production call path in a wrapper-root layout, so this gap is untested.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-20T12:23:10.970Z",
+      "reviewRound": "2026-07-20T12:07:59.609Z",
+      "reviewRunId": "B-956f:RR-023",
+      "_hash": "5c42f2ae08335315005987177e977bb8fe1f40c623a2118b9da2f042ea1ed416",
+      "files": [
+        "packages/main/src/core/repro-evidence-binding-gate.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/core/material-code-policy.ts"
+      ],
+      "signatureTag": "adversarial|ts|wrapper-root-namespace",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-956f:F-012",
+      "desc": "Fourth call site of tryBuildMaterialClassificationSnapshotForDiagnostics is inconsistent with the other three: story-review.ts:124 calls tryBuildMaterialClassificationSnapshotForDiagnostics(ctx.root) with NO gitCwd argument at all, while the three sibling call sites touched by this story machine.ts:144 (proofStoryMaterialClassification), phase-gates.ts:125 (proofStoryMaterialClassification), and proofstory.ts:110 (materialClassification) all first resolve gitCwd = resolveGitCwd({store, storyId, metadataRoot, projectRoot}) before calling the same helper. Because tryBuildMaterialClassificationSnapshotForDiagnostics(root) internally calls buildMaterialClassificationSnapshot(root) with gitCwd defaulting to root, the story_review command diagnostic-input materialClassification field is subject to the identical wrapper-root namespace mismatch as F-011 (a project-relative pathPrefixes/excludePaths entry silently fails to apply) whenever story_review is run against a wrapper-root project (config in <gitRoot>/subdir/). Lower severity than F-011 because this field is documented DIAGNOSTIC/advisory only (see the FIX G comment at phase-gates.ts:113-117: broken policy/config surfaces through the fail-closed resolve/floor/repro consumers, never by breaking a phase gate) -- it drives story_review advisory issues/prompt content, not a blocking gate -- but it means story_reviews own ProofStory materialClassification-driven advisories can be silently wrong (miss a material file, or misjudge repro-first-required framing) in exactly the wrapper-root topology this round exists to fix, while three near-identical helper functions in the same diff round were made correct.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-20T12:23:36.601Z",
+      "reviewRound": "2026-07-20T12:07:59.609Z",
+      "reviewRunId": "B-956f:RR-023",
+      "_hash": "30de992fd5aef149b030a19b5905baae02cdb4572c1077810c22fd1bfb2b9312",
+      "files": [
+        "packages/main/src/handlers/story-review.ts"
+      ],
+      "signatureTag": "adversarial|ts|fourth-call-site",
+      "signatureTagSource": "auto"
     }
   ]
 }
