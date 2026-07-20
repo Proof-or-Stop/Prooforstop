@@ -1010,6 +1010,58 @@
       },
       "readDiagnostics": [],
       "_hash": "3a785c88bbb4ef25db79f1a57486c5a200a01ad071c30d1dfa74417781914072"
+    },
+    {
+      "id": "B-235e:RP-041",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed at f375026: F-024 is satisfied by 1b2e9bafd4. The focused --cutoff-verifier-only smoke uses real CLI-produced A pass, production incremental B envelope, later real C pass, and the real verifyReviewRunPromptEnvelope(B); B remains valid and bound to A after C, while removing the verifier pass cutoff rewrites the baseline to C and changes eligibilityDigest. All 48 must intents have passing evidence; no waiver or new blocker.",
+      "createdAt": "2026-07-20T10:23:12.016Z",
+      "reviewRound": "2026-07-20T10:18:58.704Z",
+      "reviewRunId": "B-235e:RR-083",
+      "envelopeId": "0b07f3aba6731f8d76d2893c768c641f2bf42c48cb9962d7efebc8ab3d849ab0",
+      "writerSessionId": "sess-b235e-coverage-f024-20260720",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "e74bc024b6cfd298244a45f6e3aa244546ff4803a5ef24719909ba076e18392a"
+      },
+      "readDiagnostics": [],
+      "_hash": "ccba8d58fd54f99d1535470f6696098b4188b0ba5860dca93a15ffbbb25e8afd"
     }
   ]
 }
