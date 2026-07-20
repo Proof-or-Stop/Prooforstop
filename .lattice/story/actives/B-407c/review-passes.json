@@ -463,6 +463,35 @@
         "scanEscalationReason": null
       },
       "_hash": "afb1179bc333bf17b134c04e7d12504f5f924c5179a6a692ed796640b97ddb19"
+    },
+    {
+      "id": "B-407c:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Current-HEAD incremental docs review passed. Prior docs review remains valid because eligibility reports no material change and trusted prior bindings; canonical plan, Story 6 live A/B README/analyzer, observe-only budget boundary, and explicit Story 7 exclusion remain unchanged and consistent with the current implementation. No new documentation drift or promised-but-undelivered behavior found.",
+      "createdAt": "2026-07-20T22:26:08.423Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-026",
+      "envelopeId": "b6f7af7bf2b8960e97d824835a01fa29c1682e3f4b431600f34c924c22203460",
+      "writerSessionId": "sess-355a6279c64d7b1326bc478e4a65c0fb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b8ad2ce6f33a9d30ee40b9baaf67fce32956f4c3925871b054b2a30beaf7a1b8"
     }
   ]
 }
