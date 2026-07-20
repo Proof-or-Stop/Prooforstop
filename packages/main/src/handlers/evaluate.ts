@@ -17,6 +17,11 @@ import type { EvalEvidenceData } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { assembleFullPromptEnvelope, buildFullTaskContext } from '../core/prompt-envelope.js';
+import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
+import { captureReviewRunSnapshot } from '../core/review-run.js';
+import { promptRoleContract, resolvePromptEnvelopeRolloutMode, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
+import { observeComplexRolePromptBudget } from '../core/prompt-budget.js';
 
 export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
@@ -77,6 +82,41 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
       instructions.push(`${lastStep}. 解析 evaluator 返回的 JSON`);
       instructions.push(`${lastStep + 1}. 调 lattice evaluate_save 写入结果`);
 
+      let promptEnvelope: Record<string, unknown> | undefined;
+      if (resolvePromptEnvelopeRolloutMode('lattice-evaluator', config.promptEnvelope) === 'full-envelope') {
+        const story = ctx.store.readStory(args.storyId);
+        const snapshot = captureReviewRunSnapshot(ctx.root, { storyId: args.storyId, storyPhase: story.phase }, ctx.root);
+        const taskContext = buildFullTaskContext({
+          story,
+          checklist: ctx.store.readChecklist(args.storyId),
+          ...snapshot,
+          scopeContract: ctx.store.readScopeContract(args.storyId),
+        });
+        const assembly = assembleFullPromptEnvelope({
+          roleContract: promptRoleContract('lattice-evaluator'),
+          runtimeContract: BASELINE_RUNTIME_CONTRACT,
+          rolePrompt: resolvePromptRoleBody('lattice-evaluator', config.promptEnvelope).body,
+          taskContext,
+          dispatchKind: 'story-dispatch',
+          dispatchPrompt: instructions.join('\n'),
+          createdAt: new Date().toISOString(),
+        });
+        promptEnvelope = {
+          envelopeId: assembly.envelope.envelopeId,
+          roleId: assembly.envelope.roleId,
+          dispatchKind: assembly.envelope.dispatchKind,
+          assembledPromptDigest: assembly.envelope.assembledPromptDigest,
+          contextDigest: assembly.envelope.contextDigest,
+          budget: observeComplexRolePromptBudget({
+            roleId: 'lattice-evaluator',
+            contextMode: 'full',
+            bytes: assembly.envelope.bytes,
+            estimatedTokens: assembly.envelope.estimatedTokens,
+          }),
+          prompt: assembly.prompt,
+        };
+      }
+
       return JSON.stringify({
         skipped: false,
         action: 'run_evaluator_agent',
@@ -87,6 +127,7 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
         storyId: args.storyId,
         checklist: checklistSummary,
         instructions: instructions.join('\n'),
+        ...(promptEnvelope ? { promptEnvelope } : {}),
       });
     },
 

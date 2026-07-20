@@ -10,6 +10,7 @@ import {
 } from './prompt-contracts.js';
 import {
   MODULAR_REVIEWER_ROLE_IDS,
+  MODULAR_COMPLEX_ROLE_IDS,
   isModularReviewerRoleId,
   readPromptRegistry,
   readPromptTemplate,
@@ -24,6 +25,7 @@ export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-con
 export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
 export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
 export const ACTIVE_MODULAR_REVIEWER_ROLE_IDS = Object.freeze([...MODULAR_REVIEWER_ROLE_IDS]);
+export const ACTIVE_MODULAR_COMPLEX_ROLE_IDS = Object.freeze([...MODULAR_COMPLEX_ROLE_IDS]);
 
 export interface ResolvedPromptRoleBody {
   roleId: string;
@@ -542,8 +544,8 @@ export function resolvePromptEnvelopeRolloutMode(
     if (roles[key] === 'full-envelope' && promptRoleContract(key).status !== 'active') {
       throw new PromptRoleContractRegistryError(`${key} is ${promptRoleContract(key).status} and cannot enable full-envelope`);
     }
-    if (!isModularReviewerRoleId(key)) {
-      throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} is outside the five-role modular rollout`);
+    if (!isModularReviewerRoleId(key) && !MODULAR_COMPLEX_ROLE_IDS.includes(key as typeof MODULAR_COMPLEX_ROLE_IDS[number])) {
+      throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} is outside the approved modular rollout`);
     }
   }
   if (Object.prototype.hasOwnProperty.call(roles, '__proto__') || Object.prototype.hasOwnProperty.call(roles, 'constructor')) {

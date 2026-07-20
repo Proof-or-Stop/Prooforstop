@@ -28,6 +28,15 @@ export const MODULAR_REVIEWER_ROLE_IDS = [
   'lattice-review-test-coverage',
 ] as const;
 export type ModularReviewerRoleId = typeof MODULAR_REVIEWER_ROLE_IDS[number];
+/** Story 6 roles use the same trusted story-dispatch envelope, but are not REVIEW lanes. */
+export const MODULAR_COMPLEX_ROLE_IDS = [
+  'lattice-review-story-init',
+  'lattice-review-scope-plan',
+  'lattice-implementer',
+  'lattice-review-delivery',
+  'lattice-evaluator',
+] as const;
+export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
 
 const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, string>> = Object.freeze({
   'lattice-review-behavior': 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2',
@@ -195,6 +204,14 @@ function sha256(content: string): string {
 
 export function isModularReviewerRoleId(roleId: string): roleId is ModularReviewerRoleId {
   return (MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(roleId);
+}
+
+export function isModularComplexRoleId(roleId: string): roleId is ModularComplexRoleId {
+  return (MODULAR_COMPLEX_ROLE_IDS as readonly string[]).includes(roleId);
+}
+
+export function isModularRoleId(roleId: string): boolean {
+  return isModularReviewerRoleId(roleId) || isModularComplexRoleId(roleId);
 }
 
 /**
