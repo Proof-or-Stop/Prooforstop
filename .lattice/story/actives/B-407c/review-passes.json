@@ -185,6 +185,42 @@
         "scanEscalationReason": null
       },
       "_hash": "c5f1a4ef5832c4fe0f1fbf9d809378477050873a18f7464fb83cbb7549e96b8a"
+    },
+    {
+      "id": "B-407c:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept scan complete after analyzer fix. The latest Story 6 diff still adds modular role assets and A/B analysis while preserving legacy reconstruction; no lifecycle/process concept was deleted or renamed. Remaining legacy and retired-role references are intentional compatibility/audit material, and Story 7 is explicitly excluded. No concept-residue blocker found.",
+      "createdAt": "2026-07-20T22:20:21.214Z",
+      "reviewRound": "2026-07-20T22:19:33.690Z",
+      "reviewRunId": "B-407c:RR-015",
+      "envelopeId": "991fb0f93226d6b27a85ee7f9b18e3379096a8c396b38d6ea7852d7e66af8790",
+      "writerSessionId": "sess-6049ab32b2a270dcbcd45c1b536ae028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-evaluator.md",
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".claude/agents/lattice-review-story-init.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f1eda54f3050542b38554b93de5c271c5e41c06672901fe58102d60153ca5af2"
     }
   ]
 }
