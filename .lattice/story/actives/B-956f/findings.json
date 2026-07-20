@@ -254,7 +254,7 @@
       "desc": "packages/main/src/handlers/story-review.ts:130-136 (the R7 F-012 fix: materialGitCwd = resolveGitCwd(...) threaded into tryBuildMaterialClassificationSnapshotForDiagnostics) has NO smoke/test coverage driving the actual story_review handler (createStoryReviewHandlers) against a wrapper-root fixture. The three sibling call sites this fix was modeled on — machine.ts:136-145 (proofStoryMaterialClassification), phase-gates.ts:117-126 (proofStoryMaterialClassification, exercised by smoke check FIX-G) — and the F-011 fixes in the SAME commit (evaluateStoryEvidenceBindingGate, renderReproFirstStoryCreatePreflight) all got dedicated production-call-shape wrapper-root checks in packages/main/src/tasks/language-neutral-gates-smoke.ts (R7-a/R7-b specifically drive the exact call shapes with NO manual gitCwd). grep across packages/main/src/tasks for materialGitCwd/materialClassification/resolveGitCwd + wrapper shows zero references to story-review.ts or createStoryReviewHandlers; story-review-corpus-budget-smoke.ts and story-review-ergonomics-smoke.ts (the only other files invoking createStoryReviewHandlers) never touch materialClassification. I independently verified the fix is CORRECT by code inspection (store is in scope at story-review.ts:110, the resolveGitCwd call args match the sibling pattern exactly) and by re-running the R7 F-011/F-012 repro end-to-end (isolated wrapper-root git fixture, production call shapes for evaluateStoryEvidenceBindingGate/renderReproFirstStoryCreatePreflight, non-git fail-closed R5 semantics preserved, symlinked-root realpath canonicalization verified, plain-root byte-identical behavior verified, smoke 38/38 + RED 11/11 + verifier exit 0 all green) — but the story_review diagnostic-input wiring itself (the specific thing F-012 was raised against) is the one of four sibling sites this round left with zero regression-test protection, which is exactly the class of gap (fix correct, production wiring untested) that has recurred across R1/R6/R7 of this story.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-20T13:23:56.907Z",
@@ -262,7 +262,9 @@
       "reviewRunId": "B-956f:RR-025",
       "_hash": "bf791542408d792efafbd1dd8b2539a06d3d0cba27b80adeedec63b96801876e",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-20T13:51:12.516Z",
+      "resolutionType": "fixed"
     }
   ]
 }
