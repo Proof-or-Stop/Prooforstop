@@ -271,7 +271,7 @@
       "desc": "R9 verification of the dispatch claim that smoke check R8-a (language-neutral-gates-smoke.ts:1273-1301) is load-bearing for the story-review.ts F-012/F-014 fix does NOT hold under the literal historical revert, and the R8-mini commit's own regression claim is inaccurate. Commit e410889012 states: 'Revert-proof: forcing the pre-R7 root-as-gitCwd form fails R8-a at the first assertion.' Reproduced in an isolated built copy (node_modules symlinked, same tsc/dist pipeline): reverting buildStoryReviewMaterialClassification (story-review.ts:124-136) to the EXACT pre-R7 call shape actually present in git history at commit d6707048ad^ (`return tryBuildMaterialClassificationSnapshotForDiagnostics(metadataRoot);` — one arg, no gitCwd, byte-identical to the diff's `-` line) still passes ALL 39 smoke checks including R8-a; only forcing an EXPLICIT identity gitCwd (`tryBuildMaterialClassificationSnapshotForDiagnostics(metadataRoot, metadataRoot)`, a stronger/different regression than the historical form) makes R8-a fail. Root cause: the SAME R7 commit (d6707048ad) that changed story-review.ts also changed buildMaterialClassificationSnapshot's own default (material-code-policy.ts:1121: `opts.gitCwd ?? resolveDefaultSnapshotGitCwd(projectRoot)`), so a bare/omitted gitCwd argument now safely auto-resolves via resolveProjectGitCwd regardless of whether story-review.ts explicitly threads resolveGitCwd. tryBuildMaterialClassificationSnapshotForDiagnostics(root) omitting gitCwd entirely (material-code-policy.ts:1358 `{...(gitCwd ? {gitCwd} : {})}`) hits this same safe default. Net effect: R8-a cannot detect the actual regression class F-012/F-014 named (story-review.ts losing its resolveGitCwd threading back to the pre-R7 form) because that exact reversion is already caught by R7-d's pre-existing default-safety net; R8-a substantially duplicates R7-d's coverage rather than adding NEW protection specific to story-review.ts's own story-aware resolveGitCwd call (which differs from the generic id-independent resolveProjectGitCwd default by consulting the story's own worktree/branch binding, e.g. index.json worktree field) for any scenario where those two resolvers would actually diverge — no such scenario is covered by R8-a's fixture (makeR7WrapperFixture has no worktree binding, so both resolvers converge on the same plain upward git-root probe). Production behavior is currently correct either way (not a live bug, consistent with F-012's own diagnostic-only severity), but the specific load-bearing/revert-proof claim this R9 round was asked to verify does not hold as stated, and the regression class the fix was meant to protect against remains untested.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-20T14:09:49.709Z",
@@ -284,7 +284,9 @@
         "packages/main/src/core/material-code-policy.ts"
       ],
       "signatureTag": "missing|ts|verification-dispatch-claim",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-20T14:34:05.442Z",
+      "resolutionType": "fixed"
     }
   ]
 }
