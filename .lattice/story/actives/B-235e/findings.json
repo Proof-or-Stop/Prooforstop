@@ -588,6 +588,62 @@
       ],
       "signatureTag": "missing|ts|code-drift-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-026",
+      "desc": "packages/main/src/handlers/done-prepare.ts:1507-1534 collects every later completed same-round/same-binding reviewer identity after REVIEW entry but does not bound runs or passes at testEntry. edf2d243ac then removes reviewerReattestations from the hard-fail predicate at lines 1596-1604 wholesale. This correctly admits the covered pre-TEST re-attestation, but also admits a post-TEST re-attestation created during DONE convergence while still rendering one-pass PASS. packages/main/src/tasks/flow-stability-smoke.ts:4428-4468 covers only the pre-TEST positive and deletes the prior nonzero-reviewer negative, so the timing boundary is unproved. Split or classify pre-TEST observational re-attestations from post-TEST convergence rework and add both sides of the timing matrix; retain the current hard failures for metadata rollback, human confirmation, repeated unchanged-suite execution, and unsuccessful closeout.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-20T14:00:42.128Z",
+      "reviewRound": "2026-07-20T13:56:32.127Z",
+      "reviewRunId": "B-235e:RR-104",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/checklist.json",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "e74bc024b6cfd298244a45f6e3aa244546ff4803a5ef24719909ba076e18392a"
+      },
+      "readDiagnostics": [],
+      "_hash": "7597cb93f199080866a176c6aed035d330554decd0d5cab28908c03d4634de56",
+      "files": [
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
