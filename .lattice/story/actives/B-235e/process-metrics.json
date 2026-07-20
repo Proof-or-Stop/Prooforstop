@@ -1,6 +1,6 @@
 {
   "storyId": "B-235e",
-  "generatedAt": "2026-07-20T13:52:32.302Z",
+  "generatedAt": "2026-07-20T13:56:54.000Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
@@ -35,13 +35,12 @@
           ]
         },
         "bugFixWithReproEvidenceRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "bug.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "validateFailBeforePass": {
           "value": null,
@@ -126,49 +125,45 @@
     },
     "debugging": {
       "effective": {
-        "value": null,
+        "value": true,
         "unit": "bool",
-        "confidence": "unknown",
+        "confidence": "high",
         "sources": [
           "bug.json"
         ]
       },
       "metrics": {
         "bugsWithEvidenceRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "bug.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "bugsWithHypothesisRatio": {
-          "value": null,
+          "value": 0,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "bug.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "bugsWithReproTestRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "bug.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "avgFixTimeHours": {
-          "value": null,
+          "value": 0.08,
           "unit": "hours",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "bug.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "reopenCount": {
           "value": 0,

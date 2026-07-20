@@ -3,9 +3,19 @@
     {
       "id": "BUG-001",
       "title": "done_prepare convergence invariant rejects legitimate pre-TEST reviewer re-attestations and makes DONE unreachable",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-07-20T13:52:13.760Z",
-      "fixedAt": null
+      "fixedAt": "2026-07-20T13:56:53.993Z",
+      "evidence": {
+        "symptom": "done_prepare reached all PASS closure rows then threw done_prepare convergence invariant failed with reviewerReattestations=4",
+        "reproSteps": [
+          "Run node bin/lattice.js done_prepare --storyId=B-235e --mergeMain --refreshStale --validate",
+          "Observe successfulCloseout=1 but hard failure solely because reviewerReattestations=4"
+        ],
+        "rootCause": "assertDonePreparePassConvergence treated legitimate historical reviewer re-attestation telemetry as a zero-only closeout invariant, making any re-reviewed story permanently unable to reach DONE",
+        "fixEvidence": "Commit edf2d243ac keeps reviewerReattestations observable but removes it from hard-fail predicate; build, flow-stability smoke, and process-fact contract pass while metadata rollback, human confirmation, duplicate suite, and failed closeout remain blocking",
+        "reproTest": "node packages/main/dist/tasks/flow-stability-smoke.js"
+      }
     }
   ]
 }
