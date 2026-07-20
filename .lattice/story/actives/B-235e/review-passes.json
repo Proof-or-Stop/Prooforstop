@@ -1643,6 +1643,68 @@
       },
       "readDiagnostics": [],
       "_hash": "b439bd1a0ff66ba21bf114f6408163d8e9fc80aceb27b9c90f17b91eafa3b8e1"
+    },
+    {
+      "id": "B-235e:RP-053",
+      "agent": "lattice-review-docs",
+      "note": "Round-20 docs review found no blocker: Step 1 extracted 235 changed declarations (21 exported production symbols), and 10 relevant documentation sections were compared. The only new non-story change is lattice.config.json root full-suite timeoutMs 1200000→7200000: a gate-consumed operational policy budget, not a schema/API or cutoff behavior change. Existing docs intentionally show configurable timeout examples and derive phase budgets from effective command timeouts; the documented ~10–20 minute typical duration is not a hard ceiling, so no docs sync is required. The cutoff L4 rationale remains exact: producer/verifier use signed run.startedAt and selector excludes passTime >= cutoff.",
+      "createdAt": "2026-07-20T11:56:25.284Z",
+      "reviewRound": "2026-07-20T11:52:00.521Z",
+      "reviewRunId": "B-235e:RR-094",
+      "envelopeId": "3503926cb62ca757db64c039c6bca7d4186e9e3c916362e42da101d3b90c4a97",
+      "writerSessionId": "sess-docs-b235e-round20-timeout",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/dev/test-coverage.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "lattice.config.json",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/review-run-binding-race.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/testing-infra.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "d1742e61010d4be0a34b973f056e7863499cec9a047d8957007533e3ccbcb927"
+      },
+      "readDiagnostics": [],
+      "_hash": "bcc2c7ddb4a4a756833b64caa002579721dd11929f385d15c3a9b3a71f3cc599"
     }
   ]
 }
