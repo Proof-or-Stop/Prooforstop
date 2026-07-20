@@ -667,6 +667,7 @@ function assertRealValidateDoneRequiredProgressJsonSafe(): void {
       convergence?: {
         metadataRollbacks?: number;
         reviewerReattestations?: number;
+        postTestReviewerReattestations?: number;
         humanConfirmations?: number;
         unchangedSuiteExecutions?: number;
         successfulCloseout?: number;
@@ -681,6 +682,7 @@ function assertRealValidateDoneRequiredProgressJsonSafe(): void {
     assert.deepEqual(parsed.convergence, {
       metadataRollbacks: 0,
       reviewerReattestations: 0,
+      postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
       successfulCloseout: 1,

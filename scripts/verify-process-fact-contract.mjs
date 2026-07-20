@@ -1579,10 +1579,18 @@ function assertCloseoutTrustBoundary() {
   assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'prompt-envelopes.json'") && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'") && lifecycleText.includes("'owner-lease.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed, prompt-envelope complete, and registry-backed`);
   for (const fact of [
     'runtime:closeout_phase_transition',
+    'runtime:closeout_reviewer_reattestation_boundary',
     'runtime:closeout_human_confirmation',
     'runtime:closeout_validation_terminal',
   ]) {
     assert(read(processFactRegistryPath).includes(`name: '${fact}'`), `${processFactRegistryPath}: missing durable closeout convergence fact ${fact}`);
+  }
+  const reattestationBoundaryFact = registry.get('runtime:closeout_reviewer_reattestation_boundary');
+  assert(reattestationBoundaryFact?.level === 'L4', `${processFactRegistryPath}: reviewer re-attestation boundary must remain L4`);
+  assert(reattestationBoundaryFact?.producer.includes('review_run_start') && reattestationBoundaryFact?.producer.includes('review_pass_set'), `${processFactRegistryPath}: reviewer re-attestation boundary must identify review run/pass producers`);
+  assert(reattestationBoundaryFact?.consumerGate === 'done_prepare convergence acceptance', `${processFactRegistryPath}: reviewer re-attestation boundary must identify the done_prepare consumer`);
+  for (const token of ['same attempt', 'materialHash', 'storyFilesHash', 'reviewRound', 'completed before TEST entry', 'at or after TEST entry', 'fail-closed']) {
+    assert(reattestationBoundaryFact?.rationale.includes(token), `${processFactRegistryPath}: reviewer re-attestation boundary rationale missing ${token}`);
   }
   assert(read(processFactRegistryPath).includes('...PROCESS_FACT_CLOSEOUT_TELEMETRY'), `${processFactRegistryPath}: durable closeout convergence facts must be included in the final registry`);
 
@@ -3140,8 +3148,15 @@ function parseProcessFactRegistry() {
     reviewerLane: '',
     rationale: entry.rationale,
   }));
+  const closeoutTelemetryEntries = parseRegistryArrayEntriesFromSource(sourceText, 'PROCESS_FACT_CLOSEOUT_TELEMETRY');
 
-  cachedProcessFactRegistryEntries = [...commandEntries, ...laneEntries, ...artifactEntries, ...flowPolicyEntries];
+  cachedProcessFactRegistryEntries = [
+    ...commandEntries,
+    ...laneEntries,
+    ...artifactEntries,
+    ...flowPolicyEntries,
+    ...closeoutTelemetryEntries,
+  ];
   return cachedProcessFactRegistryEntries;
 }
 

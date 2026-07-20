@@ -1253,7 +1253,7 @@ export const PROCESS_FACT_SIGNED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
   (entry) => entry.artifact?.signed === true,
 ) as readonly ProcessFactRegistryEntry[];
 
-const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
+export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
   {
     name: 'runtime:closeout_phase_transition',
     kind: 'runtime-behavior',
@@ -1262,6 +1262,15 @@ const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
     producer: 'handlers/transition-orchestrator',
     consumerGate: 'done_prepare convergence acceptance',
     rationale: 'Typed from/to phase transitions bind attempt, review round, materialHash, and storyFilesHash so metadata-only rollback counts are mechanically derived.',
+  },
+  {
+    name: 'runtime:closeout_reviewer_reattestation_boundary',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'review-run', 'review-pass', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/review-run review_run_start + handlers/finding review_pass_set',
+    consumerGate: 'done_prepare convergence acceptance',
+    rationale: 'Signed completed reviewer run/pass pairs on the same attempt, materialHash, storyFilesHash, and reviewRound remain total telemetry. Re-attestations completed before TEST entry are exempt; completion at or after TEST entry increments the fail-closed post-TEST counter.',
   },
   {
     name: 'runtime:closeout_human_confirmation',

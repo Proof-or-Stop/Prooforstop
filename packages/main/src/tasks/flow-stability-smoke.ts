@@ -4427,6 +4427,8 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     };
     const initialReview = makeCompletedReview('001', '2026-01-01T00:01:00.000Z', '2026-01-01T00:02:00.000Z');
     const metadataReattestation = makeCompletedReview('002', '2026-01-01T00:03:00.000Z', '2026-01-01T00:04:00.000Z');
+    const atTestEntryReattestation = makeCompletedReview('003', '2026-01-01T00:04:30.000Z', '2026-01-01T00:05:00.000Z');
+    const postTestReattestation = makeCompletedReview('004', '2026-01-01T00:05:30.000Z', '2026-01-01T00:06:00.000Z');
     const historicalRound = makeCompletedReview('OLD', '2026-01-01T00:03:30.000Z', '2026-01-01T00:04:30.000Z', '2025-12-31T00:00:00.000Z');
     assert.equal(verifyReviewRun(initialReview.run), true);
     assert.equal(verifyReviewRun(metadataReattestation.run), true);
@@ -4452,11 +4454,12 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       [metadataReattestation.run.reviewRunId],
       'collector must count a same-binding REVIEW re-attestation completed before TEST and ignore an old round',
     );
+    assert.deepEqual(collected?.postTestReviewerIdentityIds, [], 'pre-TEST reviewer re-attestations must not enter the blocking counter');
     const collectedConvergence = deriveDonePreparePassConvergence([
-        { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
-        { id: 'doneClosure', status: 'pass' },
-        { id: 'cleanTree', status: 'pass' },
-      ] as any, { blockers: [] } as any, collected);
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any, { blockers: [] } as any, collected);
     assert.equal(
       collectedConvergence?.reviewerReattestations,
       1,
@@ -4466,15 +4469,41 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       () => assertDonePreparePassConvergence(collectedConvergence!),
       'legitimate reviewer re-attestations must remain observable without blocking PASS convergence',
     );
+    store.writeReviewRuns(storyId, { runs: [historicalRound.run, initialReview.run, metadataReattestation.run, atTestEntryReattestation.run, postTestReattestation.run] });
+    store.writeReviewPasses(storyId, { passes: [historicalRound.pass, initialReview.pass, metadataReattestation.pass, atTestEntryReattestation.pass, postTestReattestation.pass] });
+    const postTestCollected = collectDonePrepareConvergenceFacts(ctx, storyId);
+    assert.deepEqual(
+      postTestCollected?.reviewerIdentityIds,
+      [metadataReattestation.run.reviewRunId, atTestEntryReattestation.run.reviewRunId, postTestReattestation.run.reviewRunId],
+      'total reviewer re-attestation telemetry must include pre- and post-TEST completed passes',
+    );
+    assert.deepEqual(
+      postTestCollected?.postTestReviewerIdentityIds,
+      [atTestEntryReattestation.run.reviewRunId, postTestReattestation.run.reviewRunId],
+      'a completed reviewer pass at or after TEST entry must enter the blocking counter',
+    );
+    const postTestConvergence = deriveDonePreparePassConvergence([
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any, { blockers: [] } as any, postTestCollected);
+    assert.equal(postTestConvergence?.reviewerReattestations, 3);
+    assert.equal(postTestConvergence?.postTestReviewerReattestations, 2);
+    assert.throws(
+      () => assertDonePreparePassConvergence(postTestConvergence!),
+      /done_prepare convergence invariant failed/,
+      'post-TEST reviewer re-attestation must fail PASS convergence',
+    );
 
     const transcript = [
       'DONE prepare: PASS',
       `storyId: ${storyId}`,
-      'convergence: metadataRollbacks=0 reviewerReattestations=1 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1',
+      'convergence: metadataRollbacks=0 reviewerReattestations=1 postTestReviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1',
     ].join('\n');
     assert.deepEqual(donePrepareJsonResult(storyId, transcript).convergence, {
       metadataRollbacks: 0,
       reviewerReattestations: 1,
+      postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
       successfulCloseout: 1,
@@ -4487,6 +4516,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         storyFilesHash: 'story-1',
         reviewRound: 'round-1',
       },
+      testEntryAt: '2026-01-01T00:00:30.000Z',
       phaseTransitions: [],
       humanConfirmations: [],
       validationTerminals: [{
@@ -4499,6 +4529,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         commandExecutions: 1,
       }],
       reviewerIdentityIds: [],
+      postTestReviewerIdentityIds: [],
       closeoutWriterSequence: ['validate:test-evidence.json'],
     } as any;
     assert.deepEqual(buildPhaseTransitionProcessEvent({
@@ -4527,6 +4558,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     assert.deepEqual(derived, {
       metadataRollbacks: 0,
       reviewerReattestations: 0,
+      postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
       successfulCloseout: 1,
