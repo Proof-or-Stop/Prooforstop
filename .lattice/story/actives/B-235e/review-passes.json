@@ -1705,6 +1705,60 @@
       },
       "readDiagnostics": [],
       "_hash": "bcc2c7ddb4a4a756833b64caa002579721dd11929f385d15c3a9b3a71f3cc599"
+    },
+    {
+      "id": "B-235e:RP-054",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-20 test-coverage review passed at 4c76899. Commit 4fa6f4f7dc changes only root full test suite timeoutMs 1200000 to 7200000: label, command npm, args [test], build-proof dependency, root package.json test script, and its coverage chain are unchanged. Root npm test still includes test:review-incremental-context-smoke, whose default run still invokes runProductionVerifierTemporalCutoffRegression; F-024 implementation/test files have no diff since 1b2e9bafd4. Existing 48/48 must-intent mapping remains complete, with no waiver or new blocker. Per instruction, no full npm test or default 20-round smoke was executed by this reviewer.",
+      "createdAt": "2026-07-20T11:56:54.283Z",
+      "reviewRound": "2026-07-20T11:52:00.521Z",
+      "reviewRunId": "B-235e:RR-096",
+      "envelopeId": "0cf983424fc97bb4922695a5d63d46ff993fd8e9954922ccc94d9836ea2e12f7",
+      "writerSessionId": "sess-b235e-coverage-r20-20260720",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-235e/background.md",
+          ".lattice/story/actives/B-235e/checklist.json",
+          ".lattice/story/actives/B-235e/plan.md",
+          "docs/host-run-usage.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-run-binding-race.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "e74bc024b6cfd298244a45f6e3aa244546ff4803a5ef24719909ba076e18392a"
+      },
+      "readDiagnostics": [],
+      "_hash": "c51c3250b218ee5adf52287b44bb3edab37d9b33092175c3fc1bf4b438204bc1"
     }
   ]
 }
