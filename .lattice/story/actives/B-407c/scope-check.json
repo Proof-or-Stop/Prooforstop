@@ -1,0 +1,64 @@
+{
+  "storyId": "B-407c",
+  "checkedAt": "2026-07-20T21:34:43.060Z",
+  "features": [
+    {
+      "feature": "迁移 story-init/scope-plan/implementer/delivery/evaluator 到 modular Prompt Envelope",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    },
+    {
+      "feature": "复杂角色预算 observe/warn，超限记录 violation 但不阻塞 full review",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    },
+    {
+      "feature": "五角色真实 dispatch A/B 与不可用 provider 维度 INCONCLUSIVE",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    },
+    {
+      "feature": "delivery/scope/author/evaluator/permission/signature/Task Context invariants",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    },
+    {
+      "feature": "Story 7 budget enforce promotion",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "明确属于后续 Story 7，须观察窗口和 A/B 证据后再创建",
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-407c/background.md",
+      ".lattice/story/actives/B-407c/checklist.json",
+      ".lattice/story/actives/B-407c/decision.json",
+      ".lattice/story/actives/B-407c/plan.md",
+      ".lattice/story/actives/B-407c/understanding.json",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 5,
+    "covered": 4,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d6dd2c47298b318f4376c6b02e6a7fbecd1404373086fdd60ea1782b28896eeb",
+  "openQuestions": []
+}
