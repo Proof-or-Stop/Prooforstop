@@ -454,6 +454,21 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-235e:F-021",
+      "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:259 — the new cutoff smoke does not verify the contract that fixed F-019: it calls reviewIncrementalContext with passesCutoffAt and only asserts that the returned role is unchanged. The test would still pass if post-cutoff or equal-timestamp passes were selected and rewrote priorPassRef/eligibilityDigest. Add a deterministic fixture with a trusted pre-cutoff pass plus trusted equal- and post-cutoff passes, assert the pre-cutoff pass remains selected, and assert producer assembly plus verifyReviewRunPromptEnvelope agree. The process-fact verifier should require those semantic assertions rather than merely the string passesCutoffAt.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-20T00:04:57.083Z",
+      "reviewRound": "2026-07-19T23:55:41.162Z",
+      "reviewRunId": "B-235e:RR-072",
+      "_hash": "f2172f77bbe35495201183fae87f7e8f25745aec5787334cffa03ab05f7b3f52",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
