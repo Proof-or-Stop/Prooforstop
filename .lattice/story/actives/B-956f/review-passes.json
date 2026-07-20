@@ -409,6 +409,44 @@
         "scanEscalationReason": null
       },
       "_hash": "1522cdc33bfe4f2421db528baac0c247c739c03c7a2e220dac0d7ce5feb948f6"
+    },
+    {
+      "id": "B-956f:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "R6 verification round: my R5 F-007 (test-coverage gap tied to quality F-006, non-git-root fail-open on buildMaterialClassificationSnapshot) is genuinely fixed. Verified: (1) assertMaterialCodeExclusionsAgainstTree(policy, gitCwd, headRef) is now called UNCONDITIONALLY in the retry loop (material-code-policy.ts:1029, no if(headRef) gate) so a non-git root with excludePaths fails closed through the same enumeration-throw path as resolveMaterialCodePolicy, and the tree-bound digest check (:711-719) recomputes policyDigest from the supplied policy fields before any cache lookup, rejecting a forged embedded digest. (2) Smoke grew 29->32 checks (R5-a/b/c): R5-a proves buildMaterialClassificationSnapshot fails closed on a non-git root with a covered exclusion AND that evaluateStoryEvidenceBindingGate surfaces a structured blocking outcome (reasonCode=repro_first_material_policy_error) rather than a raw throw or silent pass; R5-b proves a no-exclusions policy on a non-git root still builds (no over-blocking regression); R5-c proves a hand-built policy with a forged policyDigest is rejected before cache lookup (no cache-poison aliasing). (3) Confirmed load-bearing via an ISOLATED filesystem copy (outside the worktree, node_modules symlinked, tsconfig typeRoots patched only in the copy): reverting the unconditional assert back to if(headRef)-gated made R5-a FAIL (exit 1); reverting the digest recompute to trust policy.policyDigest verbatim made R5-c FAIL (exit 1); restoring both (byte-identical diff against the worktree file confirmed via git diff) restored 32/32 green. (4) Smoke ran 5x deterministic green in the real worktree (dist build clean); RED harness (tmp/w1-red/red-language-degradation.cjs) ran 3x GREEN (11/11, exit 0). (5) `lattice validate --story=B-956f --json` genuinely passed end-to-end (allPass:true, exit 0, all 46 configured commands code=0) once run without concurrent system contention (two earlier attempts hit the global 900s validate watchdog purely from unrelated concurrent host load, not a code failure — confirmed by re-running the one flagged command, milestone-status.test.mjs, standalone with exit 0; a stray orphaned quorum-submit-smoke.js child from an aborted prior attempt was killed before the clean run). Evidence freshness confirmed via `lattice evidence_manifest`: freshness=fresh, staleRefs=0, materialHash f0c69e34... matches all 12 checklist verificationEvidence entries; headHash 9c136a9a... (recorded in checklist evidence) verified as a genuine ancestor of current HEAD df2a7099c2 via git merge-base --is-ancestor, with `git diff 9c136a9a..HEAD -- material-code-policy.ts language-neutral-gates-smoke.ts` empty (zero diff) — the 8 intervening commits are lattice metadata-only (review_pass_set/finding_resolve/validate bookkeeping), so the CHK-001/CHK-002 adversarial verificationEvidence claims (rejected at BOTH layers; config-blind regression impossible) are now accurate when the cited command (node packages/main/dist/tasks/language-neutral-gates-smoke.js) is re-run today. F-006 (quality) and F-007 (mine) both show status=resolved/resolutionType=fixed in findings.json, consistent with what I verified live. No new gaps found this round. Out of my checklist scope but noted: scripts/verify-process-fact-contract.mjs (338-line diff, not declared on any CHK item) also passed (`node scripts/verify-process-fact-contract.mjs` exit 0) — a quality/scope-boundary concern for another lane, not a test-coverage gap.",
+      "createdAt": "2026-07-20T11:09:24.965Z",
+      "reviewRound": "2026-07-20T10:07:35.335Z",
+      "reviewRunId": "B-956f:RR-019",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/review-passes.json",
+          ".lattice/story/actives/B-956f/review-runs.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f3e9d0680d55d7bca6803390367c4761f65a04566529c855d30b25ccf7f9077d"
     }
   ]
 }
