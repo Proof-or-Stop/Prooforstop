@@ -274,11 +274,11 @@
           "file": "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
           "result": "pass",
-          "note": "Analyzer selfcheck constructs forged provenance and valid-cell receipts and verifies schema, campaign binding, role/sample, prompt/material/finding digests, production provenance, observedAt, and duplicate-key rejection before aggregation.",
-          "headHash": "3016822a45fa5672cead1a07e5224d9d1ad2f448",
-          "materialHash": "9ed32ce9dc4f59f0f4eba9327b4a764c076a3b7d79b646544ee597b8121e1416",
-          "storyFilesHash": "d92878747441c7d83ff6744c56bf331697022ae3e55b946fb51a1a81e5cc8cf0",
-          "timestamp": "2026-07-20T22:21:04.806Z"
+          "note": "Mutation matrix selfcheck covers 15 receipt mutations: schemaVersion, campaignId, campaign binding, role/sample/arm/host/repeat, prompt/material/finding digests, production provenance, observedAt, stale receipt, and duplicate cell key; every forged receipt is rejected before aggregation.",
+          "headHash": "740a9acfcf84b2bd6c983315f8c32c43d1246391",
+          "materialHash": "01ac515472d50da454e9356154784c5d732a4e4be75590aef2572c5a4054f2f7",
+          "storyFilesHash": "90bd26e7631dd20239c5bbe01877bf3d5eceda41ab085036f2dbf80d30f4893f",
+          "timestamp": "2026-07-20T22:22:53.962Z"
         }
       ]
     },
