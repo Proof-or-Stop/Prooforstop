@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-20T21:43:02.211Z",
-      "endTime": null,
+      "endTime": "2026-07-20T21:43:04.155Z",
       "userSees": "用户看到五个复杂角色均显示 modular Prompt Envelope dispatch receipt，且 role/status/Task Context 字段与迁移前一致。",
       "files": {
         "modify": [
@@ -47,7 +47,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
+          "result": "pass",
+          "note": "真实 assembleFullPromptEnvelope 对五个 complex role IDs 均生成 role-bound envelope、Runtime Contract 和 Task Context；story-dispatch 产出 receipt 字段。",
+          "headHash": "3ff8eff4a08694851a5c6ab0cd09b4696043cf91",
+          "materialHash": "2f3ccfe10a2720517a8e821353e3168e67edcb31c558633ce3a46ee6187d97d5",
+          "storyFilesHash": "3f59d76b305411826a018445701c08dfbb5e1f1be0b54bfd94efe883f74e5f55",
+          "timestamp": "2026-07-20T21:43:04.545Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "prompt registry smoke 验证 complex role registry 与 legacy reviewer registry 同时可解析。",
+          "headHash": "3ff8eff4a08694851a5c6ab0cd09b4696043cf91",
+          "materialHash": "2f3ccfe10a2720517a8e821353e3168e67edcb31c558633ce3a46ee6187d97d5",
+          "storyFilesHash": "3f59d76b305411826a018445701c08dfbb5e1f1be0b54bfd94efe883f74e5f55",
+          "timestamp": "2026-07-20T21:43:04.845Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "full envelope 绑定校验和不变，错误 context/digest 不能伪造可信 envelope。",
+          "headHash": "3ff8eff4a08694851a5c6ab0cd09b4696043cf91",
+          "materialHash": "2f3ccfe10a2720517a8e821353e3168e67edcb31c558633ce3a46ee6187d97d5",
+          "storyFilesHash": "3f59d76b305411826a018445701c08dfbb5e1f1be0b54bfd94efe883f74e5f55",
+          "timestamp": "2026-07-20T21:43:05.155Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
