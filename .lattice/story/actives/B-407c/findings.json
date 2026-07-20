@@ -14,6 +14,53 @@
       "_hash": "5cbd928e2a0078e28cf0c0766dc5649c7b23f3e2eb4ed27befe6f43f5a4d8962",
       "signatureTag": "missing|unknown|experiments-role-prompt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-407c:F-002",
+      "desc": "CHK-003:adversarial:0 remains uncovered: the live campaign selfcheck only proves Claude schema mutations bite, while story6-analyze.mjs checks duplicate cellId and expected matrix keys but does not validate receipt role binding, envelope/digest authenticity, stale/material binding, non-production provenance, or reject forged/wrong-role receipts. story6-production-dispatch-smoke.ts likewise only asserts one envelope per role and event presence. The must intent explicitly requires duplicate, forged, stale, wrong-role, and non-production receipts to be rejected before A/B aggregation; current evidence does not exercise those rejection paths.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-20T22:12:39.419Z",
+      "reviewRound": "2026-07-20T22:10:29.128Z",
+      "reviewRunId": "B-407c:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "a868ded60dc09479808a46a18f4a2d9e86185cbb1e0837296c988f2169dc7123",
+      "files": [
+        "experiments/role-prompt-ab-replay/story6-live.mjs",
+        "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+        "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+      ],
+      "signatureTag": "adversarial|mjs|adversarial-remains-uncovered",
+      "signatureTagSource": "auto"
     }
   ]
 }
