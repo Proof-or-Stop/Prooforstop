@@ -17,11 +17,11 @@ import type { EvalEvidenceData } from '../core/types.js';
 import { loadConfig } from '../core/config.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
-import { assembleFullPromptEnvelope, buildFullTaskContext } from '../core/prompt-envelope.js';
+import { assembleFullPromptEnvelope, buildFullTaskContext, verifyPromptEnvelopeIntegrity } from '../core/prompt-envelope.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { captureReviewRunSnapshot } from '../core/review-run.js';
 import { promptRoleContract, resolvePromptEnvelopeRolloutMode, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
-import { observeComplexRolePromptBudget } from '../core/prompt-budget.js';
+import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 
 export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
@@ -101,18 +101,30 @@ export function createEvaluateHandlers(ctx: HandlerContext): Record<string, (...
           dispatchPrompt: instructions.join('\n'),
           createdAt: new Date().toISOString(),
         });
+        const lockDir = ctx.store.runtimeLockDirPath(args.storyId, 'review-run', 'review-runs');
+        withReviewMetadataTicketLock(lockDir, `evaluate for ${args.storyId}/lattice-evaluator`, () => {
+          const data = ctx.store.readPromptEnvelopes(args.storyId);
+          const existing = data.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
+          if (existing && !verifyPromptEnvelopeIntegrity(existing)) {
+            throw new Error(`evaluate: persisted envelope ${existing.envelopeId} failed integrity verification`);
+          }
+          if (!existing) {
+            data.envelopes.push(assembly.envelope);
+            ctx.store.writePromptEnvelopes(args.storyId, data);
+          }
+          const persisted = ctx.store.readPromptEnvelopes(args.storyId).envelopes.find(
+            candidate => candidate.envelopeId === assembly.envelope.envelopeId,
+          );
+          if (!persisted || !verifyPromptEnvelopeIntegrity(persisted)) {
+            throw new Error(`evaluate: envelope ${assembly.envelope.envelopeId} was not durably persisted`);
+          }
+        });
         promptEnvelope = {
           envelopeId: assembly.envelope.envelopeId,
           roleId: assembly.envelope.roleId,
           dispatchKind: assembly.envelope.dispatchKind,
           assembledPromptDigest: assembly.envelope.assembledPromptDigest,
           contextDigest: assembly.envelope.contextDigest,
-          budget: observeComplexRolePromptBudget({
-            roleId: 'lattice-evaluator',
-            contextMode: 'full',
-            bytes: assembly.envelope.bytes,
-            estimatedTokens: assembly.envelope.estimatedTokens,
-          }),
           prompt: assembly.prompt,
         };
       }

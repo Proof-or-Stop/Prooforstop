@@ -42,6 +42,7 @@ import {
   formatNonOwnerError,
 } from '../core/story-owner-lease.js';
 import { getSessionId } from '../core/owner-session.js';
+import { isBudgetedComplexRole, observeComplexRolePromptBudget } from '../core/prompt-budget.js';
 
 /**
  * Resolve the registry entry for a role name. Roles are the template basenames
@@ -166,6 +167,14 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         }
         return persisted;
       });
+      const promptBudget = isBudgetedComplexRole(role)
+        ? observeComplexRolePromptBudget({
+            roleId: role,
+            contextMode: 'full',
+            bytes: envelope.bytes,
+            estimatedTokens: envelope.estimatedTokens,
+          })
+        : undefined;
       // Story 6 production receipt: the same trusted envelope persisted above
       // is also visible in the append-only dispatch event stream. This is
       // diagnostic/audit evidence only and cannot mint REVIEW evidence.
@@ -179,6 +188,8 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         promptEnvelopeId: envelope.envelopeId,
         promptEnvelopeDigest: envelope.contextDigest,
         assembledPromptDigest: envelope.assembledPromptDigest,
+        ...(promptBudget ? { promptBudget } : {}),
+        ...(promptBudget && !promptBudget.withinBudget ? { budgetViolation: 'full' } : {}),
       });
       if (args.format === 'json') {
         return canonicalJsonStringify({
@@ -192,6 +203,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
           taskContext: assembly.taskContext,
           knownExecutionEnvironment: assembly.knownExecutionEnvironment,
           envelope,
+          ...(promptBudget ? { promptBudget } : {}),
         });
       }
 

@@ -256,7 +256,7 @@ export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string 
   const actualDigest = sha256(restored);
   const expectedDigest = isModularReviewerRoleId(entry.agentId)
     ? LEGACY_REVIEWER_TEMPLATE_SHA256[entry.agentId]
-    : LEGACY_COMPLEX_TEMPLATE_SHA256[entry.agentId];
+    : LEGACY_COMPLEX_TEMPLATE_SHA256[entry.agentId as ModularComplexRoleId];
   if (actualDigest !== expectedDigest) {
     throw new Error(
       `legacy reviewer prompt reconstruction drift for ${entry.agentId}: expected ${expectedDigest}, got ${actualDigest}`,

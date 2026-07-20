@@ -45,10 +45,12 @@ import {
 import {
   assembleFullPromptEnvelope,
   buildFullTaskContext,
+  verifyPromptEnvelopeIntegrity,
 } from '../core/prompt-envelope.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import { captureReviewRunSnapshot } from '../core/review-run.js';
-import { observeComplexRolePromptBudget, type PromptBudgetObservation } from '../core/prompt-budget.js';
+import { isBudgetedComplexRole, observeComplexRolePromptBudget, type PromptBudgetObservation } from '../core/prompt-budget.js';
+import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 import { getSessionIdentity } from '../core/owner-session.js';
 import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js';
 import type { PromptHost } from '../core/prompt-registry.js';
@@ -167,6 +169,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     try {
       const story = store.readStory(args.storyId);
       const agentType = args.agentType || 'lattice-implementer';
+      const budgetViolation = args.budgetViolation
+        ?? (args.promptBudget && !args.promptBudget.withinBudget ? args.promptBudget.contextMode : undefined);
       store.appendProcessEvent(args.storyId, {
         type: 'dispatch',
         storyId: args.storyId,
@@ -186,7 +190,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ...(args.promptEnvelopeId ? { promptEnvelopeId: args.promptEnvelopeId } : {}),
         ...(args.promptEnvelopeDigest ? { promptEnvelopeDigest: args.promptEnvelopeDigest } : {}),
         ...(args.assembledPromptDigest ? { assembledPromptDigest: args.assembledPromptDigest } : {}),
-        ...(args.budgetViolation ? { budgetViolation: args.budgetViolation } : {}),
+        ...(budgetViolation ? { budgetViolation } : {}),
         ...(args.promptBudget ? { promptBudget: args.promptBudget } : {}),
       });
     } catch (e: any) {
@@ -232,15 +236,36 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       dispatchPrompt,
       createdAt: new Date().toISOString(),
     });
+    const lockDir = store.runtimeLockDirPath(story.storyId, 'review-run', 'review-runs');
+    withReviewMetadataTicketLock(lockDir, `story_dispatch for ${story.storyId}/${agentType}`, () => {
+      const data = store.readPromptEnvelopes(story.storyId);
+      const existing = data.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
+      if (existing && !verifyPromptEnvelopeIntegrity(existing)) {
+        throw new Error(`story_dispatch: persisted envelope ${existing.envelopeId} failed integrity verification`);
+      }
+      if (!existing) {
+        data.envelopes.push(assembly.envelope);
+        store.writePromptEnvelopes(story.storyId, data);
+      }
+      const persisted = store.readPromptEnvelopes(story.storyId).envelopes.find(
+        candidate => candidate.envelopeId === assembly.envelope.envelopeId,
+      );
+      if (!persisted || !verifyPromptEnvelopeIntegrity(persisted)) {
+        throw new Error(`story_dispatch: envelope ${assembly.envelope.envelopeId} was not durably persisted`);
+      }
+    });
+    const promptBudget = isBudgetedComplexRole(agentType)
+      ? observeComplexRolePromptBudget({
+          roleId: agentType,
+          contextMode: 'full',
+          bytes: assembly.envelope.bytes,
+          estimatedTokens: assembly.envelope.estimatedTokens,
+        })
+      : undefined;
     return {
       prompt: assembly.prompt,
       envelope: assembly.envelope,
-      promptBudget: observeComplexRolePromptBudget({
-        roleId: agentType,
-        contextMode: 'full',
-        bytes: assembly.envelope.bytes,
-        estimatedTokens: assembly.envelope.estimatedTokens,
-      }),
+      ...(promptBudget ? { promptBudget } : {}),
     };
   }
 

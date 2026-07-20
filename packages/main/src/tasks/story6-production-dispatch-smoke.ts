@@ -38,6 +38,7 @@ const events = readFileSync(join(root, '.lattice/story/actives', storyId, 'proce
 for (const role of roles) {
   const receipt = receipts.find(row => row.roleId === role && row.arm === 'modular')!;
   assert.ok(envelopes.envelopes.some(row => row.envelopeId === receipt.envelopeId && row.roleId === role));
+  assert.ok(receipt.envelopeId);
   assert.match(events, new RegExp(receipt.envelopeId));
 }
 console.log(`story6-production-dispatch-smoke: PASS (${roles.length} roles; provider usage INCONCLUSIVE)`);

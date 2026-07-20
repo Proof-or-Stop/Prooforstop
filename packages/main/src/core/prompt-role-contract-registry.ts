@@ -12,6 +12,7 @@ import {
   MODULAR_REVIEWER_ROLE_IDS,
   MODULAR_COMPLEX_ROLE_IDS,
   isModularReviewerRoleId,
+  isModularRoleId,
   readPromptRegistry,
   readPromptTemplate,
   renderPromptEntryForHost,
@@ -569,6 +570,6 @@ export function resolvePromptRoleBody(
     mode,
     body,
     bodyDigest: domainSeparatedDigest(`reviewer-role-body.${mode}.raw-utf8.v1`, body),
-    legacyBytesRestored: mode === 'legacy-full-context' && isModularReviewerRoleId(roleId),
+    legacyBytesRestored: mode === 'legacy-full-context' && isModularRoleId(roleId),
   });
 }
