@@ -30,6 +30,42 @@
         "scanEscalationReason": null
       },
       "_hash": "68df984c63b9243beafb82318545417317dde4e31e238ba2b91deca27524a07b"
+    },
+    {
+      "id": "B-407c:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept scan complete on the committed Story 6 diff. This is a modular migration with content-addressed legacy reconstruction, not deletion or renaming of a process concept. Legacy compatibility and retired-role audit references are intentional; Story 7 cleanup remains explicitly out of scope. No concept-residue blocker found.",
+      "createdAt": "2026-07-20T22:12:35.908Z",
+      "reviewRound": "2026-07-20T22:10:29.128Z",
+      "reviewRunId": "B-407c:RR-010",
+      "envelopeId": "499dad227c8a8c1696b3c3f4062c1576afa5f1f9570a61b652af3df4b2a70d89",
+      "writerSessionId": "sess-6049ab32b2a270dcbcd45c1b536ae028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-evaluator.md",
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".claude/agents/lattice-review-story-init.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "baa460c080e6846b1153ccad845145de830beb833ce2f8f3b72632a31fc53547"
     }
   ]
 }
