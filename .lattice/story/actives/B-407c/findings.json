@@ -125,7 +125,7 @@
       "desc": "CHK-003:adversarial:0 evidence now runs story6-analyze-selfcheck.mjs, but the selfcheck only writes one forged receipt with synthetic-forged provenance and asserts the analyzer returns RECEIPT_PROVENANCE_INVALID. It does not exercise the claimed schema/campaign/role/sample/prompt/material/finding digest, observedAt, duplicate-key, stale, or wrong-role rejection cases; the checklist note currently overclaims that all of those are verified. The analyzer source has guards for these fields, but the must intent requires tested rejection of duplicate, forged, stale, wrong-role, and non-production receipts. Add mutation cases (or narrow the intent/evidence note) before passing.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-20T22:21:50.214Z",
@@ -163,7 +163,11 @@
         "experiments/role-prompt-ab-replay/story6-analyze.mjs"
       ],
       "signatureTag": "adversarial|mjs|adversarial-evidence-runs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 740a9acfcf: selfcheck now runs a 15-case mutation matrix covering schema, campaign, binding, role/sample/arm/host/repeat, prompt/material/finding digests, provenance, observedAt/stale, and duplicate keys; all are rejected and coverage pass RR-022 confirms current evidence.",
+      "resolvedAt": "2026-07-20T22:25:01.420Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
