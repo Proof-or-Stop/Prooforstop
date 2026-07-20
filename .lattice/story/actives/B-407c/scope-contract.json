@@ -1,0 +1,80 @@
+{
+  "storyId": "B-407c",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/roles/**",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/prompt-budget.ts",
+    "packages/main/src/core/task-context.ts",
+    "packages/main/src/handlers/dispatch.ts",
+    "packages/main/src/core/delivery-check.ts",
+    "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/core/review-run.ts",
+    ".claude/agents/**",
+    ".lattice-codex/agents/**",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/story6-*.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/story6-*.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/types.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/Story 7 budget enforce implementation"
+  ],
+  "scopeChangeReason": "Story 6 frozen scope covers complex role migration, observe/warn budgets, A/B evidence, and invariants; Story 7 enforce is excluded.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These registry and rollout configuration files are necessary to activate the five Story 6 complex roles through the trusted full-envelope path; without them migration code remains unreachable.",
+      "timestamp": "2026-07-20T21:38:50.689Z",
+      "paths": [
+        "lattice.config.json",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "lattice.config.json",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "befb4e07d2475e491bee08614e903479ebfde0d6",
+      "materialHash": "2229a94c347153392025d8ba687f9afcb4f2dee66c89207f08cd8bbff2a53e45",
+      "anchors": [
+        "complex_role_registry",
+        "prompt_envelope_rollout",
+        "story6_dispatch"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-20T21:35:14.371Z",
+  "updatedAt": "2026-07-20T21:38:50.689Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/roles/**": "packages/main/src/roles/**",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/prompt-budget.ts": "packages/main/src/core/prompt-budget.ts",
+    "packages/main/src/core/task-context.ts": "packages/main/src/core/task-context.ts",
+    "packages/main/src/handlers/dispatch.ts": "packages/main/src/handlers/dispatch.ts",
+    "packages/main/src/core/delivery-check.ts": "packages/main/src/core/delivery-check.ts",
+    "packages/main/src/core/scope-contract.ts": "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts",
+    ".claude/agents/**": ".claude/agents/**",
+    ".lattice-codex/agents/**": ".lattice-codex/agents/**",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "packages/main/src/tasks/story6-*.ts": "packages/main/src/tasks/story6-*.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/Story 7 budget enforce implementation": "Story 7 budget enforce implementation",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts"
+  }
+}

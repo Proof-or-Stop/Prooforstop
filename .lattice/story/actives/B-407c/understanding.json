@@ -1,32 +1,53 @@
 {
-  "task": "将五个复杂角色迁移到模块化 Prompt Envelope，并在 observe/warn 预算语义下保持正确性与权限不回归。",
-  "outcome": "用户运行真实 dispatch 时，story-init、scope-plan、implementer、delivery、evaluator 都得到一致的模块化上下文；超预算只显示结构化警告和 violation，不会跳过完整正确性审查，交付与签名门禁仍然通过。",
+  "task": "将五个复杂角色接入既有可信 Prompt Envelope 与模块化角色资产，并以非阻塞预算和真实 dispatch A/B 证明语义、权限与签名不回归。",
+  "outcome": "story-init、scope-plan、implementer、delivery、evaluator 的正常入口输出可验证的 modular envelope/usage 证据；超限只记录 violation，provider 缺失明确为 INCONCLUSIVE，既有交付、范围、作者、评估、权限和签名门禁保持。",
   "facts": [
-    "Story 1 已冻结 Prompt Envelope 字段与角色注册表。",
-    "Story 2 已提供可信 full-context assembly 与 Task Context 绑定。",
-    "Story 5 已验证 review-run incremental eligibility 与 closeout 证据。",
-    "决策文档将 Story 6 定义为复杂角色迁移与 observe/warn，Story 7 才评估 enforce。"
+    "B-235e 已在 main 提供 Prompt Envelope、Task Context、role contracts、rollout 与完整 reviewer verifier 基础。",
+    "五个复杂角色已经存在于 Agent Dispatch Registry 和 Prompt Role Contract Registry，但当前 modular rollout 类型与 trusted assembly 只覆盖五个 REVIEW 角色。",
+    "story-init、scope-plan、implementer、delivery 使用不同 story-dispatch prompt builders；evaluator 走 agent_prompt/evaluate 路径，因此必须共享 envelope 原语而不能假设入口相同。",
+    "PromptEnvelope 已支持 budgetViolation 与 full/incremental budget 选择，但复杂 story-dispatch 尚未产生统一的非阻塞预算观测和 A/B receipt。",
+    "真实 provider 字段是否可得是运行时观测结果；不可得必须分类为 INCONCLUSIVE，而不是设计阻塞或零值。"
   ],
   "constraints": [
-    "不得修改 Task Context schema 或重定义 role status。",
-    "full review 必须始终可用，预算超限不得阻塞 correctness。",
-    "provider usage/cache/latency 缺失时记录 INCONCLUSIVE，不得填零。",
-    "所有角色写操作必须保留权限、签名、delivery promise、scope gap、evaluator evidence 门禁。"
+    "不修改 Task Context schema 或重定义任何角色 status/authority。",
+    "full correctness 路径必须始终可执行，复杂角色预算只 observe/warn，不得变成阻塞门禁。",
+    "Prompt Envelope 只能由可信 CLI/handler 装配；story-dispatch artifact 不能铸造 REVIEW pass。",
+    "必须保留 delivery promise、scope gap、implementer author、evaluator evidence、role mutation 和签名检查。",
+    "不得把 provider 不可用或缺失 usage 伪装成零消耗或质量等价。"
   ],
-  "unknowns": [
-    "五个角色现有 legacy 入口与模块化装配点是否完全一致。",
-    "真实 dispatch A/B 可观测的 provider 维度与稳定延迟范围。",
-    "现有预算 violation 记录是否覆盖所有复杂角色路径。"
-  ],
+  "unknowns": [],
   "touchpoints": [
-    "packages/main/src/roles/",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
     "packages/main/src/core/prompt-envelope.ts",
-    "packages/main/src/core/task-context.ts",
-    "packages/main/src/handlers/dispatch.ts",
-    "packages/main/src/core/review-run.ts",
-    ".claude/agents/",
-    ".lattice-codex/agents/",
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/evaluate.ts",
+    "packages/main/templates/agents/lattice-review-story-init.md",
+    "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/templates/agents/lattice-review-delivery.md",
+    "packages/main/templates/agents/lattice-evaluator.md",
+    ".claude/agents/lattice-review-story-init.md",
+    ".claude/agents/lattice-review-scope-plan.md",
+    ".claude/agents/lattice-implementer.md",
+    ".claude/agents/lattice-review-delivery.md",
+    ".claude/agents/lattice-evaluator.md",
+    ".lattice-codex/agents/lattice-review-story-init.md",
+    ".lattice-codex/agents/lattice-review-scope-plan.md",
+    ".lattice-codex/agents/lattice-implementer.md",
+    ".lattice-codex/agents/lattice-review-delivery.md",
+    ".lattice-codex/agents/lattice-evaluator.md",
+    "packages/main/src/tasks/story6-role-migration-smoke.ts",
+    "packages/main/src/tasks/story6-budget-smoke.ts",
+    "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+    "packages/main/src/tasks/story6-invariants-smoke.ts",
     "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
   ],
-  "timestamp": "2026-07-20T21:32:22.897Z"
+  "timestamp": "2026-07-20T21:35:53.866Z"
 }

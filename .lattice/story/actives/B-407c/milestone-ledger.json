@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-407c",
+  "state": "confirmed",
+  "ledgerHash": "sha256:5d63ab9e6c00e1be339727e69f17cb01ae2bd6fb0daa7ed898d35d862e45257b",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "S6-ROLE-MIGRATION",
+      "claim": "Five complex roles use modular Prompt Envelope assembly",
+      "doneMeans": "All five real dispatch receipts bind modular envelope and unchanged Task Context",
+      "requiredEvidence": [
+        "integration_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "S6-BUDGET-OBSERVE-WARN",
+      "claim": "Complex-role budgets are observe/warn only",
+      "doneMeans": "Over-budget run records violation and still completes full review",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "S6-AB-EVIDENCE",
+      "claim": "Every migrated role has real A/B evidence",
+      "doneMeans": "Five paired receipts recorded with unavailable dimensions INCONCLUSIVE",
+      "requiredEvidence": [
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "S6-INVARIANTS",
+      "claim": "Delivery and security invariants remain enforced",
+      "doneMeans": "Valid path passes and invalid signature/permission/context cases reject",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "S6-INVARIANTS",
+      "claim": "Story 7 enforce remains explicitly out of scope",
+      "doneMeans": "No enforce gate or Story 7 implementation is introduced",
+      "requiredEvidence": [
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:edge:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-20T21:35:21.969Z",
+  "updatedAt": "2026-07-20T21:35:56.174Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260720213527",
+    "acceptedInterpretationHash": "sha256:fe17882ee55d69f37964ff3ae0e080386eaf6405fc036e3ad3abeac3c983fc56",
+    "acceptedAt": "2026-07-20T21:35:56.174Z"
+  }
+}
