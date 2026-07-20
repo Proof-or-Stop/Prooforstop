@@ -190,6 +190,34 @@ function makeGitConfigRoot(
   resetMaterialCodePolicyCache();
   return root;
 }
+/**
+ * B-956f FIX 1 (codex MED — wrapper-root path namespace): a git repo whose ROOT is
+ * the git tree but whose lattice.config.json (+ project files) live in a SUBDIR
+ * (`<root>/<subdir>/`). Mirrors real wrapper-root deployments (ClawCreek precedent):
+ * git operations run at the git root (gitCwd) and emit REPO-relative paths, while the
+ * policy namespace is the config subdir (projectRoot) with PROJECT-relative
+ * excludePaths/pathPrefixes. `base`/`changed` keys are ROOT-relative so a fixture can
+ * place files both inside and outside the project subtree.
+ */
+function makeWrapperRootConfigRoot(
+  subdir: string,
+  config: unknown,
+  base: Record<string, string> = {},
+  changed: Record<string, string> = {},
+): { root: string; projectRoot: string } {
+  const root = initRepo('lattice-lngwrap-');
+  writeFile(root, `${subdir}/lattice.config.json`, JSON.stringify(config, null, 2));
+  for (const [p, c] of Object.entries(base)) writeFile(root, p, c);
+  commitAll(root, 'base');
+  if (Object.keys(changed).length > 0) {
+    git(root, ['checkout', '-q', '-b', 'feature']);
+    for (const [p, c] of Object.entries(changed)) writeFile(root, p, c);
+    commitAll(root, 'change');
+  }
+  resetConfigCache();
+  resetMaterialCodePolicyCache();
+  return { root, projectRoot: join(root, subdir) };
+}
 function fileDiff(path: string, oldSource: string, newSource: string): string {
   return [
     `diff --git a/${path} b/${path}`,
@@ -1073,12 +1101,62 @@ check('R5-c: a hand-built policy whose embedded policyDigest does not match its 
   );
 });
 
+check('R6: wrapper-root layout — a project-relative exclusion covering a real level-1 manifest UNDER the config subdir is REJECTED by the pinned-sha preflight (git ls-tree paths are git-root-relative; excludePaths are project-relative)', () => {
+  // Config lives in <root>/project/; git operations run at <root> (gitCwd = git root).
+  // The exclusion `backend/` is PROJECT-relative and covers a real project/backend/go.mod
+  // whose git-root-relative path is `project/backend/go.mod`. Before FIX 1 the namespace
+  // mismatch made this exclusion silently MISS (builder ACCEPTED it); it must now reject.
+  const { root, projectRoot } = makeWrapperRootConfigRoot(
+    'project',
+    { materialCode: { excludePaths: ['backend/'] } },
+    { 'project/backend/go.mod': 'module example.com/x\n', 'project/src/keep.py': 'k = 1\n' },
+  );
+  assert.throws(
+    () => buildMaterialClassificationSnapshot(projectRoot, { gitCwd: root }),
+    (err: unknown) => err instanceof MaterialCodePolicyError
+      && err.offendingKey === 'materialCode.excludePaths'
+      && /exclusion covers real level-1 immutable/.test(err.message)
+      && /backend\/go\.mod/.test(err.message),
+    'the wrapper-root exclusion backend/ covering project/backend/go.mod (project-relative backend/go.mod) is rejected by the pinned-sha preflight',
+  );
+});
+
+check('R6: wrapper-root layout — classification translates git-root-relative diff paths into the project namespace: a project-relative excludePaths entry applies, and files OUTSIDE the project subtree are ignored', () => {
+  // Config in <root>/project/; gitCwd = <root>. The feature diff (enumerated at the git
+  // root) yields git-root-relative paths that FIX 1 translates into project-relative
+  // paths before classification: project/legacy/ is covered by the project-relative
+  // exclusion `legacy/`, and sibling/outside.py is not this project's file.
+  const { root, projectRoot } = makeWrapperRootConfigRoot(
+    'project',
+    { materialCode: { excludePaths: ['legacy/'] } }, // non-manifest dir → preflight stays clean
+    { 'project/src/keep.py': 'k = 1\n' },
+    {
+      'project/src/app.py': 'a = 1\n',        // inside project → material code under src/
+      'project/legacy/old.py': 'g = 1\n',     // inside project → EXCLUDED by config excludePaths
+      'sibling/outside.py': 'o = 1\n',        // OUTSIDE the project subtree → dropped
+    },
+  );
+  const snap = buildMaterialClassificationSnapshot(projectRoot, { gitCwd: root });
+  // Snapshot file paths are PROJECT-relative after the FIX 1 translation.
+  const appFile = snap.files.find((f) => f.path === 'src/app.py');
+  const legacyFile = snap.files.find((f) => f.path === 'legacy/old.py');
+  assert.ok(appFile && appFile.materialCode === true, 'a project-relative code file under src/ classifies material');
+  assert.ok(legacyFile, 'the excluded file is enumerated in the project namespace (project/legacy/old.py -> legacy/old.py)');
+  assert.equal(legacyFile!.materialCode, false, 'a project-relative excludePaths entry applies to the translated path');
+  assert.equal(legacyFile!.reason, 'config excludePaths', 'the exclusion fires via the config excludePaths precedence rule');
+  assert.equal(
+    snap.files.some((f) => f.path.includes('outside') || f.path.includes('sibling')),
+    false,
+    "a file OUTSIDE the project subtree is not this project's file and is dropped from the snapshot",
+  );
+});
+
 for (const root of tempRoots) {
   try { rmSync(root, { recursive: true, force: true }); } catch { /* best effort cleanup */ }
 }
 
 if (failures === 0) {
-  console.log('\nlanguage-neutral-gates smoke passed (32 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks + 2 R4 fix-round production-boundary checks + 3 R5 fix-round production-boundary checks)');
+  console.log('\nlanguage-neutral-gates smoke passed (34 checks: 12 verificationIntent lanes + 6 fix-round production-wiring checks + 5 R2 fix-round production-boundary checks + 4 R3 fix-round production-boundary checks + 2 R4 fix-round production-boundary checks + 3 R5 fix-round production-boundary checks + 2 R6 wrapper-root path-namespace checks)');
 } else {
   console.error(`\nlanguage-neutral-gates smoke FAILED (${failures})`);
   process.exit(1);

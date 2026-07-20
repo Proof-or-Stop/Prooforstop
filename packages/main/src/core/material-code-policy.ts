@@ -29,7 +29,7 @@
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
 import { closeSync, openSync, readFileSync, readSync, statSync } from 'fs';
-import { join } from 'path';
+import { isAbsolute, join, relative, resolve } from 'path';
 import { LATTICE_CONFIG_FILENAME } from './config.js';
 import {
   currentGitHead,
@@ -272,6 +272,47 @@ export function matchesScopePathEntry(entry: string, path: string): boolean {
   return p === e || p.startsWith(`${e}/`);
 }
 
+/**
+ * B-956f FIX 1 (codex MED — wrapper-root path namespace mismatch): the tree-bound
+ * exclusion preflight and the per-file classifier compare git-emitted paths against
+ * `excludePaths` / `pathPrefixes` / storyDir, which are PROJECT-relative (relative to
+ * `projectRoot`, where lattice.config.json lives). Under the B-6666 resolveGitCwd
+ * convention `gitCwd` is the resolved git ROOT (wrapper-root aware), so `git
+ * ls-tree`/`git diff` emit REPO-relative paths (e.g. `project/backend/go.mod`). On a
+ * wrapper-root layout (config in `<gitRoot>/project/`) those two namespaces disagree,
+ * and a project-relative exclusion `backend/` silently fails to cover the real repo
+ * path `project/backend/go.mod` — the builder would ACCEPT a policy hiding a level-1
+ * manifest. Compute the project's repo-relative prefix ONCE (`relative(gitCwd,
+ * projectRoot)`) and translate every git-emitted path into the project-relative
+ * namespace before BOTH the preflight comparison and per-file classification. A
+ * single-root layout (projectRoot === gitCwd, the common case) yields an EMPTY prefix
+ * → identity → byte-identical to prior behavior.
+ */
+export function projectRepoPrefix(gitCwd: string | undefined, projectRoot: string | undefined): string {
+  if (!projectRoot || !gitCwd) return '';
+  const rel = normalizeMaterialPath(relative(resolve(gitCwd), resolve(projectRoot)));
+  // projectRoot === gitCwd → '' (identity, common single-root layout). A projectRoot
+  // that escapes the git tree at gitCwd (rel begins with '..' or is absolute) cannot
+  // be translated by a simple prefix strip, so fall back to identity (never worse
+  // than prior behavior).
+  if (!rel || rel === '.' || rel.startsWith('../') || rel === '..' || isAbsolute(rel)) return '';
+  return rel.replace(/\/+$/, '');
+}
+
+/**
+ * B-956f FIX 1: translate a git-emitted (repo-relative under the resolved-git-root
+ * convention) path into the PROJECT-relative namespace given the project's
+ * repo-relative prefix. Returns undefined when the path is OUTSIDE the project
+ * subtree — a sibling/parent file that is not THIS project's file and must be
+ * ignored. An empty prefix is identity (single-root layout).
+ */
+export function repoPathToProjectRelative(prefix: string, repoPath: string): string | undefined {
+  const p = normalizeMaterialPath(repoPath);
+  if (!prefix) return p;
+  if (p.startsWith(`${prefix}/`)) return p.slice(prefix.length + 1);
+  return undefined; // outside the project subtree
+}
+
 /** True when the basename is a level-1 immutable manifest (non-excludable). */
 export function isImmutableManifestName(policy: MaterialCodePolicy, name: string): boolean {
   const lower = name.toLowerCase();
@@ -443,7 +484,8 @@ export function resolveMaterialCodePolicy(projectRoot?: string): MaterialCodePol
   // stability loop, so a snapshot is never bound to a tree the accepted policy was
   // not validated against. Enumeration failure inside the preflight throws (fail
   // closed); on a non-git root with exclusions this fails closed via the throw.
-  assertMaterialCodeExclusionsAgainstTree(policy, projectRoot);
+  // gitCwd === projectRoot here, so the project-relative translation is identity.
+  assertMaterialCodeExclusionsAgainstTree(policy, projectRoot, 'HEAD', undefined, projectRoot);
   return policy;
 }
 
@@ -642,9 +684,21 @@ export function preflightMaterialCodeExclusions(
   gitCwd: string,
   ref = 'HEAD',
   trackedFiles?: string[],
+  projectRoot?: string,
 ): MaterialCodeExclusionPreflightResult {
   if (policy.excludePaths.length === 0) return { ok: true, violations: [] };
-  const files = trackedFiles ?? listTrackedFiles(gitCwd, ref);
+  // B-956f FIX 1 (codex MED — wrapper-root path namespace): git ls-tree emits paths
+  // in the git-root namespace; excludePaths are project-relative. Translate the tree
+  // paths into the project namespace (dropping files outside the project subtree)
+  // BEFORE candidate extraction so a project-relative exclusion is compared against
+  // project-relative manifest paths. Identity when projectRoot === gitCwd.
+  const prefix = projectRepoPrefix(gitCwd, projectRoot);
+  const rawFiles = trackedFiles ?? listTrackedFiles(gitCwd, ref);
+  const files: string[] = [];
+  for (const raw of rawFiles) {
+    const projectPath = repoPathToProjectRelative(prefix, raw);
+    if (projectPath !== undefined) files.push(projectPath);
+  }
 
   // B-956f FIX 3 (codex MED — O(exclusions × trackedFiles) → O(files + exclusions ×
   // candidates)): enumerate + normalize the tree ONCE and prefilter to the tiny set
@@ -704,6 +758,7 @@ export function assertMaterialCodeExclusionsAgainstTree(
   gitCwd: string | undefined,
   ref = 'HEAD',
   trackedFiles?: string[],
+  projectRoot?: string,
 ): void {
   // B-956f FIX 3: bind trust to the RECOMPUTED digest, not the caller-supplied
   // field. Recompute from the actual policy fields and reject a forged/mismatched
@@ -731,7 +786,11 @@ export function assertMaterialCodeExclusionsAgainstTree(
       effectiveRef = sha;
       // B-956f FIX 3: key by the RECOMPUTED digest (== the now-validated embedded
       // digest) only, so a forged digest can never select a cached row.
-      cacheKey = `${sha} ${recomputedDigest}`;
+      // B-956f FIX 1: the verdict now also depends on the project-relative namespace
+      // translation, so bind the resolved projectRoot into the key — two wrapper-root
+      // projects sharing a (sha, policyDigest) but living under different prefixes must
+      // never alias each other's exclusion verdict.
+      cacheKey = `${sha} ${recomputedDigest} ${projectRoot ?? ''}`;
       const cached = _preflightVerdictCache.get(cacheKey);
       if (cached) {
         throwOnExclusionViolation(cached);
@@ -739,7 +798,7 @@ export function assertMaterialCodeExclusionsAgainstTree(
       }
     }
   }
-  const verdict = preflightMaterialCodeExclusions(policy, cwd, effectiveRef, trackedFiles);
+  const verdict = preflightMaterialCodeExclusions(policy, cwd, effectiveRef, trackedFiles, projectRoot);
   if (cacheKey) _preflightVerdictCache.set(cacheKey, verdict);
   throwOnExclusionViolation(verdict);
 }
@@ -1026,7 +1085,10 @@ export function buildMaterialClassificationSnapshot(
     // throw — the SAME behavior class as resolveMaterialCodePolicy — never a
     // silently-returned unvalidated snapshot. A no-exclusions policy is a no-op and
     // still builds (nothing to validate).
-    assertMaterialCodeExclusionsAgainstTree(policy, gitCwd, headRef);
+    // B-956f FIX 1: thread projectRoot so the pinned-sha exclusion preflight compares
+    // in the PROJECT-relative namespace on a wrapper-root layout (gitCwd = git root,
+    // projectRoot = config subdir). Identity when they coincide.
+    assertMaterialCodeExclusionsAgainstTree(policy, gitCwd, headRef, undefined, projectRoot);
     const snapshot = buildMaterialClassificationSnapshotAtRef(projectRoot, gitCwd, policy, headRef, opts);
     if (!headRef) return snapshot; // non-git tree: nothing to race against
     const liveHead = currentGitHead(gitCwd);
@@ -1072,13 +1134,23 @@ function buildMaterialClassificationSnapshotAtRef(
   let cachedBaseRef: string | undefined;
   const baseRef = (): string => (cachedBaseRef ??= diffBaseRef(gitCwd, headRef));
 
-  const files: MaterialClassificationSnapshotFile[] = entries.map(({ path, hintSource }) => {
-    const ext = materialPathExtension(path);
-    const underPrefix = !ext && policy.pathPrefixes.some((prefix) => matchesScopePathEntry(prefix, path));
+  // B-956f FIX 1 (codex MED — wrapper-root path namespace): the git diff enumerates
+  // paths in the git-root namespace (repo-relative under the resolveGitCwd
+  // convention), but excludePaths/pathPrefixes/storyDir are project-relative. Keep the
+  // git-namespace path for git blob/mode HINT reads (they run at gitCwd) and translate
+  // to the PROJECT-relative path for prefix-matching + classification, dropping files
+  // OUTSIDE the project subtree (not this project's files). An explicit changedFiles
+  // override is taken as already project-relative (caller namespace) → no translation.
+  const namespacePrefix = opts.changedFiles ? '' : projectRepoPrefix(gitCwd, projectRoot);
+  const files: MaterialClassificationSnapshotFile[] = entries.flatMap(({ path: gitPath, hintSource }) => {
+    const projectPath = repoPathToProjectRelative(namespacePrefix, gitPath);
+    if (projectPath === undefined) return []; // outside the project subtree — ignored
+    const ext = materialPathExtension(projectPath);
+    const underPrefix = !ext && policy.pathPrefixes.some((prefix) => matchesScopePathEntry(prefix, projectPath));
     const shebangOrExecutable = underPrefix
-      ? (hintSource === 'old-tree' ? oldTreeScriptSignal(gitCwd, baseRef(), path) : extensionlessScriptSignal(gitCwd, path, headRef))
+      ? (hintSource === 'old-tree' ? oldTreeScriptSignal(gitCwd, baseRef(), gitPath) : extensionlessScriptSignal(gitCwd, gitPath, headRef))
       : undefined;
-    return classifyMaterialCodePath(policy, path, { projectRoot, shebangOrExecutable });
+    return [classifyMaterialCodePath(policy, projectPath, { projectRoot, shebangOrExecutable })];
   });
 
   return deepFreeze({

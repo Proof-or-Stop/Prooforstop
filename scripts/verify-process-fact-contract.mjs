@@ -707,6 +707,24 @@ function calleeResolvesToModule(callExpr, moduleSubstr) {
   const decls = sym?.getDeclarations?.() ?? [];
   return decls.some((d) => d.getSourceFile().fileName.includes(moduleSubstr));
 }
+/**
+ * B-956f FIX 2 (codex MED — verifier false positive on aliased imports): identify a
+ * required call SOLELY by alias-followed SYMBOL IDENTITY — the callee symbol's
+ * EXPORTED name (post getAliasedSymbol) plus its declaring module — never by the
+ * source-level callee spelling. `import { buildMaterialClassificationSnapshot as
+ * buildSnapshot }` + `buildSnapshot(...)` resolves through getAliasedSymbol to the
+ * same export (getName() === 'buildMaterialClassificationSnapshot'), so the aliased
+ * call is correctly recognized instead of being rejected as "not found" (exit 1 on
+ * legitimate code).
+ */
+function calleeSymbolMatches(callExpr, name, moduleSubstr) {
+  const sym = resolveCalleeSymbol(callExpr);
+  if (!sym) return false;
+  // Post-alias getName() is the ORIGINAL exported symbol name, not the local alias.
+  if (typeof sym.getName === 'function' ? sym.getName() !== name : sym.name !== name) return false;
+  const decls = sym.getDeclarations?.() ?? [];
+  return decls.some((d) => d.getSourceFile().fileName.includes(moduleSubstr));
+}
 /** Resolve a callee identifier to its (local) function-like declaration node, if any. */
 function resolveCalleeFunctionDeclaration(callExpr) {
   const sym = resolveCalleeSymbol(callExpr);
@@ -735,12 +753,48 @@ function inProvablyDeadBranch(node) {
   }
   return false;
 }
-/** True when the call's result is consumed (not a discarded bare `foo();` / `void foo();`). */
+/**
+ * B-956f FIX 3 (codex HIGH defeat a — bind the RETURNED symbol): a snapshot call is
+ * "consumed" only when its result actually flows onward. A bare `foo();` /
+ * `void foo();` is discarded. When the call is the initializer of a `const x = foo()`
+ * declaration, the DECLARED variable's symbol must be REFERENCED again within the
+ * enclosing function (the gate branch / classification argument / return property) —
+ * the old check accepted ANY non-ExpressionStatement parent, so assigning the real
+ * call to an UNUSED variable while passing a FABRICATED snapshot downstream slipped
+ * through. Any other position (call used directly as an argument / return value /
+ * ternary branch / property initializer) is inherently consumed.
+ */
 function callResultConsumed(callExpr) {
   const p = callExpr.parent;
   if (ts.isExpressionStatement(p)) return false;
   if (ts.isVoidExpression(p) && p.parent && ts.isExpressionStatement(p.parent)) return false;
+  if (ts.isVariableDeclaration(p) && p.initializer === callExpr && ts.isIdentifier(p.name)) {
+    return declaredSymbolReferencedBeyondDeclaration(p.name);
+  }
   return true;
+}
+/**
+ * B-956f FIX 3 (defeat a): true when the declaration-name identifier's symbol is
+ * referenced at least once MORE (beyond its own declaration site) inside the nearest
+ * enclosing function body — i.e. the returned snapshot symbol is actually used
+ * downstream, not bound to a dead variable.
+ */
+function declaredSymbolReferencedBeyondDeclaration(nameIdent) {
+  getMaterialProgram();
+  const declSym = _materialChecker.getSymbolAtLocation(nameIdent);
+  if (!declSym) return false;
+  let fn = nameIdent.parent;
+  while (fn && !isFunctionLike(fn)) fn = fn.parent;
+  const scope = fn && fn.body ? fn.body : nameIdent.getSourceFile();
+  let refs = 0;
+  const walk = (n) => {
+    if (n !== nameIdent && ts.isIdentifier(n) && n.text === nameIdent.text) {
+      if (_materialChecker.getSymbolAtLocation(n) === declSym) refs++;
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(scope);
+  return refs >= 1;
 }
 /**
  * True when the function body contains a LIVE (non-dead-branch), non-nested call to
@@ -754,9 +808,9 @@ function functionBodyHasResolvedCall(fnNode, name, moduleSubstr, { requireConsum
   const walk = (n) => {
     if (found) return;
     if (isFunctionLike(n)) return; // skip nested function bodies
-    if (ts.isCallExpression(n) && calleeName(n) === name
+    if (ts.isCallExpression(n)
         && !inProvablyDeadBranch(n)
-        && calleeResolvesToModule(n, moduleSubstr)
+        && calleeSymbolMatches(n, name, moduleSubstr)
         && (!requireConsumed || callResultConsumed(n))) {
       found = true;
       return;
@@ -766,22 +820,56 @@ function functionBodyHasResolvedCall(fnNode, name, moduleSubstr, { requireConsum
   ts.forEachChild(body, walk);
   return found;
 }
-/** The initializer expression of the `materialClassification` property inside the builder body (skipping nested functions). */
-function materialClassificationPropertyInitializer(fnNode) {
+/**
+ * B-956f FIX 3 (codex HIGH defeat b — inspect EVERY reachable return): the
+ * object-literal expressions returned by every (non-provably-dead) return statement in
+ * the builder body (skipping nested function bodies). The old scan accepted the FIRST
+ * `materialClassification` occurrence ANYWHERE, so a valid property inside a
+ * runtime-dead-but-not-literal branch (`const enabled=false; if(enabled) return {...}`)
+ * satisfied it while the LIVE return used `materialClassification: null`. Collecting
+ * every return object lets the caller demand the delegating property in ALL of them.
+ */
+function builderReturnObjectLiterals(fnNode) {
   const body = fnNode && fnNode.body;
-  if (!body) return undefined;
-  let init;
+  if (!body) return [];
+  const out = [];
   const walk = (n) => {
-    if (init) return;
     if (n !== body && isFunctionLike(n)) return; // stay in this builder body
-    if (ts.isPropertyAssignment(n) && ts.isIdentifier(n.name) && n.name.text === 'materialClassification') {
-      init = n.initializer;
-      return;
+    if (ts.isReturnStatement(n) && n.expression && ts.isObjectLiteralExpression(n.expression)
+        && !inProvablyDeadBranch(n)) {
+      out.push(n.expression);
     }
     ts.forEachChild(n, walk);
   };
   ts.forEachChild(body, walk);
-  return init;
+  return out;
+}
+/** The `materialClassification` property initializer within an object literal, or undefined. */
+function objectLiteralMaterialClassificationInit(objLit) {
+  for (const prop of objLit.properties) {
+    if (ts.isPropertyAssignment(prop) && ts.isIdentifier(prop.name) && prop.name.text === 'materialClassification') {
+      return prop.initializer;
+    }
+    // shorthand `{ materialClassification }` — an Identifier value, never a delegating
+    // call, so surface it (fails the call check below rather than being treated as absent).
+    if (ts.isShorthandPropertyAssignment(prop) && prop.name.text === 'materialClassification') {
+      return prop.name;
+    }
+  }
+  return undefined;
+}
+/**
+ * B-956f FIX 2 + FIX 3: the materialClassification initializer must delegate to
+ * tryBuildMaterialClassificationSnapshotForDiagnostics — directly (alias-safe symbol
+ * identity) or via ONE local helper that itself makes a live, consumed, resolved call
+ * to it.
+ */
+function initializerDelegatesToTry(init) {
+  const TRY = 'tryBuildMaterialClassificationSnapshotForDiagnostics';
+  const MCP = 'material-code-policy';
+  if (calleeSymbolMatches(init, TRY, MCP)) return true;
+  const helperDecl = resolveCalleeFunctionDeclaration(init);
+  return !!helperDecl && functionBodyHasResolvedCall(helperDecl, TRY, MCP, { requireConsumed: true });
 }
 
 function listMarkdown(dir) {
@@ -4107,28 +4195,33 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     const sf = materialProgramSourceFile(relPath);
     const fn = findFunctionDeclaration(sf, builderFn);
     assert(fn && fn.body, `${relPath}: ${builderFn} function declaration must exist`);
-    const init = materialClassificationPropertyInitializer(fn);
-    const initIsCall = !!init && ts.isCallExpression(init);
+    const TRY = 'tryBuildMaterialClassificationSnapshotForDiagnostics';
+    // B-956f FIX 3 (defeat b): EVERY reachable return object — not just the first
+    // materialClassification occurrence anywhere in the body — must carry the property
+    // bound to the try-build delegation. A live return with `materialClassification:
+    // null`/undefined now exits 1 even when a decoy delegation sits in a runtime-dead
+    // (non-literal) branch.
+    const returnObjects = builderReturnObjectLiterals(fn);
     assert(
-      initIsCall,
-      `${relPath}: ${builderFn} MUST populate the materialClassification property in its body with a function call (a real delegation, not a null/constant/omitted field)`,
+      returnObjects.length > 0,
+      `${relPath}: ${builderFn} MUST return a diagnostic-input object literal`,
     );
-    // Only resolve the delegation when the initializer is actually a call — the
-    // verifier's assert() records failures and CONTINUES, so guard against running
-    // callee resolution on a null/constant initializer (defeat c: `: null`).
-    if (initIsCall) {
-      const TRY = 'tryBuildMaterialClassificationSnapshotForDiagnostics';
-      let delegates = calleeName(init) === TRY && calleeResolvesToModule(init, MCP);
-      if (!delegates) {
-        // One hop: the property calls a local helper that itself delegates to the real
-        // production snapshot-population export.
-        const helperDecl = resolveCalleeFunctionDeclaration(init);
-        delegates = !!helperDecl && functionBodyHasResolvedCall(helperDecl, TRY, MCP, { requireConsumed: true });
-      }
+    for (const objLit of returnObjects) {
+      const init = objectLiteralMaterialClassificationInit(objLit);
+      const initIsCall = !!init && ts.isCallExpression(init);
       assert(
-        delegates,
-        `${relPath}: ${builderFn} materialClassification MUST delegate (directly or via one local helper) to ${TRY} from material-code-policy (real production population, not a whole-file token)`,
+        initIsCall,
+        `${relPath}: ${builderFn} MUST populate the materialClassification property in EVERY reachable return with a function call (a real delegation, not a null/constant/omitted field)`,
       );
+      // Only resolve the delegation when the initializer is actually a call — the
+      // verifier's assert() records failures and CONTINUES, so guard against running
+      // callee resolution on a null/constant initializer (defeat b/c: `: null`).
+      if (initIsCall) {
+        assert(
+          initializerDelegatesToTry(init),
+          `${relPath}: ${builderFn} materialClassification MUST delegate (directly or via one local helper) to ${TRY} from material-code-policy in EVERY reachable return (real production population, not a whole-file token)`,
+        );
+      }
     }
   }
 
