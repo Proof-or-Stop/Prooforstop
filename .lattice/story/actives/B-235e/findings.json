@@ -518,7 +518,7 @@
       "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:254-261 does not satisfy F-018 regression proof. It merely calls reviewIncrementalContext with passesCutoffAt=new Date().toISOString() and asserts the returned role identity; it never creates an earlier valid baseline pass plus a later pass, never asserts priorPassRef remains bound to the earlier pass, and never exercises the equal-createdAt/run.startedAt fail-closed boundary added in review-incremental-context.ts. scripts/verify-process-fact-contract.mjs only checks that the source text contains passesCutoffAt, so both checks pass even if cutoff comparison semantics regress. Production assembly, verifier wiring, and L4 rationale are now aligned, but F-018 explicitly required behavioral cutoff coverage because this exact gap caused DONE self-invalidation. Keep F-018 open and replace/extend the smoke with assertions that (1) pre-cutoff valid pass is selectable, (2) post-cutoff later pass cannot change priorPassRef/eligibilityDigest for the signed run, and (3) equal timestamp is excluded; make the contract verifier assert stable behavioral test anchors rather than token presence alone.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-20T00:05:09.381Z",
@@ -534,7 +534,11 @@
         "packages/main/src/core/process-fact-levels.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 39d6c313e1 and 22c3cc15e2: producer/verifier use signed startedAt cutoff; equal timestamps fail closed; temporal smoke proves A/B/C and mutation bite; build and focused smokes pass.",
+      "resolvedAt": "2026-07-20T00:15:06.657Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-024",
