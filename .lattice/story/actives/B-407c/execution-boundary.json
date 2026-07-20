@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-407c",
+  "allowedCommands": [
+    "node bin/lattice.js *",
+    "node experiments/role-prompt-ab-replay/*",
+    "node packages/main/dist/tasks/*smoke.js",
+    "node scripts/verify-*",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Glob",
+    "Grep",
+    "Lattice CLI",
+    "Read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "experiments/role-prompt-ab-replay",
+    "packages/main/src",
+    "packages/main/src/tasks",
+    "packages/main/templates",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "budget enforce activation",
+    "git clean -fd",
+    "git push --force",
+    "git reset --hard"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Story 6 only; preserve Story 7 observe/warn and conditional budget enforce as later scope.",
+  "createdAt": "2026-07-20T21:30:53.498Z",
+  "updatedAt": "2026-07-20T21:30:53.498Z",
+  "_hash": "83998caa8726f4a5bb3581b64fab2fed9f6d64d76f5d51e0bc9919aeb34f9a87"
+}
