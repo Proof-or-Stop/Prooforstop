@@ -454,7 +454,7 @@
       "desc": "packages/main/src/tasks/review-incremental-context-smoke.ts:254-261 does not regression-test the prior-pass cutoff. It merely passes passesCutoffAt and asserts cutoffBound.role equals role, which remains true if cutoff filtering is deleted, if >= is reverted to >, or if passesCutoffAt is ignored entirely. The process-fact verifier only checks for source strings. F-017 therefore remains unresolved: add a deterministic behavioral A-before-B/C-after-B fixture that asserts B.priorPassRef remains A and verifyReviewRunPromptEnvelope(B) stays valid after C; add an equal-createdAt/run.startedAt case that is excluded, and include a mutation bite proving the test fails when cutoff behavior is removed or changed to >.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-20T00:04:31.946Z",
@@ -469,7 +469,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 39d6c313e1 and 22c3cc15e2: producer/verifier use signed startedAt cutoff; equal timestamps fail closed; temporal smoke proves A/B/C and mutation bite; build and focused smokes pass.",
+      "resolvedAt": "2026-07-20T00:15:01.713Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-235e:F-021",
