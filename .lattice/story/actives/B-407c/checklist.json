@@ -251,13 +251,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "用户看到 delivery promise、scope gap、implementer author、evaluator evidence、权限、签名和 Task Context 检查全部通过，或明确指出阻塞项。",
+      "userSees": "用户看到 \"complex-role invariants: PASS\"；任何错误签名、越权、错误作者、缺失 evaluator/delivery/scope 证据或 Task Context 漂移都显示稳定 reason code。",
       "files": {
         "modify": [
-          "packages/main/src/core/delivery-check.ts",
-          "packages/main/src/core/scope-contract.ts",
-          "packages/main/src/core/review-run.ts",
-          "packages/main/src/core/task-context.ts"
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/delivery-check.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
         ],
         "create": [],
         "test": [
@@ -267,26 +271,30 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "合法 dispatch 的交付、范围、作者、评估、权限、签名与 Task Context 证据全部通过",
+            "desc": "合法五角色 dispatch 的 delivery、scope、author、evaluator、authority、signature 与 Task Context 检查全部通过",
             "type": "cli",
             "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "部分证据缺失时只标记对应 invariant 缺口且不误报通过",
+            "desc": "单项证据缺失只产生对应稳定缺口且不得误报整体 PASS",
             "type": "logic",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "无效签名、越权 mutation 或错误 Task Context digest 被 gate 拒绝",
+            "desc": "无效签名、错误作者、越权 mutation、错误 Task Context 或以 story-dispatch 冒充 REVIEW evidence 均被拒绝",
             "type": "logic",
             "priority": "must"
           }
         ]
-      }
+      },
+      "excludes": [
+        "Story 7 compatibility cleanup",
+        "new role authority or Task Context schema"
+      ]
     }
   ],
   "auditLog": [
