@@ -870,6 +870,31 @@
         "scanEscalationReason": "Second bounded same-round convergence re-attestation independently created a new signed ReviewRun/Prompt Envelope after the first pass, then rechecked current 48/48 semantic evidence and unchanged storyFilesHash/scope. No story-owned code changed between receipts."
       },
       "_hash": "175622a48474caee1692aaa86efa747882266b21b968bbddb18c1047474d1473"
+    },
+    {
+      "id": "B-235e:RP-037",
+      "agent": "lattice-review-concept",
+      "note": "Temporal cutoff regression is now behaviorally covered. The fixture constructs valid A/B/C signed runs and passes, proves as-of-B selects pre-cutoff A, proves removing the cutoff selects later C and changes eligibilityDigest (mutation bite), and proves an equal-timestamp pass is conservatively excluded. This directly covers F-022 while the production assembly/verifier both use the same startedAt cutoff. Build passed; no remaining concept or authority blocker.",
+      "createdAt": "2026-07-20T00:13:01.779Z",
+      "reviewRound": "2026-07-19T23:55:41.162Z",
+      "reviewRunId": "B-235e:RR-079",
+      "envelopeId": "f3bb8f0f50ff5ea6f149627e605127f8088df3ef061dc8474d90f1a837816edc",
+      "writerSessionId": "sess-725b97bee152890e065410dcd644eaff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e13f141b8005f5d41bf4eb5473621492d2e4a08cdfec3ca7b97a7809c575ff62"
     }
   ]
 }
