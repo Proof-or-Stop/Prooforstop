@@ -20,10 +20,21 @@
     {
       "id": "BUG-002",
       "title": "REVIEW Prompt Envelopes become unverifiable after mandatory REVIEW-to-TEST transition while done_prepare incorrectly reports DONE ready",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-07-20T16:05:56.902Z",
-      "fixedAt": null,
-      "checklistId": "CHK-004"
+      "fixedAt": "2026-07-20T16:19:13.814Z",
+      "checklistId": "CHK-004",
+      "evidence": {
+        "symptom": "Both round-23 and round-24 reviewer Prompt Envelopes verified in REVIEW but story_advance DONE rejected all four after mandatory REVIEW-to-TEST transition while done_prepare reported PASS.",
+        "reproSteps": [
+          "Create signed reviewer runs and passes in REVIEW and verify envelopes",
+          "Advance to TEST without unrelated story semantic changes",
+          "Run done_prepare then story_advance DONE and observe stale_closeout_review on every lane"
+        ],
+        "rootCause": "fullTaskSemanticDigest included mutable Story.phase, so REVIEW-to-TEST changed taskSemanticDigest and derived eligibility fields despite unchanged model-relevant task semantics.",
+        "fixEvidence": "Commit 98173017e5 canonicalizes digest phase to REVIEW while actual phase remains in prompt rendering and title, description, priority, checklist, verification intent, and scope remain fail-closed inputs. Registry, docs, and verifier synchronized.",
+        "reproTest": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only PASS: REVIEW-to-TEST snapshot and DONE oracle agree, old phase-sensitive mutation differs, title/checklist mutations fail closed; node scripts/verify-process-fact-contract.mjs PASS"
+      }
     }
   ]
 }
