@@ -402,6 +402,147 @@ function runTemporalCutoffRegression(root: string): void {
   console.log(`${MARKER} TEMPORAL CUTOFF: A-before-B selected; C-after-B and equal-timestamp passes excluded; mutation bite confirmed`);
 }
 
+function runProductionVerifierTemporalCutoffRegression(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-review-cutoff-verifier-'));
+  const storyId = 'B-cutoff-verifier';
+  const role = 'lattice-review-quality';
+  const round = '2026-07-20T00:00:00.000Z';
+  const runCli = (command: string, payload: Record<string, unknown>, actor: string): void => {
+    execFileSync(process.execPath, [
+      DIST_CLI_PATH,
+      '--root',
+      root,
+      command,
+      JSON.stringify(payload),
+    ], {
+      cwd: root,
+      env: {
+        ...process.env,
+        LATTICE_PROJECT_ROOT: root,
+        LATTICE_ACTIVITY_SOURCE: 'codex',
+        LATTICE_AGENT: actor,
+        LATTICE_SESSION_ID: `cutoff-${actor}`,
+      },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+  };
+  try {
+    write(root, '.gitignore', '.lattice/activity.jsonl\n.lattice/locks/\n');
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: '.',
+      rootDir: 'src',
+      testsDir: 'tests',
+      fixturesDir: 'tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      storyPrefix: 'B',
+      flows: { defaults: {}, patterns: [] },
+      promptEnvelope: {
+        version: 'proofbound.prompt-envelope-rollout.v1',
+        roles: { [role]: 'full-envelope' },
+      },
+    }, null, 2) + '\n');
+    write(root, 'src/cutoff.ts', 'export const cutoff = true;\n');
+    git(root, ['init']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed cutoff verifier base']);
+    git(root, ['checkout', '-b', `story/${storyId}`]);
+
+    const store = new StoryStore(root);
+    store.writeStory(storyId, {
+      ...reviewStory(storyId, 1, round),
+      title: 'Production verifier cutoff regression',
+      description: 'Bind a real incremental Prompt Envelope to passes visible when its ReviewRun starts.',
+      priority: 'high',
+    });
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Bind the verifier cutoff',
+        context: 'Later reviewer passes must not rewrite an older incremental envelope baseline.',
+        status: 'done',
+        startTime: null,
+        endTime: round,
+        files: { modify: ['src/cutoff.ts'], create: [], test: [] },
+        verificationIntent: {
+          happy: [{ id: 'CHK-001:happy:0', desc: 'The real verifier preserves the as-of-run baseline.', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    });
+    git(root, ['add', '.lattice/story']);
+    git(root, [...COMMIT_ENV, 'commit', '-m', 'seed cutoff verifier review metadata']);
+
+    runCli('dispatch', { storyId, agentType: role }, 'main');
+    runCli('review_run_start', { storyId, agent: role }, role);
+    const runA = store.readReviewRuns(storyId).runs.at(-1)!;
+    runCli('review_pass_set', {
+      storyId,
+      agent: role,
+      reviewRunId: runA.reviewRunId,
+      note: 'A found no blocker in the stable cutoff fixture.',
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+    }, role);
+    const passA = store.readReviewPasses(storyId).passes.find(pass => pass.reviewRunId === runA.reviewRunId)!;
+
+    runCli('review_run_start', { storyId, agent: role }, role);
+    const runB = store.readReviewRuns(storyId).runs.at(-1)!;
+    const envelopeB = store.readPromptEnvelopes(storyId).envelopes.find(
+      envelope => envelope.envelopeId === runB.envelopeId,
+    )!;
+    assert.equal(envelopeB.contextMode, 'incremental', 'production B must use the incremental envelope path');
+    assert.equal(envelopeB.priorPassRef, passA.id, 'production B must bind the A-before-B pass');
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'production verifier accepts B before a later pass is appended',
+    );
+
+    runCli('review_run_start', { storyId, agent: role }, role);
+    const runC = store.readReviewRuns(storyId).runs.at(-1)!;
+    runCli('review_pass_set', {
+      storyId,
+      agent: role,
+      reviewRunId: runC.reviewRunId,
+      note: 'C found no blocker after B had already started.',
+      readManifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
+    }, role);
+    const passC = store.readReviewPasses(storyId).passes.find(pass => pass.reviewRunId === runC.reviewRunId)!;
+    assert.ok(
+      Date.parse(passC.createdAt) >= Date.parse(runB.startedAt),
+      'fixture must append C at or after B.startedAt',
+    );
+
+    assert.deepEqual(
+      verifyReviewRunPromptEnvelope(store, runB),
+      { ok: true },
+      'production verifier must still accept B after the later C pass is appended',
+    );
+    assert.equal(envelopeB.priorPassRef, passA.id, 'B priorPassRef remains A after C is appended');
+
+    const verifierWithoutCutoff = reviewIncrementalContext(store, root, storyId, role, {
+      excludedReviewRunId: runB.reviewRunId,
+      findingsCutoffAt: runB.startedAt,
+    });
+    assert.equal(
+      verifierWithoutCutoff.priorPassRef,
+      passC.id,
+      'mutation bite: removing the verifier cutoff rewrites B baseline to later C',
+    );
+    assert.notEqual(
+      envelopeB.eligibilityDigest,
+      verifierWithoutCutoff.eligibilityDigest,
+      'mutation bite: a verifier without passesCutoffAt rejects the production B envelope',
+    );
+    console.log(`${MARKER} PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails`);
+  } finally {
+    resetConfigCache();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertLargeDiffReviewMetadataStability(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-large-review-diff-'));
   try {
@@ -1302,6 +1443,7 @@ function run(): void {
   runFixtureDuplicateIdentityCases();
   assertLargeDiffReviewMetadataStability();
   runIncrementalCases();
+  runProductionVerifierTemporalCutoffRegression();
   runGateUnchangedCase();
   runConcurrentCliReadOnlyCase();
   runDeterministicTicketReclaimAbaCase();
@@ -1317,6 +1459,8 @@ const isDirectRun = process.argv[1] && fileURLToPath(import.meta.url) === proces
 if (isDirectRun) {
   if (process.argv.includes('--aba-only')) {
     runDeterministicTicketReclaimAbaCase();
+  } else if (process.argv.includes('--cutoff-verifier-only')) {
+    runProductionVerifierTemporalCutoffRegression();
   } else {
     run();
   }
