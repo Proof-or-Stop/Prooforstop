@@ -223,10 +223,38 @@
       "phase": "DEV",
       "headHash": "911cd998081f3c066e0cfd413a971332bd0335d2",
       "materialHash": "ab29591cbdc22d29a495abb8180cbc44e2bc637b8a6a97b6aba273857c9bdbff"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story 6 changes Lattice CLI/runtime behavior, so repository policy requires a synchronized patch-version increment before REVIEW.",
+      "timestamp": "2026-07-21T00:32:43.082Z",
+      "paths": [
+        "package.json",
+        "package-lock.json",
+        "packages/main/package.json",
+        "packages/main/package-lock.json",
+        "packages/main/src/core/lattice-brand.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package.json",
+        "package-lock.json",
+        "packages/main/package.json",
+        "packages/main/package-lock.json",
+        "packages/main/src/core/lattice-brand.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "081c73a4ea739644e90b292f851b66a0af915d21",
+      "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
+      "anchors": [
+        "LATTICE_CLI_VERSION",
+        "versionSync"
+      ]
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-21T00:30:32.877Z",
+  "updatedAt": "2026-07-21T00:32:43.082Z",
   "fileRules": [],
   "protectedAnchors": [
     "AGENT_DISPATCH_REGISTRY",
@@ -305,7 +333,8 @@
     "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs": "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
     "experiments/role-prompt-ab-replay/story6-report.mjs": "experiments/role-prompt-ab-replay/story6-report.mjs",
     "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs": "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs",
-    "packages/main/src/tasks/story6-production-dispatch-smoke.ts": "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+    "packages/main/src/tasks/story6-production-dispatch-smoke.ts": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",
