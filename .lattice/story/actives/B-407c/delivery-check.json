@@ -1,64 +1,64 @@
 {
   "storyId": "B-407c",
-  "checkedAt": "2026-07-21T03:36:13.092Z",
-  "headHash": "93d1b714db6314060f7c908d3d97e69ba6eb605d",
-  "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-  "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-  "reviewRound": "2026-07-21T03:22:21.830Z",
+  "checkedAt": "2026-07-21T04:02:00.474Z",
+  "headHash": "64e88b6653e27cb0e1bee80a7557deaee9040e91",
+  "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+  "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+  "reviewRound": "2026-07-21T03:48:01.241Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "checklist CHK-001 userSees; docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-6",
       "promise": "Five complex roles visibly prove exact legacy production defaults and separately persisted full-envelope story-dispatch audit receipts.",
       "status": "verified",
-      "verifiedBy": "Independent rerun: node packages/main/dist/tasks/story6-acceptance-transcript.js",
-      "evidence": "Exactly five PRODUCTION_DEFAULT rows report rollout=legacy-full-context and exactLegacyBinding=true, and exactly five AUDIT_DISPATCH rows report rollout=full-envelope, auditOnly=true, canMintReviewEvidence=false, dispatchKind=story-dispatch, content digests, and persisted=true."
+      "verifiedBy": "Round15 independent rerun: node packages/main/dist/tasks/story6-acceptance-transcript.js",
+      "evidence": "Exactly five PRODUCTION_DEFAULT rows report rollout=legacy-full-context and exactLegacyBinding=true; exactly five AUDIT_DISPATCH rows report rollout=full-envelope, auditOnly=true, canMintReviewEvidence=false, dispatchKind=story-dispatch, integrity-bound digests and persisted=true. Commit 82c3eb71 only replaces raw git cwd with production resolveGitCwd and does not alter rollout output."
     },
     {
       "docPath": "checklist CHK-002 userSees; docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-6",
       "promise": "Complex-role budgets visibly report bounded measurements and continue full correctness execution on over-limit input without accepting the baseline or promoting Story 7.",
       "status": "verified",
-      "verifiedBy": "Independent rerun: node packages/main/dist/tasks/story6-acceptance-transcript.js",
-      "evidence": "Four bound AUDIT_BUDGET within rows expose bytes, estimatedTokens, limitBytes=44000, budgetViolation=none, fullExecuted=true; a real oversized implementer Task Context emits bytes=66761, budgetViolation=full, fullExecuted=true, baselineAccepted=false. All are auditOnly=true/canMintReviewEvidence=false."
+      "verifiedBy": "Round15 independent acceptance-transcript rerun",
+      "evidence": "Four envelope/event-bound within rows expose bytes, estimatedTokens, limitBytes=44000, budgetViolation=none and fullExecuted=true; a real oversized implementer Task Context emits bytes=66761, budgetViolation=full, fullExecuted=true, baselineAccepted=false. All modular rows remain auditOnly=true and canMintReviewEvidence=false."
     },
     {
       "docPath": "checklist CHK-003 userSees; docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-6",
       "promise": "Every migrated role visibly has real production-entrypoint legacy/modular A/B receipt evidence with provider/cache/latency availability represented honestly.",
       "status": "verified",
-      "verifiedBy": "Independent acceptance transcript rerun plus story6-report --verify against tracked v3 receipts/adjudication",
-      "evidence": "Five CAMPAIGN role rows expose distinct legacy/modular prompt digests, providerUsage=available, cache=INCONCLUSIVE, latency=available, receipt=valid, status=INCONCLUSIVE and baselineAccepted=false. The bound campaign row verifies 72 receipts and the adverse result: legacy recall 24/24, modular 20/24, false positives 0 versus 1, story7=false; summary digest 49cf8de6e222da944fae655044b1fe2e54bdc45d691df93b395fb6e30cc8ea39."
+      "verifiedBy": "Round15 independent acceptance transcript plus story6-report --verify",
+      "evidence": "Five CAMPAIGN role rows expose distinct legacy/modular prompt digests, providerUsage=available, cache=INCONCLUSIVE, latency=available, receipt=valid, status=INCONCLUSIVE and baselineAccepted=false. The content-bound campaign verifies 72 receipts: legacy recall 24/24, modular 20/24, false positives 0 versus 1, story7=false; summary digest 49cf8de6e222da944fae655044b1fe2e54bdc45d691df93b395fb6e30cc8ea39."
     },
     {
       "docPath": "checklist CHK-004 userSees; docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md#Story-6",
-      "promise": "Delivery, scope, authorship, evaluator, authority, signature, Task Context integrity, and REVIEW-credit invariants remain visible and fail closed with stable consumer outcomes.",
+      "promise": "Delivery, scope, authorship, evaluator, authority, signature, Task Context integrity and REVIEW-credit invariants remain visible and fail closed with stable consumer outcomes.",
       "status": "verified",
-      "verifiedBy": "Independent story6-acceptance-transcript and story6-invariants-smoke reruns",
-      "evidence": "INVARIANTS reports complex-role-invariants=PASS with invalid_evidence_signature, agent_dispatch_mutation_denied, rejected context integrity, zero invalid REVIEW credit with positive control, wrong-author failure, missing_eval_evidence, missing_delivery_check, and missing_scope_binding, all sourced from real named consumers."
+      "verifiedBy": "Round15 independent story6-acceptance-transcript and story6-invariants-smoke reruns",
+      "evidence": "INVARIANTS reports complex-role-invariants=PASS with invalid_evidence_signature, agent_dispatch_mutation_denied, rejected context integrity, zero invalid REVIEW credit with positive control, wrong-author failure, missing_eval_evidence, missing_delivery_check and missing_scope_binding, sourced from real consumers."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node packages/main/dist/tasks/story6-acceptance-transcript.js exited 0; five PRODUCTION_DEFAULT legacy rows and five distinct AUDIT_DISPATCH full-envelope rows were independently observed, each audit row integrity-checked, persisted, event-bound, auditOnly=true and canMintReviewEvidence=false."
+      "transcript": "Round15: node packages/main/dist/tasks/story6-acceptance-transcript.js exited 0 after the resolveGitCwd fix; independently observed five exact legacy PRODUCTION_DEFAULT rows and five persisted audit-only full-envelope AUDIT_DISPATCH rows."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "The same independent run emitted four within-budget rows with envelope-bound bytes/tokens/limit and one real over-limit implementer dispatch: bytes=66761, limitBytes=44000, budgetViolation=full, fullExecuted=true, baselineAccepted=false."
+      "transcript": "Round15 acceptance transcript independently emitted bound within-budget rows and the real over-limit implementer row: bytes=66761, limitBytes=44000, budgetViolation=full, fullExecuted=true, baselineAccepted=false."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "The same independent run verified tracked v3 and all 72 content-addressed receipt files, then emitted five role rows and campaign summary: INCONCLUSIVE, baselineAccepted=false, legacyRecall=24/24, modularRecall=20/24, legacyFalsePositive=0, modularFalsePositive=1, story7=false. Independent story6-report --verify also passed with summaryDigest=49cf8de6e222da944fae655044b1fe2e54bdc45d691df93b395fb6e30cc8ea39."
+      "transcript": "Round15 acceptance transcript reverified all 72 tracked v3 receipts and emitted the adverse summary: INCONCLUSIVE, baselineAccepted=false, legacyRecall=24/24, modularRecall=20/24, false positives 0 versus 1, story7=false. Independent story6-report --verify passed with digest 49cf8de6e222da944fae655044b1fe2e54bdc45d691df93b395fb6e30cc8ea39."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "node packages/main/dist/tasks/story6-invariants-smoke.js independently exited 0 and emitted machine-readable signature/scope/authority/delivery/evaluator reason codes plus zero-credit and wrong-author consumer behavior; acceptance transcript revalidated and displayed those outcomes."
+      "transcript": "Round15 independent story6-invariants-smoke exited 0 and emitted stable machine-readable signature/scope/authority/delivery/evaluator reason codes, zero-credit behavior with positive control and wrong-author rejection."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "DELIVERY VERIFIED on current Round14 material. The prior aggregate-only transcript gap is closed by a focused real-machine acceptance transcript exercising production agent_prompt in an isolated repository, bound budget observations, all 72 tracked provider receipts plus independent adjudication, and real invariant consumers. The result boundary remains explicit: production is exact legacy-default; modular full-envelope is audit-only and cannot mint REVIEW evidence; v3 is adverse/INCONCLUSIVE with baselineAccepted=false; Story 7 is absent."
+    "summary": "DELIVERY VERIFIED on Round15 current material. The 82c3eb71 change correctly routes transcript git operations through production resolveGitCwd; it does not change product claims. Four user-visible promises remain independently demonstrated. Boundaries remain fail-closed and honest: production uses exact legacy defaults; modular full-envelope is audit-only and cannot mint REVIEW evidence; v3 is adverse/INCONCLUSIVE with baselineAccepted=false; Story 7 is absent."
   },
-  "_hash": "fa0e6ef25565bd7fb85728ce5f614f9c25c7b674bc9efbf623a871cb13816392"
+  "_hash": "24c3a3fb0c8639345a5fcfdc05548ccd3825ef06dab0a4891236802f64ee069f"
 }
