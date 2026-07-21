@@ -4,9 +4,9 @@
   "facts": [
     "/tmp 文档 Story 6 只要求复杂角色迁移、复杂角色预算和真实 dispatch A/B；Story 7 才负责 legacy 资产隔离与 observe→warn 推广。",
     "B-235e 已提供可信 Prompt Envelope、Task Context、role contracts 和 reviewer rollout 基础。",
-    "五个复杂角色已在 Agent Dispatch Registry 和 Prompt Role Contract Registry 注册，但当前可信 modular rollout/assembly 只完整覆盖五个 REVIEW 角色。",
-    "story-init、scope-plan、implementer、delivery 使用不同 story-dispatch builders；evaluator 使用 evaluate/agent_prompt 路径。",
-    "PromptEnvelope 已有 budgetViolation 语义；Story 6 需要把复杂角色超限记录为非阻塞事实，并拒绝 over-budget baseline acceptance。"
+    "五个复杂角色已在 Agent Dispatch Registry 和 Prompt Role Contract Registry 注册；本 Story 将其生产入口迁移到可信 modular full-envelope assembly。",
+    "真实 A/B 已执行 72 个串行 Codex/Claude cells；结果 INCONCLUSIVE 且 modular recall/false-positive 不支持 baseline acceptance。",
+    "PromptEnvelope 的 Story 6 budget violation 保持 observe-only、full correctness 继续、baselineAccepted=false。"
   ],
   "constraints": [
     "不修改 Task Context schema 或角色 status/authority。",
@@ -22,23 +22,20 @@
     "packages/main/src/core/config.ts",
     "packages/main/src/core/prompt-registry.ts",
     "packages/main/src/core/prompt-role-contract-registry.ts",
-    "packages/main/src/core/prompt-envelope.ts",
     "packages/main/src/core/prompt-contracts.ts",
     "packages/main/src/core/prompt-budget.ts",
     "packages/main/src/core/process-fact-levels.ts",
-    "packages/main/src/core/process-fact-registry.ts",
-    "packages/main/src/core/agent-dispatch-registry.ts",
     "packages/main/src/handlers/story-dispatch.ts",
     "packages/main/src/handlers/agent-prompt.ts",
     "packages/main/src/handlers/evaluate.ts",
-    "packages/main/src/handlers/delivery-check.ts",
     "packages/main/src/tasks/story6-role-migration-smoke.ts",
-    "packages/main/src/tasks/story6-budget-smoke.ts",
-    "packages/main/src/tasks/story6-ab-dispatch.ts",
-    "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+    "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
     "packages/main/src/tasks/story6-invariants-smoke.ts",
-    "scripts/verify-process-fact-contract.mjs",
-    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "experiments/role-prompt-ab-replay/story6-live.mjs",
+    "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+    "experiments/role-prompt-ab-replay/story6-report.mjs",
+    "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json"
   ],
-  "timestamp": "2026-07-20T21:44:59.753Z"
+  "timestamp": "2026-07-21T00:27:15.817Z"
 }
