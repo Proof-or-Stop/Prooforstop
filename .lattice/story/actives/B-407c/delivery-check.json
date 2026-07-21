@@ -1,0 +1,56 @@
+{
+  "storyId": "B-407c",
+  "checkedAt": "2026-07-21T03:02:00.469Z",
+  "headHash": "94b7c3a8af5c8386fd1fcb2aa12aa81f17698e3f",
+  "materialHash": "002977cfee58a8c200fe4b4f334c485386494b7955ec3d142387107ee2a53a5d",
+  "storyFilesHash": "f6ab28e2715f51d6f2dbe7e3718efd3d7cf1a5128d098d1440f9c30d44aeefca",
+  "reviewRound": "2026-07-21T02:43:33.468Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist CHK-001 userSees",
+      "promise": "UNVERIFIED: five per-role full-envelope story-dispatch lines with envelope digest and persisted=true were not emitted; captured outputs are aggregate PASS only.",
+      "status": "unverified"
+    },
+    {
+      "docPath": "checklist CHK-002 userSees",
+      "promise": "UNVERIFIED: user-visible budgetViolation=full fullExecuted=true baselineAccepted=false line was not emitted, though internal logic assertions passed.",
+      "status": "unverified"
+    },
+    {
+      "docPath": "checklist CHK-003 userSees",
+      "promise": "UNVERIFIED: five per-role A/B digest/usage/cache/latency/receipt lines were not emitted; tracked v3 remains adverse and INCONCLUSIVE.",
+      "status": "unverified"
+    },
+    {
+      "docPath": "checklist CHK-004 userSees",
+      "promise": "UNVERIFIED: promised complex-role invariants output and stable rejection reason-code transcript were not emitted; only aggregate PASS was shown.",
+      "status": "unverified"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001/CHK-002",
+      "transcript": "node packages/main/dist/tasks/story6-role-migration-smoke.js => exit 0; stdout: story6-role-migration-smoke: PASS (5 roles; observe-only budget violation)"
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/story6-production-dispatch-smoke.js => exit 0; stdout: story6-production-dispatch-smoke: PASS (5 roles; isolated temp repository)"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/story6-ab-dispatch-smoke.js => exit 0; stdout: story6-ab-dispatch-smoke: PASS (10 local receipts; provider dimensions INCONCLUSIVE); verified v3 summary status=INCONCLUSIVE, baselineAccepted=false, legacy recall 24/24 vs modular 20/24, false positives 0 vs 1."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/story6-invariants-smoke.js => exit 0; stdout: story6-invariants-smoke: PASS (real signed-evidence, scope/delivery/evaluator, authority, REVIEW-credit, and wrong-author consumers)"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": true,
+    "summary": "DELIVERY BLOCKED: underlying Story 6 migration, rollback, observe-only budgets, A/B provenance, and invariants are test-covered. v3 is honestly adverse/INCONCLUSIVE, production is legacy-default, modular full-envelope is audit-only, and Story 7 is absent. However, the persisted live smoke expected per-role envelope/digest/persisted output but captured only one aggregate PASS line; independent reruns likewise emitted aggregate PASS summaries and did not demonstrate any of the four concrete userSees promises."
+  },
+  "_hash": "4d9c837017296555eb1554eeb7dfbe2e5fa43d59189c3cf5ba099e4596c4d978"
+}
