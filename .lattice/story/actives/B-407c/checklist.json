@@ -205,13 +205,18 @@
       "files": {
         "modify": [
           "packages/main/src/tasks/story6-ab-dispatch.ts",
-          "experiments/role-prompt-ab-replay/README.md"
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs"
         ],
         "create": [
-          "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
-          "experiments/role-prompt-ab-replay/story6-live.mjs",
-          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
-          "experiments/role-prompt-ab-replay/story6-output.schema.json"
+          "experiments/role-prompt-ab-replay/lib/story6-schema-compat.mjs",
+          "experiments/role-prompt-ab-replay/story6-output.schema.json",
+          "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json"
         ],
         "test": [
           "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
