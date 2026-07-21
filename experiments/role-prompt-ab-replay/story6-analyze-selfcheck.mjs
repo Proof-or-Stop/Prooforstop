@@ -18,7 +18,11 @@ const base = () => ({
   campaignBindingDigest: 'a'.repeat(64), cell: { ...baseCell },
   promptDigest: 'b'.repeat(64), materialDigest: sample.materialDigest, findingSetDigest: sample.findingSetDigest,
   observedAt: '2026-07-20T00:00:00.000Z',
-  provenance: { kind: 'production-provider-dispatch', gateEvidence: false },
+  provenance: {
+    kind: 'production-provider-dispatch', producer: 'agent_prompt',
+    producerMode: 'legacy-full-context', producerResponseDigest: 'c'.repeat(64),
+    envelopeId: null, eventBinding: null, gateEvidence: false,
+  },
   provider: { availability: 'unavailable' },
 });
 
@@ -56,6 +60,24 @@ async function runBindingMismatchRejected() {
     error => /RECEIPT_PROVENANCE_INVALID/.test(error?.stdout ?? '')
       && /campaignBindingDigest mismatch/.test(error?.stdout ?? ''),
     'valid-looking receipts from different campaign bindings must be rejected',
+  );
+}
+
+async function runModularProducerRejected(name, mutate) {
+  const files = await readdir(runtime).catch(() => []);
+  await Promise.all(files.filter(file => file.startsWith(`${campaignId}.`)).map(file => rm(path.join(runtime, file), { force: true })));
+  const receipt = base();
+  receipt.cell.arm = 'modular';
+  receipt.cell.cellId = receipt.cell.cellId.replace('.legacy.', '.modular.');
+  receipt.provenance.producerMode = 'full-envelope';
+  receipt.provenance.envelopeId = 'd'.repeat(64);
+  receipt.provenance.eventBinding = { promptEnvelopeId: 'd'.repeat(64), assembledPromptDigest: 'e'.repeat(64) };
+  mutate(receipt);
+  await writeFile(path.join(runtime, `${campaignId}.${receipt.cell.cellId}.json`), `${JSON.stringify(receipt)}\n`);
+  await assert.rejects(
+    exec(process.execPath, [path.join(here, 'story6-analyze.mjs'), `--campaign-id=${campaignId}`]),
+    error => /RECEIPT_PROVENANCE_INVALID/.test(error?.stdout ?? ''),
+    `modular producer mutation ${name} must be rejected`,
   );
 }
 
@@ -125,6 +147,9 @@ try {
     ['materialDigest', row => { row.materialDigest = '0'.repeat(64); }],
     ['findingDigest', row => { row.findingSetDigest = '0'.repeat(64); }],
     ['productionProvenance', row => { row.provenance.kind = 'synthetic-forged'; }],
+    ['directCoreProducer', row => { row.provenance.producer = 'direct-core-assembly'; }],
+    ['producerMode', row => { row.provenance.producerMode = 'full-envelope'; }],
+    ['producerResponseDigest', row => { row.provenance.producerResponseDigest = 'short'; }],
     ['observedAt', row => { row.observedAt = 'not-a-date'; }],
     ['staleReceipt', row => { delete row.observedAt; }],
     ['missingCell', row => { delete row.cell; }],
@@ -132,9 +157,13 @@ try {
   for (const [name, mutate] of mutations) await runRejected(name, mutate);
   await runRejected('duplicate-cell-key', row => { row.cell.cellId = baseCell.cellId; }, true);
   await runBindingMismatchRejected();
+  await runModularProducerRejected('missing-event', row => { row.provenance.eventBinding = null; });
+  await runModularProducerRejected('wrong-event-envelope', row => { row.provenance.eventBinding.promptEnvelopeId = 'f'.repeat(64); });
+  await runModularProducerRejected('wrong-event-digest', row => { row.provenance.eventBinding.assembledPromptDigest = 'short'; });
+  await runModularProducerRejected('missing-envelope', row => { row.provenance.envelopeId = null; });
   await runAdjudicationBoundaryAccepted();
   await runUnknownReceiptFileRejected();
-  console.log(`story6-analyze-selfcheck: PASS (${mutations.length + 3} receipt mutations rejected; legal adjudication artifact excluded)`);
+  console.log(`story6-analyze-selfcheck: PASS (${mutations.length + 7} receipt mutations rejected; agent_prompt producer/event binding enforced)`);
 } finally {
   const files = await readdir(runtime).catch(() => []);
   await Promise.all(files.filter(file => file.startsWith(`${campaignId}.`)).map(file => rm(path.join(runtime, file), { force: true })));

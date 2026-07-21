@@ -163,6 +163,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     promptEnvelopeId?: string;
     promptEnvelopeDigest?: string;
     assembledPromptDigest?: string;
+    rollbackPromptEnvelopeOnEventFailure?: boolean;
     budgetViolation?: 'incremental' | 'full';
     promptBudget?: PromptBudgetObservation;
   }): void {
@@ -194,6 +195,17 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ...(args.promptBudget ? { promptBudget: args.promptBudget } : {}),
       });
     } catch (e: any) {
+      if (args.promptEnvelopeId) {
+        if (args.rollbackPromptEnvelopeOnEventFailure) {
+          const lockDir = store.runtimeLockDirPath(args.storyId, 'review-run', 'review-runs');
+          withReviewMetadataTicketLock(lockDir, `story_dispatch rollback for ${args.storyId}/${args.agentType ?? 'unknown'}`, () => {
+            const data = store.readPromptEnvelopes(args.storyId);
+            const remaining = data.envelopes.filter(candidate => candidate.envelopeId !== args.promptEnvelopeId);
+            if (remaining.length !== data.envelopes.length) store.writePromptEnvelopes(args.storyId, { envelopes: remaining });
+          });
+        }
+        throw new Error(`story_dispatch: dispatch event persistence failed; prompt envelope was not accepted: ${e?.message || e}`);
+      }
       reportHealthIssue('persist:dispatchProcessEvent', e as Error, {
         storyId: args.storyId,
         agentType: args.agentType,
@@ -217,7 +229,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     story: ReturnType<StoryStore['readStory']>,
     agentType: string,
     dispatchPrompt: string,
-  ): { prompt: string; envelope?: ReturnType<typeof assembleFullPromptEnvelope>['envelope']; promptBudget?: PromptBudgetObservation } {
+  ): { prompt: string; envelope?: ReturnType<typeof assembleFullPromptEnvelope>['envelope']; envelopeCreated?: boolean; promptBudget?: PromptBudgetObservation } {
     const mode = resolvePromptEnvelopeRolloutMode(agentType, loadConfig(root).promptEnvelope);
     if (mode !== 'full-envelope') return { prompt: dispatchPrompt };
     const snapshot = captureReviewRunSnapshot(root, { storyId: story.storyId, storyPhase: story.phase }, root);
@@ -237,7 +249,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       createdAt: new Date().toISOString(),
     });
     const lockDir = store.runtimeLockDirPath(story.storyId, 'review-run', 'review-runs');
-    withReviewMetadataTicketLock(lockDir, `story_dispatch for ${story.storyId}/${agentType}`, () => {
+    const envelopeCreated = withReviewMetadataTicketLock(lockDir, `story_dispatch for ${story.storyId}/${agentType}`, () => {
       const data = store.readPromptEnvelopes(story.storyId);
       const existing = data.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
       if (existing && !verifyPromptEnvelopeIntegrity(existing)) {
@@ -253,6 +265,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       if (!persisted || !verifyPromptEnvelopeIntegrity(persisted)) {
         throw new Error(`story_dispatch: envelope ${assembly.envelope.envelopeId} was not durably persisted`);
       }
+      return !existing;
     });
     const promptBudget = isBudgetedComplexRole(agentType)
       ? observeComplexRolePromptBudget({
@@ -265,6 +278,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     return {
       prompt: assembly.prompt,
       envelope: assembly.envelope,
+      envelopeCreated,
       ...(promptBudget ? { promptBudget } : {}),
     };
   }
@@ -818,7 +832,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'init-review',
-          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest, rollbackPromptEnvelopeOnEventFailure: wrapped.envelopeCreated } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
         return wrapped;
@@ -833,7 +847,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'init-review',
-          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest, rollbackPromptEnvelopeOnEventFailure: wrapped.envelopeCreated } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
         return wrapped;
@@ -848,7 +862,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'scope-plan-review',
-          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest, rollbackPromptEnvelopeOnEventFailure: wrapped.envelopeCreated } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
         return wrapped;
@@ -900,7 +914,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'delivery-review',
-          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest, rollbackPromptEnvelopeOnEventFailure: wrapped.envelopeCreated } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
         return wrapped;
@@ -934,7 +948,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           agentType: canonicalType,
           targetKind: 'checklist',
           itemId: args.itemId,
-          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest, rollbackPromptEnvelopeOnEventFailure: wrapped.envelopeCreated } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
         return wrapped;

@@ -100,6 +100,14 @@ async function main() {
       && row.materialDigest && requiredDigest(row.materialDigest)
       && row.findingSetDigest && requiredDigest(row.findingSetDigest)
       && row.provenance?.kind === 'production-provider-dispatch'
+      && row.provenance?.producer === 'agent_prompt'
+      && row.provenance?.producerMode === (cell?.arm === 'modular' ? 'full-envelope' : 'legacy-full-context')
+      && requiredDigest(row.provenance?.producerResponseDigest)
+      && (cell?.arm === 'modular'
+        ? requiredDigest(row.provenance?.envelopeId)
+          && row.provenance?.eventBinding?.promptEnvelopeId === row.provenance.envelopeId
+          && requiredDigest(row.provenance?.eventBinding?.assembledPromptDigest)
+        : row.provenance?.envelopeId === null && row.provenance?.eventBinding === null)
       && row.provenance?.gateEvidence === false
       && typeof row.observedAt === 'string' && !Number.isNaN(Date.parse(row.observedAt))
       && expectedSample && row.materialDigest === expectedSample.materialDigest

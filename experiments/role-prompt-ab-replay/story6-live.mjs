@@ -1,24 +1,17 @@
 #!/usr/bin/env node
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
   canonicalJsonStringify,
 } from '../../packages/main/dist/core/prompt-contracts.js';
-import {
-  assembleFullPromptEnvelope,
-  buildFullTaskContext,
-} from '../../packages/main/dist/core/prompt-envelope.js';
-import { BASELINE_RUNTIME_CONTRACT } from '../../packages/main/dist/core/prompt-measurement.js';
-import {
-  readPromptRegistry,
-  resolvePromptTemplateBody,
-} from '../../packages/main/dist/core/prompt-registry.js';
-import { promptRoleContract } from '../../packages/main/dist/core/prompt-role-contract-registry.js';
+import { StoryStore } from '../../packages/main/dist/core/store.js';
+import { createAgentPromptHandlers } from '../../packages/main/dist/handlers/agent-prompt.js';
 import { validateExperiment } from './lib/replay.mjs';
 import {
   assertClaudeSchemaEquivalent,
@@ -116,28 +109,6 @@ function assertCampaignFloor(corpus, cells) {
   }
 }
 
-function taskContextFor(sample) {
-  return buildFullTaskContext({
-    story: {
-      storyId: `EXP-${sample.id}`,
-      title: sample.task,
-      description: canonicalJsonStringify(sample.material.content),
-      phase: 'DEV',
-      priority: 'high',
-    },
-    checklist: {
-      items: [{
-        id: 'CHK-AB', title: sample.task, context: sample.material.content.scope ?? 'frozen A/B material',
-        status: 'in_progress', relatedDocs: [], files: { modify: [], create: [], test: [] },
-        verificationIntent: { happy: [], edge: [], adversarial: [] },
-      }],
-    },
-    headHash: sample.materialDigest.slice(0, 40),
-    materialHash: sample.materialDigest,
-    storyFilesHash: sample.materialDigest,
-  });
-}
-
 function outputInstruction(sample) {
   return [
     'Review only the frozen task material in the Task Context. Do not edit files or write lifecycle evidence.',
@@ -147,25 +118,76 @@ function outputInstruction(sample) {
   ].join('\n');
 }
 
-function buildPrompt(sample, roleId, arm) {
-  const registry = readPromptRegistry();
-  const entry = registry.agents.find(candidate => candidate.agentId === roleId);
-  if (!entry) throw new Error(`unknown role ${roleId}`);
-  const context = taskContextFor(sample);
-  const dispatchPrompt = outputInstruction(sample);
-  if (arm === 'legacy') {
-    const roleBody = resolvePromptTemplateBody(entry, 'legacy-full-context');
-    return `${roleBody}\n\n## Task Context\n${canonicalJsonStringify(context)}\n\n## Dispatch\n${dispatchPrompt}`;
+async function producePromptThroughAgentPrompt(cell, sample) {
+  const fixtureRoot = await mkdtemp(path.join(tmpdir(), 'proofbound-story6-live-handler-'));
+  const storyId = `EXP-${sample.id}`;
+  try {
+    await writeFile(path.join(fixtureRoot, 'lattice.config.json'), `${JSON.stringify({
+      scanRoot: '.', testsDir: 'tests', fixturesDir: 'tests/fixtures',
+      storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+      promptEnvelope: {
+        version: 'proofbound.prompt-envelope-rollout.v1',
+        roles: { [cell.roleId]: 'legacy-full-context' },
+      },
+    })}\n`);
+    execFileSync('git', ['init', '-q'], { cwd: fixtureRoot });
+    execFileSync('git', ['config', 'user.email', 'story6-live@example.invalid'], { cwd: fixtureRoot });
+    execFileSync('git', ['config', 'user.name', 'Story 6 Live Handler'], { cwd: fixtureRoot });
+    const store = new StoryStore(fixtureRoot);
+    store.writeStory(storyId, {
+      storyId,
+      title: sample.task,
+      description: canonicalJsonStringify({
+        frozenMaterial: sample.material.content,
+        experimentInstruction: outputInstruction(sample),
+      }),
+      phase: 'DEV',
+      priority: 'high',
+    });
+    store.writeChecklist(storyId, { items: [{
+      id: 'CHK-AB', title: sample.task, context: sample.material.content.scope ?? 'frozen A/B material',
+      status: 'in_progress', relatedDocs: [], files: { modify: [], create: [], test: [] },
+      verificationIntent: { happy: [], edge: [], adversarial: [] },
+    }] });
+    execFileSync('git', ['add', '.'], { cwd: fixtureRoot });
+    execFileSync('git', ['commit', '-qm', 'frozen Story 6 handler fixture'], { cwd: fixtureRoot });
+    const handlers = createAgentPromptHandlers({ root: fixtureRoot, scanRoot: fixtureRoot, store });
+    const rawResponse = handlers.agent_prompt({
+      role: cell.roleId,
+      storyId,
+      format: 'json',
+      auditExperiment: true,
+      ...(cell.arm === 'modular' ? { experimentalModeOverride: 'full-envelope' } : {}),
+    });
+    const response = JSON.parse(rawResponse);
+    if (response.auditOnly !== true || response.auditExperiment !== true || response.canMintReviewEvidence !== false) {
+      throw new Error('agent_prompt experiment response lost its audit-only boundary');
+    }
+    const expectedMode = cell.arm === 'modular' ? 'full-envelope' : 'legacy-full-context';
+    if (response.mode !== expectedMode || typeof response.prompt !== 'string') throw new Error(`agent_prompt returned wrong ${cell.arm} mode`);
+    const events = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && event.targetKind === 'story-dispatch');
+    const event = events.at(-1);
+    if (!event || event.agentType !== cell.roleId) throw new Error('agent_prompt did not persist the matching dispatch event');
+    if (cell.arm === 'modular') {
+      if (!response.envelope?.envelopeId
+          || event.promptEnvelopeId !== response.envelope.envelopeId
+          || event.assembledPromptDigest !== response.envelope.assembledPromptDigest) {
+        throw new Error('agent_prompt modular envelope/event binding mismatch');
+      }
+    }
+    return {
+      prompt: response.prompt,
+      producerResponseDigest: digest('agent-prompt-response', rawResponse),
+      producerMode: response.mode,
+      envelopeId: response.envelope?.envelopeId ?? null,
+      eventBinding: cell.arm === 'modular' ? {
+        promptEnvelopeId: event.promptEnvelopeId,
+        assembledPromptDigest: event.assembledPromptDigest,
+      } : null,
+    };
+  } finally {
+    await rm(fixtureRoot, { recursive: true, force: true });
   }
-  return assembleFullPromptEnvelope({
-    roleContract: promptRoleContract(roleId),
-    runtimeContract: BASELINE_RUNTIME_CONTRACT,
-    rolePrompt: resolvePromptTemplateBody(entry, 'full-envelope'),
-    taskContext: context,
-    dispatchKind: 'story-dispatch',
-    dispatchPrompt,
-    createdAt: '2026-07-20T00:00:00.000Z',
-  }).prompt;
 }
 
 function assertClaudeSchemaMutationBites(canonicalSchema, claudeSchema) {
@@ -282,17 +304,28 @@ async function main() {
     },
     outputSchemaDigest: digest('output-schema', canonicalSchemaText),
     claudeCompatibleOutputSchemaDigest: digest('claude-compatible-output-schema', claudeSchema),
+    promptProducer: 'agent_prompt-audit-experiment.v1',
     gateEvidence: false,
   };
   if (!options.execute) {
-    process.stdout.write(`story6-live selfcheck: PASS classes=3 samples=${corpus.samples.length} cells=${cells.length} roles=5 hosts=2 repetitions=3 claudeSchemaMutationsRejected=2 gateEvidence=false\n`);
+    const probe = cells.find(cell => cell.sampleId === 'critical-01' && cell.host === 'codex-cli' && cell.repeat === 1 && cell.arm === 'legacy');
+    const probeSample = corpus.samples.find(sample => sample.id === probe.sampleId);
+    const legacyProbe = await producePromptThroughAgentPrompt(probe, probeSample);
+    const modularProbe = await producePromptThroughAgentPrompt({ ...probe, arm: 'modular' }, probeSample);
+    assert.equal(legacyProbe.producerMode, 'legacy-full-context');
+    assert.equal(legacyProbe.envelopeId, null);
+    assert.equal(modularProbe.producerMode, 'full-envelope');
+    assert.ok(modularProbe.envelopeId);
+    assert.equal(modularProbe.eventBinding.promptEnvelopeId, modularProbe.envelopeId);
+    process.stdout.write(`story6-live selfcheck: PASS classes=3 samples=${corpus.samples.length} cells=${cells.length} roles=5 hosts=2 repetitions=3 producer=agent_prompt claudeSchemaMutationsRejected=2 gateEvidence=false\n`);
     process.stdout.write(`protocolBindingDigest=${digest('protocol-binding', protocolBinding)}; execution not requested => provider outcome INCONCLUSIVE\n`);
     return;
   }
   const cell = cells.find(candidate => candidate.cellId === options.cellId);
   if (!cell) throw new Error(`unknown --cell; choose one of: ${cells.map(candidate => candidate.cellId).join(', ')}`);
   const sample = corpus.samples.find(candidate => candidate.id === cell.sampleId);
-  const prompt = buildPrompt(sample, cell.roleId, cell.arm);
+  const produced = await producePromptThroughAgentPrompt(cell, sample);
+  const prompt = produced.prompt;
   const invocation = hostInvocation(cell, options, claudeSchema);
   const campaignBinding = { ...protocolBinding, campaignId: options.campaignId, models: { 'codex-cli': options.codexModel, 'claude-cli': options.claudeModel } };
   const result = await runProcess(invocation, prompt, options.timeoutMs);
@@ -311,6 +344,11 @@ async function main() {
     observedAt: new Date().toISOString(),
     provenance: {
       kind: 'production-provider-dispatch',
+      producer: 'agent_prompt',
+      producerMode: produced.producerMode,
+      producerResponseDigest: produced.producerResponseDigest,
+      envelopeId: produced.envelopeId,
+      eventBinding: produced.eventBinding,
       gateEvidence: false,
     },
     provider,

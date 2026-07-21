@@ -18,4 +18,4 @@ const delivery = runJson('delivery_context_pack', [`--storyId=${storyId}`, '--js
 assert.ok(delivery.schemaVersion || delivery.storyId || delivery.text, 'delivery context pack must return structured/readable output');
 const author = execFileSync('git', ['show', '-s', '--format=%an <%ae>', '397198367a'], { cwd: root, encoding: 'utf8' }).trim();
 assert.equal(author, 'lattice-implementer <lattice-implementer@noreply.local>');
-console.log('story6-invariants-smoke: PASS (scope, delivery context, evaluator/dispatch receipts, author binding)');
+console.log('story6-invariants-smoke: PASS (read-only scope/delivery surfaces and positive implementation-author control)');

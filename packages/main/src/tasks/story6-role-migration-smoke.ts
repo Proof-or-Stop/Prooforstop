@@ -21,6 +21,17 @@ import {
 } from '../core/prompt-registry.js';
 
 const registry = readPromptRegistry();
+const projectConfig = JSON.parse(readFileSync(join(process.cwd(), 'lattice.config.json'), 'utf8')) as {
+  promptEnvelope?: { roles?: Record<string, string> };
+};
+
+for (const roleId of ACTIVE_MODULAR_COMPLEX_ROLE_IDS) {
+  assert.equal(
+    projectConfig.promptEnvelope?.roles?.[roleId],
+    'legacy-full-context',
+    `${roleId} must remain on the exact legacy default after the tracked adverse A/B result`,
+  );
+}
 
 const taskContext = buildFullTaskContext({
   story: {

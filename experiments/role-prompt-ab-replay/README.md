@@ -22,7 +22,12 @@ node experiments/role-prompt-ab-replay/analyze.mjs \
 `story6-live.mjs` extends the frozen corpus into a real provider matrix: three
 historical Story classes, two samples per class, legacy/modular arms, three
 repetitions, all five migrated complex roles, and both Codex CLI and Claude
-CLI. This short command validates the 72-cell preregistration without spending
+CLI. Both arms are now produced through the production `agent_prompt` handler
+in an explicitly audit-only experiment: legacy uses the configured rollback
+body, while modular uses the handler's experiment-only override and persists a
+Prompt Envelope plus its bound dispatch event. A receipt is inadmissible unless
+it proves that producer/mode/envelope/event chain. This short command validates
+the 72-cell preregistration and production producer binding without spending
 provider tokens:
 
 ```bash
@@ -45,6 +50,12 @@ Receipts stay under ignored `runtime/story6/`, are `gateEvidence=false`, and
 report provider/cache/latency/output dimensions separately. A successful call
 remains `PENDING_INDEPENDENT_ADJUDICATION`; missing provider metrics or an
 independent adjudication remains `INCONCLUSIVE`, never a bytes-only success.
+Receipts created before the `agent_prompt` producer/event binding are archival
+only and the current analyzer rejects them. In particular, the tracked
+`story6-20260720-v2` summary records the adverse, non-qualifying result that
+keeps all five complex roles on `legacy-full-context`; it cannot qualify a new
+campaign or activate modular defaults. Regenerate all 72 serialized cells and
+obtain fresh independent adjudication before making a new migration claim.
 After the serialized campaign, analyze it with:
 
 ```bash
@@ -52,6 +63,16 @@ node experiments/role-prompt-ab-replay/story6-analyze.mjs \
   --campaign-id=story6-YYYYMMDD-v1 \
   --adjudication=/absolute/path/to/independent-adjudication.json
 ```
+
+The audit receipts are deliberately not reviewer evidence. The production
+REVIEW evidence collector gives them zero credit unless a separately valid,
+signed ReviewRun and reviewer pass/finding exist. Existing runtime guards and
+their dedicated smokes provide stable rejection codes for run/evidence
+signature failures, wrong lanes, Prompt Envelope mismatch/tampering, missing
+scope binding, mutation/scope authority denial, missing delivery check, and
+missing evaluator evidence. There is currently no standalone wrong-author
+reason-code API; Story 6 therefore records only a positive implementation
+author control and does not claim a synthetic negative author assertion.
 
 Because runtime receipts and adjudication are intentionally ignored, preserve a
 reviewable result with `story6-report.mjs --output=<tracked-summary.json>`. The
