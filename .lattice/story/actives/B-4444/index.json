@@ -1,0 +1,29 @@
+{
+  "storyId": "B-4444",
+  "name": "proofstory-acceptance-topology-pre-review-gates-plan",
+  "title": "Plan ProofStory acceptance topology and pre-review gates",
+  "description": "Write an auditable execution plan that reuses the confirmed milestone ledger and proofstory acceptanceBindings, adds explicit producer-consumer-positive-mutation-transcript verification topology, defines a PLAN-to-DEV structural acceptance_topology_check and a DEV-to-REVIEW executable pre_review_check, and specifies migration, rollout, process-fact, testing, and audit boundaries without implementing runtime behavior.",
+  "type": "chore",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-07-21T15:17:38.046Z",
+  "startedAt": "2026-07-21T15:17:38.046Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-21T15:17:38.756Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-da20c7f8979c9756768738c51324dc67",
+      "agent": "main"
+    }
+  ]
+}
