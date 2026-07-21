@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-407c",
   "state": "confirmed",
-  "ledgerHash": "sha256:21ad0aff811e602397a0e0d3194e22c3d6ffa2e805b854d3b01af35d863113ba",
+  "ledgerHash": "sha256:33284689e0ac4df03fba622c896fbb95f921481410370405a1bc809d9b5b8f45",
   "milestones": [
     {
       "id": "M1",
@@ -17,7 +17,8 @@
         "CHK-001"
       ],
       "verificationIntentRefs": [
-        "CHK-001:happy:0"
+        "CHK-001:happy:0",
+        "CHK-001:edge:0"
       ],
       "status": "planned"
     },
@@ -34,6 +35,7 @@
         "CHK-002"
       ],
       "verificationIntentRefs": [
+        "CHK-002:happy:0",
         "CHK-002:edge:0",
         "CHK-002:adversarial:0"
       ],
@@ -98,10 +100,10 @@
     }
   ],
   "createdAt": "2026-07-20T21:35:21.969Z",
-  "updatedAt": "2026-07-20T21:47:06.061Z",
+  "updatedAt": "2026-07-21T00:25:52.732Z",
   "acceptedIntentBinding": {
-    "intentCollisionId": "IC-STORY6-STRICT-20260720",
+    "intentCollisionId": "IC-STORY6-EVIDENCE-MAP-20260721",
     "acceptedInterpretationHash": "sha256:7b31bd0694b7b74ead11d38317891b379216975613b97620ee92c4a740a3e020",
-    "acceptedAt": "2026-07-20T21:47:06.061Z"
+    "acceptedAt": "2026-07-21T00:25:52.732Z"
   }
 }

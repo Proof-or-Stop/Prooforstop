@@ -1,14 +1,14 @@
 {
   "schemaVersion": "proofstory.intent_collision.v1",
   "storyId": "B-407c",
-  "id": "IC-STORY6-STRICT-20260720",
+  "id": "IC-STORY6-EVIDENCE-MAP-20260721",
   "decision": "pass",
   "status": "accepted",
   "acceptedInterpretation": "严格按 /tmp 文档 Story 6：五个复杂角色迁移、暂定复杂角色预算、真实 production dispatch A/B、完整不变量验证。旧 snapshot/context 中 observe/warn 仅表示非阻塞预算观测；不包含 Story 7 legacy 隔离、observe→warn rollout promotion、compatibility cleanup 或任何 enforce。超预算必须 violation + full correctness 继续 + baselineAccepted=false。",
   "acceptedInterpretationHash": "sha256:7b31bd0694b7b74ead11d38317891b379216975613b97620ee92c4a740a3e020",
-  "notes": "Human explicitly clarified strict Story 6 scope after an earlier session mixed Story 7 warn semantics. This decision binds the corrected candidate ledger and supersedes that ambiguous interpretation without mutating the immutable source snapshot.",
-  "ledgerHashBeforeDecision": "sha256:21ad0aff811e602397a0e0d3194e22c3d6ffa2e805b854d3b01af35d863113ba",
-  "confirmedLedgerHash": "sha256:21ad0aff811e602397a0e0d3194e22c3d6ffa2e805b854d3b01af35d863113ba",
+  "notes": "Re-confirms the unchanged strict Story 6 interpretation after correcting milestone evidence mappings so required evidence kinds reference distinct existing verificationIntent rows; no requirement, scope, or acceptance claim changed.",
+  "ledgerHashBeforeDecision": "sha256:33284689e0ac4df03fba622c896fbb95f921481410370405a1bc809d9b5b8f45",
+  "confirmedLedgerHash": "sha256:33284689e0ac4df03fba622c896fbb95f921481410370405a1bc809d9b5b8f45",
   "createdAt": "2026-07-20T21:35:27.577Z",
-  "updatedAt": "2026-07-20T21:47:06.061Z"
+  "updatedAt": "2026-07-21T00:25:52.731Z"
 }

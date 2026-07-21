@@ -14,6 +14,7 @@
       "files": {
         "modify": [
           "lattice.config.json",
+          "packages/main/src/core/config.ts",
           "packages/main/src/core/prompt-registry.ts",
           "packages/main/src/core/prompt-role-contract-registry.ts",
           "packages/main/src/handlers/agent-prompt.ts",
@@ -25,7 +26,8 @@
         "create": [],
         "test": [
           "packages/main/src/tasks/story6-role-migration-smoke.ts",
-          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
         ]
       },
       "verificationIntent": {
