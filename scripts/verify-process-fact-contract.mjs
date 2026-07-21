@@ -1922,16 +1922,28 @@ function promptSemanticTokens(text) {
   return [...tokens].sort();
 }
 
-function comparePromptSemantics(promptMap) {
+async function comparePromptSemantics(promptMap) {
   const templateDir = 'packages/main/templates/agents';
   const mirrorDirs = ['.claude/agents', '.lattice-codex/agents'];
+  const registryModule = await importBuiltModule('packages/main/dist/core/prompt-registry.js');
+  if (!registryModule?.readPromptRegistry || !registryModule?.renderPromptEntryForHost) {
+    fail('packages/main/dist/core/prompt-registry.js must expose the canonical host prompt renderer');
+    return;
+  }
+  const registryByFile = new Map(
+    registryModule.readPromptRegistry().agents.map(entry => [entry.file, entry]),
+  );
   const templateFiles = [...promptMap.keys()]
     .filter(relPath => relPath.startsWith(`${templateDir}/`))
     .sort();
 
   for (const templateRel of templateFiles) {
     const name = basename(templateRel);
-    const templateTokens = promptSemanticTokens(promptMap.get(templateRel));
+    const entry = registryByFile.get(name);
+    if (!entry) {
+      fail(`${templateRel} is missing from the canonical prompt registry`);
+      continue;
+    }
     for (const mirrorDir of mirrorDirs) {
       const mirrorRel = `${mirrorDir}/${name}`;
       if (!promptMap.has(mirrorRel)) {
@@ -1945,13 +1957,17 @@ function comparePromptSemantics(promptMap) {
         }
         continue;
       }
+      const host = mirrorDir === '.claude/agents' ? 'claude' : 'codex';
+      const canonicalTokens = promptSemanticTokens(
+        registryModule.renderPromptEntryForHost(entry, host),
+      );
       const mirrorTokens = promptSemanticTokens(promptMap.get(mirrorRel));
-      const missing = templateTokens.filter(token => !mirrorTokens.includes(token));
-      const extra = mirrorTokens.filter(token => !templateTokens.includes(token));
+      const missing = canonicalTokens.filter(token => !mirrorTokens.includes(token));
+      const extra = mirrorTokens.filter(token => !canonicalTokens.includes(token));
       if (missing.length || extra.length) {
         const changed = [...missing, ...extra];
         const commandOrPathDrift = changed.some(token => token.startsWith('cmd:') || token.startsWith('path:'));
-        const message = `${mirrorRel} command/path semantics drifted from template ${templateRel}; missing=[${missing.join(', ')}] extra=[${extra.join(', ')}]`;
+        const message = `${mirrorRel} command/path semantics drifted from canonical ${host} host render for ${templateRel}; missing=[${missing.join(', ')}] extra=[${extra.join(', ')}]`;
         if (commandOrPathDrift) fail(message);
         else warn(message);
       }
@@ -6083,7 +6099,7 @@ for (const dir of promptDirs) {
     );
   }
 }
-comparePromptSemantics(promptMap);
+await comparePromptSemantics(promptMap);
 assertSyntheticAdversarialChecks();
 for (const relPath of [
   'packages/main/src/cli-engine.ts',
