@@ -384,6 +384,51 @@
       "resolvedAt": "2026-07-21T02:43:42.259Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-013",
+      "desc": "packages/main/src/tasks/story6-acceptance-transcript.ts:87-124 merges two different handler calls into one user-facing DISPATCH line. defaultPrompt proves the production default is immutable legacy bytes, but `rollout=${response.mode}`, dispatchKind, envelope and persistence come from a second call using auditExperiment=true plus experimentalModeOverride=full-envelope. The emitted line says `defaultLegacy=true rollout=full-envelope` without `auditOnly=true`, `canMintReviewEvidence=false`, or an auditRollout label, and the final PASS calls this `production dispatch`. This can misrepresent the rejected modular audit arm as the production rollout. Emit separate production-default and audit-dispatch facts (for example productionRollout=legacy-full-context and auditRollout=full-envelope auditOnly=true canMintReviewEvidence=false), and keep audit-derived budget/envelope fields explicitly labelled before treating the transcript as the four userSees acceptance.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-21T03:09:29.712Z",
+      "reviewRound": "2026-07-21T03:08:17.117Z",
+      "reviewRunId": "B-407c:RR-046",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story6-acceptance-transcript.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "lattice.config.json",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "a65d85cf7005f12e1b47edba2919024db766b5ee51ffb4c2f72ab4fe9a3fa9c4",
+      "files": [
+        "packages/main/src/tasks/story6-acceptance-transcript.ts"
+      ],
+      "signatureTag": "audit-arm-mislabeled-as-production-acceptance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
