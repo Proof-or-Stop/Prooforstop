@@ -880,6 +880,38 @@
       },
       "readDiagnostics": [],
       "_hash": "1bdfb60e7da6feb82a316df0798bc070c72224b175076f56d56609885e770188"
+    },
+    {
+      "id": "B-407c:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Round 11 fresh quality re-attestation: 7b05391e makes both codex-adapter-checks and verify-process-fact-contract consume renderPromptEntryForHost. Build, process-fact contract, codex registry, prompt registry, Story 6 role migration, production dispatch, invariants, and full-context smokes passed. Independent 16-role x 2-host byte comparison passed. Isolated mutation runs proved deleting review_run_start fails as missing command and adding init_check_set plus a fake packages path fails as extra command/path. Legacy default remains fail-closed and full-envelope remains audit-only; production dispatch concurrency/persistence and signed-evidence invariants pass. No blocker found.",
+      "createdAt": "2026-07-21T02:46:31.030Z",
+      "reviewRound": "2026-07-21T02:43:33.468Z",
+      "reviewRunId": "B-407c:RR-044",
+      "envelopeId": "38c5cf6c36b23c72bb3209c98a7ba2fd649f8f6d73a59e4ff44f19df5391f128",
+      "writerSessionId": "sess-41c234fd6507fc4629595d666eb8184b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          "lattice.config.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Diff-scoped quality review of 7b05391e plus production host-render consumers; expanded to all 16 generated host mirrors and the Story 6 production/invariant smoke matrix because the change affects shared verifier identity."
+      },
+      "_hash": "d24185d5dc351d5cca9bf0e25a963a4d2c81a526a8b30be2a91ca55d83259d2e"
     }
   ]
 }
