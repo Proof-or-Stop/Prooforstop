@@ -352,7 +352,7 @@
       "desc": "Fresh coverage re-attestation found a hard process-fact contract failure after the host-render change. The actual Claude and Codex assets for lattice-evaluator, lattice-implementer, lattice-review-delivery, lattice-review-scope-plan, and lattice-review-story-init now contain reviewer command semantics (finding_add, review_pass_set, review_run_start), and all except implementer also contain the docs/story/ path semantic, that are absent from their corresponding packages/main/templates/agents templates. Reproduction: node scripts/verify-process-fact-contract.mjs exits non-zero and reports all ten mirror/template pairs. The new byte-level host-default assertions pass, but actual host inputs and canonical templates disagree on load-bearing commands/paths, so CHK-001 edge/adversarial coverage and the production-consumer contract are not clean. Reconcile the canonical template/host rendering or the contract source of truth, then rerun the full coverage suite.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-21T02:37:23.192Z",
@@ -379,7 +379,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "adversarial|ts|fresh-coverage-attestation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 7b05391e0b30ff5d3fa45b31f9c498241b39422f: process-fact semantic drift and Codex adapter mirror verification now derive canonical Claude/Codex bytes from readPromptRegistry plus renderPromptEntryForHost, preserving modular audit templates while checking rollout-selected immutable legacy host assets. Fresh build, verify-process-fact-contract, verify_codex, prompt-registry-smoke, story6-role-migration-smoke, story6-production-dispatch-smoke, and story6-invariants-smoke all pass; Story7 remains disabled.",
+      "resolvedAt": "2026-07-21T02:43:42.259Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
