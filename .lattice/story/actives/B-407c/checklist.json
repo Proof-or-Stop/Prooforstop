@@ -61,10 +61,10 @@
           "command": "node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
           "result": "pass",
           "note": "Current 0.3.224 production handler smoke covers all five roles: rejected baseline defaults to legacy, while explicit auditExperiment produces and persists modular role-bound Envelope plus event.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -74,10 +74,10 @@
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
           "note": "Five package/Claude/Codex mirrors match compressed assets; exact content-addressed legacy rollback remains selected while v3 adverse result is unaccepted.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -86,10 +86,10 @@
           "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
           "result": "pass",
           "note": "Role/head/context/digest tampering and event-persistence failures fail closed; audit story-dispatch envelopes earn zero REVIEW credit.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         }
       ],
       "excludes": [
@@ -154,10 +154,10 @@
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
           "note": "Budget observations remain observe-only for init/scope/implementer/delivery; evaluator remains unbudgeted and full correctness execution is preserved.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -166,10 +166,10 @@
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
           "note": "Over-budget mutation records full metrics, continues full execution, and forces baselineAccepted=false.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -179,10 +179,10 @@
           "command": "node experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
           "result": "pass",
           "note": "v3 report selfcheck rejects false baseline/Story7/enforce claims and direct-core provenance; no raw provider content is persisted.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         }
       ],
       "excludes": [
@@ -259,10 +259,10 @@
           "command": "node experiments/role-prompt-ab-replay/story6-report.mjs --campaign-id=story6-20260721-v3 --adjudication=experiments/role-prompt-ab-replay/runtime/story6/story6-20260721-v3.independent-adjudication.json --verify=experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
           "result": "pass",
           "note": "Verified 72/72 serialized real Codex/Claude cells whose exact prompts came from production agent_prompt; summaryDigest 49cf8de6 and provenanceErrors=[] are content-bound.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -272,10 +272,10 @@
           "command": "node experiments/role-prompt-ab-replay/story6-analyze.mjs --campaign-id=story6-20260721-v3 --adjudication=experiments/role-prompt-ab-replay/runtime/story6/story6-20260721-v3.independent-adjudication.json; expect exit 2 INCONCLUSIVE",
           "result": "pass",
           "note": "Expected INCONCLUSIVE only for 36 unavailable Codex cache-creation metrics; legacy recall 24/24 vs modular 20/24 and FP 0 vs 1 keep baseline and non-regression claims false.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -284,10 +284,10 @@
           "command": "node experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs && node experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
           "result": "pass",
           "note": "25 analyzer provenance mutations plus report receipt/adjudication/cell/claim mutations reject direct-core, wrong producer/event/envelope/role/mode/digest, duplicates, missing cells and false claims.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         }
       ]
     },
@@ -351,10 +351,10 @@
           "command": "node packages/main/dist/tasks/story6-invariants-smoke.js",
           "result": "pass",
           "note": "Current invariants smoke passes read-only scope/delivery surfaces, real REVIEW audit-receipt zero-credit collection, and positive lattice-implementer author control.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -363,10 +363,10 @@
           "command": "node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
           "result": "pass",
           "note": "Injected append failure through real agent_prompt/story-dispatch propagates, removes only the newly persisted Envelope, and reports no successful receipt; valid control persists both.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -375,10 +375,10 @@
           "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
           "result": "pass",
           "note": "Wrong role/head/context/digest and event failure reject; real REVIEW collector gives audit story-dispatch receipt zero pass/finding credit. No standalone wrong-author code is claimed.",
-          "headHash": "a05c290e09e406e66cecea881fc5f904b3478cff",
-          "materialHash": "b262b7a531e984a6001dcebe637efb28b7183d7062e1e4b0a903ecc5a44b5922",
-          "storyFilesHash": "717032be38f5cb174532496b6455d5bfa6acd08d176cfc1bca09c55363bd82e0",
-          "timestamp": "2026-07-21T03:08:10.740Z"
+          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
+          "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
+          "timestamp": "2026-07-21T03:17:11.876Z"
         }
       ]
     }
