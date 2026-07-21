@@ -731,6 +731,30 @@
       },
       "readDiagnostics": [],
       "_hash": "a4f767f1a41b8a0f1079dbaf81da08de1bdcb199d5df1b8fe2b3b3235ecfd04f"
+    },
+    {
+      "id": "B-407c:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Final metadata-only re-attestation: source and experiment material are unchanged since 9f0c290; fresh incremental ReviewRun recomputed eligibility/reviewBasis after finding resolution. Re-ran build, Story 6 production dispatch smoke including the F-010 identical-dispatch reentrant transaction mutation, expanded real-consumer invariant smoke, and git diff check; all passed. F-010 remains closed with the successful inner event retaining its exact shared envelope while the failed outer dispatch throws.",
+      "createdAt": "2026-07-21T02:07:38.521Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-038",
+      "envelopeId": "5467e80c8abda105124b1dad3efd0f49c18ff7a7a7328c9d01103bb0fbb6f03c",
+      "writerSessionId": "sess-41c234fd6507fc4629595d666eb8184b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5cbaab604b0951dce8866dae29cd1d16d779dbdf80ed0beddf65b48e33aa979b"
     }
   ]
 }
