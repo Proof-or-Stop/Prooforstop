@@ -9,7 +9,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-20T21:43:02.211Z",
-      "endTime": "2026-07-20T22:07:47.153Z",
+      "endTime": "2026-07-21T00:35:26.389Z",
       "userSees": "用户看到五行类似 \"role=lattice-implementer rollout=full-envelope dispatchKind=story-dispatch envelope=<digest> persisted=true\"，且每个角色 legacy rollback 保持原语义。",
       "files": {
         "modify": [
@@ -60,11 +60,11 @@
           "file": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
           "result": "pass",
-          "note": "Current HEAD isolated production entrypoint smoke passed for all five roles and persisted role-bound prompt envelopes plus story-dispatch process events.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "note": "0.3.224 current material: isolated real production entrypoint smoke passed for all five roles and persisted role-bound prompt envelopes plus story-dispatch process events.",
+          "headHash": "19e7e65635f22e5f061e2c2a7b443ad64cf96537",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:26.689Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -73,11 +73,11 @@
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
-          "note": "Current HEAD command transcript proves all five package/Claude/Codex mirrors match compressed assets and each exact frozen legacy role body is reconstructed by content digest.",
-          "headHash": "84425fd59194810b2f4d2105041afc6fda5116f6",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:24:30.488Z"
+          "note": "0.3.224 transcript proves five package/Claude/Codex mirrors match compressed assets and exact frozen legacy role bodies reconstruct by content digest.",
+          "headHash": "19e7e65635f22e5f061e2c2a7b443ad64cf96537",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:26.860Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -85,11 +85,11 @@
           "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
           "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
           "result": "pass",
-          "note": "Current HEAD full-envelope smoke passed role/context integrity, durable event binding, and appendProcessEvent failure mutation; production dispatch cannot silently skip its receipt.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "note": "0.3.224 full-envelope smoke passed role/context integrity, durable event binding, tamper rejection, and appendProcessEvent failure mutation.",
+          "headHash": "19e7e65635f22e5f061e2c2a7b443ad64cf96537",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:27.030Z"
         }
       ],
       "excludes": [
