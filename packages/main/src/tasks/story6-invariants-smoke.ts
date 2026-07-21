@@ -24,6 +24,19 @@ import { createFindingHandlers } from '../handlers/finding.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import type { ReviewPass, ReviewRun } from '../core/types.js';
 
+const observedReasons: Record<string, string> = {};
+
+function captureError(fn: () => unknown, pattern: RegExp): Error {
+  try {
+    fn();
+  } catch (error) {
+    assert.ok(error instanceof Error);
+    assert.match(String(error), pattern);
+    return error;
+  }
+  assert.fail(`expected error matching ${pattern}`);
+}
+
 function git(root: string, args: string[], author = 'Story 6 Matrix'): string {
   return execFileSync('git', args, {
     cwd: root,
@@ -154,10 +167,9 @@ try {
   assert.equal(valid.valid.length, 1);
 
   store.writeReviewPasses(storyId, { passes: [{ ...pass, note: `${pass.note} tampered` }] });
-  assert.deepEqual(
-    collectReviewerEvidenceState(store, storyId, root).invalid.map(issue => issue.code),
-    ['invalid_evidence_signature'],
-  );
+  const signatureReasons = collectReviewerEvidenceState(store, storyId, root).invalid.map(issue => issue.code);
+  assert.deepEqual(signatureReasons, ['invalid_evidence_signature']);
+  observedReasons.signature = signatureReasons[0];
   store.writeReviewPasses(storyId, { passes: [pass] });
   store.writeReviewRuns(storyId, { runs: [{ ...run, _hash: '0'.repeat(64) }] });
   assert.deepEqual(
@@ -182,10 +194,9 @@ try {
     protectedFiles: [], explicitExcludes: [], acknowledgements: [],
     createdAt: '2026-07-21T03:02:00.000Z', updatedAt: '2026-07-21T03:02:00.000Z',
   });
-  assert.deepEqual(
-    collectReviewerEvidenceState(store, storyId, root).invalid.map(issue => issue.code),
-    ['missing_scope_binding'],
-  );
+  const scopeReasons = collectReviewerEvidenceState(store, storyId, root).invalid.map(issue => issue.code);
+  assert.deepEqual(scopeReasons, ['missing_scope_binding']);
+  observedReasons.scope = scopeReasons[0];
 
   store.writeReviewPasses(storyId, { passes: [] });
   store.appendProcessEvent(storyId, {
@@ -194,13 +205,15 @@ try {
     promptEnvelopeDigest: 'b'.repeat(64), assembledPromptDigest: 'c'.repeat(64),
   });
   assert.equal(collectReviewerEvidenceState(store, storyId, root).valid.length, 0, 'story-dispatch receipt gets zero REVIEW credit');
+  observedReasons.reviewCredit = 'story_dispatch_zero_review_credit';
 
   const ctx = { root, scanRoot: root, store } as never;
   const checklistHandlers = createChecklistHandlers(ctx);
-  assert.throws(
+  const authorityError = captureError(
     () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'lattice-review-quality' }),
     /agent_dispatch_mutation_denied/,
   );
+  observedReasons.authority = /agent_dispatch_mutation_denied/.exec(String(authorityError))![0];
   assert.throws(
     () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'test-intent' }),
     /agent_dispatch_mutation_scope_denied/,
@@ -222,6 +235,7 @@ try {
   const missingDelivery = new Set(buildStoryReadinessReport({ storyId, target: 'DONE', store, root }).readiness.map(row => row.code));
   assert.ok(missingDelivery.has('missing_delivery_check'), 'eval-present control isolates missing_delivery_check');
   assert.ok(!missingDelivery.has('missing_eval_evidence'), 'valid evaluator control removes missing_eval_evidence');
+  observedReasons.delivery = 'missing_delivery_check';
 
   rmSync(join(store.storyDirPath(storyId), 'eval-evidence.json'));
   const docsPromises: [] = [];
@@ -243,6 +257,7 @@ try {
   assert.ok(missingEvaluator.has('missing_eval_evidence'), 'delivery-present browser control isolates missing_eval_evidence');
   assert.ok(missingEvaluator.has('delivery_check_passed'), 'valid delivery control is accepted by the real DONE consumer');
   assert.ok(!missingEvaluator.has('missing_delivery_check') && !missingEvaluator.has('stale_delivery_check'));
+  observedReasons.evaluator = 'missing_eval_evidence';
 } finally {
   rmSync(root, { recursive: true, force: true });
   resetConfigCache();
@@ -280,9 +295,16 @@ try {
   assert.match(wrongAuthor.summary, /cannot be used as author fallback/);
   assert.match(wrongAuthor.details.join('\n'), /commit author is only a legacy fallback/);
   assert.match(wrongAuthor.details.join('\n'), /main-agent/);
+  observedReasons.wrongAuthor = /missing dispatch\/subagent_result evidence/.test(wrongAuthor.summary)
+    ? 'missing_dispatch_subagent_result_evidence'
+    : 'unexpected_wrong_author_reason';
 } finally {
   rmSync(authorRoot, { recursive: true, force: true });
   resetConfigCache();
 }
 
+assert.deepEqual(Object.keys(observedReasons).sort(), [
+  'authority', 'delivery', 'evaluator', 'reviewCredit', 'scope', 'signature', 'wrongAuthor',
+]);
+console.log(`story6-invariant-reasons: ${JSON.stringify(observedReasons)}`);
 console.log('story6-invariants-smoke: PASS (real signed-evidence, scope/delivery/evaluator, authority, REVIEW-credit, and wrong-author consumers)');
