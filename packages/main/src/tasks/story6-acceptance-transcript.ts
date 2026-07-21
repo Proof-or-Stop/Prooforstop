@@ -19,6 +19,7 @@ import {
   observeComplexRolePromptBudget,
 } from '../core/prompt-budget.js';
 import { StoryStore } from '../core/store.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { createAgentPromptHandlers } from '../handlers/agent-prompt.js';
 
 const CAMPAIGN_ID = 'story6-20260721-v3';
@@ -31,9 +32,10 @@ function sha256(value: string | Buffer): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
-function git(root: string, args: string[]): string {
+function git(store: StoryStore, storyId: string, projectRoot: string, args: string[]): string {
+  const gitCwd = resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
   return execFileSync('git', args, {
-    cwd: root,
+    cwd: gitCwd,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
@@ -84,9 +86,6 @@ try {
       roles: Object.fromEntries(roles.map(role => [role, 'legacy-full-context'])),
     },
   }, null, 2));
-  git(root, ['init', '-b', 'main']);
-  git(root, ['config', 'user.email', 'story6-acceptance@example.invalid']);
-  git(root, ['config', 'user.name', 'Story 6 Acceptance']);
   resetConfigCache();
 
   const store = new StoryStore(root);
@@ -101,8 +100,11 @@ try {
     id: 'CHK-001', title: 'Exercise Story 6', context: 'real production entrypoint', status: 'in_progress', relatedDocs: [],
     files: { modify: [], create: [], test: [] }, verificationIntent: { happy: [], edge: [], adversarial: [] },
   }] } as never);
-  git(root, ['add', '.']);
-  git(root, ['commit', '-m', 'acceptance fixture']);
+  git(store, storyId, root, ['init', '-b', 'main']);
+  git(store, storyId, root, ['config', 'user.email', 'story6-acceptance@example.invalid']);
+  git(store, storyId, root, ['config', 'user.name', 'Story 6 Acceptance']);
+  git(store, storyId, root, ['add', '.']);
+  git(store, storyId, root, ['commit', '-m', 'acceptance fixture']);
 
   const handlers = createAgentPromptHandlers({ root, scanRoot: root, store });
   for (const role of roles) {
