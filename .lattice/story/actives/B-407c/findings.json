@@ -174,7 +174,7 @@
       "desc": "CHK-003:happy:0 lacks end-to-end production-entrypoint A/B coverage. experiments/role-prompt-ab-replay/story6-live.mjs:150-168 builds legacy/modular prompts directly from registry/core assembleFullPromptEnvelope and :295-322 invokes providers then self-writes a receipt whose provenance.kind is asserted as production-provider-dispatch; it never calls the production agent_prompt/story-dispatch handler. packages/main/src/tasks/story6-production-dispatch-smoke.ts:53-85 separately exercises createAgentPromptHandlers but only creates local INCONCLUSIVE placeholder receipts and never feeds those production-produced prompts to Codex/Claude. Thus 72 real provider calls plus a separate handler smoke do not prove the must intent that each role's measured legacy/modular receipt came through the real production dispatch entrypoint.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-21T00:37:42.062Z",
@@ -186,7 +186,11 @@
         "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
       ],
       "signatureTag": "missing|mjs|happy-lacks-production",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Closed by 29dea398 + 9905b71 and coverage pass RP-021: fresh v3 has 72/72 serialized Codex/Claude cells whose exact bytes come from production agent_prompt, with response/envelope/event provenance and 25 mutation rejects; summary 49cf8de6.",
+      "resolvedAt": "2026-07-21T02:06:18.394Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-407c:F-006",
