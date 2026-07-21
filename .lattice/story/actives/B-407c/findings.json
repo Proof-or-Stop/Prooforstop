@@ -390,7 +390,7 @@
       "desc": "packages/main/src/tasks/story6-acceptance-transcript.ts:87-124 merges two different handler calls into one user-facing DISPATCH line. defaultPrompt proves the production default is immutable legacy bytes, but `rollout=${response.mode}`, dispatchKind, envelope and persistence come from a second call using auditExperiment=true plus experimentalModeOverride=full-envelope. The emitted line says `defaultLegacy=true rollout=full-envelope` without `auditOnly=true`, `canMintReviewEvidence=false`, or an auditRollout label, and the final PASS calls this `production dispatch`. This can misrepresent the rejected modular audit arm as the production rollout. Emit separate production-default and audit-dispatch facts (for example productionRollout=legacy-full-context and auditRollout=full-envelope auditOnly=true canMintReviewEvidence=false), and keep audit-derived budget/envelope fields explicitly labelled before treating the transcript as the four userSees acceptance.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-21T03:09:29.712Z",
@@ -428,7 +428,11 @@
         "packages/main/src/tasks/story6-acceptance-transcript.ts"
       ],
       "signatureTag": "audit-arm-mislabeled-as-production-acceptance",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by e4de85fe34a6fe85c8de357e796588a212f06c08: transcript emits separate PRODUCTION_DEFAULT legacy facts and AUDIT_DISPATCH full-envelope facts with auditOnly=true and canMintReviewEvidence=false; final label is acceptance-audit-transcript. Fresh build and transcript pass.",
+      "resolvedAt": "2026-07-21T03:17:25.666Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-407c:F-014",
