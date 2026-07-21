@@ -9,7 +9,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-20T21:43:02.211Z",
-      "endTime": "2026-07-21T00:35:26.389Z",
+      "endTime": "2026-07-21T01:48:41.173Z",
       "userSees": "用户看到五行类似 \"role=lattice-implementer rollout=full-envelope dispatchKind=story-dispatch envelope=<digest> persisted=true\"，且每个角色 legacy rollback 保持原语义。",
       "files": {
         "modify": [
@@ -60,11 +60,11 @@
           "file": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
           "result": "pass",
-          "note": "0.3.224 current material: isolated real production entrypoint smoke passed for all five roles and persisted role-bound prompt envelopes plus story-dispatch process events.",
-          "headHash": "19e7e65635f22e5f061e2c2a7b443ad64cf96537",
-          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
-          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
-          "timestamp": "2026-07-21T00:35:26.689Z"
+          "note": "Current 0.3.224 production handler smoke covers all five roles: rejected baseline defaults to legacy, while explicit auditExperiment produces and persists modular role-bound Envelope plus event.",
+          "headHash": "9905b71a1b2b3ddf52c01a12d5ba0c5c40e020a3",
+          "materialHash": "6b868b529359791507a1e23bd56c54ff7368a69f1985754c8c85ddec39057430",
+          "storyFilesHash": "78f0dc818a329eff1ea8e845eae197b58fad781ed7299bb654fadbe63cf7a955",
+          "timestamp": "2026-07-21T01:48:41.465Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -73,11 +73,11 @@
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
-          "note": "0.3.224 transcript proves five package/Claude/Codex mirrors match compressed assets and exact frozen legacy role bodies reconstruct by content digest.",
-          "headHash": "19e7e65635f22e5f061e2c2a7b443ad64cf96537",
-          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
-          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
-          "timestamp": "2026-07-21T00:35:26.860Z"
+          "note": "Five package/Claude/Codex mirrors match compressed assets; exact content-addressed legacy rollback remains selected while v3 adverse result is unaccepted.",
+          "headHash": "9905b71a1b2b3ddf52c01a12d5ba0c5c40e020a3",
+          "materialHash": "6b868b529359791507a1e23bd56c54ff7368a69f1985754c8c85ddec39057430",
+          "storyFilesHash": "78f0dc818a329eff1ea8e845eae197b58fad781ed7299bb654fadbe63cf7a955",
+          "timestamp": "2026-07-21T01:48:41.657Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -85,11 +85,11 @@
           "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
           "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
           "result": "pass",
-          "note": "0.3.224 full-envelope smoke passed role/context integrity, durable event binding, tamper rejection, and appendProcessEvent failure mutation.",
-          "headHash": "19e7e65635f22e5f061e2c2a7b443ad64cf96537",
-          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
-          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
-          "timestamp": "2026-07-21T00:35:27.030Z"
+          "note": "Role/head/context/digest tampering and event-persistence failures fail closed; audit story-dispatch envelopes earn zero REVIEW credit.",
+          "headHash": "9905b71a1b2b3ddf52c01a12d5ba0c5c40e020a3",
+          "materialHash": "6b868b529359791507a1e23bd56c54ff7368a69f1985754c8c85ddec39057430",
+          "storyFilesHash": "78f0dc818a329eff1ea8e845eae197b58fad781ed7299bb654fadbe63cf7a955",
+          "timestamp": "2026-07-21T01:48:41.845Z"
         }
       ],
       "excludes": [
