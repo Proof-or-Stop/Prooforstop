@@ -271,16 +271,16 @@
         },
         {
           "intentRef": "CHK-003:adversarial:0",
-          "kind": "integration_test",
+          "kind": "logic_test",
           "verdict": "success",
-          "file": "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
-          "command": "node experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "file": "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
           "result": "pass",
-          "note": "Mutation matrix selfcheck covers 15 receipt mutations: schemaVersion, campaignId, campaign binding, role/sample/arm/host/repeat, prompt/material/finding digests, production provenance, observedAt, stale receipt, and duplicate cell key; every forged receipt is rejected before aggregation.",
-          "headHash": "740a9acfcf84b2bd6c983315f8c32c43d1246391",
-          "materialHash": "01ac515472d50da454e9356154784c5d732a4e4be75590aef2572c5a4054f2f7",
-          "storyFilesHash": "90bd26e7631dd20239c5bbe01877bf3d5eceda41ab085036f2dbf80d30f4893f",
-          "timestamp": "2026-07-20T22:22:53.962Z"
+          "note": "Report selfcheck rejected forged receipt, forged adjudication, missing cell and baselineAccepted=true mutations and proved no raw provider prompt/output/transcript persisted; analyzer selfcheck separately rejects 18 provenance and binding mutations.",
+          "headHash": "5165d75822ef64c78886154889ac555b484b245e",
+          "materialHash": "321c8ee0edb1519f5ff9df744e0dcdf9cc04e69835d6fbd2d3c6270972b54ea3",
+          "storyFilesHash": "a6e4814a1cb8fe538d32af00fd1dd1c4c486aa3b8c6df36dff43069cdfc401eb",
+          "timestamp": "2026-07-21T00:18:28.280Z"
         }
       ]
     },
