@@ -168,6 +168,25 @@
       "resolvedAt": "2026-07-20T22:25:01.420Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-005",
+      "desc": "CHK-003:happy:0 lacks end-to-end production-entrypoint A/B coverage. experiments/role-prompt-ab-replay/story6-live.mjs:150-168 builds legacy/modular prompts directly from registry/core assembleFullPromptEnvelope and :295-322 invokes providers then self-writes a receipt whose provenance.kind is asserted as production-provider-dispatch; it never calls the production agent_prompt/story-dispatch handler. packages/main/src/tasks/story6-production-dispatch-smoke.ts:53-85 separately exercises createAgentPromptHandlers but only creates local INCONCLUSIVE placeholder receipts and never feeds those production-produced prompts to Codex/Claude. Thus 72 real provider calls plus a separate handler smoke do not prove the must intent that each role's measured legacy/modular receipt came through the real production dispatch entrypoint.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T00:37:42.062Z",
+      "reviewRound": "2026-07-21T00:35:37.735Z",
+      "reviewRunId": "B-407c:RR-030",
+      "_hash": "dcb8f6413b9b3ac5767d34889a1ffbf7a4d7e5ee967f9004b3f7df6850cc419f",
+      "files": [
+        "experiments/role-prompt-ab-replay/story6-live.mjs",
+        "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|happy-lacks-production",
+      "signatureTagSource": "auto"
     }
   ]
 }
