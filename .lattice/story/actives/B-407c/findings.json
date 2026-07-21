@@ -258,7 +258,7 @@
       "desc": "concept-cleanup: experiments/role-prompt-ab-replay/README.md:3-6 still describes the entire directory as a read-only harness that does not dispatch a model or call `agent_prompt --storyId`, but the new Story 6 live campaign at lines 20-47 intentionally calls the production `agent_prompt` handler and dispatches Codex CLI/Claude CLI provider cells. The old whole-directory boundary must be narrowed to the ordinary Story 3/B-235e replay or rewritten so the v3 live path is not contradicted; otherwise reviewers/operators are misled about the experiment producer and side effects.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-21T01:51:15.265Z",
@@ -298,7 +298,11 @@
         "experiments/role-prompt-ab-replay/README.md"
       ],
       "signatureTag": "stale-global-boundary-after-live-experiment",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Closed by 9f0c290 and concept pass RP-019: README now scopes no-model/no-agent_prompt statement to ordinary replay and explicitly documents Story6 live audit-only provider exception; grep found no stale global claim.",
+      "resolvedAt": "2026-07-21T02:06:23.013Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-407c:F-010",
