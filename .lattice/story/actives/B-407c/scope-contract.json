@@ -32,7 +32,7 @@
   ],
   "allowedCreate": [
     "experiments/role-prompt-ab-replay/lib/story6-schema-compat.mjs",
-    "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
+    "experiments/role-prompt-ab-replay/*-summary.json",
     "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
     "experiments/role-prompt-ab-replay/story6-analyze.mjs",
     "experiments/role-prompt-ab-replay/story6-live.mjs",
@@ -57,7 +57,7 @@
     "packages/main/src/core/agent-dispatch-registry.ts"
   ],
   "explicitExcludes": [],
-  "scopeChangeReason": "Formal PLAN correction aligns the Story 6 scope contract with the actual five-role modular assets, trusted dispatch implementation, durable 72-cell A/B report, and regression selfchecks; Story 7 remains semantically excluded by checklist and accepted intent.",
+  "scopeChangeReason": "PLAN correction authorizes only tracked experiment summary artifacts for the fresh reviewer-required production-handler v3 campaign, preserving adverse baseline rejection and Story 7 exclusions.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -254,7 +254,7 @@
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-21T00:32:43.082Z",
+  "updatedAt": "2026-07-21T01:40:05.216Z",
   "fileRules": [],
   "protectedAnchors": [
     "AGENT_DISPATCH_REGISTRY",
@@ -334,7 +334,8 @@
     "experiments/role-prompt-ab-replay/story6-report.mjs": "experiments/role-prompt-ab-replay/story6-report.mjs",
     "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs": "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs",
     "packages/main/src/tasks/story6-production-dispatch-smoke.ts": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
-    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts"
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "experiments/role-prompt-ab-replay/*-summary.json": "experiments/role-prompt-ab-replay/*-summary.json"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",
