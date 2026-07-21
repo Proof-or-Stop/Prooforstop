@@ -221,6 +221,21 @@
       "_hash": "7726a2ac13ef85489aff8aec221a883f109a121afa25a56c912fe78868ccdf2e",
       "signatureTag": "adversarial|unknown|lattice-config-json",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-407c:F-008",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:196 swallows appendProcessEvent failures after assembleComplexStoryDispatch has persisted a Story 6 Prompt Envelope, so production dispatch can return success with no durable envelope-to-event observation even though the process-fact rationale promises a durably recorded dispatch observation. packages/main/src/tasks/story6-production-dispatch-smoke.ts:51 only exercises the success path; the existing failure mutation covers agent_prompt, not this dispatch producer. Make the Story 6 envelope/event write fail-closed or atomic and add a real dispatch failure mutation proving no successful half-bound receipt.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-21T00:38:31.848Z",
+      "reviewRound": "2026-07-21T00:35:37.735Z",
+      "reviewRunId": "B-407c:RR-028",
+      "_hash": "79afd4d3ae6d95a2a96447b615dd2161d9ccec5c576679f0d137f5506c1914b9",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
