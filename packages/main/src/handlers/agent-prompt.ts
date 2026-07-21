@@ -3,7 +3,8 @@
  *
  * Host-neutral package-registry endpoint. Role-only calls return the canonical
  * host render: a body-free `review_run_start` bootstrap for the five migrated
- * reviewers, and the package role body for ordinary roles. For migrated
+ * reviewers, the rollout-selected body for migrated complex roles, and the
+ * package role body for ordinary roles. For migrated
  * reviewers, `review_run_start` selects and returns exactly one legacy or
  * modular body. Codex registry mode resolves the same bootstrap/body split.
  *
@@ -25,6 +26,7 @@ import {
 import type { HandlerContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import {
+  ACTIVE_MODULAR_COMPLEX_ROLE_IDS,
   promptRoleContract,
   resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
@@ -42,6 +44,7 @@ import {
   formatNonOwnerError,
 } from '../core/story-owner-lease.js';
 import { getSessionId } from '../core/owner-session.js';
+import { isBudgetedComplexRole, observeComplexRolePromptBudget } from '../core/prompt-budget.js';
 
 /**
  * Resolve the registry entry for a role name. Roles are the template basenames
@@ -57,13 +60,21 @@ export function listAvailableRoles(templateDir?: string): string[] {
   return readPromptRegistry(templateDir).agents.map(entry => entry.agentId);
 }
 
-function validateAgentPromptArgs(args: unknown): asserts args is { role?: string; storyId?: string; format?: 'text' | 'json' } {
+type AgentPromptArgs = {
+  role?: string;
+  storyId?: string;
+  format?: 'text' | 'json';
+  auditExperiment?: boolean;
+  experimentalModeOverride?: 'full-envelope';
+};
+
+function validateAgentPromptArgs(args: unknown): asserts args is AgentPromptArgs {
   if (!args || typeof args !== 'object' || Array.isArray(args) || Object.getPrototypeOf(args) !== Object.prototype) {
     throw new Error('agent_prompt: arguments must be a plain object');
   }
   const record = args as Record<string, unknown>;
   for (const key of Object.keys(record)) {
-    if (!['role', 'storyId', 'format'].includes(key)) {
+    if (!['role', 'storyId', 'format', 'auditExperiment', 'experimentalModeOverride'].includes(key)) {
       throw new Error(`agent_prompt: unsupported caller-controlled field "${key}"`);
     }
   }
@@ -73,11 +84,20 @@ function validateAgentPromptArgs(args: unknown): asserts args is { role?: string
   if (record.format !== undefined && !['text', 'json'].includes(record.format as string)) {
     throw new Error('agent_prompt: format must be text or json');
   }
+  if (record.auditExperiment !== undefined && typeof record.auditExperiment !== 'boolean') {
+    throw new Error('agent_prompt: auditExperiment must be boolean');
+  }
+  if (record.experimentalModeOverride !== undefined && record.experimentalModeOverride !== 'full-envelope') {
+    throw new Error('agent_prompt: experimentalModeOverride must be full-envelope');
+  }
+  if (record.experimentalModeOverride && record.auditExperiment !== true) {
+    throw new Error('agent_prompt: experimentalModeOverride requires auditExperiment=true');
+  }
 }
 
 export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
-    agent_prompt(args: { role?: string; storyId?: string; format?: 'text' | 'json' } = {}): string {
+    agent_prompt(args: AgentPromptArgs = {}): string {
       validateAgentPromptArgs(args);
       // Runtime re-validation (Handler 编码约定): reject blank/missing role even
       // though the Zod schema declares a min-length constraint.
@@ -97,20 +117,33 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         );
       }
 
+      const configuredPromptEnvelope = ctx ? loadConfig(ctx.root).promptEnvelope : undefined;
+      if (args.auditExperiment && (!args.storyId || args.format !== 'json')) {
+        throw new Error('agent_prompt: auditExperiment requires storyId and format=json');
+      }
+      if (args.auditExperiment && !ACTIVE_MODULAR_COMPLEX_ROLE_IDS.includes(role as any)) {
+        throw new Error('agent_prompt: auditExperiment is restricted to Story 6 complex roles');
+      }
+      const effectivePromptEnvelope = args.experimentalModeOverride === 'full-envelope'
+        ? {
+            version: 'proofbound.prompt-envelope-rollout.v1' as const,
+            roles: { ...(configuredPromptEnvelope?.roles ?? {}), [role]: 'full-envelope' as const },
+          }
+        : configuredPromptEnvelope;
       const resolvedRoleBody = resolvePromptRoleBody(
         role,
-        ctx ? loadConfig(ctx.root).promptEnvelope : undefined,
+        effectivePromptEnvelope,
       );
       const rolePrompt = resolvedRoleBody.body;
       if (!args.storyId || !ctx) {
         return isModularReviewerRoleId(role)
           ? renderPromptEntryForHost(entry, 'claude')
-          : rolePrompt;
+          : renderPromptEntryForHost(entry, 'claude', resolvedRoleBody.mode);
       }
 
       // Rollback is exact: a disabled role follows the original no-Story path
       // even when a host still supplies storyId/format during rollout.
-      if (resolvedRoleBody.mode === 'legacy-full-context') return rolePrompt;
+      if (resolvedRoleBody.mode === 'legacy-full-context' && !args.auditExperiment) return rolePrompt;
 
       const storyId = args.storyId.trim();
       const leaseResult = acquireOrRefreshOwnerLease(ctx.store.storyDirPath(storyId), {
@@ -135,18 +168,49 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
         ...snapshot,
         scopeContract: ctx.store.readScopeContract(storyId),
       });
-      const assembly = assembleFullPromptEnvelope({
+      const assembly = resolvedRoleBody.mode === 'full-envelope' ? assembleFullPromptEnvelope({
         roleContract: promptRoleContract(role),
         runtimeContract: BASELINE_RUNTIME_CONTRACT,
         rolePrompt,
         taskContext,
         dispatchKind: 'story-dispatch',
         createdAt: new Date().toISOString(),
-      });
+      }) : null;
+      if (!assembly) {
+        const prompt = `${rolePrompt}\n\n## Task Context\n${canonicalJsonStringify(taskContext)}`;
+        ctx.store.appendProcessEvent(storyId, {
+          type: 'dispatch',
+          storyId,
+          phase: story.phase,
+          source: 'lattice agent_prompt audit experiment',
+          targetKind: 'story-dispatch',
+          agentType: role,
+        });
+        return canonicalJsonStringify({
+          schemaVersion: 'proofbound.agent-prompt-response.v1',
+          mode: resolvedRoleBody.mode,
+          roleBodyDigest: resolvedRoleBody.bodyDigest,
+          legacyBytesRestored: resolvedRoleBody.legacyBytesRestored,
+          auditOnly: true,
+          auditExperiment: true,
+          canMintReviewEvidence: false,
+          prompt,
+          taskContext,
+          envelope: null,
+        });
+      }
       // B-d877 R3 FIX B: relocate out of the git-tracked story dir to the gitignored
       // shared `.lattice/locks/prompt-envelopes/<id>-prompt-envelopes.lock` (same
       // canonical lock the review_run_start prompt-envelope write uses).
       const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
+      const promptBudget = isBudgetedComplexRole(role)
+        ? observeComplexRolePromptBudget({
+            roleId: role,
+            contextMode: 'full',
+            bytes: assembly.envelope.bytes,
+            estimatedTokens: assembly.envelope.estimatedTokens,
+          })
+        : undefined;
       const envelope = withReviewMetadataTicketLock(lockDir, `agent_prompt for ${storyId}/${role}`, () => {
         const data = ctx.store.readPromptEnvelopes(storyId);
         const existing = data.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
@@ -154,18 +218,44 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
           if (!verifyPromptEnvelopeIntegrity(existing)) {
             throw new Error(`agent_prompt: persisted envelope ${existing.envelopeId} failed integrity verification`);
           }
+          ctx.store.appendProcessEvent(storyId, {
+            type: 'dispatch', storyId, phase: story.phase, source: 'lattice agent_prompt',
+            targetKind: 'story-dispatch', agentType: role,
+            promptEnvelopeId: existing.envelopeId, promptEnvelopeDigest: existing.contextDigest,
+            assembledPromptDigest: existing.assembledPromptDigest,
+            ...(promptBudget ? { promptBudget } : {}),
+            ...(promptBudget && !promptBudget.withinBudget ? { budgetViolation: 'full' as const } : {}),
+          });
           return existing;
         }
         data.envelopes.push(assembly.envelope);
         ctx.store.writePromptEnvelopes(storyId, data);
-        const persisted = ctx.store.readPromptEnvelopes(storyId).envelopes.find(
-          candidate => candidate.envelopeId === assembly.envelope.envelopeId,
-        );
-        if (!persisted || !verifyPromptEnvelopeIntegrity(persisted)) {
-          throw new Error(`agent_prompt: envelope ${assembly.envelope.envelopeId} was not durably persisted`);
+        try {
+          const persisted = ctx.store.readPromptEnvelopes(storyId).envelopes.find(
+            candidate => candidate.envelopeId === assembly.envelope.envelopeId,
+          );
+          if (!persisted || !verifyPromptEnvelopeIntegrity(persisted)) {
+            throw new Error(`agent_prompt: envelope ${assembly.envelope.envelopeId} was not durably persisted`);
+          }
+          ctx.store.appendProcessEvent(storyId, {
+            type: 'dispatch', storyId, phase: story.phase, source: 'lattice agent_prompt',
+            targetKind: 'story-dispatch', agentType: role,
+            promptEnvelopeId: persisted.envelopeId, promptEnvelopeDigest: persisted.contextDigest,
+            assembledPromptDigest: persisted.assembledPromptDigest,
+            ...(promptBudget ? { promptBudget } : {}),
+            ...(promptBudget && !promptBudget.withinBudget ? { budgetViolation: 'full' as const } : {}),
+          });
+          return persisted;
+        } catch (error) {
+          const rollback = ctx.store.readPromptEnvelopes(storyId);
+          rollback.envelopes = rollback.envelopes.filter(candidate => candidate.envelopeId !== assembly.envelope.envelopeId);
+          ctx.store.writePromptEnvelopes(storyId, rollback);
+          throw error;
         }
-        return persisted;
       });
+      // Story 6 production receipt: the same trusted envelope persisted above
+      // is also visible in the append-only dispatch event stream. This is
+      // diagnostic/audit evidence only and cannot mint REVIEW evidence.
       if (args.format === 'json') {
         return canonicalJsonStringify({
           schemaVersion: 'proofbound.agent-prompt-response.v1',
@@ -173,11 +263,13 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
           roleBodyDigest: resolvedRoleBody.bodyDigest,
           legacyBytesRestored: resolvedRoleBody.legacyBytesRestored,
           auditOnly: true,
+          ...(args.auditExperiment ? { auditExperiment: true } : {}),
           canMintReviewEvidence: false,
           prompt: assembly.prompt,
           taskContext: assembly.taskContext,
           knownExecutionEnvironment: assembly.knownExecutionEnvironment,
           envelope,
+          ...(promptBudget ? { promptBudget } : {}),
         });
       }
 

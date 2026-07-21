@@ -82,7 +82,7 @@ export interface LatticeConfig {
   fixturesDir: string;
   storyDir: string;
   requirementsDir: string;
-  /** Five independent active-reviewer rollouts. Missing roles remain byte-exact legacy-full-context. */
+  /** Approved reviewer and Story-6 complex-role rollouts. Missing roles remain byte-exact legacy-full-context. */
   promptEnvelope?: {
     version?: 'proofbound.prompt-envelope-rollout.v1';
     roles?: Partial<Record<
@@ -90,7 +90,12 @@ export interface LatticeConfig {
       | 'lattice-review-concept'
       | 'lattice-review-docs'
       | 'lattice-review-quality'
-      | 'lattice-review-test-coverage',
+      | 'lattice-review-test-coverage'
+      | 'lattice-review-story-init'
+      | 'lattice-review-scope-plan'
+      | 'lattice-implementer'
+      | 'lattice-review-delivery'
+      | 'lattice-evaluator',
       'legacy-full-context' | 'full-envelope'
     >>;
   };

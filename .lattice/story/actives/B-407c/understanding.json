@@ -1,0 +1,41 @@
+{
+  "task": "严格执行 /tmp/role-prompt-modularization-and-budget-execution-plan.md 的 Story 6：迁移五个复杂角色、应用暂定复杂角色预算、完成真实 dispatch A/B，并证明既有不变量不回归。",
+  "outcome": "用户看到五个角色各自的 modular Prompt Envelope dispatch receipt 与 A/B 行；超预算行明确显示 violation、full correctness 继续且 baselineAccepted=false；最后显示 complex-role invariants: PASS。",
+  "facts": [
+    "/tmp 文档 Story 6 只要求复杂角色迁移、复杂角色预算和真实 dispatch A/B；Story 7 才负责 legacy 资产隔离与 observe→warn 推广。",
+    "B-235e 已提供可信 Prompt Envelope、Task Context、role contracts 和 reviewer rollout 基础。",
+    "五个复杂角色已在 Agent Dispatch Registry 和 Prompt Role Contract Registry 注册；本 Story 将其生产入口迁移到可信 modular full-envelope assembly。",
+    "真实 A/B 已执行 72 个串行 Codex/Claude cells；结果 INCONCLUSIVE 且 modular recall/false-positive 不支持 baseline acceptance。",
+    "PromptEnvelope 的 Story 6 budget violation 保持 observe-only、full correctness 继续、baselineAccepted=false。"
+  ],
+  "constraints": [
+    "不修改 Task Context schema 或角色 status/authority。",
+    "不实现 Story 7 legacy 隔离、observe→warn 推广或任何 enforce 门禁。",
+    "超预算必须记录 violation、继续 full correctness 执行，并使 baseline acceptance 为 false。",
+    "Prompt Envelope 只能由可信 CLI/handler 装配；story-dispatch artifact 不能铸造 REVIEW evidence。",
+    "provider usage/cache/latency 缺失必须为 INCONCLUSIVE，不得填零或声称等价。",
+    "delivery promise、scope gap、implementer author、evaluator evidence、权限与签名门禁必须保持。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "lattice.config.json",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-budget.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/evaluate.ts",
+    "packages/main/src/tasks/story6-role-migration-smoke.ts",
+    "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+    "packages/main/src/tasks/story6-invariants-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "experiments/role-prompt-ab-replay/story6-live.mjs",
+    "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+    "experiments/role-prompt-ab-replay/story6-report.mjs",
+    "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json"
+  ],
+  "timestamp": "2026-07-21T00:27:15.817Z"
+}

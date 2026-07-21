@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -25,11 +25,10 @@ import {
   resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
-import { createAgentPromptHandlers, findRoleEntry } from '../handlers/agent-prompt.js';
-import { readPromptTemplate } from '../core/prompt-registry.js';
+import { createAgentPromptHandlers } from '../handlers/agent-prompt.js';
 import { isReviewerAgent, resolveReviewRunLane } from '../core/review-run.js';
-import { storyRuntimeLockPath } from '../core/validation-execution-lock.js';
 import { parseForceReviewers } from '../handlers/reviewer-list.js';
+import { StoryStore } from '../core/store.js';
 
 const role = promptRoleContract('lattice-review-quality');
 const fullRollout = {
@@ -317,44 +316,29 @@ try {
   execFileSync('git', ['config', 'user.name', 'Prompt Smoke'], { cwd: tempRoot });
   execFileSync('git', ['add', 'lattice.config.json'], { cwd: tempRoot });
   execFileSync('git', ['commit', '-qm', 'initial'], { cwd: tempRoot });
-  const persisted: typeof first.envelope[] = [];
-  const storyDir = join(tempRoot, '.lattice', 'story', 'actives', 'B-envelope');
-  const fakeStore = {
-    readStory: () => ({
-      storyId: 'B-envelope',
-      title: 'Trusted CLI envelope',
-      description: 'Trusted handler assembly',
-      phase: 'DEV',
-      priority: 'high',
-    }),
-    readChecklist: () => ({
-      items: [{
-        id: 'CHK-001',
-        title: 'Assemble',
-        status: 'done',
-        relatedDocs: ['docs/requirements/prompt.md'],
-        files: { modify: ['src/prompt.ts'], create: [], test: ['tests/prompt.ts'] },
-        verificationIntent: {
-          happy: [{ desc: 'Trusted full context is visible.', type: 'logic' }],
-          edge: [],
-          adversarial: [],
-        },
-      }],
-    }),
-    readScopeContract: () => null,
-    storyDirPath: () => storyDir,
-    runtimeLockDirPath: (storyId: string, category: string, name: string) =>
-      storyRuntimeLockPath(tempRoot, category, storyId, name),
-    storyFilePath: (_storyId: string, file: string) => {
-      mkdirSync(storyDir, { recursive: true });
-      return join(storyDir, file);
-    },
-    readPromptEnvelopes: () => ({ envelopes: persisted }),
-    writePromptEnvelopes: (_storyId: string, data: { envelopes: typeof persisted }) => {
-      persisted.splice(0, persisted.length, ...data.envelopes);
-    },
-  };
-  const handlers = createAgentPromptHandlers({ root: tempRoot, scanRoot: tempRoot, store: fakeStore as never });
+  const store = new StoryStore(tempRoot);
+  store.writeStory('B-envelope', {
+    storyId: 'B-envelope',
+    title: 'Trusted CLI envelope',
+    description: 'Trusted handler assembly',
+    phase: 'DEV',
+    priority: 'high',
+  } as never);
+  store.writeChecklist('B-envelope', {
+    items: [{
+      id: 'CHK-001',
+      title: 'Assemble',
+      status: 'done',
+      relatedDocs: ['docs/requirements/prompt.md'],
+      files: { modify: ['src/prompt.ts'], create: [], test: ['tests/prompt.ts'] },
+      verificationIntent: {
+        happy: [{ desc: 'Trusted full context is visible.', type: 'logic' }],
+        edge: [],
+        adversarial: [],
+      },
+    }],
+  } as never);
+  const handlers = createAgentPromptHandlers({ root: tempRoot, scanRoot: tempRoot, store });
   const response = JSON.parse(handlers.agent_prompt({
     role: 'lattice-review-quality',
     storyId: 'B-envelope',
@@ -363,20 +347,36 @@ try {
   assert.equal(response.auditOnly, true);
   assert.equal(response.canMintReviewEvidence, false);
   assert.equal(response.envelope.dispatchKind, 'story-dispatch');
-  assert.equal(persisted.length, 1);
+  assert.equal(store.readPromptEnvelopes('B-envelope').envelopes.length, 1);
+  let dispatchEvents = store.readProcessEvents('B-envelope').filter(event => event.type === 'dispatch');
+  assert.equal(dispatchEvents.length, 1, 'real StoryStore durably persists the story-aware dispatch event');
+  assert.equal(dispatchEvents[0]?.promptEnvelopeId, response.envelope.envelopeId);
+  assert.equal(dispatchEvents[0]?.assembledPromptDigest, response.envelope.assembledPromptDigest);
   const response2 = JSON.parse(handlers.agent_prompt({
     role: 'lattice-review-quality',
     storyId: 'B-envelope',
     format: 'json',
   }));
   assert.equal(response2.envelope.envelopeId, response.envelope.envelopeId);
-  assert.equal(persisted.length, 1, 'content-addressed repeat is idempotent');
+  assert.equal(store.readPromptEnvelopes('B-envelope').envelopes.length, 1, 'content-addressed repeat is idempotent');
+  dispatchEvents = store.readProcessEvents('B-envelope').filter(event => event.type === 'dispatch');
+  assert.equal(dispatchEvents.length, 2, 'each real dispatch remains append-only even when its envelope is reused');
+  const eventFailureStore = Object.create(store) as StoryStore;
+  eventFailureStore.appendProcessEvent = () => { throw new Error('mutated process-event persistence failure'); };
+  const eventRequiredHandlers = createAgentPromptHandlers({ root: tempRoot, scanRoot: tempRoot, store: eventFailureStore });
+  assert.throws(
+    () => eventRequiredHandlers.agent_prompt({ role: 'lattice-review-quality', storyId: 'B-envelope', format: 'json' }),
+    /mutated process-event persistence failure/,
+    'story-aware dispatch must fail closed when its production event cannot persist',
+  );
   assert.throws(
     () => handlers.agent_prompt({ role: 'lattice-review-quality', storyId: 'B-envelope', envelopeId: 'forged' }),
     /unsupported caller-controlled field/,
   );
-  const legacyEntry = findRoleEntry('lattice-implementer')!;
-  const legacyBody = readPromptTemplate(legacyEntry);
+  const legacyBody = resolvePromptRoleBody('lattice-implementer', {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { 'lattice-review-quality': 'full-envelope' },
+  }).body;
   assert.equal(
     handlers.agent_prompt({ role: 'lattice-implementer', storyId: 'B-envelope', format: 'json' }),
     legacyBody,

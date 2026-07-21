@@ -1,0 +1,489 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-07-20T21:32:39.302Z",
+      "issueCount": 25,
+      "blockerCount": 14,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Migrate story-init, scope-plan, implementer, delivery, and evaluator role assets + Apply complex-role prompt budgets with nonblocking violation recording are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: 五个角色现有 legacy 入口与模块化装配点是否完全一致。; 真实 dispatch A/B 可观测的 provider 维度与稳定延迟范围。; 现有预算 violation 记录是否覆盖所有复杂角色路径。"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "High-risk stories must have plan.md (execution plan). Write it following the plan.md template in CLAUDE.md, one section per CHK-xxx"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with `lattice dispatch --storyId=B-407c --agentType=lattice-review-scope-plan`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling `lattice scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-407c is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "bb0e6254271d16a08dfa9df99022c652a151aaf898386d379345835c4d042ba4"
+    },
+    {
+      "timestamp": "2026-07-20T21:34:03.143Z",
+      "issueCount": 16,
+      "blockerCount": 6,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Migrate story-init, scope-plan, implementer, delivery, and evaluator role assets + Apply complex-role prompt budgets with nonblocking violation recording are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: 五个角色现有 legacy 入口与模块化装配点是否完全一致。; 真实 dispatch A/B 可观测的 provider 维度与稳定延迟范围。; 现有预算 violation 记录是否覆盖所有复杂角色路径。"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/roles/ is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: .claude/agents/ is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: .lattice-codex/agents/ is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "High-risk stories must have plan.md (execution plan). Write it following the plan.md template in CLAUDE.md, one section per CHK-xxx"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with `lattice dispatch --storyId=B-407c --agentType=lattice-review-scope-plan`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling `lattice scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-407c is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "0367876065ac632d00f522426c4c07fde30fde09e0f2f71c951c208f2242dd7f"
+    },
+    {
+      "timestamp": "2026-07-20T21:34:46.694Z",
+      "issueCount": 14,
+      "blockerCount": 4,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Migrate story-init, scope-plan, implementer, delivery, and evaluator role assets + Apply complex-role prompt budgets with nonblocking violation recording are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: 五个角色现有 legacy 入口与模块化装配点是否完全一致。; 真实 dispatch A/B 可观测的 provider 维度与稳定延迟范围。; 现有预算 violation 记录是否覆盖所有复杂角色路径。"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/roles/ is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: .claude/agents/ is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: .lattice-codex/agents/ is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-407c is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "1e5101c9479e14ff337574b0b44791d2028baefa6e5da07d0cf598b8fd35d41b"
+    },
+    {
+      "timestamp": "2026-07-20T21:34:56.491Z",
+      "issueCount": 10,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Migrate story-init, scope-plan, implementer, delivery, and evaluator role assets + Apply complex-role prompt budgets with nonblocking violation recording are performed simultaneously?)"
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: 五个角色现有 legacy 入口与模块化装配点是否完全一致。; 真实 dispatch A/B 可观测的 provider 维度与稳定延迟范围。; 现有预算 violation 记录是否覆盖所有复杂角色路径。"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-407c is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "a54c4aaed0af46bf342952e3c9392d37bdb91e98cf77c2161b41723c62bfac8f"
+    },
+    {
+      "timestamp": "2026-07-20T21:47:47.254Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Migrate story-init, scope-plan, implementer, delivery, and evaluator role assets + Apply complex-role prompt budgets with nonblocking violation recording are performed simultaneously?)"
+        }
+      ],
+      "_hash": "24c5edc33564e18cbd774d670f684c98540ed43eaa4b782de263ef5bbd77c4ae"
+    },
+    {
+      "timestamp": "2026-07-20T21:49:35.197Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Migrate story-init, scope-plan, implementer, delivery, and evaluator role assets + Apply complex-role prompt budgets with nonblocking violation recording are performed simultaneously?)"
+        }
+      ],
+      "_hash": "789bb8a7ff9d9eec6d473f45c42bbc3d44493de4bda547aa6126fc6742082688"
+    },
+    {
+      "timestamp": "2026-07-21T00:26:02.824Z",
+      "issueCount": 8,
+      "blockerCount": 7,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Migrate story-init, scope-plan, implementer, delivery, and evaluator role assets + Apply complex-role prompt budgets with nonblocking violation recording are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/config.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/agent-dispatch-registry.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/handlers/delivery-check.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/story6-invariants-smoke.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: scripts/verify-process-fact-contract.mjs is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (none) does not match the current review round (2026-07-20T22:23:11.258Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "b4831aadcee65b488e2b8decac051d82ec36a798e3ee35eaa704ae122cb748be"
+    },
+    {
+      "timestamp": "2026-07-21T00:32:26.150Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Migrate story-init, scope-plan, implementer, delivery, and evaluator role assets + Apply complex-role prompt budgets with nonblocking violation recording are performed simultaneously?)"
+        }
+      ],
+      "_hash": "0fff7ea50bc60965edb6ec70b69f3dbae5fb03d5fda5dbfc4824c9e8735e1c18"
+    },
+    {
+      "timestamp": "2026-07-21T01:43:38.420Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Migrate story-init, scope-plan, implementer, delivery, and evaluator role assets + Apply complex-role prompt budgets with nonblocking violation recording are performed simultaneously?)"
+        }
+      ],
+      "_hash": "5db7f21a57cfbe34e75f6b977ae88667ff19627cdb4bf25734404a9fdb494e4b"
+    }
+  ]
+}

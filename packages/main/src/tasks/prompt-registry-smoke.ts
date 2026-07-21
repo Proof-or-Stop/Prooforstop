@@ -18,6 +18,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  MODULAR_COMPLEX_ROLE_IDS,
   MODULAR_REVIEWER_ROLE_IDS,
   PROMPT_REGISTRY_SOURCE,
   PROMPT_REGISTRY_VERSION,
@@ -41,12 +42,7 @@ const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
 const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
-  'lattice-evaluator.md',
-  'lattice-implementer.md',
   'lattice-review-channel.md',
-  'lattice-review-delivery.md',
-  'lattice-review-scope-plan.md',
-  'lattice-review-story-init.md',
 ]);
 const requiredSafetyPhrases = [
   'Fresh-Context Fence',
@@ -85,19 +81,25 @@ for (const entry of registry.agents) {
   const source = readFileSync(entry.sourcePath, 'utf8');
   const sourceHash = createHash('sha256').update(source).digest('hex');
   assert.equal(entry.templateHash, sourceHash, `${entry.file} template hash matches source`);
-  const expectedClaude = MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])
-    ? renderPromptEntryForHost(entry, 'claude')
-    : source;
+  const isComplexRole = MODULAR_COMPLEX_ROLE_IDS.includes(entry.agentId as typeof MODULAR_COMPLEX_ROLE_IDS[number]);
+  const expectedClaude = renderPromptEntryForHost(entry, 'claude');
   const expectedCodex = renderPromptEntryForHost(entry, 'codex');
   if (MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
     assert.match(expectedClaude, /review_run_start/, `${entry.file} Claude registry render is bootstrap-only`);
     assert.match(expectedCodex, /review_run_start/, `${entry.file} Codex registry render is bootstrap-only`);
     assert.doesNotMatch(expectedClaude, /proofbound:modular-role-body:v1/, `${entry.file} Claude registry excludes role body`);
     assert.doesNotMatch(expectedCodex, /proofbound:modular-role-body:v1/, `${entry.file} Codex registry excludes role body`);
-  } else {
+  } else if (!isComplexRole) {
     assert.equal(expectedClaude, source, `${entry.file} Claude render matches template`);
   }
-  if (!MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
+  if (isComplexRole) {
+    const legacy = restoreLegacyPromptTemplate(entry);
+    assert.equal(expectedClaude, legacy, `${entry.file} rejected rollout defaults Claude to frozen legacy bytes`);
+    assert.equal(expectedCodex, renderCodexAgentContent(legacy), `${entry.file} rejected rollout defaults Codex to frozen legacy bytes`);
+    assert.equal(renderPromptEntryForHost(entry, 'claude', 'full-envelope'), source, `${entry.file} modular Claude render remains explicitly selectable`);
+    assert.equal(renderPromptEntryForHost(entry, 'codex', 'full-envelope'), renderCodexAgentContent(source), `${entry.file} modular Codex render remains explicitly selectable`);
+    assert.notEqual(expectedClaude, source, `${entry.file} rejected rollout cannot yield the modular Claude render`);
+  } else if (!MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
     assert.equal(expectedCodex, renderCodexAgentContent(source), `${entry.file} Codex render matches legacy transform`);
   }
   if (loadBearingPromptFiles.has(entry.file)) {

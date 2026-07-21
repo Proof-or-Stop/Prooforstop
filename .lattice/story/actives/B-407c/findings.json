@@ -1,0 +1,506 @@
+{
+  "findings": [
+    {
+      "id": "B-407c:F-001",
+      "desc": "experiments/role-prompt-ab-replay/story6-live.mjs:246-294 and packages/main/src/tasks/story6-production-dispatch-smoke.ts:40-75 still do not provide the required real A/B acceptance. The live script only selfchecks unless an external operator runs every serialized provider cell and leaves runtime receipts; the production smoke invokes agent_prompt only for the modular arm and never constructs/runs the legacy arm or provider usage/cache/latency pair. CHK-003 explicitly requires five production legacy/modular pairs, and unavailable dimensions may be INCONCLUSIVE but cannot be replaced by an unexecuted campaign.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-20T22:12:04.750Z",
+      "reviewRound": "2026-07-20T22:10:29.128Z",
+      "reviewRunId": "B-407c:RR-007",
+      "_hash": "5cbd928e2a0078e28cf0c0766dc5649c7b23f3e2eb4ed27befe6f43f5a4d8962",
+      "signatureTag": "missing|unknown|experiments-role-prompt",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7e9cd27bcf: production-dispatch smoke now runs paired legacy role-only and story-aware modular agent_prompt arms for all five roles and records provider A/B as INCONCLUSIVE when no provider is available; build and smoke pass.",
+      "resolvedAt": "2026-07-20T22:15:10.995Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-002",
+      "desc": "CHK-003:adversarial:0 remains uncovered: the live campaign selfcheck only proves Claude schema mutations bite, while story6-analyze.mjs checks duplicate cellId and expected matrix keys but does not validate receipt role binding, envelope/digest authenticity, stale/material binding, non-production provenance, or reject forged/wrong-role receipts. story6-production-dispatch-smoke.ts likewise only asserts one envelope per role and event presence. The must intent explicitly requires duplicate, forged, stale, wrong-role, and non-production receipts to be rejected before A/B aggregation; current evidence does not exercise those rejection paths.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-20T22:12:39.419Z",
+      "reviewRound": "2026-07-20T22:10:29.128Z",
+      "reviewRunId": "B-407c:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "a868ded60dc09479808a46a18f4a2d9e86185cbb1e0837296c988f2169dc7123",
+      "files": [
+        "experiments/role-prompt-ab-replay/story6-live.mjs",
+        "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+        "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+      ],
+      "signatureTag": "adversarial|mjs|adversarial-remains-uncovered",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7e9cd27bcf: production-dispatch smoke verifies wrong-role, stale-head, and context-digest-tampered receipts are rejected by verifyPromptEnvelopeIntegrity; build and smoke pass.",
+      "resolvedAt": "2026-07-20T22:15:13.042Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-003",
+      "desc": "CHK-003:adversarial:0 is still not covered at the A/B aggregation boundary. story6-production-dispatch-smoke.ts now proves Prompt Envelope role/head/context mutations fail verifyPromptEnvelopeIntegrity, but experiments/role-prompt-ab-replay/story6-analyze.mjs accepts receipt JSON without validating schemaVersion, campaignBindingDigest, roleId, promptDigest, materialDigest, or production provenance; its key and duplicate checks use only sampleId/host/arm/repeat. A forged or wrong-role/stale receipt with a valid cell key can therefore enter aggregation. The must intent requires duplicate, forged, stale, wrong-role, and non-production receipts to be rejected by the A/B summary, not only by a separate envelope smoke.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-20T22:16:45.450Z",
+      "reviewRound": "2026-07-20T22:15:32.054Z",
+      "reviewRunId": "B-407c:RR-012",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "08a9a876c14791c05f383075c9b82ecbeb967bc34782722492ad2c11802b2510",
+      "files": [
+        "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+        "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+        "experiments/role-prompt-ab-replay/story6-live.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|adversarial-still-covered",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 85b30d07b3: A/B analyzer validates schemaVersion, campaign binding, expected role/sample, prompt/material/finding digests, production provenance, observedAt, and duplicate keys; selfcheck proves forged provenance is rejected.",
+      "resolvedAt": "2026-07-20T22:18:58.215Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-004",
+      "desc": "CHK-003:adversarial:0 evidence now runs story6-analyze-selfcheck.mjs, but the selfcheck only writes one forged receipt with synthetic-forged provenance and asserts the analyzer returns RECEIPT_PROVENANCE_INVALID. It does not exercise the claimed schema/campaign/role/sample/prompt/material/finding digest, observedAt, duplicate-key, stale, or wrong-role rejection cases; the checklist note currently overclaims that all of those are verified. The analyzer source has guards for these fields, but the must intent requires tested rejection of duplicate, forged, stale, wrong-role, and non-production receipts. Add mutation cases (or narrow the intent/evidence note) before passing.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-20T22:21:50.214Z",
+      "reviewRound": "2026-07-20T22:19:33.690Z",
+      "reviewRunId": "B-407c:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "1ffe6131509b9213110a8cbcdabe092b3861ebd4db1056296570c0a94d6fbb65",
+      "files": [
+        "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+        "experiments/role-prompt-ab-replay/story6-analyze.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|adversarial-evidence-runs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 740a9acfcf: selfcheck now runs a 15-case mutation matrix covering schema, campaign, binding, role/sample/arm/host/repeat, prompt/material/finding digests, provenance, observedAt/stale, and duplicate keys; all are rejected and coverage pass RR-022 confirms current evidence.",
+      "resolvedAt": "2026-07-20T22:25:01.420Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-005",
+      "desc": "CHK-003:happy:0 lacks end-to-end production-entrypoint A/B coverage. experiments/role-prompt-ab-replay/story6-live.mjs:150-168 builds legacy/modular prompts directly from registry/core assembleFullPromptEnvelope and :295-322 invokes providers then self-writes a receipt whose provenance.kind is asserted as production-provider-dispatch; it never calls the production agent_prompt/story-dispatch handler. packages/main/src/tasks/story6-production-dispatch-smoke.ts:53-85 separately exercises createAgentPromptHandlers but only creates local INCONCLUSIVE placeholder receipts and never feeds those production-produced prompts to Codex/Claude. Thus 72 real provider calls plus a separate handler smoke do not prove the must intent that each role's measured legacy/modular receipt came through the real production dispatch entrypoint.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T00:37:42.062Z",
+      "reviewRound": "2026-07-21T00:35:37.735Z",
+      "reviewRunId": "B-407c:RR-030",
+      "_hash": "dcb8f6413b9b3ac5767d34889a1ffbf7a4d7e5ee967f9004b3f7df6850cc419f",
+      "files": [
+        "experiments/role-prompt-ab-replay/story6-live.mjs",
+        "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+      ],
+      "signatureTag": "missing|mjs|happy-lacks-production",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Closed by 29dea398 + 9905b71 and coverage pass RP-021: fresh v3 has 72/72 serialized Codex/Claude cells whose exact bytes come from production agent_prompt, with response/envelope/event provenance and 25 mutation rejects; summary 49cf8de6.",
+      "resolvedAt": "2026-07-21T02:06:18.394Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-006",
+      "desc": "CHK-004:edge:0 and CHK-004:adversarial:0 lack the required negative invariant coverage. packages/main/src/tasks/story6-invariants-smoke.ts:15-20 only checks that scope/delivery commands return something and that one fixed commit has the implementer author; it does not mutate wrong author, evaluator evidence, signature, permissions, or remove each evidence item and assert a stable reason code. prompt-full-context-envelope-smoke.ts:244-270 and :347-374 covers Task Context/role/dispatch authority and event persistence, but not invalid signed-run verification, wrong-author rejection, evaluator/delivery/scope single-gap isolation, or the actual REVIEW evidence consumer rejecting a story-dispatch receipt. The PASS label at story6-invariants-smoke.ts:21 therefore overstates coverage of these must intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T00:37:45.580Z",
+      "reviewRound": "2026-07-21T00:35:37.735Z",
+      "reviewRunId": "B-407c:RR-030",
+      "_hash": "55ebaa0fc2c9daa4af85ef105db0f91cabc513d67a230530b034e455835ae551",
+      "files": [
+        "packages/main/src/tasks/story6-invariants-smoke.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-adversarial-lack",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Closed by 9f0c290 and coverage pass RP-021: hermetic real-consumer matrix covers valid signed control, invalid run/evidence signatures, wrong lane, missing scope, REVIEW zero-credit, authority denials, isolated delivery/evaluator gaps, and real wrong-author diagnostic.",
+      "resolvedAt": "2026-07-21T02:06:19.664Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-007",
+      "desc": "lattice.config.json:17 default-enables full-envelope for all five Story 6 complex roles even though experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json:4-16 records INCONCLUSIVE, RECALL_REGRESSION_OBSERVED, false baseline acceptance, and false recall non-regression. This activates the regressed modular arm instead of keeping the per-role rollback selected until a non-regression baseline is accepted; the report is honest, but runtime rollout ignores its decision. Keep these roles on legacy-full-context (while retaining the implementation/flag) or add a fail-closed acceptance gate, and add a mutation proving baselineAccepted=false cannot coexist with default modular rollout.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-21T00:38:22.509Z",
+      "reviewRound": "2026-07-21T00:35:37.735Z",
+      "reviewRunId": "B-407c:RR-028",
+      "_hash": "7726a2ac13ef85489aff8aec221a883f109a121afa25a56c912fe78868ccdf2e",
+      "signatureTag": "adversarial|unknown|lattice-config-json",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Closed by 29dea398 and quality pass RP-020: all five roles default legacy; modular requires explicit auditExperiment override; v3 adverse result keeps baselineAccepted, recallNonRegressionClaim, enforceReady, and Story7 false.",
+      "resolvedAt": "2026-07-21T02:06:20.796Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-008",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:196 swallows appendProcessEvent failures after assembleComplexStoryDispatch has persisted a Story 6 Prompt Envelope, so production dispatch can return success with no durable envelope-to-event observation even though the process-fact rationale promises a durably recorded dispatch observation. packages/main/src/tasks/story6-production-dispatch-smoke.ts:51 only exercises the success path; the existing failure mutation covers agent_prompt, not this dispatch producer. Make the Story 6 envelope/event write fail-closed or atomic and add a real dispatch failure mutation proving no successful half-bound receipt.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-21T00:38:31.848Z",
+      "reviewRound": "2026-07-21T00:35:37.735Z",
+      "reviewRunId": "B-407c:RR-028",
+      "_hash": "79afd4d3ae6d95a2a96447b615dd2161d9ccec5c576679f0d137f5506c1914b9",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Closed by 29dea398/9f0c290 and quality pass RP-020: Envelope persistence, event append and rollback are fail-closed; reentrant concurrency mutation preserves exactly one valid event/Envelope pair and plain failure leaves zero/zero.",
+      "resolvedAt": "2026-07-21T02:06:21.903Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-009",
+      "desc": "concept-cleanup: experiments/role-prompt-ab-replay/README.md:3-6 still describes the entire directory as a read-only harness that does not dispatch a model or call `agent_prompt --storyId`, but the new Story 6 live campaign at lines 20-47 intentionally calls the production `agent_prompt` handler and dispatches Codex CLI/Claude CLI provider cells. The old whole-directory boundary must be narrowed to the ordinary Story 3/B-235e replay or rewritten so the v3 live path is not contradicted; otherwise reviewers/operators are misled about the experiment producer and side effects.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-21T01:51:15.265Z",
+      "reviewRound": "2026-07-21T01:48:54.890Z",
+      "reviewRunId": "B-407c:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "97887699f763ecf2c296bf5d5850d4b070ed78001ed589b0cf0c284519a0efbd",
+      "files": [
+        "experiments/role-prompt-ab-replay/README.md"
+      ],
+      "signatureTag": "stale-global-boundary-after-live-experiment",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Closed by 9f0c290 and concept pass RP-019: README now scopes no-model/no-agent_prompt statement to ordinary replay and explicitly documents Story6 live audit-only provider exception; grep found no stale global claim.",
+      "resolvedAt": "2026-07-21T02:06:23.013Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-010",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:197-205 performs event-failure rollback only after releasing and reacquiring the envelope lock. Because Prompt Envelope IDs exclude createdAt, two identical concurrent dispatches reuse one ID: a reentrant actual-handler mutation let dispatch B reuse the newly persisted envelope and append a valid event, then dispatch A failed its event and deleted the shared envelope. Observed final state was eventCount=1, envelopeCount=0 for eventEnvelopeId=32b08399..., so the fix can orphan a successful dispatch event. Keep envelope persistence, event append, and rollback decision inside one serialization boundary (or reference-count/verify no successful binding before delete), and add this concurrent/reentrant mutation asserting every successful event retains its envelope.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-21T01:51:29.295Z",
+      "reviewRound": "2026-07-21T01:48:54.890Z",
+      "reviewRunId": "B-407c:RR-032",
+      "_hash": "9307e836ed4915969664e464a56f4cd4815e8600fe6d7ff202403c99a2a198aa",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Closed by 9f0c290 and quality pass RP-020: one ticket-lock transaction covers persist+append+rollback; outer-fail/inner-success actual-handler mutation ends with one event and one matching Envelope bound by context and assembled digest.",
+      "resolvedAt": "2026-07-21T02:06:24.063Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-011",
+      "desc": "Round 8 targeted re-review: F-005 is covered by the fresh v3 72/72 agent_prompt-produced campaign, but F-006 remains open. CHK-004:happy:0 evidence points only to story6-invariants-smoke.ts, whose actual assertions are read-only scope/delivery readability plus one positive author control; its note incorrectly attributes the real REVIEW zero-credit check that exists in story6-production-dispatch-smoke.ts. CHK-004:edge:0 tests only append-event failure rollback, not the promised isolated missing evaluator/delivery/scope evidence and corresponding stable gaps. CHK-004:adversarial:0 now covers role/head/context/digest tampering, event failure, and story-dispatch zero REVIEW credit, but its cited commands still do not exercise invalid signed-run evidence, the real wrong-author channel rejection, or unauthorized mutation consumers. Existing agent-dispatch-registry-smoke passes authority denial when run independently, lifecycle-check-smoke passes delivery classification, but they are not bound by the checklist evidence; semantic-scope-guard-smoke independently failed its fresh-binding positive assertion (3 invalid instead of 0), so the existing-suite claim cannot close the must intent. Add an honest Story6 matrix that invokes the real consumers and asserts the existing outputs (including the actual wrong-author failure diagnostic, without inventing a new code), plus isolated delivery/scope/evaluator missing controls.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T01:52:04.706Z",
+      "reviewRound": "2026-07-21T01:48:54.890Z",
+      "reviewRunId": "B-407c:RR-033",
+      "_hash": "d543f6cdd83b45fbde2c4edd062ef16d41d63bcc82498c690f255bae8fa6e0a8",
+      "files": [
+        "packages/main/src/tasks/story6-invariants-smoke.ts",
+        "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|round-targeted-review",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Closed by 9f0c290 and coverage pass RP-021: 12/12 current intents, zero gaps/waivers; expanded Story6 real-consumer matrix and repaired production-derived legacy promptHash semantic-scope control both pass.",
+      "resolvedAt": "2026-07-21T02:06:25.220Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-012",
+      "desc": "Fresh coverage re-attestation found a hard process-fact contract failure after the host-render change. The actual Claude and Codex assets for lattice-evaluator, lattice-implementer, lattice-review-delivery, lattice-review-scope-plan, and lattice-review-story-init now contain reviewer command semantics (finding_add, review_pass_set, review_run_start), and all except implementer also contain the docs/story/ path semantic, that are absent from their corresponding packages/main/templates/agents templates. Reproduction: node scripts/verify-process-fact-contract.mjs exits non-zero and reports all ten mirror/template pairs. The new byte-level host-default assertions pass, but actual host inputs and canonical templates disagree on load-bearing commands/paths, so CHK-001 edge/adversarial coverage and the production-consumer contract are not clean. Reconcile the canonical template/host rendering or the contract source of truth, then rerun the full coverage suite.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T02:37:23.192Z",
+      "reviewRound": "2026-07-21T02:34:20.993Z",
+      "reviewRunId": "B-407c:RR-042",
+      "_hash": "39be74e2ca48863c767e71e7fb1922325833b711198d1be89997aafb0648b765",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/templates/agents/lattice-evaluator.md",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-scope-plan.md",
+        "packages/main/templates/agents/lattice-review-story-init.md",
+        ".claude/agents/lattice-evaluator.md",
+        ".claude/agents/lattice-implementer.md",
+        ".claude/agents/lattice-review-delivery.md",
+        ".claude/agents/lattice-review-scope-plan.md",
+        ".claude/agents/lattice-review-story-init.md",
+        ".lattice-codex/agents/lattice-evaluator.md",
+        ".lattice-codex/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-review-delivery.md",
+        ".lattice-codex/agents/lattice-review-scope-plan.md",
+        ".lattice-codex/agents/lattice-review-story-init.md",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "adversarial|ts|fresh-coverage-attestation",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 7b05391e0b30ff5d3fa45b31f9c498241b39422f: process-fact semantic drift and Codex adapter mirror verification now derive canonical Claude/Codex bytes from readPromptRegistry plus renderPromptEntryForHost, preserving modular audit templates while checking rollout-selected immutable legacy host assets. Fresh build, verify-process-fact-contract, verify_codex, prompt-registry-smoke, story6-role-migration-smoke, story6-production-dispatch-smoke, and story6-invariants-smoke all pass; Story7 remains disabled.",
+      "resolvedAt": "2026-07-21T02:43:42.259Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-013",
+      "desc": "packages/main/src/tasks/story6-acceptance-transcript.ts:87-124 merges two different handler calls into one user-facing DISPATCH line. defaultPrompt proves the production default is immutable legacy bytes, but `rollout=${response.mode}`, dispatchKind, envelope and persistence come from a second call using auditExperiment=true plus experimentalModeOverride=full-envelope. The emitted line says `defaultLegacy=true rollout=full-envelope` without `auditOnly=true`, `canMintReviewEvidence=false`, or an auditRollout label, and the final PASS calls this `production dispatch`. This can misrepresent the rejected modular audit arm as the production rollout. Emit separate production-default and audit-dispatch facts (for example productionRollout=legacy-full-context and auditRollout=full-envelope auditOnly=true canMintReviewEvidence=false), and keep audit-derived budget/envelope fields explicitly labelled before treating the transcript as the four userSees acceptance.",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-21T03:09:29.712Z",
+      "reviewRound": "2026-07-21T03:08:17.117Z",
+      "reviewRunId": "B-407c:RR-046",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/story6-acceptance-transcript.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "lattice.config.json",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "a65d85cf7005f12e1b47edba2919024db766b5ee51ffb4c2f72ab4fe9a3fa9c4",
+      "files": [
+        "packages/main/src/tasks/story6-acceptance-transcript.ts"
+      ],
+      "signatureTag": "audit-arm-mislabeled-as-production-acceptance",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by e4de85fe34a6fe85c8de357e796588a212f06c08: transcript emits separate PRODUCTION_DEFAULT legacy facts and AUDIT_DISPATCH full-envelope facts with auditOnly=true and canMintReviewEvidence=false; final label is acceptance-audit-transcript. Fresh build and transcript pass.",
+      "resolvedAt": "2026-07-21T03:17:25.666Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-014",
+      "desc": "CHK-002:happy:0 is not biting for its explicit bytes/tokens/limit requirement. The latest single-command acceptance transcript asserts only withinBudget, violation, correctnessExecution, and baselineAccepted (story6-acceptance-transcript.ts:127-130) and prints BUDGET lines without bytes, estimatedTokens, or limitBytes. The production smoke likewise checks only mode and baselineAccepted (story6-production-dispatch-smoke.ts:69-70), while the role-migration smoke calls observeComplexRolePromptBudget but never asserts those three fields. A repository-wide search finds no Story 6 task assertion over promptBudget.bytes, promptBudget.estimatedTokens, or promptBudget.limitBytes. Therefore a regression that drops/corrupts those recorded metrics can leave all current evidence and the acceptance transcript green, despite the must intent saying an in-budget production dispatch records bytes/tokens/limit. Add production response and persisted-event assertions binding bytes/tokens to the envelope and limitBytes to the configured full/incremental limit, expose them in the acceptance line if it is the user-visible proof, and add a negative mutation that fails when any field is absent or incorrect.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T03:11:03.705Z",
+      "reviewRound": "2026-07-21T03:08:17.117Z",
+      "reviewRunId": "B-407c:RR-048",
+      "_hash": "8cdd1ef24f0a81247af9912cd6cdcacc7bb12e4880f95ab22ce46f52e0956685",
+      "files": [
+        "packages/main/src/tasks/story6-acceptance-transcript.ts",
+        "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+        "packages/main/src/tasks/story6-role-migration-smoke.ts",
+        "packages/main/src/core/prompt-budget.ts",
+        "packages/main/src/handlers/agent-prompt.ts"
+      ],
+      "signatureTag": "missing|ts|happy-biting-explicit",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by e4de85fe34a6fe85c8de357e796588a212f06c08: response and persisted event promptBudget bytes/estimatedTokens/limitBytes are bound to envelope/recomputation and printed for within/over-limit cases; missing/corrupt response or event fields bite. Fresh transcript passes.",
+      "resolvedAt": "2026-07-21T03:17:26.463Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-015",
+      "desc": "packages/main/src/tasks/story6-invariants-smoke.ts:208 — acceptance-proof hardcoding: reviewCredit is assigned the literal story_dispatch_zero_review_credit after merely checking valid.length===0; no production consumer emits that code (repository search finds it only in this test and story6-acceptance-transcript.ts:241). The transcript therefore proves two test literals agree, not that a real machine-readable rejection reason was observed, despite line 236 claiming consumer reasons. Return a reason/code from the real eligibility consumer or label this strictly as a behavioral assertion and stop presenting it as an observed reason; add a mutation that changes the production consumer outcome/reason and makes the transcript fail.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-21T03:12:05.027Z",
+      "reviewRound": "2026-07-21T03:08:17.117Z",
+      "reviewRunId": "B-407c:RR-047",
+      "_hash": "1caf23e807e578d5aab2193a72f2167fe7fb397b45054349cc4c20cab3ab7ef3",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by e4de85fe34a6fe85c8de357e796588a212f06c08: removed invented story_dispatch_zero_review_credit code; transcript now reports actual collectReviewerEvidenceState behavioral outcome validPasses=0 validFindings=0 with positiveControlValidPasses=1, and labels context/wrong-author as behavioral facts. Fresh transcript passes.",
+      "resolvedAt": "2026-07-21T03:17:27.265Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-016",
+      "desc": "CHK-002:happy:0 now has a good implementation-level acceptance test, but its formal verificationEvidence is still bound to `node packages/main/dist/tasks/story6-role-migration-smoke.js` and file story6-role-migration-smoke.ts. That smoke only calls observeComplexRolePromptBudget and asserts mode/baseline/violation behavior; it still does not assert the production response or persisted event bytes, estimatedTokens, and limitBytes. The new biting coverage lives in story6-acceptance-transcript.ts/assertAuditBudgetBinding and passed fresh, but no verificationEvidence row for CHK-002:happy:0 references that command/file or describes the response/event/recompute binding. Coverage policy requires the evidence attached to each must intent to concretely cover that intent; an unbound test elsewhere cannot make the existing evidence truthful. Update the CHK-002:happy:0 verificationEvidence to the fresh acceptance transcript command (or expand the currently bound smoke to perform the same production/event assertions), record the current material binding, and rerun coverage review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T03:19:46.378Z",
+      "reviewRound": "2026-07-21T03:17:14.592Z",
+      "reviewRunId": "B-407c:RR-050",
+      "_hash": "fe9b7dfb97db29994afc64ecc0a226edff9652fb0edb3e045f93573882c8086b",
+      "files": [
+        "packages/main/src/tasks/story6-acceptance-transcript.ts",
+        "packages/main/src/tasks/story6-role-migration-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-good-implementation",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Bound the verified e4de85f acceptance transcript command directly to CHK-002:happy:0 via verification_evidence_add. The current evidence now names the test that asserts response/event/recompute bytes, estimatedTokens and limitBytes plus biting missing/corrupt mutations.",
+      "resolvedAt": "2026-07-21T03:20:12.414Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

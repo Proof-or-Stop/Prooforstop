@@ -1,0 +1,1601 @@
+{
+  "schemaVersion": "proofbound.story6-content-addressed-summary.v1",
+  "campaignId": "story6-20260720-v2",
+  "status": "INCONCLUSIVE",
+  "reasonCodes": [
+    "RECALL_REGRESSION_OBSERVED",
+    "FALSE_POSITIVES_INCREASED",
+    "COMMAND_MISUSE_PARTIAL_OBSERVATION",
+    "STORY7_NOT_IMPLEMENTED"
+  ],
+  "gateEvidence": false,
+  "baselineAccepted": false,
+  "claims": {
+    "savingsClaim": null,
+    "recallNonRegressionClaim": false,
+    "enforceReady": false
+  },
+  "story7": {
+    "implemented": false,
+    "note": "Story 7 budget observe/warn rollout and its observation window have not been implemented."
+  },
+  "bindings": {
+    "campaignBindingDigest": "096b53bc6fc3828da6a6a736ea399b21680aa291c4c318863cb5590e19bdcaea",
+    "models": {
+      "codex-cli": "gpt-5.5",
+      "claude-cli": "claude-sonnet-4-5"
+    },
+    "toolPolicy": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Bash"
+    ],
+    "order": [
+      [
+        "legacy",
+        "modular"
+      ],
+      [
+        "modular",
+        "legacy"
+      ],
+      [
+        "legacy",
+        "modular"
+      ]
+    ],
+    "schemaVersion": "proofbound.story6-live-ab.v1",
+    "protocolDigest": "2e0abcbd2b8e5b7ce3cd0d314b02c7f3c4af9bab874d2c3aa9ff5ae0ce960756",
+    "corpusDigest": "ff401b19d1fba4238da6c48b82cab486981b496ca0139a70ed142bfbd2053e45",
+    "hosts": [
+      "codex-cli",
+      "claude-cli"
+    ],
+    "arms": [
+      "legacy",
+      "modular"
+    ],
+    "repetitions": 3,
+    "roleAssignment": {
+      "clean-pass-01": "lattice-review-story-init",
+      "clean-pass-02": "lattice-review-scope-plan",
+      "critical-01": "lattice-implementer",
+      "critical-02": "lattice-evaluator",
+      "closeout-01": "lattice-review-delivery",
+      "closeout-02": "lattice-implementer"
+    },
+    "tools": [
+      "Read",
+      "Grep",
+      "Glob",
+      "Bash"
+    ],
+    "sampling": {
+      "temperature": {
+        "availability": "unavailable",
+        "reason": "Codex CLI and Claude CLI do not expose one shared temperature control in this harness."
+      },
+      "providerSeed": {
+        "availability": "unavailable",
+        "reason": "Neither pinned CLI surface exposes one shared deterministic provider seed."
+      }
+    },
+    "outputSchemaDigest": "58be31a5bd79aac81d55fc4921cc429b9c8a65d6b05f505bd19c482ef4e56434",
+    "claudeCompatibleOutputSchemaDigest": "08be8aaf198d9c08414359a3b940754708860cfc876c26fdbabb9b4cfa01c501",
+    "gateEvidence": false
+  },
+  "coverage": {
+    "receipts": {
+      "observed": 72,
+      "expected": 72
+    },
+    "hosts": [
+      "codex-cli",
+      "claude-cli"
+    ],
+    "roles": [
+      "lattice-evaluator",
+      "lattice-implementer",
+      "lattice-review-delivery",
+      "lattice-review-scope-plan",
+      "lattice-review-story-init"
+    ],
+    "sampleClasses": {
+      "closeout-reattestation": 2,
+      "multi-round-high-finding": 2,
+      "simple-bounded-change": 2
+    },
+    "arms": [
+      "legacy",
+      "modular"
+    ],
+    "repetitionsPerSampleHostArm": 3
+  },
+  "usageAggregates": [
+    {
+      "host": "codex-cli",
+      "arm": "legacy",
+      "roleId": "lattice-evaluator",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 32028,
+          "min": 10676,
+          "max": 10676,
+          "mean": 10676
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 170489,
+          "min": 23579,
+          "max": 73618,
+          "mean": 56829.667
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 106112,
+          "min": 1408,
+          "max": 57472,
+          "mean": 35370.667
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 0,
+          "unavailableCount": 3,
+          "sum": null,
+          "min": null,
+          "max": null,
+          "mean": null
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 1445,
+          "min": 298,
+          "max": 587,
+          "mean": 481.667
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 61027,
+          "min": 9522,
+          "max": 27309,
+          "mean": 20342.333
+        }
+      }
+    },
+    {
+      "host": "codex-cli",
+      "arm": "legacy",
+      "roleId": "lattice-implementer",
+      "cellCount": 6,
+      "sampleCount": 2,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 98397,
+          "min": 16366,
+          "max": 16433,
+          "mean": 16399.5
+        },
+        "inputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 312808,
+          "min": 24583,
+          "max": 80794,
+          "mean": 52134.667
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 196096,
+          "min": 1408,
+          "max": 61568,
+          "mean": 32682.667
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 0,
+          "unavailableCount": 6,
+          "sum": null,
+          "min": null,
+          "max": null,
+          "mean": null
+        },
+        "outputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 2874,
+          "min": 215,
+          "max": 767,
+          "mean": 479
+        },
+        "latencyMs": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 110692,
+          "min": 8287,
+          "max": 32676,
+          "mean": 18448.667
+        }
+      }
+    },
+    {
+      "host": "codex-cli",
+      "arm": "legacy",
+      "roleId": "lattice-review-delivery",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 45138,
+          "min": 15046,
+          "max": 15046,
+          "mean": 15046
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 180507,
+          "min": 24549,
+          "max": 79905,
+          "mean": 60169
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 130688,
+          "min": 11648,
+          "max": 61568,
+          "mean": 43562.667
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 0,
+          "unavailableCount": 3,
+          "sum": null,
+          "min": null,
+          "max": null,
+          "mean": null
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 1543,
+          "min": 439,
+          "max": 574,
+          "mean": 514.333
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 60936,
+          "min": 11252,
+          "max": 25171,
+          "mean": 20312
+        }
+      }
+    },
+    {
+      "host": "codex-cli",
+      "arm": "legacy",
+      "roleId": "lattice-review-scope-plan",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 48765,
+          "min": 16255,
+          "max": 16255,
+          "mean": 16255
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 341168,
+          "min": 77101,
+          "max": 186907,
+          "mean": 113722.667
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 248960,
+          "min": 50304,
+          "max": 138112,
+          "mean": 82986.667
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 0,
+          "unavailableCount": 3,
+          "sum": null,
+          "min": null,
+          "max": null,
+          "mean": null
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 3022,
+          "min": 483,
+          "max": 2054,
+          "mean": 1007.333
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 105452,
+          "min": 22456,
+          "max": 55988,
+          "mean": 35150.667
+        }
+      }
+    },
+    {
+      "host": "codex-cli",
+      "arm": "legacy",
+      "roleId": "lattice-review-story-init",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 58860,
+          "min": 19620,
+          "max": 19620,
+          "mean": 19620
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 130942,
+          "min": 25609,
+          "max": 79724,
+          "mean": 43647.333
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 54144,
+          "min": 1408,
+          "max": 51328,
+          "mean": 18048
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 0,
+          "unavailableCount": 3,
+          "sum": null,
+          "min": null,
+          "max": null,
+          "mean": null
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 1038,
+          "min": 235,
+          "max": 496,
+          "mean": 346
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 46043,
+          "min": 8386,
+          "max": 27736,
+          "mean": 15347.667
+        }
+      }
+    },
+    {
+      "host": "codex-cli",
+      "arm": "modular",
+      "roleId": "lattice-evaluator",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 21021,
+          "min": 7007,
+          "max": 7007,
+          "mean": 7007
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 91620,
+          "min": 22833,
+          "max": 45954,
+          "mean": 30540
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 46592,
+          "min": 1408,
+          "max": 33536,
+          "mean": 15530.667
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 0,
+          "unavailableCount": 3,
+          "sum": null,
+          "min": null,
+          "max": null,
+          "mean": null
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 1048,
+          "min": 297,
+          "max": 425,
+          "mean": 349.333
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 36555,
+          "min": 9327,
+          "max": 15282,
+          "mean": 12185
+        }
+      }
+    },
+    {
+      "host": "codex-cli",
+      "arm": "modular",
+      "roleId": "lattice-implementer",
+      "cellCount": 6,
+      "sampleCount": 2,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 76839,
+          "min": 12773,
+          "max": 12840,
+          "mean": 12806.5
+        },
+        "inputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 352117,
+          "min": 24061,
+          "max": 77056,
+          "mean": 58686.167
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 217344,
+          "min": 1408,
+          "max": 56448,
+          "mean": 36224
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 0,
+          "unavailableCount": 6,
+          "sum": null,
+          "min": null,
+          "max": null,
+          "mean": null
+        },
+        "outputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 3241,
+          "min": 250,
+          "max": 747,
+          "mean": 540.167
+        },
+        "latencyMs": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 133193,
+          "min": 8664,
+          "max": 29075,
+          "mean": 22198.833
+        }
+      }
+    },
+    {
+      "host": "codex-cli",
+      "arm": "modular",
+      "roleId": "lattice-review-delivery",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 34224,
+          "min": 11408,
+          "max": 11408,
+          "mean": 11408
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 676040,
+          "min": 23800,
+          "max": 369829,
+          "mean": 225346.667
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 562176,
+          "min": 11648,
+          "max": 320512,
+          "mean": 187392
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 0,
+          "unavailableCount": 3,
+          "sum": null,
+          "min": null,
+          "max": null,
+          "mean": null
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 4949,
+          "min": 405,
+          "max": 2306,
+          "mean": 1649.667
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 144174,
+          "min": 17954,
+          "max": 64362,
+          "mean": 48058
+        }
+      }
+    },
+    {
+      "host": "codex-cli",
+      "arm": "modular",
+      "roleId": "lattice-review-scope-plan",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 37797,
+          "min": 12599,
+          "max": 12599,
+          "mean": 12599
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 893184,
+          "min": 216717,
+          "max": 408524,
+          "mean": 297728
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 712960,
+          "min": 151808,
+          "max": 352640,
+          "mean": 237653.333
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 0,
+          "unavailableCount": 3,
+          "sum": null,
+          "min": null,
+          "max": null,
+          "mean": null
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 9735,
+          "min": 2359,
+          "max": 4503,
+          "mean": 3245
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 253517,
+          "min": 69922,
+          "max": 110774,
+          "mean": 84505.667
+        }
+      }
+    },
+    {
+      "host": "codex-cli",
+      "arm": "modular",
+      "roleId": "lattice-review-story-init",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 33036,
+          "min": 11012,
+          "max": 11012,
+          "mean": 11012
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 234155,
+          "min": 23666,
+          "max": 136138,
+          "mean": 78051.667
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 152960,
+          "min": 1408,
+          "max": 103296,
+          "mean": 50986.667
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 0,
+          "unavailableCount": 3,
+          "sum": null,
+          "min": null,
+          "max": null,
+          "mean": null
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 3627,
+          "min": 528,
+          "max": 1813,
+          "mean": 1209
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 109495,
+          "min": 13778,
+          "max": 58468,
+          "mean": 36498.333
+        }
+      }
+    },
+    {
+      "host": "claude-cli",
+      "arm": "legacy",
+      "roleId": "lattice-evaluator",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 32028,
+          "min": 10676,
+          "max": 10676,
+          "mean": 10676
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 224,
+          "min": 70,
+          "max": 80,
+          "mean": 74.667
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 2512798,
+          "min": 766328,
+          "max": 877203,
+          "mean": 837599.333
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 264207,
+          "min": 60143,
+          "max": 108895,
+          "mean": 88069
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 8773,
+          "min": 2358,
+          "max": 3221,
+          "mean": 2924.333
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 330641,
+          "min": 94626,
+          "max": 124541,
+          "mean": 110213.667
+        }
+      }
+    },
+    {
+      "host": "claude-cli",
+      "arm": "legacy",
+      "roleId": "lattice-implementer",
+      "cellCount": 6,
+      "sampleCount": 2,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 98397,
+          "min": 16366,
+          "max": 16433,
+          "mean": 16399.5
+        },
+        "inputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 201,
+          "min": 10,
+          "max": 87,
+          "mean": 33.5
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 1815389,
+          "min": 59905,
+          "max": 982727,
+          "mean": 302564.833
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 221246,
+          "min": 0,
+          "max": 117697,
+          "mean": 36874.333
+        },
+        "outputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 13835,
+          "min": 935,
+          "max": 3849,
+          "mean": 2305.833
+        },
+        "latencyMs": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 377756,
+          "min": 21605,
+          "max": 112957,
+          "mean": 62959.333
+        }
+      }
+    },
+    {
+      "host": "claude-cli",
+      "arm": "legacy",
+      "roleId": "lattice-review-delivery",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 45138,
+          "min": 15046,
+          "max": 15046,
+          "mean": 15046
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 30,
+          "min": 10,
+          "max": 10,
+          "mean": 10
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 142872,
+          "min": 23364,
+          "max": 59754,
+          "mean": 47624
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 36390,
+          "min": 0,
+          "max": 36390,
+          "mean": 12130
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 6859,
+          "min": 1532,
+          "max": 2897,
+          "mean": 2286.333
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 144204,
+          "min": 29384,
+          "max": 63972,
+          "mean": 48068
+        }
+      }
+    },
+    {
+      "host": "claude-cli",
+      "arm": "legacy",
+      "roleId": "lattice-review-scope-plan",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 48765,
+          "min": 16255,
+          "max": 16255,
+          "mean": 16255
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 248,
+          "min": 68,
+          "max": 94,
+          "mean": 82.667
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 2781421,
+          "min": 719130,
+          "max": 1050453,
+          "mean": 927140.333
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 294306,
+          "min": 85043,
+          "max": 122809,
+          "mean": 98102
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 16818,
+          "min": 4693,
+          "max": 6095,
+          "mean": 5606
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 486996,
+          "min": 144738,
+          "max": 184139,
+          "mean": 162332
+        }
+      }
+    },
+    {
+      "host": "claude-cli",
+      "arm": "legacy",
+      "roleId": "lattice-review-story-init",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 58860,
+          "min": 19620,
+          "max": 19620,
+          "mean": 19620
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 30,
+          "min": 10,
+          "max": 10,
+          "mean": 10
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 121752,
+          "min": 0,
+          "max": 60876,
+          "mean": 40584
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 60876,
+          "min": 0,
+          "max": 60876,
+          "mean": 20292
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 9218,
+          "min": 1356,
+          "max": 6117,
+          "mean": 3072.667
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 205551,
+          "min": 35381,
+          "max": 128613,
+          "mean": 68517
+        }
+      }
+    },
+    {
+      "host": "claude-cli",
+      "arm": "modular",
+      "roleId": "lattice-evaluator",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 21021,
+          "min": 7007,
+          "max": 7007,
+          "mean": 7007
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 207,
+          "min": 39,
+          "max": 124,
+          "mean": 69
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 2164788,
+          "min": 291164,
+          "max": 1479213,
+          "mean": 721596
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 250917,
+          "min": 50368,
+          "max": 113908,
+          "mean": 83639
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 9798,
+          "min": 2273,
+          "max": 5217,
+          "mean": 3266
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 370600,
+          "min": 76764,
+          "max": 205221,
+          "mean": 123533.333
+        }
+      }
+    },
+    {
+      "host": "claude-cli",
+      "arm": "modular",
+      "roleId": "lattice-implementer",
+      "cellCount": 6,
+      "sampleCount": 2,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 76839,
+          "min": 12773,
+          "max": 12840,
+          "mean": 12806.5
+        },
+        "inputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 112,
+          "min": 9,
+          "max": 37,
+          "mean": 18.667
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 885369,
+          "min": 23364,
+          "max": 484233,
+          "mean": 147561.5
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 159678,
+          "min": 0,
+          "max": 87728,
+          "mean": 26613
+        },
+        "outputTokens": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 16487,
+          "min": 1886,
+          "max": 3923,
+          "mean": 2747.833
+        },
+        "latencyMs": {
+          "availableCount": 6,
+          "unavailableCount": 0,
+          "sum": 1766055,
+          "min": 43898,
+          "max": 1401267,
+          "mean": 294342.5
+        }
+      }
+    },
+    {
+      "host": "claude-cli",
+      "arm": "modular",
+      "roleId": "lattice-review-delivery",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 34224,
+          "min": 11408,
+          "max": 11408,
+          "mean": 11408
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 144,
+          "min": 31,
+          "max": 62,
+          "mean": 48
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 1177243,
+          "min": 201018,
+          "max": 582631,
+          "mean": 392414.333
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 174434,
+          "min": 38199,
+          "max": 93315,
+          "mean": 58144.667
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 7168,
+          "min": 1849,
+          "max": 2858,
+          "mean": 2389.333
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 254704,
+          "min": 73070,
+          "max": 104847,
+          "mean": 84901.333
+        }
+      }
+    },
+    {
+      "host": "claude-cli",
+      "arm": "modular",
+      "roleId": "lattice-review-scope-plan",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 37797,
+          "min": 12599,
+          "max": 12599,
+          "mean": 12599
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 197,
+          "min": 43,
+          "max": 80,
+          "mean": 65.667
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 1968420,
+          "min": 355369,
+          "max": 835116,
+          "mean": 656140
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 326399,
+          "min": 75802,
+          "max": 137097,
+          "mean": 108799.667
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 8561,
+          "min": 2495,
+          "max": 3497,
+          "mean": 2853.667
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 339193,
+          "min": 92996,
+          "max": 134742,
+          "mean": 113064.333
+        }
+      }
+    },
+    {
+      "host": "claude-cli",
+      "arm": "modular",
+      "roleId": "lattice-review-story-init",
+      "cellCount": 3,
+      "sampleCount": 1,
+      "metrics": {
+        "promptBytes": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 33036,
+          "min": 11012,
+          "max": 11012,
+          "mean": 11012
+        },
+        "inputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 365,
+          "min": 30,
+          "max": 174,
+          "mean": 121.667
+        },
+        "cacheReadInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 954343,
+          "min": 165075,
+          "max": 458040,
+          "mean": 318114.333
+        },
+        "cacheCreationInputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 158474,
+          "min": 41962,
+          "max": 73742,
+          "mean": 52824.667
+        },
+        "outputTokens": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 6436,
+          "min": 1331,
+          "max": 3426,
+          "mean": 2145.333
+        },
+        "latencyMs": {
+          "availableCount": 3,
+          "unavailableCount": 0,
+          "sum": 194904,
+          "min": 47450,
+          "max": 93723,
+          "mean": 64968
+        }
+      }
+    }
+  ],
+  "providerLimitations": {
+    "codexCacheCreationInputTokens": {
+      "availability": "unavailable",
+      "observedCells": 36
+    },
+    "commandMisuse": {
+      "availability": "conservative-lower-bound-only",
+      "note": "Receipts omit provider tool transcripts; only explicit blocked lifecycle-mutation attempts can be counted. Absence is not evidence of zero misuse."
+    }
+  },
+  "adjudication": {
+    "fileSha256": "9145bf0c42a721337b683b68fe9fa1af1143d8da4d1bba28bfc30e1ccf1c1d72",
+    "canonicalDigest": "a563ed86bee3434aeeacba3fd416d2984a6499c6ea0409eceb47414b1cbc5ec5",
+    "evidenceDigest": "eedbaabe183a4811e56f52266455529da27d6bebfc11ec1f482c79ed216a76c4",
+    "adjudicatorId": "codex-independent-ab-adjudicator-b407c-20260721",
+    "cellCount": 72,
+    "distributions": {
+      "legacy": {
+        "detected": 16,
+        "notDetected": 8,
+        "notApplicable": 12,
+        "falsePositive": 2,
+        "explicitCommandMisuse": 0
+      },
+      "modular": {
+        "detected": 12,
+        "notDetected": 12,
+        "notApplicable": 12,
+        "falsePositive": 5,
+        "explicitCommandMisuse": 3
+      }
+    },
+    "recall": {
+      "legacy": {
+        "detected": 16,
+        "applicable": 24
+      },
+      "modular": {
+        "detected": 12,
+        "applicable": 24
+      }
+    },
+    "falsePositive": {
+      "legacy": 2,
+      "modular": 5
+    }
+  },
+  "receiptSet": {
+    "algorithm": "sha256-merkle-v1",
+    "count": 72,
+    "merkleRoot": "944e1b964718403523d1bb207bc9f86845df4a8e707e5df2f45c9bfb7f59dfba",
+    "receipts": [
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.codex-cli.legacy.r1",
+        "sha256": "fe9916e4f089894eb9dbce2c219225cc907141c2acca188f1b8cf74e6a937697"
+      },
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.codex-cli.legacy.r2",
+        "sha256": "ef8053720a4ecc9bb87861bca95e999e8fb076eea746370c5551ca42b261d40e"
+      },
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.codex-cli.legacy.r3",
+        "sha256": "ee422ed1ec421705b1add2413c1f3b5595561f8156baeb7178240e6b1773ca6e"
+      },
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.codex-cli.modular.r1",
+        "sha256": "ae4f481b653967792cb0b99091c3e667afe0429b0e47db66fe228b76cb83356c"
+      },
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.codex-cli.modular.r2",
+        "sha256": "f86c70f1e9baf5f76b46e9295c47b4573d03c47b354c17b2ba052febff051b79"
+      },
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.codex-cli.modular.r3",
+        "sha256": "7ff41b42f5161ebbf8ee0ecaa033e41c46380fda27c1e9933720836d24876d92"
+      },
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.claude-cli.legacy.r1",
+        "sha256": "2cea09a5e0b4186fc217db11baf01e8bfb74ecd7a9e2376a830f829e13270f6b"
+      },
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.claude-cli.legacy.r2",
+        "sha256": "e9f91089bba9beaa2da93918c775ab1e849c6f45f88ddd5c1540aedab829f1ba"
+      },
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.claude-cli.legacy.r3",
+        "sha256": "89f3a55fcd2fef2618f6b48c4f6313624c6f35f27a11b2a2b7a2e9ffeacf4ece"
+      },
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.claude-cli.modular.r1",
+        "sha256": "b1fcb13e01ed162a0941826932a85e631619ff3122d34e13eb9da9778c211322"
+      },
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.claude-cli.modular.r2",
+        "sha256": "538fc6cc306a515175e76fcc6863994089cff7e59050e329f8ac44762eed6cf1"
+      },
+      {
+        "cellId": "clean-pass-01.lattice-review-story-init.claude-cli.modular.r3",
+        "sha256": "e8601467e8dfecd4ed4759cb055c54aa11dd8136ab008b4da183ef6594b39bf3"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.codex-cli.legacy.r1",
+        "sha256": "176ccd7504fcb67b01ae94f030f461e4079880263d0e70481815db0633f645f6"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.codex-cli.legacy.r2",
+        "sha256": "80d9a5f59bcbfffe180764c6781623229ef8929f14aa45b53ddcdeeea19fccf0"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.codex-cli.legacy.r3",
+        "sha256": "926e61056ebfdf8162a22d5ceabb6913282c05a91b76660d488ef15e4d7e0aaf"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.codex-cli.modular.r1",
+        "sha256": "2f4797ca95d4ef906910cbdd4ce4567938f21d0146f75f1982893c5cebd12d0c"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.codex-cli.modular.r2",
+        "sha256": "f311988f2745313c123dea78745603d3d2a68019f6927c2aef05f646e4f687b9"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.codex-cli.modular.r3",
+        "sha256": "bbef805bd44379579b365f83d4dbcdb17bc396ded794b1e48ce0309c9a555377"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.claude-cli.legacy.r1",
+        "sha256": "8e51e145d8266e1b9aa7161e1f077876befa04b6df0dd8b38b2615912c23017f"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.claude-cli.legacy.r2",
+        "sha256": "550af1c3d09d0a8c0e7dd403e1f4c9fc59f4dcd14d8359d5f8d1eef575a88544"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.claude-cli.legacy.r3",
+        "sha256": "5a5d39243bda8a0883122e9484bea36c85b4abf7600d465afaa4be4d643994c8"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.claude-cli.modular.r1",
+        "sha256": "c9cfd1c6439eda614542a4efb9bb4851dcfc86fbc8ec03e8856af1956b8dc2cd"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.claude-cli.modular.r2",
+        "sha256": "18c478b1b67b268e2424ff0c4840958ad470ecbb309d63098758c70383a934c7"
+      },
+      {
+        "cellId": "clean-pass-02.lattice-review-scope-plan.claude-cli.modular.r3",
+        "sha256": "e67abde7c4c7a5b85b68a402cf3709971c53187b22cb8485af17753a4a4a5c97"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.codex-cli.legacy.r1",
+        "sha256": "6a660e7ddf6d8c7a888d34d23a7c4b07f077297c8d41d34bc3ce1f4a129e41eb"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.codex-cli.legacy.r2",
+        "sha256": "8b1e91498c9173ef449573f06f7315eafd30d019376930897994dda4d3f76145"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.codex-cli.legacy.r3",
+        "sha256": "ed1945941e58814909f599d559866968e7af7a18daef180abe86d04ac26098d3"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.codex-cli.modular.r1",
+        "sha256": "732e141475001209bb177e41a784050215641ad8a3545b6e3536fa8d36a106a7"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.codex-cli.modular.r2",
+        "sha256": "964d78320c5544d3418856612a52b3d86da34be2f09c13d877261b6e13958176"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.codex-cli.modular.r3",
+        "sha256": "fa6bb73683ed8bdccafc19b1ad22c48b89f90531279f0d6bb5d16054e2e4225d"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.claude-cli.legacy.r1",
+        "sha256": "367fa1316abfe52d7d3d285ce76e283f64bca4e3d6a4bebbe6dc60b6e7766bde"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.claude-cli.legacy.r2",
+        "sha256": "2ac83e5c0425f01f35bc47e4e66f38d330565abe4b61ee7e51f21cb0fca6a6ff"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.claude-cli.legacy.r3",
+        "sha256": "719a2fd9f266a8251e35f5db8a71652f4cab5140e422355e253782c5a8bd5578"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.claude-cli.modular.r1",
+        "sha256": "12309d0535eadbf4cbea4c65b6888ec2676dddb80eca9e79abd8da84e87335e4"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.claude-cli.modular.r2",
+        "sha256": "34f16cd7a014115f0fa80a05fe264f589243bb617a32d9f660cabdddb0440a8a"
+      },
+      {
+        "cellId": "critical-01.lattice-implementer.claude-cli.modular.r3",
+        "sha256": "8de7db04f5d463ca5a3994c481fc66e950fb7ea914f987eb5817c5babc8a8020"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.codex-cli.legacy.r1",
+        "sha256": "9ba1f6f6476eb24d918b8918ce00e5c696187b26ceb22c7f88b22e33eb61a15d"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.codex-cli.legacy.r2",
+        "sha256": "f2c83eb1a538077d9aaaba1dd566de4a3abd78820e3a7aeb016d6ce618d60ad8"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.codex-cli.legacy.r3",
+        "sha256": "afdac438051450ea771d62cab7353ae4bc252897e5a98bd42896c9d4587b8e22"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.codex-cli.modular.r1",
+        "sha256": "5ecb7d141831902cdbf30d2647e9bfc5a341c28785b0984b5ee614dd969f9744"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.codex-cli.modular.r2",
+        "sha256": "3f115042cdf4e7c46ed7bf77c82a22dea0ab37bfdfdc28dd4cefd101d7c9113f"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.codex-cli.modular.r3",
+        "sha256": "3caef66c68964c990c30719dffe620e951a4bafbbd4cce0e06bd81645ff49b6a"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.claude-cli.legacy.r1",
+        "sha256": "d4c602f47c63708ac81c594fc7996b7065cd301de40f7d5752a9545057744ee1"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.claude-cli.legacy.r2",
+        "sha256": "e473b31861f8f12c35992203017b3f25bade71e24d0e9502a944dc192b49a814"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.claude-cli.legacy.r3",
+        "sha256": "cfdd1af063d659d2ab3ea29d61a80ffd7c4d70297682d007e4fbbfd1397e6d27"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.claude-cli.modular.r1",
+        "sha256": "5f594ab9946542128954ffb030290d9d0cbe405d40b27cb059a9d2eead890ce2"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.claude-cli.modular.r2",
+        "sha256": "d879a5f81d723def2fdcaa7a8e2deac46a427dda374049ecbbeb01e391f7adec"
+      },
+      {
+        "cellId": "critical-02.lattice-evaluator.claude-cli.modular.r3",
+        "sha256": "345fd2cf12cd73949c0392541fc7ef2564c20b19bb8d9d32894ff43859a262de"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.codex-cli.legacy.r1",
+        "sha256": "f16de95311fef572c12f3e90015792a775df09d1c7043d5accdecf2f3f54c8ac"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.codex-cli.legacy.r2",
+        "sha256": "420c2ea0627c948f2405311fdc3f45e34c00def406fcd35ed09c1d733c8b3e17"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.codex-cli.legacy.r3",
+        "sha256": "86507de4e5dbaecc36022f46fe23335612444cd847e0e1f84d70a15fef34f007"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.codex-cli.modular.r1",
+        "sha256": "3de5d15daa23481b23490a43bdab92eb468b2f944c40e23b28fcc5a3bd7d3520"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.codex-cli.modular.r2",
+        "sha256": "f6d808aac3406f437042af5472cf806a644024a4ad82e2c9e04e6a658c014e00"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.codex-cli.modular.r3",
+        "sha256": "04341512da6fe2db9495b6f4e76657b17974e49b087aac22a3995ab5deb5eb0a"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.claude-cli.legacy.r1",
+        "sha256": "e5c9f4d2f3db920ddb9d0abdb963fc6fe85fb1994ce4b8f41cbc81dc61cb1a84"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.claude-cli.legacy.r2",
+        "sha256": "c4a4f74faf8a154691ca92fbcf78bb28950efabe8671583fd8437b781701fc4d"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.claude-cli.legacy.r3",
+        "sha256": "4503ae49c1b7df235436d0f2b9ad76e9b30021e0404ae439172a18eb383d34c4"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.claude-cli.modular.r1",
+        "sha256": "4d1887cf8a207812b4c379b04520a25d2b8a9f277a27ef395e09edf7f8052325"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.claude-cli.modular.r2",
+        "sha256": "2ad541c9fbdd34df6be03b31803a6acb71882a9da4b45f766d2f58ac63db45f6"
+      },
+      {
+        "cellId": "closeout-01.lattice-review-delivery.claude-cli.modular.r3",
+        "sha256": "877f6b87b19b274004e78afa2e189b3fcb385c3cce55ff7ddfc756837c869718"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.codex-cli.legacy.r1",
+        "sha256": "a85b5b711bf989c0de8c467bffc18d7e3edbe9ed6cf634ef1d0754ab00adf91e"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.codex-cli.legacy.r2",
+        "sha256": "c696cac3fc5e835da0de32448de5fb5ceee0b8a7a020e1a9efaecb691b75a101"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.codex-cli.legacy.r3",
+        "sha256": "a6071f0e80e1be9fa5851c419d1b3512ed3e00cd8ae03164222e30beb019a1a0"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.codex-cli.modular.r1",
+        "sha256": "673e92a3019e14c72877334326818ed59267643f33f9b188c3823e233b5e917e"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.codex-cli.modular.r2",
+        "sha256": "903dc03f6e389b87355b78c2e5d726984c89f524dc93d7eb1ddf9a33ff791880"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.codex-cli.modular.r3",
+        "sha256": "a7886a76a59886062a30c2ac3087ad957a14c6f5eb8473a76a06a33995885efc"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.claude-cli.legacy.r1",
+        "sha256": "219ebb99bebbcfb4a649e9079137e3e92e7cc6445080e027d6f6f18eba893010"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.claude-cli.legacy.r2",
+        "sha256": "f56f7438792a5ad793c285de55e8f7cbdacb7dc64aa6e222d95c23b2b75c90c2"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.claude-cli.legacy.r3",
+        "sha256": "e9c504dfe1d4e5621c9938985a1ba656e712175aa3f4c8a2b8c7786f1284d024"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.claude-cli.modular.r1",
+        "sha256": "0fffa635c5ff985ab8448ee082175bd2837f4cb6feb9e5f0ddfc9de954256c7f"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.claude-cli.modular.r2",
+        "sha256": "221a498e6ff9d7655963037f1348ca6224ced4c9fb03fd3391ac4c44516c6e7a"
+      },
+      {
+        "cellId": "closeout-02.lattice-implementer.claude-cli.modular.r3",
+        "sha256": "912967cc4545a851ac483f3c59ae920c1d99455188f04fd78c43b206e57d15b3"
+      }
+    ]
+  },
+  "aggregateDigest": "98c49fea4e9dafa25c5e1ec0f74659fa7262d73c82757017ec125767901edc06",
+  "summaryDigest": "bb69e3627e7186a684611965e6984e48df286e992e4169e3c83fcbb6bdefe309"
+}

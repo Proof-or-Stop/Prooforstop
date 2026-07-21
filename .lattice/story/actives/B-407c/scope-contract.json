@@ -1,0 +1,412 @@
+{
+  "storyId": "B-407c",
+  "mode": "enforce",
+  "allowedModify": [
+    ".claude/agents/lattice-evaluator.md",
+    ".claude/agents/lattice-implementer.md",
+    ".claude/agents/lattice-review-delivery.md",
+    ".claude/agents/lattice-review-scope-plan.md",
+    ".claude/agents/lattice-review-story-init.md",
+    ".lattice-codex/agents/lattice-evaluator.md",
+    ".lattice-codex/agents/lattice-implementer.md",
+    ".lattice-codex/agents/lattice-review-delivery.md",
+    ".lattice-codex/agents/lattice-review-scope-plan.md",
+    ".lattice-codex/agents/lattice-review-story-init.md",
+    "experiments/role-prompt-ab-replay/README.md",
+    "lattice.config.json",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/evaluate.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/templates/agents/lattice-evaluator.md",
+    "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/templates/agents/lattice-review-delivery.md",
+    "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-review-story-init.md"
+  ],
+  "allowedCreate": [
+    "experiments/role-prompt-ab-replay/lib/story6-schema-compat.mjs",
+    "experiments/role-prompt-ab-replay/[s]tory6-*-summary.json",
+    "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+    "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+    "experiments/role-prompt-ab-replay/story6-live.mjs",
+    "experiments/role-prompt-ab-replay/story6-output.schema.json",
+    "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+    "experiments/role-prompt-ab-replay/story6-report.mjs",
+    "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs",
+    "packages/main/src/core/prompt-budget.ts",
+    "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+    "packages/main/src/tasks/story6-ab-dispatch.ts",
+    "packages/main/src/tasks/story6-invariants-smoke.ts",
+    "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+    "packages/main/src/tasks/story6-role-migration-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/story6-*.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts"
+  ],
+  "explicitExcludes": [],
+  "scopeChangeReason": "PLAN correction permits only Story6-named tracked campaign summaries; it excludes Story7, unrelated summaries, runtime receipts, raw outputs, warn/enforce rollout, and compatibility cleanup.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These registry and rollout configuration files are necessary to activate the five Story 6 complex roles through the trusted full-envelope path; without them migration code remains unreachable.",
+      "timestamp": "2026-07-20T21:38:50.689Z",
+      "paths": [
+        "lattice.config.json",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "lattice.config.json",
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/prompt-role-contract-registry.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "befb4e07d2475e491bee08614e903479ebfde0d6",
+      "materialHash": "2229a94c347153392025d8ba687f9afcb4f2dee66c89207f08cd8bbff2a53e45",
+      "anchors": [
+        "complex_role_registry",
+        "prompt_envelope_rollout",
+        "story6_dispatch"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story 6 role asset migration must update package templates alongside materialized Claude/Codex role assets; generated modular bodies are the canonical source used by prompt registry and production dispatch.",
+      "timestamp": "2026-07-20T21:57:26.215Z",
+      "paths": [
+        "packages/main/templates/agents/lattice-evaluator.md",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-scope-plan.md",
+        "packages/main/templates/agents/lattice-review-story-init.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/templates/agents/lattice-evaluator.md",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-scope-plan.md",
+        "packages/main/templates/agents/lattice-review-story-init.md"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "e0e8d70716aaf48e85aa4f7a94a974b0acbbf17b",
+      "materialHash": "336e99307988e22aee53aa90033f1c8a6437e2311bea54ba02026c5db15585d2",
+      "anchors": [
+        "complex_role_assets",
+        "modular_role_body",
+        "prompt_registry"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story 6 requires a serialized real-provider A/B campaign definition across five complex roles; these experiment assets pre-register cells and keep unavailable provider dimensions INCONCLUSIVE without claiming savings.",
+      "timestamp": "2026-07-20T22:03:17.998Z",
+      "paths": [
+        "experiments/role-prompt-ab-replay/README.md",
+        "experiments/role-prompt-ab-replay/story6-live.mjs",
+        "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+        "experiments/role-prompt-ab-replay/story6-output.schema.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/role-prompt-ab-replay/README.md",
+        "experiments/role-prompt-ab-replay/story6-live.mjs",
+        "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+        "experiments/role-prompt-ab-replay/story6-output.schema.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "cdafd92ef3ae64eeb69bccba1fce1e27b54f279f",
+      "materialHash": "780b2f9680635bb32d8691d747052b8d4d722b0cf5c4d8dfc005dffd1f371668",
+      "anchors": [
+        "story6_ab_campaign",
+        "provider_inconclusive",
+        "complex_role_baseline"
+      ]
+    },
+    {
+      "actor": "story6-executor",
+      "reason": "These mirrored role prompt assets are required to keep Claude and Codex adapters synchronized with the Story 6 modular Prompt Envelope migration.",
+      "timestamp": "2026-07-20T22:10:13.960Z",
+      "paths": [
+        ".claude/agents/lattice-evaluator.md",
+        ".claude/agents/lattice-implementer.md",
+        ".claude/agents/lattice-review-delivery.md",
+        ".claude/agents/lattice-review-scope-plan.md",
+        ".claude/agents/lattice-review-story-init.md",
+        ".lattice-codex/agents/lattice-evaluator.md",
+        ".lattice-codex/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-review-delivery.md",
+        ".lattice-codex/agents/lattice-review-scope-plan.md",
+        ".lattice-codex/agents/lattice-review-story-init.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".claude/agents/lattice-evaluator.md",
+        ".claude/agents/lattice-implementer.md",
+        ".claude/agents/lattice-review-delivery.md",
+        ".claude/agents/lattice-review-scope-plan.md",
+        ".claude/agents/lattice-review-story-init.md",
+        ".lattice-codex/agents/lattice-evaluator.md",
+        ".lattice-codex/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-review-delivery.md",
+        ".lattice-codex/agents/lattice-review-scope-plan.md",
+        ".lattice-codex/agents/lattice-review-story-init.md"
+      ],
+      "affectedPathCount": 10,
+      "phase": "DEV",
+      "headHash": "e3542824c417621db6830558f9b48b05b513fe9c",
+      "materialHash": "051cbb20988fd64b71c0ff12949695ffe8851c814088692dbee16d3ec622e1ae"
+    },
+    {
+      "actor": "story6-executor",
+      "reason": "The A/B analyzer selfcheck is a required Story 6 test asset proving forged provenance receipts are rejected before aggregation.",
+      "timestamp": "2026-07-20T22:19:27.122Z",
+      "paths": [
+        "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d4236a30f0ef68bc6e89c33caf16eac6045005e1",
+      "materialHash": "9ed32ce9dc4f59f0f4eba9327b4a764c076a3b7d79b646544ee597b8121e1416"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story 6 requires each migrated package role template to remain byte-equivalent across the tracked Claude and Codex full-asset mirrors.",
+      "timestamp": "2026-07-21T00:06:55.129Z",
+      "paths": [
+        ".claude/agents/lattice-evaluator.md",
+        ".claude/agents/lattice-implementer.md",
+        ".claude/agents/lattice-review-delivery.md",
+        ".claude/agents/lattice-review-scope-plan.md",
+        ".claude/agents/lattice-review-story-init.md",
+        ".lattice-codex/agents/lattice-evaluator.md",
+        ".lattice-codex/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-review-delivery.md",
+        ".lattice-codex/agents/lattice-review-scope-plan.md",
+        ".lattice-codex/agents/lattice-review-story-init.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".claude/agents/lattice-evaluator.md",
+        ".claude/agents/lattice-implementer.md",
+        ".claude/agents/lattice-review-delivery.md",
+        ".claude/agents/lattice-review-scope-plan.md",
+        ".claude/agents/lattice-review-story-init.md",
+        ".lattice-codex/agents/lattice-evaluator.md",
+        ".lattice-codex/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-review-delivery.md",
+        ".lattice-codex/agents/lattice-review-scope-plan.md",
+        ".lattice-codex/agents/lattice-review-story-init.md"
+      ],
+      "affectedPathCount": 10,
+      "phase": "DEV",
+      "headHash": "911cd998081f3c066e0cfd413a971332bd0335d2",
+      "materialHash": "ab29591cbdc22d29a495abb8180cbc44e2bc637b8a6a97b6aba273857c9bdbff"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story 6 changes Lattice CLI/runtime behavior, so repository policy requires a synchronized patch-version increment before REVIEW.",
+      "timestamp": "2026-07-21T00:32:43.082Z",
+      "paths": [
+        "package.json",
+        "package-lock.json",
+        "packages/main/package.json",
+        "packages/main/package-lock.json",
+        "packages/main/src/core/lattice-brand.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package.json",
+        "package-lock.json",
+        "packages/main/package.json",
+        "packages/main/package-lock.json",
+        "packages/main/src/core/lattice-brand.ts"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "081c73a4ea739644e90b292f851b66a0af915d21",
+      "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
+      "anchors": [
+        "LATTICE_CLI_VERSION",
+        "versionSync"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-011 coverage review exposed a stale legacy ReviewRun fixture with empty promptHash; updating this exact smoke fixture is required to test the real frozen legacy role-body digest gate without weakening production verification.",
+      "timestamp": "2026-07-21T01:56:48.565Z",
+      "paths": [
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "88d539cc7a053ca6b16386ac9b1689e7316206bd",
+      "materialHash": "6b868b529359791507a1e23bd56c54ff7368a69f1985754c8c85ddec39057430",
+      "anchors": [
+        "semanticScopeGuardSmoke",
+        "promptHash"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The approved deterministic prompt-baseline generator must refresh these three tracked derived artifacts after making actual host-render selection match the rejected-baseline legacy rollout for all five Story 6 roles.",
+      "timestamp": "2026-07-21T02:31:58.704Z",
+      "paths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "6e3846532a04c8f2e0b5ad565863d5cf58ab635a",
+      "materialHash": "e80da5e006a52e105828fe8f6ccc528720ba3e00f3e531d1945747adaa6d2d49",
+      "anchors": [
+        "promptBaseline",
+        "promptOverlapMatrix",
+        "rolePromptMeasurementBaseline"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-012 requires both canonical host-render consumers to share the production rollout-selected renderer; these verifier changes are necessary to keep Claude/Codex mirror and process-fact drift checks biting while modular templates remain audit-only.",
+      "timestamp": "2026-07-21T02:43:31.521Z",
+      "paths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "67c10833f972cf676869aa2715ec060104b01242",
+      "materialHash": "002977cfee58a8c200fe4b4f334c485386494b7955ec3d142387107ee2a53a5d"
+    }
+  ],
+  "createdAt": "2026-07-20T21:35:14.371Z",
+  "updatedAt": "2026-07-21T02:43:31.521Z",
+  "fileRules": [],
+  "protectedAnchors": [
+    "AGENT_DISPATCH_REGISTRY",
+    "buildFullTaskContext"
+  ],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/roles/**": "packages/main/src/roles/**",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/prompt-budget.ts": "packages/main/src/core/prompt-budget.ts",
+    "packages/main/src/core/task-context.ts": "packages/main/src/core/task-context.ts",
+    "packages/main/src/handlers/dispatch.ts": "packages/main/src/handlers/dispatch.ts",
+    "packages/main/src/core/delivery-check.ts": "packages/main/src/core/delivery-check.ts",
+    "packages/main/src/core/scope-contract.ts": "packages/main/src/core/scope-contract.ts",
+    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts",
+    ".claude/agents/**": ".claude/agents/**",
+    ".lattice-codex/agents/**": ".lattice-codex/agents/**",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "packages/main/src/tasks/story6-*.ts": "packages/main/src/tasks/story6-*.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/Story 7 budget enforce implementation": "Story 7 budget enforce implementation",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/prompt-contracts.ts": "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/agent-prompt.ts": "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/evaluate.ts": "packages/main/src/handlers/evaluate.ts",
+    "packages/main/src/handlers/delivery-check.ts": "packages/main/src/handlers/delivery-check.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/story6-role-migration-smoke.ts": "packages/main/src/tasks/story6-role-migration-smoke.ts",
+    "packages/main/src/tasks/story6-budget-smoke.ts": "packages/main/src/tasks/story6-budget-smoke.ts",
+    "packages/main/src/tasks/story6-ab-dispatch.ts": "packages/main/src/tasks/story6-ab-dispatch.ts",
+    "packages/main/src/tasks/story6-ab-dispatch-smoke.ts": "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+    "packages/main/src/tasks/story6-invariants-smoke.ts": "packages/main/src/tasks/story6-invariants-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts": "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/Story 7 legacy asset isolation": "Story 7 legacy asset isolation",
+    "packages/main/src/Story 7 observe-to-warn rollout promotion": "Story 7 observe-to-warn rollout promotion",
+    "packages/main/src/compatibility role cleanup": "compatibility role cleanup",
+    "packages/main/src/budget enforce implementation": "budget enforce implementation",
+    "packages/main/src/Task Context schema changes": "Task Context schema changes",
+    "packages/main/src/role status or authority changes": "role status or authority changes",
+    "packages/main/templates/agents/lattice-evaluator.md": "packages/main/templates/agents/lattice-evaluator.md",
+    "packages/main/templates/agents/lattice-implementer.md": "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/templates/agents/lattice-review-delivery.md": "packages/main/templates/agents/lattice-review-delivery.md",
+    "packages/main/templates/agents/lattice-review-scope-plan.md": "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-review-story-init.md": "packages/main/templates/agents/lattice-review-story-init.md",
+    "experiments/role-prompt-ab-replay/README.md": "experiments/role-prompt-ab-replay/README.md",
+    "experiments/role-prompt-ab-replay/story6-live.mjs": "experiments/role-prompt-ab-replay/story6-live.mjs",
+    "experiments/role-prompt-ab-replay/story6-analyze.mjs": "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+    "experiments/role-prompt-ab-replay/story6-output.schema.json": "experiments/role-prompt-ab-replay/story6-output.schema.json",
+    ".claude/agents/lattice-evaluator.md": ".claude/agents/lattice-evaluator.md",
+    ".claude/agents/lattice-implementer.md": ".claude/agents/lattice-implementer.md",
+    ".claude/agents/lattice-review-delivery.md": ".claude/agents/lattice-review-delivery.md",
+    ".claude/agents/lattice-review-scope-plan.md": ".claude/agents/lattice-review-scope-plan.md",
+    ".claude/agents/lattice-review-story-init.md": ".claude/agents/lattice-review-story-init.md",
+    ".lattice-codex/agents/lattice-evaluator.md": ".lattice-codex/agents/lattice-evaluator.md",
+    ".lattice-codex/agents/lattice-implementer.md": ".lattice-codex/agents/lattice-implementer.md",
+    ".lattice-codex/agents/lattice-review-delivery.md": ".lattice-codex/agents/lattice-review-delivery.md",
+    ".lattice-codex/agents/lattice-review-scope-plan.md": ".lattice-codex/agents/lattice-review-scope-plan.md",
+    ".lattice-codex/agents/lattice-review-story-init.md": ".lattice-codex/agents/lattice-review-story-init.md",
+    "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs": "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+    "experiments/role-prompt-ab-replay/lib/story6-schema-compat.mjs": "experiments/role-prompt-ab-replay/lib/story6-schema-compat.mjs",
+    "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json": "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
+    "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs": "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+    "experiments/role-prompt-ab-replay/story6-report.mjs": "experiments/role-prompt-ab-replay/story6-report.mjs",
+    "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs": "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs",
+    "packages/main/src/tasks/story6-production-dispatch-smoke.ts": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "experiments/role-prompt-ab-replay/*-summary.json": "experiments/role-prompt-ab-replay/*-summary.json",
+    "experiments/role-prompt-ab-replay/[s]tory6-*-summary.json": "experiments/role-prompt-ab-replay/[s]tory6-*-summary.json",
+    "packages/main/src/tasks/semantic-scope-guard-smoke.ts": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/core/codex-adapter-checks.ts": "packages/main/src/core/codex-adapter-checks.ts"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
+}

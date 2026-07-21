@@ -1,0 +1,1196 @@
+{
+  "passes": [
+    {
+      "id": "B-407c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement is introduced in Story 6; migration adds modular complex-role assets while explicitly preserving legacy compatibility and excluding Story 7 cleanup. Diff and plan were scanned for replacement terminology and no residue blocker was found.",
+      "createdAt": "2026-07-20T21:52:00.634Z",
+      "reviewRound": "2026-07-20T21:50:24.109Z",
+      "reviewRunId": "B-407c:RR-001",
+      "envelopeId": "85323979810b58498a567a19e88e93f04b20dcc1668dbbd4a3bbb63f77cbf3c6",
+      "writerSessionId": "sess-6049ab32b2a270dcbcd45c1b536ae028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-ab-dispatch.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "68df984c63b9243beafb82318545417317dde4e31e238ba2b91deca27524a07b"
+    },
+    {
+      "id": "B-407c:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept scan complete on the committed Story 6 diff. This is a modular migration with content-addressed legacy reconstruction, not deletion or renaming of a process concept. Legacy compatibility and retired-role audit references are intentional; Story 7 cleanup remains explicitly out of scope. No concept-residue blocker found.",
+      "createdAt": "2026-07-20T22:12:35.908Z",
+      "reviewRound": "2026-07-20T22:10:29.128Z",
+      "reviewRunId": "B-407c:RR-010",
+      "envelopeId": "499dad227c8a8c1696b3c3f4062c1576afa5f1f9570a61b652af3df4b2a70d89",
+      "writerSessionId": "sess-6049ab32b2a270dcbcd45c1b536ae028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-evaluator.md",
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".claude/agents/lattice-review-story-init.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "baa460c080e6846b1153ccad845145de830beb833ce2f8f3b72632a31fc53547"
+    },
+    {
+      "id": "B-407c:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs/code consistency review passed: Story 6 defaults budget mode to observe; only init/scope/implementer/delivery are budgeted, while Story 7 owns observe-to-warn promotion and later enforce. Live A/B docs honestly retain provider/cache/latency INCONCLUSIVE and pending adjudication; no undocumented command or behavior drift found.",
+      "createdAt": "2026-07-20T22:12:42.256Z",
+      "reviewRound": "2026-07-20T22:10:29.128Z",
+      "reviewRunId": "B-407c:RR-008",
+      "envelopeId": "4c32137aa122a177185ba057f17fb87dfcfb99ba142250b71c36498e3b84e601",
+      "writerSessionId": "sess-355a6279c64d7b1326bc478e4a65c0fb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7b911db35abdf57ea8844594ee24c613e261aa91817708381f95a740464eaf70"
+    },
+    {
+      "id": "B-407c:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept scan complete on the latest committed Story 6 fix. The diff continues to migrate prompt assets into modular envelopes and preserve legacy reconstruction; no process concept was deleted or renamed. Compatibility and retired-role references are intentional, and Story 7 remains explicitly excluded. No concept-residue blocker found.",
+      "createdAt": "2026-07-20T22:16:19.249Z",
+      "reviewRound": "2026-07-20T22:15:32.054Z",
+      "reviewRunId": "B-407c:RR-011",
+      "envelopeId": "f79554bf11aa222d2af190b017c973cd20048b8559f05c14a7644ec26164cc13",
+      "writerSessionId": "sess-6049ab32b2a270dcbcd45c1b536ae028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-evaluator.md",
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".claude/agents/lattice-review-story-init.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "946732a9766d6f62948db09b7f67593407f1f5a1cdd63ee7fb17fef011b4e181"
+    },
+    {
+      "id": "B-407c:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round-3 docs/code review passed. Story 6 plan and live-campaign README align with the implementation: 72-cell preregistered matrix (six samples, three repeats, two arms, two hosts), explicit provider/cache/latency INCONCLUSIVE and independent-adjudication boundaries, and no gate evidence. Budget remains observe-only for init/scope/implementer/delivery; Story 7 alone owns observe-to-warn promotion and later evidence-gated enforce. Role migration and legacy rollback docs remain consistent; no Story 7 asset isolation or budget enforce was introduced.",
+      "createdAt": "2026-07-20T22:17:00.212Z",
+      "reviewRound": "2026-07-20T22:15:32.054Z",
+      "reviewRunId": "B-407c:RR-013",
+      "envelopeId": "85776caaa0fad2a452736af2484a8b3c94074db0c41ff094927453a008158f05",
+      "writerSessionId": "sess-355a6279c64d7b1326bc478e4a65c0fb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "bb9f9f44286bb5887c8cb441d63ebaa745abbbec1b9d0d31c81e4f6686373359"
+    },
+    {
+      "id": "B-407c:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed current Story 6 diff and reran build plus story6-production-dispatch-smoke and story6-role-migration-smoke. Production smoke now invokes both legacy and modular production agent_prompt paths for all five roles, records provider dimensions as INCONCLUSIVE, persists modular envelopes/events, and mutation checks reject wrong role/head/context digests. Live provider campaign remains explicitly optional/unexecuted and therefore no provider savings or quality claim is made.",
+      "createdAt": "2026-07-20T22:17:06.073Z",
+      "reviewRound": "2026-07-20T22:15:32.054Z",
+      "reviewRunId": "B-407c:RR-014",
+      "envelopeId": "2a13bdedaf104f40983a78fb580a47b49ace008e7432adca50c2f96f9823be03",
+      "writerSessionId": "sess-e3ccd7ac1a845e8f65384f6aee635052",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c5f1a4ef5832c4fe0f1fbf9d809378477050873a18f7464fb83cbb7549e96b8a"
+    },
+    {
+      "id": "B-407c:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept scan complete after analyzer fix. The latest Story 6 diff still adds modular role assets and A/B analysis while preserving legacy reconstruction; no lifecycle/process concept was deleted or renamed. Remaining legacy and retired-role references are intentional compatibility/audit material, and Story 7 is explicitly excluded. No concept-residue blocker found.",
+      "createdAt": "2026-07-20T22:20:21.214Z",
+      "reviewRound": "2026-07-20T22:19:33.690Z",
+      "reviewRunId": "B-407c:RR-015",
+      "envelopeId": "991fb0f93226d6b27a85ee7f9b18e3379096a8c396b38d6ea7852d7e66af8790",
+      "writerSessionId": "sess-6049ab32b2a270dcbcd45c1b536ae028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-evaluator.md",
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".claude/agents/lattice-review-story-init.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f1eda54f3050542b38554b93de5c271c5e41c06672901fe58102d60153ca5af2"
+    },
+    {
+      "id": "B-407c:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 docs review passed. Analyzer provenance/selfcheck fixes align with the Story 6 plan and README: receipt validation remains production-only, 72 expected cells, exact sample/role/host/arm/repeat coverage, independent adjudication is required for evaluable output, missing provider dimensions remain INCONCLUSIVE, and gateEvidence stays false. Story 7 observe-to-warn and later enforce remain explicitly out of scope; no documentation promise is undelivered.",
+      "createdAt": "2026-07-20T22:20:36.696Z",
+      "reviewRound": "2026-07-20T22:19:33.690Z",
+      "reviewRunId": "B-407c:RR-017",
+      "envelopeId": "17d64f2b6327a9bcf7df614f5a5937f2fa604413a14168b3d4f2f192ffed5ea9",
+      "writerSessionId": "sess-355a6279c64d7b1326bc478e4a65c0fb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "c38bdaa8c907c3d8ba7302953778b6b1a9affe2e5f7990507c822f3f2b550592"
+    },
+    {
+      "id": "B-407c:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed round-4 analyzer/provenance changes and reran story6-live --selfcheck, story6-analyze against a missing campaign (truthful INCONCLUSIVE), production-dispatch smoke, role-migration smoke, and build. Analyzer now validates role/sample/arm/host/repetition, campaign/material/finding digests, production-provider provenance, duplicate keys, missing-cell floor, and adjudication before any claim; provider or campaign absence remains INCONCLUSIVE with no savings/recall claim. No quality blocker found.",
+      "createdAt": "2026-07-20T22:21:01.509Z",
+      "reviewRound": "2026-07-20T22:19:33.690Z",
+      "reviewRunId": "B-407c:RR-018",
+      "envelopeId": "2fb63ae3a0fdb580e9ffc39f7b352f817f089f5dcd1f35826d5fd68e525e7d67",
+      "writerSessionId": "sess-e3ccd7ac1a845e8f65384f6aee635052",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-ab-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "abb778396e72f0213733a16160b6ecc07f4c6cacb1a746d3f6e88e482173258a"
+    },
+    {
+      "id": "B-407c:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 concept scan complete after the mutation-matrix fix. The latest Story 6 changes add/strengthen verification only; modular migration still preserves legacy reconstruction and does not delete or rename a process concept. Compatibility and retired-role references are intentional, Story 7 remains excluded, and no concept-residue blocker was found.",
+      "createdAt": "2026-07-20T22:24:05.507Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-020",
+      "envelopeId": "1b0a63cc2e8c63e2e8dfdafce245522c8f8b7f05fa701847833baa3f1f47b3bb",
+      "writerSessionId": "sess-6049ab32b2a270dcbcd45c1b536ae028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-evaluator.md",
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".claude/agents/lattice-review-story-init.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a719d1ebf11bfe49f082ea074a03ea7246720a234a47c22216b93f21cd008a77"
+    },
+    {
+      "id": "B-407c:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Round-5 docs review passed. The 15-case receipt mutation matrix is verification-only and introduces no undocumented runtime contract. Story 6 README and canonical plan remain aligned: production provenance validation, 72-cell coverage, provider/adjudication INCONCLUSIVE boundaries, gateEvidence=false, observe-only budget, and explicit Story 7 exclusion. No promised behavior is missing from the documented implementation.",
+      "createdAt": "2026-07-20T22:24:15.245Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-023",
+      "envelopeId": "075990ef9722962fef1054501a2d673fb886de6063ef7ef9e1696fd5934dce4e",
+      "writerSessionId": "sess-355a6279c64d7b1326bc478e4a65c0fb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ad924a81242b7ff0ca04a19fb2c57aa25f56b4895db4a38ce14b92d49c262569"
+    },
+    {
+      "id": "B-407c:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified all 12 must intents across four checklist items; production dispatch, warn-only budget, invariants, and 15-case A/B receipt mutation matrix are covered. Provider-unavailable dimensions remain explicitly INCONCLUSIVE.",
+      "createdAt": "2026-07-20T22:24:29.057Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-022",
+      "envelopeId": "14865e06619b8b5e19ff30bd64d7f79daa74902ef386bba2d7ae23c2d265073d",
+      "writerSessionId": "sess-c486175098654596183696ccb1b23174",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "d75902c1b83d1b760bfd97e047586b2792a8a7ea0030dc20728beb5adef67c7d"
+    },
+    {
+      "id": "B-407c:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round-5 quality review: build, production dispatch smoke, and Story 6 analyzer selfcheck pass. The 15-case mutation matrix rejects malformed provenance, wrong role/sample/arm/host/repetition, digest/campaign mismatches, duplicate cells, and gateEvidence/provider claim mutations. No quality blocker found; provider campaign remains INCONCLUSIVE unless externally executed and independently adjudicated.",
+      "createdAt": "2026-07-20T22:24:41.071Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-021",
+      "envelopeId": "153a1e3bcf90b56691eef9da71e648629da88f440e2d720eb1a5d83303341260",
+      "writerSessionId": "sess-e3ccd7ac1a845e8f65384f6aee635052",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-ab-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5a9cb69f757430960d43dc9eff5f32cccdd92e4f14f3c925972334fd0d985618"
+    },
+    {
+      "id": "B-407c:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Fresh current-HEAD concept review completed from the trusted incremental basis. No material concept deletion or rename was introduced after RP-010; modular migration, legacy reconstruction, compatibility references, and Story 7 exclusion remain unchanged and intentional. No concept-residue blocker found.",
+      "createdAt": "2026-07-20T22:25:58.591Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-024",
+      "envelopeId": "765dd4645aa76b3e413c73a53745b7d49b9274669276031a5510eb9b89463ae9",
+      "writerSessionId": "sess-6049ab32b2a270dcbcd45c1b536ae028",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "scanEscalationReason": "Incremental basis reports no changed files; prior full concept scan remains applicable."
+      },
+      "_hash": "22a420418c36f61e84e57629c3a41f2a982dd7295803ec31049d79f0db31c69a"
+    },
+    {
+      "id": "B-407c:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Fresh current-HEAD quality re-review after quorum staleness. Incremental basis is eligible with prior RP-013; no material code change. Reconfirmed analyzer 15-case mutation matrix, production dispatch smoke, role migration smoke, build, and truthful INCONCLUSIVE provider semantics. No quality blocker.",
+      "createdAt": "2026-07-20T22:26:03.165Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-025",
+      "envelopeId": "43d1926394a783e742c7b5cc80e281701a9c53ec1d9dcabe6d9fdfcab1a86829",
+      "writerSessionId": "sess-e3ccd7ac1a845e8f65384f6aee635052",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-ab-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "afb1179bc333bf17b134c04e7d12504f5f924c5179a6a692ed796640b97ddb19"
+    },
+    {
+      "id": "B-407c:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Current-HEAD incremental docs review passed. Prior docs review remains valid because eligibility reports no material change and trusted prior bindings; canonical plan, Story 6 live A/B README/analyzer, observe-only budget boundary, and explicit Story 7 exclusion remain unchanged and consistent with the current implementation. No new documentation drift or promised-but-undelivered behavior found.",
+      "createdAt": "2026-07-20T22:26:08.423Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-026",
+      "envelopeId": "b6f7af7bf2b8960e97d824835a01fa29c1682e3f4b431600f34c924c22203460",
+      "writerSessionId": "sess-355a6279c64d7b1326bc478e4a65c0fb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b8ad2ce6f33a9d30ee40b9baaf67fce32956f4c3925871b054b2a30beaf7a1b8"
+    },
+    {
+      "id": "B-407c:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "coverage re-attestation passed after F-004 resolution: prior RP-012 remains valid through trusted incremental basis; current mutation-matrix evidence covers 15 receipt tamper classes, production dispatch, budget, and invariants with no new coverage gap.",
+      "createdAt": "2026-07-20T22:27:14.979Z",
+      "reviewRound": "2026-07-20T22:23:11.258Z",
+      "reviewRunId": "B-407c:RR-027",
+      "envelopeId": "0d2c6d128973b44adf8bb8abc76ce060209723856143dfcdf3c37435308846c5",
+      "writerSessionId": "sess-c486175098654596183696ccb1b23174",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "2184f5402aeae3a0c77b284f7bae06e560ad1b55682c20fc44dca1ddf9903f19"
+    },
+    {
+      "id": "B-407c:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Story 6 concept/residue and promise review found no blocker. The five complex roles are deliberately replaced by modular full-envelope bodies with content-addressed per-role legacy rollback; remaining legacy-full-context references are required compatibility, not stale residue. The 72-cell two-host A/B is honestly INCONCLUSIVE (modular recall 12/24 vs legacy 16/24; false positives 5 vs 2), and the tracked report mechanically refuses baseline acceptance, recall non-regression, enforce readiness, and Story 7 implementation. Story 6 requires migration plus real A/B, not a favorable result; the adverse result therefore blocks baseline/enforce claims rather than making the completed experiment fictitiously pass.",
+      "createdAt": "2026-07-21T00:38:07.116Z",
+      "reviewRound": "2026-07-21T00:35:37.735Z",
+      "reviewRunId": "B-407c:RR-029",
+      "envelopeId": "2c4e6b4f831b5e35c37c715b7adb8b36ec988f9c31722b75b6c117fe8502c753",
+      "writerSessionId": "sess-c25611de6e4e5e15228b4b170ef630b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "lattice.config.json",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-evaluator.md",
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".claude/agents/lattice-review-story-init.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "053de0673aecef09c20187ce99d6ddb4605acfdeaa79be49422b757a1d2ca0c2"
+    },
+    {
+      "id": "B-407c:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Round 9 concept review found no blocker on the latest material. Commit 9f0c290 closes F-009 by narrowing the no-model/no-agent_prompt statement to the ordinary Story 3/B-235e replay and explicitly documenting Story 6 live as the audit-only provider/agent_prompt exception. Repository grep found no remaining stale whole-directory boundary. The v3 content-addressed report still verifies 72/72 agent_prompt-produced cells, keeps the adverse modular result INCONCLUSIVE, rejects baseline/recall/enforce claims and Story 7, and lattice.config.json keeps all five complex roles on legacy-full-context by default. Existing legacy references are intentional rollback/compatibility, not incomplete deletion.",
+      "createdAt": "2026-07-21T02:04:01.917Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-034",
+      "envelopeId": "4987d6670f80b645f7120dfafceaec4f6bbdf1c2ba5caf3db0b64496ce17dffa",
+      "writerSessionId": "sess-c25611de6e4e5e15228b4b170ef630b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "lattice.config.json",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "b13445d87e902507bf4a5ac013c8934ffdae5f17269c2bc909969c468d5ff261"
+    },
+    {
+      "id": "B-407c:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 quality re-review found no blocker. Verified F-007 adverse A/B rollback remains selected; v3 is INCONCLUSIVE and non-qualifying. Reproduced F-010 actual-handler reentrant mutation on current material: outer append failure throws while the successful inner dispatch retains exactly one bound envelope/event pair. Build, production dispatch smoke, real signed consumer invariant smoke, role migration smoke, full-context smoke, report selfcheck, git diff check, and process-fact contract all pass.",
+      "createdAt": "2026-07-21T02:04:37.883Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-035",
+      "envelopeId": "94ccf219472c279a1fbb2cc6bda309099a463807b44e6e9ba4bb4dcb1f00a346",
+      "writerSessionId": "sess-41c234fd6507fc4629595d666eb8184b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "lattice.config.json",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "29bafd975558fb0190ea5558b0dc2ff3facdc0546abe02deb91ae232ef72c464"
+    },
+    {
+      "id": "B-407c:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 9 test-coverage PASS: audited all 12 must intents and 12 current-bound evidence records. Independently rebuilt and passed the Story 6 real-consumer invariant matrix, semantic scope guard, production dispatch/envelope rollback, Prompt Envelope integrity, authority registry, lifecycle classification, v3 72-cell analyzer/report mutations, and process-fact contract. F-005 production A/B and F-006/F-011 negative invariant gaps are covered. v3 remains honestly INCONCLUSIVE with modular recall regression, baselineAccepted=false, recallNonRegressionClaim=false, and enforceReady=false.",
+      "createdAt": "2026-07-21T02:05:34.018Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-036",
+      "envelopeId": "cb0c20c9d839a6fda1bec7b95fb619c538fdd1168db4440e4ef941cbf60c0c93",
+      "writerSessionId": "sess-e8903ac26f64278445a2d5c62e03c2b7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "4e1fde2cb88142b58dbeddf5d94c02b13bc1b4b222b43d31a24377e31dbe2093"
+    },
+    {
+      "id": "B-407c:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Post-resolution re-attestation found no concept blocker. The signed incremental basis correctly records no material source change since RP-019 and no unresolved findings. F-005 through F-011 are all resolved with strong evidence; F-009 remains materially closed because README scopes the no-provider/no-agent_prompt boundary to ordinary replay and explicitly documents the Story 6 live exception. The v3 report remains INCONCLUSIVE with 72/72 two-host receipts, legacy recall 24/24 versus modular 20/24, baselineAccepted=false, no recall/enforce claim, Story 7 absent, and all five complex roles legacy-default.",
+      "createdAt": "2026-07-21T02:07:27.351Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-037",
+      "envelopeId": "b9ba25b765bedce6d4cbb442bb5be0e93ce2805cfd1973cfe9c562f91917d9a0",
+      "writerSessionId": "sess-c25611de6e4e5e15228b4b170ef630b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "a4f767f1a41b8a0f1079dbaf81da08de1bdcb199d5df1b8fe2b3b3235ecfd04f"
+    },
+    {
+      "id": "B-407c:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Final metadata-only re-attestation: source and experiment material are unchanged since 9f0c290; fresh incremental ReviewRun recomputed eligibility/reviewBasis after finding resolution. Re-ran build, Story 6 production dispatch smoke including the F-010 identical-dispatch reentrant transaction mutation, expanded real-consumer invariant smoke, and git diff check; all passed. F-010 remains closed with the successful inner event retaining its exact shared envelope while the failed outer dispatch throws.",
+      "createdAt": "2026-07-21T02:07:38.521Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-038",
+      "envelopeId": "5467e80c8abda105124b1dad3efd0f49c18ff7a7a7328c9d01103bb0fbb6f03c",
+      "writerSessionId": "sess-41c234fd6507fc4629595d666eb8184b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5cbaab604b0951dce8866dae29cd1d16d779dbdf80ed0beddf65b48e33aa979b"
+    },
+    {
+      "id": "B-407c:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final post-resolution test-coverage re-attestation PASS: since the prior pass only finding/checklist/review metadata changed and no source changed. Reverified 12/12 must intents with 12 current-bound evidence records, zero failures and zero waivers; F-005/F-006/F-011 are resolved. Independently reran the F-011 real-consumer invariant matrix, semantic scope guard, production dispatch rollback/reentrancy smoke, and v3 72-cell tracked summary verification. The adverse v3 outcome remains INCONCLUSIVE with no baseline, non-regression, or enforce claim.",
+      "createdAt": "2026-07-21T02:07:51.019Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-039",
+      "envelopeId": "6d0b9fcc4c1fec93e1a893cefd7bfbe8b4c6fff07a1344716bed3d28a544601c",
+      "writerSessionId": "sess-e8903ac26f64278445a2d5c62e03c2b7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "2ed2904f71b734594c6e76868c3f837b9ac7400f1b97fd4b360cb1a8a52e3dc7"
+    },
+    {
+      "id": "B-407c:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept re-attestation on commit 380f540b found no blocker. For all five Story 6 complex roles, lattice.config selects legacy-full-context; the actual Claude and Codex host renders equal the immutable restored legacy bytes, materialized host assets equal those renders, and role-only agent_prompt returns the selected legacy host render. Full-envelope remains available only through explicit audit selection, with Story-aware override requiring auditExperiment=true and producing auditOnly/canMintReviewEvidence=false artifacts. Focused registry, role-migration, production-dispatch, and tracked-report verifications pass. The v3 campaign remains adverse and INCONCLUSIVE (legacy 24/24 versus modular 20/24, FP 0 versus 1), baselineAccepted/recallNonRegression/enforceReady remain false, and Story 7 remains unimplemented.",
+      "createdAt": "2026-07-21T02:36:21.415Z",
+      "reviewRound": "2026-07-21T02:34:20.993Z",
+      "reviewRunId": "B-407c:RR-040",
+      "envelopeId": "cf218cae5fa431125cc3bdd58522d26921b4f69b3581b9bdb2c27abfec6f6dc3",
+      "writerSessionId": "sess-c25611de6e4e5e15228b4b170ef630b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "lattice.config.json",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "9b876ccfd668fd428d0679a1e403263a82a5f9778835d20f6b23331068a49f0c"
+    },
+    {
+      "id": "B-407c:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Round 11 full concept review found no blocker. Commit 7b05391e removes parallel/manual host-prompt reconstruction from Codex adapter and process-fact verification and makes both consume the canonical readPromptRegistry plus renderPromptEntryForHost path. F-012 is resolved with strong evidence; the acknowledged adapter/verifier scope expansion is necessary for that production-consumer closure and semantic scope passes. All five complex-role default host assets and agent_prompt remain immutable legacy-selected, while full-envelope remains explicit audit-only. Fresh role-migration, prompt-registry, process-fact, production-dispatch, invariants, and v3 tracked-report checks pass. v3 remains adverse/INCONCLUSIVE with baselineAccepted=false, recall and enforce claims false, and Story 7 unimplemented. Reviewer-local verify_codex was correctly denied by the active owner lease; the F-012 strong resolution records the owner-run fresh verify_codex pass.",
+      "createdAt": "2026-07-21T02:45:05.007Z",
+      "reviewRound": "2026-07-21T02:43:33.468Z",
+      "reviewRunId": "B-407c:RR-043",
+      "envelopeId": "0be327ef68b2bd3ad8cfb4b35c8a138a9a6a0677e7b2a11b791455d547f9fbf9",
+      "writerSessionId": "sess-c25611de6e4e5e15228b4b170ef630b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "lattice.config.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "1bdfb60e7da6feb82a316df0798bc070c72224b175076f56d56609885e770188"
+    },
+    {
+      "id": "B-407c:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Round 11 fresh quality re-attestation: 7b05391e makes both codex-adapter-checks and verify-process-fact-contract consume renderPromptEntryForHost. Build, process-fact contract, codex registry, prompt registry, Story 6 role migration, production dispatch, invariants, and full-context smokes passed. Independent 16-role x 2-host byte comparison passed. Isolated mutation runs proved deleting review_run_start fails as missing command and adding init_check_set plus a fake packages path fails as extra command/path. Legacy default remains fail-closed and full-envelope remains audit-only; production dispatch concurrency/persistence and signed-evidence invariants pass. No blocker found.",
+      "createdAt": "2026-07-21T02:46:31.030Z",
+      "reviewRound": "2026-07-21T02:43:33.468Z",
+      "reviewRunId": "B-407c:RR-044",
+      "envelopeId": "38c5cf6c36b23c72bb3209c98a7ba2fd649f8f6d73a59e4ff44f19df5391f128",
+      "writerSessionId": "sess-41c234fd6507fc4629595d666eb8184b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/codex-registry-mode-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          "lattice.config.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Diff-scoped quality review of 7b05391e plus production host-render consumers; expanded to all 16 generated host mirrors and the Story 6 production/invariant smoke matrix because the change affects shared verifier identity."
+      },
+      "_hash": "d24185d5dc351d5cca9bf0e25a963a4d2c81a526a8b30be2a91ca55d83259d2e"
+    },
+    {
+      "id": "B-407c:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 11 fresh coverage re-attestation passed: 12/12 must verificationIntent refs have distinct current storyFilesHash-bound evidence, 0 failures, 0 waivers. Fresh build plus prompt-registry, Story 6 role migration/production dispatch/invariants/A-B, full-context envelope, schema/analyzer/report, semantic scope, dispatch registry, lifecycle, and process-fact contract suites all passed. Actual Claude and Codex defaults remain frozen legacy for the five adverse roles while explicit modular renders remain audit-selectable. F-012 fix is biting: in an isolated copy, adding init_check_set to the actual Claude evaluator asset failed with extra cmd:init_check_set, and removing finding_add failed with missing cmd:finding_add against the canonical Claude host render. Verified v3 digest 49cf8de6e222da944fae655044b1fe2e54bdc45d691df93b395fb6e30cc8ea39 preserves the adverse outcome (legacy recall 24/24, modular 20/24; false positives 0 vs 1), baselineAccepted=false, enforceReady=false, and Story7 implemented=false.",
+      "createdAt": "2026-07-21T02:48:30.284Z",
+      "reviewRound": "2026-07-21T02:43:33.468Z",
+      "reviewRunId": "B-407c:RR-045",
+      "envelopeId": "eac0bec681bdf2508c0ea995a50df4d36f58e7a30280c4cde79f0076c32a8f76",
+      "writerSessionId": "sess-e8903ac26f64278445a2d5c62e03c2b7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c0d345b9bb5148394dc144bab559b8110701d8a0ca7f5f4c965c8d46a5f88d43"
+    },
+    {
+      "id": "B-407c:RP-029",
+      "agent": "lattice-review-concept",
+      "note": "Round 14 full concept review found no blocker. README wrong-author boundary now matches the real checkCommitAuthor negative consumer without inventing a reason-code API; repository residue scan found no superseded positive-only or production/audit-mixing labels. Five complex-role production defaults remain exact legacy-full-context, full-envelope dispatches are explicitly auditOnly and cannot mint review evidence, CHK-002 happy evidence is bound to the acceptance transcript, v3 remains adverse INCONCLUSIVE (24/24 vs 20/24, FP 0 vs 1), baseline/recall/enforce claims are false, and Story 7 is not implemented. Fresh acceptance transcript, migration, production-dispatch, invariants, and tracked-report verification all passed.",
+      "createdAt": "2026-07-21T03:23:27.948Z",
+      "reviewRound": "2026-07-21T03:22:21.830Z",
+      "reviewRunId": "B-407c:RR-052",
+      "envelopeId": "98bda4d24cb9f30049a5fbaa27b33caecee1801f8734e4f59a7b4a59559a98e2",
+      "writerSessionId": "sess-c25611de6e4e5e15228b4b170ef630b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/tasks/story6-acceptance-transcript.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "lattice.config.json",
+          "packages/main/src/handlers/agent-prompt.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e602e0ba8e09aa20b9b75c0980dfe27f6783d1bc7b2ab2035d079949b2da425"
+    },
+    {
+      "id": "B-407c:RP-030",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 14 fresh full coverage review passed: 12/12 must intents have one concrete evidence row each, all bound to head 72ad7e673c and current storyFilesHash e385cdae47d5, with 0 failures and 0 waivers. CHK-002:happy:0 now directly binds `node packages/main/dist/tasks/story6-acceptance-transcript.js`; the fresh transcript proves response/event/recompute bytes, estimatedTokens, and limitBytes plus missing/corrupt mutations. Four user-visible surfaces are present: exact legacy production defaults separated from audit-only modular dispatch, within/over-limit budget facts, five-role 72-receipt adverse A/B summary, and real invariant outcomes/sources. Fresh build, registry/role/production/envelope/A-B/invariant smokes, schema/analyzer/report mutation suites, and process-fact contract all passed. No open blocker.",
+      "createdAt": "2026-07-21T03:24:01.689Z",
+      "reviewRound": "2026-07-21T03:22:21.830Z",
+      "reviewRunId": "B-407c:RR-053",
+      "envelopeId": "0efc0ddd4fc03cc085c5579cd38efda651d052d5d51c51ce8842eba31625256d",
+      "writerSessionId": "sess-e8903ac26f64278445a2d5c62e03c2b7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-acceptance-transcript.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9fb4063746736e4383a7777d52dbb010333faba8df19b67f122893d90af37412"
+    },
+    {
+      "id": "B-407c:RP-031",
+      "agent": "lattice-review-quality",
+      "note": "Round 14 fresh quality re-attestation at 72ad7e6/current evidence: source/tests are unchanged since e4de85f; README accurately states real checkCommitAuthor fail behavior, consumer-derived wrong-author fields, ignored audit receipts, and no invented standalone reason code. Fresh build, acceptance audit transcript, invariants, production dispatch, role migration, report selfcheck, and diff hygiene passed. New isolated mutations deleting event promptBudget, corrupting event bytes, or forging the collector zero-credit count all caused acceptance failure. No blocker found.",
+      "createdAt": "2026-07-21T03:24:06.259Z",
+      "reviewRound": "2026-07-21T03:22:21.830Z",
+      "reviewRunId": "B-407c:RR-054",
+      "envelopeId": "94697795c8e7d8d1c4d1524f830eaf1f73df8d3b2dc7b2805d26ed1af89ab1d0",
+      "writerSessionId": "sess-41c234fd6507fc4629595d666eb8184b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/tasks/story6-acceptance-transcript.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": "Expanded from the README-only material change to the exact production consumers and acceptance mutation surfaces named by the documentation, while confirming all source/test files remained unchanged since e4de85f."
+      },
+      "_hash": "b5b00aa868a4d9a1ea2a4be1a216403e652ea05c882eb1b9df222f1410e5370e"
+    },
+    {
+      "id": "B-407c:RP-032",
+      "agent": "lattice-review-quality",
+      "note": "Round 15 quality PASS: independently reviewed current integrated diff with special focus on 82c3eb71. resolveGitCwd is called for every acceptance-fixture git invocation; before init its documented unresolved fallback returns the temp projectRoot, while after init the same resolver discovers the actual metadata git top-level. No new bare metadata-root git cwd, type-safety regression, dead code, empty catch, or undelivered documentation promise was found. git diff --check, TypeScript build, and the full Story 6 acceptance transcript all passed.",
+      "createdAt": "2026-07-21T03:50:26.662Z",
+      "reviewRound": "2026-07-21T03:48:01.241Z",
+      "reviewRunId": "B-407c:RR-057",
+      "envelopeId": "ab7b8059c941e2cb3f43a5979ec09f14bca7cc65f8811e036447420d6a8babc0",
+      "writerSessionId": "sess-070dde7c95715c1d4cad32d0de80c053",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-acceptance-transcript.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-ab-dispatch.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e9fe4291152e75100ea127b7eb88d358e675d451b580aa65dcd169c563c832c"
+    },
+    {
+      "id": "B-407c:RP-033",
+      "agent": "lattice-review-concept",
+      "note": "Round 15 concept review found no blocker. Reviewed the integrated Story 6 diff and required plan; repository-wide residue scans confirm shared Runtime Guide removal is complete in the five package modular role templates while frozen legacy host assets and reconstruction text remain intentionally content-addressed for exact rollback. Commit 82c3eb71 only routes acceptance-fixture git commands through resolveGitCwd; the live acceptance transcript still proves five legacy-full-context production defaults, full-envelope auditOnly=true/canMintReviewEvidence=false, nonblocking over-budget baselineAccepted=false, adverse 20/24 vs 24/24 recall with status INCONCLUSIVE, and story7=false.",
+      "createdAt": "2026-07-21T03:50:28.821Z",
+      "reviewRound": "2026-07-21T03:48:01.241Z",
+      "reviewRunId": "B-407c:RR-055",
+      "envelopeId": "6b592b29e4a63f374ac9c6a4476d3b288a947d5b207ea2f4701f84033bc09dd8",
+      "writerSessionId": "sess-96dc0548f070c96404740b933cc447bc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/tasks/story6-acceptance-transcript.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "lattice.config.json",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/templates/agents/lattice-evaluator.md",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-scope-plan.md",
+          "packages/main/templates/agents/lattice-review-story-init.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "80fec20fa0e7d637db25b33b324c08393370f1e112b7de3912a61da0211616d6"
+    },
+    {
+      "id": "B-407c:RP-034",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 15 coverage PASS: independently mapped all 12/12 must verificationIntent entries to concrete passing evidence with 0 gaps and 0 waivers at current material/storyFiles binding; rebuilt current HEAD, reran gitroot-cwd-contract smoke (764 TS files, alias/backtick mutation selfchecks) and the real Story6 acceptance transcript. The transcript remains biting for envelope/context tamper, missing or altered budget fields, false baseline/enforce/Story7 claims, receipt provenance, REVIEW-credit authority, wrong author, and missing invariant evidence while honestly retaining the adverse 20/24 modular recall, one false positive, cache INCONCLUSIVE, baselineAccepted=false, and audit-only rollout.",
+      "createdAt": "2026-07-21T03:50:52.154Z",
+      "reviewRound": "2026-07-21T03:48:01.241Z",
+      "reviewRunId": "B-407c:RR-056",
+      "envelopeId": "53fc10c7dc4e0086af93d0cfe8fe25ba7ec0c7319fbe721792afa47a07263a9f",
+      "writerSessionId": "sess-cc916930cb50a7a0bd00a2a1a6be47e8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/tasks/story6-acceptance-transcript.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "b0ce6cc53f632d70054520fd30b5d81ef393cc9aba70109a3b79c2d8209b2889"
+    }
+  ]
+}

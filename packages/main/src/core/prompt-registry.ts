@@ -15,6 +15,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gunzipSync } from 'node:zlib';
 
 export const PROMPT_REGISTRY_VERSION = 'lattice.prompt-registry.v1';
 export const PROMPT_REGISTRY_SOURCE = '@lattice/core/templates/agents';
@@ -28,6 +29,15 @@ export const MODULAR_REVIEWER_ROLE_IDS = [
   'lattice-review-test-coverage',
 ] as const;
 export type ModularReviewerRoleId = typeof MODULAR_REVIEWER_ROLE_IDS[number];
+/** Story 6 roles use the same trusted story-dispatch envelope, but are not REVIEW lanes. */
+export const MODULAR_COMPLEX_ROLE_IDS = [
+  'lattice-review-story-init',
+  'lattice-review-scope-plan',
+  'lattice-implementer',
+  'lattice-review-delivery',
+  'lattice-evaluator',
+] as const;
+export type ModularComplexRoleId = typeof MODULAR_COMPLEX_ROLE_IDS[number];
 
 const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, string>> = Object.freeze({
   'lattice-review-behavior': 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2',
@@ -36,6 +46,21 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, st
   'lattice-review-quality': 'f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280',
   'lattice-review-test-coverage': '145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0',
 });
+
+const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<ModularComplexRoleId, string>> = Object.freeze({
+  'lattice-review-story-init': '8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81',
+  'lattice-review-scope-plan': '13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86',
+  'lattice-implementer': '3be8e9b5cce7f6f2558f929f400e0975fed624f011ab1dda573bdb30273588fd',
+  'lattice-review-delivery': '5357c140ba9b47f51f362cca7b4aa9289a1d15367427f3ee302a53439dd44b57',
+  'lattice-evaluator': 'c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026',
+});
+
+const STORY_INIT_LEGACY_TAIL_MARKER = '<!-- proofbound:story-init-legacy-tail:v1 -->';
+// Frozen gzip -n payload of the pre-Story-6 `## 4. Procedure` through EOF.
+const STORY_INIT_LEGACY_TAIL_GZIP_BASE64 = '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';
+const STORY_INIT_LEGACY_TAIL = gunzipSync(
+  Buffer.from(STORY_INIT_LEGACY_TAIL_GZIP_BASE64, 'base64'),
+).toString('utf8');
 
 const TEST_COVERAGE_LEGACY_PROCESS_CONTRACT = `
 ## Two-Layer Process Fact Contract
@@ -197,25 +222,41 @@ export function isModularReviewerRoleId(roleId: string): roleId is ModularReview
   return (MODULAR_REVIEWER_ROLE_IDS as readonly string[]).includes(roleId);
 }
 
+export function isModularComplexRoleId(roleId: string): roleId is ModularComplexRoleId {
+  return (MODULAR_COMPLEX_ROLE_IDS as readonly string[]).includes(roleId);
+}
+
+export function isModularRoleId(roleId: string): boolean {
+  return isModularReviewerRoleId(roleId) || isModularComplexRoleId(roleId);
+}
+
 /**
- * Reconstructs the frozen pre-B-235e body from the modular repository asset.
+ * Reconstructs the frozen pre-migration body from a modular repository asset.
  * The expected digest makes both representations immutable and content
  * addressed without introducing a mutable baseline writer.
  */
 export function restoreLegacyPromptTemplate(entry: PromptRegistryEntry): string {
   const modular = readPromptTemplate(entry);
-  if (!isModularReviewerRoleId(entry.agentId)) return modular;
+  if (!isModularRoleId(entry.agentId)) return modular;
   if (!modular.includes(MODULAR_ROLE_BODY_MARKER)) {
     throw new Error(`modular reviewer prompt ${entry.agentId} is missing ${MODULAR_ROLE_BODY_MARKER}`);
   }
-  const restored = modular.replace(
+  let restored = modular.replace(
     MODULAR_ROLE_BODY_MARKER,
     entry.agentId === 'lattice-review-test-coverage'
       ? TEST_COVERAGE_LEGACY_PROCESS_CONTRACT
       : LOAD_BEARING_LATTICE_PROMPT_SLICE,
   );
+  if (entry.agentId === 'lattice-review-story-init') {
+    if (!restored.includes(STORY_INIT_LEGACY_TAIL_MARKER)) {
+      throw new Error(`modular story-init prompt is missing ${STORY_INIT_LEGACY_TAIL_MARKER}`);
+    }
+    restored = restored.replace(STORY_INIT_LEGACY_TAIL_MARKER, STORY_INIT_LEGACY_TAIL.trimEnd());
+  }
   const actualDigest = sha256(restored);
-  const expectedDigest = LEGACY_REVIEWER_TEMPLATE_SHA256[entry.agentId];
+  const expectedDigest = isModularReviewerRoleId(entry.agentId)
+    ? LEGACY_REVIEWER_TEMPLATE_SHA256[entry.agentId]
+    : LEGACY_COMPLEX_TEMPLATE_SHA256[entry.agentId as ModularComplexRoleId];
   if (actualDigest !== expectedDigest) {
     throw new Error(
       `legacy reviewer prompt reconstruction drift for ${entry.agentId}: expected ${expectedDigest}, got ${actualDigest}`,
@@ -230,7 +271,7 @@ export function resolvePromptTemplateBody(
 ): string {
   if (mode === 'legacy-full-context') return restoreLegacyPromptTemplate(entry);
   const source = readPromptTemplate(entry);
-  if (!isModularReviewerRoleId(entry.agentId)) return source;
+  if (!isModularRoleId(entry.agentId)) return source;
   return source;
 }
 
@@ -340,8 +381,17 @@ export function renderReviewerRunBootstrapForTemplate(raw: string, file: string)
   return renderReviewerRunBootstrap(frontmatter, name);
 }
 
-export function renderPromptEntryForHost(entry: PromptRegistryEntry, host: PromptHost): string {
-  const hostTemplate = renderPromptForHost(readPromptTemplate(entry), host);
+export function renderPromptEntryForHost(
+  entry: PromptRegistryEntry,
+  host: PromptHost,
+  mode: 'legacy-full-context' | 'full-envelope' = isModularComplexRoleId(entry.agentId)
+    ? 'legacy-full-context'
+    : 'full-envelope',
+): string {
+  const selectedTemplate = isModularComplexRoleId(entry.agentId)
+    ? resolvePromptTemplateBody(entry, mode)
+    : readPromptTemplate(entry);
+  const hostTemplate = renderPromptForHost(selectedTemplate, host);
   return isModularReviewerRoleId(entry.agentId)
     ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file)
     : hostTemplate;

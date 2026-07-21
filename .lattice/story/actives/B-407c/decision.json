@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "模块化上下文与 legacy 语义等价",
+    "预算是可观测治理信号而非正确性旁路",
+    "流程事实必须由 handler/gate 机械验证"
+  ],
+  "drivers": [
+    "五个复杂角色共享可信 Task Context 与 Prompt Envelope",
+    "超预算必须保留 full review 且记录 violation",
+    "真实 dispatch A/B 需要可审计证据和不可用维度的 INCONCLUSIVE 语义"
+  ],
+  "options": [
+    {
+      "name": "A: 复用现有 Prompt Envelope 与 dispatch gate，增量迁移角色资产",
+      "pros": [
+        "复用 Story 1/2/5 已验证机制",
+        "改动面小且便于逐角色回归",
+        "能保留现有签名和权限门禁"
+      ],
+      "cons": [
+        "需要处理五种角色的 legacy 差异",
+        "A/B 测量可能跨 provider 维度不完整"
+      ]
+    },
+    {
+      "name": "B: 为复杂角色重建独立装配与预算管线",
+      "pros": [
+        "角色边界更独立",
+        "可一次性统一预算实现"
+      ],
+      "cons": [
+        "重复 Prompt Envelope/Task Context 逻辑",
+        "容易造成权限、签名和 delivery gate 漂移",
+        "审计与回归成本更高"
+      ]
+    }
+  ],
+  "chosen": "A: 复用现有 Prompt Envelope 与 dispatch gate，增量迁移角色资产",
+  "rationale": "选择增量复用路径，因为 Story 1、2、5 已验证共享 Prompt Envelope、Task Context 与审查证据；Story 6 的风险主要是角色资产迁移和预算观测，不应重建已稳定的流程事实管线。",
+  "preMortem": [
+    {
+      "scenario": "某角色仍走 legacy prompt，A/B 结果被误标为模块化等价",
+      "trigger": "dispatch 入口未统一检查角色 registry",
+      "consequence": "成本与质量比较失真",
+      "mitigation": "逐角色记录 producer path、prompt digest 与真实 dispatch receipt"
+    },
+    {
+      "scenario": "预算超限导致 full review 被跳过",
+      "trigger": "budget guard 将 violation 误当 gate blocker",
+      "consequence": "正确性与交付风险漏检",
+      "mitigation": "明确 observe/warn 分支并加入超限仍执行 full review 的回归证据"
+    },
+    {
+      "scenario": "Task Context 或签名字段在迁移中漂移",
+      "trigger": "角色 prompt envelope 自行拼装上下文",
+      "consequence": "权限、delivery promise 或 evaluator evidence 门禁失效",
+      "mitigation": "强制复用 trusted assembly，并以 signed run、scope、delivery 验证收口"
+    }
+  ],
+  "timestamp": "2026-07-20T21:32:32.577Z"
+}

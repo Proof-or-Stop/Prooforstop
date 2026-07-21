@@ -6,7 +6,6 @@ import {
   LATTICE_CODEX_ADAPTER_MANIFEST,
   CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
   listAgentPromptFiles,
-  renderCodexAgentContent,
   renderLatticeCodexAdapterManifest,
   type CodexPromptMode,
 } from '../init-assets.js';
@@ -19,15 +18,10 @@ import {
 import { isManagedGlobalThinRoot, loadConfig } from './config.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
-  isModularReviewerRoleId,
   promptRegistryManifest,
   readPromptRegistry,
   renderPromptEntryForHost,
 } from './prompt-registry.js';
-import {
-  extractTemplateFrontmatter,
-  renderReviewerRunBootstrap,
-} from './global-agents.js';
 import type { StoryStore } from './store.js';
 import type { ProcessEvent } from './types.js';
 
@@ -348,14 +342,8 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
       issues.push(`unregistered .claude/agents/${file}`);
       continue;
     }
-    const packagePrompt = readText(registryEntry.sourcePath);
     const claudePrompt = readText(join(claudeDir, file));
-    const expectedClaude = isModularReviewerRoleId(registryEntry.agentId)
-      ? (() => {
-        const parsed = extractTemplateFrontmatter(packagePrompt, file);
-        return renderReviewerRunBootstrap(parsed.frontmatter, parsed.name);
-      })()
-      : packagePrompt;
+    const expectedClaude = renderPromptEntryForHost(registryEntry, 'claude');
     if (expectedClaude !== claudePrompt) {
       issues.push(`package/Claude drift ${file}`);
       continue;
@@ -365,13 +353,7 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
       issues.push(`missing .lattice-codex/agents/${file}`);
       continue;
     }
-    const codexTemplate = renderCodexAgentContent(packagePrompt);
-    const expected = isModularReviewerRoleId(registryEntry.agentId)
-      ? (() => {
-        const parsed = extractTemplateFrontmatter(codexTemplate, file);
-        return renderReviewerRunBootstrap(parsed.frontmatter, parsed.name);
-      })()
-      : codexTemplate;
+    const expected = renderPromptEntryForHost(registryEntry, 'codex');
     const actual = readText(targetPath);
     if (expected !== actual) issues.push(`drift .lattice-codex/agents/${file}`);
   }
