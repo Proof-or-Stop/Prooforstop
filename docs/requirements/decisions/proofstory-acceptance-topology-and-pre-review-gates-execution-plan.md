@@ -449,8 +449,23 @@ Recommended activation:
 2. Measure missing topology categories on real Stories.
 3. Add PLAN structural check in warn mode.
 4. Add executable pre-review check in warn mode.
-5. Enforce first for newly created high-risk/lifecycle/proof-gate Stories.
-6. Expand only with explicit project configuration and measured false-block data.
+5. With the current flat project-wide gate mode, pilot `enforce` only in a
+   dedicated project environment where its blast radius is explicitly accepted
+   and every in-flight Story is prepared for the same mode.
+6. Before selectively enforcing only newly created high-risk, lifecycle, or
+   proof-gate Stories, deliver and independently review a separate per-Story or
+   per-policy applicability-selection capability. It must use explicit typed
+   policy, not fuzzy milestone/keyword triggers.
+7. Expand only with explicit project configuration and measured false-block data.
+
+Current constraint: `configuredProofStoryMode` resolves a single flat,
+project-wide `reviewGateMode`/`doneGateMode`; there is no per-Story or per-trigger
+selection mechanism. The existing
+`milestone-triggered-gate-mode-default-decision.md` explicitly keeps the default
+at `observe` and defers `enforce-for-triggered` machinery. This plan does not
+overturn that decision. Selective rollout step 6 is therefore blocked until the
+separate capability exists; without it, only the bounded project-level pilot in
+step 5 is valid.
 
 Rollback from enforce to warn changes blocking behavior only. It preserves all
 artifacts, evidence, diagnostic rows, and audit history. Rollback must not rewrite
@@ -501,12 +516,23 @@ This is an inventory, not authorization to edit every file.
 | REVIEW → TEST compatibility | `packages/main/src/handlers/phase-gates.ts` |
 | Freshness | existing freshness reader and story-files hash policy |
 | Process facts | registry, levels, and contract verifier |
+| Adjacent legacy vocabulary | `packages/main/src/core/authority-contracts.ts` |
 | Prompts | implementer, verification-intent, coverage, and reviewer modules |
 | Smokes/tests | focused topology smoke, pre-review mutation smoke, process-fact contract |
 | Read-only display | ProofStory status or a dedicated matrix renderer |
 
 The implementation Story must confirm exact file ownership before freezing its
 scope; this table does not grant broad modification rights.
+
+Before naming new topology fields, Wave 1 must inspect the legacy-quarantined
+`VerificationTargetContract` / `TargetBoundEvidenceInput` vocabulary in
+`authority-contracts.ts`, including `producerRunId`, `verifierRunId`,
+`coveredRefs`, `uncoveredRefs`, `failedRefs`, `negativeControls`, and
+`transcriptHash`. Those shapes are not active gate truth and must not be revived
+or treated as canonical merely because names overlap. The review is a vocabulary
+and migration-collision check: reuse a name only when semantics and ownership are
+identical; otherwise record the distinction explicitly and avoid a second
+concept with a misleading synonym.
 
 ## 15. Bounded implementation waves
 
@@ -540,12 +566,34 @@ Exit: real producer-to-consumer tests pass; every adverse mutation bites; clean
 controls pass after restoration; stale and weak evidence fail deterministically.  
 Stop: the implementation relies on caller-written authority or silent rebinding.
 
+### Wave 3A — Explicit applicability selection for selective enforcement
+
+Outcome: if selective rollout is approved, add a separately scoped mechanism
+that resolves gate mode from explicit Story/policy applicability rather than
+implicitly interpreting risk keywords or milestone-trigger regexes.
+
+Dependency: Waves 1–3 plus a human decision on the configuration and precedence
+model.
+Exit: the flat project default remains `observe`; explicit selection is
+deterministic and auditable; missing/ambiguous selection fails to the project
+default; existing Stories do not change mode retroactively; rollback removes
+blocking without rewriting evidence.
+Stop: selection depends on fuzzy prose, silently flips the project default, or
+changes in-flight Story behavior without explicit operator approval.
+
+Wave 3A is optional for a flat project-level rollout and mandatory for any claim
+that enforcement applies only to newly created high-risk, lifecycle, or
+proof-gate Stories.
+
 ### Wave 4 — Prompt integration and measured rollout
 
 Outcome: update role guidance, enable warn telemetry, measure impact, and opt in
-high-risk enforcement.
+bounded project-level enforcement. Selective high-risk per-Story enforcement is
+not part of this wave unless Wave 3A has first delivered explicit applicability
+selection.
 
-Dependency: Waves 1–3.  
+Dependency: Waves 1–3; Wave 3A is additionally required for selective per-Story
+or per-policy enforcement.
 Exit: current 3×2 high-risk review/quorum; false-pass and false-block thresholds
 met; rollback tested; no degraded 3×1 evidence is labeled authority.  
 Stop: review rounds fall only because checks were weakened or waivers increased.
@@ -642,6 +690,9 @@ to find genuinely unmodeled issues.
    defect detection, minimum Story sample size)? These must be set before Wave 4.
 6. Should the matrix renderer be a dedicated command or part of existing
    ProofStory status output? It must remain L0/read-only either way.
+7. Should selective enforcement be Story-bound, policy-profile-bound, or remain
+   project-wide? Until Wave 3A and this decision are complete, the only supported
+   model is the existing flat project-wide mode.
 
 ## 20. Human audit checklist
 
