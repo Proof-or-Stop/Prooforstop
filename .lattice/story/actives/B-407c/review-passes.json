@@ -755,6 +755,48 @@
         "scanEscalationReason": null
       },
       "_hash": "5cbaab604b0951dce8866dae29cd1d16d779dbdf80ed0beddf65b48e33aa979b"
+    },
+    {
+      "id": "B-407c:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final post-resolution test-coverage re-attestation PASS: since the prior pass only finding/checklist/review metadata changed and no source changed. Reverified 12/12 must intents with 12 current-bound evidence records, zero failures and zero waivers; F-005/F-006/F-011 are resolved. Independently reran the F-011 real-consumer invariant matrix, semantic scope guard, production dispatch rollback/reentrancy smoke, and v3 72-cell tracked summary verification. The adverse v3 outcome remains INCONCLUSIVE with no baseline, non-regression, or enforce claim.",
+      "createdAt": "2026-07-21T02:07:51.019Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-039",
+      "envelopeId": "6d0b9fcc4c1fec93e1a893cefd7bfbe8b4c6fff07a1344716bed3d28a544601c",
+      "writerSessionId": "sess-e8903ac26f64278445a2d5c62e03c2b7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "2ed2904f71b734594c6e76868c3f837b9ac7400f1b97fd4b360cb1a8a52e3dc7"
     }
   ]
 }
