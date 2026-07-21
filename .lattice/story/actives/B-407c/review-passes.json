@@ -1019,6 +1019,38 @@
         "scanEscalationReason": null
       },
       "_hash": "9fb4063746736e4383a7777d52dbb010333faba8df19b67f122893d90af37412"
+    },
+    {
+      "id": "B-407c:RP-031",
+      "agent": "lattice-review-quality",
+      "note": "Round 14 fresh quality re-attestation at 72ad7e6/current evidence: source/tests are unchanged since e4de85f; README accurately states real checkCommitAuthor fail behavior, consumer-derived wrong-author fields, ignored audit receipts, and no invented standalone reason code. Fresh build, acceptance audit transcript, invariants, production dispatch, role migration, report selfcheck, and diff hygiene passed. New isolated mutations deleting event promptBudget, corrupting event bytes, or forging the collector zero-credit count all caused acceptance failure. No blocker found.",
+      "createdAt": "2026-07-21T03:24:06.259Z",
+      "reviewRound": "2026-07-21T03:22:21.830Z",
+      "reviewRunId": "B-407c:RR-054",
+      "envelopeId": "94697795c8e7d8d1c4d1524f830eaf1f73df8d3b2dc7b2805d26ed1af89ab1d0",
+      "writerSessionId": "sess-41c234fd6507fc4629595d666eb8184b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/tasks/story6-acceptance-transcript.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/validate-channel.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": "Expanded from the README-only material change to the exact production consumers and acceptance mutation surfaces named by the documentation, while confirming all source/test files remained unchanged since e4de85f."
+      },
+      "_hash": "b5b00aa868a4d9a1ea2a4be1a216403e652ea05c882eb1b9df222f1410e5370e"
     }
   ]
 }
