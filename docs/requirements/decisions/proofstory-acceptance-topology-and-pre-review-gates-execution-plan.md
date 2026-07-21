@@ -102,8 +102,8 @@ The current source facts behind this table are in:
   REVIEW → TEST consumption);
 - `packages/main/src/core/process-fact-registry.ts` and
   `packages/main/src/core/process-fact-levels.ts` (gate-fact ownership); the
-  exported `PROCESS_FACT_REGISTRY` is the global assembled registry, not a
-  Story-local list;
+  exported `PROCESS_FACT_REGISTRY` is the global assembled flat fact catalog,
+  not a Story-local list and not yet a producer→consumer graph;
 - `packages/main/src/core/types.ts` and `packages/main/src/core/store.ts`
   (existing signed `scope-check.json` and Story-scoped `scope-contract.json`
   types and persistence APIs).
@@ -218,6 +218,24 @@ interface AcceptanceCoverageBasisV1 {
   receiptRef: string;
   basisDigest: string;
 }
+
+interface TopologyCriticReceiptV1 {
+  schemaVersion: 'proofstory.topology_critic_receipt.v1';
+  storyId: string;
+  criticIdentity: string;
+  criticRole: string;
+  basisDigest: string;
+  topologyDigest: string;
+  scopeCheckDigest: string;
+  scopeContractDigest?: string;
+  storyFilesHash: string;
+  closureFilesHash: string;
+  findingRefs: string[];
+  approvedExclusionRefs: string[];
+  verdict: 'pass' | 'request_changes';
+  issuedAt: string;
+  signature: string;
+}
 ```
 
 Required referenced records:
@@ -244,20 +262,27 @@ cannot make its own graph appear complete.
 “Frozen scope” reuses existing lifecycle artifacts; this plan does not create a
 parallel scope truth source. At PLAN, discovery binds the signed
 `scope-check.json` plus checklist planned-file declarations and existing
-scope-boundary facts. At DEV → REVIEW, it binds the current
-`scope-contract.json` produced through the existing
-`scope_contract_init_from_plan` flow. If an enforced rollout needs the contract
-earlier, Wave 2 must change the ordering of that existing flow rather than add a
-new scope artifact. The corresponding artifact digests are part of the basis
-binding.
+scope-boundary facts. `scope_contract_init_from_plan` is an existing manual
+PLAN/DEV command; it produces the contract before the transition that consumes
+it. At DEV → REVIEW, discovery binds the then-current `scope-contract.json`.
+If an enforced rollout needs the contract before its current manual point, Wave
+2 must change the ordering of that existing command rather than add a new scope
+artifact. The corresponding artifact digests are part of the basis binding.
+Trust is asymmetric: `scope-check.json` carries its existing reviewer signature;
+`scope-contract.json` is not presently signed, so the verifier recomputes its
+digest from the canonical store and validates its registered producer/provenance
+instead of describing the contract itself as signed.
 
 Registry and dispatch discovery is deliberately not bounded by Story-owned
-files. It starts from facts and producers introduced or changed by the Story,
-then traverses the global process-fact registry and dispatch inventory to all
-registered consumers. A consumer outside the Story scope remains part of the
-closure. `closureFilesHash` binds every discovered producer and consumer source
-reference, including files outside `storyFilesHash`; inability to inspect a
-relevant registered consumer forces `partial`, never optimistic completeness.
+files. The current global `PROCESS_FACT_REGISTRY` supplies flat producer and
+consumer-gate facts; it is not already a navigable call graph, and no current
+dispatch inventory is claimed. Wave 1A must build adapters that start from facts
+and producers introduced or changed by the Story, resolve those catalog entries
+against handler/dispatch source, and derive the global consumer closure. A
+consumer outside the Story scope remains part of the closure.
+`closureFilesHash` binds every discovered producer and consumer source reference,
+including files outside `storyFilesHash`; inability to resolve or inspect a
+relevant consumer forces `partial`, never optimistic completeness.
 
 ### 5.3 Complete example
 
@@ -629,8 +654,10 @@ weak assertions, design problems, or unmodeled interactions.
 Before DEV admission on enforced high-assurance paths, an independent topology
 critic challenges scope, discovery methods, exclusions, and closure. Before
 REVIEW, it re-attests the recomputed DEV basis. Its result must be a signed,
-hash-bound artifact containing critic identity, basis digest, topology digest,
-scope digest, `storyFilesHash`, finding refs, and verdict.
+hash-bound `TopologyCriticReceiptV1` containing Story ID, critic identity and
+eligible role, basis digest, topology digest, `scopeCheckDigest`, the
+phase-applicable `scopeContractDigest`, `storyFilesHash`, `closureFilesHash`,
+finding refs, approved-exclusion refs, verdict, issuance time, and signature.
 
 The CLI independently verifies those bindings and the critic's eligible role.
 Prompt text, natural-language approval, or a self-authored reviewer ID is not
@@ -808,8 +835,9 @@ This is an inventory, not authorization to edit every file.
 The implementation Story must confirm exact file ownership before freezing its
 scope; this table does not grant broad modification rights.
 
-Before naming new topology fields, Wave 1 must inspect the legacy-quarantined
-`VerificationTargetContract` / `TargetBoundEvidenceInput` vocabulary in
+Before naming new topology fields, Wave 1 must inspect the dormant,
+non-gate-consumed `VerificationTargetContract` /
+`TargetBoundEvidenceInput` vocabulary in
 `authority-contracts.ts`, including `producerRunId`, `verifierRunId`,
 `coveredRefs`, `uncoveredRefs`, `failedRefs`, `negativeControls`, and
 `transcriptHash`. Those shapes are not active gate truth and must not be revived
@@ -846,6 +874,10 @@ artifacts and both Story/closure hashes are bound; stale bindings fail; every
 exclusion requires an eligible decision ref.
 Stop: basis completeness depends on self-report, reviewer prose, silently
 ignored adapters, or a hash-only rebind of an old inventory.
+
+Wave 1A includes building the producer→consumer and handler/dispatch discovery
+adapters. The current flat `PROCESS_FACT_REGISTRY` is an input catalog, not an
+already implemented graph or dispatch inventory.
 
 ### Wave 2 — PLAN structural gate
 
