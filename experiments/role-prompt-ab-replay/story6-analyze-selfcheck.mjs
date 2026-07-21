@@ -59,6 +59,57 @@ async function runBindingMismatchRejected() {
   );
 }
 
+async function runAdjudicationBoundaryAccepted() {
+  const files = await readdir(runtime).catch(() => []);
+  await Promise.all(files.filter(file => file.startsWith(`${campaignId}.`)).map(file => rm(path.join(runtime, file), { force: true })));
+  const receipt = base();
+  const receiptPath = path.join(runtime, `${campaignId}.${receipt.cell.cellId}.json`);
+  const adjudicationPath = path.join(runtime, `${campaignId}.independent-adjudication.json`);
+  const adjudication = {
+    schemaVersion: 'proofbound.story6-independent-adjudication.v1',
+    campaignId,
+    adjudicatorId: 'independent-schema-selfcheck',
+    method: 'deterministic boundary selfcheck',
+    evidenceDigest: 'd'.repeat(64),
+    cells: [{
+      cellId: receipt.cell.cellId,
+      oracleResults: [],
+      falsePositiveCount: 0,
+      commandMisuseCount: 0,
+    }],
+  };
+  await writeFile(receiptPath, `${JSON.stringify(receipt)}\n`);
+  await writeFile(adjudicationPath, `${JSON.stringify(adjudication)}\n`);
+  await assert.rejects(
+    exec(process.execPath, [
+      path.join(here, 'story6-analyze.mjs'),
+      `--campaign-id=${campaignId}`,
+      `--adjudication=${adjudicationPath}`,
+    ]),
+    error => {
+      const result = JSON.parse(error?.stdout ?? '{}');
+      return result.receiptCount === 1
+        && !result.reasonCodes.includes('RECEIPT_PROVENANCE_INVALID')
+        && result.independentAdjudication?.adjudicatorId === adjudication.adjudicatorId;
+    },
+    'the legal colocated adjudication artifact must not be consumed as receipt #2',
+  );
+}
+
+async function runUnknownReceiptFileRejected() {
+  const files = await readdir(runtime).catch(() => []);
+  await Promise.all(files.filter(file => file.startsWith(`${campaignId}.`)).map(file => rm(path.join(runtime, file), { force: true })));
+  const receipt = base();
+  await writeFile(path.join(runtime, `${campaignId}.${receipt.cell.cellId}.json`), `${JSON.stringify(receipt)}\n`);
+  await writeFile(path.join(runtime, `${campaignId}.forged-receipt.json`), `${JSON.stringify(receipt)}\n`);
+  await assert.rejects(
+    exec(process.execPath, [path.join(here, 'story6-analyze.mjs'), `--campaign-id=${campaignId}`]),
+    error => /RECEIPT_PROVENANCE_INVALID/.test(error?.stdout ?? '')
+      && /unknown campaign artifact filename/.test(error?.stdout ?? ''),
+    'an extra receipt-looking JSON file must fail closed instead of being ignored',
+  );
+}
+
 await mkdir(runtime, { recursive: true });
 try {
   const mutations = [
@@ -81,7 +132,9 @@ try {
   for (const [name, mutate] of mutations) await runRejected(name, mutate);
   await runRejected('duplicate-cell-key', row => { row.cell.cellId = baseCell.cellId; }, true);
   await runBindingMismatchRejected();
-  console.log(`story6-analyze-selfcheck: PASS (${mutations.length + 2} receipt mutations rejected)`);
+  await runAdjudicationBoundaryAccepted();
+  await runUnknownReceiptFileRejected();
+  console.log(`story6-analyze-selfcheck: PASS (${mutations.length + 3} receipt mutations rejected; legal adjudication artifact excluded)`);
 } finally {
   const files = await readdir(runtime).catch(() => []);
   await Promise.all(files.filter(file => file.startsWith(`${campaignId}.`)).map(file => rm(path.join(runtime, file), { force: true })));

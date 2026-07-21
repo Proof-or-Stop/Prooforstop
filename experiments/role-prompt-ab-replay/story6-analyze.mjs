@@ -46,16 +46,43 @@ function expectedKeys() {
   return keys;
 }
 
+function expectedReceiptFileNames(campaignId) {
+  const names = new Set();
+  for (const sampleId of EXPECTED_SAMPLES) for (const host of EXPECTED_HOSTS) {
+    for (const arm of EXPECTED_ARMS) for (const repeat of EXPECTED_REPEATS) {
+      names.add(`${campaignId}.${sampleId}.${SAMPLE_ROLE[sampleId]}.${host}.${arm}.r${repeat}.json`);
+    }
+  }
+  return names;
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
-  const files = (await readdir(RUNTIME).catch(() => []))
+  const campaignFiles = (await readdir(RUNTIME).catch(() => []))
     .filter(file => file.startsWith(`${options.campaignId}.`) && file.endsWith('.json'));
+  const expectedReceiptFiles = expectedReceiptFileNames(options.campaignId);
+  const adjudicationFile = `${options.campaignId}.independent-adjudication.json`;
+  const files = campaignFiles.filter(file => expectedReceiptFiles.has(file));
+  const fileBoundaryErrors = campaignFiles
+    .filter(file => !expectedReceiptFiles.has(file) && file !== adjudicationFile)
+    .map(file => `unknown campaign artifact filename: ${file}`);
+  if (campaignFiles.includes(adjudicationFile)) {
+    try {
+      const candidate = JSON.parse(await readFile(path.join(RUNTIME, adjudicationFile), 'utf8'));
+      if (candidate?.schemaVersion !== 'proofbound.story6-independent-adjudication.v1'
+          || candidate?.campaignId !== options.campaignId) {
+        fileBoundaryErrors.push(`invalid independent adjudication artifact: ${adjudicationFile}`);
+      }
+    } catch {
+      fileBoundaryErrors.push(`invalid independent adjudication artifact: ${adjudicationFile}`);
+    }
+  }
   const receipts = await Promise.all(files.map(async file => JSON.parse(await readFile(path.join(RUNTIME, file), 'utf8'))));
   const corpus = JSON.parse(await readFile(path.join(HERE, 'corpus.json'), 'utf8'));
   const samples = new Map(corpus.samples.map(sample => [sample.id, sample]));
   const byKey = new Map();
   let campaignBindingDigest = null;
-  const provenanceErrors = [];
+  const provenanceErrors = [...fileBoundaryErrors];
   for (const [index, row] of receipts.entries()) {
     const cell = row?.cell;
     const key = cell && `${cell.sampleId}|${cell.host}|${cell.arm}|${cell.repeat}`;
