@@ -236,6 +236,53 @@
       "_hash": "79afd4d3ae6d95a2a96447b615dd2161d9ccec5c576679f0d137f5506c1914b9",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-407c:F-009",
+      "desc": "concept-cleanup: experiments/role-prompt-ab-replay/README.md:3-6 still describes the entire directory as a read-only harness that does not dispatch a model or call `agent_prompt --storyId`, but the new Story 6 live campaign at lines 20-47 intentionally calls the production `agent_prompt` handler and dispatches Codex CLI/Claude CLI provider cells. The old whole-directory boundary must be narrowed to the ordinary Story 3/B-235e replay or rewritten so the v3 live path is not contradicted; otherwise reviewers/operators are misled about the experiment producer and side effects.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-21T01:51:15.265Z",
+      "reviewRound": "2026-07-21T01:48:54.890Z",
+      "reviewRunId": "B-407c:RR-031",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "97887699f763ecf2c296bf5d5850d4b070ed78001ed589b0cf0c284519a0efbd",
+      "files": [
+        "experiments/role-prompt-ab-replay/README.md"
+      ],
+      "signatureTag": "stale-global-boundary-after-live-experiment",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
