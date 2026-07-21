@@ -251,10 +251,30 @@
         "LATTICE_CLI_VERSION",
         "versionSync"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-011 coverage review exposed a stale legacy ReviewRun fixture with empty promptHash; updating this exact smoke fixture is required to test the real frozen legacy role-body digest gate without weakening production verification.",
+      "timestamp": "2026-07-21T01:56:48.565Z",
+      "paths": [
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "88d539cc7a053ca6b16386ac9b1689e7316206bd",
+      "materialHash": "6b868b529359791507a1e23bd56c54ff7368a69f1985754c8c85ddec39057430",
+      "anchors": [
+        "semanticScopeGuardSmoke",
+        "promptHash"
+      ]
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-21T01:42:26.835Z",
+  "updatedAt": "2026-07-21T01:56:48.565Z",
   "fileRules": [],
   "protectedAnchors": [
     "AGENT_DISPATCH_REGISTRY",
@@ -336,7 +356,8 @@
     "packages/main/src/tasks/story6-production-dispatch-smoke.ts": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
     "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
     "experiments/role-prompt-ab-replay/*-summary.json": "experiments/role-prompt-ab-replay/*-summary.json",
-    "experiments/role-prompt-ab-replay/[s]tory6-*-summary.json": "experiments/role-prompt-ab-replay/[s]tory6-*-summary.json"
+    "experiments/role-prompt-ab-replay/[s]tory6-*-summary.json": "experiments/role-prompt-ab-replay/[s]tory6-*-summary.json",
+    "packages/main/src/tasks/semantic-scope-guard-smoke.ts": "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",
