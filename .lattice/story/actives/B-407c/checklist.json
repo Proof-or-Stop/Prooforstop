@@ -150,14 +150,14 @@
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
           "verdict": "success",
-          "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
-          "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
+          "file": "packages/main/src/tasks/story6-acceptance-transcript.ts",
+          "command": "node packages/main/dist/tasks/story6-acceptance-transcript.js",
           "result": "pass",
-          "note": "Budget observations remain observe-only for init/scope/implementer/delivery; evaluator remains unbudgeted and full correctness execution is preserved.",
-          "headHash": "e4de85fe34a6fe85c8de357e796588a212f06c08",
+          "note": "Production-bound Story 6 acceptance audit transcript asserts and prints response/event/recompute bytes, estimatedTokens, and limitBytes for within-budget and over-limit dispatches; missing/corrupt response or event budget fields fail before output.",
+          "headHash": "291fc5607f031712407462a9c5212f6b8c85a76e",
           "materialHash": "bf26eeac60498c1a77fb4eeeab9e20bbff2e3cab5ec1dd9b3f8c743e7668db6b",
           "storyFilesHash": "5ff61265b0387c15444df6864c916935e3e58d1a0d4b1848a1c5876cc2d550e5",
-          "timestamp": "2026-07-21T03:17:11.876Z"
+          "timestamp": "2026-07-21T03:20:11.270Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
