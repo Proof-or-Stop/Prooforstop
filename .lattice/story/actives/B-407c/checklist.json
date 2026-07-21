@@ -300,7 +300,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-20T21:49:48.450Z",
-      "endTime": "2026-07-21T00:35:32.227Z",
+      "endTime": "2026-07-21T01:48:47.431Z",
       "userSees": "用户看到 \"complex-role invariants: PASS\"；任何错误签名、越权、错误作者、缺失 evaluator/delivery/scope 证据或 Task Context 漂移都显示稳定 reason code。",
       "files": {
         "modify": [
@@ -350,35 +350,35 @@
           "file": "packages/main/src/tasks/story6-invariants-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-invariants-smoke.js",
           "result": "pass",
-          "note": "0.3.224 invariants smoke passed scope, delivery context, evaluator/dispatch receipts and lattice-implementer author binding.",
-          "headHash": "a8923bd25abc4605e2b1d988a3738ac128c55705",
-          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
-          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
-          "timestamp": "2026-07-21T00:35:32.417Z"
+          "note": "Current invariants smoke passes read-only scope/delivery surfaces, real REVIEW audit-receipt zero-credit collection, and positive lattice-implementer author control.",
+          "headHash": "f0cc0e5e882a5cafa54a35b51efc90fa95c6a124",
+          "materialHash": "6b868b529359791507a1e23bd56c54ff7368a69f1985754c8c85ddec39057430",
+          "storyFilesHash": "78f0dc818a329eff1ea8e845eae197b58fad781ed7299bb654fadbe63cf7a955",
+          "timestamp": "2026-07-21T01:48:47.630Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
-          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "file": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
           "result": "pass",
-          "note": "0.3.224 full-envelope smoke passed exact Story-aware Task Context, digest integrity, and durable process-event binding.",
-          "headHash": "a8923bd25abc4605e2b1d988a3738ac128c55705",
-          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
-          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
-          "timestamp": "2026-07-21T00:35:32.589Z"
+          "note": "Injected append failure through real agent_prompt/story-dispatch propagates, removes only the newly persisted Envelope, and reports no successful receipt; valid control persists both.",
+          "headHash": "f0cc0e5e882a5cafa54a35b51efc90fa95c6a124",
+          "materialHash": "6b868b529359791507a1e23bd56c54ff7368a69f1985754c8c85ddec39057430",
+          "storyFilesHash": "78f0dc818a329eff1ea8e845eae197b58fad781ed7299bb654fadbe63cf7a955",
+          "timestamp": "2026-07-21T01:48:47.821Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
-          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
           "result": "pass",
-          "note": "Event persistence failure, wrong role, stale head and context-digest mutation paths fail closed; story-dispatch receipts cannot mint REVIEW credit.",
-          "headHash": "a8923bd25abc4605e2b1d988a3738ac128c55705",
-          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
-          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
-          "timestamp": "2026-07-21T00:35:32.769Z"
+          "note": "Wrong role/head/context/digest and event failure reject; real REVIEW collector gives audit story-dispatch receipt zero pass/finding credit. No standalone wrong-author code is claimed.",
+          "headHash": "f0cc0e5e882a5cafa54a35b51efc90fa95c6a124",
+          "materialHash": "6b868b529359791507a1e23bd56c54ff7368a69f1985754c8c85ddec39057430",
+          "storyFilesHash": "78f0dc818a329eff1ea8e845eae197b58fad781ed7299bb654fadbe63cf7a955",
+          "timestamp": "2026-07-21T01:48:48.022Z"
         }
       ]
     }
