@@ -79,6 +79,44 @@
           "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Audit the field-level acceptance topology schema -> each acceptance claim identifies canonical source/claim, producer, consumer, positive proof, mutation proof, transcript or receipt reference, authority boundary, temporal role, and freshness bindings; WHY: makes every proof edge explicit and auditable.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Walk the specified PLAN-to-DEV acceptance_topology_check and DEV-to-REVIEW pre_review_check algorithms on a complete example -> the structural check validates graph totality before implementation while the executable check requires current admissible proof before REVIEW, with deterministic pass/warn/block outputs and named failure codes; WHY: proves the two gates own different lifecycle questions.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Evaluate topology totality for optional claims, one-to-many producers or consumers, not-applicable edges, and documentation-only stories -> the plan defines explicit justified handling without silently dropping required nodes or forcing executable evidence during PLAN; WHY: covers legitimate non-uniform graphs.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Evaluate freshness cases where materialHash matches, materialHash drifts while signed storyFilesHash matches, storyFilesHash changes, or legacy records lack storyFilesHash -> the plan preserves strict fallback, mandatory re-attestation advisory, and stale rejection semantics without silent rebinding; WHY: aligns proposed checks with existing freshness truth.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Substitute positive-only evidence, inverted mutation polarity, a transcript unrelated to the asserted claim, or caller-writable authority metadata -> pre_review_check rejects the edge with specific reason codes and cannot promote local or diagnostic output to Authority proof; WHY: prevents proof-shaped but semantically invalid evidence from passing.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Remove a required producer-consumer edge or describe a gate fact only in prose -> acceptance_topology_check fails closed and the plan requires CLI/handler enforcement plus process-fact registry and contract-verifier updates for every gate-consumed fact; WHY: prevents prompt-only or partial-graph bypass.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
