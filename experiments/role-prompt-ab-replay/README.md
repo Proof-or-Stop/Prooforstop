@@ -75,8 +75,11 @@ their dedicated smokes provide stable rejection codes for run/evidence
 signature failures, wrong lanes, Prompt Envelope mismatch/tampering, missing
 scope binding, mutation/scope authority denial, missing delivery check, and
 missing evaluator evidence. There is currently no standalone wrong-author
-reason-code API; Story 6 therefore records only a positive implementation
-author control and does not claim a synthetic negative author assertion.
+reason-code API. The Story 6 invariant smoke now invokes the real
+`checkCommitAuthor` negative behavior, and the acceptance audit transcript
+reports `wrongAuthorStatus=fail`, `wrongAuthorDispatchEvidence=missing`, and
+`wrongAuthorSource=checkCommitAuthor`. These are consumer-derived behavioral
+facts, not an invented wrong-author reason code.
 
 Because runtime receipts and adjudication are intentionally ignored, preserve a
 reviewable result with `story6-report.mjs --output=<tracked-summary.json>`. The
