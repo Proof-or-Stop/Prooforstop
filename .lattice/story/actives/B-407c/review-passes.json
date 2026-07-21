@@ -1051,6 +1051,57 @@
         "scanEscalationReason": "Expanded from the README-only material change to the exact production consumers and acceptance mutation surfaces named by the documentation, while confirming all source/test files remained unchanged since e4de85f."
       },
       "_hash": "b5b00aa868a4d9a1ea2a4be1a216403e652ea05c882eb1b9df222f1410e5370e"
+    },
+    {
+      "id": "B-407c:RP-032",
+      "agent": "lattice-review-quality",
+      "note": "Round 15 quality PASS: independently reviewed current integrated diff with special focus on 82c3eb71. resolveGitCwd is called for every acceptance-fixture git invocation; before init its documented unresolved fallback returns the temp projectRoot, while after init the same resolver discovers the actual metadata git top-level. No new bare metadata-root git cwd, type-safety regression, dead code, empty catch, or undelivered documentation promise was found. git diff --check, TypeScript build, and the full Story 6 acceptance transcript all passed.",
+      "createdAt": "2026-07-21T03:50:26.662Z",
+      "reviewRound": "2026-07-21T03:48:01.241Z",
+      "reviewRunId": "B-407c:RR-057",
+      "envelopeId": "ab7b8059c941e2cb3f43a5979ec09f14bca7cc65f8811e036447420d6a8babc0",
+      "writerSessionId": "sess-070dde7c95715c1d4cad32d0de80c053",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/plan.md",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-acceptance-transcript.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/README.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/story-signed-workspace-resolution.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-ab-dispatch.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e9fe4291152e75100ea127b7eb88d358e675d451b580aa65dcd169c563c832c"
     }
   ]
 }
