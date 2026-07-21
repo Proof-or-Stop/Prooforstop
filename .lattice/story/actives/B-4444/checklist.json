@@ -138,6 +138,44 @@
           "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Audit the implementation-wave table -> each bounded follow-up story has a single outcome, dependencies, exact likely code/test/process-fact touchpoints, entry and exit criteria, and no runtime implementation is performed by this documentation story; WHY: makes execution order actionable without hiding a monolith.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Audit the plan closeout sections -> observe/warn/enforce migration, legacy behavior, positive and negative test matrices, success metrics, risks, open decisions, and a reviewer pass/request-changes checklist are all concrete and cross-referenced; WHY: gives the user an auditable authorization surface.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Trace migration for existing artifacts, ordinary docs-only stories, newly triggered high-risk stories, and rollback from enforce -> legacy evidence remains readable but cannot become strong proof, observe/warn do not silently block, and enforce activates only after explicit compatibility criteria; WHY: prevents rollout from breaking unrelated flows or laundering old proof.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Apply review-assurance policy to the proposed gate and process-fact implementation waves -> high-risk changes require current 3x2 evidence or an explicit degraded-single-host path that stays non-authority, while this docs-only plan does not claim runtime completion; WHY: preserves assurance and authority boundaries across waves.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutate or remove each topology link, freshness binding, authority marker, transcript binding, and mutation polarity in the negative-control matrix -> every mutation has an expected deterministic failure code and no positive-only suite can satisfy executable pre-review proof; WHY: ensures the future suite tests semantic failure rather than schema presence alone.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Challenge vague waves, premature enforce rollout, self-authored exemptions, hidden parallel stores, and success metrics based only on command success -> the audit rubric marks each as request-changes and requires user-visible outcome and false-pass/false-block measures; WHY: prevents an impressive plan from being unauditable or unsafe.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
