@@ -20,6 +20,44 @@
           "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inspect the plan current-state ownership table -> milestone ledger, proofstory acceptanceBindings, checklist verificationIntent, verificationEvidence, REVIEW completeness, and lifecycle gates each have a distinct existing owner and responsibility; WHY: proves the proposal starts from canonical facts instead of an invented model.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Trace the proposed acceptance matrix/view back to existing artifacts -> it is explicitly derived from the confirmed milestone ledger plus proofstory acceptanceBindings and cannot be independently authored; WHY: preserves one source of truth.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Audit ordinary single-outcome, milestone-triggered, and legacy stories in the boundary section -> the plan distinguishes optional milestone data, candidate versus confirmed ledgers, and observe/warn/enforce behavior without retroactively inventing obligations; WHY: prevents boundary claims from over-applying the strict path.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Audit the documentation-only scope and future-runtime boundary -> current implemented behavior, proposed future commands/artifacts, and explicit non-goals are labeled separately; WHY: prevents a plan from being misread as shipped gate capability.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Search for any standalone writable acceptance matrix, duplicated criterion store, or second completion ledger -> none is proposed, and any matrix is declared a read-only derived rendering with canonical source references; WHY: detects parallel truth-source drift.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Challenge conflicting ownership or completion language -> milestone progress cannot satisfy verification evidence, REVIEW, lifecycle DONE, Authority DONE, or production readiness, and local artifacts cannot overclaim those states; WHY: blocks false equivalence between planning facts and completion proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
