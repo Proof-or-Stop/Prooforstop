@@ -6,7 +6,9 @@
       ".lattice/story/actives/B-407c/checklist.json",
       ".lattice/story/actives/B-407c/closeout-write-receipts.jsonl",
       ".lattice/story/actives/B-407c/decision.json",
+      ".lattice/story/actives/B-407c/delivery-check.json",
       ".lattice/story/actives/B-407c/done-required-evidence.json",
+      ".lattice/story/actives/B-407c/evidence/delivery-context-pack.json",
       ".lattice/story/actives/B-407c/evidence/live-smoke-transcript.json",
       ".lattice/story/actives/B-407c/findings.json",
       ".lattice/story/actives/B-407c/index.json",
@@ -61,6 +63,7 @@
       "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
       "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
       "packages/main/src/tasks/story6-ab-dispatch.ts",
+      "packages/main/src/tasks/story6-acceptance-transcript.ts",
       "packages/main/src/tasks/story6-invariants-smoke.ts",
       "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
       "packages/main/src/tasks/story6-role-migration-smoke.ts",
@@ -71,7 +74,7 @@
       "packages/main/templates/agents/lattice-review-story-init.md",
       "scripts/verify-process-fact-contract.mjs"
     ],
-    "summary": " .lattice/story/actives/B-407c/checklist.json       |  382 +-\n .../actives/B-407c/closeout-write-receipts.jsonl   |    7 +\n .lattice/story/actives/B-407c/decision.json        |   61 +\n .../actives/B-407c/done-required-evidence.json     |   93 +\n .../B-407c/evidence/live-smoke-transcript.json     |   20 +\n .lattice/story/actives/B-407c/findings.json        |  389 +\n .lattice/story/actives/B-407c/index.json           |  287 +-\n .../story/actives/B-407c/intent-collision.json     |   14 +\n .../story/actives/B-407c/milestone-ledger.json     |  109 +\n .../actives/B-407c/original-intent-snapshot.json   |   16 +\n .lattice/story/actives/B-407c/plan.md              |   16 +\n .lattice/story/actives/B-407c/process-events.jsonl |  193 +\n .lattice/story/actives/B-407c/process-metrics.json |  359 +\n .../story/actives/B-407c/prompt-envelopes.json     | 3117 ++++++++\n .lattice/story/actives/B-407c/proofstory.json      |   65 +\n .lattice/story/actives/B-407c/review-passes.json   |  950 +++\n .lattice/story/actives/B-407c/review-runs.json     | 7442 ++++++++++++++++++++\n .lattice/story/actives/B-407c/review.json          |  489 ++\n .lattice/story/actives/B-407c/scope-check.json     |  305 +\n .lattice/story/actives/B-407c/scope-contract.json  |  412 ++\n .lattice/story/actives/B-407c/summary.json         |   56 +\n .lattice/story/actives/B-407c/test-evidence.json   | 1020 +++\n .lattice/story/actives/B-407c/understanding.json   |   41 +\n .../baselines/proof-or-stop-prompt-baseline.json   |    2 +-\n .../proof-or-stop-prompt-overlap-matrix.md         |    2 +-\n .../role-prompt-measurement-baseline.json          |    2 +-\n experiments/role-prompt-ab-replay/README.md        |   77 +-\n .../lib/story6-schema-compat.mjs                   |   25 +\n .../story6-20260720-v2-summary.json                | 1601 +++++\n .../story6-20260721-v3-summary.json                | 1602 +++++\n .../story6-analyze-selfcheck.mjs                   |  170 +\n .../role-prompt-ab-replay/story6-analyze.mjs       |  188 +\n experiments/role-prompt-ab-replay/story6-live.mjs  |  367 +\n .../story6-output.schema.json                      |   25 +\n .../story6-report-selfcheck.mjs                    |   93 +\n .../role-prompt-ab-replay/story6-report.mjs        |  333 +\n .../story6-schema-compat-selfcheck.mjs             |   37 +\n lattice.config.json                                |    7 +-\n package-lock.json                                  |    4 +-\n package.json                                       |    2 +-\n packages/main/package-lock.json                    |    4 +-\n packages/main/package.json                         |    2 +-\n packages/main/src/core/codex-adapter-checks.ts     |   22 +-\n packages/main/src/core/config.ts                   |    9 +-\n packages/main/src/core/lattice-brand.ts            |    2 +-\n packages/main/src/core/process-fact-levels.ts      |    4 +-\n packages/main/src/core/prompt-budget.ts            |   69 +\n packages/main/src/core/prompt-contracts.ts         |    4 +-\n packages/main/src/core/prompt-registry.ts          |   64 +-\n .../main/src/core/prompt-role-contract-registry.ts |    9 +-\n packages/main/src/handlers/agent-prompt.ts         |  122 +-\n packages/main/src/handlers/evaluate.ts             |   53 +\n packages/main/src/handlers/story-dispatch.ts       |  169 +-\n .../tasks/prompt-full-context-envelope-smoke.ts    |   92 +-\n packages/main/src/tasks/prompt-registry-smoke.ts   |   22 +-\n .../main/src/tasks/semantic-scope-guard-smoke.ts   |   11 +-\n .../main/src/tasks/story6-ab-dispatch-smoke.ts     |   19 +\n packages/main/src/tasks/story6-ab-dispatch.ts      |   71 +\n packages/main/src/tasks/story6-invariants-smoke.ts |  288 +\n .../src/tasks/story6-production-dispatch-smoke.ts  |  179 +\n .../main/src/tasks/story6-role-migration-smoke.ts  |  133 +\n .../main/templates/agents/lattice-evaluator.md     |   96 +-\n .../main/templates/agents/lattice-implementer.md   |   96 +-\n .../templates/agents/lattice-review-delivery.md    |   96 +-\n .../templates/agents/lattice-\n...[truncated 212 chars]"
+    "summary": " .lattice/story/actives/B-407c/checklist.json       |  382 +-\n .../actives/B-407c/closeout-write-receipts.jsonl   |   13 +\n .lattice/story/actives/B-407c/decision.json        |   61 +\n .lattice/story/actives/B-407c/delivery-check.json  |   56 +\n .../actives/B-407c/done-required-evidence.json     |   93 +\n .../B-407c/evidence/delivery-context-pack.json     |  139 +\n .../B-407c/evidence/live-smoke-transcript.json     |   20 +\n .lattice/story/actives/B-407c/findings.json        |  506 ++\n .lattice/story/actives/B-407c/index.json           |  350 +-\n .../story/actives/B-407c/intent-collision.json     |   14 +\n .../story/actives/B-407c/milestone-ledger.json     |  109 +\n .../actives/B-407c/original-intent-snapshot.json   |   16 +\n .lattice/story/actives/B-407c/plan.md              |   16 +\n .lattice/story/actives/B-407c/process-events.jsonl |  225 +\n .lattice/story/actives/B-407c/process-metrics.json |  359 +\n .../story/actives/B-407c/prompt-envelopes.json     | 3606 ++++++++\n .lattice/story/actives/B-407c/proofstory.json      |   65 +\n .lattice/story/actives/B-407c/review-passes.json   | 1056 +++\n .lattice/story/actives/B-407c/review-runs.json     | 9386 ++++++++++++++++++++\n .lattice/story/actives/B-407c/review.json          |  489 +\n .lattice/story/actives/B-407c/scope-check.json     |  305 +\n .lattice/story/actives/B-407c/scope-contract.json  |  412 +\n .lattice/story/actives/B-407c/summary.json         |   56 +\n .lattice/story/actives/B-407c/test-evidence.json   | 1020 +++\n .lattice/story/actives/B-407c/understanding.json   |   41 +\n .../baselines/proof-or-stop-prompt-baseline.json   |    2 +-\n .../proof-or-stop-prompt-overlap-matrix.md         |    2 +-\n .../role-prompt-measurement-baseline.json          |    2 +-\n experiments/role-prompt-ab-replay/README.md        |   80 +-\n .../lib/story6-schema-compat.mjs                   |   25 +\n .../story6-20260720-v2-summary.json                | 1601 ++++\n .../story6-20260721-v3-summary.json                | 1602 ++++\n .../story6-analyze-selfcheck.mjs                   |  170 +\n .../role-prompt-ab-replay/story6-analyze.mjs       |  188 +\n experiments/role-prompt-ab-replay/story6-live.mjs  |  367 +\n .../story6-output.schema.json                      |   25 +\n .../story6-report-selfcheck.mjs                    |   93 +\n .../role-prompt-ab-replay/story6-report.mjs        |  333 +\n .../story6-schema-compat-selfcheck.mjs             |   37 +\n lattice.config.json                                |    7 +-\n package-lock.json                                  |    4 +-\n package.json                                       |    2 +-\n packages/main/package-lock.json                    |    4 +-\n packages/main/package.json                         |    2 +-\n packages/main/src/core/codex-adapter-checks.ts     |   22 +-\n packages/main/src/core/config.ts                   |    9 +-\n packages/main/src/core/lattice-brand.ts            |    2 +-\n packages/main/src/core/process-fact-levels.ts      |    4 +-\n packages/main/src/core/prompt-budget.ts            |   69 +\n packages/main/src/core/prompt-contracts.ts         |    4 +-\n packages/main/src/core/prompt-registry.ts          |   64 +-\n .../main/src/core/prompt-role-contract-registry.ts |    9 +-\n packages/main/src/handlers/agent-prompt.ts         |  122 +-\n packages/main/src/handlers/evaluate.ts             |   53 +\n packages/main/src/handlers/story-dispatch.ts       |  169 +-\n .../tasks/prompt-full-context-envelope-smoke.ts    |   92 +-\n packages/main/src/tasks/prompt-registry-smoke.ts   |   22 +-\n .../main/src/tasks/semantic-scope-guard-smoke.ts   |   11 +-\n .../main/src/tasks/story6-ab-dispatch-smoke.ts     |   19 +\n packages/main/src/tasks/story6-ab-dispatch.ts      |   71 +\n .../main/src/tasks/story6-acceptance-transcript.ts |  322 +\n packages/main/src/tasks/story6-invariants-smoke.ts |  331 +\n .../src/tasks/story6-production-dispatch-smoke.ts  |  179 +\n .../main/src/tasks/story6-role-migration-smoke.ts  |  133 +\n .../main/templates/agents/lattice-e\n...[truncated 392 chars]"
   },
   "docsPromises": [
     {
@@ -108,6 +111,7 @@
       "node experiments/role-prompt-ab-replay/story6-report.mjs --campaign-id=story6-20260721-v3 --adjudication=experiments/role-prompt-ab-replay/runtime/story6/story6-20260721-v3.independent-adjudication.json --verify=experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
       "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
       "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
+      "node packages/main/dist/tasks/story6-acceptance-transcript.js",
       "node packages/main/dist/tasks/story6-invariants-smoke.js",
       "node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
       "node packages/main/dist/tasks/story6-role-migration-smoke.js"
@@ -117,15 +121,22 @@
   "validation": {
     "source": "test-evidence.json",
     "result": "PASS",
-    "timestamp": "2026-07-21T02:58:04.157Z",
-    "headHash": "903bda261af8d36f3c2005acae326e5ff9b60c18",
-    "materialHash": "002977cfee58a8c200fe4b4f334c485386494b7955ec3d142387107ee2a53a5d",
-    "storyFilesHash": "f6ab28e2715f51d6f2dbe7e3718efd3d7cf1a5128d098d1440f9c30d44aeefca"
+    "timestamp": "2026-07-21T03:33:55.020Z",
+    "headHash": "6dc07f069707fe79a6079c88a07941521393c2f1",
+    "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
+    "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6"
   },
-  "reviewRound": "2026-07-21T02:43:33.468Z",
+  "reviewRound": "2026-07-21T03:22:21.830Z",
   "deliveryCheck": {
-    "status": "missing",
-    "ref": null
+    "status": "stale",
+    "ref": {
+      "source": "delivery-check.json",
+      "checkedAt": "2026-07-21T03:02:00.469Z",
+      "headHash": "94b7c3a8af5c8386fd1fcb2aa12aa81f17698e3f",
+      "materialHash": "002977cfee58a8c200fe4b4f334c485386494b7955ec3d142387107ee2a53a5d",
+      "reviewRound": "2026-07-21T02:43:33.468Z",
+      "hash": "4d9c837017296555eb1554eeb7dfbe2e5fa43d59189c3cf5ba099e4596c4d978"
+    }
   },
   "waiver": {
     "status": "none"
