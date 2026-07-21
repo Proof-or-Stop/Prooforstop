@@ -197,7 +197,7 @@
       "desc": "CHK-004:edge:0 and CHK-004:adversarial:0 lack the required negative invariant coverage. packages/main/src/tasks/story6-invariants-smoke.ts:15-20 only checks that scope/delivery commands return something and that one fixed commit has the implementer author; it does not mutate wrong author, evaluator evidence, signature, permissions, or remove each evidence item and assert a stable reason code. prompt-full-context-envelope-smoke.ts:244-270 and :347-374 covers Task Context/role/dispatch authority and event persistence, but not invalid signed-run verification, wrong-author rejection, evaluator/delivery/scope single-gap isolation, or the actual REVIEW evidence consumer rejecting a story-dispatch receipt. The PASS label at story6-invariants-smoke.ts:21 therefore overstates coverage of these must intents.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-21T00:37:45.580Z",
@@ -209,7 +209,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "missing|ts|edge-adversarial-lack",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Closed by 9f0c290 and coverage pass RP-021: hermetic real-consumer matrix covers valid signed control, invalid run/evidence signatures, wrong lane, missing scope, REVIEW zero-credit, authority denials, isolated delivery/evaluator gaps, and real wrong-author diagnostic.",
+      "resolvedAt": "2026-07-21T02:06:19.664Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-407c:F-007",
