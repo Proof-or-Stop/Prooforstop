@@ -3,7 +3,8 @@
  *
  * Host-neutral package-registry endpoint. Role-only calls return the canonical
  * host render: a body-free `review_run_start` bootstrap for the five migrated
- * reviewers, and the package role body for ordinary roles. For migrated
+ * reviewers, the rollout-selected body for migrated complex roles, and the
+ * package role body for ordinary roles. For migrated
  * reviewers, `review_run_start` selects and returns exactly one legacy or
  * modular body. Codex registry mode resolves the same bootstrap/body split.
  *
@@ -137,7 +138,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       if (!args.storyId || !ctx) {
         return isModularReviewerRoleId(role)
           ? renderPromptEntryForHost(entry, 'claude')
-          : rolePrompt;
+          : renderPromptEntryForHost(entry, 'claude', resolvedRoleBody.mode);
       }
 
       // Rollback is exact: a disabled role follows the original no-Story path

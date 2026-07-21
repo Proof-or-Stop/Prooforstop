@@ -14,6 +14,8 @@ import {
 } from '../core/prompt-role-contract-registry.js';
 import { isBudgetedComplexRole, observeComplexRolePromptBudget } from '../core/prompt-budget.js';
 import { resolvePromptEnvelopeRolloutMode } from '../core/prompt-role-contract-registry.js';
+import { StoryStore } from '../core/store.js';
+import { createAgentPromptHandlers } from '../handlers/agent-prompt.js';
 import {
   readPromptRegistry,
   renderPromptEntryForHost,
@@ -24,6 +26,11 @@ const registry = readPromptRegistry();
 const projectConfig = JSON.parse(readFileSync(join(process.cwd(), 'lattice.config.json'), 'utf8')) as {
   promptEnvelope?: { roles?: Record<string, string> };
 };
+const handlers = createAgentPromptHandlers({
+  root: process.cwd(),
+  scanRoot: join(process.cwd(), 'packages/main'),
+  store: new StoryStore(process.cwd()),
+});
 
 for (const roleId of ACTIVE_MODULAR_COMPLEX_ROLE_IDS) {
   assert.equal(
@@ -70,6 +77,16 @@ for (const roleId of ACTIVE_MODULAR_COMPLEX_ROLE_IDS) {
   });
   assert.equal(legacy.legacyBytesRestored, true);
   assert.equal(legacy.body, restoreLegacyPromptTemplate(entry), `${roleId} exact rollback is content-addressed`);
+  const defaultClaude = renderPromptEntryForHost(entry, 'claude');
+  const defaultCodex = renderPromptEntryForHost(entry, 'codex');
+  const modularClaude = renderPromptEntryForHost(entry, 'claude', 'full-envelope');
+  const modularCodex = renderPromptEntryForHost(entry, 'codex', 'full-envelope');
+  assert.equal(defaultClaude, legacy.body, `${roleId} rejected baseline selects legacy in the actual Claude host render`);
+  assert.equal(defaultCodex, legacy.body.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.lattice-codex/agents/'), `${roleId} rejected baseline selects legacy in the actual Codex host render`);
+  assert.equal(handlers.agent_prompt({ role: roleId }), defaultClaude, `${roleId} agent_prompt matches the chosen Claude host render`);
+  assert.equal(modularClaude, body, `${roleId} modular Claude render remains explicitly audit-selectable`);
+  assert.equal(modularCodex, body.replace(/Claude Code/g, 'Codex').replace(/\.claude\/agents\//g, '.lattice-codex/agents/'), `${roleId} modular Codex render remains explicitly audit-selectable`);
+  assert.notEqual(defaultClaude, modularClaude, `${roleId} rejected baseline cannot yield the modular host render`);
   const roleLimit = roleId === 'lattice-implementer' ? 10_000 : 12_000;
   assert.ok(Buffer.byteLength(body, 'utf8') <= roleLimit, `${roleId} modular role body meets ${roleLimit} byte target`);
   assert.ok(Buffer.byteLength(body, 'utf8') < Buffer.byteLength(legacy.body, 'utf8'));

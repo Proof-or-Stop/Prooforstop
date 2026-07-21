@@ -381,8 +381,17 @@ export function renderReviewerRunBootstrapForTemplate(raw: string, file: string)
   return renderReviewerRunBootstrap(frontmatter, name);
 }
 
-export function renderPromptEntryForHost(entry: PromptRegistryEntry, host: PromptHost): string {
-  const hostTemplate = renderPromptForHost(readPromptTemplate(entry), host);
+export function renderPromptEntryForHost(
+  entry: PromptRegistryEntry,
+  host: PromptHost,
+  mode: 'legacy-full-context' | 'full-envelope' = isModularComplexRoleId(entry.agentId)
+    ? 'legacy-full-context'
+    : 'full-envelope',
+): string {
+  const selectedTemplate = isModularComplexRoleId(entry.agentId)
+    ? resolvePromptTemplateBody(entry, mode)
+    : readPromptTemplate(entry);
+  const hostTemplate = renderPromptForHost(selectedTemplate, host);
   return isModularReviewerRoleId(entry.agentId)
     ? renderReviewerRunBootstrapForTemplate(hostTemplate, entry.file)
     : hostTemplate;
