@@ -271,10 +271,35 @@
         "semanticScopeGuardSmoke",
         "promptHash"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The approved deterministic prompt-baseline generator must refresh these three tracked derived artifacts after making actual host-render selection match the rejected-baseline legacy rollout for all five Story 6 roles.",
+      "timestamp": "2026-07-21T02:31:58.704Z",
+      "paths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "6e3846532a04c8f2e0b5ad565863d5cf58ab635a",
+      "materialHash": "e80da5e006a52e105828fe8f6ccc528720ba3e00f3e531d1945747adaa6d2d49",
+      "anchors": [
+        "promptBaseline",
+        "promptOverlapMatrix",
+        "rolePromptMeasurementBaseline"
+      ]
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-21T01:56:48.565Z",
+  "updatedAt": "2026-07-21T02:31:58.704Z",
   "fileRules": [],
   "protectedAnchors": [
     "AGENT_DISPATCH_REGISTRY",
@@ -357,7 +382,10 @@
     "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
     "experiments/role-prompt-ab-replay/*-summary.json": "experiments/role-prompt-ab-replay/*-summary.json",
     "experiments/role-prompt-ab-replay/[s]tory6-*-summary.json": "experiments/role-prompt-ab-replay/[s]tory6-*-summary.json",
-    "packages/main/src/tasks/semantic-scope-guard-smoke.ts": "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+    "packages/main/src/tasks/semantic-scope-guard-smoke.ts": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",
