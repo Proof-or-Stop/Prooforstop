@@ -622,6 +622,36 @@
       },
       "readDiagnostics": [],
       "_hash": "b13445d87e902507bf4a5ac013c8934ffdae5f17269c2bc909969c468d5ff261"
+    },
+    {
+      "id": "B-407c:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 quality re-review found no blocker. Verified F-007 adverse A/B rollback remains selected; v3 is INCONCLUSIVE and non-qualifying. Reproduced F-010 actual-handler reentrant mutation on current material: outer append failure throws while the successful inner dispatch retains exactly one bound envelope/event pair. Build, production dispatch smoke, real signed consumer invariant smoke, role migration smoke, full-context smoke, report selfcheck, git diff check, and process-fact contract all pass.",
+      "createdAt": "2026-07-21T02:04:37.883Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-035",
+      "envelopeId": "94ccf219472c279a1fbb2cc6bda309099a463807b44e6e9ba4bb4dcb1f00a346",
+      "writerSessionId": "sess-41c234fd6507fc4629595d666eb8184b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "lattice.config.json",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "29bafd975558fb0190ea5558b0dc2ff3facdc0546abe02deb91ae232ef72c464"
     }
   ]
 }
