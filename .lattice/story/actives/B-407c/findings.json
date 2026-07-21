@@ -465,7 +465,7 @@
       "desc": "packages/main/src/tasks/story6-invariants-smoke.ts:208 — acceptance-proof hardcoding: reviewCredit is assigned the literal story_dispatch_zero_review_credit after merely checking valid.length===0; no production consumer emits that code (repository search finds it only in this test and story6-acceptance-transcript.ts:241). The transcript therefore proves two test literals agree, not that a real machine-readable rejection reason was observed, despite line 236 claiming consumer reasons. Return a reason/code from the real eligibility consumer or label this strictly as a behavioral assertion and stop presenting it as an observed reason; add a mutation that changes the production consumer outcome/reason and makes the transcript fail.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-21T03:12:05.027Z",
@@ -473,7 +473,11 @@
       "reviewRunId": "B-407c:RR-047",
       "_hash": "1caf23e807e578d5aab2193a72f2167fe7fb397b45054349cc4c20cab3ab7ef3",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by e4de85fe34a6fe85c8de357e796588a212f06c08: removed invented story_dispatch_zero_review_credit code; transcript now reports actual collectReviewerEvidenceState behavioral outcome validPasses=0 validFindings=0 with positiveControlValidPasses=1, and labels context/wrong-author as behavioral facts. Fresh transcript passes.",
+      "resolvedAt": "2026-07-21T03:17:27.265Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
