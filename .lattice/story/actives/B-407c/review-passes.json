@@ -912,6 +912,39 @@
         "scanEscalationReason": "Diff-scoped quality review of 7b05391e plus production host-render consumers; expanded to all 16 generated host mirrors and the Story 6 production/invariant smoke matrix because the change affects shared verifier identity."
       },
       "_hash": "d24185d5dc351d5cca9bf0e25a963a4d2c81a526a8b30be2a91ca55d83259d2e"
+    },
+    {
+      "id": "B-407c:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 11 fresh coverage re-attestation passed: 12/12 must verificationIntent refs have distinct current storyFilesHash-bound evidence, 0 failures, 0 waivers. Fresh build plus prompt-registry, Story 6 role migration/production dispatch/invariants/A-B, full-context envelope, schema/analyzer/report, semantic scope, dispatch registry, lifecycle, and process-fact contract suites all passed. Actual Claude and Codex defaults remain frozen legacy for the five adverse roles while explicit modular renders remain audit-selectable. F-012 fix is biting: in an isolated copy, adding init_check_set to the actual Claude evaluator asset failed with extra cmd:init_check_set, and removing finding_add failed with missing cmd:finding_add against the canonical Claude host render. Verified v3 digest 49cf8de6e222da944fae655044b1fe2e54bdc45d691df93b395fb6e30cc8ea39 preserves the adverse outcome (legacy recall 24/24, modular 20/24; false positives 0 vs 1), baselineAccepted=false, enforceReady=false, and Story7 implemented=false.",
+      "createdAt": "2026-07-21T02:48:30.284Z",
+      "reviewRound": "2026-07-21T02:43:33.468Z",
+      "reviewRunId": "B-407c:RR-045",
+      "envelopeId": "eac0bec681bdf2508c0ea995a50df4d36f58e7a30280c4cde79f0076c32a8f76",
+      "writerSessionId": "sess-e8903ac26f64278445a2d5c62e03c2b7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c0d345b9bb5148394dc144bab559b8110701d8a0ca7f5f4c965c8d46a5f88d43"
     }
   ]
 }
