@@ -985,6 +985,40 @@
       },
       "readDiagnostics": [],
       "_hash": "8e602e0ba8e09aa20b9b75c0980dfe27f6783d1bc7b2ab2035d079949b2da425"
+    },
+    {
+      "id": "B-407c:RP-030",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 14 fresh full coverage review passed: 12/12 must intents have one concrete evidence row each, all bound to head 72ad7e673c and current storyFilesHash e385cdae47d5, with 0 failures and 0 waivers. CHK-002:happy:0 now directly binds `node packages/main/dist/tasks/story6-acceptance-transcript.js`; the fresh transcript proves response/event/recompute bytes, estimatedTokens, and limitBytes plus missing/corrupt mutations. Four user-visible surfaces are present: exact legacy production defaults separated from audit-only modular dispatch, within/over-limit budget facts, five-role 72-receipt adverse A/B summary, and real invariant outcomes/sources. Fresh build, registry/role/production/envelope/A-B/invariant smokes, schema/analyzer/report mutation suites, and process-fact contract all passed. No open blocker.",
+      "createdAt": "2026-07-21T03:24:01.689Z",
+      "reviewRound": "2026-07-21T03:22:21.830Z",
+      "reviewRunId": "B-407c:RR-053",
+      "envelopeId": "0efc0ddd4fc03cc085c5579cd38efda651d052d5d51c51ce8842eba31625256d",
+      "writerSessionId": "sess-e8903ac26f64278445a2d5c62e03c2b7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-acceptance-transcript.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9fb4063746736e4383a7777d52dbb010333faba8df19b67f122893d90af37412"
     }
   ]
 }
