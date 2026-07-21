@@ -582,6 +582,46 @@
       },
       "readDiagnostics": [],
       "_hash": "053de0673aecef09c20187ce99d6ddb4605acfdeaa79be49422b757a1d2ca0c2"
+    },
+    {
+      "id": "B-407c:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Round 9 concept review found no blocker on the latest material. Commit 9f0c290 closes F-009 by narrowing the no-model/no-agent_prompt statement to the ordinary Story 3/B-235e replay and explicitly documenting Story 6 live as the audit-only provider/agent_prompt exception. Repository grep found no remaining stale whole-directory boundary. The v3 content-addressed report still verifies 72/72 agent_prompt-produced cells, keeps the adverse modular result INCONCLUSIVE, rejects baseline/recall/enforce claims and Story 7, and lattice.config.json keeps all five complex roles on legacy-full-context by default. Existing legacy references are intentional rollback/compatibility, not incomplete deletion.",
+      "createdAt": "2026-07-21T02:04:01.917Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-034",
+      "envelopeId": "4987d6670f80b645f7120dfafceaec4f6bbdf1c2ba5caf3db0b64496ce17dffa",
+      "writerSessionId": "sess-c25611de6e4e5e15228b4b170ef630b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "lattice.config.json",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "b13445d87e902507bf4a5ac013c8934ffdae5f17269c2bc909969c468d5ff261"
     }
   ]
 }
