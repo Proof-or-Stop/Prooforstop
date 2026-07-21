@@ -346,6 +346,40 @@
       "resolvedAt": "2026-07-21T02:06:25.220Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-012",
+      "desc": "Fresh coverage re-attestation found a hard process-fact contract failure after the host-render change. The actual Claude and Codex assets for lattice-evaluator, lattice-implementer, lattice-review-delivery, lattice-review-scope-plan, and lattice-review-story-init now contain reviewer command semantics (finding_add, review_pass_set, review_run_start), and all except implementer also contain the docs/story/ path semantic, that are absent from their corresponding packages/main/templates/agents templates. Reproduction: node scripts/verify-process-fact-contract.mjs exits non-zero and reports all ten mirror/template pairs. The new byte-level host-default assertions pass, but actual host inputs and canonical templates disagree on load-bearing commands/paths, so CHK-001 edge/adversarial coverage and the production-consumer contract are not clean. Reconcile the canonical template/host rendering or the contract source of truth, then rerun the full coverage suite.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T02:37:23.192Z",
+      "reviewRound": "2026-07-21T02:34:20.993Z",
+      "reviewRunId": "B-407c:RR-042",
+      "_hash": "39be74e2ca48863c767e71e7fb1922325833b711198d1be89997aafb0648b765",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/templates/agents/lattice-evaluator.md",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-scope-plan.md",
+        "packages/main/templates/agents/lattice-review-story-init.md",
+        ".claude/agents/lattice-evaluator.md",
+        ".claude/agents/lattice-implementer.md",
+        ".claude/agents/lattice-review-delivery.md",
+        ".claude/agents/lattice-review-scope-plan.md",
+        ".claude/agents/lattice-review-story-init.md",
+        ".lattice-codex/agents/lattice-evaluator.md",
+        ".lattice-codex/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-review-delivery.md",
+        ".lattice-codex/agents/lattice-review-scope-plan.md",
+        ".lattice-codex/agents/lattice-review-story-init.md",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "adversarial|ts|fresh-coverage-attestation",
+      "signatureTagSource": "auto"
     }
   ]
 }
