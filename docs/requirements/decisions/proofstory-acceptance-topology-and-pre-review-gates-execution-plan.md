@@ -20,10 +20,13 @@ transcript or receipt, authority, temporal role, and freshness binding.
 Add two checks with different lifecycle responsibilities:
 
 1. `acceptance_topology_check` at PLAN → DEV checks structure and graph totality.
-   It must not require commands to have run or evidence to exist.
+   It must also close the declared topology over an independently generated
+   `coverageBasis`; it must not require implementation commands to have run or
+   verification evidence to exist.
 2. `pre_review_check` at DEV → REVIEW checks current executable evidence. It
    rejects missing or non-biting mutations, unrelated transcripts, inadmissible
-   authority, and stale bindings before a REVIEW round is spent.
+   authority, stale bindings, and topology paths omitted from the recomputed
+   current-worktree coverage basis before a REVIEW round is spent.
 
 Any tabular “acceptance matrix” is a deterministic, read-only projection of the
 confirmed milestone ledger, ProofStory acceptance bindings, checklist intents,
@@ -32,6 +35,28 @@ its own existence.
 
 This document specifies future work. `B-4444` does not ship either command,
 schema version, handler, prompt, test, or lifecycle gate.
+
+### 1.1 Guarantee boundary
+
+The target is a bounded mechanical guarantee, not proof that every possible
+runtime path in an open system is known:
+
+```text
+topology completeness PASS
+  only if coverageBasis.status == complete
+  AND coverageBasis was independently derived from the frozen scope and current workspace
+  AND every basis path maps to topology or an independently approved exclusion
+  AND the basis/topology binding is current
+  AND omission mutations bite
+```
+
+If static analysis, registry enumeration, dispatch inspection, or runtime traces
+cannot enumerate a relevant dynamic path, the basis is `partial` or
+`unsupported`. Those states render `INCONCLUSIVE`; they never become completeness
+PASS through prose, reviewer confidence, or a caller-written flag. Therefore the
+design can mechanically prevent omissions inside a frozen, machine-enumerable
+scope. It cannot promise zero unknown paths outside that boundary, and REVIEW
+remains required.
 
 ## 2. Problem statement
 
@@ -133,6 +158,9 @@ interface ProofStoryAcceptanceBinding {
 
 interface AcceptanceVerificationTopologyV1 {
   schemaVersion: 'proofstory.acceptance_topology.v1';
+  /** Signed verifier-produced basis; never a caller-authored inventory. */
+  coverageBasisRef: string;
+  coverageBasisDigest: string;
   applicability: {
     mode: 'required' | 'docs_only' | 'optional' | 'not_applicable';
     reason?: string;
@@ -147,12 +175,47 @@ interface AcceptanceVerificationTopologyV1 {
   evidenceAuthority: TopologyEvidenceAuthority;
   freshness: TopologyFreshnessPolicy;
 }
+
+interface AcceptanceCoverageBasisV1 {
+  schemaVersion: 'proofstory.acceptance_coverage_basis.v1';
+  storyId: string;
+  status: 'complete' | 'partial' | 'unsupported';
+  generatedBy: {
+    verifier: string;
+    command: string;
+    algorithmVersion: string;
+  };
+  discoveryMethods: Array<
+    | 'scope_contract'
+    | 'actual_diff_hunks'
+    | 'process_fact_registry'
+    | 'handler_dispatch_inventory'
+    | 'static_call_graph'
+    | 'runtime_trace'
+  >;
+  scopeRefs: string[];
+  sourceInventoryRefs: string[];
+  enumeratedPathRefs: string[];
+  excludedPathRefs: Array<{
+    pathRef: string;
+    decisionRef: string;
+  }>;
+  blindSpots: string[];
+  binding: {
+    headHash: string;
+    materialHash: string;
+    storyFilesHash: string;
+  };
+  receiptRef: string;
+  basisDigest: string;
+}
 ```
 
 Required referenced records:
 
 | Record | Required fields | Meaning |
 |---|---|---|
+| coverage basis | `status`, verifier identity, discovery methods, scope/source/path refs, exclusions, blind spots, current binding, receipt, digest | Independently derived closure universe against which topology completeness is judged |
 | producer | `id`, `kind`, `sourceRef`, `outputFact` | The production path that creates the fact under test |
 | consumer | `id`, `kind`, `sourceRef`, `inputFact`, `producerRefs` | A real consumer that must observe or reject the producer fact |
 | positive assertion | `id`, `intentRef`, `producerRefs`, `consumerRefs`, `expectedOutcome`, `evidenceRefs` | Expected success behavior |
@@ -161,6 +224,13 @@ Required referenced records:
 | command ref | `id`, `commandTemplate`, `runnerKind`, `workspacePolicy` | The canonical executable route, not an observed result |
 | authority | `requiredClass`, `acceptedIssuerKinds`, `prohibitedPromotions` | Which evidence may support the claim |
 | freshness | `bindingFields`, `cutoffPolicy`, `onDrift` | How current evidence is determined |
+
+`AcceptanceCoverageBasisV1` is a derived, signed gate fact, not a second
+acceptance or completion store. Its producer must be a registered verifier that
+recomputes from repository/runtime inputs. Neither an implementer nor a reviewer
+may submit arbitrary `enumeratedPathRefs`, `status: complete`, or exclusions.
+The topology stores only the basis reference and digest so a self-reported basis
+cannot make its own graph appear complete.
 
 ### 5.3 Complete example
 
@@ -177,6 +247,8 @@ Required referenced records:
   "milestoneIds": ["M2"],
   "verificationTopology": {
     "schemaVersion": "proofstory.acceptance_topology.v1",
+    "coverageBasisRef": "CB-B-4444-001",
+    "coverageBasisDigest": "sha256:coverage-basis-digest",
     "applicability": {
       "mode": "required"
     },
@@ -249,6 +321,46 @@ Required referenced records:
 }
 ```
 
+The referenced basis is produced independently, for example:
+
+```json
+{
+  "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+  "storyId": "B-4444",
+  "status": "complete",
+  "generatedBy": {
+    "verifier": "acceptance-coverage-basis-verifier",
+    "command": "lattice acceptance_coverage_basis_check --storyId=B-4444",
+    "algorithmVersion": "v1"
+  },
+  "discoveryMethods": [
+    "scope_contract",
+    "actual_diff_hunks",
+    "process_fact_registry",
+    "handler_dispatch_inventory",
+    "static_call_graph",
+    "runtime_trace"
+  ],
+  "scopeRefs": ["scope:path:review-run", "scope:path:review-verifier"],
+  "sourceInventoryRefs": [
+    "handler:review_run_start",
+    "verifier:verifyReviewRunPromptEnvelope"
+  ],
+  "enumeratedPathRefs": [
+    "path:review_run_start->verifyReviewRunPromptEnvelope"
+  ],
+  "excludedPathRefs": [],
+  "blindSpots": [],
+  "binding": {
+    "headHash": "current-head",
+    "materialHash": "sha256:current-material",
+    "storyFilesHash": "sha256:current-story-files"
+  },
+  "receiptRef": "receipt:coverage-basis:B-4444:001",
+  "basisDigest": "sha256:coverage-basis-digest"
+}
+```
+
 The example illustrates the target shape only. It is not a claim that this
 schema or command exists.
 
@@ -278,6 +390,20 @@ schema or command exists.
     evidence to Authority or production proof.
 14. The binding-to-topology graph and topology-to-binding graph are both total:
     no required binding is unrepresented and no topology node is orphaned.
+15. Every required topology references a signed basis independently recomputed
+    from the frozen scope, actual diff hunks, registered process facts,
+    handler/dispatch inventory, and applicable static/runtime path discovery.
+16. Completeness PASS requires `coverageBasis.status === 'complete'`; `partial`
+    and `unsupported` are `INCONCLUSIVE`, even if all declared topology nodes are
+    internally connected.
+17. Every `enumeratedPathRef` maps to at least one producer/consumer/assertion
+    edge or to an exclusion carrying an independently approved decision ref.
+18. Every topology producer/consumer source ref occurs in the current basis;
+    topology cannot expand or narrow its own closure universe.
+19. A `complete` basis has no unresolved blind spots. Dynamic/reflection/plugin
+    paths require an admissible runtime trace or force `partial`/`unsupported`.
+20. The basis digest and current `storyFilesHash` binding match the topology;
+    any relevant workspace or topology change requires independent recomputation.
 
 ### 6.1 Deterministic structural codes
 
@@ -295,6 +421,12 @@ schema or command exists.
 | `AT_INVALID_NA_DECISION` | Exemption lacks a valid external decision ref |
 | `AT_INLINE_RESULT_FORBIDDEN` | Topology attempts to store observed pass/fail |
 | `AT_AUTHORITY_PROMOTION_FORBIDDEN` | Requested authority exceeds evidence class |
+| `AT_COVERAGE_BASIS_MISSING` | Required topology lacks a signed verifier-produced coverage basis |
+| `AT_COVERAGE_BASIS_PARTIAL` | Basis is `partial` or `unsupported`; completeness is inconclusive |
+| `AT_UNMAPPED_SCOPE_REF` | A basis path/source/scope ref has no topology mapping |
+| `AT_UNJUSTIFIED_EXCLUSION` | A basis path is excluded without an independently approved decision ref |
+| `AT_TOPOLOGY_OUTSIDE_BASIS` | Topology references a producer/consumer not present in the current basis |
+| `AT_COVERAGE_BASIS_STALE` | Basis digest or workspace/story-files binding is not current |
 
 ## 7. `acceptance_topology_check` — PLAN → DEV
 
@@ -306,6 +438,7 @@ Inputs:
 - confirmed milestone ledger when the milestone path applies;
 - ProofStory acceptance bindings and topology;
 - checklist and frozen verificationIntent;
+- independently generated coverage basis and verifier receipt;
 - applicability decisions and configured rollout mode.
 
 The check is structural only. It must not:
@@ -322,13 +455,36 @@ Algorithm:
 normalize supported topology versions
 resolve all canonical refs
 derive applicability for each binding
+independently derive coverage basis from frozen scope + current repository/runtime inputs
+classify basis as complete, partial, or unsupported
+stop with INCONCLUSIVE unless required basis status is complete
 check bidirectional graph totality
+check every basis ref maps to topology or an independently approved exclusion
+check every topology path exists in the current basis
 check lane-to-assertion coverage
 check mutation/transcript declarations where applicable
 check authority and freshness policies are declared
 emit stable rows and deterministic codes
 apply configured observe/warn/enforce behavior
 ```
+
+The decisive predicate is:
+
+```text
+structuralPass =
+  basis.issuer is registered verifier
+  AND basis.status == complete
+  AND basis.binding is current
+  AND topology.coverageBasisDigest == basis.basisDigest
+  AND every basis path is mapped or independently excluded
+  AND every topology path belongs to basis
+  AND all remaining topology invariants pass
+```
+
+The verifier must compute the basis independently. A payload that lets the
+caller choose `status`, path inventory, blind spots, or exclusions is invalid by
+construction. A topology critic may challenge the result, but its prose cannot
+turn a `partial` basis into `complete`.
 
 Output is a diagnostic report. If a durable artifact is later introduced, it
 must be hash-bound and process-fact registered; command output alone cannot be
@@ -341,6 +497,10 @@ topology is executable and bites before reviewers spend a round?”
 
 For every applicable required binding, it verifies:
 
+- coverage basis is independently recomputed from the actual current diff,
+  source inventory, registries/dispatch paths, and applicable runtime traces;
+- recomputed basis remains `complete` and its digest matches the topology;
+- every newly discovered path maps to topology or an approved exclusion;
 - positive assertions have current successful evidence;
 - producer and consumer evidence exercise the declared production path;
 - each required mutation was actually applied in an isolated or safely restored
@@ -351,6 +511,13 @@ For every applicable required binding, it verifies:
 - receipts came from an accepted issuer kind;
 - evidence is bound to the current admissible workspace/material state;
 - no result is silently rebound after drift.
+
+The pre-review verifier must not trust the PLAN basis merely because its receipt
+was once valid. It recomputes the basis after implementation, compares it with
+the PLAN basis, and invalidates topology completeness if DEV introduced a new
+producer, consumer, handler, dispatch edge, process-fact consumer, or relevant
+changed hunk. `storyFilesHash` binds the recomputed closure; it is a freshness
+input, not a substitute for enumerating paths.
 
 It does not replace REVIEW. A pass means the implementation is ready to be
 reviewed against a complete proof plan. Reviewers can still find missing paths,
@@ -371,6 +538,23 @@ weak assertions, design problems, or unmodeled interactions.
 | `PR_EVIDENCE_STALE` | Binding is stale under the freshness reader |
 | `PR_CUTOFF_UNBOUND` | Temporal producer/verifier cutoff relation is missing |
 | `PR_LEGACY_EVIDENCE_WEAK` | Legacy record is readable but cannot satisfy strong proof |
+| `PR_COVERAGE_BASIS_CHANGED` | Current DEV-derived basis differs from the topology-bound PLAN basis |
+| `PR_NEW_PATH_UNMAPPED` | Current source/runtime discovery finds a path absent from topology |
+| `PR_COVERAGE_INCONCLUSIVE` | Current path discovery is partial or unsupported |
+
+### 8.2 Independent topology critic
+
+Before DEV admission on enforced high-assurance paths, an independent topology
+critic challenges scope, discovery methods, exclusions, and closure. Before
+REVIEW, it re-attests the recomputed DEV basis. Its result must be a signed,
+hash-bound artifact containing critic identity, basis digest, topology digest,
+scope digest, `storyFilesHash`, finding refs, and verdict.
+
+The CLI independently verifies those bindings and the critic's eligible role.
+Prompt text, natural-language approval, or a self-authored reviewer ID is not
+evidence. The critic cannot override `partial`/`unsupported`; it may only require
+more discovery or confirm that a mechanically `complete` basis has no identified
+omission.
 
 ## 9. Freshness, temporal binding, and drift
 
@@ -396,6 +580,10 @@ Rules:
    cutoff are excluded, both `>` and `>=` mutations must be covered.
 7. Freshness repair must preserve original issuer, command, outcome, and evidence
    identity; otherwise it is a new run, not a refresh.
+8. Coverage-basis freshness is stricter than evidence freshness: a change to
+   frozen scope, relevant diff hunks, registered producer/consumer facts,
+   topology, or discovery inputs requires basis recomputation. Rebinding an old
+   path inventory to a new hash is forbidden.
 
 ## 10. Applicability and compatibility
 
@@ -412,14 +600,18 @@ Rules:
 | One producer to many consumers | Each required consumer has its own assertion/evidence edge |
 | Many producers to one consumer | Assertion declares whether all or any producer is required |
 | Legacy ProofStory without topology | Readable as `legacy_missing`; observe/warn initially, never silently treated as full proof |
+| Machine-enumerable frozen scope | Basis may be `complete` after all required discovery methods agree and blind spots are empty |
+| Dynamic/reflection/plugin path with admissible trace coverage | Basis may be `complete` only if policy declares the runtime trace sufficient for that bounded scope |
+| Relevant dynamic path without admissible trace | Basis is `partial`; result is `INCONCLUSIVE` |
+| Unsupported language/framework discovery | Basis is `unsupported`; result is `INCONCLUSIVE` |
 
 ## 11. Derived acceptance matrix
 
 Example read-only rendering:
 
-| Acceptance | Milestone | Producer → consumer | Positive | Mutation | Transcript | Authority | Freshness | Result |
-|---|---|---|---|---|---|---|---|---|
-| `AC-RUN-CUTOFF` | `M2` | `P-B → C-VERIFY-B` | `PA-B-AFTER-C` | `MUT-NO-CUTOFF` | `TR-A-B-C` | local gate / signed run | current | ready-for-review |
+| Acceptance | Basis | Milestone | Producer → consumer | Positive | Mutation | Transcript | Authority | Freshness | Result |
+|---|---|---|---|---|---|---|---|---|---|
+| `AC-RUN-CUTOFF` | `CB-B-4444-001: complete` | `M2` | `P-B → C-VERIFY-B` | `PA-B-AFTER-C` | `MUT-NO-CUTOFF` | `TR-A-B-C` | local gate / signed run | current | ready-for-review |
 
 Every cell is a link or ID derived from canonical inputs. The result column is a
 computed diagnostic such as `structurally-complete`, `ready-for-review`,
@@ -428,6 +620,7 @@ computed diagnostic such as `structurally-complete`, `ready-for-review`,
 Proposed command surface:
 
 ```text
+lattice acceptance_coverage_basis_check --storyId=B-xxxx [--json]
 lattice acceptance_topology_check --storyId=B-xxxx [--json]
 lattice pre_review_check --storyId=B-xxxx [--json]
 lattice acceptance_matrix --storyId=B-xxxx [--json]   # read-only renderer
@@ -481,12 +674,16 @@ Any topology fact consumed by a lifecycle gate requires both layers:
 Implementation must update:
 
 - command schemas and phase allowlists;
+- a registered coverage-basis producer/verifier whose path inventory and
+  completeness classification cannot be caller-authored;
 - `packages/main/src/core/process-fact-registry.ts`;
 - `packages/main/src/core/process-fact-levels.ts`;
 - `scripts/verify-process-fact-contract.mjs`;
 - producer and consumer rationale/verifier declarations;
 - freshness/material binding declarations;
 - tests proving prompt omission cannot bypass the gate.
+- producer/consumer process facts needed to seed and cross-check the basis;
+- signed topology-critic receipt verification and digest/freshness consumers.
 
 Authority rules:
 
@@ -509,6 +706,7 @@ This is an inventory, not authorization to edit every file.
 | Concern | Likely touchpoint |
 |---|---|
 | Types and schema constants | `packages/main/src/core/types.ts`, ProofStory schema constants |
+| Coverage-basis discovery and closure | focused verifier plus scope/diff/registry/dispatch/static/runtime adapters |
 | Normalization and totality evaluator | `packages/main/src/core/proofstory.ts` or a focused `acceptance-topology.ts` |
 | CLI schemas/commands | ProofStory handler/schema registration surfaces |
 | PLAN → DEV consumption | `packages/main/src/core/machine.ts` and guard diagnostics |
@@ -546,24 +744,42 @@ Exit: schema round-trips; legacy contracts read; derived rows expose canonical
 IDs; no lifecycle behavior changes.  
 Stop: any need for a separate writable artifact or ambiguous canonical owner.
 
+### Wave 1A — Independently derived coverage basis
+
+Outcome: implement the registered basis verifier, `complete` / `partial` /
+`unsupported` classification, discovery adapters, signed receipt, digest and
+workspace binding, closure diagnostics, and read-only basis rendering.
+
+Dependency: Wave 1 schema ownership plus frozen scope/diff and process-fact
+interfaces.
+Exit: callers cannot submit path inventory or force `complete`; known static and
+runtime paths are deterministically enumerated; blind spots cause
+`INCONCLUSIVE`; stale basis bindings fail; every exclusion requires an eligible
+decision ref.
+Stop: basis completeness depends on self-report, reviewer prose, silently
+ignored adapters, or a hash-only rebind of an old inventory.
+
 ### Wave 2 — PLAN structural gate
 
 Outcome: integrate `acceptance_topology_check` at PLAN → DEV behind
 observe/warn/enforce configuration.
 
-Dependency: Wave 1.  
+Dependency: Waves 1 and 1A.
 Exit: missing edges and prompt-only facts produce stable codes; docs-only and
 single-outcome paths avoid false blocks; process facts are registered.  
 Stop: the check requires executed evidence or duplicates verificationIntent.
 
 ### Wave 3 — Executable pre-review evidence
 
-Outcome: implement `pre_review_check`, mutation polarity, transcript relation,
-authority admissibility, and freshness consumption.
+Outcome: implement `pre_review_check`, current-worktree basis recomputation,
+omission mutations, mutation polarity, transcript relation, authority
+admissibility, and freshness consumption.
 
 Dependency: Waves 1–2 plus canonical evidence/receipt identifiers.  
 Exit: real producer-to-consumer tests pass; every adverse mutation bites; clean
-controls pass after restoration; stale and weak evidence fail deterministically.  
+controls pass after restoration; deleting a topology path that remains in the
+basis fails; stale, changed, partial, and weak basis/evidence fail
+deterministically.
 Stop: the implementation relies on caller-written authority or silent rebinding.
 
 ### Wave 3A — Explicit applicability selection for selective enforcement
@@ -605,7 +821,14 @@ decomposition. A wave cannot claim later-wave completion.
 
 | Scenario/mutation | Stage | Expected result/code |
 |---|---|---|
-| Complete required topology | PLAN | pass |
+| Complete verifier-produced basis plus basis-closed required topology | PLAN | pass |
+| Required topology has no signed basis | PLAN | `AT_COVERAGE_BASIS_MISSING` |
+| Basis is caller-authored or issuer is ineligible | PLAN | reject artifact; no completeness state |
+| Basis is `partial` or `unsupported` | PLAN | `AT_COVERAGE_BASIS_PARTIAL`; `INCONCLUSIVE` |
+| Basis contains C2 but topology declares only C1 | PLAN | `AT_UNMAPPED_SCOPE_REF` |
+| Topology declares C2 but current basis does not contain C2 | PLAN | `AT_TOPOLOGY_OUTSIDE_BASIS` |
+| Basis excludes C2 without independent decision | PLAN | `AT_UNJUSTIFIED_EXCLUSION` |
+| Basis binding or digest is stale | PLAN | `AT_COVERAGE_BASIS_STALE` |
 | Missing producer | PLAN | `AT_UNKNOWN_REF` or `AT_ORPHAN_CONSUMER` |
 | Missing consumer | PLAN | `AT_ORPHAN_PRODUCER` |
 | Must intent absent from topology | PLAN | `AT_INTENT_UNCOVERED` |
@@ -614,6 +837,9 @@ decomposition. A wave cannot claim later-wave completion.
 | Self-authored not-applicable note | PLAN | `AT_INVALID_NA_DECISION` |
 | Topology stores `result: pass` | PLAN | `AT_INLINE_RESULT_FORBIDDEN` |
 | Complete positive production-path evidence | pre-REVIEW | pass |
+| DEV adds consumer C2 after PLAN | pre-REVIEW | `PR_COVERAGE_BASIS_CHANGED` plus `PR_NEW_PATH_UNMAPPED` |
+| Remove C2 from topology while current basis retains C2 | both | omission mutation must fail with `AT_UNMAPPED_SCOPE_REF` |
+| Dynamic path cannot be enumerated or traced | pre-REVIEW | `PR_COVERAGE_INCONCLUSIVE` |
 | Synthetic fixture bypasses real producer | pre-REVIEW | `PR_PRODUCTION_PATH_UNPROVEN` |
 | Remove producer cutoff | pre-REVIEW | mutation must fail; otherwise `PR_MUTATION_DID_NOT_BITE` |
 | Change `>=` exclusion to `>` | pre-REVIEW | equal-time mutation must fail; otherwise `PR_MUTATION_DID_NOT_BITE` |
@@ -639,6 +865,12 @@ clean control passes
 → clean control passes again
 ```
 
+The omission mutation is mandatory for the basis-closure gate: start with basis
+paths `C1` and `C2`, remove only `C2` from topology while leaving the independently
+derived basis unchanged, and assert that admission fails. A test that deletes
+`C2` from both topology and basis proves nothing because it reproduces the
+self-reporting failure mode this design exists to prevent.
+
 ## 17. Success metrics
 
 Measure before and after on comparable high-assurance Stories:
@@ -648,6 +880,11 @@ Measure before and after on comparable high-assurance Stories:
 - false-pass rate from seeded topology/mutation defects;
 - false-block rate on docs-only, legacy, and single-outcome Stories;
 - percentage of required topology edges backed by current evidence;
+- percentage of Stories with independently derived `complete` basis versus
+  honest `partial`/`unsupported` outcomes;
+- seeded omission-detection rate when a real basis path is removed only from
+  topology (target: 100% on supported adapters);
+- unmapped path and unjustified exclusion counts at PLAN and pre-REVIEW;
 - number of silent evidence rebindings (target: zero);
 - number of degraded 3×1 campaigns mislabeled as two-host authority (target: zero);
 - waiver count and age, so reduced rounds cannot be bought with waivers;
@@ -663,6 +900,10 @@ to find genuinely unmodeled issues.
 |---|---|---|---|
 | Parallel truth source emerges | Matrix becomes writable | Conflicting completion facts | Derived-only renderer; reject writes |
 | Schema duplicates claims/results | Inline prose and verdicts are accepted | Drift and laundering | Reference-only normalization; `AT_INLINE_RESULT_FORBIDDEN` |
+| Coverage basis is self-reported | Implementer supplies both universe and topology | Omitted C2 passes both gates | Registered verifier independently derives basis; caller cannot set status or inventory |
+| Basis says complete despite blind spots | Dynamic/reflection/plugin paths are not discoverable | False completeness | Three-state classification; unresolved blind spot forces `partial`/`unsupported` and `INCONCLUSIVE` |
+| DEV changes the real path set | PLAN basis is reused after code changes | New consumer bypasses topology | Recompute from actual diff/runtime inputs and bind to current `storyFilesHash` |
+| Exclusion launders an omission | Implementer excludes C2 without scrutiny | Incomplete graph appears closed | Eligible independent decision ref plus omission mutation |
 | PLAN gate executes tests | Structural check requires evidence | DEV cannot begin coherently | Hard separation of the two checks |
 | Pre-review becomes checkbox theater | Positive evidence alone passes | False assurance | Required biting mutations and transcript relation |
 | Mutation failure is nonspecific | Broken build counts as bite | False pass | Named semantic failure and restored control |
@@ -693,6 +934,15 @@ to find genuinely unmodeled issues.
 7. Should selective enforcement be Story-bound, policy-profile-bound, or remain
    project-wide? Until Wave 3A and this decision are complete, the only supported
    model is the existing flat project-wide mode.
+8. Which discovery adapters are sufficient to classify each supported
+   language/framework as `complete`, and which combinations require runtime
+   traces? Until answered, unsupported adapters must return `partial` or
+   `unsupported`, never optimistic completeness.
+9. Should the signed coverage basis be a dedicated durable process artifact or
+   a verifier-recomputable section of `proofstory.json`? Either choice must keep
+   path inventory non-caller-writable and atomically bind basis/topology digests.
+10. Which roles may approve exclusions and topology-critic receipts, and how is
+    independence from the implementer mechanically established?
 
 ## 20. Human audit checklist
 
@@ -706,11 +956,23 @@ Mark **Pass** only if every required row below is true. Otherwise mark
 - [ ] No independently writable `acceptance_matrix` is proposed.
 - [ ] The derived matrix exposes canonical source IDs and is non-evidentiary.
 - [ ] The topology schema is reference-based and versioned.
+- [ ] `coverageBasis` is generated by a registered verifier, not supplied by the
+      implementer or reviewer.
+- [ ] Basis status is exactly `complete`, `partial`, or `unsupported`, and only
+      `complete` can satisfy topology completeness.
+- [ ] The basis is derived from frozen scope, actual diff hunks, registries,
+      handler/dispatch inventory, and applicable static/runtime discovery.
+- [ ] Every basis path maps to topology or an independently approved exclusion;
+      every topology path exists in the basis.
+- [ ] Dynamic blind spots force `INCONCLUSIVE` unless an admissible bounded
+      runtime trace closes them.
 - [ ] Producer, consumer, positive, mutation, transcript, command, authority,
       temporal, and freshness obligations are all represented.
 - [ ] Bidirectional totality and stable structural failure codes are specified.
 - [ ] `acceptance_topology_check` is structural-only and belongs before DEV.
 - [ ] `pre_review_check` requires current executable evidence before REVIEW.
+- [ ] DEV→REVIEW independently recomputes the current basis and rejects new
+      unmapped paths or stale basis/topology digests.
 - [ ] A mutation must fail for the intended semantic reason and the clean control
       must pass after restoration.
 - [ ] Transcript evidence must be related to the acceptance claim and event path.
@@ -727,6 +989,8 @@ Mark **Pass** only if every required row below is true. Otherwise mark
       and stop conditions.
 - [ ] The negative-control matrix includes producer/consumer deletion, polarity,
       transcript, authority, and freshness mutations.
+- [ ] An omission mutation removes C2 only from topology while retaining it in
+      the independently derived basis, and the gate fails.
 - [ ] Success metrics include false passes, false blocks, waiver use, and total
       cost—not only fewer REVIEW rounds.
 - [ ] Open decisions are resolved or explicitly accepted before implementation.
@@ -753,6 +1017,10 @@ Conditions:
   claim types it cannot validly test.
 - Do not allow natural-language notes to satisfy gate-consumed facts.
 - Do not infer freshness or host independence from filenames or prose.
+- Do not claim absolute path completeness outside a frozen, supported,
+  machine-enumerable scope; unresolved discovery returns `INCONCLUSIVE`.
+- Do not let the same actor author both the coverage universe and the topology
+  closure assertion.
 - Do not enable enforce mode before the measured rollout criteria are approved.
 
 ## 22. Acceptance criteria for this planning Story
@@ -763,7 +1031,9 @@ Conditions:
 2. the current-versus-target boundary is accurate;
 3. the ownership and no-parallel-truth-source decision is explicit;
 4. schema, algorithms, failure codes, freshness, authority, rollout, tests,
-   waves, risks, metrics, open decisions, and audit rubric are present;
+   independently derived coverage basis, three-state completeness, omission
+   mutations, waves, risks, metrics, open decisions, and audit rubric are
+   present;
 5. independent reviewers find no unmarked claim that proposed gates already
    exist; and
 6. the user receives this file for audit before any implementation Story starts.
