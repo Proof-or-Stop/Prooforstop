@@ -180,10 +180,44 @@
       "phase": "DEV",
       "headHash": "d4236a30f0ef68bc6e89c33caf16eac6045005e1",
       "materialHash": "9ed32ce9dc4f59f0f4eba9327b4a764c076a3b7d79b646544ee597b8121e1416"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Story 6 requires each migrated package role template to remain byte-equivalent across the tracked Claude and Codex full-asset mirrors.",
+      "timestamp": "2026-07-21T00:06:55.129Z",
+      "paths": [
+        ".claude/agents/lattice-evaluator.md",
+        ".claude/agents/lattice-implementer.md",
+        ".claude/agents/lattice-review-delivery.md",
+        ".claude/agents/lattice-review-scope-plan.md",
+        ".claude/agents/lattice-review-story-init.md",
+        ".lattice-codex/agents/lattice-evaluator.md",
+        ".lattice-codex/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-review-delivery.md",
+        ".lattice-codex/agents/lattice-review-scope-plan.md",
+        ".lattice-codex/agents/lattice-review-story-init.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".claude/agents/lattice-evaluator.md",
+        ".claude/agents/lattice-implementer.md",
+        ".claude/agents/lattice-review-delivery.md",
+        ".claude/agents/lattice-review-scope-plan.md",
+        ".claude/agents/lattice-review-story-init.md",
+        ".lattice-codex/agents/lattice-evaluator.md",
+        ".lattice-codex/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-review-delivery.md",
+        ".lattice-codex/agents/lattice-review-scope-plan.md",
+        ".lattice-codex/agents/lattice-review-story-init.md"
+      ],
+      "affectedPathCount": 10,
+      "phase": "DEV",
+      "headHash": "911cd998081f3c066e0cfd413a971332bd0335d2",
+      "materialHash": "ab29591cbdc22d29a495abb8180cbc44e2bc637b8a6a97b6aba273857c9bdbff"
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-20T22:19:27.122Z",
+  "updatedAt": "2026-07-21T00:06:55.129Z",
   "protectedAnchors": [
     "AGENT_DISPATCH_REGISTRY",
     "buildFullTaskContext"

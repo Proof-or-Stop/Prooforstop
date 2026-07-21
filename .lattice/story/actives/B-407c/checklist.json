@@ -246,14 +246,15 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "integration_test",
-          "file": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
-          "command": "node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
+          "verdict": "audit_only",
+          "file": "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
+          "command": "node experiments/role-prompt-ab-replay/story6-report.mjs --campaign-id=story6-20260720-v2 --adjudication=<runtime-adjudication> --verify=experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
           "result": "pass",
-          "note": "真实 production agent_prompt 入口生成五角色 modular receipts，legacy arm 与 modular arm 成对运行；provider usage/cache/latency 未提供则保持 INCONCLUSIVE。",
-          "headHash": "4d671dcc07906e03d297925462ac2257379132a0",
-          "materialHash": "9080056cc8012893aab03491ce372f9907ab6a8ab5c3e1fbf2e9c5c9f509c84a",
-          "storyFilesHash": "812bf56b77218edab971946ee58d631ee67ba0c1d91f8b747ac3a4f45c8a7f0f",
-          "timestamp": "2026-07-20T22:08:02.918Z"
+          "note": "Real serialized provider A/B completed 72/72 cells across Codex CLI gpt-5.5 and Claude CLI claude-sonnet-4-5, five roles, three classes x two samples, legacy/modular arms and three repetitions. Content-addressed tracked summary verified at digest bb69e362; outcome is honestly INCONCLUSIVE and baselineAccepted=false, not a success claim.",
+          "headHash": "cf0f92ec980d829581d46273e7e1a3f4cf5698fa",
+          "materialHash": "321c8ee0edb1519f5ff9df744e0dcdf9cc04e69835d6fbd2d3c6270972b54ea3",
+          "storyFilesHash": "a6e4814a1cb8fe538d32af00fd1dd1c4c486aa3b8c6df36dff43069cdfc401eb",
+          "timestamp": "2026-07-21T00:18:25.176Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
