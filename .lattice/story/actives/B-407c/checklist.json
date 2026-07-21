@@ -60,11 +60,11 @@
           "file": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
           "result": "pass",
-          "note": "Current 0.3.224 production handler smoke covers all five roles: rejected baseline defaults to legacy, while explicit auditExperiment produces and persists modular role-bound Envelope plus event.",
-          "headHash": "72ad7e673c65be1e07912cce7e8a1ca64ab42224",
-          "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-          "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-          "timestamp": "2026-07-21T03:22:19.113Z"
+          "note": "Fresh post-fix production handler smoke passes for all five roles; legacy default and explicit audit-only modular Envelope/event persistence remain separated.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -73,11 +73,11 @@
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
-          "note": "Five package/Claude/Codex mirrors match compressed assets; exact content-addressed legacy rollback remains selected while v3 adverse result is unaccepted.",
-          "headHash": "72ad7e673c65be1e07912cce7e8a1ca64ab42224",
-          "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-          "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-          "timestamp": "2026-07-21T03:22:19.113Z"
+          "note": "Fresh role migration smoke confirms all five package/Claude/Codex mirrors and exact legacy rollback semantics remain intact.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -85,11 +85,11 @@
           "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
           "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
           "result": "pass",
-          "note": "Role/head/context/digest tampering and event-persistence failures fail closed; audit story-dispatch envelopes earn zero REVIEW credit.",
-          "headHash": "72ad7e673c65be1e07912cce7e8a1ca64ab42224",
-          "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-          "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-          "timestamp": "2026-07-21T03:22:19.113Z"
+          "note": "Fresh envelope smoke rejects role/head/context/digest tampering and preserves zero REVIEW credit for audit story-dispatch artifacts.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
         }
       ],
       "excludes": [
@@ -153,11 +153,11 @@
           "file": "packages/main/src/tasks/story6-acceptance-transcript.ts",
           "command": "node packages/main/dist/tasks/story6-acceptance-transcript.js",
           "result": "pass",
-          "note": "Fresh post-fix acceptance transcript passes on current HEAD; production defaults, audit-only budgets, tracked 72-receipt campaign, and real invariant consumers remain bound after resolving git cwd through resolveGitCwd.",
-          "headHash": "82c3eb71d7090a36d74a91a8c722020649d3d266",
+          "note": "Fresh acceptance transcript on the git-cwd-fixed HEAD prints response/event/recomputed bytes, estimatedTokens, and limits for production-bound audit dispatches.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
           "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
           "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
-          "timestamp": "2026-07-21T03:46:48.405Z"
+          "timestamp": "2026-07-21T03:47:52.448Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -165,11 +165,11 @@
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
-          "note": "Over-budget mutation records full metrics, continues full execution, and forces baselineAccepted=false.",
-          "headHash": "72ad7e673c65be1e07912cce7e8a1ca64ab42224",
-          "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-          "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-          "timestamp": "2026-07-21T03:22:19.113Z"
+          "note": "Fresh over-budget mutation records full violation, continues complete execution, and keeps baselineAccepted=false.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -178,11 +178,11 @@
           "file": "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
           "command": "node experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
           "result": "pass",
-          "note": "v3 report selfcheck rejects false baseline/Story7/enforce claims and direct-core provenance; no raw provider content is persisted.",
-          "headHash": "72ad7e673c65be1e07912cce7e8a1ca64ab42224",
-          "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-          "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-          "timestamp": "2026-07-21T03:22:19.113Z"
+          "note": "Fresh report mutations reject false baseline, Story7, enforce, receipt, adjudication, cell, and claim assertions.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
         }
       ],
       "excludes": [
@@ -258,11 +258,11 @@
           "file": "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
           "command": "node experiments/role-prompt-ab-replay/story6-report.mjs --campaign-id=story6-20260721-v3 --adjudication=experiments/role-prompt-ab-replay/runtime/story6/story6-20260721-v3.independent-adjudication.json --verify=experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
           "result": "pass",
-          "note": "Verified 72/72 serialized real Codex/Claude cells whose exact prompts came from production agent_prompt; summaryDigest 49cf8de6 and provenanceErrors=[] are content-bound.",
-          "headHash": "72ad7e673c65be1e07912cce7e8a1ca64ab42224",
-          "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-          "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-          "timestamp": "2026-07-21T03:22:19.113Z"
+          "note": "Fresh verification accepts the existing 72/72 serialized real Codex/Claude receipt set and content-bound summary digest without rerunning providers.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -271,11 +271,11 @@
           "file": "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
           "command": "node experiments/role-prompt-ab-replay/story6-analyze.mjs --campaign-id=story6-20260721-v3 --adjudication=experiments/role-prompt-ab-replay/runtime/story6/story6-20260721-v3.independent-adjudication.json; expect exit 2 INCONCLUSIVE",
           "result": "pass",
-          "note": "Expected INCONCLUSIVE only for 36 unavailable Codex cache-creation metrics; legacy recall 24/24 vs modular 20/24 and FP 0 vs 1 keep baseline and non-regression claims false.",
-          "headHash": "72ad7e673c65be1e07912cce7e8a1ca64ab42224",
-          "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-          "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-          "timestamp": "2026-07-21T03:22:19.113Z"
+          "note": "Fresh analyzer returns expected exit 2 INCONCLUSIVE solely for 36 unavailable Codex cache-creation metrics; adverse recall/false-positive results remain explicit.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -283,11 +283,11 @@
           "file": "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs && node experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
           "result": "pass",
-          "note": "25 analyzer provenance mutations plus report receipt/adjudication/cell/claim mutations reject direct-core, wrong producer/event/envelope/role/mode/digest, duplicates, missing cells and false claims.",
-          "headHash": "72ad7e673c65be1e07912cce7e8a1ca64ab42224",
-          "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-          "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-          "timestamp": "2026-07-21T03:22:19.113Z"
+          "note": "Fresh analyzer and report selfchecks reject 25 receipt provenance mutations plus receipt/adjudication/cell/claim tampering.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
         }
       ]
     },
@@ -350,11 +350,11 @@
           "file": "packages/main/src/tasks/story6-invariants-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-invariants-smoke.js",
           "result": "pass",
-          "note": "Current invariants smoke passes read-only scope/delivery surfaces, real REVIEW audit-receipt zero-credit collection, and positive lattice-implementer author control.",
-          "headHash": "72ad7e673c65be1e07912cce7e8a1ca64ab42224",
-          "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-          "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-          "timestamp": "2026-07-21T03:22:19.113Z"
+          "note": "Fresh invariant smoke passes real signed-evidence, scope, delivery, evaluator, authority, REVIEW-credit, and authorship consumers.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -362,11 +362,11 @@
           "file": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
           "result": "pass",
-          "note": "Injected append failure through real agent_prompt/story-dispatch propagates, removes only the newly persisted Envelope, and reports no successful receipt; valid control persists both.",
-          "headHash": "72ad7e673c65be1e07912cce7e8a1ca64ab42224",
-          "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-          "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-          "timestamp": "2026-07-21T03:22:19.113Z"
+          "note": "Fresh production smoke proves injected append failure fails closed and valid controls persist both Envelope and event.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -374,11 +374,11 @@
           "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
           "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
           "result": "pass",
-          "note": "Wrong role/head/context/digest and event failure reject; real REVIEW collector gives audit story-dispatch receipt zero pass/finding credit. No standalone wrong-author code is claimed.",
-          "headHash": "72ad7e673c65be1e07912cce7e8a1ca64ab42224",
-          "materialHash": "fb057e02ea5db4bb339153b40a6f5cdfd733320b29050f55b8dae4db18dab4bc",
-          "storyFilesHash": "e385cdae47d59b63928f4ff58aabfc8176806c03fa286f19e9999d0b68c5f1c6",
-          "timestamp": "2026-07-21T03:22:19.113Z"
+          "note": "Fresh envelope and production smokes reject wrong role/head/context/digest and event failures; audit receipts still earn zero REVIEW credit.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
         }
       ]
     }
