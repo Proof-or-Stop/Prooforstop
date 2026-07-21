@@ -70,6 +70,24 @@ const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
 
 const IMPLEMENTER_COMMIT_AUTHOR = 'lattice-implementer <lattice-implementer@noreply.local>';
 
+// A nested dispatch can be triggered synchronously by an instrumented event
+// sink. Ticket locks are process-safe but intentionally non-reentrant, so keep
+// same-stack re-entry inside the already-held transaction instead of waiting
+// on our own ticket. Independent processes still serialize on the filesystem.
+const activeStoryDispatchEnvelopeTransactions = new Set<string>();
+
+function withStoryDispatchEnvelopeTransaction<T>(lockDir: string, operation: string, fn: () => T): T {
+  if (activeStoryDispatchEnvelopeTransactions.has(lockDir)) return fn();
+  return withReviewMetadataTicketLock(lockDir, operation, () => {
+    activeStoryDispatchEnvelopeTransactions.add(lockDir);
+    try {
+      return fn();
+    } finally {
+      activeStoryDispatchEnvelopeTransactions.delete(lockDir);
+    }
+  });
+}
+
 type ReviewerPromptProvider = OwnerSessionHostProvider | 'claude-cli' | 'codex-cli';
 
 export function reviewerPromptHostForProvider(
@@ -163,11 +181,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     promptEnvelopeId?: string;
     promptEnvelopeDigest?: string;
     assembledPromptDigest?: string;
-    rollbackPromptEnvelopeOnEventFailure?: boolean;
+    promptEnvelope?: ReturnType<typeof assembleFullPromptEnvelope>['envelope'];
     budgetViolation?: 'incremental' | 'full';
     promptBudget?: PromptBudgetObservation;
   }): void {
-    try {
+    const persistEvent = (): void => {
       const story = store.readStory(args.storyId);
       const agentType = args.agentType || 'lattice-implementer';
       const budgetViolation = args.budgetViolation
@@ -194,18 +212,54 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ...(budgetViolation ? { budgetViolation } : {}),
         ...(args.promptBudget ? { promptBudget: args.promptBudget } : {}),
       });
-    } catch (e: any) {
-      if (args.promptEnvelopeId) {
-        if (args.rollbackPromptEnvelopeOnEventFailure) {
-          const lockDir = store.runtimeLockDirPath(args.storyId, 'review-run', 'review-runs');
-          withReviewMetadataTicketLock(lockDir, `story_dispatch rollback for ${args.storyId}/${args.agentType ?? 'unknown'}`, () => {
-            const data = store.readPromptEnvelopes(args.storyId);
-            const remaining = data.envelopes.filter(candidate => candidate.envelopeId !== args.promptEnvelopeId);
-            if (remaining.length !== data.envelopes.length) store.writePromptEnvelopes(args.storyId, { envelopes: remaining });
-          });
+    };
+    if (args.promptEnvelope) {
+      const envelope = args.promptEnvelope;
+      const lockDir = store.runtimeLockDirPath(args.storyId, 'review-run', 'review-runs');
+      withStoryDispatchEnvelopeTransaction(lockDir, `story_dispatch envelope+event for ${args.storyId}/${args.agentType ?? 'unknown'}`, () => {
+        const data = store.readPromptEnvelopes(args.storyId);
+        const existing = data.envelopes.find(candidate => candidate.envelopeId === envelope.envelopeId);
+        if (existing && !verifyPromptEnvelopeIntegrity(existing)) {
+          throw new Error(`story_dispatch: persisted envelope ${existing.envelopeId} failed integrity verification`);
         }
-        throw new Error(`story_dispatch: dispatch event persistence failed; prompt envelope was not accepted: ${e?.message || e}`);
-      }
+        const created = !existing;
+        if (created) {
+          data.envelopes.push(envelope);
+          store.writePromptEnvelopes(args.storyId, data);
+        }
+        try {
+          const persisted = store.readPromptEnvelopes(args.storyId).envelopes.find(candidate => candidate.envelopeId === envelope.envelopeId);
+          if (!persisted || !verifyPromptEnvelopeIntegrity(persisted)) {
+            throw new Error(`story_dispatch: envelope ${envelope.envelopeId} was not durably persisted`);
+          }
+          persistEvent();
+        } catch (e: any) {
+          let hasValidEventBinding = false;
+          try {
+            hasValidEventBinding = store.readProcessEvents(args.storyId).some(event =>
+              event.type === 'dispatch'
+              && event.storyId === args.storyId
+              && event.promptEnvelopeId === envelope.envelopeId
+              && event.promptEnvelopeDigest === envelope.contextDigest
+              && event.assembledPromptDigest === envelope.assembledPromptDigest,
+            );
+          } catch {
+            // If the event ledger itself is unreadable, it cannot prove a
+            // successful binding and a newly-created envelope must roll back.
+          }
+          if (created && !hasValidEventBinding) {
+            const rollback = store.readPromptEnvelopes(args.storyId);
+            const remaining = rollback.envelopes.filter(candidate => candidate.envelopeId !== envelope.envelopeId);
+            if (remaining.length !== rollback.envelopes.length) store.writePromptEnvelopes(args.storyId, { envelopes: remaining });
+          }
+          throw new Error(`story_dispatch: dispatch event persistence failed; prompt envelope was not accepted: ${e?.message || e}`);
+        }
+      });
+      return;
+    }
+    try {
+      persistEvent();
+    } catch (e: any) {
       reportHealthIssue('persist:dispatchProcessEvent', e as Error, {
         storyId: args.storyId,
         agentType: args.agentType,
@@ -229,7 +283,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     story: ReturnType<StoryStore['readStory']>,
     agentType: string,
     dispatchPrompt: string,
-  ): { prompt: string; envelope?: ReturnType<typeof assembleFullPromptEnvelope>['envelope']; envelopeCreated?: boolean; promptBudget?: PromptBudgetObservation } {
+  ): { prompt: string; envelope?: ReturnType<typeof assembleFullPromptEnvelope>['envelope']; promptBudget?: PromptBudgetObservation } {
     const mode = resolvePromptEnvelopeRolloutMode(agentType, loadConfig(root).promptEnvelope);
     if (mode !== 'full-envelope') return { prompt: dispatchPrompt };
     const snapshot = captureReviewRunSnapshot(root, { storyId: story.storyId, storyPhase: story.phase }, root);
@@ -248,25 +302,6 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       dispatchPrompt,
       createdAt: new Date().toISOString(),
     });
-    const lockDir = store.runtimeLockDirPath(story.storyId, 'review-run', 'review-runs');
-    const envelopeCreated = withReviewMetadataTicketLock(lockDir, `story_dispatch for ${story.storyId}/${agentType}`, () => {
-      const data = store.readPromptEnvelopes(story.storyId);
-      const existing = data.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
-      if (existing && !verifyPromptEnvelopeIntegrity(existing)) {
-        throw new Error(`story_dispatch: persisted envelope ${existing.envelopeId} failed integrity verification`);
-      }
-      if (!existing) {
-        data.envelopes.push(assembly.envelope);
-        store.writePromptEnvelopes(story.storyId, data);
-      }
-      const persisted = store.readPromptEnvelopes(story.storyId).envelopes.find(
-        candidate => candidate.envelopeId === assembly.envelope.envelopeId,
-      );
-      if (!persisted || !verifyPromptEnvelopeIntegrity(persisted)) {
-        throw new Error(`story_dispatch: envelope ${assembly.envelope.envelopeId} was not durably persisted`);
-      }
-      return !existing;
-    });
     const promptBudget = isBudgetedComplexRole(agentType)
       ? observeComplexRolePromptBudget({
           roleId: agentType,
@@ -278,7 +313,6 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     return {
       prompt: assembly.prompt,
       envelope: assembly.envelope,
-      envelopeCreated,
       ...(promptBudget ? { promptBudget } : {}),
     };
   }
@@ -832,7 +866,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'init-review',
-          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest, rollbackPromptEnvelopeOnEventFailure: wrapped.envelopeCreated } : {}),
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
         return wrapped;
@@ -847,7 +881,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'init-review',
-          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest, rollbackPromptEnvelopeOnEventFailure: wrapped.envelopeCreated } : {}),
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
         return wrapped;
@@ -862,7 +896,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'scope-plan-review',
-          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest, rollbackPromptEnvelopeOnEventFailure: wrapped.envelopeCreated } : {}),
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
         return wrapped;
@@ -914,7 +948,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'delivery-review',
-          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest, rollbackPromptEnvelopeOnEventFailure: wrapped.envelopeCreated } : {}),
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
         return wrapped;
@@ -948,7 +982,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           agentType: canonicalType,
           targetKind: 'checklist',
           itemId: args.itemId,
-          ...(wrapped.envelope ? { promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest, rollbackPromptEnvelopeOnEventFailure: wrapped.envelopeCreated } : {}),
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
         return wrapped;

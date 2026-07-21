@@ -140,6 +140,36 @@ try {
       /dispatch event persistence failed; prompt envelope was not accepted: injected dispatch event failure/,
     );
     assert.equal(dispatchStore.readPromptEnvelopes('B-story6-dispatch-failure').envelopes.length, 0, 'story dispatch cleanup prevents a successful half-bound envelope');
+
+    dispatchStore.writeStory('B-story6-reentrant', { storyId: 'B-story6-reentrant', title: 'Reentrant', description: 'Reentrant', phase: 'DEV', priority: 'high' } as never);
+    dispatchStore.writeChecklist('B-story6-reentrant', { items: [{
+      id: 'CHK-REENTRANT', title: 'Reentrant', context: 'Reentrant', status: 'in_progress', relatedDocs: [],
+      files: { modify: [], create: [], test: [] }, verificationIntent: { happy: [], edge: [], adversarial: [] },
+    }] } as never);
+    execFileSync('git', ['add', '.'], { cwd: dispatchRoot });
+    execFileSync('git', ['commit', '-qm', 'reentrant dispatch fixture'], { cwd: dispatchRoot });
+    const reentrantStore = Object.create(dispatchStore) as StoryStore;
+    let nested = false;
+    let reentrantDispatch: ReturnType<typeof createStoryDispatchHandlers>;
+    reentrantStore.appendProcessEvent = (storyId, event) => {
+      if (!nested) {
+        nested = true;
+        reentrantDispatch.dispatch({ storyId, itemId: 'CHK-REENTRANT', agentType: 'lattice-implementer' });
+        throw new Error('injected outer append failure after inner success');
+      }
+      return dispatchStore.appendProcessEvent(storyId, event);
+    };
+    reentrantDispatch = createStoryDispatchHandlers({ root: dispatchRoot, scanRoot: dispatchRoot, store: reentrantStore });
+    assert.throws(
+      () => reentrantDispatch.dispatch({ storyId: 'B-story6-reentrant', itemId: 'CHK-REENTRANT', agentType: 'lattice-implementer' }),
+      /dispatch event persistence failed; prompt envelope was not accepted: injected outer append failure after inner success/,
+    );
+    const reentrantEvents = dispatchStore.readProcessEvents('B-story6-reentrant').filter(event => event.type === 'dispatch');
+    const reentrantEnvelopes = dispatchStore.readPromptEnvelopes('B-story6-reentrant').envelopes;
+    assert.equal(reentrantEvents.length, 1, 'inner identical dispatch persists exactly one successful event');
+    assert.equal(reentrantEnvelopes.length, 1, 'outer failure must not delete the envelope shared by the successful inner dispatch');
+    assert.equal(reentrantEvents[0].promptEnvelopeId, reentrantEnvelopes[0].envelopeId);
+    assert.equal(reentrantEvents[0].assembledPromptDigest, reentrantEnvelopes[0].assembledPromptDigest);
   } finally {
     rmSync(dispatchRoot, { recursive: true, force: true });
   }

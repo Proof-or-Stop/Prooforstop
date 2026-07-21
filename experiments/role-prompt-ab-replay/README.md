@@ -1,9 +1,13 @@
 # Role-prompt A/B replay (Story 3 + B-235e campaign)
 
-This directory is an experiment-only, read-only replay harness. It measures a
-frozen six-sample historical observation corpus; it does not dispatch a model,
-execute historical code, call `agent_prompt --storyId`, call `host_run`, write a
-review pass/finding/ReviewRun, or participate in any lifecycle gate.
+The ordinary Story 3/B-235e replay commands in this directory are
+experiment-only and read-only. They measure a frozen six-sample historical
+observation corpus; they do not dispatch a model, execute historical code, call
+`agent_prompt --storyId`, call `host_run`, write a review
+pass/finding/ReviewRun, or participate in any lifecycle gate. The separately
+documented Story 6 live campaign is the deliberate exception: it produces
+audit-only prompts through `agent_prompt` and invokes pinned Codex CLI / Claude
+CLI provider cells, while remaining ineligible for lifecycle-gate evidence.
 
 ## Commands
 

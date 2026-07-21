@@ -65,7 +65,8 @@ import {
 } from '../core/review-scope-binding.js';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
-import { collectReviewerEvidenceState, currentScopeContextForStory, signReviewRun } from '../core/review-run.js';
+import { collectReviewerEvidenceState, currentScopeContextForStory, hashReviewPrompt, signReviewRun } from '../core/review-run.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { signFinding, signReviewPass } from '../core/finding-verify.js';
 import {
@@ -696,6 +697,10 @@ function seedScopeRuns(
     const startedAt = `2026-05-23T12:1${index}:00.000Z`;
     const headHash = `head-${index}`;
     const materialHash = `material-${index}`;
+    const promptHash = hashReviewPrompt(resolvePromptRoleBody(agent, {
+      version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+      roles: { [agent]: 'legacy-full-context' },
+    }).body);
     return {
       reviewRunId,
       storyId,
@@ -705,9 +710,9 @@ function seedScopeRuns(
       startedAt,
       headHash,
       materialHash,
-      promptHash: '',
+      promptHash,
       ...(binding ? { scopeBinding: binding } : {}),
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, '', binding?.bindingHash),
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, promptHash, binding?.bindingHash),
     };
   });
   store.writeReviewRuns(storyId, { runs });
