@@ -696,6 +696,41 @@
       },
       "readDiagnostics": [],
       "_hash": "4e1fde2cb88142b58dbeddf5d94c02b13bc1b4b222b43d31a24377e31dbe2093"
+    },
+    {
+      "id": "B-407c:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Post-resolution re-attestation found no concept blocker. The signed incremental basis correctly records no material source change since RP-019 and no unresolved findings. F-005 through F-011 are all resolved with strong evidence; F-009 remains materially closed because README scopes the no-provider/no-agent_prompt boundary to ordinary replay and explicitly documents the Story 6 live exception. The v3 report remains INCONCLUSIVE with 72/72 two-host receipts, legacy recall 24/24 versus modular 20/24, baselineAccepted=false, no recall/enforce claim, Story 7 absent, and all five complex roles legacy-default.",
+      "createdAt": "2026-07-21T02:07:27.351Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-037",
+      "envelopeId": "b9ba25b765bedce6d4cbb442bb5be0e93ce2805cfd1973cfe9c562f91917d9a0",
+      "writerSessionId": "sess-c25611de6e4e5e15228b4b170ef630b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "lattice.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "a4f767f1a41b8a0f1079dbaf81da08de1bdcb199d5df1b8fe2b3b3235ecfd04f"
     }
   ]
 }
