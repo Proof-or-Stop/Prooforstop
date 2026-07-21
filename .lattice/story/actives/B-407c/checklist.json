@@ -106,7 +106,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-20T21:43:17.964Z",
-      "endTime": "2026-07-20T22:07:49.204Z",
+      "endTime": "2026-07-21T00:35:28.400Z",
       "userSees": "用户看到预算内为 \"budgetViolation=none\"；超限为 \"budgetViolation=full fullExecuted=true baselineAccepted=false\"，不会出现 blocking/enforce 或 Story 7 rollout。",
       "files": {
         "modify": [
@@ -153,11 +153,11 @@
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
-          "note": "Current HEAD integration smoke covers assembled dispatch budget observations for init/scope/implementer/delivery while evaluator remains outside the complex-role budget.",
-          "headHash": "84425fd59194810b2f4d2105041afc6fda5116f6",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:24:30.488Z"
+          "note": "0.3.224 integration smoke records budget observations for init/scope/implementer/delivery while evaluator remains unbudgeted.",
+          "headHash": "6d858639cde7161fb9b68026ba9560cfb4b85fb3",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:28.583Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -165,24 +165,24 @@
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
-          "note": "Over-budget mutation records complete violation metrics, continues correctness-critical full execution, and forces baselineAccepted=false.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "note": "Over-budget mutation records complete violation metrics, continues full correctness execution, and forces baselineAccepted=false.",
+          "headHash": "6d858639cde7161fb9b68026ba9560cfb4b85fb3",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:28.842Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "docs_check",
           "verdict": "success",
           "file": "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
-          "command": "node -e \"assert tracked Story 6 summary has story7.implemented=false, enforceReady=false, baselineAccepted=false\"",
+          "command": "node experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
           "result": "pass",
-          "note": "Tracked content-addressed campaign summary explicitly and mechanically records Story 7 absent, enforceReady=false and baselineAccepted=false; report selfcheck rejects mutations that flip these claims.",
-          "headHash": "84425fd59194810b2f4d2105041afc6fda5116f6",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:24:30.488Z"
+          "note": "Tracked report selfcheck rejects forged baseline acceptance and confirms Story7 implemented=false, enforceReady=false, baselineAccepted=false without raw provider content.",
+          "headHash": "6d858639cde7161fb9b68026ba9560cfb4b85fb3",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:29.016Z"
         }
       ],
       "excludes": [
