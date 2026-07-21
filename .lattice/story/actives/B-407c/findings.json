@@ -298,6 +298,26 @@
       "_hash": "9307e836ed4915969664e464a56f4cd4815e8600fe6d7ff202403c99a2a198aa",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-407c:F-011",
+      "desc": "Round 8 targeted re-review: F-005 is covered by the fresh v3 72/72 agent_prompt-produced campaign, but F-006 remains open. CHK-004:happy:0 evidence points only to story6-invariants-smoke.ts, whose actual assertions are read-only scope/delivery readability plus one positive author control; its note incorrectly attributes the real REVIEW zero-credit check that exists in story6-production-dispatch-smoke.ts. CHK-004:edge:0 tests only append-event failure rollback, not the promised isolated missing evaluator/delivery/scope evidence and corresponding stable gaps. CHK-004:adversarial:0 now covers role/head/context/digest tampering, event failure, and story-dispatch zero REVIEW credit, but its cited commands still do not exercise invalid signed-run evidence, the real wrong-author channel rejection, or unauthorized mutation consumers. Existing agent-dispatch-registry-smoke passes authority denial when run independently, lifecycle-check-smoke passes delivery classification, but they are not bound by the checklist evidence; semantic-scope-guard-smoke independently failed its fresh-binding positive assertion (3 invalid instead of 0), so the existing-suite claim cannot close the must intent. Add an honest Story6 matrix that invokes the real consumers and asserts the existing outputs (including the actual wrong-author failure diagnostic, without inventing a new code), plus isolated delivery/scope/evaluator missing controls.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T01:52:04.706Z",
+      "reviewRound": "2026-07-21T01:48:54.890Z",
+      "reviewRunId": "B-407c:RR-033",
+      "_hash": "d543f6cdd83b45fbde2c4edd062ef16d41d63bcc82498c690f255bae8fa6e0a8",
+      "files": [
+        "packages/main/src/tasks/story6-invariants-smoke.ts",
+        "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|round-targeted-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
