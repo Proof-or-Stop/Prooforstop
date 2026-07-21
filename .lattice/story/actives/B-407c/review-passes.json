@@ -532,6 +532,56 @@
       },
       "readDiagnostics": [],
       "_hash": "2184f5402aeae3a0c77b284f7bae06e560ad1b55682c20fc44dca1ddf9903f19"
+    },
+    {
+      "id": "B-407c:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Story 6 concept/residue and promise review found no blocker. The five complex roles are deliberately replaced by modular full-envelope bodies with content-addressed per-role legacy rollback; remaining legacy-full-context references are required compatibility, not stale residue. The 72-cell two-host A/B is honestly INCONCLUSIVE (modular recall 12/24 vs legacy 16/24; false positives 5 vs 2), and the tracked report mechanically refuses baseline acceptance, recall non-regression, enforce readiness, and Story 7 implementation. Story 6 requires migration plus real A/B, not a favorable result; the adverse result therefore blocks baseline/enforce claims rather than making the completed experiment fictitiously pass.",
+      "createdAt": "2026-07-21T00:38:07.116Z",
+      "reviewRound": "2026-07-21T00:35:37.735Z",
+      "reviewRunId": "B-407c:RR-029",
+      "envelopeId": "2c4e6b4f831b5e35c37c715b7adb8b36ec988f9c31722b75b6c117fe8502c753",
+      "writerSessionId": "sess-c25611de6e4e5e15228b4b170ef630b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "lattice.config.json",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-evaluator.md",
+          ".claude/agents/lattice-implementer.md",
+          ".claude/agents/lattice-review-delivery.md",
+          ".claude/agents/lattice-review-scope-plan.md",
+          ".claude/agents/lattice-review-story-init.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "053de0673aecef09c20187ce99d6ddb4605acfdeaa79be49422b757a1d2ca0c2"
     }
   ]
 }
