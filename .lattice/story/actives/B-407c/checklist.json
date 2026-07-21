@@ -300,7 +300,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-20T21:49:48.450Z",
-      "endTime": "2026-07-20T22:08:15.393Z",
+      "endTime": "2026-07-21T00:35:32.227Z",
       "userSees": "用户看到 \"complex-role invariants: PASS\"；任何错误签名、越权、错误作者、缺失 evaluator/delivery/scope 证据或 Task Context 漂移都显示稳定 reason code。",
       "files": {
         "modify": [
@@ -350,11 +350,11 @@
           "file": "packages/main/src/tasks/story6-invariants-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-invariants-smoke.js",
           "result": "pass",
-          "note": "Current HEAD invariants smoke passed delivery promises, scope gaps, evaluator/dispatch receipts and lattice-implementer author binding.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "note": "0.3.224 invariants smoke passed scope, delivery context, evaluator/dispatch receipts and lattice-implementer author binding.",
+          "headHash": "a8923bd25abc4605e2b1d988a3738ac128c55705",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:32.417Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -362,11 +362,11 @@
           "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
           "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
           "result": "pass",
-          "note": "Current HEAD full-envelope smoke passed exact Story-aware Task Context and digest integrity plus durable process-event binding.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "note": "0.3.224 full-envelope smoke passed exact Story-aware Task Context, digest integrity, and durable process-event binding.",
+          "headHash": "a8923bd25abc4605e2b1d988a3738ac128c55705",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:32.589Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -374,11 +374,11 @@
           "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
           "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
           "result": "pass",
-          "note": "Event persistence failure, wrong role, stale head and context digest mutation paths fail closed; story-dispatch receipts remain audit-only and cannot mint REVIEW credit.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "note": "Event persistence failure, wrong role, stale head and context-digest mutation paths fail closed; story-dispatch receipts cannot mint REVIEW credit.",
+          "headHash": "a8923bd25abc4605e2b1d988a3738ac128c55705",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:32.769Z"
         }
       ]
     }
