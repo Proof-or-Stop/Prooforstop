@@ -239,7 +239,7 @@
       "desc": "packages/main/src/handlers/story-dispatch.ts:196 swallows appendProcessEvent failures after assembleComplexStoryDispatch has persisted a Story 6 Prompt Envelope, so production dispatch can return success with no durable envelope-to-event observation even though the process-fact rationale promises a durably recorded dispatch observation. packages/main/src/tasks/story6-production-dispatch-smoke.ts:51 only exercises the success path; the existing failure mutation covers agent_prompt, not this dispatch producer. Make the Story 6 envelope/event write fail-closed or atomic and add a real dispatch failure mutation proving no successful half-bound receipt.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-21T00:38:31.848Z",
@@ -247,7 +247,11 @@
       "reviewRunId": "B-407c:RR-028",
       "_hash": "79afd4d3ae6d95a2a96447b615dd2161d9ccec5c576679f0d137f5506c1914b9",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Closed by 29dea398/9f0c290 and quality pass RP-020: Envelope persistence, event append and rollback are fail-closed; reentrant concurrency mutation preserves exactly one valid event/Envelope pair and plain failure leaves zero/zero.",
+      "resolvedAt": "2026-07-21T02:06:21.903Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-407c:F-009",
