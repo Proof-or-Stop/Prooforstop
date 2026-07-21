@@ -296,10 +296,28 @@
         "promptOverlapMatrix",
         "rolePromptMeasurementBaseline"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-012 requires both canonical host-render consumers to share the production rollout-selected renderer; these verifier changes are necessary to keep Claude/Codex mirror and process-fact drift checks biting while modular templates remain audit-only.",
+      "timestamp": "2026-07-21T02:43:31.521Z",
+      "paths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "67c10833f972cf676869aa2715ec060104b01242",
+      "materialHash": "002977cfee58a8c200fe4b4f334c485386494b7955ec3d142387107ee2a53a5d"
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-21T02:31:58.704Z",
+  "updatedAt": "2026-07-21T02:43:31.521Z",
   "fileRules": [],
   "protectedAnchors": [
     "AGENT_DISPATCH_REGISTRY",
@@ -385,7 +403,8 @@
     "packages/main/src/tasks/semantic-scope-guard-smoke.ts": "packages/main/src/tasks/semantic-scope-guard-smoke.ts",
     "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
     "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
-    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/core/codex-adapter-checks.ts": "packages/main/src/core/codex-adapter-checks.ts"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",
