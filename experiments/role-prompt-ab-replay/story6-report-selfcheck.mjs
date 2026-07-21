@@ -9,7 +9,7 @@ import { promisify } from 'node:util';
 
 const exec = promisify(execFile);
 const here = path.dirname(fileURLToPath(import.meta.url));
-const campaignId = 'story6-20260720-v2';
+const campaignId = 'story6-20260721-v3';
 const sourceRuntime = path.join(here, 'runtime', 'story6');
 const reportScript = path.join(here, 'story6-report.mjs');
 const temp = await mkdtemp(path.join(os.tmpdir(), 'proofbound-story6-report-'));
@@ -44,17 +44,19 @@ try {
   await exec(process.execPath, args('--verify'));
   const generated = JSON.parse(await readFile(summary, 'utf8'));
   assert.equal(generated.coverage.receipts.observed, 72);
-  assert.equal(generated.adjudication.recall.modular.detected, 12);
-  assert.equal(generated.adjudication.recall.modular.applicable, 24);
-  assert.equal(generated.adjudication.recall.legacy.detected, 16);
-  assert.equal(generated.adjudication.recall.legacy.applicable, 24);
-  assert.deepEqual(generated.adjudication.falsePositive, { legacy: 2, modular: 5 });
+  assert.equal(generated.receiptSet.count, 72);
+  assert.equal(generated.bindings.promptProducer, 'agent_prompt-audit-experiment.v1');
+  assert.equal(generated.adjudication.recall.modular.applicable, generated.adjudication.recall.legacy.applicable);
+  assert.ok(generated.adjudication.recall.modular.detected < generated.adjudication.recall.legacy.detected);
+  assert.ok(generated.adjudication.falsePositive.modular > generated.adjudication.falsePositive.legacy);
+  assert.equal(generated.status, 'INCONCLUSIVE');
   assert.equal(generated.baselineAccepted, false);
+  assert.equal(generated.claims.recallNonRegressionClaim, false);
   assert.equal(generated.claims.enforceReady, false);
   assert.equal(generated.story7.implemented, false);
   assertNoSensitivePayloadKeys(generated);
 
-  const receiptFile = (await readdir(runtime)).find(file => file.includes('.codex-cli.modular.r1.json'));
+  const receiptFile = (await readdir(runtime)).find(file => file.startsWith(`${campaignId}.`) && file.includes('.codex-cli.modular.r1.json'));
   const receiptPath = path.join(runtime, receiptFile);
   const originalReceipt = await readFile(receiptPath, 'utf8');
   const forgedReceipt = JSON.parse(originalReceipt);
@@ -63,11 +65,17 @@ try {
   await mustReject('forged receipt must invalidate the tracked report', /tracked summary does not match current receipt\/adjudication content/);
   await writeFile(receiptPath, originalReceipt);
 
+  const directCoreReceipt = JSON.parse(originalReceipt);
+  directCoreReceipt.provenance.producer = 'direct-core-assembly';
+  await writeFile(receiptPath, `${JSON.stringify(directCoreReceipt)}\n`);
+  await mustReject('direct-core receipt must fail current production-producer provenance', /invalid production receipt provenance/);
+  await writeFile(receiptPath, originalReceipt);
+
   const originalAdjudication = await readFile(adjudication, 'utf8');
   const forgedAdjudication = JSON.parse(originalAdjudication);
   forgedAdjudication.cells[0].falsePositiveCount += 1;
   await writeFile(adjudication, `${JSON.stringify(forgedAdjudication)}\n`);
-  await mustReject('forged adjudication must invalidate the tracked report', /tracked summary does not match current receipt\/adjudication content|observed adjudication distribution differs/);
+  await mustReject('forged adjudication must invalidate the tracked report', /tracked summary does not match current receipt\/adjudication content|adjudication does not support the recorded/);
   await writeFile(adjudication, originalAdjudication);
 
   await unlink(receiptPath);

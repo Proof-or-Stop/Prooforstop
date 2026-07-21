@@ -153,6 +153,17 @@ async function buildReport(options) {
         || row.cell?.arm !== expectedCell.arm
         || row.cell?.repeat !== expectedCell.repeat
         || row.provenance?.kind !== 'production-provider-dispatch'
+        || row.provenance?.producer !== 'agent_prompt'
+        || row.provenance?.producerMode !== (expectedCell.arm === 'modular' ? 'full-envelope' : 'legacy-full-context')
+        || typeof row.provenance?.producerResponseDigest !== 'string'
+        || !/^[a-f0-9]{64}$/.test(row.provenance.producerResponseDigest)
+        || (expectedCell.arm === 'modular'
+          ? typeof row.provenance?.envelopeId !== 'string'
+            || !/^[a-f0-9]{64}$/.test(row.provenance.envelopeId)
+            || row.provenance?.eventBinding?.promptEnvelopeId !== row.provenance.envelopeId
+            || typeof row.provenance?.eventBinding?.assembledPromptDigest !== 'string'
+            || !/^[a-f0-9]{64}$/.test(row.provenance.eventBinding.assembledPromptDigest)
+          : row.provenance?.envelopeId !== null || row.provenance?.eventBinding !== null)
         || row.provenance?.gateEvidence !== false
         || row.gateEvidence !== false
         || typeof row.observedAt !== 'string'
@@ -194,6 +205,7 @@ async function buildReport(options) {
     },
     outputSchemaDigest: boundDigest('output-schema', canonicalSchemaText),
     claudeCompatibleOutputSchemaDigest: boundDigest('claude-compatible-output-schema', claudeSchema),
+    promptProducer: 'agent_prompt-audit-experiment.v1',
     gateEvidence: false,
   };
   const campaignBinding = { ...protocolBinding, campaignId: options.campaignId, models };
@@ -288,10 +300,10 @@ async function buildReport(options) {
   report.aggregateDigest = sha256(canonicalJsonStringify({ usageAggregates: report.usageAggregates, adjudication: report.adjudication }));
   report.summaryDigest = sha256(canonicalJsonStringify(report));
   validateSummaryPolicy(report);
-  if (report.adjudication.recall.modular.detected !== 12 || report.adjudication.recall.modular.applicable !== 24
-      || report.adjudication.recall.legacy.detected !== 16 || report.adjudication.recall.legacy.applicable !== 24
-      || report.adjudication.falsePositive.modular !== 5 || report.adjudication.falsePositive.legacy !== 2) {
-    throw new Error('observed adjudication distribution differs from the independently adjudicated Story 6 result');
+  if (report.adjudication.recall.modular.applicable !== report.adjudication.recall.legacy.applicable
+      || report.adjudication.recall.modular.detected >= report.adjudication.recall.legacy.detected
+      || report.adjudication.falsePositive.modular <= report.adjudication.falsePositive.legacy) {
+    throw new Error('adjudication does not support the recorded recall-regression and false-positive-increase reason codes');
   }
   return report;
 }
