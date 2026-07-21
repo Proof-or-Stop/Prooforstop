@@ -101,7 +101,12 @@ The current source facts behind this table are in:
 - `packages/main/src/handlers/phase-gates.ts` (configured ProofStory modes and
   REVIEW → TEST consumption);
 - `packages/main/src/core/process-fact-registry.ts` and
-  `packages/main/src/core/process-fact-levels.ts` (gate-fact ownership).
+  `packages/main/src/core/process-fact-levels.ts` (gate-fact ownership); the
+  exported `PROCESS_FACT_REGISTRY` is the global assembled registry, not a
+  Story-local list;
+- `packages/main/src/core/types.ts` and `packages/main/src/core/store.ts`
+  (existing signed `scope-check.json` and Story-scoped `scope-contract.json`
+  types and persistence APIs).
 
 ## 4. Canonical ownership and non-duplication invariant
 
@@ -205,6 +210,10 @@ interface AcceptanceCoverageBasisV1 {
     headHash: string;
     materialHash: string;
     storyFilesHash: string;
+    scopeCheckDigest: string;
+    scopeContractDigest?: string;
+    /** Hash of every source ref in the discovered producer/consumer closure. */
+    closureFilesHash: string;
   };
   receiptRef: string;
   basisDigest: string;
@@ -231,6 +240,24 @@ recomputes from repository/runtime inputs. Neither an implementer nor a reviewer
 may submit arbitrary `enumeratedPathRefs`, `status: complete`, or exclusions.
 The topology stores only the basis reference and digest so a self-reported basis
 cannot make its own graph appear complete.
+
+“Frozen scope” reuses existing lifecycle artifacts; this plan does not create a
+parallel scope truth source. At PLAN, discovery binds the signed
+`scope-check.json` plus checklist planned-file declarations and existing
+scope-boundary facts. At DEV → REVIEW, it binds the current
+`scope-contract.json` produced through the existing
+`scope_contract_init_from_plan` flow. If an enforced rollout needs the contract
+earlier, Wave 2 must change the ordering of that existing flow rather than add a
+new scope artifact. The corresponding artifact digests are part of the basis
+binding.
+
+Registry and dispatch discovery is deliberately not bounded by Story-owned
+files. It starts from facts and producers introduced or changed by the Story,
+then traverses the global process-fact registry and dispatch inventory to all
+registered consumers. A consumer outside the Story scope remains part of the
+closure. `closureFilesHash` binds every discovered producer and consumer source
+reference, including files outside `storyFilesHash`; inability to inspect a
+relevant registered consumer forces `partial`, never optimistic completeness.
 
 ### 5.3 Complete example
 
@@ -354,7 +381,10 @@ The referenced basis is produced independently, for example:
   "binding": {
     "headHash": "current-head",
     "materialHash": "sha256:current-material",
-    "storyFilesHash": "sha256:current-story-files"
+    "storyFilesHash": "sha256:current-story-files",
+    "scopeCheckDigest": "sha256:signed-scope-check",
+    "scopeContractDigest": "sha256:current-scope-contract",
+    "closureFilesHash": "sha256:all-discovered-closure-files"
   },
   "receiptRef": "receipt:coverage-basis:B-4444:001",
   "basisDigest": "sha256:coverage-basis-digest"
@@ -402,8 +432,20 @@ schema or command exists.
     topology cannot expand or narrow its own closure universe.
 19. A `complete` basis has no unresolved blind spots. Dynamic/reflection/plugin
     paths require an admissible runtime trace or force `partial`/`unsupported`.
-20. The basis digest and current `storyFilesHash` binding match the topology;
-    any relevant workspace or topology change requires independent recomputation.
+20. The basis digest, scope-artifact digests, current `storyFilesHash`, and
+    `closureFilesHash` match the topology; any relevant workspace, closure, or
+    topology change requires independent recomputation.
+21. Discovery adapters report their path set, coverage claim
+    (`complete_for_scope`, `partial`, or `unsupported`), blind spots, and
+    provenance. The reconciled basis is the union of every path discovered by
+    any admissible adapter, never their intersection.
+22. A path reported by any adapter cannot disappear because another adapter did
+    not observe it. Observation asymmetry is acceptable only under an explicit,
+    typed per-adapter policy (for example, a bounded runtime trace declared
+    non-exhaustive); unexplained set or semantic disagreement forces `partial`.
+23. Process-fact and dispatch traversal reaches registered consumers outside
+    Story scope. Every such consumer is mapped or independently excluded, and
+    failure to inspect one forces `partial`.
 
 ### 6.1 Deterministic structural codes
 
@@ -427,6 +469,10 @@ schema or command exists.
 | `AT_UNJUSTIFIED_EXCLUSION` | A basis path is excluded without an independently approved decision ref |
 | `AT_TOPOLOGY_OUTSIDE_BASIS` | Topology references a producer/consumer not present in the current basis |
 | `AT_COVERAGE_BASIS_STALE` | Basis digest or workspace/story-files binding is not current |
+| `AT_SCOPE_BINDING_MISSING` | Basis is not bound to the applicable existing signed scope-check/scope-contract artifact |
+| `AT_DISCOVERY_DISAGREEMENT` | Discovery adapters disagree without a typed reconciliation policy; basis is `partial` |
+| `AT_REGISTERED_CONSUMER_UNMAPPED` | A globally registered consumer reached from a Story fact is absent from topology/exclusions |
+| `AT_CLOSURE_FILES_STALE` | A producer/consumer closure source changed while the topology-bound closure hash remained old |
 
 ## 7. `acceptance_topology_check` — PLAN → DEV
 
@@ -455,6 +501,10 @@ Algorithm:
 normalize supported topology versions
 resolve all canonical refs
 derive applicability for each binding
+bind the applicable existing scope-check/scope-contract artifacts
+run each required discovery adapter and retain its paths, claim, blind spots, and provenance
+seed global registry/dispatch traversal from Story facts and follow all registered consumers
+reconcile adapter outputs by union under typed per-adapter policies
 independently derive coverage basis from frozen scope + current repository/runtime inputs
 classify basis as complete, partial, or unsupported
 stop with INCONCLUSIVE unless required basis status is complete
@@ -475,6 +525,9 @@ structuralPass =
   basis.issuer is registered verifier
   AND basis.status == complete
   AND basis.binding is current
+  AND basis.binding.scopeCheckDigest is current
+  AND the phase-applicable scopeContractDigest is current
+  AND basis.binding.closureFilesHash is current
   AND topology.coverageBasisDigest == basis.basisDigest
   AND every basis path is mapped or independently excluded
   AND every topology path belongs to basis
@@ -485,6 +538,29 @@ The verifier must compute the basis independently. A payload that lets the
 caller choose `status`, path inventory, blind spots, or exclusions is invalid by
 construction. A topology critic may challenge the result, but its prose cannot
 turn a `partial` basis into `complete`.
+
+### 7.1 Discovery reconciliation
+
+Each adapter emits discovered path refs, a coverage claim
+(`complete_for_scope`, `partial`, or `unsupported`), explicit blind spots, and
+provenance. Reconciliation follows these mechanical rules:
+
+1. The candidate basis is the union of paths reported by every admissible
+   adapter. It is never an intersection or “majority” set.
+2. A path reported by either static or runtime discovery remains in the basis
+   even when the other adapter does not observe it.
+3. Expected observation asymmetry is accepted only when a typed policy for that
+   adapter and bounded scope declares it (for example, runtime trace coverage is
+   non-exhaustive for unexecuted branches). The policy cannot remove the path.
+4. An unexplained path-set disagreement, semantic edge disagreement, missing
+   provenance, or conflicting completeness claim yields
+   `AT_DISCOVERY_DISAGREEMENT` and `status: partial`.
+5. At pre-REVIEW, the equivalent condition yields
+   `PR_DISCOVERY_DISAGREEMENT`; reviewer prose or critic approval cannot waive it
+   into `complete`.
+
+Disagreement may add obligations, but it cannot erase an obligation discovered
+by another admissible source.
 
 Output is a diagnostic report. If a durable artifact is later introduced, it
 must be hash-bound and process-fact registered; command output alone cannot be
@@ -517,7 +593,11 @@ was once valid. It recomputes the basis after implementation, compares it with
 the PLAN basis, and invalidates topology completeness if DEV introduced a new
 producer, consumer, handler, dispatch edge, process-fact consumer, or relevant
 changed hunk. `storyFilesHash` binds the recomputed closure; it is a freshness
-input, not a substitute for enumerating paths.
+input, not a substitute for enumerating paths. Because registered consumers can
+live outside Story-owned files, `closureFilesHash` separately binds every source
+in the traversed global producer/consumer closure. Either hash changing requires
+recomputation; unchanged `storyFilesHash` does not excuse stale external
+consumers.
 
 It does not replace REVIEW. A pass means the implementation is ready to be
 reviewed against a complete proof plan. Reviewers can still find missing paths,
@@ -541,6 +621,8 @@ weak assertions, design problems, or unmodeled interactions.
 | `PR_COVERAGE_BASIS_CHANGED` | Current DEV-derived basis differs from the topology-bound PLAN basis |
 | `PR_NEW_PATH_UNMAPPED` | Current source/runtime discovery finds a path absent from topology |
 | `PR_COVERAGE_INCONCLUSIVE` | Current path discovery is partial or unsupported |
+| `PR_DISCOVERY_DISAGREEMENT` | Required adapters disagree without a typed reconciliation policy |
+| `PR_CLOSURE_FILES_CHANGED` | A source in the global producer/consumer closure changed after basis binding |
 
 ### 8.2 Independent topology critic
 
@@ -566,21 +648,25 @@ Rules:
 1. `storyFilesHash` drift is a strong signal that Story-owned material changed;
    topology evidence for affected claims is stale and must be re-run or
    independently re-attested according to the consuming gate.
-2. `materialHash`-only drift with unchanged signed `storyFilesHash` is classified
+2. `closureFilesHash` drift is a strong signal that a discovered producer or
+   consumer changed, including outside Story scope. The basis and affected
+   evidence must be recomputed; a stable `storyFilesHash` is insufficient.
+3. `materialHash`-only drift with unchanged signed `storyFilesHash` and
+   `closureFilesHash` is classified
    by the existing freshness policy. A permitted re-attestation remains explicit
    and auditable; it is never a silent pass.
-3. Legacy evidence without `storyFilesHash` follows the existing strict fallback.
+4. Legacy evidence without `storyFilesHash` follows the existing strict fallback.
    It stays readable but cannot be upgraded to strong proof merely by rewriting
    metadata.
-4. `headHash` movement alone is not self-classified by the host. The canonical
+5. `headHash` movement alone is not self-classified by the host. The canonical
    reader decides whether it is metadata/provenance movement or material drift.
-5. Temporal claims declare a cutoff policy. Producer assembly and verifier
+6. Temporal claims declare a cutoff policy. Producer assembly and verifier
    recomputation must consume the same immutable cutoff fact.
-6. Equality boundaries are explicit. If the policy says events at or after the
+7. Equality boundaries are explicit. If the policy says events at or after the
    cutoff are excluded, both `>` and `>=` mutations must be covered.
-7. Freshness repair must preserve original issuer, command, outcome, and evidence
+8. Freshness repair must preserve original issuer, command, outcome, and evidence
    identity; otherwise it is a new run, not a refresh.
-8. Coverage-basis freshness is stricter than evidence freshness: a change to
+9. Coverage-basis freshness is stricter than evidence freshness: a change to
    frozen scope, relevant diff hunks, registered producer/consumer facts,
    topology, or discovery inputs requires basis recomputation. Rebinding an old
    path inventory to a new hash is forbidden.
@@ -753,9 +839,11 @@ workspace binding, closure diagnostics, and read-only basis rendering.
 Dependency: Wave 1 schema ownership plus frozen scope/diff and process-fact
 interfaces.
 Exit: callers cannot submit path inventory or force `complete`; known static and
-runtime paths are deterministically enumerated; blind spots cause
-`INCONCLUSIVE`; stale basis bindings fail; every exclusion requires an eligible
-decision ref.
+runtime paths are reconciled by union under typed adapter policies; global
+registry/dispatch traversal includes consumers outside Story scope; blind spots
+or unexplained discovery disagreement cause `INCONCLUSIVE`; existing scope
+artifacts and both Story/closure hashes are bound; stale bindings fail; every
+exclusion requires an eligible decision ref.
 Stop: basis completeness depends on self-report, reviewer prose, silently
 ignored adapters, or a hash-only rebind of an old inventory.
 
@@ -769,13 +857,29 @@ Exit: missing edges and prompt-only facts produce stable codes; docs-only and
 single-outcome paths avoid false blocks; process facts are registered.  
 Stop: the check requires executed evidence or duplicates verificationIntent.
 
+### Wave 2A — Independent topology critic and role eligibility
+
+Outcome: implement the independent topology-critic role, eligible-role policy,
+signed/hash-bound receipt, exclusion-approval path, and CLI verification of
+critic independence.
+
+Dependency: Waves 1A and 2, plus a human resolution of Open Decision 10.
+Exit: an eligible non-implementer critic can sign a receipt bound to current
+basis digest, topology digest, scope artifact digests, `storyFilesHash`, and
+`closureFilesHash`; self-authored or ineligible identity is rejected; exclusion
+approval is independently attributable; any basis that is `partial` or
+`unsupported` remains non-pass regardless of critic verdict.
+Stop: independence is inferred from prompt text or self-report, critic evidence
+is not mechanically verified, or critic/exclusion approval can override
+discovery incompleteness.
+
 ### Wave 3 — Executable pre-review evidence
 
 Outcome: implement `pre_review_check`, current-worktree basis recomputation,
 omission mutations, mutation polarity, transcript relation, authority
 admissibility, and freshness consumption.
 
-Dependency: Waves 1–2 plus canonical evidence/receipt identifiers.  
+Dependency: Waves 1–2A plus canonical evidence/receipt identifiers.
 Exit: real producer-to-consumer tests pass; every adverse mutation bites; clean
 controls pass after restoration; deleting a topology path that remains in the
 basis fails; stale, changed, partial, and weak basis/evidence fail
@@ -808,8 +912,8 @@ bounded project-level enforcement. Selective high-risk per-Story enforcement is
 not part of this wave unless Wave 3A has first delivered explicit applicability
 selection.
 
-Dependency: Waves 1–3; Wave 3A is additionally required for selective per-Story
-or per-policy enforcement.
+Dependency: Waves 1–3, including 2A for enforced high-assurance paths; Wave 3A
+is additionally required for selective per-Story or per-policy enforcement.
 Exit: current 3×2 high-risk review/quorum; false-pass and false-block thresholds
 met; rollback tested; no degraded 3×1 evidence is labeled authority.  
 Stop: review rounds fall only because checks were weakened or waivers increased.
@@ -829,6 +933,10 @@ decomposition. A wave cannot claim later-wave completion.
 | Topology declares C2 but current basis does not contain C2 | PLAN | `AT_TOPOLOGY_OUTSIDE_BASIS` |
 | Basis excludes C2 without independent decision | PLAN | `AT_UNJUSTIFIED_EXCLUSION` |
 | Basis binding or digest is stale | PLAN | `AT_COVERAGE_BASIS_STALE` |
+| Static finds C2 while runtime trace misses C2 under a declared non-exhaustive trace policy | PLAN | union retains C2; no omission |
+| Runtime finds C2 while static misses C2 without explained adapter policy | PLAN | union retains C2 and `AT_DISCOVERY_DISAGREEMENT`; basis is `partial` |
+| Static/runtime adapters disagree semantically without reconciliation | both | `AT_DISCOVERY_DISAGREEMENT` / `PR_DISCOVERY_DISAGREEMENT`; cannot pass |
+| Story changes producer P whose registered consumer C2 is outside Story scope | PLAN | global traversal retains C2; missing mapping yields `AT_REGISTERED_CONSUMER_UNMAPPED` |
 | Missing producer | PLAN | `AT_UNKNOWN_REF` or `AT_ORPHAN_CONSUMER` |
 | Missing consumer | PLAN | `AT_ORPHAN_PRODUCER` |
 | Must intent absent from topology | PLAN | `AT_INTENT_UNCOVERED` |
@@ -848,6 +956,7 @@ decomposition. A wave cannot claim later-wave completion.
 | Transcript omits consumer verification | pre-REVIEW | `PR_TRANSCRIPT_UNRELATED` |
 | Caller changes authority label | pre-REVIEW | `PR_AUTHORITY_INADMISSIBLE` |
 | Signed `storyFilesHash` changes | pre-REVIEW | `PR_EVIDENCE_STALE` |
+| External closure consumer changes while Story hash is stable | pre-REVIEW | `PR_CLOSURE_FILES_CHANGED` |
 | `materialHash` only drifts, story hash stable | pre-REVIEW | canonical classification; explicit advisory/re-attestation, never silent pass |
 | Legacy evidence lacks story hash | pre-REVIEW | `PR_LEGACY_EVIDENCE_WEAK` on strong path |
 | Docs-only claim | both | docs/source assertions pass without fabricated runtime mutation |
@@ -902,6 +1011,9 @@ to find genuinely unmodeled issues.
 | Schema duplicates claims/results | Inline prose and verdicts are accepted | Drift and laundering | Reference-only normalization; `AT_INLINE_RESULT_FORBIDDEN` |
 | Coverage basis is self-reported | Implementer supplies both universe and topology | Omitted C2 passes both gates | Registered verifier independently derives basis; caller cannot set status or inventory |
 | Basis says complete despite blind spots | Dynamic/reflection/plugin paths are not discoverable | False completeness | Three-state classification; unresolved blind spot forces `partial`/`unsupported` and `INCONCLUSIVE` |
+| Discovery adapters disagree and intersection wins | One adapter misses C2 | C2 silently disappears | Union every discovered path; unexplained disagreement forces `partial` with deterministic codes |
+| A parallel frozen-scope truth appears | New topology-specific scope artifact is introduced | Scope contracts drift | Bind existing signed scope-check/scope-contract artifacts and their digests only |
+| Registry discovery is Story-scope filtered | Registered consumer lives elsewhere | Cross-scope consumer bypasses topology | Traverse global registry/dispatch closure and bind all closure source files |
 | DEV changes the real path set | PLAN basis is reused after code changes | New consumer bypasses topology | Recompute from actual diff/runtime inputs and bind to current `storyFilesHash` |
 | Exclusion launders an omission | Implementer excludes C2 without scrutiny | Incomplete graph appears closed | Eligible independent decision ref plus omission mutation |
 | PLAN gate executes tests | Structural check requires evidence | DEV cannot begin coherently | Hard separation of the two checks |
@@ -936,8 +1048,10 @@ to find genuinely unmodeled issues.
    model is the existing flat project-wide mode.
 8. Which discovery adapters are sufficient to classify each supported
    language/framework as `complete`, and which combinations require runtime
-   traces? Until answered, unsupported adapters must return `partial` or
-   `unsupported`, never optimistic completeness.
+   traces? The reconciliation rule is already fixed: union all discovered paths,
+   and unexplained disagreement yields `partial`. Until adapter sufficiency is
+   answered, unsupported adapters must return `partial` or `unsupported`, never
+   optimistic completeness.
 9. Should the signed coverage basis be a dedicated durable process artifact or
    a verifier-recomputable section of `proofstory.json`? Either choice must keep
    path inventory non-caller-writable and atomically bind basis/topology digests.
@@ -962,6 +1076,15 @@ Mark **Pass** only if every required row below is true. Otherwise mark
       `complete` can satisfy topology completeness.
 - [ ] The basis is derived from frozen scope, actual diff hunks, registries,
       handler/dispatch inventory, and applicable static/runtime discovery.
+- [ ] Frozen scope binds the existing signed `scope-check.json` and phase-
+      applicable `scope-contract.json`; no parallel writable scope artifact is
+      introduced.
+- [ ] Adapter reconciliation uses the union of all discovered paths; unexplained
+      static/runtime disagreement is `partial` with deterministic PLAN and
+      pre-REVIEW codes.
+- [ ] Registry/dispatch discovery traverses globally from Story facts to every
+      registered consumer, including outside Story scope, and binds a separate
+      `closureFilesHash`.
 - [ ] Every basis path maps to topology or an independently approved exclusion;
       every topology path exists in the basis.
 - [ ] Dynamic blind spots force `INCONCLUSIVE` unless an admissible bounded
@@ -983,6 +1106,9 @@ Mark **Pass** only if every required row below is true. Otherwise mark
 - [ ] Observe → warn → enforce and rollback are safe and measurable.
 - [ ] Gate-consumed facts require CLI/handler enforcement and process-fact
       registry/contract updates.
+- [ ] Wave 2A owns critic implementation and cannot exit without mechanically
+      verified role eligibility, independence, signed bindings, and exclusion
+      approval; Open Decision 10 is resolved before entry.
 - [ ] High-risk implementation uses genuine 3×2 host assurance; 3×1 remains
       explicitly degraded and non-authority.
 - [ ] Follow-up work is divided into bounded waves with entry, exit, dependency,
