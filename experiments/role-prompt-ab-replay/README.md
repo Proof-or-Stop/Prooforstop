@@ -53,6 +53,14 @@ node experiments/role-prompt-ab-replay/story6-analyze.mjs \
   --adjudication=/absolute/path/to/independent-adjudication.json
 ```
 
+Because runtime receipts and adjudication are intentionally ignored, preserve a
+reviewable result with `story6-report.mjs --output=<tracked-summary.json>`. The
+summary contains only bindings, content digests, coverage, numeric aggregates,
+adjudication distributions, limitations, and conservative claims—never raw
+prompts, provider outputs, transcripts, tool arguments, or credentials. Re-run
+the same command with `--verify=<tracked-summary.json>` to bind the tracked
+summary back to all 72 receipt files and the independent adjudication.
+
 The ordinary replay is read-only. Ledger output is opt-in and is confined to
 `experiments/role-prompt-ab-replay/runtime/*.jsonl`; that directory is runtime
 output. Its committed `.gitignore` excludes generated rows and lock files, so
