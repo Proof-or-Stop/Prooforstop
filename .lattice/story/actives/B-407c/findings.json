@@ -429,6 +429,28 @@
       ],
       "signatureTag": "audit-arm-mislabeled-as-production-acceptance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-407c:F-014",
+      "desc": "CHK-002:happy:0 is not biting for its explicit bytes/tokens/limit requirement. The latest single-command acceptance transcript asserts only withinBudget, violation, correctnessExecution, and baselineAccepted (story6-acceptance-transcript.ts:127-130) and prints BUDGET lines without bytes, estimatedTokens, or limitBytes. The production smoke likewise checks only mode and baselineAccepted (story6-production-dispatch-smoke.ts:69-70), while the role-migration smoke calls observeComplexRolePromptBudget but never asserts those three fields. A repository-wide search finds no Story 6 task assertion over promptBudget.bytes, promptBudget.estimatedTokens, or promptBudget.limitBytes. Therefore a regression that drops/corrupts those recorded metrics can leave all current evidence and the acceptance transcript green, despite the must intent saying an in-budget production dispatch records bytes/tokens/limit. Add production response and persisted-event assertions binding bytes/tokens to the envelope and limitBytes to the configured full/incremental limit, expose them in the acceptance line if it is the user-visible proof, and add a negative mutation that fails when any field is absent or incorrect.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T03:11:03.705Z",
+      "reviewRound": "2026-07-21T03:08:17.117Z",
+      "reviewRunId": "B-407c:RR-048",
+      "_hash": "8cdd1ef24f0a81247af9912cd6cdcacc7bb12e4880f95ab22ce46f52e0956685",
+      "files": [
+        "packages/main/src/tasks/story6-acceptance-transcript.ts",
+        "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+        "packages/main/src/tasks/story6-role-migration-smoke.ts",
+        "packages/main/src/core/prompt-budget.ts",
+        "packages/main/src/handlers/agent-prompt.ts"
+      ],
+      "signatureTag": "missing|ts|happy-biting-explicit",
+      "signatureTagSource": "auto"
     }
   ]
 }
