@@ -283,6 +283,21 @@
       ],
       "signatureTag": "stale-global-boundary-after-live-experiment",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-407c:F-010",
+      "desc": "packages/main/src/handlers/story-dispatch.ts:197-205 performs event-failure rollback only after releasing and reacquiring the envelope lock. Because Prompt Envelope IDs exclude createdAt, two identical concurrent dispatches reuse one ID: a reentrant actual-handler mutation let dispatch B reuse the newly persisted envelope and append a valid event, then dispatch A failed its event and deleted the shared envelope. Observed final state was eventCount=1, envelopeCount=0 for eventEnvelopeId=32b08399..., so the fix can orphan a successful dispatch event. Keep envelope persistence, event append, and rollback decision inside one serialization boundary (or reference-count/verify no successful binding before delete), and add this concurrent/reentrant mutation asserting every successful event retains its envelope.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-21T01:51:29.295Z",
+      "reviewRound": "2026-07-21T01:48:54.890Z",
+      "reviewRunId": "B-407c:RR-032",
+      "_hash": "9307e836ed4915969664e464a56f4cd4815e8600fe6d7ff202403c99a2a198aa",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
