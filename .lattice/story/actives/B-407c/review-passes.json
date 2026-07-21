@@ -1102,6 +1102,55 @@
       },
       "readDiagnostics": [],
       "_hash": "8e9fe4291152e75100ea127b7eb88d358e675d451b580aa65dcd169c563c832c"
+    },
+    {
+      "id": "B-407c:RP-033",
+      "agent": "lattice-review-concept",
+      "note": "Round 15 concept review found no blocker. Reviewed the integrated Story 6 diff and required plan; repository-wide residue scans confirm shared Runtime Guide removal is complete in the five package modular role templates while frozen legacy host assets and reconstruction text remain intentionally content-addressed for exact rollback. Commit 82c3eb71 only routes acceptance-fixture git commands through resolveGitCwd; the live acceptance transcript still proves five legacy-full-context production defaults, full-envelope auditOnly=true/canMintReviewEvidence=false, nonblocking over-budget baselineAccepted=false, adverse 20/24 vs 24/24 recall with status INCONCLUSIVE, and story7=false.",
+      "createdAt": "2026-07-21T03:50:28.821Z",
+      "reviewRound": "2026-07-21T03:48:01.241Z",
+      "reviewRunId": "B-407c:RR-055",
+      "envelopeId": "6b592b29e4a63f374ac9c6a4476d3b288a947d5b207ea2f4701f84033bc09dd8",
+      "writerSessionId": "sess-96dc0548f070c96404740b933cc447bc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/tasks/story6-acceptance-transcript.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/README.md",
+          "lattice.config.json",
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/templates/agents/lattice-evaluator.md",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "packages/main/templates/agents/lattice-review-delivery.md",
+          "packages/main/templates/agents/lattice-review-scope-plan.md",
+          "packages/main/templates/agents/lattice-review-story-init.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "80fec20fa0e7d637db25b33b324c08393370f1e112b7de3912a61da0211616d6"
     }
   ]
 }
