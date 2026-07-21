@@ -2,53 +2,62 @@
   "storyId": "B-407c",
   "mode": "enforce",
   "allowedModify": [
+    ".claude/agents/lattice-evaluator.md",
+    ".claude/agents/lattice-implementer.md",
+    ".claude/agents/lattice-review-delivery.md",
+    ".claude/agents/lattice-review-scope-plan.md",
+    ".claude/agents/lattice-review-story-init.md",
+    ".lattice-codex/agents/lattice-evaluator.md",
+    ".lattice-codex/agents/lattice-implementer.md",
+    ".lattice-codex/agents/lattice-review-delivery.md",
+    ".lattice-codex/agents/lattice-review-scope-plan.md",
+    ".lattice-codex/agents/lattice-review-story-init.md",
+    "experiments/role-prompt-ab-replay/README.md",
     "lattice.config.json",
-    "package.json",
-    "package-lock.json",
-    "packages/main/package.json",
-    "packages/main/package-lock.json",
     "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/prompt-contracts.ts",
     "packages/main/src/core/prompt-registry.ts",
     "packages/main/src/core/prompt-role-contract-registry.ts",
-    "packages/main/src/core/prompt-envelope.ts",
-    "packages/main/src/core/prompt-contracts.ts",
-    "packages/main/src/core/prompt-budget.ts",
-    "packages/main/src/core/process-fact-levels.ts",
-    "packages/main/src/core/process-fact-registry.ts",
-    "packages/main/src/handlers/story-dispatch.ts",
     "packages/main/src/handlers/agent-prompt.ts",
     "packages/main/src/handlers/evaluate.ts",
-    "packages/main/src/handlers/delivery-check.ts",
-    "scripts/verify-process-fact-contract.mjs",
-    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/templates/agents/lattice-evaluator.md",
+    "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/templates/agents/lattice-review-delivery.md",
+    "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-review-story-init.md"
   ],
   "allowedCreate": [
-    "packages/main/src/tasks/story6-role-migration-smoke.ts",
-    "packages/main/src/tasks/story6-budget-smoke.ts",
-    "packages/main/src/tasks/story6-ab-dispatch.ts",
+    "experiments/role-prompt-ab-replay/lib/story6-schema-compat.mjs",
+    "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
+    "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+    "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+    "experiments/role-prompt-ab-replay/story6-live.mjs",
+    "experiments/role-prompt-ab-replay/story6-output.schema.json",
+    "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+    "experiments/role-prompt-ab-replay/story6-report.mjs",
+    "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs",
+    "packages/main/src/core/prompt-budget.ts",
     "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
-    "packages/main/src/tasks/story6-invariants-smoke.ts"
+    "packages/main/src/tasks/story6-ab-dispatch.ts",
+    "packages/main/src/tasks/story6-invariants-smoke.ts",
+    "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+    "packages/main/src/tasks/story6-role-migration-smoke.ts"
   ],
   "allowedTest": [
-    "packages/main/src/tasks/story6-*.ts",
-    "packages/main/src/tasks/prompt-registry-smoke.ts",
     "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
-    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
-    "scripts/verify-process-fact-contract.mjs"
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/story6-*.ts"
   ],
   "protectedFiles": [
     "packages/main/src/core/types.ts",
     "packages/main/src/core/agent-dispatch-registry.ts"
   ],
-  "explicitExcludes": [
-    "packages/main/src/Story 7 legacy asset isolation",
-    "packages/main/src/Story 7 observe-to-warn rollout promotion",
-    "packages/main/src/compatibility role cleanup",
-    "packages/main/src/budget enforce implementation",
-    "packages/main/src/Task Context schema changes",
-    "packages/main/src/role status or authority changes"
-  ],
-  "scopeChangeReason": "Human clarified strict /tmp Story 6: complex-role migration, temporary nonblocking budget violations, real production dispatch A/B, and invariant verification only.",
+  "explicitExcludes": [],
+  "scopeChangeReason": "Formal PLAN correction aligns the Story 6 scope contract with the actual five-role modular assets, trusted dispatch implementation, durable 72-cell A/B report, and regression selfchecks; Story 7 remains semantically excluded by checklist and accepted intent.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -217,7 +226,8 @@
     }
   ],
   "createdAt": "2026-07-20T21:35:14.371Z",
-  "updatedAt": "2026-07-21T00:06:55.129Z",
+  "updatedAt": "2026-07-21T00:30:32.877Z",
+  "fileRules": [],
   "protectedAnchors": [
     "AGENT_DISPATCH_REGISTRY",
     "buildFullTaskContext"
@@ -289,7 +299,13 @@
     ".lattice-codex/agents/lattice-review-delivery.md": ".lattice-codex/agents/lattice-review-delivery.md",
     ".lattice-codex/agents/lattice-review-scope-plan.md": ".lattice-codex/agents/lattice-review-scope-plan.md",
     ".lattice-codex/agents/lattice-review-story-init.md": ".lattice-codex/agents/lattice-review-story-init.md",
-    "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs": "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs"
+    "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs": "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+    "experiments/role-prompt-ab-replay/lib/story6-schema-compat.mjs": "experiments/role-prompt-ab-replay/lib/story6-schema-compat.mjs",
+    "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json": "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
+    "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs": "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+    "experiments/role-prompt-ab-replay/story6-report.mjs": "experiments/role-prompt-ab-replay/story6-report.mjs",
+    "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs": "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs",
+    "packages/main/src/tasks/story6-production-dispatch-smoke.ts": "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",

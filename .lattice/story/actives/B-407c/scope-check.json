@@ -1,6 +1,6 @@
 {
   "storyId": "B-407c",
-  "checkedAt": "2026-07-21T00:29:38.180Z",
+  "checkedAt": "2026-07-21T00:32:07.229Z",
   "features": [
     {
       "feature": "迁移 story-init、scope-plan、implementer、delivery、evaluator 五个复杂角色到模块化 Runtime/Role Contract 与 Prompt Envelope",
@@ -146,15 +146,8 @@
       "feature": "Task Context schema 或角色 status/authority 变更",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "CHK-001/CHK-004 excludes 与 scope contract 明确冻结",
+      "excluded_by": "CHK-001/CHK-004 excludes 与 accepted intent 明确冻结",
       "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
-    },
-    {
-      "feature": "五个 CHK-003 必需实验文件尚未被 enforce scope contract 授权：lib/story6-schema-compat.mjs、story6-20260720-v2-summary.json、story6-report.mjs、story6-report-selfcheck.mjs、story6-schema-compat-selfcheck.mjs",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-407c/scope-contract.json"
     }
   ],
   "readManifest": {
@@ -292,14 +285,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 22,
+    "total": 21,
     "covered": 16,
     "excluded": 5,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "2026-07-20T22:23:11.258Z",
-  "_hash": "42db10ddf0a4e7a955c4c745bf8446465f6419e681c2dbec8d8931d86b7f1fb0",
+  "_hash": "9a66e75b942a7063c9e9e6cff9f52ada5e7ee98fbe51e8920fe14fbe32d35feb",
   "openQuestions": []
 }
