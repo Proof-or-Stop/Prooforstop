@@ -187,6 +187,25 @@
       ],
       "signatureTag": "missing|mjs|happy-lacks-production",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-407c:F-006",
+      "desc": "CHK-004:edge:0 and CHK-004:adversarial:0 lack the required negative invariant coverage. packages/main/src/tasks/story6-invariants-smoke.ts:15-20 only checks that scope/delivery commands return something and that one fixed commit has the implementer author; it does not mutate wrong author, evaluator evidence, signature, permissions, or remove each evidence item and assert a stable reason code. prompt-full-context-envelope-smoke.ts:244-270 and :347-374 covers Task Context/role/dispatch authority and event persistence, but not invalid signed-run verification, wrong-author rejection, evaluator/delivery/scope single-gap isolation, or the actual REVIEW evidence consumer rejecting a story-dispatch receipt. The PASS label at story6-invariants-smoke.ts:21 therefore overstates coverage of these must intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T00:37:45.580Z",
+      "reviewRound": "2026-07-21T00:35:37.735Z",
+      "reviewRunId": "B-407c:RR-030",
+      "_hash": "55ebaa0fc2c9daa4af85ef105db0f91cabc513d67a230530b034e455835ae551",
+      "files": [
+        "packages/main/src/tasks/story6-invariants-smoke.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-adversarial-lack",
+      "signatureTagSource": "auto"
     }
   ]
 }
