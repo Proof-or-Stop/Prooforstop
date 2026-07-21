@@ -839,6 +839,47 @@
       },
       "readDiagnostics": [],
       "_hash": "9b876ccfd668fd428d0679a1e403263a82a5f9778835d20f6b23331068a49f0c"
+    },
+    {
+      "id": "B-407c:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Round 11 full concept review found no blocker. Commit 7b05391e removes parallel/manual host-prompt reconstruction from Codex adapter and process-fact verification and makes both consume the canonical readPromptRegistry plus renderPromptEntryForHost path. F-012 is resolved with strong evidence; the acknowledged adapter/verifier scope expansion is necessary for that production-consumer closure and semantic scope passes. All five complex-role default host assets and agent_prompt remain immutable legacy-selected, while full-envelope remains explicit audit-only. Fresh role-migration, prompt-registry, process-fact, production-dispatch, invariants, and v3 tracked-report checks pass. v3 remains adverse/INCONCLUSIVE with baselineAccepted=false, recall and enforce claims false, and Story 7 unimplemented. Reviewer-local verify_codex was correctly denied by the active owner lease; the F-012 strong resolution records the owner-run fresh verify_codex pass.",
+      "createdAt": "2026-07-21T02:45:05.007Z",
+      "reviewRound": "2026-07-21T02:43:33.468Z",
+      "reviewRunId": "B-407c:RR-043",
+      "envelopeId": "0be327ef68b2bd3ad8cfb4b35c8a138a9a6a0677e7b2a11b791455d547f9fbf9",
+      "writerSessionId": "sess-c25611de6e4e5e15228b4b170ef630b4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "lattice.config.json",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "1bdfb60e7da6feb82a316df0798bc070c72224b175076f56d56609885e770188"
     }
   ]
 }
