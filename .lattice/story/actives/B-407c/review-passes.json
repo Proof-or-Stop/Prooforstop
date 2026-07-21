@@ -1151,6 +1151,46 @@
       },
       "readDiagnostics": [],
       "_hash": "80fec20fa0e7d637db25b33b324c08393370f1e112b7de3912a61da0211616d6"
+    },
+    {
+      "id": "B-407c:RP-034",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 15 coverage PASS: independently mapped all 12/12 must verificationIntent entries to concrete passing evidence with 0 gaps and 0 waivers at current material/storyFiles binding; rebuilt current HEAD, reran gitroot-cwd-contract smoke (764 TS files, alias/backtick mutation selfchecks) and the real Story6 acceptance transcript. The transcript remains biting for envelope/context tamper, missing or altered budget fields, false baseline/enforce/Story7 claims, receipt provenance, REVIEW-credit authority, wrong author, and missing invariant evidence while honestly retaining the adverse 20/24 modular recall, one false positive, cache INCONCLUSIVE, baselineAccepted=false, and audit-only rollout.",
+      "createdAt": "2026-07-21T03:50:52.154Z",
+      "reviewRound": "2026-07-21T03:48:01.241Z",
+      "reviewRunId": "B-407c:RR-056",
+      "envelopeId": "53fc10c7dc4e0086af93d0cfe8fe25ba7ec0c7319fbe721792afa47a07263a9f",
+      "writerSessionId": "sess-cc916930cb50a7a0bd00a2a1a6be47e8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-407c/background.md",
+          ".lattice/story/actives/B-407c/checklist.json",
+          ".lattice/story/actives/B-407c/plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/tasks/story6-acceptance-transcript.ts"
+        ],
+        "filesTriagedByName": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "packages/main/src/tasks/gitroot-cwd-contract-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "0b00ae586930afd8310856dfd777837eb6748e3eda6c7081416082618ba5d3c9"
+      },
+      "readDiagnostics": [],
+      "_hash": "b0ce6cc53f632d70054520fd30b5d81ef393cc9aba70109a3b79c2d8209b2889"
     }
   ]
 }
