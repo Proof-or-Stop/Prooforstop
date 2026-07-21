@@ -200,7 +200,7 @@
       ],
       "status": "done",
       "startTime": "2026-07-20T21:49:13.827Z",
-      "endTime": "2026-07-21T00:18:33.007Z",
+      "endTime": "2026-07-21T00:35:30.319Z",
       "userSees": "用户看到五行 \"role=<role> legacy=<digest> modular=<digest> providerUsage=<value|INCONCLUSIVE> cache=<value|INCONCLUSIVE> latency=<value|INCONCLUSIVE> receipt=valid\"。",
       "files": {
         "modify": [
@@ -256,26 +256,26 @@
           "kind": "integration_test",
           "verdict": "audit_only",
           "file": "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
-          "command": "node experiments/role-prompt-ab-replay/story6-report.mjs --campaign-id=story6-20260720-v2 --adjudication=<runtime-adjudication> --verify=experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
+          "command": "node experiments/role-prompt-ab-replay/story6-report.mjs --campaign-id=story6-20260720-v2 --adjudication=experiments/role-prompt-ab-replay/runtime/story6/story6-20260720-v2.independent-adjudication.json --verify=experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
           "result": "pass",
-          "note": "Current HEAD verified the durable content-addressed summary of 72/72 real serialized Codex/Claude provider cells across five roles, three classes x two samples, two arms, and three repetitions; summaryDigest bb69e362.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "note": "0.3.224 verified durable content-addressed summary of 72/72 real serialized Codex/Claude cells across five roles; summaryDigest bb69e362.",
+          "headHash": "6d4a84dea511989faa39bf955ed3e5a7d1b35d01",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:30.543Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
           "verdict": "audit_only",
           "file": "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
-          "command": "node experiments/role-prompt-ab-replay/story6-analyze.mjs --campaign-id=story6-20260720-v2 --adjudication=<runtime-adjudication>",
+          "command": "node experiments/role-prompt-ab-replay/story6-analyze.mjs --campaign-id=story6-20260720-v2 --adjudication=experiments/role-prompt-ab-replay/runtime/story6/story6-20260720-v2.independent-adjudication.json; expect exit 2 INCONCLUSIVE with receiptCount=72 and provenanceErrors=[]",
           "result": "pass",
-          "note": "Analysis is deliberately INCONCLUSIVE only for 36 unavailable Codex cache-creation metrics; modular recall 12/24 versus legacy 16/24 and FP 5 versus 2 force baselineAccepted=false and recallNonRegressionClaim=false.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "note": "Expected INCONCLUSIVE: 36 unavailable Codex cache-creation metrics; modular recall 12/24 vs legacy 16/24 and FP 5 vs 2 keep baselineAccepted=false and recallNonRegressionClaim=false.",
+          "headHash": "6d4a84dea511989faa39bf955ed3e5a7d1b35d01",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:30.716Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -283,11 +283,11 @@
           "file": "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
           "command": "node experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
           "result": "pass",
-          "note": "Current HEAD report selfcheck rejects forged receipt/adjudication, missing cells and false baseline acceptance and persists no raw provider content.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
-          "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
-          "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "note": "0.3.224 report selfcheck rejects forged receipt/adjudication, missing cells and false baseline acceptance, and proves no raw provider content is persisted.",
+          "headHash": "6d4a84dea511989faa39bf955ed3e5a7d1b35d01",
+          "materialHash": "19f64c2ef6860d3e277c8af926fdec28c3db8ffa00310d4622968087415d6e40",
+          "storyFilesHash": "5545c2834063cb9a59a87bddf86e782b1059441e30c46b8611d41aac8f05a3c3",
+          "timestamp": "2026-07-21T00:35:30.943Z"
         }
       ]
     },
