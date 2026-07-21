@@ -1,6 +1,6 @@
 {
   "storyId": "B-407c",
-  "checkedAt": "2026-07-21T01:41:37.424Z",
+  "checkedAt": "2026-07-21T01:43:20.034Z",
   "features": [
     {
       "feature": "迁移 story-init、scope-plan、implementer、delivery、evaluator 五个复杂角色到模块化 Runtime/Role Contract 与 Prompt Envelope",
@@ -67,6 +67,13 @@
     },
     {
       "feature": "A/B receipt、独立 adjudication 与 tracked summary 以 digest/Merkle root 内容寻址并拒绝伪造、重复、stale、wrong-role receipt",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+    },
+    {
+      "feature": "Story6-named tracked summaries 由单层 `[s]tory6-*-summary.json` scope glob 授权，Story7、无关 summary 与 runtime/raw receipts 均不匹配",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
@@ -148,13 +155,6 @@
       "status": "excluded",
       "excluded_by": "CHK-001/CHK-004 excludes 与 accepted intent 明确冻结",
       "source": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
-    },
-    {
-      "feature": "allowedCreate `experiments/role-prompt-ab-replay/*-summary.json` 虽不跨目录匹配 raw runtime receipts，但会允许 `story7-summary.json` 和任意 `unrelated-summary.json`，范围宽于仅授权 Story 6 v3 tracked summary 的声明",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-407c/scope-contract.json"
     }
   ],
   "readManifest": {
@@ -293,13 +293,13 @@
   },
   "summary": {
     "total": 22,
-    "covered": 16,
+    "covered": 17,
     "excluded": 5,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "2026-07-21T00:35:37.735Z",
-  "_hash": "bd9139d29f208c2a53d16e31dfd76ca436cde90a38c83dc106041acf58cfb2f0",
+  "_hash": "8a51f80c04c8b39912866a7db97e9d9c18b1040d8f80a2fed845c59e32b82b51",
   "openQuestions": []
 }
