@@ -259,14 +259,15 @@
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
-          "file": "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
-          "command": "node packages/main/dist/tasks/story6-ab-dispatch-smoke.js",
+          "verdict": "audit_only",
+          "file": "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
+          "command": "node experiments/role-prompt-ab-replay/story6-analyze.mjs --campaign-id=story6-20260720-v2 --adjudication=<runtime-adjudication>",
           "result": "pass",
-          "note": "每个角色两臂均保留 assembledPromptBytes/estimatedTokens；不可用 provider 维度不是零值而是 INCONCLUSIVE/unavailable(reason)。",
-          "headHash": "eaa486bb6d060c0962597c7eeb77e6424609dad2",
-          "materialHash": "fd22ac5ac31907fdd15bc90f3f59a8831704a94b4a920f70866bc84258ddf2bc",
-          "storyFilesHash": "d277ff5f3ecf4f50191fa5a1bd70bd72fd692208a2c35ef93d81287cfc0f2657",
-          "timestamp": "2026-07-20T21:49:16.648Z"
+          "note": "Aggregation verified 72 receipts, one campaign binding and zero provenance errors. It returned expected INCONCLUSIVE solely because Codex CLI exposes no cacheCreationInputTokens for 36 cells. Independent adjudication is verified; modular recall was 12/24 versus legacy 16/24 and FP 5 versus 2, so recall non-regression and baseline acceptance remain false.",
+          "headHash": "cf98f199d927b2f34058d9429fb504f68aeb57db",
+          "materialHash": "321c8ee0edb1519f5ff9df744e0dcdf9cc04e69835d6fbd2d3c6270972b54ea3",
+          "storyFilesHash": "a6e4814a1cb8fe538d32af00fd1dd1c4c486aa3b8c6df36dff43069cdfc401eb",
+          "timestamp": "2026-07-21T00:18:26.758Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
