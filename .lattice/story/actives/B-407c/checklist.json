@@ -66,15 +66,16 @@
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
+          "verdict": "success",
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
-          "note": "Current HEAD migration smoke passed package/Claude/Codex mirror equality, compressed role targets, and content-addressed exact legacy rollback for all five roles.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
+          "note": "Current HEAD command transcript proves all five package/Claude/Codex mirrors match compressed assets and each exact frozen legacy role body is reconstructed by content digest.",
+          "headHash": "84425fd59194810b2f4d2105041afc6fda5116f6",
           "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
           "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "timestamp": "2026-07-21T00:24:30.488Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -147,15 +148,16 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "logic_test",
+          "kind": "integration_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
           "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
           "result": "pass",
-          "note": "Current HEAD observe-only budget smoke passed for init/scope/implementer/delivery and confirms evaluator is migrated but not budgeted.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
+          "note": "Current HEAD integration smoke covers assembled dispatch budget observations for init/scope/implementer/delivery while evaluator remains outside the complex-role budget.",
+          "headHash": "84425fd59194810b2f4d2105041afc6fda5116f6",
           "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
           "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "timestamp": "2026-07-21T00:24:30.488Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -171,15 +173,16 @@
         },
         {
           "intentRef": "CHK-002:adversarial:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
-          "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json",
+          "command": "node -e \"assert tracked Story 6 summary has story7.implemented=false, enforceReady=false, baselineAccepted=false\"",
           "result": "pass",
-          "note": "Current HEAD rejects Story 7 warn/enforce promotion and proves no blocking budget behavior or accepted over-budget baseline was introduced.",
-          "headHash": "724a00ad532c720f3ad81220a3abec50daae4eb5",
+          "note": "Tracked content-addressed campaign summary explicitly and mechanically records Story 7 absent, enforceReady=false and baselineAccepted=false; report selfcheck rejects mutations that flip these claims.",
+          "headHash": "84425fd59194810b2f4d2105041afc6fda5116f6",
           "materialHash": "9619216aa59643e3a3e940116b2243958daa7119cbc6c5e4d8b5959e3afb8716",
           "storyFilesHash": "05ce02100f84ea152e50ce274dc34c823e178a40dcc21d20323a8133b13b4890",
-          "timestamp": "2026-07-21T00:23:30.785Z"
+          "timestamp": "2026-07-21T00:24:30.488Z"
         }
       ],
       "excludes": [
