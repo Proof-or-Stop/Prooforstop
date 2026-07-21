@@ -478,6 +478,25 @@
       "resolvedAt": "2026-07-21T03:17:27.265Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-407c:F-016",
+      "desc": "CHK-002:happy:0 now has a good implementation-level acceptance test, but its formal verificationEvidence is still bound to `node packages/main/dist/tasks/story6-role-migration-smoke.js` and file story6-role-migration-smoke.ts. That smoke only calls observeComplexRolePromptBudget and asserts mode/baseline/violation behavior; it still does not assert the production response or persisted event bytes, estimatedTokens, and limitBytes. The new biting coverage lives in story6-acceptance-transcript.ts/assertAuditBudgetBinding and passed fresh, but no verificationEvidence row for CHK-002:happy:0 references that command/file or describes the response/event/recompute binding. Coverage policy requires the evidence attached to each must intent to concretely cover that intent; an unbound test elsewhere cannot make the existing evidence truthful. Update the CHK-002:happy:0 verificationEvidence to the fresh acceptance transcript command (or expand the currently bound smoke to perform the same production/event assertions), record the current material binding, and rerun coverage review.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-21T03:19:46.378Z",
+      "reviewRound": "2026-07-21T03:17:14.592Z",
+      "reviewRunId": "B-407c:RR-050",
+      "_hash": "fe9b7dfb97db29994afc64ecc0a226edff9652fb0edb3e045f93573882c8086b",
+      "files": [
+        "packages/main/src/tasks/story6-acceptance-transcript.ts",
+        "packages/main/src/tasks/story6-role-migration-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-good-implementation",
+      "signatureTagSource": "auto"
     }
   ]
 }
