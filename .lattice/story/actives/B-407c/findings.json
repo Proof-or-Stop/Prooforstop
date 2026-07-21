@@ -220,7 +220,7 @@
       "desc": "lattice.config.json:17 default-enables full-envelope for all five Story 6 complex roles even though experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json:4-16 records INCONCLUSIVE, RECALL_REGRESSION_OBSERVED, false baseline acceptance, and false recall non-regression. This activates the regressed modular arm instead of keeping the per-role rollback selected until a non-regression baseline is accepted; the report is honest, but runtime rollout ignores its decision. Keep these roles on legacy-full-context (while retaining the implementation/flag) or add a fail-closed acceptance gate, and add a mutation proving baselineAccepted=false cannot coexist with default modular rollout.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-21T00:38:22.509Z",
@@ -228,7 +228,11 @@
       "reviewRunId": "B-407c:RR-028",
       "_hash": "7726a2ac13ef85489aff8aec221a883f109a121afa25a56c912fe78868ccdf2e",
       "signatureTag": "adversarial|unknown|lattice-config-json",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Closed by 29dea398 and quality pass RP-020: all five roles default legacy; modular requires explicit auditExperiment override; v3 adverse result keeps baselineAccepted, recallNonRegressionClaim, enforceReady, and Story7 false.",
+      "resolvedAt": "2026-07-21T02:06:20.796Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-407c:F-008",
