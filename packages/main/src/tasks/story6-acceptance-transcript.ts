@@ -13,7 +13,11 @@ import {
   PROMPT_ENVELOPE_ROLLOUT_VERSION,
   resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
-import { BUDGETED_COMPLEX_ROLE_IDS } from '../core/prompt-budget.js';
+import {
+  BUDGETED_COMPLEX_ROLE_IDS,
+  COMPLEX_ROLE_PROMPT_BUDGETS,
+  observeComplexRolePromptBudget,
+} from '../core/prompt-budget.js';
 import { StoryStore } from '../core/store.js';
 import { createAgentPromptHandlers } from '../handlers/agent-prompt.js';
 
@@ -50,6 +54,23 @@ function availability(rows: any[], metric: string): 'available' | 'INCONCLUSIVE'
       && metricRow.availableCount > 0
       && metricRow.unavailableCount === 0
   )) ? 'available' : 'INCONCLUSIVE';
+}
+
+function assertAuditBudgetBinding(role: string, response: any, event: any): any {
+  assert.ok(response?.promptBudget, `${role} audit response is missing promptBudget`);
+  assert.ok(event?.promptBudget, `${role} persisted audit event is missing promptBudget`);
+  assert.equal(response.promptBudget.bytes, response.envelope.bytes);
+  assert.equal(response.promptBudget.estimatedTokens, response.envelope.estimatedTokens);
+  assert.equal(response.promptBudget.limitBytes, COMPLEX_ROLE_PROMPT_BUDGETS.fullBytes);
+  const recomputed = observeComplexRolePromptBudget({
+    roleId: role,
+    contextMode: 'full',
+    bytes: response.envelope.bytes,
+    estimatedTokens: response.envelope.estimatedTokens,
+  });
+  assert.deepEqual(response.promptBudget, recomputed);
+  assert.deepEqual(event.promptBudget, recomputed);
+  return recomputed;
 }
 
 const transcript: string[] = [];
@@ -91,6 +112,10 @@ try {
     });
     const defaultPrompt = handlers.agent_prompt({ role, storyId, format: 'json' });
     assert.equal(defaultPrompt, legacy.body, `${role} production default must remain exact legacy bytes`);
+    transcript.push(
+      `PRODUCTION_DEFAULT role=${role} rollout=legacy-full-context exactLegacyBinding=true`
+      + ` roleBodyDigest=${legacy.bodyDigest}`,
+    );
 
     const response = JSON.parse(handlers.agent_prompt({
       role, storyId, format: 'json', auditExperiment: true,
@@ -111,27 +136,47 @@ try {
       envelope => envelope.envelopeId === response.envelope.envelopeId,
     );
     assert.ok(persisted && verifyPromptEnvelopeIntegrity(persisted));
-    const event = store.readProcessEvents(storyId).find(candidate => (
+    const event: any = store.readProcessEvents(storyId).find(candidate => (
       candidate.promptEnvelopeId === response.envelope.envelopeId
     ));
     assert.equal(event?.targetKind, 'story-dispatch');
     assert.equal(event?.promptEnvelopeDigest, response.envelope.contextDigest);
     assert.equal(event?.assembledPromptDigest, response.envelope.assembledPromptDigest);
     transcript.push(
-      `DISPATCH role=${role} defaultLegacy=true rollout=${response.mode} dispatchKind=${response.envelope.dispatchKind}`
+      `AUDIT_DISPATCH role=${role} rollout=${response.mode} auditOnly=${response.auditOnly}`
+      + ` canMintReviewEvidence=${response.canMintReviewEvidence} dispatchKind=${response.envelope.dispatchKind}`
       + ` envelopeId=${response.envelope.envelopeId} envelopeDigest=${response.envelope.contextDigest}`
       + ` assembledPromptDigest=${response.envelope.assembledPromptDigest} persisted=true`,
     );
 
     if ((BUDGETED_COMPLEX_ROLE_IDS as readonly string[]).includes(role)) {
-      assert.equal(response.promptBudget?.withinBudget, true);
-      assert.equal(response.promptBudget?.violation, 'none');
-      assert.equal(response.promptBudget?.correctnessExecution, 'continue-full');
-      assert.equal(response.promptBudget?.baselineAccepted, true);
+      const budget = assertAuditBudgetBinding(role, response, event);
+      assert.equal(budget.withinBudget, true);
+      assert.equal(budget.violation, 'none');
+      assert.equal(budget.correctnessExecution, 'continue-full');
+      assert.equal(budget.baselineAccepted, true);
       assert.equal(event?.budgetViolation, undefined);
       transcript.push(
-        `BUDGET role=${role} observation=within budgetViolation=none fullExecuted=true baselineAccepted=true`,
+        `AUDIT_BUDGET role=${role} observation=within bytes=${budget.bytes}`
+        + ` estimatedTokens=${budget.estimatedTokens} limitBytes=${budget.limitBytes}`
+        + ' budgetViolation=none fullExecuted=true baselineAccepted=true auditOnly=true canMintReviewEvidence=false',
       );
+      if (role === BUDGETED_COMPLEX_ROLE_IDS[0]) {
+        assert.throws(() => assertAuditBudgetBinding(role, { ...response, promptBudget: undefined }, event));
+        assert.throws(() => assertAuditBudgetBinding(role, {
+          ...response, promptBudget: { ...response.promptBudget, bytes: response.promptBudget.bytes + 1 },
+        }, event));
+        assert.throws(() => assertAuditBudgetBinding(role, {
+          ...response, promptBudget: { ...response.promptBudget, estimatedTokens: response.promptBudget.estimatedTokens + 1 },
+        }, event));
+        assert.throws(() => assertAuditBudgetBinding(role, {
+          ...response, promptBudget: { ...response.promptBudget, limitBytes: response.promptBudget.limitBytes + 1 },
+        }, event));
+        assert.throws(() => assertAuditBudgetBinding(role, response, { ...event, promptBudget: undefined }));
+        assert.throws(() => assertAuditBudgetBinding(role, response, {
+          ...event, promptBudget: { ...event.promptBudget, bytes: event.promptBudget.bytes + 1 },
+        }));
+      }
     } else {
       assert.equal(response.promptBudget, undefined, 'evaluator is not budgeted before Story 7');
     }
@@ -152,14 +197,17 @@ try {
     event => event.promptEnvelopeId === overResponse.envelope.envelopeId,
   );
   assert.ok(overPersisted && verifyPromptEnvelopeIntegrity(overPersisted));
-  assert.equal(overResponse.promptBudget.withinBudget, false);
-  assert.equal(overResponse.promptBudget.violation, 'complex-role-budget');
-  assert.equal(overResponse.promptBudget.correctnessExecution, 'continue-full');
-  assert.equal(overResponse.promptBudget.baselineAccepted, false);
+  const overBudget = assertAuditBudgetBinding('lattice-implementer', overResponse, overEvent);
+  assert.equal(overBudget.withinBudget, false);
+  assert.equal(overBudget.violation, 'complex-role-budget');
+  assert.equal(overBudget.correctnessExecution, 'continue-full');
+  assert.equal(overBudget.baselineAccepted, false);
   assert.equal(overEvent?.budgetViolation, 'full');
   transcript.push(
-    'BUDGET role=lattice-implementer observation=over-limit budgetViolation=full'
-    + ' fullExecuted=true baselineAccepted=false',
+    `AUDIT_BUDGET role=lattice-implementer observation=over-limit bytes=${overBudget.bytes}`
+    + ` estimatedTokens=${overBudget.estimatedTokens} limitBytes=${overBudget.limitBytes}`
+    + ' budgetViolation=full'
+    + ' fullExecuted=true baselineAccepted=false auditOnly=true canMintReviewEvidence=false',
   );
 } finally {
   rmSync(root, { recursive: true, force: true });
@@ -238,21 +286,37 @@ const reasons = JSON.parse(reasonMatch[1]);
 assert.deepEqual(reasons, {
   signature: 'invalid_evidence_signature',
   scope: 'missing_scope_binding',
-  reviewCredit: 'story_dispatch_zero_review_credit',
   authority: 'agent_dispatch_mutation_denied',
   delivery: 'missing_delivery_check',
   evaluator: 'missing_eval_evidence',
-  wrongAuthor: 'missing_dispatch_subagent_result_evidence',
+});
+const behaviorMatch = invariantOutput.match(/story6-invariant-behavior: (\{[^\n]+\})/);
+assert.ok(behaviorMatch, 'real invariant task must emit machine-readable consumer behavior');
+const behavior = JSON.parse(behaviorMatch[1]);
+assert.deepEqual(behavior.reviewCredit, {
+  reviewCredit: 'zero', validPasses: 0, validFindings: 0,
+  positiveControlValidPasses: 1, source: 'collectReviewerEvidenceState',
+});
+assert.deepEqual(behavior.wrongAuthor, {
+  status: 'fail', dispatchEvidence: 'missing', source: 'checkCommitAuthor',
 });
 transcript.push(
   'INVARIANTS complex-role-invariants=PASS'
-  + ` signature=${reasons.signature} authority=${reasons.authority} context=context_digest_mismatch`
-  + ` review-credit=${reasons.reviewCredit} wrong-author=${reasons.wrongAuthor}`
+  + ` signature=${reasons.signature} authority=${reasons.authority}`
+  + ' contextIntegrity=rejected contextSource=verifyPromptEnvelopeIntegrity'
+  + ` reviewCredit=${behavior.reviewCredit.reviewCredit} validPasses=${behavior.reviewCredit.validPasses}`
+  + ` validFindings=${behavior.reviewCredit.validFindings}`
+  + ` reviewCreditSource=${behavior.reviewCredit.source}`
+  + ` positiveControlValidPasses=${behavior.reviewCredit.positiveControlValidPasses}`
+  + ` wrongAuthorStatus=${behavior.wrongAuthor.status}`
+  + ` wrongAuthorDispatchEvidence=${behavior.wrongAuthor.dispatchEvidence}`
+  + ` wrongAuthorSource=${behavior.wrongAuthor.source}`
   + ` evaluator=${reasons.evaluator} delivery=${reasons.delivery} scope=${reasons.scope}`,
 );
 
-assert.equal(transcript.filter(line => line.startsWith('DISPATCH ')).length, roles.length);
+assert.equal(transcript.filter(line => line.startsWith('PRODUCTION_DEFAULT ')).length, roles.length);
+assert.equal(transcript.filter(line => line.startsWith('AUDIT_DISPATCH ')).length, roles.length);
 assert.equal(transcript.filter(line => line.startsWith('CAMPAIGN role=')).length, roles.length);
 assert.ok(transcript.every(line => !/undefined|null/.test(line)), 'acceptance transcript cannot print missing claims');
 for (const line of transcript) console.log(line);
-console.log('story6-acceptance-transcript: PASS (production dispatch, budget, tracked campaign, and invariant consumers)');
+console.log('story6-acceptance-audit-transcript: PASS (production defaults, audit dispatches/budgets, tracked campaign, and invariant consumers)');

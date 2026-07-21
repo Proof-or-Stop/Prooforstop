@@ -25,6 +25,7 @@ import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import type { ReviewPass, ReviewRun } from '../core/types.js';
 
 const observedReasons: Record<string, string> = {};
+const observedBehavior: Record<string, unknown> = {};
 
 function captureError(fn: () => unknown, pattern: RegExp): Error {
   try {
@@ -165,6 +166,8 @@ try {
   const valid = collectReviewerEvidenceState(store, storyId, root);
   assert.equal(valid.invalid.length, 0, `valid signed control must pass: ${JSON.stringify(valid.invalid)}`);
   assert.equal(valid.valid.length, 1);
+  const positiveControlValidPasses = valid.valid.filter(evidence => evidence.kind === 'pass').length;
+  assert.equal(positiveControlValidPasses, 1);
 
   store.writeReviewPasses(storyId, { passes: [{ ...pass, note: `${pass.note} tampered` }] });
   const signatureReasons = collectReviewerEvidenceState(store, storyId, root).invalid.map(issue => issue.code);
@@ -204,8 +207,22 @@ try {
     targetKind: 'story-dispatch', agentType: 'lattice-review-quality', promptEnvelopeId: 'a'.repeat(64),
     promptEnvelopeDigest: 'b'.repeat(64), assembledPromptDigest: 'c'.repeat(64),
   });
-  assert.equal(collectReviewerEvidenceState(store, storyId, root).valid.length, 0, 'story-dispatch receipt gets zero REVIEW credit');
-  observedReasons.reviewCredit = 'story_dispatch_zero_review_credit';
+  const auditOnlyEvidence = collectReviewerEvidenceState(store, storyId, root);
+  const auditOnlyValidPasses = auditOnlyEvidence.valid.filter(evidence => evidence.kind === 'pass').length;
+  const auditOnlyValidFindings = auditOnlyEvidence.valid.filter(evidence => evidence.kind === 'finding').length;
+  assert.equal(auditOnlyEvidence.valid.length, 0, 'story-dispatch receipt gets zero REVIEW credit');
+  assert.deepEqual(
+    { validPasses: auditOnlyValidPasses, validFindings: auditOnlyValidFindings },
+    { validPasses: 0, validFindings: 0 },
+    'removing the real signed pass and adding only a story-dispatch event must mutate the consumer outcome from one valid pass to zero credit',
+  );
+  observedBehavior.reviewCredit = {
+    reviewCredit: 'zero',
+    validPasses: auditOnlyValidPasses,
+    validFindings: auditOnlyValidFindings,
+    positiveControlValidPasses,
+    source: 'collectReviewerEvidenceState',
+  };
 
   const ctx = { root, scanRoot: root, store } as never;
   const checklistHandlers = createChecklistHandlers(ctx);
@@ -295,16 +312,20 @@ try {
   assert.match(wrongAuthor.summary, /cannot be used as author fallback/);
   assert.match(wrongAuthor.details.join('\n'), /commit author is only a legacy fallback/);
   assert.match(wrongAuthor.details.join('\n'), /main-agent/);
-  observedReasons.wrongAuthor = /missing dispatch\/subagent_result evidence/.test(wrongAuthor.summary)
-    ? 'missing_dispatch_subagent_result_evidence'
-    : 'unexpected_wrong_author_reason';
+  assert.match(wrongAuthor.summary, /missing dispatch\/subagent_result evidence/);
+  observedBehavior.wrongAuthor = {
+    status: wrongAuthor.status,
+    dispatchEvidence: 'missing',
+    source: 'checkCommitAuthor',
+  };
 } finally {
   rmSync(authorRoot, { recursive: true, force: true });
   resetConfigCache();
 }
 
 assert.deepEqual(Object.keys(observedReasons).sort(), [
-  'authority', 'delivery', 'evaluator', 'reviewCredit', 'scope', 'signature', 'wrongAuthor',
+  'authority', 'delivery', 'evaluator', 'scope', 'signature',
 ]);
 console.log(`story6-invariant-reasons: ${JSON.stringify(observedReasons)}`);
+console.log(`story6-invariant-behavior: ${JSON.stringify(observedBehavior)}`);
 console.log('story6-invariants-smoke: PASS (real signed-evidence, scope/delivery/evaluator, authority, REVIEW-credit, and wrong-author consumers)');
