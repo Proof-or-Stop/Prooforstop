@@ -652,6 +652,50 @@
         "scanEscalationReason": null
       },
       "_hash": "29bafd975558fb0190ea5558b0dc2ff3facdc0546abe02deb91ae232ef72c464"
+    },
+    {
+      "id": "B-407c:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 9 test-coverage PASS: audited all 12 must intents and 12 current-bound evidence records. Independently rebuilt and passed the Story 6 real-consumer invariant matrix, semantic scope guard, production dispatch/envelope rollback, Prompt Envelope integrity, authority registry, lifecycle classification, v3 72-cell analyzer/report mutations, and process-fact contract. F-005 production A/B and F-006/F-011 negative invariant gaps are covered. v3 remains honestly INCONCLUSIVE with modular recall regression, baselineAccepted=false, recallNonRegressionClaim=false, and enforceReady=false.",
+      "createdAt": "2026-07-21T02:05:34.018Z",
+      "reviewRound": "2026-07-21T02:02:47.948Z",
+      "reviewRunId": "B-407c:RR-036",
+      "envelopeId": "cb0c20c9d839a6fda1bec7b95fb619c538fdd1168db4440e4ef941cbf60c0c93",
+      "writerSessionId": "sess-e8903ac26f64278445a2d5c62e03c2b7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "packages/main/src/tasks/semantic-scope-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "9cc8427f364d28fc04358ab975d39019b531bd07efecc8531ef152597bbc3173"
+      },
+      "readDiagnostics": [],
+      "_hash": "4e1fde2cb88142b58dbeddf5d94c02b13bc1b4b222b43d31a24377e31dbe2093"
     }
   ]
 }
