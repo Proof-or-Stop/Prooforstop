@@ -1,6 +1,6 @@
 {
   "storyId": "B-98b0",
-  "checkedAt": "2026-07-22T16:01:44.696Z",
+  "checkedAt": "2026-07-22T16:02:09.340Z",
   "features": [
     {
       "feature": "Wave 2 canonical deterministic structural evaluator consumes the verified Wave 1A basis and normalized Wave 1 topology, preserves ordered AT diagnostics, and rejects caller-forged completeness/status.",
@@ -66,7 +66,7 @@
       "source": ".lattice/story/actives/B-98b0/proofstory.json#AC-W2-PLAN-STRUCTURAL-GATE"
     },
     {
-      "feature": "Frozen implementation scope is limited to the canonical evaluator/types/config, CLI/handler/registry/policy/process-fact surfaces, transition consumer, one focused smoke, process-fact verifier, and CLI docs; each declared path is tied to CHK-001..004 and no later-wave implementation path is authorized.",
+      "feature": "Frozen implementation scope contains exactly the 12 checklist-declared implementation/test paths (11 modify plus one create/test), plus only the verifier-owned signed PLAN metadata create .lattice/story/actives/B-98b0/acceptance-basis.json; the execution-plan document is protected and later-wave anchors are denied.",
       "covered_by": "CHK-001,CHK-002,CHK-003,CHK-004",
       "status": "covered",
       "excluded_by": null,
@@ -140,6 +140,6 @@
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "b8aeface20b60b3745bb63b6f69baf4cb8422f469e12c3d963d38f7e13f515dc",
+  "_hash": "8a57dd58cb676db208f9cde8f57083401c13b00fb428c9ca78b39e9914dac98f",
   "openQuestions": []
 }
