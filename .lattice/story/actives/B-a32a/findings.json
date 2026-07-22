@@ -449,7 +449,7 @@
       "desc": "The canonical source-root scan still does not establish an exact executable import-and-call edge. exactCalledImports and staticCallPaths strip comments and import declarations but leave string and template literal contents, then accept any alias followed by an opening parenthesis regex match (acceptance-discovery-adapters.ts:176-180, 308-312, 327-331). Therefore an outside-scope file that imports a producer but only contains a string such as const marker = consume( is added to the closure, emitted as a static-call path, and can satisfy discoveredConsumer even though it never calls the producer. Focused reproduction against the same stripping and matching algorithm printed {executableText: export const marker = consume(, classifiedAsCall:true}. The new smoke covers a real call, removal, unresolved import, and unrelated file, but has no string or template false-positive mutation (proofstory-acceptance-basis-smoke.ts:369-423). This leaves F-020 no-false-exclusion and exact-import-call condition open. Use syntax-aware call-expression binding or conservatively fail partial when the bounded parser cannot prove a call, and add a mutation where the alias appears only inside string or template text and must not enter closure or satisfy the consumer gate.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T08:54:16.937Z",
@@ -461,7 +461,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|canonical-source-root",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 39a348ddcf and retained through current HEAD: canonical roots use physical per-component containment with symlink/escape failures, and TypeScript-aware executable call discovery excludes literal/comment/template-static decoys. Current mutation smoke and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:23.145Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-023",
