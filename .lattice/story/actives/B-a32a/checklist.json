@@ -112,6 +112,75 @@
           "packages/main/src/core/acceptance-discovery-adapters.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-A32A-002-REGISTERED-UNION-CLOSURE",
+            "desc": "The registered PLAN discovery profile invokes every required adapter exactly once and reconciles admissible results by deterministic union, retaining producer-consumer, handler-dispatch, static and runtime paths including registered consumers outside Story-owned files; the closure and every adapter result carry replayable canonical digests.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-A32A-ADAPTER-RECONCILIATION",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-A32A-RUN-ADAPTERS",
+                  "role": "producer",
+                  "expectedArtifactKind": "process_fact",
+                  "expectedFileRef": "packages/main/src/core/acceptance-discovery-adapters.ts",
+                  "expectedSymbolOrFact": "runAcceptanceDiscoveryAdapters",
+                  "fileDeclarationRef": "CHK-002:files:create:0"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-A32A-RECONCILE-ADAPTERS",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/core/acceptance-discovery-adapters.ts",
+                    "expectedSymbolOrFact": "reconcileAcceptanceDiscoveryResults",
+                    "fileDeclarationRef": "CHK-002:files:create:0"
+                  }
+                ],
+                "outputFactRef": "process-fact:acceptance-coverage-adapter-results"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-A32A-002-TYPED-ASYMMETRY",
+            "desc": "When static discovery finds C2 and bounded non-exhaustive runtime trace does not, a registered typed asymmetry policy retains C2 without an omission; the same unexplained or semantically conflicting disagreement retains the union but emits AT_DISCOVERY_DISAGREEMENT and makes the basis partial.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-002-PROFILE-TOTALITY",
+            "desc": "An unsupported profile returns unsupported, while a supported profile with a missing or duplicate required adapter result, invalid provenance, invalid claim, blind spot or asymmetry policy returns deterministic non-complete diagnostics; caller-provided discoveryMethods cannot narrow registered requirements.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-A32A-002-OMISSION-AND-AGGREGATE-TAMPER",
+            "desc": "Delete or duplicate one profile-required adapter result while leaving its paths in the aggregate, then independently add or remove C2 or alter aggregate blindSpots while all result records remain unchanged; the mutations must fail with AT_REQUIRED_ADAPTER_RESULT_MISSING or AT_ADAPTER_RESULT_DIGEST_MISMATCH, and the restored control must pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-002-RESULT-AND-CLOSURE-TAMPER",
+            "desc": "Change one adapter path set, claim, provenance, blind spot or policy without recomputing its digest, then recompute that digest while retaining the signed basis and finally omit an out-of-scope registered consumer from closure; each mutation must fail closed with digest, disagreement or registered-consumer diagnostics and cannot produce complete.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
