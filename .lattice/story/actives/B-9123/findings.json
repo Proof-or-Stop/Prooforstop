@@ -239,7 +239,7 @@
       "desc": "packages/main/src/core/topology-critic-receipt.ts:233 fails open when registered process events are unavailable: actorDispatchDiagnostics returns no diagnostic for a field-complete actor if args.events is undefined, while verifyTopologyCriticReceipt and verifyTopologyExclusionApproval both declare events optional. A caller can therefore omit dispatch evidence and the canonical core verifier will skip the registry-backed provenance check entirely; the smoke always supplies events and misses this branch. Make events mandatory or emit a missing/unverifiable dispatch diagnostic when absent, and add a signed field-complete but no-events negative case for critic and exclusion approval verification.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T19:30:21.021Z",
@@ -247,7 +247,11 @@
       "reviewRunId": "B-9123:RR-009",
       "_hash": "1ee694a4d4536d22d1073dc76bbdd17241bf2ef3eb38a356a9315a582788dc3c",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e96af21484 makes process events mandatory for critic and exclusion verifiers and fails closed with field-specific registered-dispatch diagnostics when events are missing or empty. Fresh owner smoke covers both no-events production-verifier negatives and passes.",
+      "resolvedAt": "2026-07-22T19:47:32.859Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9123:F-013",
