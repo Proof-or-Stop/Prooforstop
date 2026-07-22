@@ -73,10 +73,21 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Real checklist handler round-trips stable declaration and endpoint IDs through the registered PLAN verification-intent path.",
-          "headHash": "9d780121e2e8e192a7eac1c94c57e34895af60f8",
+          "headHash": "2bd8aca87db95bb384ab0f44c1231bb1127d16fd",
           "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
           "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
-          "timestamp": "2026-07-22T03:14:11.532Z"
+          "timestamp": "2026-07-22T03:16:25.501Z"
+        },
+        {
+          "intentRef": "VI-1995-001-ROUNDTRIP",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "The same focused suite directly asserts pure planned-path normalization preserves stable declaration and endpoint IDs.",
+          "headHash": "2bd8aca87db95bb384ab0f44c1231bb1127d16fd",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:16:25.988Z"
         },
         {
           "intentRef": "VI-1995-001-LEGACY-OPTIONAL",
@@ -84,10 +95,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Legacy verificationIntent without planned declarations remains unchanged and readable.",
-          "headHash": "9d780121e2e8e192a7eac1c94c57e34895af60f8",
+          "headHash": "2bd8aca87db95bb384ab0f44c1231bb1127d16fd",
           "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
           "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
-          "timestamp": "2026-07-22T03:14:11.870Z"
+          "timestamp": "2026-07-22T03:16:26.460Z"
         },
         {
           "intentRef": "VI-1995-001-INVALID-SHAPE",
@@ -95,10 +106,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Focused schema and handler cases reject version, duplicate endpoint, and mismatched file declaration mutations atomically.",
-          "headHash": "9d780121e2e8e192a7eac1c94c57e34895af60f8",
+          "headHash": "2bd8aca87db95bb384ab0f44c1231bb1127d16fd",
           "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
           "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
-          "timestamp": "2026-07-22T03:14:12.212Z"
+          "timestamp": "2026-07-22T03:16:26.853Z"
         },
         {
           "intentRef": "VI-1995-001-WRITER-FREEZE",
@@ -106,10 +117,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "story_create, checklist_add, ordinary checklist_update, and DEV mutation bites preserve pre-call bytes; registered PLAN role succeeds.",
-          "headHash": "9d780121e2e8e192a7eac1c94c57e34895af60f8",
+          "headHash": "2bd8aca87db95bb384ab0f44c1231bb1127d16fd",
           "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
           "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
-          "timestamp": "2026-07-22T03:14:12.520Z"
+          "timestamp": "2026-07-22T03:16:27.212Z"
         },
         {
           "intentRef": "VI-1995-001-SEMANTIC-TAMPER",
@@ -117,10 +128,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Declaration semantic and file-reference changes fail validation or change canonical diagnostic output despite stable IDs.",
-          "headHash": "9d780121e2e8e192a7eac1c94c57e34895af60f8",
+          "headHash": "2bd8aca87db95bb384ab0f44c1231bb1127d16fd",
           "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
           "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
-          "timestamp": "2026-07-22T03:14:12.819Z"
+          "timestamp": "2026-07-22T03:16:27.553Z"
         }
       ]
     },
