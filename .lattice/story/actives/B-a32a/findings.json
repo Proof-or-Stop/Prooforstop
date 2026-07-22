@@ -610,6 +610,44 @@
       ],
       "signatureTag": "edge|ts|unreadable-individual-source",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-031",
+      "desc": "The expanded local-module matrix still silently omits valid direct CommonJS/dynamic local module calls that are not first assigned to a VariableDeclaration. visitRequires only creates bindings from variable declarations (acceptance-discovery-adapters.ts:424-445), while call discovery only accepts Identifier, Identifier.property, or Identifier[string] callees (lines 447-470). Therefore `exports.c2 = () => require(../handlers/review-run.js).emitReviewRunFact()` has an outer PropertyAccess whose base is a CallExpression and produces neither a binding, unresolved-module blind spot, nor an edge; similarly `const m = await import(...); m.emitReviewRunFact()` and direct `(await import(...)).emitReviewRunFact()` are silently invisible. If another registered consumer exists, these additional outside-scope consumers can be omitted while basis remains complete. The smoke proves destructured/identifier require and import-equals only. Either support inline require/dynamic-import property calls and binding flows, or emit deterministic unsupported-module-form blind spots so the basis is partial; add direct inline require, assigned dynamic import, and direct awaited dynamic import mutations.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T09:37:40.171Z",
+      "reviewRound": "2026-07-22T09:35:50.677Z",
+      "reviewRunId": "B-a32a:RR-029",
+      "_hash": "1b371f657c9d9a98f6f36a1eded54e33b6b1b3498edd038f2bf44b4163fdd25a",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|expanded-local-module",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-032",
+      "desc": "The advertised 2 MiB lexical-source budget is checked only after the entire file has already been read into memory. readSourceSafely calls readFileSync(descriptor, utf8) at acceptance-discovery-adapters.ts:324 before createBindingAnalysisContext applies MAX_LEXICAL_SOURCE_BYTES at lines 345-349; sourceProvenance also calls readSourceSafely without applying that lexical cap. A static 50–90 MiB source still fits the 100 MiB inventory budget and is fully allocated/read before being classified partial, and a TOCTOU growth after inventory lstat can make the read arbitrarily larger before the post-read inode/size check rejects it. Thus F-029 bounded-work semantics and F-030 TOCTOU handling are outcome-fail-closed but not resource-bounded. Check opened-fd fstat size against the per-file cap before reading, use a bounded read that detects one byte over cap, and ensure provenance reuses the bounded snapshot; add instrumentation proving oversized and growth-race cases never read beyond cap+1.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T09:37:40.232Z",
+      "reviewRound": "2026-07-22T09:35:50.677Z",
+      "reviewRunId": "B-a32a:RR-029",
+      "_hash": "949e87d0aa58c14651ed16da96e7b761b818598db9dd026cb708f082b03de440",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|advertised-lexical-source",
+      "signatureTagSource": "auto"
     }
   ]
 }
