@@ -73,10 +73,10 @@
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
           "note": "Focused smoke directly asserts pure planned-path normalization preserves stable declaration and endpoint IDs; handler integration remains covered by VI-1995-001-WRITER-FREEZE.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-001-ROUNDTRIP",
@@ -95,10 +95,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Legacy verificationIntent without planned declarations remains unchanged and readable.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-001-INVALID-SHAPE",
@@ -106,10 +106,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Focused schema and handler cases reject version, duplicate endpoint, and mismatched file declaration mutations atomically.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-001-WRITER-FREEZE",
@@ -117,10 +117,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "story_create, checklist_add, ordinary checklist_update, and DEV mutation bites preserve pre-call bytes; registered PLAN role succeeds.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-001-SEMANTIC-TAMPER",
@@ -128,10 +128,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Declaration semantic and file-reference changes fail validation or change canonical diagnostic output despite stable IDs.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         }
       ]
     },
@@ -217,10 +217,10 @@
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
           "note": "Focused smoke at 35de890d50 proves a legitimate logic-test note may say the graph remains inconclusive_basis_unverified and still covers its intent.",
-          "headHash": "35de890d50b536bd4e7ad828bdaac5ab924b56eb",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:57:57.364Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-002-LEGACY-MISSING",
@@ -228,10 +228,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Missing topology normalizes to legacy_missing without exception or authority promotion.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-002-STABLE-INVALID-REFS",
@@ -239,10 +239,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Unknown, duplicate, and orphan mutations emit deterministic AT_* codes.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-002-SELF-AUTHORSHIP-MUTATION",
@@ -250,10 +250,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Deleting the canonical declaration emits AT_PLANNED_PATH_DECLARATION_MISSING; topology cannot self-author it.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-002-SEMANTIC-OVERRIDE-MUTATION",
@@ -261,10 +261,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Inline edge semantics emit AT_PLANNED_PATH_DECLARATION_DRIFT.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-002-NO-WAVE1A-PROMOTION",
@@ -272,10 +272,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Inline result and basis/authority fields emit forbidden diagnostics and cannot promote the Wave 1 result.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         }
       ]
     },
@@ -374,10 +374,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Real CLI renders configured, legacy_missing, unsupported, and malformed inputs without fabricated completion.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-003-DETERMINISTIC-ORDER",
@@ -385,10 +385,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Permuted sources and consecutive unchanged CLI reads are byte-equivalent.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-003-NO-WRITES",
@@ -396,10 +396,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Tree digest, git status, process events, phase, and transition decision remain unchanged across text and JSON reads.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-003-WRITE-PAYLOAD-REJECTED",
@@ -407,10 +407,10 @@
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
           "note": "Focused smoke invokes the real write-shaped CLI mutation and proves argument rejection plus byte/event atomicity.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-003-NON-EVIDENTIARY",
@@ -510,10 +510,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Clean build focused suite covers schema, topology diagnostics, and real acceptance_matrix text/JSON surfaces.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-004-COMPATIBILITY-MATRIX",
@@ -532,10 +532,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Machine transition decisions and phase remain equal before and after valid/malformed topology diagnostics.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-004-MUTATION-BITES",
@@ -554,10 +554,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process-fact contract at cef7fc56fe verifies the shared bounded provenance classifier is consumed by writer, general verification, ProofStory, and milestone paths without promoting acceptance_matrix above L0.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         },
         {
           "intentRef": "VI-1995-004-LEGACY-TRANSITION-MUTATION",
@@ -565,10 +565,10 @@
           "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
           "result": "pass",
           "note": "Legacy-to-malformed topology mutation changes only warning output, not events or lifecycle decisions.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
         }
       ]
     }
