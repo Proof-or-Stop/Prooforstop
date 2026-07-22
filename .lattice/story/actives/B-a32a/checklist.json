@@ -305,9 +305,9 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#coverage-basis",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-22T06:56:44.855Z",
-      "endTime": null,
+      "endTime": "2026-07-22T06:56:47.734Z",
       "userSees": "`lattice acceptance_basis_generate --storyId=<id>` is the sole receipt writer and produces a signed receipt bound to the exact workspace, scope, topology, Story and closure hashes; `lattice acceptance_basis` remains read-only and rejects stale or tampered receipts.",
       "files": {
         "modify": [
