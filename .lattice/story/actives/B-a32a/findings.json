@@ -279,6 +279,25 @@
       "_hash": "5dda533bb117e89ba52a8561e7c9279671b90d1303553ad2cf3c53ea98bdd879",
       "signatureTag": "edge|unknown|promise-undelivered-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-015",
+      "desc": "CHK-002 evidence remains incomplete after F-008 repair. packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:169-181 and 200-216 cover cardinality, path/digest, one disagreement, and closure omission, but VI-A32A-002-PROFILE-TOTALITY and VI-A32A-002-RESULT-AND-CLOSURE-TAMPER also require invalid coverage claim, provenance, blind spot, and asymmetry-policy cases plus proof that caller discoveryMethods cannot narrow the registered profile. The current smoke contains no discoveryMethods case and only changes pathRefs/one coverageClaim optimism case, so two must intents are still semantically under-covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T07:42:37.758Z",
+      "reviewRound": "2026-07-22T07:36:41.806Z",
+      "reviewRunId": "B-a32a:RR-008",
+      "_hash": "13d91e0d44637cf9e457e0f5d344140f98168f7d4c12189ab2e1f4caea5bd569",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts"
+      ],
+      "signatureTag": "missing|ts|evidence-remains-incomplete",
+      "signatureTagSource": "auto"
     }
   ]
 }
