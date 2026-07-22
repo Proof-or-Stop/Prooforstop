@@ -284,7 +284,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/core/acceptance-discovery-adapters.ts:131-134 and :172-179 contradict the Wave 1A PLAN semantics for genuinely new endpoints. plannedInspectable requires every declared producer/consumer symbol to already occur in a source file, and static_call_graph turns any not-yet-created PLAN endpoint into a blind spot; deriveAcceptanceCoverageBasis then classifies the basis partial. The plan and CHK-004 explicitly require a valid frozen planned declaration to enter a complete PLAN basis even when symbols do not yet exist. The smoke writes producer.ts/consumer.ts before deriving and therefore misses this case. Treat valid in-scope planned declarations as structural PLAN obligations without requiring implementation symbols, while preserving pre-REVIEW actual reconciliation for Wave 3, and add a no-files-yet PLAN control.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T07:42:04.959Z",
@@ -292,7 +292,11 @@
       "reviewRunId": "B-a32a:RR-005",
       "_hash": "5dda533bb117e89ba52a8561e7c9279671b90d1303553ad2cf3c53ea98bdd879",
       "signatureTag": "edge|unknown|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f4de47a239: valid frozen in-scope planned declarations are structural PLAN obligations and no longer require not-yet-created files/symbols, while registered/existing actual discovery remains independently inspected. Current-HEAD no-files-yet PLAN control completes and invalid/unresolved declarations still fail closed.",
+      "resolvedAt": "2026-07-22T08:20:43.035Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-015",
