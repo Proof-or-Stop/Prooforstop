@@ -18,8 +18,8 @@ Resolve canonical verificationEvidence refs from the checklist, require passing 
 
 ## CHK-004
 
-Call the shared evaluator before `actor.send` for DEV-to-REVIEW. Observe and warn render deterministic diagnostics without blocking; enforce blocks when the canonical report is not PASS. Update process-fact registry and contracts, CLI docs and the approved decision document. Focused production smoke must prove CLI and lifecycle parity, legacy compatibility, rollback, restoration and absence of Wave 3A selective applicability or Wave 4 measured rollout.
+Call the shared evaluator before `actor.send` for DEV-to-REVIEW. Observe and warn render deterministic diagnostics without blocking; enforce blocks when the canonical report is not PASS. On enforced high-assurance paths require a fresh independent `lattice-review-topology-critic` re-attestation bound to the recomputed pre-review basis and current topology/scope/story/closure hashes; a Wave 2A PLAN receipt cannot be replayed. Update process-fact registry and contracts, CLI docs and the approved decision document. Focused production smoke must prove CLI and lifecycle parity, legacy compatibility, rollback, restoration and absence of Wave 3A selective applicability or Wave 4 measured rollout.
 
 ## Verification order
 
-Build once, run the focused production smoke, run process-fact contract and prompt baseline if role guidance changes, record all verificationIntent evidence on the same current storyFilesHash, then enter REVIEW for four independent lanes and full 3x2 quorum. TEST runs fresh validate and DONE-required policy before done_prepare.
+Build once, run the focused production smoke, run process-fact contract and prompt baseline, record all verificationIntent evidence on the same current storyFilesHash, then enter REVIEW for four independent lanes and full 3x2 quorum. TEST runs fresh validate and DONE-required policy before done_prepare.

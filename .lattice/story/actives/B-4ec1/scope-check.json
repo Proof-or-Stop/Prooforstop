@@ -150,11 +150,13 @@
       "q": "Does Wave 3 own lifecycle consumption of a fresh independent topology-critic re-attestation bound to the recomputed pre-review basis, or is that consumption intentionally deferred to Wave 4?",
       "evidence": "Section 8.2 says enforced high-assurance paths consume critic re-attestation before REVIEW after phase-appropriate Wave 3/Wave 4 gate work, and says binding pre-REVIEW consumption begins only in later Wave 3/Wave 4 work. B-4ec1 implements enforce behavior but CHK-001..004 and M1..M4 do not explicitly require or exclude that re-attestation.",
       "sourcePointers": [
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1125",
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1391",
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1422",
-        ".lattice/story/actives/B-4ec1/checklist.json"
-      ]
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#82-independent-topology-critic",
+        "CHK-004",
+        "VI-W3-M4-CRITIC-REATTESTATION",
+        "M4"
+      ],
+      "resolution": "Include the independent topology-critic re-attestation in Wave 3 for enforced high-assurance DEV-to-REVIEW. The approved execution plan section 8.2 says later Wave 3 or Wave 4 begins lifecycle consumption; because this Story introduces the pre-review consumer, it must bind a fresh critic receipt to the recomputed pre-review basis now rather than defer the authority edge.",
+      "resolvedAt": "2026-07-22T22:37:36.759Z"
     }
   ]
 }
