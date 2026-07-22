@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/acceptance-topology.ts:635 mode-dependent status derivation downgrades missing/partial/unsupported basis to status=warn in observe/warn, but returns inconclusive only in enforce because status branches on blocking. This violates B98B0-M1-E-NONPASS-BASIS and B98B0-M1-E-MODES: basis incompleteness must remain INCONCLUSIVE and the canonical evaluation result must be mode-invariant; only blocking may differ. The focused mode loop exercises only clean complete bases, so it cannot detect this regression. Derive status from structural/basis semantics independently of mode, then derive blocking from mode, and add failing-basis assertions across observe/warn/enforce.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T16:32:50.595Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-98b0:RR-002",
       "_hash": "ce6a79ba5e80dcbac6949b393d10414aa58317a843cad0ac4cd8a9193c3dcdb1",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "de9bd226 makes canonical status/diagnostics mode-invariant; round-2 quality RR-005 / RP-003 independently verified build and process-fact contract PASS.",
+      "resolvedAt": "2026-07-22T17:00:11.183Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-98b0:F-002",
