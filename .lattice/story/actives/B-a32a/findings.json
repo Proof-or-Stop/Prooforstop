@@ -821,6 +821,26 @@
       ],
       "signatureTag": "adversarial|ts|immutable-content-cache",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-042",
+      "desc": "acceptance-discovery-adapters.ts:323-375 still derives the source universe from an unfrozen, unbounded configuration input: it follows and readFileSyncs lattice.config.json at line 328, then calls loadConfig at line 343, whose separate read/cache path is config.ts:689-723. The path is never lstat/no-follow checked, size-budgeted, content-digested, or included in the shared AcceptanceSourceSnapshot. A symlinked/external config or a change/cache mismatch between these reads can let the first JSON validation and the actual scanRoot/rootDir describe different source roots; discovery may then freeze a complete graph for the wrong/narrow universe, and the closure hash binds no config content. This is distinct from F-041’s post-enumeration mutation window: it corrupts the universe before enumeration begins. Read the canonical config once through the same bounded no-follow snapshot discipline, parse that exact content (without a second cached load), bind its digest, and add symlink/oversize/two-read mutation tests that must force partial rather than complete.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T10:03:09.632Z",
+      "reviewRound": "2026-07-22T10:00:45.833Z",
+      "reviewRunId": "B-a32a:RR-037",
+      "_hash": "08c8f00cee1caa24552c545d5284fffae87c5ec2938c1b22320979aa69e181b4",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|acceptance-discovery-adapters",
+      "signatureTagSource": "auto"
     }
   ]
 }
