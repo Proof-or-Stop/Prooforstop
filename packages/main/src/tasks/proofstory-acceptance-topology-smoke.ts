@@ -7,10 +7,12 @@ import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, wr
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildAcceptanceMatrixReport } from '../core/acceptance-topology.js';
+import { buildAcceptanceMatrixReport, plannedPathDeclarationSnapshot } from '../core/acceptance-topology.js';
 import { resetConfigCache } from '../core/config.js';
 import { canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
+import { evaluateReviewCompleteness } from '../core/proofstory.js';
 import { StoryStore } from '../core/store.js';
+import { buildVerificationCoverage } from '../core/verification.js';
 import type {
   AcceptanceVerificationTopologyV1,
   ChecklistData,
@@ -36,11 +38,17 @@ function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
 
-function run(root: string, command: string, args: Record<string, unknown>, allowFailure = false): string {
+function run(
+  root: string,
+  command: string,
+  args: Record<string, unknown>,
+  allowFailure = false,
+  agent = 'main-agent',
+): string {
   try {
     return execFileSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(args)], {
       cwd: root,
-      env: { ...process.env, LATTICE_SESSION_ID: 'acceptance-topology-smoke', LATTICE_AGENT: 'main-agent' },
+      env: { ...process.env, LATTICE_SESSION_ID: 'acceptance-topology-smoke', LATTICE_AGENT: agent },
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -135,8 +143,39 @@ function contract(bindings: ProofStoryContractData['acceptanceBindings']): Proof
 const schemaRoundTrip = verificationIntentSchema.parse(intent);
 assert.deepEqual(schemaRoundTrip, intent, 'valid planned declaration round-trips without changing stable IDs or semantics');
 assert.equal(verificationIntentSchema.parse({ happy: [{ id: 'LEGACY', desc: 'legacy', type: 'logic' }], edge: [], adversarial: [] }).happy[0].plannedPathDeclarations, undefined, 'legacy intent remains optional');
-assert.throws(() => verificationIntentSchema.parse({ happy: [{ id: 'BAD', desc: 'bad', type: 'logic', plannedPathDeclarations: [{ ...declaration, schemaVersion: 'v2' }] }], edge: [], adversarial: [] }), /schemaVersion/);
-assert.throws(() => verificationIntentSchema.parse({ happy: [{ id: 'BAD', desc: 'bad', type: 'logic', plannedPathDeclarations: [{ ...declaration, consumers: [{ ...declaration.consumers[0], id: declaration.producer.id }] }] }], edge: [], adversarial: [] }), /duplicate planned endpoint id/);
+const schemaInvalidCases: Array<[string, unknown]> = [
+  ['unknown schema version', { ...declaration, schemaVersion: 'v2' }],
+  ['empty declaration id', { ...declaration, id: '' }],
+  ['invalid relation', { ...declaration, relation: 'consumer_to_producer' }],
+  ['zero consumers', { ...declaration, consumers: [] }],
+  ['empty producer id', { ...declaration, producer: { ...declaration.producer, id: '' } }],
+  ['producer role swap', { ...declaration, producer: { ...declaration.producer, role: 'consumer' } }],
+  ['consumer role swap', { ...declaration, consumers: [{ ...declaration.consumers[0], role: 'producer' }] }],
+  ['unsupported artifact kind', { ...declaration, producer: { ...declaration.producer, expectedArtifactKind: 'database' } }],
+  ['malformed file declaration ref', { ...declaration, producer: { ...declaration.producer, fileDeclarationRef: 'CHK-001:create:0' } }],
+  ['duplicate endpoint id', { ...declaration, consumers: [{ ...declaration.consumers[0], id: declaration.producer.id }] }],
+  ['empty expected symbol', { ...declaration, producer: { ...declaration.producer, expectedSymbolOrFact: '' } }],
+  ['empty output fact', { ...declaration, outputFactRef: '' }],
+];
+for (const [label, candidate] of schemaInvalidCases) {
+  assert.throws(
+    () => verificationIntentSchema.parse({ happy: [{ id: 'BAD', desc: 'bad', type: 'logic', plannedPathDeclarations: [candidate] }], edge: [], adversarial: [] }),
+    Error,
+    `${label} must fail the shared CLI schema`,
+  );
+}
+assert.throws(
+  () => verificationIntentSchema.parse({ happy: [{ id: 'BAD', desc: 'bad', type: 'logic', plannedPathDeclarations: [declaration, { ...declaration }] }], edge: [], adversarial: [] }),
+  /duplicate planned path declaration id/,
+  'duplicate declaration IDs fail the shared schema',
+);
+for (const [label, changed] of [
+  ['symbol', { ...declaration, producer: { ...declaration.producer, expectedSymbolOrFact: 'produceChanged' } }],
+  ['output fact', { ...declaration, outputFactRef: 'planned-fact:changed' }],
+] as const) {
+  const changedIntent = { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [changed] }] } as VerificationIntent;
+  assert.notEqual(plannedPathDeclarationSnapshot(changedIntent), plannedPathDeclarationSnapshot(intent), `${label} mutation with stable IDs changes canonical declaration semantics`);
+}
 
 const handlerRoot = mkdtempSync(join(tmpdir(), 'lattice-topology-handler-'));
 try {
@@ -171,6 +210,40 @@ try {
     assert.equal(bytes(), beforeInvalidRef, 'unresolved/mismatched file declaration rejection is atomic');
     checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', verificationIntent: intent });
     assert.deepEqual(store.readChecklist(storyId).items[0].verificationIntent, intent, 'registered PLAN verification-intent flow persists declaration');
+    const persistedBytes = bytes();
+    delete process.env.LATTICE_AGENT;
+    assert.throws(
+      () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', verificationIntent: checklist(false).items[0].verificationIntent }),
+      /planned_path_writer_not_authorized/,
+      'ordinary PLAN replacement cannot erase an existing declaration',
+    );
+    assert.equal(bytes(), persistedBytes, 'unauthorized declaration removal is byte-atomic');
+    assert.throws(
+      () => checklistHandlers.checklist_update({
+        storyId,
+        itemId: 'CHK-001',
+        files: { modify: [], create: ['packages/main/src/retargeted.ts', 'packages/main/src/consumer.ts'], test: [] },
+      }),
+      /planned_path_file_binding_frozen/,
+      'ordinary PLAN files update cannot retarget a declaration binding',
+    );
+    assert.equal(bytes(), persistedBytes, 'unauthorized file retarget is byte-atomic');
+    process.env.LATTICE_AGENT = 'verification-intent';
+    const invalidFileCases: Array<[string, VerificationIntent, RegExp]> = [
+      ['wrong item', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, fileDeclarationRef: 'CHK-002:files:create:0' } }] }] }, /planned_path_file_ref_wrong_item/],
+      ['unsafe path', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: '../producer.ts' } }] }] }, /planned_path_file_ref_unsafe/],
+      ['unresolved index', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, fileDeclarationRef: 'CHK-001:files:create:99' } }] }] }, /planned_path_file_ref_unresolved/],
+      ['mismatched target', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: 'packages/main/src/not-declared.ts' } }] }] }, /planned_path_file_ref_mismatch/],
+    ];
+    for (const [label, invalidIntent, expected] of invalidFileCases) {
+      assert.throws(() => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', verificationIntent: invalidIntent }), expected, label);
+      assert.equal(bytes(), persistedBytes, `${label} persistence failure is byte-atomic`);
+    }
+    const changedSymbolIntent = { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedSymbolOrFact: 'produceChanged' } }] }] };
+    checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', verificationIntent: changedSymbolIntent });
+    assert.notEqual(bytes(), persistedBytes, 'eligible stable-ID symbol mutation changes persisted canonical bytes');
+    checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', verificationIntent: intent });
+    assert.equal(bytes(), persistedBytes, 'restored eligible control returns to original bytes');
     const frozenBytes = bytes();
     store.writeStory(storyId, story('DEV'));
     assert.throws(() => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', verificationIntent: { ...intent, edge: [{ id: 'LATE', desc: 'late', type: 'logic' }] } }), /cannot be modified during the DEV phase/);
@@ -181,6 +254,92 @@ try {
   }
 } finally {
   rmSync(handlerRoot, { recursive: true, force: true });
+}
+
+const writerCliRoot = mkdtempSync(join(tmpdir(), 'lattice-topology-writer-cli-'));
+try {
+  git(writerCliRoot, ['init', '-b', 'main']);
+  git(writerCliRoot, ['config', 'user.email', 'topology-writer@example.test']);
+  git(writerCliRoot, ['config', 'user.name', 'Topology Writer Smoke']);
+  write(writerCliRoot, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements' }, null, 2));
+  write(writerCliRoot, 'README.md', 'writer CLI smoke\n');
+  resetConfigCache();
+  const store = new StoryStore(writerCliRoot);
+  store.writeStory(storyId, story());
+  store.writeChecklist(storyId, checklist(false));
+  git(writerCliRoot, ['add', '.']);
+  git(writerCliRoot, ['commit', '-m', 'seed writer story']);
+
+  run(writerCliRoot, 'checklist_update', { storyId, itemId: 'CHK-001', verificationIntent: intent }, false, 'verification-intent');
+  assert.deepEqual(store.readChecklist(storyId).items[0].verificationIntent, intent, 'real CLI plus registered verification-intent identity persists a valid PLAN declaration');
+  const checklistAfterEligible = JSON.stringify(store.readChecklist(storyId));
+  const eventsAfterEligible = JSON.stringify(store.readProcessEvents(storyId));
+  assert.match(
+    run(writerCliRoot, 'checklist_update', { storyId, itemId: 'CHK-001', verificationIntent: checklist(false).items[0].verificationIntent }, true, 'main-agent'),
+    /planned_path_writer_not_authorized/,
+  );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), checklistAfterEligible, 'real CLI unauthorized removal leaves checklist bytes unchanged');
+  assert.equal(JSON.stringify(store.readProcessEvents(storyId)), eventsAfterEligible, 'real CLI unauthorized removal appends no process event');
+  assert.match(
+    run(writerCliRoot, 'checklist_add', { storyId, title: 'No writer bypass', reason: 'Reject alternate writer route', verificationIntent: intent }, true, 'main-agent'),
+    /planned_path_writer_not_authorized/,
+  );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), checklistAfterEligible, 'real CLI checklist_add bypass is atomic');
+  assert.match(
+    run(writerCliRoot, 'story_create', {
+      name: 'no-writer-bypass', title: 'No writer bypass', description: 'Reject INIT declaration persistence.', type: 'feature', priority: 'medium',
+      checklist: [{ title: 'No bypass', verificationIntent: intent }],
+    }, true, 'main-agent'),
+    /planned_path_writer_not_authorized/,
+  );
+  assert.deepEqual(store.listStoryIds(), [storyId], 'real CLI story_create bypass writes no partial Story');
+  store.writeStory(storyId, story('DEV'));
+  assert.match(
+    run(writerCliRoot, 'checklist_update', { storyId, itemId: 'CHK-001', verificationIntent: intent }, true, 'verification-intent'),
+    /DEV phase|Allowed phases: PLAN/,
+  );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), checklistAfterEligible, 'real CLI post-PLAN mutation leaves declaration bytes frozen');
+  assert.equal(JSON.stringify(store.readProcessEvents(storyId)), eventsAfterEligible, 'real CLI post-PLAN rejection appends no event');
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: 'INT-001', kind: 'manual_transcript', command: `lattice acceptance_matrix --storyId=${storyId}`, result: 'pass', note: 'Result: inconclusive_basis_unverified' }],
+    }, true, 'main-agent'),
+    /acceptance_matrix_non_evidentiary_projection/,
+  );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), checklistAfterEligible, 'real CLI rejects matrix-derived evidence before persistence');
+  assert.equal(JSON.stringify(store.readProcessEvents(storyId)), eventsAfterEligible, 'matrix-derived evidence rejection creates no process event');
+  assert.match(
+    run(writerCliRoot, 'verification_evidence_add', {
+      storyId,
+      itemId: 'CHK-001',
+      intentRef: 'INT-001',
+      kind: 'manual_transcript',
+      command: `lattice acceptance_matrix --storyId=${storyId}`,
+      result: 'pass',
+      note: 'Result: inconclusive_basis_unverified',
+    }, true, 'main-agent'),
+    /acceptance_matrix_non_evidentiary_projection/,
+  );
+  assert.match(
+    run(writerCliRoot, 'verification_evidence_batch_add', {
+      storyId,
+      evidences: [{
+        itemId: 'CHK-001',
+        intentRef: 'INT-001',
+        kind: 'manual_transcript',
+        command: `lattice acceptance_matrix --storyId=${storyId}`,
+        result: 'pass',
+        note: 'Result: inconclusive_basis_unverified',
+      }],
+    }, true, 'main-agent'),
+    /acceptance_matrix_non_evidentiary_projection/,
+  );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), checklistAfterEligible, 'all real evidence writer surfaces reject matrix projections atomically');
+  assert.equal(JSON.stringify(store.readProcessEvents(storyId)), eventsAfterEligible, 'alternate matrix evidence writers append no process event');
+} finally {
+  rmSync(writerCliRoot, { recursive: true, force: true });
 }
 
 const enabledReport = buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: topology }]), ledger: null });
@@ -205,19 +364,89 @@ assert.equal(
 
 const missingDeclaration = buildAcceptanceMatrixReport({ storyId, checklist: checklist(false), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: topology }]), ledger: null });
 assert.ok(missingDeclaration.rows[0].diagnosticCodes.includes('AT_PLANNED_PATH_DECLARATION_MISSING'), 'deleting canonical declaration bites');
+const swappedRoleTopology = {
+  ...topology,
+  producerRefs: [{ ...topology.producerRefs[0], sourceRef: { refKind: 'planned' as const, plannedPathDeclarationRef: 'INT-001:VPP-1', endpointRef: 'ENDPOINT-CONSUMER' } }],
+  consumerRefs: [{ ...topology.consumerRefs[0], sourceRef: { refKind: 'planned' as const, plannedPathDeclarationRef: 'INT-001:VPP-1', endpointRef: 'ENDPOINT-PRODUCER' } }],
+};
+assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: swappedRoleTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_PLANNED_PATH_DECLARATION_DRIFT'), 'swapped planned endpoint roles bite independently');
+for (const [label, mutatedTopology, expectedCode] of [
+  ['unknown declaration', { ...topology, producerRefs: [{ ...topology.producerRefs[0], sourceRef: { refKind: 'planned', plannedPathDeclarationRef: 'INT-001:UNKNOWN', endpointRef: 'ENDPOINT-PRODUCER' } }] }, 'AT_PLANNED_PATH_DECLARATION_MISSING'],
+  ['unknown endpoint', { ...topology, producerRefs: [{ ...topology.producerRefs[0], sourceRef: { refKind: 'planned', plannedPathDeclarationRef: 'INT-001:VPP-1', endpointRef: 'ENDPOINT-UNKNOWN' } }] }, 'AT_PLANNED_PATH_DECLARATION_MISSING'],
+  ['unknown canonical source', { ...topology, commandRefs: [{ refKind: 'existing', canonicalSourceRef: 'handler:not-a-bounded-owner' }] }, 'AT_UNKNOWN_REF'],
+] as const) {
+  const codes = buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: mutatedTopology as any }]), ledger: null }).rows[0].diagnosticCodes;
+  assert.ok(codes.includes(expectedCode), `${label} mutation emits ${expectedCode}`);
+}
 const duplicateTopology = { ...topology, consumerRefs: [{ ...topology.consumerRefs[0], id: 'P-1' }] };
 assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: duplicateTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_DUPLICATE_ID'), 'duplicate topology ID bites');
 const orphanTopology = { ...topology, consumerRefs: [] };
 assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: orphanTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_ORPHAN_PRODUCER'), 'orphan producer bites');
+const orphanConsumerTopology = { ...topology, consumerRefs: [{ ...topology.consumerRefs[0], producerRefs: [] }] };
+assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: orphanConsumerTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_ORPHAN_CONSUMER'), 'orphan consumer bites');
+const noCommandTopology = { ...topology, commandRefs: [] };
+assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: noCommandTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_COMMAND_MISSING'), 'empty command group bites');
+const unrelatedIntentChecklist = checklist();
+unrelatedIntentChecklist.items[0].verificationIntent!.happy.push({ id: 'INT-OTHER', desc: 'unrelated must intent', type: 'logic', priority: 'must' });
+const wrongIntentTopology = { ...topology, positiveAssertionRefs: [{ ...topology.positiveAssertionRefs[0], sourceRef: { refKind: 'existing' as const, canonicalSourceRef: 'intent:INT-OTHER' } }] };
+assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: unrelatedIntentChecklist, contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: wrongIntentTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_INTENT_UNCOVERED'), 'assertion group presence cannot hide an unmapped bound must intent');
+const laneChecklist = checklist();
+laneChecklist.items[0].verificationIntent!.edge.push({ id: 'INT-EDGE', desc: 'edge path is mapped', type: 'logic', priority: 'must' });
+laneChecklist.items[0].verificationIntent!.adversarial.push({ id: 'INT-ADV', desc: 'mutation must bite', type: 'logic', priority: 'must' });
+const laneTopology = {
+  ...topology,
+  mutationCaseRefs: [
+    { ...topology.mutationCaseRefs[0], id: 'M-EDGE', sourceRef: { refKind: 'existing' as const, canonicalSourceRef: 'intent:INT-EDGE' } },
+    { ...topology.mutationCaseRefs[0], id: 'M-ADV', sourceRef: { refKind: 'existing' as const, canonicalSourceRef: 'intent:INT-ADV' } },
+  ],
+};
+const laneBinding = { id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001', 'INT-EDGE', 'INT-ADV'], milestoneIds: [], verificationTopology: laneTopology };
+assert.ok(!buildAcceptanceMatrixReport({ storyId, checklist: laneChecklist, contract: contract([laneBinding]), ledger: null }).rows[0].diagnosticCodes.includes('AT_INTENT_UNCOVERED'), 'happy/edge/adversarial must intents map through their appropriate groups');
+const missingAdversarial = { ...laneTopology, mutationCaseRefs: laneTopology.mutationCaseRefs.filter(entry => entry.id !== 'M-ADV') };
+assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: laneChecklist, contract: contract([{ ...laneBinding, verificationTopology: missingAdversarial }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_INTENT_UNCOVERED'), 'adversarial must-intent omission bites even when mutation group remains non-empty');
 const inlineTopology = { ...topology, relation: 'invented', result: 'pass', coverageBasisRef: 'self-authored' } as any;
 const inlineCodes = buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: inlineTopology }]), ledger: null }).rows[0].diagnosticCodes;
 assert.ok(inlineCodes.includes('AT_PLANNED_PATH_DECLARATION_DRIFT') && inlineCodes.includes('AT_INLINE_RESULT_FORBIDDEN') && inlineCodes.includes('AT_AUTHORITY_PROMOTION_FORBIDDEN'), 'inline semantics/result/authority mutations bite');
 const unsupported = buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: { ...topology, schemaVersion: 'proofstory.acceptance_topology.v2' } as any }]), ledger: null });
 assert.ok(unsupported.rows[0].diagnosticCodes.includes('AT_UNSUPPORTED_VERSION'), 'unsupported topology versions remain readable as warnings');
 const docsChecklist = checklist(false);
-docsChecklist.items[0].verificationIntent = { happy: [{ id: 'INT-001', desc: 'documentation source boundary', type: 'docs', priority: 'must' }], edge: [], adversarial: [] };
-const docsTopology = { ...topology, producerRefs: [{ id: 'P-1', sourceRef: { refKind: 'existing' as const, canonicalSourceRef: 'checklist:CHK-001' } }], consumerRefs: [{ id: 'C-1', sourceRef: { refKind: 'existing' as const, canonicalSourceRef: 'intent:INT-001' }, producerRefs: ['P-1'] }], mutationCaseRefs: [], transcriptAssertionRefs: [], commandRefs: [] };
-assert.equal(buildAcceptanceMatrixReport({ storyId, checklist: docsChecklist, contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: docsTopology }]), ledger: null }).result, 'inconclusive_basis_unverified', 'docs-only topology requires no fabricated runtime mutation/transcript');
+docsChecklist.items[0].verificationIntent = { happy: [{ id: 'INT-001', desc: 'documentation source boundary', type: 'docs', priority: 'must' }], edge: [], adversarial: [{ id: 'INT-DOC-ADV', desc: 'documentation omission check', type: 'docs', priority: 'must' }] };
+const docsTopology = {
+  ...topology,
+  producerRefs: [{ id: 'P-1', sourceRef: { refKind: 'existing' as const, canonicalSourceRef: 'checklist:CHK-001' } }],
+  consumerRefs: [{ id: 'C-1', sourceRef: { refKind: 'existing' as const, canonicalSourceRef: 'intent:INT-001' }, producerRefs: ['P-1'] }],
+  positiveAssertionRefs: [
+    topology.positiveAssertionRefs[0],
+    { ...topology.positiveAssertionRefs[0], id: 'A-DOC-ADV', sourceRef: { refKind: 'existing' as const, canonicalSourceRef: 'intent:INT-DOC-ADV' } },
+  ],
+  mutationCaseRefs: [], transcriptAssertionRefs: [], commandRefs: [],
+};
+assert.equal(buildAcceptanceMatrixReport({ storyId, checklist: docsChecklist, contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001', 'INT-DOC-ADV'], milestoneIds: [], verificationTopology: docsTopology }]), ledger: null }).result, 'inconclusive_basis_unverified', 'docs-only topology maps must intents without fabricated runtime mutation/transcript/command');
+
+const injectedProjectionChecklist = checklist(false);
+injectedProjectionChecklist.items[0].verificationEvidence = [{
+  intentRef: 'INT-001',
+  kind: 'manual_transcript',
+  command: `lattice acceptance_matrix --storyId=${storyId}`,
+  result: 'pass',
+  note: 'Result: inconclusive_basis_unverified',
+}];
+assert.equal(buildVerificationCoverage(injectedProjectionChecklist).missingRequired, 1, 'legacy/injected matrix transcript cannot cover general verification gate intent');
+const projectionReview = evaluateReviewCompleteness({
+  story: story('REVIEW'),
+  checklist: injectedProjectionChecklist,
+  originalIntentSnapshot: null,
+  milestoneLedger: null,
+  slicePlan: null,
+  parentLedgerRollup: null,
+  proofStoryContract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [] }]),
+  intentCollision: null,
+  scopeContract: null,
+  scopeShrinkageDecision: null,
+  redEvidence: null,
+  spikeEvidence: null,
+}, 'observe');
+assert.ok(projectionReview.gaps.some(gap => gap.code === 'review_completeness_missing_evidence'), 'legacy/injected matrix transcript cannot cover ProofStory REVIEW completeness');
 
 const cliRoot = mkdtempSync(join(tmpdir(), 'lattice-topology-cli-'));
 try {
@@ -267,8 +496,41 @@ try {
   assert.equal(canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', cliRoot), transitionBefore, 'malformed topology changes diagnostics only, not lifecycle guards');
   assert.equal(JSON.stringify(store.readProcessEvents(storyId)), eventsBefore, 'malformed topology itself creates no process or gate event');
   assert.equal(JSON.parse(run(cliRoot, 'acceptance_matrix', { storyId, json: true })).result, 'warning', 'malformed topology is an observe-only warning');
+
+  const lifecycleContracts = {
+    valid: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: topology }]),
+    missing: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [] }]),
+    malformed: malformedContract,
+  };
+  const lifecycleEventsBefore = JSON.stringify(store.readProcessEvents(storyId));
+  const lifecycleDecisions: Record<string, { planToDev: boolean; devToReview: boolean }> = {};
+  for (const [state, stateContract] of Object.entries(lifecycleContracts)) {
+    store.writeProofStoryContract(storyId, stateContract);
+    store.writeChecklist(storyId, checklist());
+    store.writeStory(storyId, story('PLAN'));
+    const planToDev = canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', cliRoot);
+    const devChecklist = checklist();
+    devChecklist.items[0].status = 'done';
+    devChecklist.items[0].startTime = now;
+    devChecklist.items[0].endTime = now;
+    store.writeChecklist(storyId, devChecklist);
+    store.writeStory(storyId, story('DEV'));
+    const devToReview = canSendStoryEventWithoutSnapshotCan(storyId, store, 'DEV', 'CODE_REVIEW', cliRoot);
+    lifecycleDecisions[state] = { planToDev, devToReview };
+    assert.equal(store.readStory(storyId).phase, 'DEV', `${state} diagnostic evaluation does not auto-advance DEV`);
+    assert.equal(JSON.stringify(store.readProcessEvents(storyId)), lifecycleEventsBefore, `${state} diagnostic evaluation emits no lifecycle event`);
+  }
+  assert.deepEqual(lifecycleDecisions.valid, lifecycleDecisions.missing, 'valid and missing topology preserve PLAN→DEV and DEV→REVIEW decisions');
+  assert.deepEqual(lifecycleDecisions.valid, lifecycleDecisions.malformed, 'valid and malformed topology preserve PLAN→DEV and DEV→REVIEW decisions');
 } finally {
   rmSync(cliRoot, { recursive: true, force: true });
 }
+
+const repositoryRoot = resolve(packageRoot, '..', '..', '..');
+const lifecycleSourceDiff = [
+  execFileSync('git', ['diff', '--name-only', 'main...HEAD'], { cwd: repositoryRoot, encoding: 'utf8' }),
+  execFileSync('git', ['diff', '--name-only'], { cwd: repositoryRoot, encoding: 'utf8' }),
+].join('\n');
+assert.doesNotMatch(lifecycleSourceDiff, /packages\/main\/src\/(?:core\/machine|handlers\/phase-gates)\.ts/, 'Wave 1 and its fixes do not modify lifecycle machine or phase gates');
 
 console.log('ProofStory acceptance topology Wave 1 smoke passed');

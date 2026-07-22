@@ -561,6 +561,9 @@ function assertProofStoryProgressiveBoundary() {
   const catalogText = read('packages/main/src/cli/command-catalog.ts');
   const handlerText = read('packages/main/src/handlers/proofstory.ts');
   const coreText = read('packages/main/src/core/proofstory.ts');
+  const topologyText = read('packages/main/src/core/acceptance-topology.ts');
+  const verificationText = read('packages/main/src/core/verification.ts');
+  const checklistHandlerText = read('packages/main/src/handlers/checklist.ts');
   const configText = read('packages/main/src/core/config.ts');
   const commandPolicyEntries = new Map(parseCommandPolicyEntries().map(entry => [entry.name, entry]));
   const storyAdvanceText = read('packages/main/src/handlers/story-advance.ts');
@@ -606,6 +609,11 @@ function assertProofStoryProgressiveBoundary() {
   }
   assert(handlerText.includes("mode === 'enforce'") && handlerText.includes('observe'), 'handlers/proofstory.ts: ProofStory checks must support observe/warn/enforce without writing evidence');
   assert(coreText.includes('computeIntentRequestHash'), 'core/proofstory.ts: requestHash helper must remain explicit');
+  assert(topologyText.includes('isAcceptanceMatrixDerivedEvidence')
+    && verificationText.includes('isAcceptanceMatrixDerivedEvidence')
+    && coreText.includes('isAcceptanceMatrixDerivedEvidence')
+    && checklistHandlerText.includes('acceptance_matrix_non_evidentiary_projection'),
+  'acceptance_matrix L0 projection must be rejected on evidence write and ignored by general/ProofStory gate consumers');
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');
   assert(catalogText.includes('parentLedgerId') && catalogText.includes('assignedStory'), 'CLI schema: milestone ledger rows must expose optional parent/assigned-story fields');

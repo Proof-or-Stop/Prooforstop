@@ -363,6 +363,18 @@ other lifecycle fact. Coverage-basis discovery, signed basis receipts,
 `acceptance_topology_check`, `pre_review_check`, and lifecycle enforcement are
 not part of Wave 1.
 
+Topology producer and consumer positions must resolve to declaration endpoints
+with the matching canonical role. Every bound must-priority intent must be
+mapped by an appropriate positive or mutation assertion, and non-docs graphs
+require a command reference; omissions report stable diagnostics such as
+`AT_PLANNED_PATH_DECLARATION_DRIFT`, `AT_INTENT_UNCOVERED`, and
+`AT_COMMAND_MISSING`.
+
+`acceptance_matrix` output also cannot be submitted back through
+`verificationEvidence`. New matrix-derived rows are rejected before
+persistence, and legacy or injected rows are ignored by both general
+verification coverage and ProofStory completeness consumers.
+
 ### Milestone Status
 
 `lattice milestone_status` is a read-only progress reporter over existing

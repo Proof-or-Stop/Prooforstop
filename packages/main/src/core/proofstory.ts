@@ -66,6 +66,7 @@ import {
   evidenceIsStaleCovering,
   type MilestoneStatusCurrentEvidenceBinding,
 } from './milestone-status.js';
+import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
 
 export const ORIGINAL_INTENT_SNAPSHOT_SCHEMA_VERSION = 'proofstory.original_intent_snapshot.v1';
 export const MILESTONE_LEDGER_SCHEMA_VERSION = 'proofstory.milestone_ledger.v1';
@@ -766,6 +767,7 @@ function verificationEvidenceByRef(items: readonly ChecklistItem[]): Map<string,
 }
 
 function rowCoversIntent(row: VerificationEvidence): boolean {
+  if (isAcceptanceMatrixDerivedEvidence(row)) return false;
   if (row.waiverType === 'deferred_gate_evidence') return false;
   if (row.result === 'pass') return true;
   return row.kind === 'waiver'

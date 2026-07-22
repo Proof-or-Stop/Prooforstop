@@ -78,6 +78,27 @@ export function verificationIntentHasPlannedPathDeclarations(intent: Verificatio
     (intent[lane] ?? []).some(item => (item.plannedPathDeclarations?.length ?? 0) > 0));
 }
 
+/** Stable projection used by writer guards; additions, edits, moves and removals all change it. */
+export function plannedPathDeclarationSnapshot(intent: VerificationIntent | undefined): string {
+  if (!intent) return '[]';
+  const rows = (['happy', 'edge', 'adversarial'] as const).flatMap(lane =>
+    (intent[lane] ?? []).flatMap((item, index) =>
+      (item.plannedPathDeclarations ?? []).map(declaration => ({
+        intentRef: item.id || `${lane}:${index}`,
+        declaration,
+      }))));
+  return JSON.stringify(rows);
+}
+
+/** L0 matrix output is never admissible verification or gate evidence. */
+export function isAcceptanceMatrixDerivedEvidence(
+  evidence: { command?: string; note?: string },
+): boolean {
+  if (/\bacceptance_matrix\b/.test(evidence.command ?? '')) return true;
+  return /(?:^|\n)\s*(?:Acceptance matrix for\b|Mode:\s*observe\b|Topology state:\s*(?:configured|legacy_missing|mixed)\b|Result:\s*(?:legacy_missing|warning|inconclusive_basis_unverified)\b)/m.test(evidence.note ?? '')
+    || /"(?:evidentiary|result)"\s*:\s*(?:false|"(?:legacy_missing|warning|inconclusive_basis_unverified)")/.test(evidence.note ?? '');
+}
+
 export function validatePlannedPathDeclarationsForChecklistItem(item: ChecklistItem, intent: VerificationIntent): void {
   const declarationIds = new Set<string>();
   const endpointIds = new Set<string>();
@@ -116,6 +137,7 @@ function validateEndpointFileDeclaration(item: ChecklistItem, endpoint: Verifica
 interface IntentIndexEntry {
   itemId: string;
   intentRef: string;
+  lane: 'happy' | 'edge' | 'adversarial';
   intent: VerificationIntentItem;
 }
 
@@ -124,7 +146,7 @@ function indexIntents(checklist: ChecklistData): IntentIndexEntry[] {
   for (const item of checklist.items) {
     for (const lane of ['happy', 'edge', 'adversarial'] as const) {
       for (const [index, intent] of (item.verificationIntent?.[lane] ?? []).entries()) {
-        result.push({ itemId: item.id, intentRef: intent.id || `${item.id}:${lane}:${index}`, intent });
+        result.push({ itemId: item.id, intentRef: intent.id || `${item.id}:${lane}:${index}`, lane, intent });
       }
     }
   }
@@ -171,6 +193,7 @@ function validateSourceRef(
   canonicalRefs: ReadonlySet<string>,
   declarations: ReadonlyMap<string, VerificationPlannedPathDeclarationV1>,
   diagnostics: AcceptanceTopologyDiagnostic[],
+  expectedPlannedRole?: 'producer' | 'consumer',
 ): string[] {
   if (!ref || typeof ref !== 'object') {
     pushDiagnostic(diagnostics, bindingId, 'AT_UNKNOWN_REF', path, 'sourceRef must be an existing or planned reference');
@@ -195,9 +218,19 @@ function validateSourceRef(
     }
     const declaration = declarations.get(obj.plannedPathDeclarationRef);
     const endpoints = declaration ? [declaration.producer, ...declaration.consumers] : [];
-    if (!declaration || !endpoints.some(endpoint => endpoint.id === obj.endpointRef)) {
+    const endpoint = endpoints.find(candidate => candidate.id === obj.endpointRef);
+    if (!declaration || !endpoint) {
       pushDiagnostic(diagnostics, bindingId, 'AT_PLANNED_PATH_DECLARATION_MISSING', path, `unknown planned declaration or endpoint: ${obj.plannedPathDeclarationRef}:${obj.endpointRef}`);
       return [];
+    }
+    if (expectedPlannedRole && endpoint.role !== expectedPlannedRole) {
+      pushDiagnostic(
+        diagnostics,
+        bindingId,
+        'AT_PLANNED_PATH_DECLARATION_DRIFT',
+        path,
+        `planned endpoint ${endpoint.id} has role ${endpoint.role}; ${expectedPlannedRole} is required at this graph position`,
+      );
     }
     return [obj.plannedPathDeclarationRef, obj.endpointRef];
   }
@@ -235,6 +268,7 @@ function diagnoseBinding(
   canonicalRefs: ReadonlySet<string>,
   declarations: ReadonlyMap<string, VerificationPlannedPathDeclarationV1>,
   docsOnly: boolean,
+  bindingIntents: readonly IntentIndexEntry[],
 ): { diagnostics: AcceptanceTopologyDiagnostic[]; declarationRefs: string[]; endpointRefs: string[] } {
   const diagnostics: AcceptanceTopologyDiagnostic[] = [];
   const declarationRefs: string[] = [];
@@ -257,6 +291,8 @@ function diagnoseBinding(
 
   const producers = stableNodeArray(obj, 'producerRefs');
   const consumers = stableNodeArray(obj, 'consumerRefs');
+  if (producers.length === 0) pushDiagnostic(diagnostics, binding.id, 'AT_ORPHAN_CONSUMER', 'verificationTopology.producerRefs', 'topology has no producer for its consumers or assertions');
+  if (consumers.length === 0) pushDiagnostic(diagnostics, binding.id, 'AT_ORPHAN_PRODUCER', 'verificationTopology.consumerRefs', 'topology has no consumer for its producers or assertions');
   const groups = ['positiveAssertionRefs', 'mutationCaseRefs', 'transcriptAssertionRefs'] as const;
   const allNodes = [...producers, ...consumers, ...groups.flatMap(group => stableNodeArray(obj, group))];
   const ids = new Set<string>();
@@ -270,7 +306,7 @@ function diagnoseBinding(
   for (const [index, producer] of producers.entries()) {
     const p = producer as Record<string, unknown>;
     if (nonEmpty(p?.id)) producerIds.add(p.id);
-    const refs = validateSourceRef(p?.sourceRef, `verificationTopology.producerRefs[${index}].sourceRef`, binding.id, canonicalRefs, declarations, diagnostics);
+    const refs = validateSourceRef(p?.sourceRef, `verificationTopology.producerRefs[${index}].sourceRef`, binding.id, canonicalRefs, declarations, diagnostics, 'producer');
     if (p?.sourceRef && typeof p.sourceRef === 'object' && (p.sourceRef as Record<string, unknown>).refKind === 'planned') {
       if (refs[0]) declarationRefs.push(refs[0]);
       if (refs[1]) endpointRefs.push(refs[1]);
@@ -288,7 +324,7 @@ function diagnoseBinding(
       referencedProducers.add(ref);
       if (!producerIds.has(ref)) pushDiagnostic(diagnostics, binding.id, 'AT_UNKNOWN_REF', `verificationTopology.consumerRefs[${index}].producerRefs`, `unknown producer ref: ${ref}`);
     }
-    const refs = validateSourceRef(c?.sourceRef, `verificationTopology.consumerRefs[${index}].sourceRef`, binding.id, canonicalRefs, declarations, diagnostics);
+    const refs = validateSourceRef(c?.sourceRef, `verificationTopology.consumerRefs[${index}].sourceRef`, binding.id, canonicalRefs, declarations, diagnostics, 'consumer');
     if (c?.sourceRef && typeof c.sourceRef === 'object' && (c.sourceRef as Record<string, unknown>).refKind === 'planned') {
       if (refs[0]) declarationRefs.push(refs[0]);
       if (refs[1]) endpointRefs.push(refs[1]);
@@ -296,14 +332,23 @@ function diagnoseBinding(
   }
   for (const id of producerIds) if (!referencedProducers.has(id)) pushDiagnostic(diagnostics, binding.id, 'AT_ORPHAN_PRODUCER', 'verificationTopology.producerRefs', `producer has no consumer: ${id}`);
 
+  const intentMappings = new Map<typeof groups[number], Set<string>>();
   for (const group of groups) {
     const assertions = stableNodeArray(obj, group);
+    const mappedIntentRefs = new Set<string>();
+    intentMappings.set(group, mappedIntentRefs);
     const required = group === 'positiveAssertionRefs' || !docsOnly;
     const missingCode = group === 'mutationCaseRefs' ? 'AT_MUTATION_MISSING' : group === 'transcriptAssertionRefs' ? 'AT_TRANSCRIPT_MISSING' : 'AT_INTENT_UNCOVERED';
     if (required && assertions.length === 0) pushDiagnostic(diagnostics, binding.id, missingCode, `verificationTopology.${group}`, `${group} is required`);
     for (const [index, assertion] of assertions.entries()) {
       const a = assertion as Record<string, unknown>;
       validateSourceRef(a?.sourceRef, `verificationTopology.${group}[${index}].sourceRef`, binding.id, canonicalRefs, declarations, diagnostics);
+      const sourceRef = a?.sourceRef && typeof a.sourceRef === 'object'
+        ? a.sourceRef as Record<string, unknown>
+        : undefined;
+      if (sourceRef?.refKind === 'existing' && nonEmpty(sourceRef.canonicalSourceRef) && sourceRef.canonicalSourceRef.startsWith('intent:')) {
+        mappedIntentRefs.add(sourceRef.canonicalSourceRef.slice('intent:'.length));
+      }
       const refs = collectAssertionRefs(assertion);
       refs.producerRefs.filter(ref => !producerIds.has(ref)).forEach(ref => pushDiagnostic(diagnostics, binding.id, 'AT_UNKNOWN_REF', `verificationTopology.${group}[${index}].producerRefs`, `unknown producer ref: ${ref}`));
       refs.consumerRefs.filter(ref => !consumerIds.has(ref)).forEach(ref => pushDiagnostic(diagnostics, binding.id, 'AT_UNKNOWN_REF', `verificationTopology.${group}[${index}].consumerRefs`, `unknown consumer ref: ${ref}`));
@@ -311,8 +356,30 @@ function diagnoseBinding(
   }
 
   const commandRefs = [...arrayValue(obj, 'commandRefs')].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+  if (!docsOnly && commandRefs.length === 0) {
+    pushDiagnostic(diagnostics, binding.id, 'AT_COMMAND_MISSING', 'verificationTopology.commandRefs', 'at least one canonical command reference is required');
+  }
   for (const [index, commandRef] of commandRefs.entries()) {
     validateSourceRef(commandRef, `verificationTopology.commandRefs[${index}]`, binding.id, canonicalRefs, declarations, diagnostics);
+  }
+  for (const entry of bindingIntents.filter(candidate => (candidate.intent.priority ?? 'must') === 'must')) {
+    const mapped = docsOnly
+      ? intentMappings.get('positiveAssertionRefs')?.has(entry.intentRef)
+      : entry.lane === 'happy'
+      ? intentMappings.get('positiveAssertionRefs')?.has(entry.intentRef)
+      : entry.lane === 'edge'
+        ? intentMappings.get('positiveAssertionRefs')?.has(entry.intentRef)
+          || intentMappings.get('mutationCaseRefs')?.has(entry.intentRef)
+        : intentMappings.get('mutationCaseRefs')?.has(entry.intentRef);
+    if (!mapped) {
+      pushDiagnostic(
+        diagnostics,
+        binding.id,
+        'AT_INTENT_UNCOVERED',
+        `verificationIntentRefs.${entry.intentRef}`,
+        `must ${entry.lane} verification intent ${entry.intentRef} is not mapped by an appropriate assertion group`,
+      );
+    }
   }
   return { diagnostics, declarationRefs: stableUnique(declarationRefs), endpointRefs: stableUnique(endpointRefs) };
 }
@@ -333,7 +400,10 @@ export function buildAcceptanceMatrixReport(args: {
   for (const binding of bindings) {
     const docsOnly = binding.verificationIntentRefs.length > 0
       && binding.verificationIntentRefs.every(ref => intentsByRef.get(ref)?.intent.type === 'docs');
-    const diagnosed = diagnoseBinding(binding, canonicalRefs, declarations, docsOnly);
+    const bindingIntents = binding.verificationIntentRefs
+      .map(ref => intentsByRef.get(ref))
+      .filter((entry): entry is IntentIndexEntry => entry !== undefined);
+    const diagnosed = diagnoseBinding(binding, canonicalRefs, declarations, docsOnly, bindingIntents);
     for (const ref of binding.checklistRefs) {
       if (!canonicalRefs.has(`checklist:${ref}`)) pushDiagnostic(diagnosed.diagnostics, binding.id, 'AT_UNKNOWN_REF', 'checklistRefs', `unknown checklist ref: ${ref}`);
     }
