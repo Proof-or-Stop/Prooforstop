@@ -133,6 +133,58 @@
         "scanEscalationReason": null
       },
       "_hash": "61dc0a5add0074c06e8e447a9d5f9c6b10a4f026c0c6ca61e8ad26065ec0fa2a"
+    },
+    {
+      "id": "B-4444:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Pure-doc diff: 0 exported symbols and therefore 0 Step-2 symbol-anchored paragraphs. Fallback review covered all 39 headings of the candidate plan, CLAUDE.md, and relevant ownership/freshness/rollout/assurance sections in 8 related decisions. F-001 is closed by typed PLAN planned paths plus mandatory signed planned-to-actual reconciliation and negative cases; F-002 is closed by profile-required hash-bound per-adapter records, aggregate reproduction, deterministic codes, and omission/tamper cases. Proposed commands are explicitly marked NOT IMPLEMENTED, so no undelivered-runtime promise is presented as shipped behavior.",
+      "createdAt": "2026-07-22T01:45:02.928Z",
+      "reviewRound": "2026-07-22T01:42:32.404Z",
+      "reviewRunId": "B-4444:RR-008",
+      "envelopeId": "6f415ac4decc42941b780ea02709a4abb28f97f1d1df6d6276cbc9e981824749",
+      "writerSessionId": "sess-44465e010e25435d978e2ed49685a7bc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4444/background.md",
+          ".lattice/story/actives/B-4444/plan.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "eca5b5af69557d6e2ecd132cc92e3058ed93f1f6b58ad85210ed7e70ebc23cf1"
+      },
+      "readDiagnostics": [],
+      "_hash": "8b424fcc146162bc1cb1f78ff807439d79222f38dae624589c355936b82e3171"
     }
   ]
 }
