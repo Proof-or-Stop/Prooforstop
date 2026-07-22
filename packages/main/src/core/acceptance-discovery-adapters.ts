@@ -54,18 +54,22 @@ function sourceFiles(entry: ProcessFactRegistryEntry): string[] {
   return stable([...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]);
 }
 
-function entrySourceTokens(entry: ProcessFactRegistryEntry): string[] {
-  return stable([
-    entry.name,
-    entry.producer,
-    entry.producer.split(/[/.]/).at(-1) ?? '',
-    entry.artifact?.producerCommand ?? '',
-    entry.artifact?.name ?? '',
-  ]);
-}
-
 function processFactPath(entry: ProcessFactRegistryEntry): string {
   return `path:process-fact:${entry.name}->consumer:${entry.consumerGate ?? '<audit-only>'}`;
+}
+
+function discoveryTerms(records: readonly PlannedCoveragePathV1[]): string[] {
+  return stable(records.flatMap(record => [record.outputFactRef, record.producer.expectedSymbolOrFact, ...record.consumers.map(item => item.expectedSymbolOrFact)]))
+    .flatMap(value => [normalized(value), normalized(value).replace(/^processfact/, '')])
+    .filter(value => value.length >= 4);
+}
+
+function relevantProcessFacts(records: readonly PlannedCoveragePathV1[]): ProcessFactRegistryEntry[] {
+  const terms = discoveryTerms(records);
+  return PROCESS_FACT_REGISTRY.filter(entry => {
+    const candidates = [entry.name, entry.producer, entry.artifact?.name ?? '', entry.artifact?.path ?? '', entry.artifact?.producerCommand ?? ''].map(normalized).filter(Boolean);
+    return terms.some(term => candidates.some(candidate => term.includes(candidate) || candidate.includes(term)));
+  });
 }
 
 /** Resolve canonical process-fact closure and its producer/consumer source files. */
@@ -114,13 +118,6 @@ function adapterId(method: CoverageDiscoveryMethodV1): string {
   return `${method.replace(/_/g, '-')}:plan:v1`;
 }
 
-function fileContains(root: string, file: string, values: readonly string[]): boolean {
-  const absolute = resolve(root, file);
-  if (!existsSync(absolute)) return false;
-  const text = readFileSync(absolute, 'utf8');
-  return values.some(value => value.length > 0 && (text.includes(value) || normalized(text).includes(normalized(value))));
-}
-
 function sourceProvenance(root: string, file: string): string {
   const absolute = resolve(root, file);
   return existsSync(absolute)
@@ -128,25 +125,41 @@ function sourceProvenance(root: string, file: string): string {
     : `source-file:${file}:uninspectable`;
 }
 
-function plannedInspectable(input: AcceptanceDiscoveryInput, record: PlannedCoveragePathV1): boolean {
-  return [record.producer, ...record.consumers].every(endpoint =>
-    fileContains(input.workspaceRoot, endpoint.expectedFileRef, [endpoint.expectedSymbolOrFact]));
+function executableText(text: string): string {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^\s*\/\/.*$/gm, '')
+    .replace(/^\s*import\b.*$/gm, '');
 }
 
-function registryInspectable(input: AcceptanceDiscoveryInput, entry: ProcessFactRegistryEntry): boolean {
+function exactDispatchRegistered(root: string, command: string): boolean {
+  const catalog = resolve(root, 'packages/main/src/cli/command-catalog.ts');
+  const registry = resolve(root, 'packages/main/src/registry.ts');
+  const handler = resolve(root, 'packages/main/src/handlers/proofstory.ts');
+  if (![catalog, registry, handler].every(existsSync)) return false;
+  const catalogText = executableText(readFileSync(catalog, 'utf8'));
+  const registryText = executableText(readFileSync(registry, 'utf8'));
+  const handlerText = executableText(readFileSync(handler, 'utf8'));
+  return new RegExp(`^\\s*\\{?\\s*name:\\s*['\"]${command}['\"]`, 'm').test(catalogText)
+    && /registry\.registerBatch\(\s*createProofStoryHandlers\(ctx\)\s*\)/.test(registryText)
+    && new RegExp(`^\\s*${command}\\s*\\(`, 'm').test(handlerText);
+}
+
+function exactStaticSources(root: string, entry: ProcessFactRegistryEntry): boolean {
   const files = sourceFiles(entry);
-  return files.length > 0 && files.every(file => fileContains(input.workspaceRoot, file, [...entrySourceTokens(entry), entry.consumerGate ?? '']));
-}
-
-function handlerInspectable(input: AcceptanceDiscoveryInput, entry: ProcessFactRegistryEntry): boolean {
-  const producerFiles = stable(entry.producerSourceRefs ?? []);
-  return producerFiles.length > 0 && producerFiles.every(file => fileContains(input.workspaceRoot, file, entrySourceTokens(entry)));
+  if (files.length === 0 || !files.every(file => existsSync(resolve(root, file)))) return false;
+  const command = entry.artifact?.producerCommand ?? entry.name;
+  return files.every(file => {
+    const text = executableText(readFileSync(resolve(root, file), 'utf8'));
+    if (file === 'packages/main/src/registry.ts') return /registry\.registerBatch\(\s*createProofStoryHandlers\(ctx\)\s*\)/.test(text);
+    if (file.endsWith('handlers/proofstory.ts')) return new RegExp(`^\\s*${command}\\s*\\(`, 'm').test(text);
+    return new RegExp(`['\"]?${command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['\"]?`).test(text);
+  });
 }
 
 function buildResult(
   input: AcceptanceDiscoveryInput,
   method: CoverageDiscoveryMethodV1,
-  closure: RegisteredProcessFactClosure,
 ): CoverageAdapterResultV1 {
   const unsupported = !input.supported;
   const boundedRuntime = method === 'runtime_trace';
@@ -156,28 +169,30 @@ function buildResult(
   if (!unsupported) {
     if (method === 'scope_contract') {
       pathRefs = input.plannedPathRecords.map(record => record.plannedPathRef);
-      provenanceRefs = input.scopeRefs;
+      provenanceRefs = stable([
+        ...input.scopeRefs,
+        ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers])
+          .map(endpoint => sourceProvenance(input.workspaceRoot, endpoint.expectedFileRef)),
+      ]);
     } else if (method === 'process_fact_registry') {
+      const closure = deriveRegisteredProcessFactClosure(input.workspaceRoot, discoveryTerms(input.plannedPathRecords));
       pathRefs = closure.pathRefs;
       blindSpots = closure.blindSpots;
       provenanceRefs = closure.sourceInventoryRefs;
     } else if (method === 'handler_dispatch_inventory') {
-      const inspectableEntries = closure.entries.filter(entry => handlerInspectable(input, entry));
+      const entries = relevantProcessFacts(input.plannedPathRecords);
+      const inspectableEntries = entries.filter(entry => exactDispatchRegistered(input.workspaceRoot, entry.artifact?.producerCommand ?? entry.name));
       pathRefs = inspectableEntries.map(processFactPath);
-      pathRefs.push(...input.plannedPathRecords.filter(record =>
-        [record.producer, ...record.consumers].some(endpoint => endpoint.expectedArtifactKind === 'handler' || endpoint.expectedArtifactKind === 'dispatch')
-        && plannedInspectable(input, record)).map(record => record.plannedPathRef));
-      blindSpots = closure.entries.filter(entry => !handlerInspectable(input, entry)).map(entry => `handler/dispatch source uninspectable for ${entry.name}`);
-      provenanceRefs = stable(inspectableEntries.flatMap(entry => entry.producerSourceRefs ?? []).map(file => sourceProvenance(input.workspaceRoot, file)));
+      blindSpots = entries.filter(entry => !exactDispatchRegistered(input.workspaceRoot, entry.artifact?.producerCommand ?? entry.name))
+        .map(entry => `canonical registerBatch/command/handler dispatch missing for ${entry.name}`);
+      provenanceRefs = ['packages/main/src/cli/command-catalog.ts', 'packages/main/src/registry.ts', 'packages/main/src/handlers/proofstory.ts']
+        .map(file => sourceProvenance(input.workspaceRoot, file));
     } else if (method === 'static_call_graph') {
-      const inspectableEntries = closure.entries.filter(entry => registryInspectable(input, entry));
+      const entries = relevantProcessFacts(input.plannedPathRecords);
+      const inspectableEntries = entries.filter(entry => exactStaticSources(input.workspaceRoot, entry));
       pathRefs = inspectableEntries.map(processFactPath);
-      pathRefs.push(...input.plannedPathRecords.filter(record => plannedInspectable(input, record)).map(record => record.plannedPathRef));
-      blindSpots = [
-        ...closure.entries.filter(entry => !registryInspectable(input, entry)).map(entry => `static process-fact sources uninspectable for ${entry.name}`),
-        ...input.plannedPathRecords.filter(record => !plannedInspectable(input, record)).map(record => `planned source symbols uninspectable for ${record.plannedPathRef}`),
-      ];
-      provenanceRefs = stable([...closure.sourceFileRefs, ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef))].map(file => sourceProvenance(input.workspaceRoot, file)));
+      blindSpots = entries.filter(entry => !exactStaticSources(input.workspaceRoot, entry)).map(entry => `static registered source/call graph missing for ${entry.name}`);
+      provenanceRefs = stable(entries.flatMap(sourceFiles).map(file => sourceProvenance(input.workspaceRoot, file)));
     } else {
       const seeds = input.plannedPathRecords.flatMap(record => [record.outputFactRef, record.producer.expectedSymbolOrFact, ...record.consumers.map(item => item.expectedSymbolOrFact)]).map(normalized);
       const registeredRuntimePaths = RUNTIME_FACT_REGISTRY
@@ -209,9 +224,7 @@ function buildResult(
 
 /** Run the immutable PLAN profile from canonical repository and registry inputs. */
 export function runAcceptanceDiscoveryAdapters(input: AcceptanceDiscoveryInput): CoverageAdapterResultV1[] {
-  const seeds = input.plannedPathRecords.flatMap(record => [record.outputFactRef, record.producer.expectedSymbolOrFact, ...record.consumers.map(item => item.expectedSymbolOrFact)]);
-  const closure = deriveRegisteredProcessFactClosure(input.workspaceRoot, seeds);
-  return ACCEPTANCE_PLAN_DISCOVERY_PROFILE.methods.map(method => buildResult(input, method, closure));
+  return ACCEPTANCE_PLAN_DISCOVERY_PROFILE.methods.map(method => buildResult(input, method));
 }
 
 function sameSet(left: readonly string[], right: readonly string[]): boolean {
@@ -225,9 +238,11 @@ export function reconcileAcceptanceDiscoveryResults(results: readonly CoverageAd
     const rows = byMethod.get(result.method) ?? [];
     rows.push(result);
     byMethod.set(result.method, rows);
-    if (result.schemaVersion !== 'proofstory.coverage_adapter_result.v1' || !result.adapterId || result.provenanceRefs.length === 0
+    if (result.schemaVersion !== 'proofstory.coverage_adapter_result.v1' || !result.adapterId || !Array.isArray(result.provenanceRefs) || result.provenanceRefs.length === 0
       || !['complete_for_scope', 'partial', 'unsupported'].includes(result.coverageClaim)
-      || !['exhaustive', 'bounded_non_exhaustive', 'unsupported'].includes(result.asymmetryPolicy?.kind)) {
+      || !['exhaustive', 'bounded_non_exhaustive', 'unsupported'].includes(result.asymmetryPolicy?.kind)
+      || typeof result.asymmetryPolicy?.policyRef !== 'string' || result.asymmetryPolicy.policyRef.trim().length === 0
+      || !Array.isArray(result.asymmetryPolicy?.scopeRefs) || result.asymmetryPolicy.scopeRefs.length === 0) {
       diagnostics.push({ code: 'AT_ADAPTER_RESULT_INVALID', adapterId: result.adapterId, message: `invalid adapter result ${result.adapterId || '<missing>'}` });
     }
     if (digestCoverageAdapterResult(unsignedResult(result)) !== result.resultDigest) diagnostics.push({ code: 'AT_ADAPTER_RESULT_DIGEST_MISMATCH', adapterId: result.adapterId, message: `adapter result digest mismatch: ${result.adapterId}` });

@@ -129,7 +129,8 @@ export function derivePlannedCoveragePaths(
 
 function sourceRefValue(node: unknown): string | null {
   if (!node || typeof node !== 'object') return null;
-  const sourceRef = (node as { sourceRef?: unknown }).sourceRef;
+  const direct = node as Record<string, unknown>;
+  const sourceRef = direct.refKind ? direct : (node as { sourceRef?: unknown }).sourceRef;
   if (!sourceRef || typeof sourceRef !== 'object') return null;
   const ref = sourceRef as Record<string, unknown>;
   if (ref.refKind === 'existing' && typeof ref.canonicalSourceRef === 'string') return `existing:${ref.canonicalSourceRef}`;
@@ -304,7 +305,7 @@ export function verifyAcceptanceCoverageBasis(
   for (const record of basis.plannedPathRecords) {
     const { plannedPathDigest, ...unsigned } = record;
     if (digest(unsigned) !== plannedPathDigest) diagnostics.push({ code: 'AT_PLANNED_PATH_DECLARATION_DRIFT', message: `planned path digest mismatch: ${record.plannedPathRef}` });
-    if (!basis.enumeratedPathRefs.includes(record.plannedPathRef)) diagnostics.push({ code: 'AT_PLANNED_PATH_OUTSIDE_BASIS', message: `planned path absent from basis union: ${record.plannedPathRef}` });
+    if (basis.status !== 'unsupported' && !basis.enumeratedPathRefs.includes(record.plannedPathRef)) diagnostics.push({ code: 'AT_PLANNED_PATH_OUTSIDE_BASIS', message: `planned path absent from basis union: ${record.plannedPathRef}` });
   }
   const expectedStatus = classifyAcceptanceCoverageBasis(
     reconciled.status !== 'unsupported', diagnostics, reconciled.status, reconciled.blindSpots,
@@ -321,6 +322,11 @@ export function reconcileTopologyWithCoverageBasis(
   foundationalDecision: DecisionData | null = null,
 ): AcceptanceBasisDiagnostic[] {
   const topology = new Set(topologyPaths(contract));
+  const topologySourceRefs = stable((contract?.acceptanceBindings ?? []).flatMap(binding => {
+    const value = binding.verificationTopology as AcceptanceVerificationTopologyV1 | undefined;
+    return value ? [...value.producerRefs, ...value.consumerRefs, ...value.commandRefs]
+      .map(sourceRefValue).filter((ref): ref is string => Boolean(ref)).map(ref => ref.replace(/^existing:/, '')) : [];
+  }));
   const planned = new Set((contract?.acceptanceBindings ?? []).flatMap(binding => {
     const value = binding.verificationTopology as AcceptanceVerificationTopologyV1 | undefined;
     return value ? [...value.producerRefs, ...value.consumerRefs].map(sourceRefValue).filter((ref): ref is string => typeof ref === 'string' && ref.startsWith('planned:')) : [];
@@ -333,13 +339,28 @@ export function reconcileTopologyWithCoverageBasis(
     }
   }
   const derivedPlanned = new Set(basis.plannedPathRecords.map(record => record.plannedPathRef));
+  const excluded = new Set(basis.excludedPathRefs.map(item => item.pathRef));
+  const pathMapped = (path: string): boolean => {
+    if (topologySourceRefs.includes(`basis-path:${path}`)) return true;
+    const processMatch = /^path:process-fact:(.+)->consumer:/.exec(path);
+    if (processMatch && topologySourceRefs.includes(`process-fact:${processMatch[1]}`)) return true;
+    const runtimeMatch = /^path:runtime-fact:(.+)->checker:/.exec(path);
+    if (runtimeMatch && topologySourceRefs.includes(`runtime-fact:${runtimeMatch[1]}`)) return true;
+    return topology.has(path);
+  };
   for (const path of planned) {
     if (!derivedPlanned.has(path)) diagnostics.push({ code: 'AT_PLANNED_PATH_OUTSIDE_BASIS', message: `topology planned path has no frozen verifier-derived declaration: ${path}`, pathRef: path });
   }
   for (const path of basis.enumeratedPathRefs) {
     if (path.startsWith('planned:')) {
       if (!planned.has(path)) diagnostics.push({ code: 'AT_UNMAPPED_SCOPE_REF', message: `basis planned path is not mapped by topology: ${path}`, pathRef: path });
-    } else if (path.startsWith('path:existing:') && !topology.has(path)) diagnostics.push({ code: 'AT_UNMAPPED_SCOPE_REF', message: `basis path is not mapped by topology: ${path}`, pathRef: path });
+    } else if (!pathMapped(path) && !excluded.has(path)) diagnostics.push({ code: 'AT_UNMAPPED_SCOPE_REF', message: `basis path is not mapped by topology or justified exclusion: ${path}`, pathRef: path });
+  }
+  for (const ref of topologySourceRefs) {
+    const directPath = ref.startsWith('basis-path:') ? ref.slice('basis-path:'.length) : null;
+    if (directPath && !basis.enumeratedPathRefs.includes(directPath)) diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `topology basis-path mapping is outside basis: ${directPath}`, pathRef: directPath });
+    if (ref.startsWith('process-fact:') && !basis.enumeratedPathRefs.some(path => path.startsWith(`path:${ref}->`))) diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `topology process-fact mapping is outside basis: ${ref}`, pathRef: ref });
+    if (ref.startsWith('runtime-fact:') && !basis.enumeratedPathRefs.some(path => path.startsWith(`path:${ref}->`))) diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `topology runtime-fact mapping is outside basis: ${ref}`, pathRef: ref });
   }
   for (const path of topology) {
     const edgeEndpoints = path.startsWith('path:') ? path.slice(5).split('->') : [];

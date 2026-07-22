@@ -24,7 +24,7 @@ import {
 import { verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
 import { generateEd25519KeyPair, signCanonical } from '../core/authority-signing.js';
 import { resetConfigCache } from '../core/config.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -106,8 +106,41 @@ const topology: AcceptanceVerificationTopologyV1 = {
   positiveAssertionRefs: [{ id: 'A', sourceRef: { refKind: 'existing', canonicalSourceRef: 'intent:INT-BASIS' }, producerRefs: ['P'], consumerRefs: ['C'] }],
   mutationCaseRefs: [{ id: 'M', sourceRef: { refKind: 'existing', canonicalSourceRef: 'intent:INT-BASIS' }, producerRefs: ['P'], consumerRefs: ['C'] }],
   transcriptAssertionRefs: [{ id: 'T', sourceRef: { refKind: 'existing', canonicalSourceRef: 'intent:INT-BASIS' }, producerRefs: ['P'], consumerRefs: ['C'] }],
-  commandRefs: [{ refKind: 'existing', canonicalSourceRef: 'intent:INT-BASIS' }],
+  commandRefs: [
+    { refKind: 'existing', canonicalSourceRef: 'intent:INT-BASIS' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:artifact:acceptance-basis.json' },
+  ],
 };
+
+function writeCanonicalAcceptanceRegistration(root: string): void {
+  write(root, 'packages/main/src/cli/command-catalog.ts', [
+    'export const MAIN_TOOLS = [',
+    "  { name: 'acceptance_basis' },",
+    "  { name: 'acceptance_basis_generate' },",
+    '];',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/registry.ts', [
+    'const registry = { registerBatch: (_handlers: unknown) => undefined };',
+    'const ctx = {};',
+    'const createProofStoryHandlers = (_ctx: unknown) => ({});',
+    'registry.registerBatch(createProofStoryHandlers(ctx));',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/handlers/proofstory.ts', [
+    'export function createProofStoryHandlers() {',
+    '  return {',
+    '    acceptance_basis() { return true; },',
+    '    acceptance_basis_generate() { return true; },',
+    '  };',
+    '}',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/core/process-fact-registry.ts', 'export const acceptance_basis_generate = "Wave 2 acceptance_topology_check";\n');
+  write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "Wave 2 acceptance_topology_check";\n');
+}
 
 function checklist(): ChecklistData {
   return { items: [{
@@ -149,12 +182,14 @@ function scopeCheck(root: string): ScopeCheckData {
 const pureRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-pure-'));
 try {
   write(pureRoot, 'tsconfig.json', '{}\n');
+  writeCanonicalAcceptanceRegistration(pureRoot);
+  const plannedBeforeCode = deriveAcceptanceCoverageBasis({
+    storyId, workspaceRoot: pureRoot, checklist: checklist(), contract: contract(), scopeCheck: scopeCheck(pureRoot), scopeContract: scopeContract(),
+    headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
+  });
+  assert.equal(plannedBeforeCode.basis.status, 'complete', `valid PLAN endpoints are structurally complete before implementation files exist: ${JSON.stringify(plannedBeforeCode.diagnostics)}`);
   write(pureRoot, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
   write(pureRoot, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => true;\n');
-  write(pureRoot, 'packages/main/src/handlers/proofstory.ts', 'export const acceptance_basis_generate = () => true;\n');
-  write(pureRoot, 'packages/main/src/registry.ts', 'export const commands = ["acceptance_basis_generate"];\n');
-  write(pureRoot, 'packages/main/src/core/process-fact-registry.ts', 'export const acceptance_basis_generate = "Wave 2 acceptance_topology_check";\n');
-  write(pureRoot, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "Wave 2 acceptance_topology_check";\n');
   const input = {
     storyId, workspaceRoot: pureRoot, checklist: checklist(), contract: contract(), scopeCheck: scopeCheck(pureRoot), scopeContract: scopeContract(),
     headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
@@ -166,6 +201,8 @@ try {
   assert.ok(globalClosure.sourceFileRefs.includes('scripts/verify-process-fact-contract.mjs'), 'global consumer source enters closure binding');
   const adapterControlReconciled = reconcileAcceptanceDiscoveryResults(adapterControl);
   assert.equal(adapterControlReconciled.status, 'complete', JSON.stringify(adapterControlReconciled, null, 2));
+  const shuffled = reconcileAcceptanceDiscoveryResults([...adapterControl].reverse());
+  assert.deepEqual(shuffled, adapterControlReconciled, 'adapter reconciliation is deterministic under shuffled execution order');
   const omitted = reconcileAcceptanceDiscoveryResults(adapterControl.slice(1));
   assert.ok(omitted.diagnostics.some(item => item.code === 'AT_REQUIRED_ADAPTER_RESULT_MISSING'), 'required adapter omission bites');
   const duplicated = reconcileAcceptanceDiscoveryResults([...adapterControl, adapterControl[0]]);
@@ -177,11 +214,34 @@ try {
   disagreement.find(item => item.method === 'handler_dispatch_inventory')!.pathRefs = [];
   assert.ok(reconcileAcceptanceDiscoveryResults(disagreement).diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'), 'unexplained registry/dispatch disagreement bites');
   assert.ok(!adapterControlReconciled.diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'), 'typed bounded runtime asymmetry retains static-only paths');
+  for (const [label, mutate] of [
+    ['claim', (value: any) => { value.coverageClaim = 'complete'; }],
+    ['provenance', (value: any) => { value.provenanceRefs = []; }],
+    ['asymmetry kind', (value: any) => { value.asymmetryPolicy.kind = 'forged'; }],
+    ['asymmetry policy', (value: any) => { value.asymmetryPolicy.policyRef = ''; }],
+    ['asymmetry scope', (value: any) => { value.asymmetryPolicy.scopeRefs = []; }],
+  ] as Array<[string, (value: any) => void]>) {
+    const changed = structuredClone(adapterControl);
+    mutate(changed[0]);
+    redigestAdapter(changed[0]);
+    assert.ok(reconcileAcceptanceDiscoveryResults(changed).diagnostics.some(item => item.code === 'AT_ADAPTER_RESULT_INVALID'), `invalid ${label} bites after attacker re-digests`);
+  }
+  const declaredBlindSpot = structuredClone(adapterControl);
+  declaredBlindSpot[0].coverageClaim = 'partial';
+  declaredBlindSpot[0].blindSpots = ['bounded missing path'];
+  redigestAdapter(declaredBlindSpot[0]);
+  assert.equal(reconcileAcceptanceDiscoveryResults(declaredBlindSpot).status, 'partial', 'declared blind spot cannot reconcile complete');
+  const handlerControl = bytes(pureRoot, 'packages/main/src/handlers/proofstory.ts');
+  write(pureRoot, 'packages/main/src/handlers/proofstory.ts', handlerControl.replace('    acceptance_basis_generate() { return true; },', '    // acceptance_basis_generate() { return true; },'));
+  const dispatchOmission = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters({ supported: true, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1'] }));
+  assert.equal(dispatchOmission.status, 'partial', 'real registered handler deletion fails discovery; a comment token does not count as dispatch');
+  assert.ok(dispatchOmission.diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'));
+  write(pureRoot, 'packages/main/src/handlers/proofstory.ts', handlerControl);
   const unsupported = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters({ supported: false, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1'] }));
   assert.equal(unsupported.status, 'unsupported', 'unsupported profile never becomes complete');
   const second = deriveAcceptanceCoverageBasis({ ...input, checklist: { items: [...input.checklist.items] } });
   assert.equal(first.basis.basisDigest, second.basis.basisDigest, 'unchanged canonical inputs replay to the same basis digest');
-  assert.equal(first.basis.status, 'complete');
+  assert.equal(first.basis.status, 'complete', JSON.stringify(first.diagnostics, null, 2));
   const firstVerification = verifyAcceptanceCoverageBasis(first.basis);
   assert.equal(firstVerification.ok, true, JSON.stringify(firstVerification.diagnostics));
   const aggregateTamper = structuredClone(first.basis);
@@ -218,6 +278,10 @@ try {
   optimistic.adapterResults[0].coverageClaim = 'partial';
   optimistic.status = 'complete';
   assert.ok(!verifyAcceptanceCoverageBasis(optimistic).ok, 'partial-to-complete optimism mutation bites');
+  const narrowedMethods = structuredClone(first.basis);
+  narrowedMethods.discoveryMethods = narrowedMethods.discoveryMethods.slice(1);
+  redigestBasis(narrowedMethods);
+  assert.ok(!verifyAcceptanceCoverageBasis(narrowedMethods).ok, 'caller-narrowed discovery methods fail aggregate projection verification');
   const missingDeclarationChecklist = checklist();
   missingDeclarationChecklist.items[0].verificationIntent!.happy[0].plannedPathDeclarations = [];
   assert.ok(reconcileTopologyWithCoverageBasis(contract(), deriveAcceptanceCoverageBasis({ ...input, checklist: missingDeclarationChecklist }).basis)
@@ -287,10 +351,7 @@ try {
   write(root, 'tsconfig.json', '{}\n');
   write(root, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
   write(root, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => true;\n');
-  write(root, 'packages/main/src/handlers/proofstory.ts', 'export const acceptance_basis_generate = () => true;\n');
-  write(root, 'packages/main/src/registry.ts', 'export const commands = ["acceptance_basis_generate"];\n');
-  write(root, 'packages/main/src/core/process-fact-registry.ts', 'export const acceptance_basis_generate = "Wave 2 acceptance_topology_check";\n');
-  write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "Wave 2 acceptance_topology_check";\n');
+  writeCanonicalAcceptanceRegistration(root);
   resetConfigCache();
   const store = new StoryStore(root);
   const directHandlers = createProofStoryHandlers({ store, root, scanRoot: join(root, 'packages/main') } as HandlerContext);
@@ -311,6 +372,29 @@ try {
   assert.equal(artifact.basis.status, 'complete', `${generated}\nCLI CHECKLIST:\n${cliChecklist}`);
   const control = verifyAcceptanceBasisReceipt({ artifact, gitCwd: root, metadataRoot: root, expectedStoryId: storyId });
   assert.equal(control.ok, true, control.diagnostics.join('; '));
+
+  rmSync(join(root, 'tsconfig.json'));
+  git(root, ['add', '-A']);
+  git(root, ['commit', '-m', 'remove supported profile marker']);
+  const unsupportedCli = run(root, 'acceptance_basis_generate', { storyId, json: true });
+  assert.match(unsupportedCli, /"status": "unsupported"/, 'real CLI emits unsupported when the registered profile is unavailable');
+  write(root, 'tsconfig.json', '{}\n');
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'restore supported profile marker']);
+  run(root, 'acceptance_basis_generate', { storyId, json: true });
+
+  const productionHandler = bytes(root, 'packages/main/src/handlers/proofstory.ts');
+  write(root, 'packages/main/src/handlers/proofstory.ts', productionHandler.replace('    acceptance_basis_generate() { return true; },', '    // imported acceptance_basis_generate token only; no handler method'));
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'remove production handler dispatch']);
+  const missingDispatch = run(root, 'acceptance_basis_generate', { storyId, json: true }, true);
+  assert.match(missingDispatch, /partial|AT_DISCOVERY_DISAGREEMENT/, 'real CLI fails partial for an unregistered handler even when comments retain the token');
+  write(root, 'packages/main/src/handlers/proofstory.ts', productionHandler);
+  git(root, ['add', '.']);
+  git(root, ['commit', '-m', 'restore production handler dispatch']);
+  run(root, 'acceptance_basis_generate', { storyId, json: true });
+  artifact = store.readAcceptanceBasis(storyId)!;
+  assert.equal(artifact.basis.status, 'complete');
 
   const fullSnapshot = () => ({
     story: bytes(root, `.lattice/story/actives/${storyId}/index.json`),
@@ -333,6 +417,11 @@ try {
   const forbiddenFields: Record<string, unknown> = {
     status: 'complete', enumeratedPathRefs: ['forged'], blindSpots: [], excludedPathRefs: [],
     generatedBy: { verifier: 'forged' }, digest: `sha256:${'0'.repeat(64)}`,
+    receiptRef: 'receipt:forged', basisDigest: `sha256:${'1'.repeat(64)}`, issuer: 'forged', signature: 'forged',
+    headHash: 'forged', materialHash: 'forged', storyFilesHash: 'forged', closureFilesHash: 'forged',
+    workspaceIdentityDigest: 'forged', scopeCheckDigest: 'forged', scopeContractDigest: 'forged', topologyDigest: 'forged',
+    adapterResults: [], discoveryMethods: [], discoveryProfileRef: 'forged', discoveryProfileDigest: 'forged',
+    sourceInventoryRefs: [], plannedPathRecords: [], receipt: {}, binding: {}, evidence: {}, verdict: 'pass', authority: 'forged',
   };
   for (const command of ['acceptance_basis', 'acceptance_basis_generate']) {
     for (const [field, value] of Object.entries(forbiddenFields)) {
@@ -343,6 +432,9 @@ try {
       assert.deepEqual(fullSnapshot(), snapshot, `direct ${command} ${field} rejection is atomic`);
     }
   }
+  const replayedOutput = run(root, 'acceptance_basis_generate', { storyId, evidence: JSON.parse(readOne) }, true);
+  assert.match(replayedOutput, /Forbidden|never|invalid|unsupported caller fields/i, 'rendered diagnostic output cannot be replayed as authority');
+  assert.deepEqual(fullSnapshot(), snapshot, 'output replay rejection is atomic');
 
   const mutations: Array<[string, (value: AcceptanceBasisArtifactV1) => void]> = [
     ['receipt schema version', value => { (value.receipt as any).schemaVersion = 'proofstory.acceptance_basis_receipt.v0'; }],
@@ -472,18 +564,65 @@ try {
   rmSync(root, { recursive: true, force: true });
 }
 
-const projectRoot = resolve(packageRoot, '../../..');
-let contractMutationOutput = '';
+const freshnessRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-freshness-'));
 try {
-  execFileSync(process.execPath, ['scripts/verify-process-fact-contract.mjs'], {
-    cwd: projectRoot,
-    env: { ...process.env, LATTICE_PROCESS_FACT_CONTRACT_MUTATION: 'drop-acceptance-basis-registry' },
-    encoding: 'utf8',
-    stdio: ['pipe', 'pipe', 'pipe'],
-  });
-} catch (error: any) {
-  contractMutationOutput = `${String(error.stdout || '')}${String(error.stderr || '')}`;
+  git(freshnessRoot, ['init', '-b', 'main']);
+  git(freshnessRoot, ['config', 'user.email', 'basis-smoke@example.test']);
+  git(freshnessRoot, ['config', 'user.name', 'Basis Smoke']);
+  write(freshnessRoot, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', scanRoot: 'packages/main', rootDir: 'src' }));
+  write(freshnessRoot, 'packages/main/src/story-owned.ts', 'export const storyOwned = 1;\n');
+  git(freshnessRoot, ['add', '.']);
+  git(freshnessRoot, ['commit', '-m', 'base']);
+  git(freshnessRoot, ['switch', '-c', 'story/freshness']);
+  write(freshnessRoot, 'packages/main/src/story-owned.ts', 'export const storyOwned = 2;\n');
+  git(freshnessRoot, ['add', '.']);
+  git(freshnessRoot, ['commit', '-m', 'story material']);
+  resetConfigCache();
+  const evidenceHead = currentGitHead(freshnessRoot)!;
+  const evidenceMaterial = currentMaterialHash(freshnessRoot, 'HEAD', freshnessRoot)!;
+  const evidenceStoryFiles = currentStoryFilesHash(freshnessRoot, 'HEAD', freshnessRoot)!;
+  write(freshnessRoot, '.lattice/story/actives/B-freshness/note.json', '{}\n');
+  git(freshnessRoot, ['add', '.']);
+  git(freshnessRoot, ['commit', '-m', 'metadata only']);
+  const metadataArtifactBefore = bytes(freshnessRoot, '.lattice/story/actives/B-freshness/note.json');
+  const headOnly = checkEvidenceFreshnessForGit(freshnessRoot, evidenceHead, evidenceMaterial, freshnessRoot, evidenceStoryFiles);
+  assert.equal(headOnly.fresh, true, headOnly.reason);
+  assert.match(headOnly.reason, /materialHash matches/, 'head-only metadata movement is classified by canonical material freshness');
+  assert.equal(bytes(freshnessRoot, '.lattice/story/actives/B-freshness/note.json'), metadataArtifactBefore, 'freshness read never silently rewrites evidence');
+
+  git(freshnessRoot, ['switch', 'main']);
+  write(freshnessRoot, 'packages/main/src/unrelated.ts', 'export const unrelated = true;\n');
+  git(freshnessRoot, ['add', '.']);
+  git(freshnessRoot, ['commit', '-m', 'unrelated main material']);
+  git(freshnessRoot, ['switch', 'story/freshness']);
+  git(freshnessRoot, ['merge', '--no-edit', 'main']);
+  const unrelatedMaterial = checkEvidenceFreshnessForGit(freshnessRoot, evidenceHead, evidenceMaterial, freshnessRoot, evidenceStoryFiles);
+  assert.equal(unrelatedMaterial.fresh, true, unrelatedMaterial.reason);
+  assert.match(unrelatedMaterial.reason, /storyFilesHash matches/, 'unrelated whole-tree material movement is advisory when story-owned files are unchanged');
+  assert.ok(unrelatedMaterial.warnings?.some(item => /whole-tree materialHash drift/.test(item)));
+} finally {
+  rmSync(freshnessRoot, { recursive: true, force: true });
 }
-assert.match(contractMutationOutput, /acceptance_basis_generate|required process fact missing|MAIN_TOOLS command missing/, 'one-sided process-fact registration mutation bites the real contract verifier');
+
+const projectRoot = resolve(packageRoot, '../../..');
+for (const mutation of [
+  'drop-acceptance-basis-prompt',
+  'drop-acceptance-basis-handler',
+  'drop-acceptance-basis-registry',
+  'drop-acceptance-basis-contract',
+]) {
+  let contractMutationOutput = '';
+  try {
+    execFileSync(process.execPath, ['scripts/verify-process-fact-contract.mjs'], {
+      cwd: projectRoot,
+      env: { ...process.env, LATTICE_PROCESS_FACT_CONTRACT_MUTATION: mutation },
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  } catch (error: any) {
+    contractMutationOutput = `${String(error.stdout || '')}${String(error.stderr || '')}`;
+  }
+  assert.match(contractMutationOutput, /acceptance basis contract|acceptance_basis_generate|required process fact missing|MAIN_TOOLS command missing/, `${mutation} bites the real contract verifier`);
+}
 
 console.log('ProofStory acceptance coverage basis Wave 1A smoke passed');

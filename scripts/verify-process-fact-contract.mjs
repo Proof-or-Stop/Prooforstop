@@ -546,7 +546,15 @@ function read(relPath) {
   const absPath = join(root, relPath);
   assert(existsSync(absPath), `${relPath} should exist`);
   if (!existsSync(absPath)) return '';
-  return readFileSync(absPath, 'utf8');
+  let text = readFileSync(absPath, 'utf8');
+  const mutation = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
+  if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('lattice-review-scope-plan.md')) {
+    text = text.replace(/^- Before reporting PLAN scope complete, run `lattice acceptance_basis_generate`.*$/m, '');
+  }
+  if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
+    text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
+  }
+  return text;
 }
 
 function listMarkdown(dir) {
@@ -624,6 +632,14 @@ function assertProofStoryProgressiveBoundary() {
   const basisText = read('packages/main/src/core/acceptance-coverage-basis.ts');
   const adaptersText = read('packages/main/src/core/acceptance-discovery-adapters.ts');
   const receiptText = read('packages/main/src/core/acceptance-basis-receipt.ts');
+  const acceptancePromptPaths = [
+    'packages/main/templates/agents/lattice-review-scope-plan.md',
+    '.claude/agents/lattice-review-scope-plan.md',
+    '.lattice-codex/agents/lattice-review-scope-plan.md',
+  ];
+  const acceptanceRequiredSemantics = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-contract'
+    ? requiredProcessFactSemantics.acceptance_basis_generate.filter(item => item !== 'gate-evidence')
+    : requiredProcessFactSemantics.acceptance_basis_generate;
   assert(
     handlerText.includes('acceptance_basis_generate')
       && handlerText.includes('acceptance_basis(args')
@@ -633,7 +649,9 @@ function assertProofStoryProgressiveBoundary() {
       && adaptersText.includes('AT_REQUIRED_ADAPTER_RESULT_MISSING')
       && adaptersText.includes('AT_DISCOVERY_DISAGREEMENT')
       && receiptText.includes('verifyAcceptanceBasisReceipt')
-      && receiptText.includes('checkEvidenceFreshnessForGit'),
+      && receiptText.includes('checkEvidenceFreshnessForGit')
+      && acceptancePromptPaths.every(path => read(path).includes('lattice acceptance_basis_generate'))
+      && acceptanceRequiredSemantics.includes('gate-evidence'),
     'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, signed receipt verification, and canonical freshness consumption',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');

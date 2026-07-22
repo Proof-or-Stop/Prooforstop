@@ -64,6 +64,38 @@
       ],
       "severity": "high",
       "createdAt": "2026-07-22T07:04:57.681Z"
+    },
+    {
+      "clusterId": "CL-005",
+      "rootCause": "Multiple findings all involve packages/main/src/core/acceptance-discovery-adapters.ts",
+      "findingIds": [
+        "B-a32a:F-011",
+        "B-a32a:F-013"
+      ],
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "registry.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-07-22T07:43:51.925Z"
+    },
+    {
+      "clusterId": "CL-006",
+      "rootCause": "Multiple findings all involve packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+      "findingIds": [
+        "B-a32a:F-015",
+        "B-a32a:F-016",
+        "B-a32a:F-017"
+      ],
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "severity": "high",
+      "createdAt": "2026-07-22T07:43:54.641Z"
     }
   ]
 }
