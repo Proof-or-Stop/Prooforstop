@@ -58,6 +58,36 @@
         "scanEscalationReason": null
       },
       "_hash": "cb2adcc54de1404bee58eaf15da21c5ff8f0b439a175814ba0f259572741d502"
+    },
+    {
+      "id": "B-1995:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: mapped 23/23 must intents with current storyFilesHash evidence and zero waivers; replayed F-012 against general verification, ProofStory completeness, milestone status, and closeout; matrix-derived rows remain non-covering while typed producer-command and bounded manual fallback positive/negative controls behave as specified; current focused smoke and process-fact contract completed successfully.",
+      "createdAt": "2026-07-22T04:01:36.208Z",
+      "reviewRound": "2026-07-22T03:58:24.980Z",
+      "reviewRunId": "B-1995:RR-009",
+      "envelopeId": "a9cbe8cf4f69234164321cc3a80af5862b769ffc48d7b44be57efa5b0c5bb28e",
+      "writerSessionId": "sess-741ea583beda234da591cc6ed40d2032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/checklist.json",
+          ".lattice/story/actives/B-1995/plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "88f989436fc381a67627794e6efe5341201d609fc199ad7dcd37acb087eb17c1"
     }
   ]
 }
