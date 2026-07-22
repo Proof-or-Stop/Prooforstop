@@ -298,6 +298,26 @@
       ],
       "signatureTag": "missing|ts|evidence-remains-incomplete",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-016",
+      "desc": "CHK-003 caller/freshness evidence remains incomplete after F-009 repair. The forbidden-field matrix at packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:333-345 omits receiptRef, basisDigest, issuer identity, signature, and the individual binding-hash fields explicitly required by VI-A32A-003-CALLER-ISSUER-FORGERY. The receipt mutation matrix proves signed tamper rejection, but VI-A32A-003-FRESHNESS-CLASSIFICATION separately requires headHash-only and unrelated-material movement to be classified by the existing freshness reader and never silently rebound; no such classification controls exist. Thus the two recorded pass rows still overclaim their must intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T07:42:40.335Z",
+      "reviewRound": "2026-07-22T07:36:41.806Z",
+      "reviewRunId": "B-a32a:RR-008",
+      "_hash": "e64e3bd4e387120a4b8eadc155a2438995ea35b81aa3cc1310eb31febec41787",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/evidence-freshness.ts"
+      ],
+      "signatureTag": "missing|ts|caller-freshness-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
