@@ -780,6 +780,57 @@
         "scanEscalationReason": null
       },
       "_hash": "ff1963c9b796ceb8df50db00ea17f65e6b49282042377b6280e165b37cf91465"
+    },
+    {
+      "id": "B-a32a:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Round 13 docs audit found no blocker. Commit 948c8ea854 fully addresses F-045: docs/CLI.md now documents the persisted structured snapshotSeal fields, canonical sealDigest, receipt signature binding, current canonical discovery/physical seal re-derivation, stale source/config/new-consumer invalidation, structured partial issues, and caller-forgery boundary. It also explicitly preserves the Wave 1A boundary as an L3 signed diagnostic artifact with no lifecycle-gate consumer, no Authority claim, and no Wave 2 pre-review enforcement claim. These statements match AcceptanceCoverageBasisV1/AcceptanceBasisReceiptV1, receipt issuer/verifier and handler expectedSealDigest checks, process-fact registry rationale, process-level classification, and all three implementer mirrors. Audited 50 changed exported TypeScript declarations and 11 bounded documentation/prompt groups.",
+      "createdAt": "2026-07-22T10:38:10.973Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-045",
+      "envelopeId": "7f78524b523e176d5403a2e17aca5f50e1e7c521d9f06b1fb303a0ea756cb1b2",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "docs/CLI.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "e259433c61911ed59f065f6e7f91a89da4501fdb3daf4bd3ee7ef86826092f71"
     }
   ]
 }
