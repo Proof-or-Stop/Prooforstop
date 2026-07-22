@@ -43,7 +43,7 @@
       "desc": "packages/main/src/core/acceptance-topology.ts:299 topology_totality_is_group_presence_only: diagnostics require non-empty assertion groups but never prove each binding must-priority verificationIntent is referenced, and commandRefs has no required-group check. A targeted report with binding verificationIntentRefs=[INT-MUST], every assertion sourced only from INT-OTHER, and commandRefs=[] returned codes=[] and result=inconclusive_basis_unverified. Implement per-binding must-intent coverage/appropriate-lane totality plus required command-reference diagnostics, with omission mutations.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T03:19:43.671Z",
@@ -51,7 +51,11 @@
       "reviewRunId": "B-1995:RR-001",
       "_hash": "6e524daf69c03394f5c5f28fdf2132ca3ce28db27c748db0975eeeaf0f1488ee",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 92d375b70a: topology totality now maps every must intent by lane to positive/mutation assertions and requires non-docs commandRefs; omissions emit AT_INTENT_UNCOVERED or AT_COMMAND_MISSING.",
+      "resolvedAt": "2026-07-22T03:40:52.555Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1995:F-004",
