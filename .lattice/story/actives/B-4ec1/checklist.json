@@ -10,7 +10,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-W3-M1-PRE-REVIEW-ROUNDTRIP",
+            "desc": "M1: Through the registered production CLI/handler, create a canonical pre_review_check artifact from a complete current basis/topology/scope/story/closure/evidence state, then consume that same artifact through the lifecycle verifier and read-only diagnostic command; require one verifier-owned deterministic PASS, valid signature, canonical IDs, and matching basisDigest, topologyDigest, scopeCheckDigest, applicable scopeContractDigest, storyFilesHash, closureFilesHash, evidence refs, mode and issued-at/freshness bindings.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-W3-M1-DETERMINISTIC-CODES",
+            "desc": "M1: Run the same canonical input repeatedly and require byte-stable canonical payload/digest plus stable ordered result codes; independently make each required input missing, partial, unsupported, or unresolved and require the documented deterministic failure code with no caller-selected verdict or diagnostic-only value treated as authority.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M1-PRODUCER-CONSUMER-PARITY",
+            "desc": "M1: Prove the explicit pre_review_check command, read-only check, and DEV-to-REVIEW consumer all call the same production verifier and return equivalent semantic results for PASS and representative failures; a prompt-only, duplicate, or permissive consumer must be detected.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-W3-M1-EVERY-BINDING-TAMPER",
+            "desc": "M1: Table-mutate or delete every signed/hash-bound artifact field one at a time—including story/canonical IDs, basis/topology/scope digests, storyFilesHash, closureFilesHash, evidence refs, mode, timestamps and signature—and require verification to fail closed with the field-specific stable code; copying a valid artifact to another story, HEAD, closure, or phase must also fail.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M1-CALLER-AUTHORITY-REPLAY",
+            "desc": "M1: Attempt to submit caller-authored ok/verdict/authority/freshness fields, re-sign with an untrusted key, replay an older valid artifact after material drift, and promote read-only diagnostics or prose to gate evidence; every path must be rejected and no artifact/gate state may be silently rebound.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
