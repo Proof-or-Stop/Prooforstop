@@ -841,6 +841,26 @@
       ],
       "signatureTag": "adversarial|ts|acceptance-discovery-adapters",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-043",
+      "desc": "acceptance-discovery-adapters.ts:1082-1087 invokes the caller-provided testHooks.afterSeal callback after sealSourceAssembly has completed every directory/file revalidation but before its blindSpots are returned; acceptance-coverage-basis.ts:312-319 then trusts that already-computed empty list and can classify complete. Concrete repro: pass discoveryTestHooks.afterSeal that writes packages/main/src/late-after-seal.ts (or mutates producer.ts). The callback executes at line 1086 after the final fingerprints were checked, seal() still returns [], and deriveAcceptanceCoverageBasis returns status complete while the workspace no longer matches its inventory/provenance/hash. Because discoveryTestHooks is part of the exported derivation input, this is an actual deterministic bypass of the new final seal, not merely a scheduling hypothesis. Remove any mutation-capable callback after the last check (or perform an additional final validation after it) and add the exact afterSeal write mutation assertion that status must be partial.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T10:15:29.368Z",
+      "reviewRound": "2026-07-22T10:14:19.922Z",
+      "reviewRunId": "B-a32a:RR-039",
+      "_hash": "5620409ed066e95b90ff681442fc8ade2dc1541a5d62463dc7163c16e726903f",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|acceptance-discovery-adapters",
+      "signatureTagSource": "auto"
     }
   ]
 }
