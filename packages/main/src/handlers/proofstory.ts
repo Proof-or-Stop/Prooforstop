@@ -178,6 +178,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       expectedScopeCheckDigest: `sha256:${digestCanonicalJson(current.scopeCheck)}`,
       ...(current.scopeContract ? { expectedScopeContractDigest: `sha256:${digestCanonicalJson(current.scopeContract)}` } : {}),
       expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+      expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
       expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
     });
     const topologyDiagnostics = reconcileTopologyWithCoverageBasis(
@@ -244,6 +245,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         expectedScopeCheckDigest: current.derivation.basis.binding.scopeCheckDigest,
         ...(current.derivation.basis.binding.scopeContractDigest ? { expectedScopeContractDigest: current.derivation.basis.binding.scopeContractDigest } : {}),
         expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+        expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
         expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
       });
       if (!verification.ok) throw new Error(`acceptance_basis_generate refused invalid receipt: ${verification.code}: ${verification.diagnostics.join('; ')}`);

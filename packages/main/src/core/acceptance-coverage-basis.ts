@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type {
   AcceptanceCoverageBasisV1,
+  AcceptanceSnapshotSealIssueV1,
   AcceptanceVerificationTopologyV1,
   ChecklistData,
   DecisionData,
@@ -18,6 +19,7 @@ import {
   discoveryProfileDigest,
   reconcileAcceptanceDiscoveryResults,
   runAcceptanceDiscoverySnapshot,
+  renderAcceptanceSnapshotSealIssue,
   snapshotAcceptanceSourceFiles,
 } from './acceptance-discovery-adapters.js';
 
@@ -41,8 +43,7 @@ export interface AcceptanceBasisDerivationInput {
   foundationalDecision?: DecisionData | null;
   /** Test-only mutation point immediately before the end-of-assembly seal. */
   discoveryTestHooks?: {
-    afterAssemblyBeforeSeal?: () => void;
-    afterSeal?: (result: { directoryCount: number; fileCount: number; blindSpots: string[] }) => void;
+    immediatelyBeforeFinalSeal?: () => void;
   };
 }
 
@@ -273,9 +274,28 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     const absentPlannedFile = matched && plannedFiles.has(matched) && /unreadable or disappeared/.test(message);
     return !absentPlannedFile;
   });
-  const preSealBlindSpots = stable([...reconciled.blindSpots, ...registeredClosure.blindSpots, ...closureSnapshot.blindSpots, ...sourceReadBlindSpots]);
+  const additionalSealIssues: AcceptanceSnapshotSealIssueV1[] = [
+    ...closureSnapshot.blindSpots.map(message => ({ code: 'snapshot_missing' as const, targetKind: 'inventory' as const, canonicalRef: message.split(': ').at(-1) ?? 'closure-source' })),
+    ...sourceReadBlindSpots.map(message => ({
+      code: (/no-follow/.test(message) ? 'safe_no_follow_unsupported' : /changed|symlink/.test(message) ? 'source_file_changed' : 'snapshot_missing') as AcceptanceSnapshotSealIssueV1['code'],
+      targetKind: message.includes('lattice.config.json') ? 'config' as const : 'source_file' as const,
+      canonicalRef: message.match(/: (.+?)(?: -> .+)?$/)?.[1] ?? 'source-snapshot',
+    })),
+  ];
+  const preSealBlindSpots = reconciled.blindSpots;
   const topologyDigest = digest((input.contract?.acceptanceBindings ?? []).map(binding => ({ id: binding.id, topology: binding.verificationTopology ?? null })));
   const receiptRef = `receipt:coverage-basis:${input.storyId}:plan:${digest({ storyId: input.storyId, topologyDigest, closureFilesHash }).slice(7, 23)}`;
+  const placeholderSealUnsigned = {
+    schemaVersion: 'proofstory.acceptance_snapshot_seal.v1' as const,
+    inventoryDirectoryDigest: `sha256:${digestCanonicalJson([])}`,
+    inventoryDirectoryCount: 0,
+    sourceSnapshotDigest: `sha256:${digestCanonicalJson([])}`,
+    sourceSnapshotCount: 0,
+    configSnapshotDigest: `sha256:${digestCanonicalJson(null)}`,
+    status: 'complete' as const,
+    issues: [],
+  };
+  const placeholderSeal = { ...placeholderSealUnsigned, sealDigest: `sha256:${digestCanonicalJson(placeholderSealUnsigned)}` };
   let unsigned: Omit<AcceptanceCoverageBasisV1, 'basisDigest'> = {
     schemaVersion: 'proofstory.acceptance_coverage_basis.v1',
     storyId: input.storyId,
@@ -297,6 +317,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     enumeratedPathRefs: reconciled.enumeratedPathRefs,
     excludedPathRefs: [],
     blindSpots: preSealBlindSpots,
+    snapshotSeal: placeholderSeal,
     binding: {
       headHash: input.headHash,
       materialHash: input.materialHash,
@@ -308,13 +329,23 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     receiptRef,
   };
   const provisional = { ...unsigned, basisDigest: digestAcceptanceCoverageBasis(unsigned) };
+  const topologyDiagnosticStart = diagnostics.length;
   diagnostics.push(...reconcileTopologyWithCoverageBasis(input.contract, provisional, input.foundationalDecision));
-  discovery.afterAssemblyBeforeSeal?.();
-  const derivationBlindSpots = stable([...preSealBlindSpots, ...discovery.seal()]);
+  additionalSealIssues.push(...diagnostics.slice(topologyDiagnosticStart).map(item => ({
+    code: 'derivation_diagnostic' as const,
+    targetKind: 'inventory' as const,
+    canonicalRef: `${item.code}:${item.pathRef ?? '<basis>'}`,
+  })));
+  discovery.immediatelyBeforeFinalSeal?.();
+  const snapshotSeal = discovery.seal(additionalSealIssues);
+  const derivationBlindSpots = stable([...preSealBlindSpots, ...snapshotSeal.issues.map(renderAcceptanceSnapshotSealIssue)]);
   unsigned = {
     ...unsigned,
     blindSpots: derivationBlindSpots,
-    status: classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, derivationBlindSpots),
+    snapshotSeal,
+    status: supported && snapshotSeal.status === 'complete'
+      ? classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, derivationBlindSpots)
+      : supported ? 'partial' : 'unsupported',
   };
   return { basis: { ...unsigned, basisDigest: digestAcceptanceCoverageBasis(unsigned) }, diagnostics, topologyDigest };
 }
@@ -334,10 +365,26 @@ export function verifyAcceptanceCoverageBasis(
   }
   const reconciled = reconcileAcceptanceDiscoveryResults(basis.adapterResults);
   diagnostics.push(...reconciled.diagnostics);
-  const independentBlindSpots = basis.blindSpots.filter(item => !reconciled.blindSpots.includes(item));
-  const independentBlindSpotsValid = independentBlindSpots.every(item => /^(?:closure source lacks immutable bounded snapshot|source file |configured source |canonical source-root config |canonical lattice\.config\.json|safe no-follow )/.test(item));
+  const seal = basis.snapshotSeal;
+  const sealIssueCodes = new Set(['directory_changed', 'source_file_changed', 'safe_no_follow_unsupported', 'inventory_unsealable', 'snapshot_missing', 'derivation_diagnostic']);
+  const sealShapeValid = seal?.schemaVersion === 'proofstory.acceptance_snapshot_seal.v1'
+    && Number.isInteger(seal.inventoryDirectoryCount) && seal.inventoryDirectoryCount >= 0
+    && Number.isInteger(seal.sourceSnapshotCount) && seal.sourceSnapshotCount >= 0
+    && [seal.inventoryDirectoryDigest, seal.sourceSnapshotDigest, seal.configSnapshotDigest, seal.sealDigest].every(value => /^sha256:[a-f0-9]{64}$/.test(value))
+    && Array.isArray(seal.issues)
+    && seal.issues.every(issue => sealIssueCodes.has(issue.code)
+      && ['directory', 'source_file', 'config', 'inventory'].includes(issue.targetKind)
+      && typeof issue.canonicalRef === 'string' && issue.canonicalRef.length > 0);
+  if (!sealShapeValid) diagnostics.push({ code: 'AT_ADAPTER_RESULT_INVALID', message: 'snapshot seal shape is invalid' });
+  if (sealShapeValid) {
+    const { sealDigest, ...unsignedSeal } = seal;
+    if (`sha256:${digestCanonicalJson(unsignedSeal)}` !== sealDigest) diagnostics.push({ code: 'AT_ADAPTER_RESULT_DIGEST_MISMATCH', message: 'snapshot seal digest mismatch' });
+    const expectedSealStatus = seal.issues.length === 0 ? 'complete' : 'partial';
+    if (seal.status !== expectedSealStatus) diagnostics.push({ code: 'AT_COVERAGE_BASIS_PARTIAL', message: `snapshot seal status mismatch: expected ${expectedSealStatus}` });
+  }
+  const expectedBlindSpots = stable([...reconciled.blindSpots, ...(sealShapeValid ? seal.issues.map(renderAcceptanceSnapshotSealIssue) : [])]);
   if (JSON.stringify(reconciled.enumeratedPathRefs) !== JSON.stringify(basis.enumeratedPathRefs)
-    || reconciled.blindSpots.some(item => !basis.blindSpots.includes(item)) || !independentBlindSpotsValid
+    || JSON.stringify(expectedBlindSpots) !== JSON.stringify(basis.blindSpots)
     || JSON.stringify(stable(reconciled.adapterResults.map(result => result.method))) !== JSON.stringify(stable(basis.discoveryMethods))) {
     diagnostics.push({ code: 'AT_ADAPTER_RESULT_DIGEST_MISMATCH', message: 'basis aggregate does not match adapter result projection' });
   }
@@ -346,12 +393,9 @@ export function verifyAcceptanceCoverageBasis(
     if (digest(unsigned) !== plannedPathDigest) diagnostics.push({ code: 'AT_PLANNED_PATH_DECLARATION_DRIFT', message: `planned path digest mismatch: ${record.plannedPathRef}` });
     if (basis.status !== 'unsupported' && !basis.enumeratedPathRefs.includes(record.plannedPathRef)) diagnostics.push({ code: 'AT_PLANNED_PATH_OUTSIDE_BASIS', message: `planned path absent from basis union: ${record.plannedPathRef}` });
   }
-  const expectedStatus = classifyAcceptanceCoverageBasis(
-    reconciled.status !== 'unsupported', diagnostics, reconciled.status, basis.blindSpots,
-  );
-  if (basis.status === 'complete' && expectedStatus !== 'complete') {
-    diagnostics.push({ code: 'AT_COVERAGE_BASIS_PARTIAL', message: `basis claims complete but verifier classifies ${expectedStatus}` });
-  }
+  const expectedStatus = reconciled.status === 'unsupported' ? 'unsupported'
+    : diagnostics.length > 0 || reconciled.status === 'partial' || seal?.status === 'partial' ? 'partial' : 'complete';
+  if (basis.status !== expectedStatus) diagnostics.push({ code: 'AT_COVERAGE_BASIS_PARTIAL', message: `basis status ${basis.status} does not equal verifier classification ${expectedStatus}` });
   return { ok: diagnostics.length === 0, diagnostics };
 }
 

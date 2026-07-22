@@ -1,7 +1,13 @@
 import { closeSync, constants as fsConstants, existsSync, fstatSync, lstatSync, opendirSync, openSync, readSync, realpathSync, type Dir, type Dirent, type Stats } from 'node:fs';
 import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import ts from 'typescript';
-import type { CoverageAdapterResultV1, CoverageDiscoveryMethodV1, PlannedCoveragePathV1 } from './types.js';
+import type {
+  AcceptanceSnapshotSealIssueV1,
+  AcceptanceSnapshotSealV1,
+  CoverageAdapterResultV1,
+  CoverageDiscoveryMethodV1,
+  PlannedCoveragePathV1,
+} from './types.js';
 import { digestCanonicalJson, digestText } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
 import { RUNTIME_FACT_REGISTRY } from './runtime-fact-registry.js';
@@ -21,8 +27,7 @@ export interface AcceptanceDiscoveryInput {
   runtimeObservedPathRefs?: string[];
   /** Test-only mutation point after graph/provenance assembly and before the derivation seal. */
   testHooks?: {
-    afterAssemblyBeforeSeal?: () => void;
-    afterSeal?: (result: { directoryCount: number; fileCount: number; blindSpots: string[] }) => void;
+    immediatelyBeforeFinalSeal?: () => void;
   };
 }
 
@@ -45,8 +50,8 @@ export interface AcceptanceDiscoverySnapshot {
   registeredClosure: RegisteredProcessFactClosure;
   sourceSnapshots: AcceptanceSourceSnapshot[];
   sourceReadBlindSpots: string[];
-  seal: () => string[];
-  afterAssemblyBeforeSeal?: () => void;
+  seal: (additionalIssues?: readonly AcceptanceSnapshotSealIssueV1[]) => AcceptanceSnapshotSealV1;
+  immediatelyBeforeFinalSeal?: () => void;
 }
 
 export interface AcceptanceDiscoveryDiagnostic {
@@ -521,7 +526,7 @@ function readSourceSafely(context: SourceReadContext, file: string, perFileCap =
   }
 }
 
-function revalidateDirectoryFingerprint(fingerprint: DirectoryFingerprint): string | null {
+function revalidateDirectoryFingerprint(fingerprint: DirectoryFingerprint): boolean {
   let handle: Dir | undefined;
   try {
     const current = lstatSync(fingerprint.path);
@@ -541,13 +546,13 @@ function revalidateDirectoryFingerprint(fingerprint: DirectoryFingerprint): stri
     rows.sort((a, b) => compareCodeUnits(a.name, b.name));
     const entriesDigest = digestText(rows.map(row => `${row.name}\0${row.isDirectory() ? 'd' : row.isFile() ? 'f' : row.isSymbolicLink() ? 'l' : 'o'}`).join('\n'));
     if (rows.length !== fingerprint.entryCount || entriesDigest !== fingerprint.entriesDigest) throw new Error('entries changed');
-    return null;
-  } catch { return `configured source directory changed before derivation seal: ${fingerprint.path}`; }
+    return true;
+  } catch { return false; }
   finally { if (handle) try { handle.closeSync(); } catch { /* already a failed seal */ } }
 }
 
-function revalidateFileFingerprint(context: SourceReadContext, fingerprint: FileFingerprint): string | null {
-  const fail = (): string => `source file changed before derivation seal: ${fingerprint.path}`;
+function revalidateFileFingerprint(context: SourceReadContext, fingerprint: FileFingerprint): AcceptanceSnapshotSealIssueV1['code'] | null {
+  const fail = (): AcceptanceSnapshotSealIssueV1['code'] => 'source_file_changed';
   let absolute = context.physicalRoot;
   let descriptor: number | undefined;
   try {
@@ -558,7 +563,7 @@ function revalidateFileFingerprint(context: SourceReadContext, fingerprint: File
     const physical = realpathSync(absolute);
     if (physical !== fingerprint.physicalPath) return fail();
     const noFollow = context.forceNoFollow ? undefined : fsConstants.O_NOFOLLOW;
-    if (typeof noFollow !== 'number' || noFollow <= 0) return `safe no-follow derivation seal is unsupported: ${fingerprint.path}`;
+    if (typeof noFollow !== 'number' || noFollow <= 0) return 'safe_no_follow_unsupported';
     descriptor = openSync(physical, fsConstants.O_RDONLY | noFollow);
     const opened = fstatSync(descriptor);
     if (opened.dev !== fingerprint.dev || opened.ino !== fingerprint.ino || opened.size !== fingerprint.size
@@ -581,11 +586,49 @@ function revalidateFileFingerprint(context: SourceReadContext, fingerprint: File
   finally { if (descriptor !== undefined) try { closeSync(descriptor); } catch { /* seal already fails only if observable above */ } }
 }
 
-function sealSourceAssembly(context: SourceReadContext, directories: readonly DirectoryFingerprint[]): string[] {
-  return stable([
-    ...directories.map(revalidateDirectoryFingerprint).filter((value): value is string => Boolean(value)),
-    ...stable([...context.fingerprints.keys()]).map(file => revalidateFileFingerprint(context, context.fingerprints.get(file)!)).filter((value): value is string => Boolean(value)),
-  ]);
+function sealSourceAssembly(
+  context: SourceReadContext,
+  directories: readonly DirectoryFingerprint[],
+  additionalIssues: readonly AcceptanceSnapshotSealIssueV1[] = [],
+): AcceptanceSnapshotSealV1 {
+  const directoryProjection = directories.map(fingerprint => ({
+    canonicalRef: relativeFile(context.physicalRoot, fingerprint.path) ?? fingerprint.path,
+    entryCount: fingerprint.entryCount, entriesDigest: fingerprint.entriesDigest,
+  })).sort((left, right) => compareCodeUnits(left.canonicalRef, right.canonicalRef));
+  const fileProjection = stable([...context.fingerprints.keys()]).filter(file => file !== 'lattice.config.json').map(file => {
+    const fingerprint = context.fingerprints.get(file)!;
+    return { canonicalRef: file, size: fingerprint.size, contentDigest: fingerprint.contentDigest };
+  });
+  const configFingerprint = context.fingerprints.get('lattice.config.json');
+  const issues: AcceptanceSnapshotSealIssueV1[] = [...additionalIssues];
+  for (const fingerprint of directories) {
+    if (!revalidateDirectoryFingerprint(fingerprint)) issues.push({ code: 'directory_changed', targetKind: 'directory', canonicalRef: relativeFile(context.physicalRoot, fingerprint.path) ?? fingerprint.path });
+  }
+  for (const file of stable([...context.fingerprints.keys()])) {
+    const code = revalidateFileFingerprint(context, context.fingerprints.get(file)!);
+    if (code) issues.push({ code, targetKind: file === 'lattice.config.json' ? 'config' : 'source_file', canonicalRef: file });
+  }
+  if (directories.length === 0) issues.push({ code: 'inventory_unsealable', targetKind: 'inventory', canonicalRef: 'configured-source-root' });
+  if (!configFingerprint) issues.push({ code: 'snapshot_missing', targetKind: 'config', canonicalRef: 'lattice.config.json' });
+  const stableIssues = [...new Map(issues.map(issue => [`${issue.code}\0${issue.targetKind}\0${issue.canonicalRef}`, issue])).values()]
+    .sort((left, right) => compareCodeUnits(`${left.code}:${left.targetKind}:${left.canonicalRef}`, `${right.code}:${right.targetKind}:${right.canonicalRef}`));
+  const unsigned: Omit<AcceptanceSnapshotSealV1, 'sealDigest'> = {
+    schemaVersion: 'proofstory.acceptance_snapshot_seal.v1',
+    inventoryDirectoryDigest: `sha256:${digestCanonicalJson(directoryProjection)}`,
+    inventoryDirectoryCount: directoryProjection.length,
+    sourceSnapshotDigest: `sha256:${digestCanonicalJson(fileProjection)}`,
+    sourceSnapshotCount: fileProjection.length,
+    configSnapshotDigest: `sha256:${digestCanonicalJson(configFingerprint ? {
+      canonicalRef: 'lattice.config.json', size: configFingerprint.size, contentDigest: configFingerprint.contentDigest,
+    } : null)}`,
+    status: stableIssues.length === 0 ? 'complete' : 'partial',
+    issues: stableIssues,
+  };
+  return { ...unsigned, sealDigest: `sha256:${digestCanonicalJson(unsigned)}` };
+}
+
+export function renderAcceptanceSnapshotSealIssue(issue: AcceptanceSnapshotSealIssueV1): string {
+  return `snapshot-seal:${issue.code}:${issue.targetKind}:${issue.canonicalRef}`;
 }
 
 /** Test seam proving the shared source-read budget rejects before unbounded allocation. */
@@ -1065,8 +1108,8 @@ export function runAcceptanceDiscoverySnapshot(input: AcceptanceDiscoveryInput):
       registeredClosure: { pathRefs: [], sourceInventoryRefs: [], sourceFileRefs: [], blindSpots: [], entries: [] },
       sourceSnapshots: [],
       sourceReadBlindSpots: [],
-      seal: () => [],
-      afterAssemblyBeforeSeal: input.testHooks?.afterAssemblyBeforeSeal,
+      seal: additionalIssues => sealSourceAssembly(createSourceReadContext(input.workspaceRoot), [], additionalIssues),
+      immediatelyBeforeFinalSeal: input.testHooks?.immediatelyBeforeFinalSeal,
     };
   }
   const graph = buildBoundedSourceGraph(input);
@@ -1079,14 +1122,8 @@ export function runAcceptanceDiscoverySnapshot(input: AcceptanceDiscoveryInput):
       return { canonicalFile, contentDigest: digestText(content), content };
     }),
     sourceReadBlindSpots: stable([...graph.readContext.failures.values()]),
-    seal: () => {
-      const blindSpots = graph.directoryFingerprints.length > 0
-        ? sealSourceAssembly(graph.readContext, graph.directoryFingerprints)
-        : ['configured source inventory lacks sealable directory fingerprints'];
-      input.testHooks?.afterSeal?.({ directoryCount: graph.directoryFingerprints.length, fileCount: graph.readContext.fingerprints.size, blindSpots });
-      return blindSpots;
-    },
-    afterAssemblyBeforeSeal: input.testHooks?.afterAssemblyBeforeSeal,
+    seal: additionalIssues => sealSourceAssembly(graph.readContext, graph.directoryFingerprints, additionalIssues),
+    immediatelyBeforeFinalSeal: input.testHooks?.immediatelyBeforeFinalSeal,
   };
 }
 

@@ -1029,7 +1029,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'acceptance_basis read-only receipt verification and diagnostic rendering boundary',
     consumerSourceRefs: ['packages/main/src/core/process-fact-registry.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.acceptance_basis_generate,
-    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash and closureFilesHash. The acceptance_basis reader is diagnostic-only and cannot mint or rebind it.',
+    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. The acceptance_basis reader is diagnostic-only and cannot mint or rebind it.',
   },
   {
     name: 'artifact:milestone-ledger.json',

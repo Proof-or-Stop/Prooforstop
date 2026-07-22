@@ -90,6 +90,7 @@ export function issueAcceptanceBasisReceipt(args: {
     materialHash: args.basis.binding.materialHash,
     storyFilesHash: args.basis.binding.storyFilesHash,
     closureFilesHash: args.basis.binding.closureFilesHash,
+    sealDigest: args.basis.snapshotSeal.sealDigest,
     workspaceIdentityDigest: workspaceIdentityDigest(args.gitCwd),
   };
   return { ...unsigned, signature: signCanonical(unsigned, privateKey) };
@@ -104,6 +105,7 @@ export function verifyAcceptanceBasisReceipt(args: {
   expectedScopeCheckDigest?: string;
   expectedScopeContractDigest?: string;
   expectedClosureFilesHash?: string;
+  expectedSealDigest?: string;
   expectedBasisSemanticDigest?: string;
 }): AcceptanceBasisReceiptVerification {
   if (!args.artifact) return { ok: false, code: 'AT_COVERAGE_BASIS_MISSING', diagnostics: ['acceptance basis receipt is missing'] };
@@ -129,6 +131,7 @@ export function verifyAcceptanceBasisReceipt(args: {
   if (args.expectedScopeCheckDigest && receipt.scopeCheckDigest !== args.expectedScopeCheckDigest) diagnostics.push('scope-check digest mismatch');
   if (args.expectedScopeContractDigest && receipt.scopeContractDigest !== args.expectedScopeContractDigest) diagnostics.push('scope-contract digest mismatch');
   if (args.expectedClosureFilesHash && receipt.closureFilesHash !== args.expectedClosureFilesHash) diagnostics.push('closure files hash mismatch');
+  if (args.expectedSealDigest && receipt.sealDigest !== args.expectedSealDigest) diagnostics.push('snapshot seal digest mismatch');
   const freshness = checkEvidenceFreshnessForGit(args.gitCwd, receipt.headHash, receipt.materialHash, args.metadataRoot, receipt.storyFilesHash);
   if (!freshness.fresh) diagnostics.push(`freshness mismatch: ${freshness.reason}`);
   const current = {
@@ -140,6 +143,7 @@ export function verifyAcceptanceBasisReceipt(args: {
   if (receipt.scopeCheckDigest !== basis.binding.scopeCheckDigest
     || receipt.scopeContractDigest !== basis.binding.scopeContractDigest
     || receipt.closureFilesHash !== basis.binding.closureFilesHash
+    || receipt.sealDigest !== basis.snapshotSeal.sealDigest
     || receipt.headHash !== basis.binding.headHash
     || receipt.materialHash !== basis.binding.materialHash
     || receipt.storyFilesHash !== basis.binding.storyFilesHash) diagnostics.push('receipt and basis binding mismatch');

@@ -313,6 +313,32 @@ export interface PlannedActualPathReconciliationV1 {
   reconciliationDigest: string;
 }
 
+export type AcceptanceSnapshotSealIssueCodeV1 =
+  | 'directory_changed'
+  | 'source_file_changed'
+  | 'safe_no_follow_unsupported'
+  | 'inventory_unsealable'
+  | 'snapshot_missing'
+  | 'derivation_diagnostic';
+
+export interface AcceptanceSnapshotSealIssueV1 {
+  code: AcceptanceSnapshotSealIssueCodeV1;
+  targetKind: 'directory' | 'source_file' | 'config' | 'inventory';
+  canonicalRef: string;
+}
+
+export interface AcceptanceSnapshotSealV1 {
+  schemaVersion: 'proofstory.acceptance_snapshot_seal.v1';
+  inventoryDirectoryDigest: string;
+  inventoryDirectoryCount: number;
+  sourceSnapshotDigest: string;
+  sourceSnapshotCount: number;
+  configSnapshotDigest: string;
+  status: 'complete' | 'partial';
+  issues: AcceptanceSnapshotSealIssueV1[];
+  sealDigest: string;
+}
+
 export interface AcceptanceCoverageBasisV1 {
   schemaVersion: 'proofstory.acceptance_coverage_basis.v1';
   storyId: string;
@@ -335,6 +361,7 @@ export interface AcceptanceCoverageBasisV1 {
   enumeratedPathRefs: string[];
   excludedPathRefs: Array<{ pathRef: string; decisionRef: string }>;
   blindSpots: string[];
+  snapshotSeal: AcceptanceSnapshotSealV1;
   binding: {
     headHash: string;
     materialHash: string;
@@ -363,6 +390,7 @@ export interface AcceptanceBasisReceiptV1 {
   materialHash: string;
   storyFilesHash: string;
   closureFilesHash: string;
+  sealDigest: string;
   workspaceIdentityDigest: string;
   signature: string;
 }

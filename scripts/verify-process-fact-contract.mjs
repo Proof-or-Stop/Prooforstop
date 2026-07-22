@@ -649,10 +649,13 @@ function assertProofStoryProgressiveBoundary() {
       && catalogText.includes("status: z.never()")
       && basisText.includes('deriveAcceptanceCoverageBasis')
       && basisText.includes('verifyAcceptanceCoverageBasis')
+      && basisText.includes('snapshotSeal')
       && adaptersText.includes('AT_REQUIRED_ADAPTER_RESULT_MISSING')
       && adaptersText.includes('AT_DISCOVERY_DISAGREEMENT')
       && receiptText.includes('verifyAcceptanceBasisReceipt')
       && receiptText.includes('checkEvidenceFreshnessForGit')
+      && receiptText.includes('sealDigest')
+      && processRegistryText.includes('structured snapshotSeal/sealDigest integrity fact')
       && /name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,400}semantics:\s*\[[^\]]*'workspace-binding'[^\]]*\][\s\S]{0,100}level:\s*'L3'/.test(processRegistryText)
       && !/name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,400}semantics:\s*\[[^\]]*'gate-evidence'/.test(processRegistryText)
       && acceptanceWriterPolicy?.status === 'supported'
@@ -660,7 +663,7 @@ function assertProofStoryProgressiveBoundary() {
       && /name:\s*'acceptance_basis_generate',\s*level:\s*'L3'[\s\S]{0,500}Wave 1A has no lifecycle gate consumer/.test(processLevelText)
       && acceptancePromptPaths.every(path => read(path).includes('lattice acceptance_basis_generate'))
       && acceptanceRequiredSemantics.includes('workspace-binding'),
-    'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, signed receipt verification, and canonical freshness consumption',
+    'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, structured seal binding, signed receipt verification, and canonical freshness consumption',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');

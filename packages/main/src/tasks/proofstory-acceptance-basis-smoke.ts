@@ -25,6 +25,7 @@ import {
   runAcceptanceDiscoveryAdapters,
 } from '../core/acceptance-discovery-adapters.js';
 import { verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
+import { digestCanonicalJson } from '../core/digest.js';
 import { generateEd25519KeyPair, signCanonical } from '../core/authority-signing.js';
 import { resetConfigCache } from '../core/config.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
@@ -85,6 +86,11 @@ function redigestBasis(basis: AcceptanceBasisArtifactV1['basis']): void {
 function redigestAdapter(adapter: AcceptanceBasisArtifactV1['basis']['adapterResults'][number]): void {
   const { resultDigest: _resultDigest, ...unsigned } = adapter;
   adapter.resultDigest = digestCoverageAdapterResult(unsigned);
+}
+
+function redigestSnapshotSeal(seal: AcceptanceBasisArtifactV1['basis']['snapshotSeal']): void {
+  const { sealDigest: _sealDigest, ...unsigned } = seal;
+  seal.sealDigest = `sha256:${digestCanonicalJson(unsigned)}`;
 }
 
 const declaration = {
@@ -201,30 +207,28 @@ try {
   const first = deriveAcceptanceCoverageBasis(input);
   assert.equal(first.basis.status, 'complete', 'stable end-of-assembly seal preserves the complete control');
   const lateC2 = join(pureRoot, 'packages/main/src/late-c2.ts');
-  let lateSealObservation: { directoryCount: number; fileCount: number; blindSpots: string[] } | undefined;
   const lateAddition = deriveAcceptanceCoverageBasis({
     ...input,
     discoveryTestHooks: {
-      afterAssemblyBeforeSeal: () => writeFileSync(lateC2, "export const late = () => true;\n"),
-      afterSeal: result => { lateSealObservation = result; },
+      immediatelyBeforeFinalSeal: () => writeFileSync(lateC2, "export const late = () => true;\n"),
     },
   });
-  assert.equal(lateAddition.basis.status, 'partial', `C2 added after initial enumeration is detected by the derivation seal: ${JSON.stringify(lateSealObservation)}`);
-  assert.ok(lateAddition.basis.blindSpots.some(item => item.includes('directory changed before derivation seal')), 'late C2 addition invalidates its inventory directory fingerprint');
+  assert.equal(lateAddition.basis.status, 'partial', 'C2 added after initial enumeration is detected by the derivation seal');
+  assert.ok(lateAddition.basis.blindSpots.some(item => item.includes('snapshot-seal:directory_changed')), 'late C2 addition invalidates its inventory directory fingerprint');
   rmSync(lateC2, { force: true });
   const producerControl = 'export const produceBasis = () => true;\n';
   const earlyReadMutation = deriveAcceptanceCoverageBasis({
     ...input,
-    discoveryTestHooks: { afterAssemblyBeforeSeal: () => writeFileSync(join(pureRoot, 'packages/main/src/producer.ts'), `${producerControl}// late mutation\n`) },
+    discoveryTestHooks: { immediatelyBeforeFinalSeal: () => writeFileSync(join(pureRoot, 'packages/main/src/producer.ts'), `${producerControl}// late mutation\n`) },
   });
   assert.equal(earlyReadMutation.basis.status, 'partial', 'early-read source mutation is rejected at the final seal');
-  assert.ok(earlyReadMutation.basis.blindSpots.some(item => item.includes('source file changed before derivation seal')), 'early-read mutation reports a file fingerprint blind spot');
+  assert.ok(earlyReadMutation.basis.blindSpots.some(item => item.includes('snapshot-seal:source_file_changed')), 'early-read mutation reports a file fingerprint blind spot');
   writeFileSync(join(pureRoot, 'packages/main/src/producer.ts'), producerControl);
   const configPath = join(pureRoot, 'lattice.config.json');
   const configControl = readFileSync(configPath, 'utf8');
   const configMutation = deriveAcceptanceCoverageBasis({
     ...input,
-    discoveryTestHooks: { afterAssemblyBeforeSeal: () => writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'other' })) },
+    discoveryTestHooks: { immediatelyBeforeFinalSeal: () => writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'other' })) },
   });
   assert.equal(configMutation.basis.status, 'partial', 'config changed after assembly is rejected at the final seal');
   assert.ok(configMutation.basis.blindSpots.some(item => item.includes('lattice.config.json')), 'config mutation names the sealed canonical config');
@@ -234,7 +238,7 @@ try {
     write(configSwapRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'narrow', rootDir: 'src' }));
     const configSwap = deriveAcceptanceCoverageBasis({
       ...input,
-      discoveryTestHooks: { afterAssemblyBeforeSeal: () => { rmSync(configPath); symlinkSync(join(configSwapRoot, 'lattice.config.json'), configPath, 'file'); } },
+      discoveryTestHooks: { immediatelyBeforeFinalSeal: () => { rmSync(configPath); symlinkSync(join(configSwapRoot, 'lattice.config.json'), configPath, 'file'); } },
     });
     assert.equal(configSwap.basis.status, 'partial', 'config symlink swap before seal fails closed');
   } finally {
@@ -336,6 +340,30 @@ try {
   assert.equal(first.basis.status, 'complete', JSON.stringify(first.diagnostics, null, 2));
   const firstVerification = verifyAcceptanceCoverageBasis(first.basis);
   assert.equal(firstVerification.ok, true, JSON.stringify(firstVerification.diagnostics));
+  assert.equal(verifyAcceptanceCoverageBasis(lateAddition.basis).ok, true, 'authentic structured partial seal verifies without claiming complete');
+  const removedSealIssue = structuredClone(lateAddition.basis);
+  removedSealIssue.snapshotSeal.issues = [];
+  removedSealIssue.snapshotSeal.status = 'complete';
+  removedSealIssue.blindSpots = removedSealIssue.blindSpots.filter(item => !item.startsWith('snapshot-seal:'));
+  removedSealIssue.status = 'complete';
+  redigestBasis(removedSealIssue);
+  assert.equal(verifyAcceptanceCoverageBasis(removedSealIssue).ok, false, 'deleting a real seal issue and re-digesting only the basis cannot erase partial integrity');
+  const forgedAllowedPrefix = structuredClone(first.basis);
+  forgedAllowedPrefix.blindSpots.push('source file forged but formerly prefix-allowed');
+  forgedAllowedPrefix.status = 'partial';
+  redigestBasis(forgedAllowedPrefix);
+  assert.equal(verifyAcceptanceCoverageBasis(forgedAllowedPrefix).ok, false, 'free-text allowed-prefix forgery is rejected by exact structured projection');
+  for (const [label, mutate] of [
+    ['status', (value: typeof first.basis) => { value.snapshotSeal.status = 'partial'; }],
+    ['digest', (value: typeof first.basis) => { value.snapshotSeal.sealDigest = `sha256:${'4'.repeat(64)}`; }],
+    ['directory count', (value: typeof first.basis) => { value.snapshotSeal.inventoryDirectoryCount += 1; }],
+    ['source count', (value: typeof first.basis) => { value.snapshotSeal.sourceSnapshotCount += 1; }],
+  ] as const) {
+    const mutation = structuredClone(first.basis);
+    mutate(mutation);
+    redigestBasis(mutation);
+    assert.equal(verifyAcceptanceCoverageBasis(mutation).ok, false, `snapshot seal ${label} mutation bites after basis re-digest`);
+  }
   const aggregateTamper = structuredClone(first.basis);
   aggregateTamper.enumeratedPathRefs = aggregateTamper.enumeratedPathRefs.filter(path => !path.includes('VPP-BASIS'));
   redigestBasis(aggregateTamper);
@@ -899,6 +927,14 @@ try {
   assert.match(readOne, /"receiptVerification"/);
   assert.match(readText, /Mode: read-only; evidentiary: false/);
   assert.deepEqual(fullSnapshot(), snapshot, 'read-only text/JSON diagnostics mutate no story, checklist, contract, receipt, process event, phase, or git state');
+  const lateWorkspaceC2 = join(root, 'packages/main/src/late-after-receipt.ts');
+  writeFileSync(lateWorkspaceC2, 'export const lateAfterReceipt = true;\n');
+  try {
+    const lateWorkspaceRead = run(root, 'acceptance_basis', { storyId, json: true });
+    assert.match(lateWorkspaceRead, /basis semantic discovery digest mismatch|snapshot seal digest mismatch|"status": "invalid"/, 'read-only verifier rederives the current physical seal and rejects a late C2');
+  } finally {
+    rmSync(lateWorkspaceC2, { force: true });
+  }
 
   const forbiddenFields: Record<string, unknown> = {
     status: 'complete', enumeratedPathRefs: ['forged'], blindSpots: [], excludedPathRefs: [],
@@ -936,6 +972,7 @@ try {
     ['material', value => { value.receipt.materialHash = `sha256:${'6'.repeat(64)}`; }],
     ['story files', value => { value.receipt.storyFilesHash = `sha256:${'7'.repeat(64)}`; }],
     ['closure', value => { value.receipt.closureFilesHash = `sha256:${'3'.repeat(64)}`; }],
+    ['snapshot seal', value => { value.receipt.sealDigest = `sha256:${'8'.repeat(64)}`; }],
   ];
   for (const [label, mutate] of mutations) {
     const changed = structuredClone(artifact);
@@ -960,6 +997,13 @@ try {
   adapterBindingTamper.basis.enumeratedPathRefs.sort();
   redigestBasis(adapterBindingTamper.basis);
   assert.equal(verifyAcceptanceBasisReceipt({ artifact: adapterBindingTamper, gitCwd: root, metadataRoot: root, expectedStoryId: storyId }).ok, false, 'adapter-set/result binding mutation with old receipt bites');
+  const basisAndReceiptSealTamper = structuredClone(artifact);
+  basisAndReceiptSealTamper.basis.snapshotSeal.sourceSnapshotCount += 1;
+  redigestSnapshotSeal(basisAndReceiptSealTamper.basis.snapshotSeal);
+  redigestBasis(basisAndReceiptSealTamper.basis);
+  basisAndReceiptSealTamper.receipt.basisDigest = basisAndReceiptSealTamper.basis.basisDigest;
+  basisAndReceiptSealTamper.receipt.sealDigest = basisAndReceiptSealTamper.basis.snapshotSeal.sealDigest;
+  assert.equal(verifyAcceptanceBasisReceipt({ artifact: basisAndReceiptSealTamper, gitCwd: root, metadataRoot: root, expectedStoryId: storyId }).ok, false, 'basis plus receipt seal re-digest cannot forge the registered verifier signature');
 
   const inventedProductionTopology = structuredClone(topology);
   inventedProductionTopology.consumerRefs[0].sourceRef = { refKind: 'existing', canonicalSourceRef: 'invented:C2' };
