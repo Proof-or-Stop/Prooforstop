@@ -145,6 +145,45 @@
       },
       "readDiagnostics": [],
       "_hash": "2aec71978c9480d900d1a4765350f095377d8f9ca5f2b3cacf36a9a7e2284472"
+    },
+    {
+      "id": "B-98b0:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test-coverage PASS: independently reviewed all 25 must intents/evidence (25 passing, 0 gaps, 0 waivers), re-ran the focused production smoke and process-fact contract on the current business code. F-003 is covered by three independent real temp repositories proving the same failing canonical report is non-blocking in observe/warn, blocking in enforce, and core report deep-equals real CLI; polarity mutation bites. F-004 named failure families are now asserted: missing/partial/unsupported/stale/closure/signature/aggregate/required-adapter basis, omissions/inventions, exclusions/orphans/uncovered/mutation/transcript/command gaps, and planned-path semantic/unknown/wrong-role/missing-file/outside-scope cases, with exact restoration and process-fact mutations. No blocking coverage gap remains.",
+      "createdAt": "2026-07-22T16:59:44.315Z",
+      "reviewRound": "2026-07-22T16:55:09.966Z",
+      "reviewRunId": "B-98b0:RR-008",
+      "envelopeId": "10c70fb021aef03b51bfadf80b8cd874b9e4fd066002348696f870cbf79c39b0",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "ec324774beea6863406e47df5aa0fbc0a4f41c64c90d837a35c871cf754fe77c"
     }
   ]
 }
