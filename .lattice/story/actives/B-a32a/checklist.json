@@ -20,6 +20,75 @@
           "packages/main/src/core/acceptance-coverage-basis.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-A32A-001-VERIFIER-DERIVATION",
+            "desc": "The registered PLAN verifier derives an AcceptanceCoverageBasisV1 only from the frozen Story, scope, repository and adapter inputs, emits exactly one of complete, partial or unsupported, and canonical replay of unchanged inputs yields the same ordered paths, blind spots and basis digest.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-A32A-BASIS-DERIVE-CLASSIFY",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-A32A-DERIVE-BASIS",
+                  "role": "producer",
+                  "expectedArtifactKind": "process_fact",
+                  "expectedFileRef": "packages/main/src/core/acceptance-coverage-basis.ts",
+                  "expectedSymbolOrFact": "deriveAcceptanceCoverageBasis",
+                  "fileDeclarationRef": "CHK-001:files:create:0"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-A32A-CLASSIFY-BASIS",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/core/acceptance-coverage-basis.ts",
+                    "expectedSymbolOrFact": "classifyAcceptanceCoverageBasis",
+                    "fileDeclarationRef": "CHK-001:files:create:0"
+                  }
+                ],
+                "outputFactRef": "process-fact:acceptance-coverage-basis"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-A32A-001-BOUNDED-NONCOMPLETE",
+            "desc": "Incomplete inspectability, any nonempty unresolved blind spot, or conflicting completeness claims deterministically returns partial; an unsupported registered language or discovery profile returns unsupported. Neither state is rendered or consumed as complete.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-001-CANONICAL-TOTALITY",
+            "desc": "Equivalent basis inputs presented in different insertion order produce byte-equivalent canonical projections and digests, while a meaningful path, profile, provenance, binding or blind-spot change changes the digest without creating an unbounded fourth status.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-A32A-001-CALLER-FORGERY",
+            "desc": "Invoke every public basis entry point with caller-supplied status complete, enumeratedPathRefs, blindSpots, excludedPathRefs, generatedBy or digest fields; the request surface rejects or ignores them before derivation, and the persisted or returned basis is unchanged from verifier-derived inputs.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-001-OPTIMISM-MUTATION",
+            "desc": "Mutate classification so partial or unsupported adapter input, unresolved source, or missing provenance falls through to complete; the focused mutation test must fail for the intended completeness assertion, then the restored control must pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
