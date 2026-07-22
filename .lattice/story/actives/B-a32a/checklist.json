@@ -89,7 +89,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-A32A-001-VERIFIER-DERIVATION",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Focused production-chain smoke proves deterministic verifier derivation, bounded classification, and canonical replay.",
+          "headHash": "bff1a4c2772a553204bae4fb0ee0491dede50982",
+          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
+          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
+          "timestamp": "2026-07-22T06:56:04.826Z"
+        },
+        {
+          "intentRef": "VI-A32A-001-BOUNDED-NONCOMPLETE",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke proves partial and unsupported inputs never render as complete.",
+          "headHash": "bff1a4c2772a553204bae4fb0ee0491dede50982",
+          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
+          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
+          "timestamp": "2026-07-22T06:56:04.826Z"
+        },
+        {
+          "intentRef": "VI-A32A-001-CANONICAL-TOTALITY",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke proves shuffled path inputs canonicalize and meaningful changes alter signed digests.",
+          "headHash": "bff1a4c2772a553204bae4fb0ee0491dede50982",
+          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
+          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
+          "timestamp": "2026-07-22T06:56:04.826Z"
+        },
+        {
+          "intentRef": "VI-A32A-001-CALLER-FORGERY",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Real CLI schema and handler chain reject caller status, inventory, issuer, signature, exclusions, and hash bindings atomically.",
+          "headHash": "bff1a4c2772a553204bae4fb0ee0491dede50982",
+          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
+          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
+          "timestamp": "2026-07-22T06:56:04.826Z"
+        },
+        {
+          "intentRef": "VI-A32A-001-OPTIMISM-MUTATION",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Mutation changing a partial adapter to an optimistic complete basis bites, while restored control passes.",
+          "headHash": "bff1a4c2772a553204bae4fb0ee0491dede50982",
+          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
+          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
+          "timestamp": "2026-07-22T06:56:04.826Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
