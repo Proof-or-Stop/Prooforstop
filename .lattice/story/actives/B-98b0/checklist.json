@@ -110,7 +110,57 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B98B0-M3-H-PLAN-DEV",
+            "desc": "M3: In enforce mode, a Story with a confirmed ledger, current complete PLAN basis, basis-closed topology, and frozen intents enters DEV through the canonical lifecycle gate without running commands, requiring verificationEvidence, requiring an implementation transcript, or writing a completion fact.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M3-H-TYPED-NEW-PATH",
+            "desc": "M3: A genuinely new producer-to-consumer path whose non-existent endpoints are owned by a frozen proofstory.verification_planned_path_declaration.v1 with valid endpoint roles, file declarations, scope refs, symbols/facts, relation, and output fact is verifier-derived into the PLAN basis and may enter DEV without pretending the code already exists.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B98B0-M3-E-COMPATIBILITY",
+            "desc": "M3: Legacy bindings, docs-only claims, and single-outcome Stories receive deterministic compatibility treatment: no fabricated runtime mutation/transcript is required, legacy behavior does not retroactively hard-block outside configured policy, and every applicable structural obligation remains explicit.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M3-E-MODE-LIFECYCLE",
+            "desc": "M3: The same failing structural report is visible but non-blocking in observe/warn and blocking in enforce; rollback from enforce to warn changes only admission behavior and does not rewrite diagnostics, artifacts, or prior failure history.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B98B0-M3-A-BLOCKERS",
+            "desc": "M3: Missing topology/basis edges, unmapped basis refs, unjustified exclusions, topology paths outside basis, orphan endpoints, uncovered must intents, required mutation/transcript declarations, or prompt-only facts block enforce-mode PLAN→DEV with stable AT_* codes and cannot be bypassed by prose.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M3-A-PLANNED-PATH-TAMPER",
+            "desc": "M3: A free-form future path, unknown declaration/endpoint, wrong role, missing files/scope ref, declaration semantic restatement/drift, or planned topology edge not independently derived into the basis fails with the documented AT_PLANNED_PATH_* code; a topology-owned string cannot create a new canonical fact.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M3-A-NO-LATER-WAVE-LEAKAGE",
+            "desc": "M3: PLAN admission remains structural-only and does not require or claim Wave 2A critic identity/receipt/exclusion approval mechanics, Wave 3 actual-diff reconciliation/executable mutation/transcript evidence, pre_review_check, or production readiness; tests fail if those later-wave facts become prerequisites or are emitted as Wave 2 completion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
