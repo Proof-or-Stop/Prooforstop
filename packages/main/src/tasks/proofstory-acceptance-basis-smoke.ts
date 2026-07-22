@@ -138,8 +138,8 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
     '}',
     '',
   ].join('\n'));
-  write(root, 'packages/main/src/core/process-fact-registry.ts', 'export const acceptance_basis_generate = "Wave 2 acceptance_topology_check";\n');
-  write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "Wave 2 acceptance_topology_check";\n');
+  write(root, 'packages/main/src/core/process-fact-registry.ts', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
+  write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
 }
 
 function checklist(): ChecklistData {
@@ -197,7 +197,7 @@ try {
   const first = deriveAcceptanceCoverageBasis(input);
   const adapterControl = runAcceptanceDiscoveryAdapters({ supported: true, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1'] });
   const globalClosure = deriveRegisteredProcessFactClosure(pureRoot, ['process_fact:acceptance_basis_generate']);
-  assert.ok(globalClosure.pathRefs.some(path => path.includes('acceptance_basis_generate') && path.includes('consumer:Wave 2 acceptance_topology_check')), 'process-fact traversal retains registered consumers outside Story scope');
+  assert.ok(globalClosure.pathRefs.some(path => path.includes('acceptance_basis_generate') && path.includes('consumer:acceptance_basis read-only receipt verification')), 'process-fact traversal retains registered diagnostic consumers outside Story scope');
   assert.ok(globalClosure.sourceFileRefs.includes('scripts/verify-process-fact-contract.mjs'), 'global consumer source enters closure binding');
   const adapterControlReconciled = reconcileAcceptanceDiscoveryResults(adapterControl);
   assert.equal(adapterControlReconciled.status, 'complete', JSON.stringify(adapterControlReconciled, null, 2));

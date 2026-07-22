@@ -145,7 +145,7 @@ const requiredProcessFactSemantics = {
   milestone_ledger_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   milestone_ledger_add: ['schema-contract', 'verification-policy', 'gate-evidence'],
   proofstory_contract_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
-  acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
+  acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -548,8 +548,8 @@ function read(relPath) {
   if (!existsSync(absPath)) return '';
   let text = readFileSync(absPath, 'utf8');
   const mutation = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
-  if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('lattice-review-scope-plan.md')) {
-    text = text.replace(/^- Before reporting PLAN scope complete, run `lattice acceptance_basis_generate`.*$/m, '');
+  if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('lattice-implementer.md')) {
+    text = text.replace(/^Acceptance-basis boundary: only `lattice acceptance_basis_generate`.*$/m, '');
   }
   if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
     text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
@@ -632,13 +632,14 @@ function assertProofStoryProgressiveBoundary() {
   const basisText = read('packages/main/src/core/acceptance-coverage-basis.ts');
   const adaptersText = read('packages/main/src/core/acceptance-discovery-adapters.ts');
   const receiptText = read('packages/main/src/core/acceptance-basis-receipt.ts');
+  const processRegistryText = read('packages/main/src/core/process-fact-registry.ts');
   const acceptancePromptPaths = [
-    'packages/main/templates/agents/lattice-review-scope-plan.md',
-    '.claude/agents/lattice-review-scope-plan.md',
-    '.lattice-codex/agents/lattice-review-scope-plan.md',
+    'packages/main/templates/agents/lattice-implementer.md',
+    '.claude/agents/lattice-implementer.md',
+    '.lattice-codex/agents/lattice-implementer.md',
   ];
   const acceptanceRequiredSemantics = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-contract'
-    ? requiredProcessFactSemantics.acceptance_basis_generate.filter(item => item !== 'gate-evidence')
+    ? requiredProcessFactSemantics.acceptance_basis_generate.filter(item => item !== 'workspace-binding')
     : requiredProcessFactSemantics.acceptance_basis_generate;
   assert(
     handlerText.includes('acceptance_basis_generate')
@@ -650,8 +651,10 @@ function assertProofStoryProgressiveBoundary() {
       && adaptersText.includes('AT_DISCOVERY_DISAGREEMENT')
       && receiptText.includes('verifyAcceptanceBasisReceipt')
       && receiptText.includes('checkEvidenceFreshnessForGit')
+      && /name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,400}semantics:\s*\[[^\]]*'workspace-binding'[^\]]*\][\s\S]{0,100}level:\s*'L3'/.test(processRegistryText)
+      && !/name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,400}semantics:\s*\[[^\]]*'gate-evidence'/.test(processRegistryText)
       && acceptancePromptPaths.every(path => read(path).includes('lattice acceptance_basis_generate'))
-      && acceptanceRequiredSemantics.includes('gate-evidence'),
+      && acceptanceRequiredSemantics.includes('workspace-binding'),
     'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, signed receipt verification, and canonical freshness consumption',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');

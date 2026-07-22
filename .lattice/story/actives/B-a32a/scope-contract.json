@@ -22,7 +22,11 @@
     "packages/main/package.json",
     "packages/main/package-lock.json",
     "packages/main/src/core/config.ts",
-    "packages/main/src/core/lattice-brand.ts"
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/templates/agents/lattice-implementer.md",
+    ".claude/agents/lattice-implementer.md",
+    ".lattice-codex/agents/lattice-implementer.md",
+    "packages/main/src/core/prompt-registry.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/acceptance-coverage-basis.ts",
@@ -34,10 +38,10 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Minimal DEV scope correction: config.ts must register the new read-only/writer commands in DEFAULT_PHASE_TOOLS, and lattice-brand.ts must synchronize the mandatory CLI patch version to 0.3.226. No additional product behavior or later-wave capability is authorized.",
+  "scopeChangeReason": "Minimal prompt-side process-fact contract correction: canonical lattice-implementer prompt mirrors may state only the Wave 1A sole-writer/read-only/non-authority boundary, with an explicit no-lifecycle-gate sentence; prompt-registry.ts synchronizes their tracked template hash. Scope-plan reviewer prompts remain excluded and must be restored because requiring complete basis there would implement Wave 2.",
   "acknowledgements": [],
   "createdAt": "2026-07-22T06:38:10.757Z",
-  "updatedAt": "2026-07-22T06:53:43.361Z",
+  "updatedAt": "2026-07-22T08:06:03.362Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -67,6 +71,10 @@
     "packages/main/src/core/acceptance-basis-receipt.ts": "packages/main/src/core/acceptance-basis-receipt.ts",
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
-    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts"
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "packages/main/templates/agents/lattice-implementer.md": "packages/main/templates/agents/lattice-implementer.md",
+    ".claude/agents/lattice-implementer.md": ".claude/agents/lattice-implementer.md",
+    ".lattice-codex/agents/lattice-implementer.md": ".lattice-codex/agents/lattice-implementer.md",
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts"
   }
 }

@@ -49,8 +49,8 @@ const LEGACY_REVIEWER_TEMPLATE_SHA256: Readonly<Record<ModularReviewerRoleId, st
 
 const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<ModularComplexRoleId, string>> = Object.freeze({
   'lattice-review-story-init': '8fd4d65d1c0e4d956bcb527899ddcb4182dddb1cbc847b74ba19d0695642bf81',
-  'lattice-review-scope-plan': '3a13dc77bede2d08f8893b695e2264dce71817120d601855fdbd0f0edca93f9e',
-  'lattice-implementer': '3be8e9b5cce7f6f2558f929f400e0975fed624f011ab1dda573bdb30273588fd',
+  'lattice-review-scope-plan': '13506f659f3f83f5aba146e1c46aafb253af346820f49acd41d711ae1eb58a86',
+  'lattice-implementer': '98aa71b9cde97e5571ff9d61aa0091163660eaa8cd8013ab6da4c7eedba9f45e',
   'lattice-review-delivery': '5357c140ba9b47f51f362cca7b4aa9289a1d15367427f3ee302a53439dd44b57',
   'lattice-evaluator': 'c072e8cc5c84adac5f15c4d60b95a495896da1c0bf7a3c1482506862eed1b026',
 });

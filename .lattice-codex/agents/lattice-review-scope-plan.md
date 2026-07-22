@@ -194,8 +194,6 @@ The main agent passes the storyId in your prompt when launching you. Look for a 
 
 ## Rules
 
-- Before reporting PLAN scope complete, run `lattice acceptance_basis_generate` and require its registered discovery result to be `complete`; rendered `acceptance_basis` output is diagnostic only and cannot be replayed as authority.
-
 - Do not judge whether a gap is acceptable -- report all gaps and let the main agent decide
 - Do not suggest adding checklist items -- only report the mapping
 - Each event type, each metric name, each distinct behavior is a separate feature point -- do not merge
