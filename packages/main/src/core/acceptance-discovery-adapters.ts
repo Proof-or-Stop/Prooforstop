@@ -1,4 +1,4 @@
-import { existsSync, lstatSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import type { CoverageAdapterResultV1, CoverageDiscoveryMethodV1, PlannedCoveragePathV1 } from './types.js';
 import { digestCanonicalJson } from './digest.js';
@@ -115,31 +115,48 @@ function configuredSourceInventory(workspaceRoot: string): { files: string[]; bl
   try { config = loadConfig(workspaceRoot); }
   catch (error) { return { files: [], blindSpots: [`canonical source-root config is unreadable: ${error instanceof Error ? error.message : String(error)}`] }; }
   const relativeRoot = config.rootDir ? join(config.scanRoot, config.rootDir) : config.scanRoot;
-  const absoluteRoot = resolve(workspaceRoot, relativeRoot);
-  const canonicalRelativeRoot = relativeFile(workspaceRoot, absoluteRoot);
-  if (!canonicalRelativeRoot) return { files: [], blindSpots: [`configured source root escapes workspace: ${relativeRoot}`] };
+  let physicalWorkspace: string;
   try {
-    const rootStat = lstatSync(absoluteRoot);
-    if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) {
-      return { files: [], blindSpots: [`configured source root is missing, ambiguous, or not a directory: ${canonicalRelativeRoot}`] };
-    }
+    physicalWorkspace = realpathSync(workspaceRoot);
   } catch {
-    return { files: [], blindSpots: [`configured source root is missing, ambiguous, or unreadable: ${canonicalRelativeRoot}`] };
+    return { files: [], blindSpots: ['canonical workspace root is missing or unreadable'] };
   }
+  let absoluteRoot = physicalWorkspace;
+  for (const component of relativeRoot.split(/[\\/]/).filter(value => value.length > 0 && value !== '.')) {
+    absoluteRoot = resolve(absoluteRoot, component);
+    let componentStat;
+    try { componentStat = lstatSync(absoluteRoot); }
+    catch { return { files: [], blindSpots: [`configured source root is missing or unreadable: ${relativeRoot}`] }; }
+    if (componentStat.isSymbolicLink()) return { files: [], blindSpots: [`configured source root traverses symlink component: ${relativeRoot}`] };
+    if (!componentStat.isDirectory()) return { files: [], blindSpots: [`configured source root component is not a directory: ${relativeRoot}`] };
+    if ((componentStat.mode & 0o444) === 0 || (componentStat.mode & 0o111) === 0) {
+      return { files: [], blindSpots: [`configured source root is unreadable: ${relativeRoot}`] };
+    }
+  }
+  let physicalSourceRoot: string;
+  try { physicalSourceRoot = realpathSync(absoluteRoot); }
+  catch { return { files: [], blindSpots: [`configured source root is missing or unreadable: ${relativeRoot}`] }; }
+  const physicalRelative = relative(physicalWorkspace, physicalSourceRoot);
+  if (physicalRelative.startsWith('..') || isAbsolute(physicalRelative)) {
+    return { files: [], blindSpots: [`configured source root physically escapes workspace: ${relativeRoot}`] };
+  }
+  const canonicalRelativeRoot = relativeFile(physicalWorkspace, physicalSourceRoot);
+  if (!canonicalRelativeRoot) return { files: [], blindSpots: [`configured source root physically escapes workspace: ${relativeRoot}`] };
+  absoluteRoot = physicalSourceRoot;
   const files: string[] = [];
   const blindSpots: string[] = [];
   const visit = (directory: string): void => {
     let rows;
     try { rows = readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)); }
-    catch { blindSpots.push(`configured source directory is unreadable: ${relativeFile(workspaceRoot, directory) ?? directory}`); return; }
+    catch { blindSpots.push(`configured source directory is unreadable: ${relativeFile(physicalWorkspace, directory) ?? directory}`); return; }
     for (const row of rows) {
       if (SOURCE_INVENTORY_EXCLUDED_DIRECTORIES.has(row.name)) continue;
       const absolute = resolve(directory, row.name);
-      if (row.isSymbolicLink()) { blindSpots.push(`ambiguous source-root symlink excluded: ${relativeFile(workspaceRoot, absolute) ?? absolute}`); continue; }
+      if (row.isSymbolicLink()) { blindSpots.push(`ambiguous source-root symlink excluded: ${relativeFile(physicalWorkspace, absolute) ?? absolute}`); continue; }
       if (row.isDirectory()) { visit(absolute); continue; }
       const dot = row.name.lastIndexOf('.');
       if (!row.isFile() || dot < 0 || !SOURCE_EXTENSIONS.has(row.name.slice(dot))) continue;
-      const file = relativeFile(workspaceRoot, absolute);
+      const file = relativeFile(physicalWorkspace, absolute);
       if (file) files.push(file);
       if (files.length > MAX_SOURCE_INVENTORY_FILES) {
         blindSpots.push(`configured source-root inventory exceeds ${MAX_SOURCE_INVENTORY_FILES} files`);
@@ -155,8 +172,10 @@ function localImports(root: string, file: string): Array<{ imported: string; loc
   const absolute = resolve(root, file);
   if (!existsSync(absolute)) return [];
   const text = readFileSync(absolute, 'utf8');
+  const code = lexicalCodeMask(text);
   const rows: Array<{ imported: string; local: string; sourceFile: string }> = [];
   for (const match of text.matchAll(/import\s+(?:type\s+)?\{([^}]+)\}\s+from\s+['"]([^'"]+)['"]/g)) {
+    if (match.index === undefined || code.slice(match.index, match.index + 'import'.length) !== 'import') continue;
     const sourceFile = resolveLocalImport(root, file, match[2]);
     if (!sourceFile) continue;
     for (const token of match[1].split(',')) {
@@ -167,6 +186,7 @@ function localImports(root: string, file: string): Array<{ imported: string; loc
     }
   }
   for (const match of text.matchAll(/import\s+([A-Za-z_$][\w$]*)\s+from\s+['"]([^'"]+)['"]/g)) {
+    if (match.index === undefined || code.slice(match.index, match.index + 'import'.length) !== 'import') continue;
     const sourceFile = resolveLocalImport(root, file, match[2]);
     if (sourceFile) rows.push({ imported: 'default', local: match[1], sourceFile });
   }
@@ -176,7 +196,7 @@ function localImports(root: string, file: string): Array<{ imported: string; loc
 function exactCalledImports(root: string, file: string): Array<{ imported: string; local: string; sourceFile: string }> {
   const absolute = resolve(root, file);
   if (!existsSync(absolute)) return [];
-  const text = executableText(readFileSync(absolute, 'utf8'));
+  const text = lexicalCodeMask(readFileSync(absolute, 'utf8'));
   return localImports(root, file).filter(item => new RegExp(`\\b${item.local.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\(`).test(text));
 }
 
@@ -312,6 +332,69 @@ function executableText(text: string): string {
     .replace(/^\s*import\b.*$/gm, '');
 }
 
+/**
+ * Preserve executable character positions while masking comments and literal
+ * text. Template interpolation bodies remain code and may contain nested
+ * strings, comments, templates, and braces.
+ */
+function lexicalCodeMask(text: string): string {
+  const output = Array.from({ length: text.length }, () => ' ');
+  const scanQuoted = (start: number, quote: "'" | '"'): number => {
+    let index = start + 1;
+    while (index < text.length) {
+      if (text[index] === '\\') { index += 2; continue; }
+      if (text[index] === quote) return index + 1;
+      index += 1;
+    }
+    return index;
+  };
+  const scanTemplate = (start: number): number => {
+    let index = start + 1;
+    while (index < text.length) {
+      if (text[index] === '\\') { index += 2; continue; }
+      if (text[index] === '`') return index + 1;
+      if (text[index] === '$' && text[index + 1] === '{') {
+        index = scanCode(index + 2, true);
+        continue;
+      }
+      index += 1;
+    }
+    return index;
+  };
+  const scanCode = (start: number, interpolation: boolean): number => {
+    let index = start;
+    let braceDepth = 0;
+    while (index < text.length) {
+      const current = text[index];
+      const next = text[index + 1];
+      if (current === '/' && next === '/') {
+        index += 2;
+        while (index < text.length && text[index] !== '\n' && text[index] !== '\r') index += 1;
+        continue;
+      }
+      if (current === '/' && next === '*') {
+        index += 2;
+        while (index < text.length && !(text[index] === '*' && text[index + 1] === '/')) index += 1;
+        index = Math.min(text.length, index + 2);
+        continue;
+      }
+      if (current === "'" || current === '"') { index = scanQuoted(index, current); continue; }
+      if (current === '`') { index = scanTemplate(index); continue; }
+      if (interpolation && current === '}') {
+        if (braceDepth === 0) return index + 1;
+        braceDepth -= 1;
+      } else if (interpolation && current === '{') {
+        braceDepth += 1;
+      }
+      output[index] = current;
+      index += 1;
+    }
+    return index;
+  };
+  scanCode(0, false);
+  return output.join('');
+}
+
 function catalogCommands(root: string): Set<string> {
   const file = resolve(root, 'packages/main/src/cli/command-catalog.ts');
   if (!existsSync(file)) return new Set();
@@ -324,15 +407,17 @@ function staticCallPaths(root: string, graph: BoundedSourceGraph): { paths: stri
   for (const file of graph.closureFiles.filter(value => !value.endsWith('/registry.ts'))) {
     const absolute = resolve(root, file);
     if (!existsSync(absolute)) continue;
-    const text = executableText(readFileSync(absolute, 'utf8'));
+    const raw = readFileSync(absolute, 'utf8');
+    const text = lexicalCodeMask(raw);
     for (const imported of localImports(root, file)) {
       if (!graph.closureFiles.includes(imported.sourceFile) || /Handlers$/.test(imported.imported)) continue;
       if (new RegExp(`\\b${imported.local.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\(`).test(text)) {
         paths.push(`path:static-call:${imported.sourceFile}#${imported.imported}->consumer:${file}#${imported.local}`);
       }
     }
-    for (const match of text.matchAll(/from\s+['"](\.[^'"]+)['"]/g)) {
-      if (!resolveLocalImport(root, file, match[1])) blindSpots.push(`unresolved local import ${match[1]} from ${file}`);
+    for (const match of raw.matchAll(/import\s+(?:type\s+)?(?:\{[^}]+\}|[A-Za-z_$][\w$]*)\s+from\s+['"](\.[^'"]+)['"]/g)) {
+      if (match.index !== undefined && text.slice(match.index, match.index + 'import'.length) === 'import'
+        && !resolveLocalImport(root, file, match[1])) blindSpots.push(`unresolved local import ${match[1]} from ${file}`);
     }
   }
   return { paths: stable(paths), blindSpots: stable(blindSpots) };

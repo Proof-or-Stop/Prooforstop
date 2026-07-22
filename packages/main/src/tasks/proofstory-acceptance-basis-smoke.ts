@@ -3,7 +3,7 @@
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -387,6 +387,32 @@ try {
     assert.ok(!closureControl.sourceFileRefs.includes('packages/main/src/unrelated.ts'), 'unrelated source inventory file without a call relation stays outside closure');
     const closureHash = computeClosureFilesHash(genericRoot, [], closureControl.sourceInventoryRefs);
 
+    const assertMaskedFalseConsumer = (source: string, label: string): void => {
+      write(genericRoot, 'packages/main/src/consumers/c2.ts', [
+        "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+        source, '',
+      ].join('\n'));
+      const result = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+      assert.equal(result.status, 'partial', `${label} cannot satisfy consumerGate`);
+      assert.ok(!result.enumeratedPathRefs.some(path => path.includes('consumer:packages/main/src/consumers/c2.ts#consumeReviewRun')), `${label} cannot emit a static call edge`);
+      assert.ok(!deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']).sourceFileRefs.includes('packages/main/src/consumers/c2.ts'), `${label} cannot enter the source closure`);
+    };
+    assertMaskedFalseConsumer("export const marker = 'consumeReviewRun(';", 'single-quoted alias text');
+    assertMaskedFalseConsumer('export const marker = "consumeReviewRun(";', 'double-quoted alias text');
+    assertMaskedFalseConsumer('// consumeReviewRun(\n/* consumeReviewRun( */\nexport const marker = true;', 'comment-only alias text');
+    assertMaskedFalseConsumer('export const marker = `consumeReviewRun(`;', 'template static alias text');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', [
+      "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+      'export const marker = `${consumeReviewRun()}`;', '',
+    ].join('\n'));
+    const interpolatedConsumer = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+    assert.equal(interpolatedConsumer.status, 'complete', 'template interpolation executable call satisfies the consumer gate');
+    assert.ok(interpolatedConsumer.enumeratedPathRefs.some(path => path.includes('consumer:packages/main/src/consumers/c2.ts#consumeReviewRun')), 'template interpolation executable call emits a static call edge');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', [
+      "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+      'export const c2 = () => consumeReviewRun();', '',
+    ].join('\n'));
+
     const genericBasis = structuredClone(first.basis);
     genericBasis.storyId = 'B-generic';
     genericBasis.adapterResults = genericControl.adapterResults;
@@ -431,6 +457,40 @@ try {
     write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'missing-src' }));
     resetConfigCache();
     assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'missing configured source root fails closed');
+    write(genericRoot, 'lattice.config.json', '{');
+    resetConfigCache();
+    assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'malformed source-root config fails closed');
+    write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: '..', rootDir: 'outside' }));
+    resetConfigCache();
+    assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'lexically escaping source root fails closed');
+
+    const externalRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-external-'));
+    try {
+      write(externalRoot, 'src/consumers/c2.ts', [
+        "import { emitReviewRunFact as consumeReviewRun } from '../../../packages/main/src/handlers/review-run.js';",
+        'export const escaped = () => consumeReviewRun();', '',
+      ].join('\n'));
+      symlinkSync(externalRoot, join(genericRoot, 'link'), 'dir');
+      write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'link', rootDir: 'src' }));
+      resetConfigCache();
+      const symlinkEscape = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+      assert.equal(symlinkEscape.status, 'partial', 'intermediate source-root symlink escape fails closed');
+      assert.ok(symlinkEscape.blindSpots.some(item => item.includes('symlink component')), 'intermediate source-root symlink reports a deterministic blind spot');
+      assert.ok(!JSON.stringify(symlinkEscape).includes('link/src/consumers/c2.ts'), 'external source reached through symlink is never enumerated');
+    } finally {
+      rmSync(join(genericRoot, 'link'), { force: true });
+      rmSync(externalRoot, { recursive: true, force: true });
+    }
+
+    mkdirSync(join(genericRoot, 'packages/main/locked'), { recursive: true });
+    chmodSync(join(genericRoot, 'packages/main/locked'), 0o000);
+    try {
+      write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'locked' }));
+      resetConfigCache();
+      assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'unreadable configured source root fails closed');
+    } finally {
+      chmodSync(join(genericRoot, 'packages/main/locked'), 0o700);
+    }
     write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
     resetConfigCache();
   } finally {
