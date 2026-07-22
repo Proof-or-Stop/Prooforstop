@@ -1,9 +1,10 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { dirname, relative, resolve } from 'node:path';
+import { existsSync, lstatSync, readFileSync, readdirSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import type { CoverageAdapterResultV1, CoverageDiscoveryMethodV1, PlannedCoveragePathV1 } from './types.js';
 import { digestCanonicalJson } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
 import { RUNTIME_FACT_REGISTRY } from './runtime-fact-registry.js';
+import { loadConfig } from './config.js';
 
 export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
   ref: 'profile:typescript-proof-gate:plan:v1',
@@ -63,11 +64,16 @@ interface FactoryInventory {
 
 interface BoundedSourceGraph {
   seedFiles: string[];
+  sourceInventoryFiles: string[];
   closureFiles: string[];
   entries: ProcessFactRegistryEntry[];
   factories: FactoryInventory[];
   blindSpots: string[];
 }
+
+const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.mjs', '.cjs']);
+const SOURCE_INVENTORY_EXCLUDED_DIRECTORIES = new Set(['.git', '.lattice', '.worktrees', 'dist', 'node_modules']);
+const MAX_SOURCE_INVENTORY_FILES = 20_000;
 
 function relativeFile(root: string, absolute: string): string | null {
   const value = relative(root, absolute).replace(/\\/g, '/');
@@ -84,6 +90,65 @@ function resolveLocalImport(root: string, importer: string, specifier: string): 
     if (rel) return rel;
   }
   return null;
+}
+
+function configuredSourceInventory(workspaceRoot: string): { files: string[]; blindSpots: string[] } {
+  const configPath = resolve(workspaceRoot, 'lattice.config.json');
+  if (!existsSync(configPath)) return { files: [], blindSpots: ['canonical lattice.config.json is missing; source-root inventory is unavailable'] };
+  let rawConfig: Record<string, unknown>;
+  try {
+    const parsed = JSON.parse(readFileSync(configPath, 'utf8')) as unknown;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('top-level value must be an object');
+    rawConfig = parsed as Record<string, unknown>;
+  } catch (error) {
+    return { files: [], blindSpots: [`canonical source-root config is unreadable: ${error instanceof Error ? error.message : String(error)}`] };
+  }
+  const configuredScanRoot = rawConfig.scanRoot;
+  const configuredRootDir = rawConfig.rootDir;
+  if (typeof configuredScanRoot !== 'string' || configuredScanRoot.trim().length === 0
+    || isAbsolute(configuredScanRoot) || configuredScanRoot.split(/[\\/]/).includes('..')
+    || (configuredRootDir !== undefined && (typeof configuredRootDir !== 'string' || configuredRootDir.trim().length === 0
+      || isAbsolute(configuredRootDir) || configuredRootDir.split(/[\\/]/).includes('..')))) {
+    return { files: [], blindSpots: ['canonical scanRoot/rootDir is missing or ambiguous'] };
+  }
+  let config;
+  try { config = loadConfig(workspaceRoot); }
+  catch (error) { return { files: [], blindSpots: [`canonical source-root config is unreadable: ${error instanceof Error ? error.message : String(error)}`] }; }
+  const relativeRoot = config.rootDir ? join(config.scanRoot, config.rootDir) : config.scanRoot;
+  const absoluteRoot = resolve(workspaceRoot, relativeRoot);
+  const canonicalRelativeRoot = relativeFile(workspaceRoot, absoluteRoot);
+  if (!canonicalRelativeRoot) return { files: [], blindSpots: [`configured source root escapes workspace: ${relativeRoot}`] };
+  try {
+    const rootStat = lstatSync(absoluteRoot);
+    if (!rootStat.isDirectory() || rootStat.isSymbolicLink()) {
+      return { files: [], blindSpots: [`configured source root is missing, ambiguous, or not a directory: ${canonicalRelativeRoot}`] };
+    }
+  } catch {
+    return { files: [], blindSpots: [`configured source root is missing, ambiguous, or unreadable: ${canonicalRelativeRoot}`] };
+  }
+  const files: string[] = [];
+  const blindSpots: string[] = [];
+  const visit = (directory: string): void => {
+    let rows;
+    try { rows = readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)); }
+    catch { blindSpots.push(`configured source directory is unreadable: ${relativeFile(workspaceRoot, directory) ?? directory}`); return; }
+    for (const row of rows) {
+      if (SOURCE_INVENTORY_EXCLUDED_DIRECTORIES.has(row.name)) continue;
+      const absolute = resolve(directory, row.name);
+      if (row.isSymbolicLink()) { blindSpots.push(`ambiguous source-root symlink excluded: ${relativeFile(workspaceRoot, absolute) ?? absolute}`); continue; }
+      if (row.isDirectory()) { visit(absolute); continue; }
+      const dot = row.name.lastIndexOf('.');
+      if (!row.isFile() || dot < 0 || !SOURCE_EXTENSIONS.has(row.name.slice(dot))) continue;
+      const file = relativeFile(workspaceRoot, absolute);
+      if (file) files.push(file);
+      if (files.length > MAX_SOURCE_INVENTORY_FILES) {
+        blindSpots.push(`configured source-root inventory exceeds ${MAX_SOURCE_INVENTORY_FILES} files`);
+        return;
+      }
+    }
+  };
+  visit(absoluteRoot);
+  return { files: stable(files.slice(0, MAX_SOURCE_INVENTORY_FILES)), blindSpots: stable(blindSpots) };
 }
 
 function localImports(root: string, file: string): Array<{ imported: string; local: string; sourceFile: string }> {
@@ -106,6 +171,13 @@ function localImports(root: string, file: string): Array<{ imported: string; loc
     if (sourceFile) rows.push({ imported: 'default', local: match[1], sourceFile });
   }
   return rows;
+}
+
+function exactCalledImports(root: string, file: string): Array<{ imported: string; local: string; sourceFile: string }> {
+  const absolute = resolve(root, file);
+  if (!existsSync(absolute)) return [];
+  const text = executableText(readFileSync(absolute, 'utf8'));
+  return localImports(root, file).filter(item => new RegExp(`\\b${item.local.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\(`).test(text));
 }
 
 function returnedHandlerKeys(root: string, file: string): string[] {
@@ -133,7 +205,8 @@ function sourceSeedFiles(input: AcceptanceDiscoveryInput): string[] {
 function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSourceGraph {
   const root = input.workspaceRoot;
   const seedFiles = sourceSeedFiles(input);
-  const blindSpots: string[] = [];
+  const sourceInventory = configuredSourceInventory(root);
+  const blindSpots: string[] = [...sourceInventory.blindSpots];
   const registryFiles = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)
     .filter(file => existsSync(resolve(root, file)) && executableText(readFileSync(resolve(root, file), 'utf8')).includes('registerBatch('))]);
   const factories: FactoryInventory[] = [];
@@ -162,7 +235,8 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const closure = new Set(seedFiles);
   const reached = new Set<ProcessFactRegistryEntry>();
   const hubs = new Set(registryFiles);
-  const boundedUniverse = stable([...seedFiles, ...PROCESS_FACT_REGISTRY.flatMap(entryFiles)]);
+  const boundedUniverse = sourceInventory.files;
+  const calledImportsByFile = new Map(boundedUniverse.map(file => [file, exactCalledImports(root, file)]));
   let changed = true;
   while (changed) {
     changed = false;
@@ -174,13 +248,23 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
       for (const file of files) if (!closure.has(file)) { closure.add(file); changed = true; }
     }
     for (const file of boundedUniverse.filter(file => !hubs.has(file) && !closure.has(file))) {
-      if (localImports(root, file).some(item => closure.has(item.sourceFile))) { closure.add(file); changed = true; }
+      if ((calledImportsByFile.get(file) ?? []).some(item => closure.has(item.sourceFile))) { closure.add(file); changed = true; }
     }
   }
   for (const entry of reached) {
     for (const file of entryFiles(entry)) if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
+    if (entry.consumerGate) {
+      const explicitConsumer = (entry.consumerSourceRefs ?? []).some(file => existsSync(resolve(root, file)));
+      const producerFiles = stable([
+        ...(entry.producerSourceRefs ?? []),
+        ...commandNamesForEntry(entry).map(command => inferredHandlerFiles.get(command) ?? '').filter(Boolean),
+      ]);
+      const discoveredConsumer = sourceInventory.files.some(file => !hubs.has(file) && !producerFiles.includes(file)
+        && (calledImportsByFile.get(file) ?? []).some(item => producerFiles.includes(item.sourceFile)));
+      if (!explicitConsumer && !discoveredConsumer) blindSpots.push(`process fact ${entry.name} has consumerGate but no resolvable consumer source`);
+    }
   }
-  return { seedFiles, closureFiles: stable([...closure]), entries: [...reached], factories, blindSpots: stable(blindSpots) };
+  return { seedFiles, sourceInventoryFiles: sourceInventory.files, closureFiles: stable([...closure]), entries: [...reached], factories, blindSpots: stable(blindSpots) };
 }
 
 /** Resolve canonical process-fact closure and its producer/consumer source files. */

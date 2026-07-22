@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import {
   deriveAcceptanceCoverageBasis,
   derivePlannedCoveragePaths,
+  computeClosureFilesHash,
   digestAcceptanceCoverageBasis,
   foundationalExclusionDecisionRef,
   reconcileTopologyWithCoverageBasis,
@@ -182,6 +183,7 @@ function scopeCheck(root: string): ScopeCheckData {
 const pureRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-pure-'));
 try {
   write(pureRoot, 'tsconfig.json', '{}\n');
+  write(pureRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
   writeCanonicalAcceptanceRegistration(pureRoot);
   const plannedBeforeCode = deriveAcceptanceCoverageBasis({
     storyId, workspaceRoot: pureRoot, checklist: checklist(), contract: contract(), scopeCheck: scopeCheck(pureRoot), scopeContract: scopeContract(),
@@ -345,6 +347,7 @@ try {
   const genericRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-generic-'));
   try {
     write(genericRoot, 'tsconfig.json', '{}\n');
+    write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
     write(genericRoot, 'packages/main/src/cli/command-catalog.ts', "export const MAIN_TOOLS = [\n  { name: 'review_run_start' },\n];\n");
     write(genericRoot, 'packages/main/src/handlers/review-run.ts', [
       'export const emitReviewRunFact = () => true;',
@@ -368,9 +371,10 @@ try {
       'export const c2 = () => consumeReviewRun();',
       '',
     ].join('\n'));
+    write(genericRoot, 'packages/main/src/unrelated.ts', 'export const unrelated = () => true;\n');
     const genericInput = {
       supported: true, workspaceRoot: genericRoot, storyId: 'B-generic', plannedPathRecords: [],
-      scopeRefs: ['scope:file:packages/main/src/handlers/review-run.ts', 'scope:file:packages/main/src/consumers/c2.ts'],
+      scopeRefs: ['scope:file:packages/main/src/handlers/review-run.ts'],
     };
     const genericControl = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
     assert.equal(genericControl.status, 'complete', JSON.stringify(genericControl, null, 2));
@@ -378,6 +382,10 @@ try {
     assert.ok(c2Path, 'empty planned declarations still discover a non-ProofStory handler and its unregistered external C2 consumer');
     assert.ok(genericControl.enumeratedPathRefs.some(path => path.includes('process-fact:review_run_start')), 'generic factory alias resolves the registered review-run command');
     assert.ok(!genericControl.enumeratedPathRefs.some(path => path.includes('acceptance_basis')), 'bounded graph does not pull the unrelated process registry universe');
+    const closureControl = deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']);
+    assert.ok(closureControl.sourceFileRefs.includes('packages/main/src/consumers/c2.ts'), 'outside-scope C2 is discovered from canonical source-root reverse import/call inventory');
+    assert.ok(!closureControl.sourceFileRefs.includes('packages/main/src/unrelated.ts'), 'unrelated source inventory file without a call relation stays outside closure');
+    const closureHash = computeClosureFilesHash(genericRoot, [], closureControl.sourceInventoryRefs);
 
     const genericBasis = structuredClone(first.basis);
     genericBasis.storyId = 'B-generic';
@@ -394,6 +402,8 @@ try {
     assert.equal(reconcileTopologyWithCoverageBasis(contract(c2Topology), genericBasis).length, 0, 'restored generic C2 topology control passes');
     write(genericRoot, 'packages/main/src/consumers/c2.ts', 'export const c2 = () => true;\n');
     const omittedC2 = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+    assert.equal(omittedC2.status, 'partial', 'consumerGate without a resolvable outside-scope consumer fails closed');
+    assert.ok(omittedC2.blindSpots.some(item => item.includes('consumerGate but no resolvable consumer source')), 'missing C2 produces an explicit consumer-source blind spot');
     const omittedBasis = structuredClone(genericBasis);
     omittedBasis.adapterResults = omittedC2.adapterResults;
     omittedBasis.enumeratedPathRefs = omittedC2.enumeratedPathRefs;
@@ -401,9 +411,16 @@ try {
     redigestBasis(omittedBasis);
     assert.ok(reconcileTopologyWithCoverageBasis(contract(c2Topology), omittedBasis).some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'), 'omitting external C2 fails the reverse topology mapping');
     write(genericRoot, 'packages/main/src/consumers/c2.ts', [
-      "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+      "import { consumeReviewRun } from '../handlers/missing-review-run.js';",
       'export const c2 = () => consumeReviewRun();', '',
     ].join('\n'));
+    assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'unresolvable outside-scope C2 import fails closed');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', [
+      "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+      'export const c2 = () => consumeReviewRun();', '// content-bound mutation', '',
+    ].join('\n'));
+    const mutatedClosure = deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']);
+    assert.notEqual(computeClosureFilesHash(genericRoot, [], mutatedClosure.sourceInventoryRefs), closureHash, 'outside-scope C2 content mutation stales the closure binding');
 
     write(genericRoot, 'packages/main/src/registry.ts', genericRegistryControl.replace('registry.registerBatch(makeReviewHandlers(ctx));', '// deleted registerBatch(makeReviewHandlers(ctx));'));
     assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'deleted generic registerBatch fails closed');
@@ -411,6 +428,11 @@ try {
     assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'ambiguous dynamic factory registration fails closed');
     write(genericRoot, 'packages/main/src/registry.ts', genericRegistryControl);
     assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'complete', 'restored generic alias factory control passes');
+    write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'missing-src' }));
+    resetConfigCache();
+    assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'missing configured source root fails closed');
+    write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    resetConfigCache();
   } finally {
     rmSync(genericRoot, { recursive: true, force: true });
   }
