@@ -303,7 +303,7 @@
       "desc": "CHK-002 evidence remains incomplete after F-008 repair. packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:169-181 and 200-216 cover cardinality, path/digest, one disagreement, and closure omission, but VI-A32A-002-PROFILE-TOTALITY and VI-A32A-002-RESULT-AND-CLOSURE-TAMPER also require invalid coverage claim, provenance, blind spot, and asymmetry-policy cases plus proof that caller discoveryMethods cannot narrow the registered profile. The current smoke contains no discoveryMethods case and only changes pathRefs/one coverageClaim optimism case, so two must intents are still semantically under-covered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T07:42:37.758Z",
@@ -316,7 +316,11 @@
       ],
       "signatureTag": "missing|ts|evidence-remains-incomplete",
       "signatureTagSource": "auto",
-      "clusterId": "CL-006"
+      "clusterId": "CL-006",
+      "resolvedReason": "Fixed by f4de47a239: current-HEAD matrix now bites invalid coverage claim, provenance, blindSpot completeness, asymmetry kind/policyRef/scopeRefs and caller discoveryMethods narrowing; shuffled registered results remain canonical. Each mutation asserts its intended partial/error and restored control passes.",
+      "resolvedAt": "2026-07-22T08:20:44.272Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-016",
