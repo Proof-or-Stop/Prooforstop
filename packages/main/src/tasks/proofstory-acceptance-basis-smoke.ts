@@ -19,6 +19,7 @@ import {
   runAcceptanceDiscoveryAdapters,
 } from '../core/acceptance-discovery-adapters.js';
 import { verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
+import { generateEd25519KeyPair, signCanonical } from '../core/authority-signing.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type {
@@ -249,6 +250,14 @@ try {
     assert.equal(verifyAcceptanceBasisReceipt({ artifact: changed, gitCwd: root, metadataRoot: root, expectedStoryId: storyId }).ok, false, `${label} tamper bites`);
     assert.equal(verifyAcceptanceBasisReceipt({ artifact, gitCwd: root, metadataRoot: root, expectedStoryId: storyId }).ok, true, `${label} restored control passes`);
   }
+  const forgedIssuer = structuredClone(artifact);
+  const attacker = generateEd25519KeyPair();
+  forgedIssuer.receipt.signerPublicKey = attacker.publicKey;
+  forgedIssuer.receipt.issuerKeyId = `sha256:${createHash('sha256').update(JSON.stringify(attacker.publicKey)).digest('hex')}`;
+  const { signature: _oldSignature, ...forgedUnsigned } = forgedIssuer.receipt;
+  forgedIssuer.receipt.signature = signCanonical(forgedUnsigned, attacker.privateKey);
+  assert.equal(verifyAcceptanceBasisReceipt({ artifact: forgedIssuer, gitCwd: root, metadataRoot: root, expectedStoryId: storyId }).ok, false, 'self-signed forged registered-verifier label is rejected against the registered local verifier key');
+  assert.equal(verifyAcceptanceBasisReceipt({ artifact, gitCwd: root, metadataRoot: root, expectedStoryId: storyId }).ok, true, 'forged issuer restored control passes');
 
   write(root, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => false;\n');
   git(root, ['add', 'packages/main/src/consumer.ts']);

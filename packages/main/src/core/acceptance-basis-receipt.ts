@@ -47,6 +47,13 @@ function publicKeyForPrivate(privateKey: string): string {
   return exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(privateKey)));
 }
 
+function registeredPublicKey(gitCwd: string): string | null {
+  const path = keyPath(gitCwd);
+  if (!existsSync(path)) return null;
+  try { return publicKeyForPrivate(readFileSync(path, 'utf8').trim()); }
+  catch { return null; }
+}
+
 function unsignedReceipt(receipt: AcceptanceBasisReceiptV1): Omit<AcceptanceBasisReceiptV1, 'signature'> {
   const { signature: _signature, ...unsigned } = receipt;
   return unsigned;
@@ -101,7 +108,11 @@ export function verifyAcceptanceBasisReceipt(args: {
   if (!args.artifact) return { ok: false, code: 'AT_COVERAGE_BASIS_MISSING', diagnostics: ['acceptance basis receipt is missing'] };
   const { basis, receipt } = args.artifact;
   const diagnostics: string[] = [];
-  if (!verifyCanonical(unsignedReceipt(receipt), receipt.signature, receipt.signerPublicKey)) diagnostics.push('receipt signature is invalid');
+  const trustedPublicKey = registeredPublicKey(args.gitCwd);
+  if (!trustedPublicKey
+    || receipt.signerPublicKey !== trustedPublicKey
+    || receipt.issuerKeyId !== `sha256:${digestCanonicalJson(trustedPublicKey)}`) diagnostics.push('registered verifier signer key mismatch');
+  if (!trustedPublicKey || !verifyCanonical(unsignedReceipt(receipt), receipt.signature, trustedPublicKey)) diagnostics.push('receipt signature is invalid');
   const basisVerification = verifyAcceptanceCoverageBasis(basis);
   diagnostics.push(...basisVerification.diagnostics.map(item => `${item.code}: ${item.message}`));
   if (receipt.issuer !== 'acceptance-coverage-basis-verifier'
