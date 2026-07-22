@@ -359,9 +359,8 @@ compatible.
 The renderer accepts only `storyId` and `json`. Write-shaped arguments such as
 `mode`, `write`, `output`, `apply`, `result`, `verdict`, `evidence`, or `rows`
 are rejected. It writes no matrix artifact, process event, evidence, phase, or
-other lifecycle fact. Coverage-basis discovery, signed basis receipts,
-`acceptance_topology_check`, `pre_review_check`, and lifecycle enforcement are
-not part of Wave 1.
+other lifecycle fact. Coverage-basis discovery, signed basis receipts, and
+lifecycle enforcement are not part of the Wave 1 renderer.
 
 Topology producer and consumer positions must resolve to declaration endpoints
 with the matching canonical role. Every bound must-priority intent must be
@@ -422,10 +421,47 @@ reports `legacy_missing`; an authentic partial basis remains explicitly
 `partial`, while stale or tampered artifacts report deterministic `AT_*`
 diagnostics.
 
-Wave 1A remains an L3 diagnostic signed artifact with no lifecycle-gate
-consumer. These commands are non-Authority and non-evidentiary: they do not
-advance lifecycle state, grant a verdict, or claim completion of Wave 2
-pre-review enforcement.
+Wave 2 promotes the verifier-produced basis to an L4 gate-consumed process fact
+for PLAN→DEV structural evaluation. The basis commands themselves remain
+non-Authority: they do not advance lifecycle state, accept caller verdicts, or
+prove executable readiness.
+
+### Acceptance topology structural check (Wave 2)
+
+`lattice acceptance_topology_check --storyId=<id> [--json]` is the canonical
+read-only PLAN structural evaluator. It loads the stored verifier-signed basis,
+re-derives current discovery and workspace/scope/topology bindings, verifies the
+receipt, and compares the complete basis union with the normalized reference-
+only topology. Text and JSON both report `mode`, `status`, `basisStatus`,
+`structuralPass`, `blocking`, ordered `diagnostics`, and an exact `nextAction`.
+JSON additionally states `readOnly: true`, `evidentiary: false`, and
+`authority: "diagnostic_only"`.
+
+Mode comes only from the flat project `proofStory.devGateMode` setting:
+
+- `observe` and `warn` return the same structural result and ordered `AT_*`
+  diagnostics without blocking PLAN→DEV;
+- `enforce` blocks PLAN→DEV when that same canonical result is non-pass;
+- rollback from `enforce` to `warn` changes admission only and does not rewrite
+  the basis, topology, diagnostics, evidence, or prior history.
+
+The command accepts only `storyId` and `json`. Caller fields such as `mode`,
+`status`, `structuralPass`, `blocking`, `authority`, `basis`, `evidence`,
+`write`, or `apply` are rejected. Missing basis/topology, partial or unsupported
+basis, stale/tampered receipt or adapter projection, an unmapped basis path,
+topology invention outside the basis, invalid typed planned paths, orphan refs,
+and uncovered required intents produce stable ordered `AT_*` diagnostics.
+Partial/unsupported/missing basis is explicitly inconclusive, never a pass.
+
+PLAN compatibility is structural: documentation-only and ordinary single-
+outcome bindings do not fabricate runtime mutation/transcript requirements;
+legacy missing topology remains readable and visible as `AT_MISSING_TOPOLOGY`.
+A new producer→consumer path may enter DEV only through a frozen typed planned-
+path declaration owned by `verificationIntent` and independently derived into
+the PLAN basis. The check does not run commands, consume `verificationEvidence`,
+require an implementation transcript, persist a result, or claim executable or
+production readiness. Independent critic, current-worktree executable checks,
+selective per-Story policy, and measured rollout remain later bounded waves.
 
 ### Milestone Status
 

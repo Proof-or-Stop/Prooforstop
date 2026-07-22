@@ -108,6 +108,7 @@ import {
   readLifecycleMetadataOutputHashes,
   type LifecycleMetadataTransaction,
 } from '../core/auto-commit-metadata.js';
+import { evaluateAcceptanceTopologyForContext } from './proofstory.js';
 
 /** Arguments for one story_advance transition. */
 export interface StoryTransitionArgs {
@@ -464,6 +465,26 @@ async function runStoryTransitionInner(
       assertCwdInWorktree(store, args.storyId);
     }
 
+    // Wave 2 PLAN→DEV structural gate. Both the CLI and lifecycle route use
+    // the same production adapter and canonical evaluator. Observe/warn retain
+    // identical diagnostics; enforce alone changes admission behavior.
+    let acceptanceTopologyGateReport = '';
+    if (story.phase === 'PLAN' && args.phase === 'DEV') {
+      const topology = evaluateAcceptanceTopologyForContext(ctx, args.storyId);
+      acceptanceTopologyGateReport = [
+        '\nAcceptance topology check:',
+        `  mode=${topology.mode}; status=${topology.status}; structuralPass=${topology.structuralPass}; blocking=${topology.blocking}`,
+        `  diagnostics=${topology.diagnostics.map(item => item.code).join(',') || 'none'}`,
+      ].join('\n');
+      if (topology.blocking) {
+        throw new Error(
+          `Cannot enter DEV: acceptance topology structural gate blocked PLAN admission.\n` +
+          topology.diagnostics.map(item => `  - ${item.code}: ${item.message}`).join('\n') +
+          `\n\n-> ${topology.nextAction}`,
+        );
+      }
+    }
+
     // Dependency completion check (soft warning, non-blocking)
     let depsWarning = '';
     if (story.depends && story.depends.length > 0) {
@@ -585,7 +606,7 @@ async function runStoryTransitionInner(
       throw resolveGuardFailure(actor, args.storyId, store, args.phase, ctx.root);
     }
 
-    let scopeGateReport = '';
+    let scopeGateReport = acceptanceTopologyGateReport;
     let guardGateReport = runtimeGateReport;
     if (args.phase === 'REVIEW' || args.phase === 'TEST' || args.phase === 'DONE') {
       scopeGateReport = runScopeTransitionGate(ctx, args.storyId, args.phase);
@@ -597,7 +618,7 @@ async function runStoryTransitionInner(
     // PLAN→DEV: soft advisory when a new-scope story has no scope contract yet.
     // Does not block — advisory only; REVIEW will hard-block if still missing.
     if (args.phase === 'DEV') {
-      scopeGateReport = runPlanToDevScopeAdvice(ctx, args.storyId);
+      scopeGateReport += runPlanToDevScopeAdvice(ctx, args.storyId);
     }
 
     // B-56d3: REVIEW→TEST CLI preflight gate (runReviewToTestPreflightGate).

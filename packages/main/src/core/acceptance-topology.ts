@@ -1,4 +1,5 @@
 import type {
+  AcceptanceBasisArtifactV1,
   AcceptanceVerificationTopologyV1,
   ChecklistData,
   ChecklistItem,
@@ -10,6 +11,9 @@ import type {
   VerificationPlannedPathDeclarationV1,
   VerificationPlannedPathEndpointV1,
 } from './types.js';
+import type { AcceptanceBasisDiagnostic } from './acceptance-coverage-basis.js';
+import type { AcceptanceBasisReceiptVerification } from './acceptance-basis-receipt.js';
+import { PROCESS_FACT_REGISTRY } from './process-fact-registry.js';
 
 export const ACCEPTANCE_TOPOLOGY_SCHEMA_VERSION = 'proofstory.acceptance_topology.v1' as const;
 export const PLANNED_PATH_SCHEMA_VERSION = 'proofstory.verification_planned_path_declaration.v1' as const;
@@ -47,6 +51,24 @@ export interface AcceptanceMatrixReport {
   diagnostics: AcceptanceTopologyDiagnostic[];
 }
 
+export type AcceptanceTopologyGateMode = 'observe' | 'warn' | 'enforce';
+
+export interface AcceptanceTopologyCheckReport {
+  storyId: string;
+  mode: AcceptanceTopologyGateMode;
+  readOnly: true;
+  evidentiary: false;
+  authority: 'diagnostic_only';
+  status: 'pass' | 'warn' | 'fail' | 'inconclusive';
+  structuralPass: boolean;
+  blocking: boolean;
+  basisStatus: 'missing' | 'complete' | 'partial' | 'unsupported';
+  topologyState: AcceptanceMatrixReport['topologyState'];
+  rows: AcceptanceMatrixRow[];
+  diagnostics: AcceptanceTopologyDiagnostic[];
+  nextAction: string;
+}
+
 const TOPOLOGY_KEYS = new Set([
   'schemaVersion',
   'producerRefs',
@@ -70,6 +92,15 @@ function nonEmpty(value: unknown): value is string {
 
 function stableUnique(values: readonly string[]): string[] {
   return [...new Set(values)].sort((a, b) => a.localeCompare(b));
+}
+
+function stableDiagnostics(values: readonly AcceptanceTopologyDiagnostic[]): AcceptanceTopologyDiagnostic[] {
+  const byKey = new Map<string, AcceptanceTopologyDiagnostic>();
+  for (const value of values) {
+    byKey.set(`${value.bindingId}\0${value.code}\0${value.path}\0${value.message}`, value);
+  }
+  return [...byKey.values()].sort((a, b) =>
+    `${a.bindingId}\0${a.code}\0${a.path}\0${a.message}`.localeCompare(`${b.bindingId}\0${b.code}\0${b.path}\0${b.message}`));
 }
 
 export function verificationIntentHasPlannedPathDeclarations(intent: VerificationIntent | undefined): boolean {
@@ -249,6 +280,7 @@ function canonicalSourceRefs(
   });
   intents.forEach(entry => refs.add(`intent:${entry.intentRef}`));
   (ledger?.milestones ?? []).forEach(milestone => refs.add(`milestone:${milestone.id}`));
+  PROCESS_FACT_REGISTRY.forEach(entry => refs.add(`process-fact:${entry.name}`));
   return refs;
 }
 
@@ -339,7 +371,7 @@ function diagnoseBinding(
   binding: ProofStoryAcceptanceBinding,
   canonicalRefs: ReadonlySet<string>,
   declarations: ReadonlyMap<string, VerificationPlannedPathDeclarationV1>,
-  docsOnly: boolean,
+  compatibilityMinimal: boolean,
   bindingIntents: readonly IntentIndexEntry[],
 ): { diagnostics: AcceptanceTopologyDiagnostic[]; declarationRefs: string[]; endpointRefs: string[] } {
   const diagnostics: AcceptanceTopologyDiagnostic[] = [];
@@ -409,7 +441,7 @@ function diagnoseBinding(
     const assertions = stableNodeArray(obj, group);
     const mappedIntentRefs = new Set<string>();
     intentMappings.set(group, mappedIntentRefs);
-    const required = group === 'positiveAssertionRefs' || !docsOnly;
+    const required = group === 'positiveAssertionRefs' || !compatibilityMinimal;
     const missingCode = group === 'mutationCaseRefs' ? 'AT_MUTATION_MISSING' : group === 'transcriptAssertionRefs' ? 'AT_TRANSCRIPT_MISSING' : 'AT_INTENT_UNCOVERED';
     if (required && assertions.length === 0) pushDiagnostic(diagnostics, binding.id, missingCode, `verificationTopology.${group}`, `${group} is required`);
     for (const [index, assertion] of assertions.entries()) {
@@ -428,14 +460,14 @@ function diagnoseBinding(
   }
 
   const commandRefs = [...arrayValue(obj, 'commandRefs')].sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
-  if (!docsOnly && commandRefs.length === 0) {
+  if (!compatibilityMinimal && commandRefs.length === 0) {
     pushDiagnostic(diagnostics, binding.id, 'AT_COMMAND_MISSING', 'verificationTopology.commandRefs', 'at least one canonical command reference is required');
   }
   for (const [index, commandRef] of commandRefs.entries()) {
     validateSourceRef(commandRef, `verificationTopology.commandRefs[${index}]`, binding.id, canonicalRefs, declarations, diagnostics);
   }
   for (const entry of bindingIntents.filter(candidate => (candidate.intent.priority ?? 'must') === 'must')) {
-    const mapped = docsOnly
+    const mapped = compatibilityMinimal
       ? intentMappings.get('positiveAssertionRefs')?.has(entry.intentRef)
       : entry.lane === 'happy'
       ? intentMappings.get('positiveAssertionRefs')?.has(entry.intentRef)
@@ -475,7 +507,8 @@ export function buildAcceptanceMatrixReport(args: {
     const bindingIntents = binding.verificationIntentRefs
       .map(ref => intentsByRef.get(ref))
       .filter((entry): entry is IntentIndexEntry => entry !== undefined);
-    const diagnosed = diagnoseBinding(binding, canonicalRefs, declarations, docsOnly, bindingIntents);
+    const singleOutcome = bindingIntents.length === 1;
+    const diagnosed = diagnoseBinding(binding, canonicalRefs, declarations, docsOnly || singleOutcome, bindingIntents);
     for (const ref of binding.checklistRefs) {
       if (!canonicalRefs.has(`checklist:${ref}`)) pushDiagnostic(diagnosed.diagnostics, binding.id, 'AT_UNKNOWN_REF', 'checklistRefs', `unknown checklist ref: ${ref}`);
     }
@@ -517,4 +550,108 @@ export function buildAcceptanceMatrixReport(args: {
       ? 'inconclusive_basis_unverified'
       : 'legacy_missing';
   return { storyId: args.storyId, mode: 'observe', readOnly: true, evidentiary: false, topologyState, result, rows, diagnostics };
+}
+
+/**
+ * Canonical Wave 2 structural evaluator. The production adapter supplies the
+ * verifier-derived receipt result; this function derives every pass/blocking
+ * field and never reads executable evidence or caller-provided verdicts.
+ */
+export function evaluateAcceptanceTopologyCheck(args: {
+  storyId: string;
+  mode: AcceptanceTopologyGateMode;
+  checklist: ChecklistData;
+  contract: ProofStoryContractData | null;
+  ledger: MilestoneLedgerData | null;
+  artifact: AcceptanceBasisArtifactV1 | null;
+  receiptVerification: AcceptanceBasisReceiptVerification;
+  currentBasisDiagnostics: readonly AcceptanceBasisDiagnostic[];
+  topologyBasisDiagnostics: readonly AcceptanceBasisDiagnostic[];
+}): AcceptanceTopologyCheckReport {
+  const matrix = buildAcceptanceMatrixReport({
+    storyId: args.storyId,
+    checklist: args.checklist,
+    contract: args.contract,
+    ledger: args.ledger,
+  });
+  const diagnostics: AcceptanceTopologyDiagnostic[] = [...matrix.diagnostics];
+  const bindings = args.contract?.acceptanceBindings ?? [];
+  if (bindings.length === 0) {
+    diagnostics.push({
+      code: 'AT_MISSING_TOPOLOGY', bindingId: '<story>', path: 'proofstory.acceptanceBindings',
+      message: 'no required acceptance binding supplies a topology',
+    });
+  }
+  for (const row of matrix.rows.filter(candidate => candidate.topologyState === 'legacy_missing')) {
+    diagnostics.push({
+      code: 'AT_MISSING_TOPOLOGY',
+      bindingId: row.acceptanceBindingRef.replace(/^acceptance-binding:/, ''),
+      path: 'verificationTopology',
+      message: 'required acceptance binding has no topology; legacy data remains readable but is not structurally complete',
+    });
+  }
+
+  const basisStatus = args.artifact?.basis.status ?? 'missing';
+  if (!args.artifact) {
+    diagnostics.push({
+      code: 'AT_COVERAGE_BASIS_MISSING', bindingId: '<story>', path: 'acceptance-basis.json',
+      message: 'registered verifier-produced PLAN coverage basis is missing',
+    });
+  } else {
+    if (args.artifact.schemaVersion !== 'proofstory.acceptance_basis_artifact.v1') {
+      diagnostics.push({
+        code: 'AT_ADAPTER_RESULT_DIGEST_MISMATCH', bindingId: '<story>', path: 'acceptance-basis.json.schemaVersion',
+        message: 'acceptance basis artifact schema is invalid',
+      });
+    }
+    if (basisStatus === 'partial' || basisStatus === 'unsupported') {
+      diagnostics.push({
+        code: 'AT_COVERAGE_BASIS_PARTIAL', bindingId: '<story>', path: 'acceptance-basis.json.basis.status',
+        message: `coverage basis is ${basisStatus}; structural completeness is inconclusive`,
+      });
+    }
+  }
+  if (!args.receiptVerification.ok) {
+    diagnostics.push({
+      code: args.receiptVerification.code,
+      bindingId: '<story>',
+      path: 'acceptance-basis.json.receipt',
+      message: args.receiptVerification.diagnostics.join('; ') || 'coverage basis receipt verification failed',
+    });
+  }
+  for (const item of [...args.currentBasisDiagnostics, ...args.topologyBasisDiagnostics]) {
+    diagnostics.push({
+      code: item.code,
+      bindingId: '<story>',
+      path: item.pathRef ?? 'acceptance-basis.json',
+      message: item.message,
+    });
+  }
+
+  const orderedDiagnostics = stableDiagnostics(diagnostics);
+  const structuralPass = basisStatus === 'complete' && args.receiptVerification.ok && orderedDiagnostics.length === 0;
+  const blocking = args.mode === 'enforce' && !structuralPass;
+  const inconclusive = basisStatus === 'missing' || basisStatus === 'partial' || basisStatus === 'unsupported';
+  const status: AcceptanceTopologyCheckReport['status'] = structuralPass
+    ? 'pass'
+    : blocking
+      ? inconclusive ? 'inconclusive' : 'fail'
+      : 'warn';
+  return {
+    storyId: args.storyId,
+    mode: args.mode,
+    readOnly: true,
+    evidentiary: false,
+    authority: 'diagnostic_only',
+    status,
+    structuralPass,
+    blocking,
+    basisStatus,
+    topologyState: matrix.topologyState,
+    rows: matrix.rows,
+    diagnostics: orderedDiagnostics,
+    nextAction: structuralPass
+      ? 'Structural topology is complete for PLAN; continue the configured lifecycle transition.'
+      : 'Repair the named AT_* structural diagnostics, regenerate the verifier-owned PLAN basis, and rerun acceptance_topology_check.',
+  };
 }

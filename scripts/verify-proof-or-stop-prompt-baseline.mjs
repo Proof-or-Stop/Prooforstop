@@ -56,7 +56,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-implementer',
-    templateHash: '98aa71b9cde97e5571ff9d61aa0091163660eaa8cd8013ab6da4c7eedba9f45e',
+    templateHash: 'dcdb50a19f3d819404dae86626b9e412d328e82d0fd8ac75aca169244fcf5996',
   },
   {
     role: 'lattice-review-behavior',

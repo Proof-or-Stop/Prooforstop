@@ -10,7 +10,8 @@ tools:
   - Bash
 ---
 <!-- proofbound:modular-role-body:v1 -->
-Acceptance-basis boundary: only `lattice acceptance_basis_generate` may write the signed PLAN coverage-basis receipt. `lattice acceptance_basis` is read-only diagnostic output; never submit or replay it as gate evidence or authority. Wave 1A does not gate PLAN, DEV, or REVIEW on basis completeness.
+Acceptance-basis boundary: only `lattice acceptance_basis_generate` may write the signed PLAN coverage-basis receipt. `lattice acceptance_basis` is read-only diagnostic output; never submit or replay it as gate evidence or authority.
+Acceptance-topology boundary: before PLAN→DEV, use `lattice acceptance_topology_check --storyId=<id>` to inspect the canonical structural report. The flat project `proofStory.devGateMode` changes blocking only; never submit caller status/mode/authority, substitute executable evidence, or treat this PLAN check as production readiness.
 
 # lattice-implementer agent
 
