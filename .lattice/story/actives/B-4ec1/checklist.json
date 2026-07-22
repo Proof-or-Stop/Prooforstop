@@ -60,7 +60,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION",
+            "desc": "M2: At DEV-to-REVIEW, recompute the coverage basis from the actual current worktree and global registered producer/consumer closure, then reconcile every frozen verificationIntent plannedPathRef and every topology endpoint to an actual discovered producer, consumer, handler/dispatch/process-fact edge and source ref; exact, valid expanded, and independently approved replacement mappings pass only when completeness is complete and hashes bind the current story and closure files.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-W3-M2-PLANNED-ACTUAL-MATRIX",
+            "desc": "M2: Table-test exact, expanded, approved-replaced, unresolved, ambiguous, removed, and newly discovered paths; planned-only producers/consumers may permit PLAN but must fail pre-REVIEW, while every new current-worktree path is either mapped to topology or independently excluded with deterministic PR_PLANNED_PATH_UNRESOLVED/PR_NEW_PATH_UNMAPPED-class results.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M2-DISCOVERY-STATE-CLOSURE",
+            "desc": "M2: Exercise complete, partial, unsupported, missing, stale, and conflicting adapter states, including a registered consumer outside Story scope and a relevant changed hunk; union discovery must retain every observed path, bind closureFilesHash separately from storyFilesHash, and fail closed whenever any required observer/result cannot establish completeness.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-W3-M2-TOPOLOGY-ONLY-OMISSION",
+            "desc": "M2 mandatory omission mutation: start from a passing basis/topology containing consumer C2, delete only C2 (or its required assertion edge) from topology while leaving C2 in the recomputed basis and source closure, and require the real PLAN/pre-REVIEW topology consumer to fail with AT_UNMAPPED_SCOPE_REF or its canonical equivalent; restore exactly and require the clean control to pass.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M2-ADAPTER-RECORD-TAMPER",
+            "desc": "M2: Omit, duplicate, reorder inconsistently, forge, or alter one required adapter result/record, aggregate count/digest, plannedPathRef, source ref, discovery profile, or reconciliation decision at a time; production verification must reject missing/extra/tampered records and must not let a critic receipt, exclusion, or caller-authored completeness claim override discovery.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
