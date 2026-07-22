@@ -762,6 +762,26 @@
       ],
       "signatureTag": "missing|ts|inline-commonjs-support",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-039",
+      "desc": "The new shared SourceReadContext does not reach the final closure hash read, so F-033 remains open on the production derivation path. deriveAcceptanceCoverageBasis calls computeClosureFilesHash at acceptance-coverage-basis.ts:231-242 after discovery; computeClosureFilesHash independently maps every planned/inventory file and calls unbounded, no-follow-unprotected readFileSync at lines 178-187. A huge seed/closure file, symlink swap, permission race, or aggregate file set can therefore allocate or escape the adapter budget again and may throw before the already-partial basis is returned. Its bytes can also differ from the cached snapshots used by adapter provenance, producing a mixed-time receipt binding. Pass the same canonical bounded snapshots/digests into closure hashing or expose a bounded verifier-owned hash result with diagnostics; never reread paths independently. Add a production deriveAcceptanceCoverageBasis mutation proving oversized/swapped/disappearing closure files return deterministic partial without a second allocation or throw.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T09:51:31.780Z",
+      "reviewRound": "2026-07-22T09:49:17.027Z",
+      "reviewRunId": "B-a32a:RR-033",
+      "_hash": "767c55e50e07b44d9dff4740a4b27e5ca215513c124e657761bbf668eccb7dd0",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|shared-sourcereadcontext-reach",
+      "signatureTagSource": "auto"
     }
   ]
 }
