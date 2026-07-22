@@ -1,0 +1,93 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-a32a",
+  "status": "FAIL",
+  "startedAt": "2026-07-22T12:24:26.996Z",
+  "endedAt": "2026-07-22T12:25:05.269Z",
+  "durationMs": 38273,
+  "headHash": "759e965fd4979797434d5a662d26dcf5ca3d75f2",
+  "materialHash": "8e6b17541a228367b4b10b4d9065b1e2664680ef786ecc60756ef25290217f21",
+  "storyFilesHash": "637759865b103bd2eecf720eaa4fc06edb7d4954661b55f47bbeefc451044c64",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-a32a",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-a32a",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 18427,
+      "outputDigest": "cb2a7599996aa888ddc2fd08f79bc6300b5f873720940a120e5568e01bec1597",
+      "outputTail": "\n> @lattice/core@0.3.226 build\n> tsc\n\n",
+      "startedAt": "2026-07-22T12:24:27.000Z",
+      "endedAt": "2026-07-22T12:24:45.428Z",
+      "effectiveEnvironmentDigest": "308dd5fe597e19c27ddd6ef7b427ed792e0ffa7256a73f76bdd3b9fd669162c3",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "759e965fd4979797434d5a662d26dcf5ca3d75f2",
+      "materialHash": "8e6b17541a228367b4b10b4d9065b1e2664680ef786ecc60756ef25290217f21",
+      "storyFilesHash": "637759865b103bd2eecf720eaa4fc06edb7d4954661b55f47bbeefc451044c64"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-a32a",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-a32a",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 19249,
+      "outputDigest": "03d89054ab61b8f7da1e2d7b429a42c6532ffc0b2703dea946327cf5846a748f",
+      "outputTail": "rift-advisory && npm run test:review-escalation-freshness-root && npm run test:dispatch-checklist-doctor-wrapper-root && npm run test:graceful-sites-gitroot-cwd && npm run test:experience-hint-worktree-cache && npm run test:done-merge-experience-refresh && npm run test:experience-coverage-gap && npm run test:nested-worktree-bootstrap && npm run test:e2e && npm run test:experience-arm-gate && npm run test:experience-arm-isolation-e2e && npm run test:brief-output && npm run test:experiments && npm run test:convergence-breaker\n\n\n> lattice@0.3.226 test:main-write-lock-coverage\n> node packages/main/dist/tasks/main-write-lock-coverage.js\n\nmain-write-lock-coverage: scanned 421 source files, 18 git mutation-verb sites\n  ✓ src/cli-engine.ts:663  [commit]  mutates-main=YES  locked=YES  OK\n  ✓ src/cli-engine.ts:698  [merge]  mutates-main=no   locked=n/a  OK\n  ✓ src/cli/init-check-metadata-sync.ts:139  [commit]  mutates-main=YES  locked=YES  OK\n  ✓ src/cli/init-check-metadata-sync.ts:195  [merge]  mutates-main=no   locked=n/a  OK\n  ✓ src/cli/init-check-metadata-sync.ts:283  [commit]  mutates-main=no   locked=n/a  OK\n  ✓ src/core/auto-commit-metadata.ts:585  [commit]  mutates-main=no   locked=n/a  OK\n  ✓ src/core/safe-init-commit.ts:141  [commit]  mutates-main=YES  locked=YES  OK\n  ✓ src/handlers/done-effects.ts:101  [merge]  mutates-main=no   locked=n/a  OK\n  ✓ src/handlers/done-effects.ts:1074  [commit]  mutates-main=no   locked=n/a  OK\n  ✓ src/handlers/done-effects.ts:1107  [merge]  mutates-main=YES  locked=YES  OK\n  ✓ src/handlers/done-recover.ts:97  [merge]  mutates-main=YES  locked=YES  OK\n  ✓ src/handlers/worktree.ts:362  [commit-tree]  mutates-main=no   locked=n/a  OK\n  ✓ src/handlers/worktree.ts:363  [update-ref]  mutates-main=no   locked=n/a  OK\n  ✓ src/handlers/worktree.ts:653  [reset]  mutates-main=YES  locked=YES  OK\n  ✓ src/handlers/worktree.ts:664  [commit]  mutates-main=YES  locked=YES  OK\n  ✓ src/handlers/worktree.ts:929  [update-ref]  mutates-main=no   locked=n/a  OK\n  ✓ src/handlers/worktree.ts:1022  [commit]  mutates-main=no   locked=n/a  OK\n  ✓ src/handlers/worktree.ts:1078  [commit]  mutates-main=no   locked=n/a  OK\nmain-write-lock-coverage: negative fixture bites (unlocked main commit ⇒ VIOLATION; locked ⇒ OK; worktree-only merge ⇒ OK; gitFile commit/update-ref on main ⇒ VIOLATION; gitFile story-branch bootstrap ⇒ OK)\n\nmain-write-lock-coverage: PASS — all 7 main-mutating path(s) hold the main write lock\n\n> lattice@0.3.226 test:production-test-seam-guard\n> node packages/main/dist/tasks/production-test-seam-guard.js\n\nProduction test seam guard: PASS — no unsafe SMOKE/TEST control reaches a filesystem or process sink.\n\n> lattice@0.3.226 test:lattice-residue\n> node scripts/verify-lattice-residue.mjs\n\nPASS lattice-residue: 0 brand residue in product runtime source\n\n> lattice@0.3.226 test:proof-or-stop-prompt-baseline\n> node scripts/verify-proof-or-stop-prompt-baseline.mjs\n\nfile:///Users/jek/Documents/Work/proofbound/.worktrees/B-a32a/scripts/verify-proof-or-stop-prompt-baseline.mjs:1336\n  throw new Error(\n        ^\n\nError: Refusing to collect or refresh the baseline because the approved prompt policy manifest failed:\n- approved prompt policy manifest hash mismatch for lattice-implementer: approved=3be8e9b5cce7f6f2558f929f400e0975fed624f011ab1dda573bdb30273588fd entry=98aa71b9cde97e5571ff9d61aa0091163660eaa8cd8013ab6da4c7eedba9f45e\n    at assertApprovedPromptPolicyManifest (file:///Users/jek/Documents/Work/proofbound/.worktrees/B-a32a/scripts/verify-proof-or-stop-prompt-baseline.mjs:1336:9)\n    at buildCurrentBaseline (file:///Users/jek/Documents/Work/proofbound/.worktrees/B-a32a/scripts/verify-proof-or-stop-prompt-baseline.mjs:2036:3)\n    at verifyBaseline (file:///Users/jek/Documents/Work/proofbound/.worktrees/B-a32a/scripts/verify-proof-or-stop-prompt-baseline.mjs:3312:19)\n    at async file:///Users/jek/Documents/Work/proofbound/.worktrees/B-a32a/scripts/verify-proof-or-stop-prompt-baseline.mjs:3389:3\n\nNode.js v22.13.0\n",
+      "startedAt": "2026-07-22T12:24:45.727Z",
+      "endedAt": "2026-07-22T12:25:04.976Z",
+      "effectiveEnvironmentDigest": "308dd5fe597e19c27ddd6ef7b427ed792e0ffa7256a73f76bdd3b9fd669162c3",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "759e965fd4979797434d5a662d26dcf5ca3d75f2",
+      "materialHash": "8e6b17541a228367b4b10b4d9065b1e2664680ef786ecc60756ef25290217f21",
+      "storyFilesHash": "637759865b103bd2eecf720eaa4fc06edb7d4954661b55f47bbeefc451044c64"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
