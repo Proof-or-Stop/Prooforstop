@@ -109,7 +109,7 @@
       "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:240-269 only compares canSendStoryEventWithoutSnapshotCan(..., PLAN, START, ...) before/after topology changes. VI-1995-004-LIFECYCLE-EQUIVALENCE requires both PLAN→DEV and DEV→REVIEW outcomes for otherwise identical valid, missing, and invalid topology Stories, and VI-1995-004-LEGACY-TRANSITION-MUTATION claims the same lifecycle facts stay constant. The current evidence note overstates this coverage. Add explicit transition comparisons for both boundaries and each topology state, while also asserting phase/process events remain unchanged; keep the no machine.ts/phase-gates diff source inventory as an independent assertion.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T03:20:13.017Z",
@@ -120,7 +120,11 @@
         "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 92d375b70a: table-driven valid, missing and malformed topology cases prove equal PLAN-to-DEV and DEV-to-REVIEW decisions, unchanged phase and no new events.",
+      "resolvedAt": "2026-07-22T03:40:56.665Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1995:F-007",
