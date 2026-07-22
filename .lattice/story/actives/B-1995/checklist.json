@@ -414,14 +414,14 @@
         },
         {
           "intentRef": "VI-1995-003-NON-EVIDENTIARY",
-          "kind": "logic_test",
-          "command": "node scripts/verify-process-fact-contract.mjs",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Process-fact registry verifies acceptance_matrix as L0 with no gate consumer or evidence authority.",
-          "headHash": "3c0c55c5c4832495bcfc641d3b65247e66e781c8",
-          "materialHash": "8a77d188a9d92bb699de646921a66ce4ee607b7df814f449f0c2d38542166719",
-          "storyFilesHash": "48322d44ba1187db0de847cb51deef3e31d8517140ec67abd659bf0169fe35fc",
-          "timestamp": "2026-07-22T03:39:46.689Z"
+          "note": "Expanded focused smoke at cef7fc56fe proves exact command provenance, paraphrased reserved-result rejection, unrelated warning-prose acceptance, and all real evidence-writer surfaces.",
+          "headHash": "cef7fc56feb1a7e1e70d533b9f0b8ba26f22e102",
+          "materialHash": "ee9af19f9d42b1cdbd2b7595d7f13293a0a3c822c15a641db111991832db4372",
+          "storyFilesHash": "aab32935fd6e66f9e803bfa61a6fcd903af486ffe3a88523ce6ae111f5209520",
+          "timestamp": "2026-07-22T03:54:02.236Z"
         }
       ]
     },
@@ -518,13 +518,13 @@
         {
           "intentRef": "VI-1995-004-COMPATIBILITY-MATRIX",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Topology-enabled, legacy, docs-only, and unsupported-version cases remain readable with bounded observe-only classifications.",
-          "headHash": "3c0c55c5c4832495bcfc641d3b65247e66e781c8",
-          "materialHash": "8a77d188a9d92bb699de646921a66ce4ee607b7df814f449f0c2d38542166719",
-          "storyFilesHash": "48322d44ba1187db0de847cb51deef3e31d8517140ec67abd659bf0169fe35fc",
-          "timestamp": "2026-07-22T03:39:46.689Z"
+          "note": "Expanded focused smoke at cef7fc56fe proves bounded legacy compatibility and no Result-warning false positive.",
+          "headHash": "cef7fc56feb1a7e1e70d533b9f0b8ba26f22e102",
+          "materialHash": "ee9af19f9d42b1cdbd2b7595d7f13293a0a3c822c15a641db111991832db4372",
+          "storyFilesHash": "aab32935fd6e66f9e803bfa61a6fcd903af486ffe3a88523ce6ae111f5209520",
+          "timestamp": "2026-07-22T03:54:02.236Z"
         },
         {
           "intentRef": "VI-1995-004-LIFECYCLE-EQUIVALENCE",
@@ -540,24 +540,24 @@
         {
           "intentRef": "VI-1995-004-MUTATION-BITES",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Declaration deletion, endpoint/reference failures, duplicate ID, orphan graph, inline semantics, and write-shaped request mutations bite independently.",
-          "headHash": "3c0c55c5c4832495bcfc641d3b65247e66e781c8",
-          "materialHash": "8a77d188a9d92bb699de646921a66ce4ee607b7df814f449f0c2d38542166719",
-          "storyFilesHash": "48322d44ba1187db0de847cb51deef3e31d8517140ec67abd659bf0169fe35fc",
-          "timestamp": "2026-07-22T03:39:46.689Z"
+          "note": "Expanded focused smoke at cef7fc56fe proves paraphrased and command-derived matrix rows remain uncovered in general, ProofStory, milestone requiredEvidence/subobjectives, and closeout.",
+          "headHash": "cef7fc56feb1a7e1e70d533b9f0b8ba26f22e102",
+          "materialHash": "ee9af19f9d42b1cdbd2b7595d7f13293a0a3c822c15a641db111991832db4372",
+          "storyFilesHash": "aab32935fd6e66f9e803bfa61a6fcd903af486ffe3a88523ce6ae111f5209520",
+          "timestamp": "2026-07-22T03:54:02.236Z"
         },
         {
           "intentRef": "VI-1995-004-NO-GATE-OR-BASIS-SHIP",
           "kind": "integration_test",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Contract verifies L0/non-gate semantics; source inventory has no machine/phase-gate change, discovery adapter, signed basis, pre_review_check, or acceptance_topology_check.",
-          "headHash": "3c0c55c5c4832495bcfc641d3b65247e66e781c8",
-          "materialHash": "8a77d188a9d92bb699de646921a66ce4ee607b7df814f449f0c2d38542166719",
-          "storyFilesHash": "48322d44ba1187db0de847cb51deef3e31d8517140ec67abd659bf0169fe35fc",
-          "timestamp": "2026-07-22T03:39:46.689Z"
+          "note": "Process-fact contract at cef7fc56fe verifies the shared bounded provenance classifier is consumed by writer, general verification, ProofStory, and milestone paths without promoting acceptance_matrix above L0.",
+          "headHash": "cef7fc56feb1a7e1e70d533b9f0b8ba26f22e102",
+          "materialHash": "ee9af19f9d42b1cdbd2b7595d7f13293a0a3c822c15a641db111991832db4372",
+          "storyFilesHash": "aab32935fd6e66f9e803bfa61a6fcd903af486ffe3a88523ce6ae111f5209520",
+          "timestamp": "2026-07-22T03:54:02.236Z"
         },
         {
           "intentRef": "VI-1995-004-LEGACY-TRANSITION-MUTATION",
