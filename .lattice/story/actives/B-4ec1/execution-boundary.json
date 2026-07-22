@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4ec1",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status --porcelain",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/verify-process-fact-contract.mjs",
+    "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "rg"
+  ],
+  "allowedPaths": [
+    ".claude/agents/**",
+    ".lattice-codex/agents/**",
+    "docs/CLI.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli/**",
+    "packages/main/src/core/**",
+    "packages/main/src/handlers/**",
+    "packages/main/src/tasks/**",
+    "packages/main/templates/**",
+    "scripts/**"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx",
+    "remote-publish"
+  ],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Bounded to Wave 3 production gate, contracts, docs and focused verification. Later-wave selective applicability and measured rollout are excluded.",
+  "createdAt": "2026-07-22T22:30:14.571Z",
+  "updatedAt": "2026-07-22T22:30:14.571Z",
+  "_hash": "f41cb7ee2ee6faeaac01e2e07bcd6c5047984ae290db8165c2cedcdc2cc1fbf3"
+}
