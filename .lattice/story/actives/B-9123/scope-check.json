@@ -1,0 +1,92 @@
+{
+  "storyId": "B-9123",
+  "checkedAt": "2026-07-22T18:01:51.854Z",
+  "features": [
+    {
+      "feature": "M1 eligible independent topology critic role and four-dimensional provenance",
+      "covered_by": "CHK-001; VI-CRITIC-ELIGIBLE; VI-CRITIC-FOUR-DIMENSION-MATRIX; VI-CRITIC-MISSING-PROVENANCE; VI-CRITIC-ROLE-SPOOF; VI-CRITIC-SESSION-DISPATCH-REPLAY; agent-dispatch-registry.ts; story-dispatch.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "confirmed milestone ledger, verificationIntent, and corrected registry/dispatch scope"
+    },
+    {
+      "feature": "M2 signed current TopologyCriticReceiptV1 producer and verifier",
+      "covered_by": "CHK-002; VI-RECEIPT-PRODUCTION-ROUNDTRIP; VI-RECEIPT-FRESHNESS-MATRIX; VI-RECEIPT-CANONICAL-COLLECTIONS; VI-RECEIPT-EVERY-FIELD-TAMPER; VI-RECEIPT-SIGNATURE-FORGERY",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan/checklist/ledger and allowed receipt core/store/types/handler/CLI surfaces"
+    },
+    {
+      "feature": "M3 separately attributable scope-plan exclusion approval and no incomplete-basis override",
+      "covered_by": "CHK-003; VI-EXCLUSION-INDEPENDENT-APPROVAL; VI-EXCLUSION-ONE-TO-ONE-COVERAGE; VI-NO-EXCLUSION-CONTROL; VI-EXCLUSION-AUTHORITY-SPOOF; VI-CRITIC-CANNOT-OVERRIDE-DISCOVERY",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan/checklist/ledger plus existing scope-plan role authority"
+    },
+    {
+      "feature": "M4 real producer-verifier-consumer proof, mutations, restoration, CLI documentation, and later-wave non-leakage",
+      "covered_by": "CHK-004; VI-WAVE2A-PRODUCTION-CHAIN; VI-WAVE2A-CLEAN-MUTATE-RESTORE; VI-WAVE-BOUNDARY-NO-LEAK; VI-PROCESS-FACT-MUTATIONS; VI-PRODUCTION-BYPASS-ATTEMPTS; VI-RESTORATION-AND-NO-RESIDUE; docs/CLI.md",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "focused smoke/process-fact scope plus corrected CLI docs and shared-file denied anchors"
+    },
+    {
+      "feature": "Wave 3 pre_review_check, planned-to-actual reconciliation, and executable evidence",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "explicitExcludes; shared-file deniedAnchors; CHK-004 boundary",
+      "source": "separate Wave 3"
+    },
+    {
+      "feature": "Wave 3A selective applicability",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "explicitExcludes; shared-file deniedAnchors; CHK-004 boundary",
+      "source": "separate Wave 3A"
+    },
+    {
+      "feature": "Wave 4 measured rollout and enforcement",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "explicitExcludes; shared-file deniedAnchors; CHK-004 boundary",
+      "source": "separate Wave 4"
+    },
+    {
+      "feature": "confirmed milestone and verification-intent count consistency",
+      "covered_by": "M1; M2; M3; M4; intent_collision confirmedLedgerHash",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "21 must intents = 5+5+5+6 and current ledger hash is re-confirmed"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    ],
+    "filesTriagedByName": [
+      "AGENTS.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "packages/main/src/core/agent-dispatch-registry.ts",
+      "packages/main/src/core/config.ts",
+      "packages/main/src/core/prompt-budget.ts",
+      "packages/main/src/core/prompt-registry.ts",
+      "packages/main/src/core/prompt-role-contract-registry.ts",
+      "packages/main/src/handlers/story-dispatch.ts",
+      "packages/main/src/registry.ts"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 8,
+    "covered": 5,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "1884157d7f1acfe25c166fa7f5de0e31cb64df4a4c9e53e4cf7b1215a4de42aa",
+  "openQuestions": []
+}

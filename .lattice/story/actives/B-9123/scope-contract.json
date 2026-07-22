@@ -1,0 +1,136 @@
+{
+  "storyId": "B-9123",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/templates/agents/*.md",
+    ".claude/agents/*.md",
+    ".lattice-codex/agents/*.md",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "docs/CLI.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/topology-critic-receipt.ts",
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+    "packages/main/templates/agents/*.md",
+    ".claude/agents/*.md",
+    ".lattice-codex/agents/*.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+  ],
+  "protectedFiles": [
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/tasks/proofstory-pre-review*.ts",
+    "packages/main/src/core/*selective-applicability*.ts",
+    "packages/main/src/tasks/*selective-applicability*.ts",
+    "packages/main/src/core/*rollout-telemetry*.ts",
+    "packages/main/src/tasks/*rollout-telemetry*.ts"
+  ],
+  "scopeChangeReason": "Reviewer correction: include production role dispatch and CLI documentation surfaces; protect shared files from Wave 3 pre-review/planned-to-actual, Wave 3A selective-applicability, and Wave 4 rollout symbols.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-22T17:59:20.813Z",
+  "updatedAt": "2026-07-22T18:01:09.840Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/handlers/proofstory.ts",
+      "deniedAnchors": [
+        "pre_review_check",
+        "evaluatePlannedToActual",
+        "resolveSelectiveApplicability",
+        "recordRolloutTelemetry"
+      ]
+    },
+    {
+      "path": "packages/main/src/handlers/transition-orchestrator.ts",
+      "deniedAnchors": [
+        "preReviewCheck",
+        "plannedToActualGate",
+        "selectiveApplicabilityGate",
+        "rolloutEnforcementGate"
+      ]
+    },
+    {
+      "path": "packages/main/src/cli/command-catalog.ts",
+      "deniedAnchors": [
+        "pre_review_check",
+        "selective_applicability_check",
+        "rollout_telemetry"
+      ]
+    }
+  ],
+  "protectedAnchors": [
+    "resolveAcceptanceTopologyGateMode"
+  ],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/templates/agents/*.md": "packages/main/templates/agents/*.md",
+    ".claude/agents/*.md": ".claude/agents/*.md",
+    ".lattice-codex/agents/*.md": ".lattice-codex/agents/*.md",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "AGENTS.md": "AGENTS.md",
+    "CLAUDE.md": "CLAUDE.md",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/core/topology-critic-receipt.ts": "packages/main/src/core/topology-critic-receipt.ts",
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+    "docs/story/**": "docs/story/**",
+    "tests/fixtures/**": "tests/fixtures/**",
+    "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/tasks/proofstory-pre-review*.ts": "packages/main/src/tasks/proofstory-pre-review*.ts",
+    "packages/main/src/core/*selective-applicability*.ts": "packages/main/src/core/*selective-applicability*.ts",
+    "packages/main/src/tasks/*selective-applicability*.ts": "packages/main/src/tasks/*selective-applicability*.ts",
+    "packages/main/src/core/*rollout-telemetry*.ts": "packages/main/src/core/*rollout-telemetry*.ts",
+    "packages/main/src/tasks/*rollout-telemetry*.ts": "packages/main/src/tasks/*rollout-telemetry*.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts": "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
+    "docs/CLI.md": "docs/CLI.md"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
+}
