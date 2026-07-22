@@ -245,7 +245,7 @@
       "desc": "packages/main/src/core/acceptance-coverage-basis.ts:339-348 enforces topology mapping only for planned: and path:existing: entries. Paths actually emitted by the repaired registry/runtime adapters use path:process-fact: and path:runtime-fact:, so they bypass AT_UNMAPPED_SCOPE_REF entirely; the reverse topology loop also cannot map those encodings. A globally discovered consumer can therefore remain absent from topology/exclusions without making the basis partial, contrary to the required registered-consumer closure invariant.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T07:41:47.077Z",
@@ -253,7 +253,11 @@
       "reviewRunId": "B-a32a:RR-006",
       "_hash": "bb7c3c8b6fafe2c0f8e8e9e68b1bb79dd3b110094eba147f2dc92860851686b4",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f4de47a239: reconciliation normalizes and maps every discovered encoding, including process-fact and runtime-fact paths, in both basis-to-topology and topology-to-basis directions. Current-HEAD unmapped process/runtime consumer and reverse omission mutations produce AT_UNMAPPED_SCOPE_REF/AT_TOPOLOGY_OUTSIDE_BASIS; restored mappings pass.",
+      "resolvedAt": "2026-07-22T08:20:39.822Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-013",
