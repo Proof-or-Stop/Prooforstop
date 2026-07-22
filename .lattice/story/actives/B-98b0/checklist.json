@@ -60,7 +60,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B98B0-M2-H-PRODUCTION-PARITY",
+            "desc": "M2: A real acceptance_topology_check CLI invocation traverses the registered production command schema and handler, reports the canonical evaluator exact ordered rows/codes/mode/read-only authority semantics, and matches the PLAN lifecycle consumer for the same Story and binding.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B98B0-M2-E-CLI-CONTRACT",
+            "desc": "M2: Unsupported arguments, malformed Story/binding inputs, and JSON/text output variants fail or render deterministically without allowing caller-supplied result/status/mode/authority fields, lifecycle writes, executable evidence, or a second writable acceptance matrix.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M2-E-REGISTRY-RATIONALE",
+            "desc": "M2: The command fact, basis fact, producer, verifier, PLAN gate consumer, phase allowlist, freshness/material binding, rationale, and prompt guidance are all registered consistently in process-fact levels/registry and expose the intended gate-consumed semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B98B0-M2-A-PROCESS-FACT-MUTATION",
+            "desc": "M2: In isolated mutations, removing or mismatching any one of the CLI command registration, schema/handler route, canonical evaluator consumption, process-fact/level entry, producer/verifier declaration, PLAN gate consumer, or rationale makes the process-fact contract or production-path smoke fail; exact restoration makes the clean contract pass.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M2-A-PROMPT-ONLY",
+            "desc": "M2: Removing the mechanical handler/gate/process-fact consumer while leaving role prompt text intact cannot pass the contract or admit DEV; conversely removing prompt guidance while retaining code is detected by the prompt/process-fact contract rather than silently treated as full dual-layer coverage.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
