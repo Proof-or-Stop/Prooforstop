@@ -90,6 +90,21 @@
       "_hash": "490c645c33c6b2acc6f4783384b5dc38a28c49007bdb70b86ba874c628297a53",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4ec1:F-006",
+      "desc": "packages/main/src/core/acceptance-coverage-basis.ts:292 planned-actual-bypass: reconciliation declares exact actualPathRefs=[plannedPathRef] whenever each file merely contains the expected symbol text (lines 294-305). A comment, string literal, dead declaration, or wrong producer-consumer relationship therefore satisfies plannedActual=complete without any discovered actual path, contradicting current-worktree discovery/reconciliation and allowing enforce admission on a nonexistent chain. Reconcile against canonical adapter-discovered endpoint/path records and bind those actual refs, with a comment/string mutation that must fail.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T23:32:19.806Z",
+      "reviewRound": "2026-07-22T23:29:25.093Z",
+      "reviewRunId": "B-4ec1:RR-002",
+      "_hash": "179f5c7e66aca981c895963552c9ee941c4cdf3045fb856d1b4988120dd63e6f",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
