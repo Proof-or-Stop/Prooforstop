@@ -184,6 +184,36 @@
         "scanEscalationReason": null
       },
       "_hash": "81df6d158e59ca75c1b1a0b855f144891d6b05891a8e1b59a919f16e0e1d2fad"
+    },
+    {
+      "id": "B-a32a:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 current-HEAD concept review passed: bounded discovery seeds come only from signed scope/checklist files; generic handler factory alias/import, exact registerBatch/catalog/handler dispatch and static import-call relations are independently enumerated; empty-planned, unregistered C2, deleted/dynamic dispatch and unrelated-universe cases fail or remain bounded as specified. F-018/F-019 and prior concept roots are repaired. Acceptance basis remains L3 diagnostic/non-gate with no Wave 2 lifecycle enforcement or concept residue.",
+      "createdAt": "2026-07-22T08:39:30.342Z",
+      "reviewRound": "2026-07-22T08:37:39.733Z",
+      "reviewRunId": "B-a32a:RR-013",
+      "envelopeId": "24069f73e5cac7b41c51488d04d90b494eab88d78d790741f82275a74b18d4bd",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e2a4541485c8bb6e5d7abe7091cfa94a669063e83d02670ebb1b2aee04c3625d"
     }
   ]
 }
