@@ -370,6 +370,21 @@
       "resolvedAt": "2026-07-22T08:20:46.581Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a32a:F-018",
+      "desc": "doc-promise-undelivered: packages/main/src/core/acceptance-discovery-adapters.ts:61-84 and :182-195 leave F-011 unresolved. handler_dispatch_inventory and static_call_graph independently perform exact checks only after relevantProcessFacts filters PROCESS_FACT_REGISTRY by terms copied from plannedPathRecords; neither adapter enumerates checklist/scope source files or discovers handlers/consumers absent from that preselected registry subset. Therefore an unregistered real handler/consumer C2, or a Story with no plannedPathRecords, yields no path and no blind spot and can still classify complete. Exact validation of known entries fixed F-013 but is not independent enumeration. Build a bounded source inventory from canonical checklist/scope files, enumerate handler/dispatch/static relations independently of topology/planned terms, union with registered closure, and add a real undeclared/unregistered C2 omission mutation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T08:22:03.028Z",
+      "reviewRound": "2026-07-22T08:20:21.801Z",
+      "reviewRunId": "B-a32a:RR-009",
+      "_hash": "dabf228ec57bb31d20f2c48ecf33491b4b93d65594649599cb13fe9ba6ed089b",
+      "signatureTag": "missing|unknown|promise-undelivered-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
