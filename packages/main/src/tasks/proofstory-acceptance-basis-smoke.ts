@@ -119,6 +119,7 @@ const topology: AcceptanceVerificationTopologyV1 = {
     { refKind: 'existing', canonicalSourceRef: 'intent:INT-BASIS' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_topology_check' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:artifact:acceptance-basis.json' },
   ],
 };
@@ -128,6 +129,7 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
     'export const MAIN_TOOLS = [',
     "  { name: 'acceptance_basis' },",
     "  { name: 'acceptance_basis_generate' },",
+    "  { name: 'acceptance_topology_check' },",
     '];',
     '',
   ].join('\n'));
@@ -143,6 +145,7 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
     '  return {',
     '    acceptance_basis() { return true; },',
     '    acceptance_basis_generate() { return true; },',
+    '    acceptance_topology_check() { return true; },',
     '  };',
     '}',
     '',
