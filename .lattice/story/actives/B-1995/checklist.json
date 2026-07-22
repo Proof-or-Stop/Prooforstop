@@ -420,9 +420,9 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#verification-and-mutation-matrix",
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#non-goals"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-22T03:16:01.339Z",
-      "endTime": null,
+      "endTime": "2026-07-22T03:16:05.622Z",
       "verificationIntent": {
         "happy": [
           {
@@ -489,7 +489,75 @@
         "test": [
           "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-1995-004-FOCUSED-SUITE",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Clean build focused suite covers schema, topology diagnostics, and real acceptance_matrix text/JSON surfaces.",
+          "headHash": "08128f2d2b051e75797513da29c69de301104901",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:16:06.353Z"
+        },
+        {
+          "intentRef": "VI-1995-004-COMPATIBILITY-MATRIX",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Topology-enabled, legacy, docs-only, and unsupported-version cases remain readable with bounded observe-only classifications.",
+          "headHash": "08128f2d2b051e75797513da29c69de301104901",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:16:06.973Z"
+        },
+        {
+          "intentRef": "VI-1995-004-LIFECYCLE-EQUIVALENCE",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Machine transition decisions and phase remain equal before and after valid/malformed topology diagnostics.",
+          "headHash": "08128f2d2b051e75797513da29c69de301104901",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:16:07.569Z"
+        },
+        {
+          "intentRef": "VI-1995-004-MUTATION-BITES",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Declaration deletion, endpoint/reference failures, duplicate ID, orphan graph, inline semantics, and write-shaped request mutations bite independently.",
+          "headHash": "08128f2d2b051e75797513da29c69de301104901",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:16:08.133Z"
+        },
+        {
+          "intentRef": "VI-1995-004-NO-GATE-OR-BASIS-SHIP",
+          "kind": "integration_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Contract verifies L0/non-gate semantics; source inventory has no machine/phase-gate change, discovery adapter, signed basis, pre_review_check, or acceptance_topology_check.",
+          "headHash": "08128f2d2b051e75797513da29c69de301104901",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:16:09.144Z"
+        },
+        {
+          "intentRef": "VI-1995-004-LEGACY-TRANSITION-MUTATION",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Legacy-to-malformed topology mutation changes only warning output, not events or lifecycle decisions.",
+          "headHash": "08128f2d2b051e75797513da29c69de301104901",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:16:09.789Z"
+        }
+      ]
     }
   ],
   "auditLog": [
