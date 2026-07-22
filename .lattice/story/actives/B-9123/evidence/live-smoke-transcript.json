@@ -2,20 +2,19 @@
   "storyId": "B-9123",
   "expected": "Topology critic eligibility: PASS — role=lattice-review-topology-critic, independentFromImplementer=true, exclusionApprover=lattice-review-scope-plan.",
   "actual": {
-    "command": "node bin/lattice.js validate --story=B-9123",
-    "exitCode": null,
-    "stdout": "",
-    "stderr": "[0.2s] running validate...\n[9.6s] routine validation reuse refused: refusalReasons=validation-identity-changed priorIdentityDigest=74419e1d9218f118fc3f96476750fb909d377d5c104c32ec41683f4b9e293abc currentIdentityDigest=c6f35d4b14bdd17b9109b8585d3847d7380d60f1d5264a8e9c4da5dcdbc2bd78\n[9.6s] running 46 configured validate.command(s)\n[9.7s] validate progress: command 1/46 started configured validate.commands[0]: npm --prefix packages/main run build timeoutMs=290000\n[33.5s] validate progress: command 1/46 ended configured validate.commands[0]: code=0 elapsedMs=23890\n[33.6s] validate progress: command 2/46 started configured validate.commands[1]: node packages/main/tests/milestone-status.test.mjs timeoutMs=270000\n\n[capture error] command exceeded 60000ms timeout; process group terminated"
+    "command": "node packages/main/dist/tasks/proofstory-topology-critic-smoke.js --live-happy",
+    "exitCode": 0,
+    "stdout": "Topology critic eligibility: PASS role=lattice-review-topology-critic independence=agent:true,session:true,dispatch:true,businessCommitAuthor:true\nTopology critic receipt: PASS check=ok semanticOk=true\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-22T21:17:31.639Z",
+  "capturedAtIso": "2026-07-22T21:24:40.520Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "a2236fb0799727f9fd6cdb7c407bb2f0749e8061",
-  "materialHash": "2a29d3e8474bce4b82d95bc169cd606621dc840a69c9e7cf4a01d9d6cfcd70e7"
+  "headHash": "7c043f13937414d1d5f620484c143552ea80b84e",
+  "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b"
 }
