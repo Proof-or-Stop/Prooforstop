@@ -101,6 +101,26 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1995:F-007",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:135-140,165-177 does not cover the full must matrix recorded for VI-1995-001-INVALID-SHAPE and VI-1995-001-SEMANTIC-TAMPER. It tests only an unknown version, one duplicate endpoint, and one expectedFileRef mismatch; it does not bite empty/duplicate declaration IDs, zero consumers, producer/consumer role errors, unsupported artifact kind, malformed/wrong-item/unsafe/unresolved fileDeclarationRef, or stable-ID mutations of relation/role/symbol/outputFactRef. The implementation may reject many through Zod, but the current evidence cannot substantiate the item-level claims or atomicity. Add table-driven schema plus real persistence bites for every enumerated class, with pre/post bytes unchanged and clean control restoration.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T03:20:27.131Z",
+      "reviewRound": "2026-07-22T03:16:36.414Z",
+      "reviewRunId": "B-1995:RR-002",
+      "_hash": "262b5b6ef708989854e933f0756bb250c15eb12abacfba9fbf679389df62d759",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "packages/main/src/cli/command-schemas.ts",
+        "packages/main/src/core/acceptance-topology.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
