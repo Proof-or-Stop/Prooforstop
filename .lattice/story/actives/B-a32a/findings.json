@@ -495,7 +495,7 @@
       "desc": "The canonical source inventory is still not actually bounded by MAX_SOURCE_INVENTORY_FILES. In configuredSourceInventory at acceptance-discovery-adapters.ts:148-168, every qualifying file is pushed before the size check, and exceeding 20,000 returns only from the current recursive visit call. Each parent visit continues its remaining siblings and later subdirectories, so files keeps growing and the whole tree can still be traversed and retained in memory; only the final returned projection is sliced. A repository with more than 20,000 source files can therefore consume work proportional to the full tree despite the advertised safety bound, with repeated over-limit pushes before stable deduplication. The new smoke adds path, symlink, malformed-config, and unreadable-root cases but no over-limit tree or early-stop assertion (proofstory-acceptance-basis-smoke.ts:457-495). Propagate a global stopped state or iterative traversal break immediately at the cap, retain one deterministic blind spot, and prove that files or directories after the bound are never visited or accumulated.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T09:06:25.376Z",
@@ -507,7 +507,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "edge|ts|canonical-source-inventory",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 0960fdd3e1 and retained through current HEAD: TypeScript AST handles regex/template syntax and inventory traversal uses global deterministic resource budgets with immediate partial on exhaustion. Current mutation smoke and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:24.868Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-025",
