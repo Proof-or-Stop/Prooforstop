@@ -9,7 +9,50 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-1995-001-ROUNDTRIP",
+            "desc": "A valid proofstory.verification_planned_path_declaration.v1 nested in one verificationIntent item round-trips through checklist persistence and normalization without changing its declaration ID, producer and consumer endpoint IDs, relation, artifact kinds, file declaration refs, expected symbols or output fact ref; custom verification-intent IDs remain the canonical evidence refs.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-1995-001-LEGACY-OPTIONAL",
+            "desc": "An existing verificationIntent item with no plannedPathDeclarations remains readable and normalizes without synthesizing a declaration or changing its legacy intent ref.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-001-INVALID-SHAPE",
+            "desc": "Unknown schema versions, empty or duplicate declaration or endpoint IDs, zero consumers, incorrect endpoint roles, unsupported artifact kinds, malformed file refs, and unresolved ChecklistItem.files declaration refs are rejected with stable field-specific diagnostics and are not partially persisted.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-1995-001-WRITER-FREEZE",
+            "desc": "Only the verification-intent authoring flow can add or change planned-path declarations during PLAN; an ordinary caller or a post-PLAN mutation attempt is rejected and the previously frozen declaration bytes remain unchanged.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-001-SEMANTIC-TAMPER",
+            "desc": "Mutating a persisted declaration relation, endpoint role, file, symbol or output fact while retaining stable IDs must change canonical normalization or fail validation; identity alone cannot hide semantic drift.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

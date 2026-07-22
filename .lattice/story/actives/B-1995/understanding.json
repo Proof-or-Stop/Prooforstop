@@ -1,0 +1,35 @@
+{
+  "task": "Implement Wave 1 of the approved ProofStory acceptance-topology plan: canonical planned-path declarations, reference-only topology diagnostics, and a derived read-only matrix.",
+  "outcome": "After running `lattice acceptance_matrix --storyId=B-1995`, the terminal shows `Acceptance matrix for B-1995`, `Mode: observe (read-only, non-evidentiary)`, deterministic rows with canonical source IDs, and explicit topology diagnostics; legacy Stories show `topologyState: legacy_missing`, while the Story phase remains unchanged and no evidence or matrix artifact is written.",
+  "facts": [
+    "The approved Wave 1 plan requires VerificationPlannedPathDeclarationV1 to remain nested under checklist verificationIntent ownership.",
+    "ProofStoryAcceptanceBinding is normalized in core/proofstory.ts and currently has no verificationTopology field.",
+    "The existing verification-intent schema and checklist handler accept and freeze verificationIntent during PLAN, then reject changes in DEV/REVIEW/TEST/DONE.",
+    "The approved command example names acceptance_matrix as a read-only renderer and requires canonical source IDs on every row.",
+    "Wave 1 is observe-only; coverage-basis discovery, signed basis receipts, and lifecycle enforcement belong to later waves.",
+    "Dormant authority-contract VerificationTargetContract and EvidenceEnvelopeContract describe run/evidence binding and are not active topology truth."
+  ],
+  "constraints": [
+    "No separate writable acceptance matrix or parallel completion truth source.",
+    "No lifecycle transition behavior change and no gate evidence promotion in Wave 1.",
+    "Topology may reference planned declaration and endpoint IDs but may not author producer-consumer edge semantics.",
+    "Legacy ProofStory contracts remain readable as legacy_missing.",
+    "Output ordering, IDs, and diagnostic codes must be deterministic.",
+    "Only verification-intent flow may write planned declarations, and they freeze after PLAN.",
+    "Do not implement Wave 1A discovery adapters, coverage completeness, or pre-review enforcement."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-07-22T02:44:35.922Z"
+}
