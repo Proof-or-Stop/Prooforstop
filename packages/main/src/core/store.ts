@@ -12,6 +12,7 @@ import type {
   DecisionDocProposalFile, OriginalIntentSnapshotData, MilestoneLedgerData,
   ProofStoryContractData, IntentCollisionData, ScopeShrinkageDecisionData,
   RedEvidenceData, ProofStorySpikeData, ProofStorySlicePlanData, ProofStoryParentLedgerRollupData,
+  AcceptanceBasisArtifactV1,
 } from './types.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
@@ -775,6 +776,18 @@ export class StoryStore {
 
   writeProofStoryContract(storyId: string, data: ProofStoryContractData): void {
     this.writeJson(storyId, 'proofstory.json', data);
+  }
+
+  readAcceptanceBasis(storyId: string): AcceptanceBasisArtifactV1 | null {
+    try {
+      return this.readJson<AcceptanceBasisArtifactV1>(storyId, 'acceptance-basis.json');
+    } catch {
+      return null;
+    }
+  }
+
+  writeAcceptanceBasis(storyId: string, data: AcceptanceBasisArtifactV1): void {
+    this.writeJson(storyId, 'acceptance-basis.json', data);
   }
 
   readIntentCollision(storyId: string): IntentCollisionData | null {

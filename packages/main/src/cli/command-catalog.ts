@@ -2578,6 +2578,19 @@ Behavior:
     evidence: z.never().optional().describe('Not supported: matrix output is not evidence.'),
     rows: z.never().optional().describe('Not supported: rows are derived from canonical inputs.'),
   }},
+  { name: 'acceptance_basis_generate', description: 'Run the registered PLAN verifier and atomically persist its signed coverage-basis receipt', schema: {
+    storyId: z.string().min(1),
+    json: z.boolean().optional(),
+  }},
+  { name: 'acceptance_basis', description: 'Read and verify the current signed acceptance coverage basis without mutation', schema: {
+    storyId: z.string().min(1),
+    json: z.boolean().optional(),
+    status: z.never().optional().describe('Forbidden: basis status is verifier-derived.'),
+    enumeratedPathRefs: z.never().optional().describe('Forbidden: path inventory is verifier-derived.'),
+    excludedPathRefs: z.never().optional().describe('Forbidden: exclusions are verifier-derived.'),
+    signature: z.never().optional().describe('Forbidden: receipt signatures are verifier-issued.'),
+    issuer: z.never().optional().describe('Forbidden: issuer identity is registered, not caller-selected.'),
+  }},
   { name: 'intent_collision_set', description: 'Persist a structured ProofStory intent-collision decision', schema: {
     storyId: z.string().describe('Story ID'),
     decision: proofStoryIntentCollisionDecisionSchema.describe('Collision decision. Only pass with acceptedInterpretation confirms a candidate ledger.'),

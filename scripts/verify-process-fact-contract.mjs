@@ -145,6 +145,8 @@ const requiredProcessFactSemantics = {
   milestone_ledger_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   milestone_ledger_add: ['schema-contract', 'verification-policy', 'gate-evidence'],
   proofstory_contract_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
+  acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -589,6 +591,8 @@ function assertProofStoryProgressiveBoundary() {
     'proofstory_contract_set',
     'proofstory_contract_get',
     'acceptance_matrix',
+    'acceptance_basis_generate',
+    'acceptance_basis',
     'intent_collision_set',
     'intent_collision_get',
     'scope_shrinkage_decision_set',
@@ -617,6 +621,21 @@ function assertProofStoryProgressiveBoundary() {
     && milestoneStatusText.includes('isAcceptanceMatrixDerivedEvidence')
     && checklistHandlerText.includes('acceptance_matrix_non_evidentiary_projection'),
   'acceptance_matrix L0 projection must derive bounded provenance, reject evidence writes, and remain ignored by general/ProofStory/milestone consumers');
+  const basisText = read('packages/main/src/core/acceptance-coverage-basis.ts');
+  const adaptersText = read('packages/main/src/core/acceptance-discovery-adapters.ts');
+  const receiptText = read('packages/main/src/core/acceptance-basis-receipt.ts');
+  assert(
+    handlerText.includes('acceptance_basis_generate')
+      && handlerText.includes('acceptance_basis(args')
+      && catalogText.includes("status: z.never()")
+      && basisText.includes('deriveAcceptanceCoverageBasis')
+      && basisText.includes('verifyAcceptanceCoverageBasis')
+      && adaptersText.includes('AT_REQUIRED_ADAPTER_RESULT_MISSING')
+      && adaptersText.includes('AT_DISCOVERY_DISAGREEMENT')
+      && receiptText.includes('verifyAcceptanceBasisReceipt')
+      && receiptText.includes('checkEvidenceFreshnessForGit'),
+    'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, signed receipt verification, and canonical freshness consumption',
+  );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');
   assert(catalogText.includes('parentLedgerId') && catalogText.includes('assignedStory'), 'CLI schema: milestone ledger rows must expose optional parent/assigned-story fields');

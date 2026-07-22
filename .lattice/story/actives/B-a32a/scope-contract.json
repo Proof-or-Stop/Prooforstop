@@ -20,7 +20,9 @@
     "package.json",
     "package-lock.json",
     "packages/main/package.json",
-    "packages/main/package-lock.json"
+    "packages/main/package-lock.json",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/lattice-brand.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/acceptance-coverage-basis.ts",
@@ -32,10 +34,12 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialize the enforce-mode scope contract from frozen PLAN ChecklistItem.files; later-wave capabilities remain excluded by story scope.",
+  "scopeChangeReason": "Minimal DEV scope correction: config.ts must register the new read-only/writer commands in DEFAULT_PHASE_TOOLS, and lattice-brand.ts must synchronize the mandatory CLI patch version to 0.3.226. No additional product behavior or later-wave capability is authorized.",
   "acknowledgements": [],
   "createdAt": "2026-07-22T06:38:10.757Z",
-  "updatedAt": "2026-07-22T06:38:10.757Z",
+  "updatedAt": "2026-07-22T06:53:43.361Z",
+  "fileRules": [],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -61,6 +65,8 @@
     "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
     "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
     "packages/main/src/core/acceptance-basis-receipt.ts": "packages/main/src/core/acceptance-basis-receipt.ts",
-    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts"
   }
 }

@@ -34,6 +34,12 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { buildAcceptanceMatrixReport } from '../core/acceptance-topology.js';
+import { deriveAcceptanceCoverageBasis, computeClosureFilesHash } from '../core/acceptance-coverage-basis.js';
+import { issueAcceptanceBasisReceipt, verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
+import { currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { resolveStoryCommandWorkspace } from './context.js';
+import { digestCanonicalJson } from '../core/digest.js';
+import { verifyScopeCheckSignature } from './scope-check.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -118,7 +124,140 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
     return enforceOrRender(report, renderProofStoryDiagnosticReport(report));
   }
 
+  function rejectBasisWriteShape(args: Record<string, unknown>, allowed: readonly string[]): void {
+    const unexpected = Object.keys(args).filter(key => !allowed.includes(key));
+    if (unexpected.length > 0) {
+      throw new Error(`acceptance basis requests are verifier-derived; unsupported caller fields: ${unexpected.sort().join(', ')}`);
+    }
+  }
+
+  function currentBasisDerivation(storyId: string) {
+    const workspace = resolveStoryCommandWorkspace(store, storyId, ctx.root);
+    const headHash = currentGitHead(workspace.signedWorkspaceRoot);
+    const materialHash = currentMaterialHash(workspace.signedWorkspaceRoot, 'HEAD', workspace.metadataRoot);
+    const storyFilesHash = currentStoryFilesHash(workspace.signedWorkspaceRoot, 'HEAD', workspace.metadataRoot);
+    if (!headHash || !materialHash || !storyFilesHash) throw new Error('acceptance basis: current workspace hashes are unavailable');
+    const storedScopeCheck = store.readScopeCheck(storyId);
+    const scopeCheck = storedScopeCheck && verifyScopeCheckSignature(storyId, storedScopeCheck) ? storedScopeCheck : null;
+    const scopeContract = store.readScopeContract(storyId);
+    const derivation = deriveAcceptanceCoverageBasis({
+      storyId,
+      workspaceRoot: workspace.signedWorkspaceRoot,
+      checklist: readChecklistSafe(storyId),
+      contract: store.readProofStoryContract(storyId),
+      scopeCheck,
+      scopeContract,
+      headHash,
+      materialHash,
+      storyFilesHash,
+    });
+    return { workspace, scopeCheck, scopeContract, derivation };
+  }
+
+  function basisReport(storyId: string) {
+    const artifact = store.readAcceptanceBasis(storyId);
+    if (!artifact) {
+      return {
+        storyId,
+        mode: 'read_only',
+        evidentiary: false,
+        status: 'legacy_missing',
+        basisStatus: 'unsupported',
+        receiptVerification: { ok: false, code: 'AT_COVERAGE_BASIS_MISSING', diagnostics: ['acceptance basis receipt is missing'] },
+        diagnostics: [{ code: 'AT_COVERAGE_BASIS_MISSING', message: 'Run acceptance_basis_generate from the registered verifier.' }],
+      };
+    }
+    const current = currentBasisDerivation(storyId);
+    const verification = verifyAcceptanceBasisReceipt({
+      artifact,
+      gitCwd: current.workspace.signedWorkspaceRoot,
+      metadataRoot: current.workspace.metadataRoot,
+      expectedStoryId: storyId,
+      expectedTopologyDigest: current.derivation.topologyDigest,
+      expectedScopeCheckDigest: `sha256:${digestCanonicalJson(current.scopeCheck)}`,
+      ...(current.scopeContract ? { expectedScopeContractDigest: `sha256:${digestCanonicalJson(current.scopeContract)}` } : {}),
+      expectedClosureFilesHash: computeClosureFilesHash(
+        current.workspace.signedWorkspaceRoot,
+        current.derivation.basis.plannedPathRecords,
+        current.derivation.basis.sourceInventoryRefs,
+      ),
+    });
+    return {
+      storyId,
+      mode: 'read_only',
+      evidentiary: false,
+      status: verification.ok ? 'verified' : 'invalid',
+      basisStatus: artifact.basis.status,
+      discoveryProfileRef: artifact.basis.discoveryProfileRef,
+      discoveryProfileDigest: artifact.basis.discoveryProfileDigest,
+      adapterResults: artifact.basis.adapterResults,
+      enumeratedPathRefs: artifact.basis.enumeratedPathRefs,
+      plannedPathRecords: artifact.basis.plannedPathRecords,
+      excludedPathRefs: artifact.basis.excludedPathRefs,
+      blindSpots: artifact.basis.blindSpots,
+      binding: artifact.basis.binding,
+      receipt: artifact.receipt,
+      receiptVerification: verification,
+      diagnostics: current.derivation.diagnostics,
+    };
+  }
+
   return {
+    acceptance_basis_generate(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const current = currentBasisDerivation(args.storyId);
+      const receipt = issueAcceptanceBasisReceipt({
+        gitCwd: current.workspace.signedWorkspaceRoot,
+        basis: current.derivation.basis,
+        topologyDigest: current.derivation.topologyDigest,
+      });
+      const artifact = {
+        schemaVersion: 'proofstory.acceptance_basis_artifact.v1' as const,
+        basis: current.derivation.basis,
+        receipt,
+      };
+      const verification = verifyAcceptanceBasisReceipt({
+        artifact,
+        gitCwd: current.workspace.signedWorkspaceRoot,
+        metadataRoot: current.workspace.metadataRoot,
+        expectedStoryId: args.storyId,
+        expectedTopologyDigest: current.derivation.topologyDigest,
+        expectedScopeCheckDigest: current.derivation.basis.binding.scopeCheckDigest,
+        ...(current.derivation.basis.binding.scopeContractDigest ? { expectedScopeContractDigest: current.derivation.basis.binding.scopeContractDigest } : {}),
+        expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+      });
+      if (!verification.ok) throw new Error(`acceptance_basis_generate refused invalid receipt: ${verification.code}: ${verification.diagnostics.join('; ')}`);
+      store.writeAcceptanceBasis(args.storyId, artifact);
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'acceptance_basis_generate');
+      if (args.json) return stringify({ artifact, diagnostics: current.derivation.diagnostics, verification });
+      return [
+        `Acceptance coverage basis: ${artifact.basis.status}`,
+        `Story: ${args.storyId}`,
+        `Profile: ${artifact.basis.discoveryProfileRef}`,
+        `Adapters: ${artifact.basis.adapterResults.length}`,
+        `Paths: ${artifact.basis.enumeratedPathRefs.length}`,
+        `Basis digest: ${artifact.basis.basisDigest}`,
+        `Receipt: ${artifact.receipt.receiptRef} (verified)`,
+        ...current.derivation.diagnostics.map(item => `${item.code}: ${item.message}`),
+      ].join('\n') + commitHint;
+    },
+
+    acceptance_basis(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const report = basisReport(args.storyId);
+      if (args.json) return stringify(report);
+      return [
+        `Acceptance coverage basis: ${report.basisStatus}`,
+        `Story: ${report.storyId}`,
+        `Receipt verification: ${report.receiptVerification.ok ? 'PASS' : report.receiptVerification.code}`,
+        `Mode: read-only; evidentiary: false`,
+        ...report.receiptVerification.diagnostics.map(message => `  - ${message}`),
+      ].join('\n');
+    },
     original_intent_snapshot_set(args: {
       storyId: string;
       sourceText: string;

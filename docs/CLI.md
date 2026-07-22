@@ -384,6 +384,25 @@ tokens, exact output lines, or JSON `evidentiary: false` on legacy
 bypass it, while logic/integration test notes may discuss those labels and
 unrelated `Result: warning ...` prose is not classified as matrix output.
 
+### Acceptance coverage basis (Wave 1A)
+
+`lattice acceptance_basis_generate --storyId=<id> [--json]` is the sole writer
+for `acceptance-basis.json`. It runs the registered PLAN discovery profile,
+derives the path union and `complete | partial | unsupported` classification,
+derives planned paths from frozen `verificationIntent` declarations, and signs
+a receipt bound to the topology, scope artifacts, workspace identity,
+`storyFilesHash`, and discovered `closureFilesHash`. The command accepts no
+caller-written status, path inventory, exclusions, issuer, signature, or hash
+bindings. Missing/duplicate adapter results, digest tampering, unresolved blind
+spots, unsupported discovery, or unexplained disagreement cannot produce a
+complete basis.
+
+`lattice acceptance_basis --storyId=<id> [--json]` is read-only. It recomputes
+the current canonical bindings and verifies the stored basis and receipt. A
+legacy Story without the artifact reports `legacy_missing`; stale or tampered
+artifacts report deterministic `AT_*` diagnostics. Its display is diagnostic,
+non-evidentiary, and does not advance lifecycle state or claim Authority.
+
 ### Milestone Status
 
 `lattice milestone_status` is a read-only progress reporter over existing
