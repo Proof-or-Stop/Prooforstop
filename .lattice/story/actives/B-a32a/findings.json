@@ -801,6 +801,26 @@
       ],
       "signatureTag": "adversarial|ts|directory-hardening-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-041",
+      "desc": "The new immutable content cache does not preserve a single workspace-membership/content snapshot through graph, provenance, closure hash, and return. enumerateBoundedSourceTree performs its final directory revalidation only inside enumeration (acceptance-discovery-adapters.ts:305-320) and returns only files/blindSpots, discarding admittedDirectories. buildBoundedSourceGraph then reads and analyzes those files afterward (lines 726-795), and runAcceptanceDiscoverySnapshot builds adapters/provenance and returns cached contents still later (lines 951-971), with no final directory or per-file identity revalidation. A C2 created after configuredSourceInventory returns is absent from boundedUniverse and can coexist at receipt issuance with status complete; likewise a cached consumer changed after its read remains the graph/provenance/hash truth even though the workspace now differs. The added mutation test fires before the enumerator final revalidation, so it cannot bite this post-enumeration/post-read window. Retain directory and opened-file snapshot identities in the discovery snapshot and revalidate all of them after adapter/provenance/hash assembly (or bind to an immutable git/object snapshot); any drift must make the same derivation partial and discard complete. Add hooks that add a C2 after inventory return and mutate an early-read C2 before runAcceptanceDiscoverySnapshot returns.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T10:02:04.446Z",
+      "reviewRound": "2026-07-22T10:00:45.833Z",
+      "reviewRunId": "B-a32a:RR-035",
+      "_hash": "138807bbe399b7790a499386153610b8488e733523bdf7c2543317be1af5b6c0",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|immutable-content-cache",
+      "signatureTagSource": "auto"
     }
   ]
 }
