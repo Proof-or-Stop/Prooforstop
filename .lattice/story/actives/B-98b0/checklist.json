@@ -68,11 +68,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Focused production smoke passed canonical evaluator, CLI, and lifecycle parity.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Clean basis passes; for the same failing basis the direct production core adapter and real CLI JSON are deep-equal, and lifecycle consumes that result.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M1-E-NONPASS-BASIS",
@@ -80,11 +80,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed partial, tampered, stale, and independently re-derived non-pass basis cases.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Real assertions cover missing, partial, unsupported, closure-stale, receipt-signature-tampered, aggregate-tampered, required-adapter-missing, and source-root-stale basis families; none passes.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M1-E-MODES",
@@ -92,11 +92,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed observe, warn, and enforce mode-equivalence assertions with flat config resolution.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "The same failing temp-repo basis has identical status, structuralPass, basis/topology state, rows, diagnostics, and nextAction in observe/warn/enforce; only blocking changes.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M1-A-CALLER-FORGERY",
@@ -104,11 +104,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed schema rejection of caller-supplied status, mode, and authority plus verifier re-derivation.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Real CLI schema rejects caller status/mode/authority; verifier re-derives basis, receipt, and report fields.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M1-A-OMISSION-INVENTION",
@@ -116,11 +116,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed C2 omission and topology invention mutation-to-failure followed by exact restoration.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "C2 topology-only omission yields AT_UNMAPPED_SCOPE_REF; invented basis path yields AT_TOPOLOGY_OUTSIDE_BASIS/unknown; exact restoration passes.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         }
       ]
     },
@@ -197,11 +197,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Compiled production CLI, handler, canonical evaluator, and PLAN lifecycle parity passed end to end.",
-          "headHash": "64b36d8b7f2c56019dba8251e990ed0b12c96340",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:29:03.843Z"
+          "note": "Compiled production CLI report deep-equals the direct shared production adapter and is consumed by real story_advance.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M2-E-CLI-CONTRACT",
@@ -209,11 +209,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed deterministic text/JSON output and rejection of unsupported authority/result fields.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Real text/JSON outputs render deterministically and forbidden caller status/mode/authority fields fail schema validation.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M2-E-REGISTRY-RATIONALE",
@@ -221,11 +221,11 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Registered command/artifact/consumer/rationale and dual-layer prompt guidance contract passed.",
-          "headHash": "64b36d8b7f2c56019dba8251e990ed0b12c96340",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:29:03.843Z"
+          "note": "Process-fact contract passed command schema, L4 basis/artifact facts, independent default-observe rollout resolver, read-only policy, lifecycle consumer, rationale, and prompt guidance.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M2-A-PROCESS-FACT-MUTATION",
@@ -233,11 +233,11 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Focused smoke passed isolated prompt, handler, and PLAN gate process-contract mutations that each fail before restore.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Focused smoke executes isolated prompt, handler, lifecycle-consumer, and blocking-polarity source mutations; every mutated contract exits nonzero.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M2-A-PROMPT-ONLY",
@@ -245,11 +245,11 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed dual-layer mutations proving prompt-only and mechanical-only omissions cannot mask each other.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Isolated prompt deletion and independent mechanical handler/gate deletion mutations each fail the real dual-layer contract.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         }
       ]
     },
@@ -333,11 +333,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Real compiled story_advance integration entered DEV from structural evidence without executable completion evidence.",
-          "headHash": "64b36d8b7f2c56019dba8251e990ed0b12c96340",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:29:03.843Z"
+          "note": "Real enforce-mode story_advance enters DEV for a clean complete structural report without verificationEvidence, executable transcript, or completion fact.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M3-H-TYPED-NEW-PATH",
@@ -345,11 +345,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed verifier derivation of a typed planned producer-to-consumer declaration with absent future endpoints.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "A valid frozen typed planned producer/consumer declaration is independently derived into the signed PLAN basis and admitted by real story_advance.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M3-E-COMPATIBILITY",
@@ -357,11 +357,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed legacy-readable, docs-only, and ordinary single-outcome compatibility matrices without fabricated runtime obligations.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Direct core matrices prove legacy readability plus docs-only and ordinary single-outcome compatibility without fabricated mutation/transcript/command requirements.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M3-E-MODE-LIFECYCLE",
@@ -369,11 +369,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed identical structural reports across modes and enforce production transition consumption.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Three independent real temp repos use the same failing topology: observe/warn advance to DEV, enforce remains PLAN, while canonical reports are identical except mode/blocking.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M3-A-BLOCKERS",
@@ -381,11 +381,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed stable structural blockers for omitted, invented, partial, tampered, and stale inputs.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Real CLI assertions cover missing/unmapped/outside-basis paths, unjustified exclusion, orphan, uncovered must intent, and required mutation/transcript/command declaration codes; enforce lifecycle blocks.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M3-A-PLANNED-PATH-TAMPER",
@@ -393,11 +393,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed basis-closed planned-path derivation and topology invention rejection; topology strings cannot mint facts.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Assertions cover topology semantic restatement, unknown endpoint, wrong endpoint role, missing checklist file declaration, and endpoint outside scope with AT_PLANNED_PATH_DECLARATION_* or AT_PLANNED_PATH_INVALID.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M3-A-NO-LATER-WAVE-LEAKAGE",
@@ -405,11 +405,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Passed PLAN structural admission without critic identity, executable transcript, pre-review, or production-readiness prerequisites.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Real PLAN admission succeeds without critic identity/receipt, executable evidence, pre_review_check, planned-to-actual reconciliation, or production-readiness facts; CLI docs retain later-wave boundary.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         }
       ]
     },
@@ -500,23 +500,23 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Focused compiled production-path integration smoke passed end to end.",
-          "headHash": "64b36d8b7f2c56019dba8251e990ed0b12c96340",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:29:03.843Z"
+          "note": "Final compiled focused production-path smoke passed all core, CLI, lifecycle, compatibility, failure-family, restoration, and mutation assertions.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M4-H-DOCS-TRANSCRIPT",
           "kind": "docs_check",
           "file": "docs/CLI.md",
-          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
           "result": "pass",
-          "note": "Real CLI text/JSON transcript assertions passed and docs describe fields, modes, authority, compatibility, and next action.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Docs and prompt baseline pass with independent default-observe rollout, mode-invariant status/diagnostics, read-only authority, structural-only semantics, compatibility, and remediation boundaries.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M4-E-COMPATIBILITY-MATRIX",
@@ -524,11 +524,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Compatibility matrix passed complete, partial, stale, tampered, legacy, docs-only, single-outcome, planned-path, and mode cases.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Matrix and production cases cover complete/missing/partial/unsupported/stale/tampered basis, legacy/docs/single-outcome, typed planned paths, and all modes.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M4-E-STABLE-DIAGNOSTICS",
@@ -536,11 +536,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Real CLI transcript assertions passed stable ordered AT diagnostics across core, CLI, and lifecycle surfaces.",
-          "headHash": "cde153e4fac14863922d2bd6b8307ce90f69a522",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:29:10.502Z"
+          "note": "Targeted assertions name every required AT code; the same failing report is deep-equal across direct core adapter and CLI and remains semantically equal across all lifecycle modes.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M4-A-REAL-MUTATIONS",
@@ -548,11 +548,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Real omission, invention, caller-forgery, adapter-tamper, freshness, prompt, handler, and gate mutations bit.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Real mutations cover C2 omission, topology invention, caller forgery, required-adapter omission, aggregate projection, receipt signature, closure/source-root staleness, prompt/handler/gate removal, and polarity inversion.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M4-A-POLARITY-RESTORE",
@@ -560,11 +560,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Each destructive data mutation asserted clean pass, named failure, exact byte restoration, then clean pass.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Each contract/artifact/config/source mutation asserts named failure, exact restoration of the targeted bytes, then clean pass; temp repositories are removed in finally.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M4-A-PROCESS-FACT-BITE",
@@ -572,11 +572,11 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Isolated prompt, handler, and lifecycle-consumer mutations each made the real process-fact contract fail.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Four isolated real source mutations remove prompt, handler, lifecycle gate, or invert blocking polarity; each makes the process-fact contract fail.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         },
         {
           "intentRef": "B98B0-M4-A-SCOPE-BOUNDARY",
@@ -584,11 +584,11 @@
           "file": "docs/CLI.md",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Contract and CLI docs passed with Wave 2 explicitly structural-only and later Waves 2A/3/3A/4 excluded.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
-          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
-          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "note": "Process contract and CLI docs pass while explicitly excluding Wave 2A critic authority, Wave 3 executable/pre-review work, Wave 3A selective applicability, and Wave 4 rollout completion.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
         }
       ]
     }
