@@ -85,7 +85,7 @@
       "desc": "packages/main/templates/agents/lattice-review-topology-critic.md:1 starts with literal +--- instead of YAML frontmatter delimiter ---. The same malformed first line is mirrored in .claude/agents/lattice-review-topology-critic.md and .lattice-codex/agents/lattice-review-topology-critic.md, so native host discovery/frontmatter parsing cannot load the new role according to the repository agent-asset contract even though raw-text baseline hashing passes. Correct all three mirrors and add a parser/adapter assertion, not only an exact raw hash.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T18:35:48.566Z",
@@ -93,7 +93,11 @@
       "reviewRunId": "B-9123:RR-002",
       "_hash": "1fe32ca0a73c269aab7aca89d5f3ff0a90af0a127a32f93527cb5bcbf17518b9",
       "signatureTag": "missing|unknown|packages-main-templates",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit ffbb3de37d: template/Claude/Codex critic prompts now have valid YAML '---'; native frontmatter parser assertion and prompt baseline pass.",
+      "resolvedAt": "2026-07-22T19:10:09.818Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9123:F-006",
