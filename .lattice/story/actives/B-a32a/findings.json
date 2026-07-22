@@ -911,7 +911,7 @@
       "desc": "acceptance-discovery-adapters.ts:323-375 still derives the source universe from an unfrozen, unbounded configuration input: it follows and readFileSyncs lattice.config.json at line 328, then calls loadConfig at line 343, whose separate read/cache path is config.ts:689-723. The path is never lstat/no-follow checked, size-budgeted, content-digested, or included in the shared AcceptanceSourceSnapshot. A symlinked/external config or a change/cache mismatch between these reads can let the first JSON validation and the actual scanRoot/rootDir describe different source roots; discovery may then freeze a complete graph for the wrong/narrow universe, and the closure hash binds no config content. This is distinct from F-041’s post-enumeration mutation window: it corrupts the universe before enumeration begins. Read the canonical config once through the same bounded no-follow snapshot discipline, parse that exact content (without a second cached load), bind its digest, and add symlink/oversize/two-read mutation tests that must force partial rather than complete.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T10:03:09.632Z",
@@ -924,7 +924,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|acceptance-discovery-adapters",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 44d531f2e0 and retained through current HEAD: config joins the bounded no-follow snapshot and an end-of-assembly directory/file/config seal detects late membership/content drift before basis return. Current late-C2/config/file mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:39.500Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-043",
