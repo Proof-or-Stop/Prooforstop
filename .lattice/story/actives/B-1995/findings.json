@@ -131,7 +131,7 @@
       "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:135-140,165-177 does not cover the full must matrix recorded for VI-1995-001-INVALID-SHAPE and VI-1995-001-SEMANTIC-TAMPER. It tests only an unknown version, one duplicate endpoint, and one expectedFileRef mismatch; it does not bite empty/duplicate declaration IDs, zero consumers, producer/consumer role errors, unsupported artifact kind, malformed/wrong-item/unsafe/unresolved fileDeclarationRef, or stable-ID mutations of relation/role/symbol/outputFactRef. The implementation may reject many through Zod, but the current evidence cannot substantiate the item-level claims or atomicity. Add table-driven schema plus real persistence bites for every enumerated class, with pre/post bytes unchanged and clean control restoration.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T03:20:27.131Z",
@@ -144,7 +144,11 @@
         "packages/main/src/core/acceptance-topology.ts"
       ],
       "signatureTag": "edge|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 92d375b70a: focused schema/semantic matrix covers version, IDs, roles, consumers, artifact kinds, file refs, stable-ID symbol/output drift, unknown/orphan/duplicate refs and atomic rejection.",
+      "resolvedAt": "2026-07-22T03:40:58.264Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1995:F-008",
