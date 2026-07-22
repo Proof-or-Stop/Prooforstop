@@ -94,15 +94,15 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-W3-M1-PRE-REVIEW-ROUNDTRIP",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Current-HEAD production CLI producer, read-only command, and lifecycle consumer produced and verified one signed canonical artifact with matching verifier semantics.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Production CLI transcript proves signed artifact roundtrip through producer, read-only verifier and lifecycle consumer.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M1-DETERMINISTIC-CODES",
@@ -118,39 +118,39 @@
         },
         {
           "intentRef": "VI-W3-M1-PRODUCER-CONSUMER-PARITY",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "The smoke asserted semantic parity across pre_review_check, pre_review_check_read, and runPreReviewCheckGate for pass and failure paths.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Production transcript proves producer/read/lifecycle semantic parity.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M1-EVERY-BINDING-TAMPER",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Table mutations covered story, mode, cutoff, plan basis, topology, scope, storyFilesHash, closure, evidence refs, issuedAt, signer, signature, adapter record, and reconciliation bindings; every mutation bit.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Production transcript records every signed/hash binding mutation biting.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M1-CALLER-AUTHORITY-REPLAY",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Caller verdict schema injection, forged signer/signature, copied or stale bindings, and read-only authority promotion were rejected without silent rebinding.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Production transcript rejects caller authority, forged signatures and replay without rebinding.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         }
       ]
     },
@@ -218,15 +218,15 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Current-worktree pre_review basis reconciled every declared producer and consumer symbol to actual source and current closure before lifecycle admission.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Production transcript proves current worktree producer/consumer reconciliation.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M2-PLANNED-ACTUAL-MATRIX",
@@ -242,39 +242,39 @@
         },
         {
           "intentRef": "VI-W3-M2-DISCOVERY-STATE-CLOSURE",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Wave 1A compatibility smoke exercised complete, partial, unsupported, missing, conflicting, late-source, symlink, config and closure mutations with separate storyFilesHash/closure sealing.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Compatibility transcript proves discovery state and closure fail-closed matrix.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M2-TOPOLOGY-ONLY-OMISSION",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Deleting only the still-discovered consumer from topology failed the production verifier; exact topology restoration returned PASS. The existing topology gate smoke also passed.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Production transcript proves topology-only omission bites and exact restoration passes.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M2-ADAPTER-RECORD-TAMPER",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Required adapter omission, duplication, forged record fields/digests, disagreement and bounded-asymmetry mutations were rejected by canonical reconciliation.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Compatibility transcript proves adapter omission, duplication, forgery and digest tamper rejection.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         }
       ]
     },
@@ -343,15 +343,15 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-W3-M3-REAL-PROOF-CHAIN",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "A production-generated artifact consumed current executable evidence, a biting mutation, restored control, structured producer-to-consumer transcript and independently attributed authority.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Production transcript proves real producer-consumer-mutation-restoration-authority chain.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M3-MUTATION-POLARITY-RESTORE",
@@ -367,39 +367,39 @@
         },
         {
           "intentRef": "VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Structured transcript validation required matching intent, producer-before-consumer ordering, mutation event and restored control; reordered events failed.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Structured transcript proves related producer-before-consumer ordering and rejects reordering.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M3-BYPASS-CAMPAIGN",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Synthetic/caller authority, mutation and expected-code tampering, stale/cross-binding replay, signer changes and transcript manipulation all failed with PR_* diagnostics.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Production transcript records synthetic, authority, mutation, replay and freshness bypasses failing.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Artifact binding mutations covered HEAD-derived story files, basis/topology/scope/closure/evidence/cutoff state; evidence at equal cutoff was excluded and equal-time strictness mutation bit.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Production transcript proves binding drift and equal-cutoff evidence exclusion.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         }
       ]
     },
@@ -477,27 +477,27 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-W3-M4-LIFECYCLE-MODE-MATRIX",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Real DEV-to-REVIEW gate used the same verifier: observe and warn remained nonblocking with diagnostics, enforce blocked missing critic evidence, and repaired controls passed.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Lifecycle transcript proves observe/warn/enforce behavior over one canonical verifier.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M4-LEGACY-DOCS-ROLLBACK",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Existing topology gate compatibility smoke proved legacy/docs bounded behavior; focused smoke proved enforce-to-warn rollback preserves canonical result while only admission blocking changes.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Compatibility transcript proves legacy/docs handling and focused rollback preserves canonical semantics.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M4-STABLE-GATE-CODES",
@@ -513,27 +513,27 @@
         },
         {
           "intentRef": "VI-W3-M4-CRITIC-REATTESTATION",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
           "result": "pass",
-          "note": "Independent critic production smoke passed signed current dispatch/authority verification, rejected stale/replayed/self-conflicting provenance, and accepted a fresh re-attestation after repair; focused enforce path blocked missing current critic proof.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Critic transcript proves independent current re-attestation and stale/replay rejection.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M4-PROCESS-FACT-FOUR-LAYER",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs > /tmp/B-4ec1-process-fact-contract.log && tail -n 1 /tmp/B-4ec1-process-fact-contract.log",
           "result": "pass",
-          "note": "Current-HEAD process-fact contract verified prompt guidance, CLI/handler producer, signed artifact registry/rationale and DEV-to-REVIEW gate consumer; layer-removal mutation sentinels remained biting.",
-          "headHash": "99d777bc72d87a410d2e3b1788acac830dad2d87",
+          "note": "Contract transcript verifies all four process-fact protection layers and mutation sentinels.",
+          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:27:44.762Z"
+          "timestamp": "2026-07-22T23:28:09.603Z"
         },
         {
           "intentRef": "VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
