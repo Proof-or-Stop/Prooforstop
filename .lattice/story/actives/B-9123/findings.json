@@ -196,7 +196,7 @@
       "desc": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts:164-206,251-268,287-327 — F-004 is materially improved, but the remaining must coverage is not complete. The fixture directly assigns phase=DEV before issuing the receipt and calls evaluateTopologyCriticReceiptForContext directly; it never drives the registered story_advance PLAN→DEV lifecycle command with proofStory.acceptanceTopologyGateMode=enforce. Therefore VI-WAVE2A-PRODUCTION-CHAIN and VI-PROCESS-FACT-MUTATIONS do not prove the real lifecycle gate can pass a reachable PLAN state (deriveImplementationProvenance currently requires an implementer DEV dispatch/commit before PLAN admission, which the smoke sidesteps). The four-dimensional matrix still tests issueTopologyCriticReceipt rejection rather than re-signed production-verifier inputs with dimension-specific diagnostics; missing provenance covers one missing implementer dispatch plus only three critic event fields, not each signer/implementer comparison input; and the exclusion authority matrix covers a critic-role spoof and one critic-session collision but not implementer/ineligible/same-agent/same-dispatch/same-business-author cases required by VI-EXCLUSION-AUTHORITY-SPOOF. Add one real enforce-mode lifecycle transcript and table-driven verifier/approver matrices, then rerun fresh owner evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T19:12:40.647Z",
@@ -209,7 +209,11 @@
         "packages/main/src/core/topology-critic-receipt.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e99895c94e added the real story_advance transcript and exhaustive field-specific missing/blank/unverifiable provenance plus exclusion authority/ineligibility/same-identity matrices. Fresh owner build and production smoke passed, including mutations, exact restoration, and strict clean-repo assertions.",
+      "resolvedAt": "2026-07-22T19:28:58.090Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
