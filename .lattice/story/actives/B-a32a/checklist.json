@@ -122,6 +122,49 @@
         "test": [
           "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-A32A-005-REAL-CLI-TRANSCRIPT",
+            "desc": "From a temporary real Proofbound repository, invoke node bin/lattice.js acceptance_basis --storyId=<id> and --json through the production registry: text and JSON deterministically identify the Story, registered profile and verifier, bounded basisStatus, adapter digests, paths, blind spots, binding hashes and receipt verification, while the user transcript contains no fabricated completion or lifecycle claim.",
+            "type": "cli",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-A32A-005-LEGACY-UNSUPPORTED-DETERMINISM",
+            "desc": "The real CLI renders legacy-missing, partial and unsupported cases with stable explicit diagnostics and exit behavior; shuffled equivalent adapter inputs and two unchanged invocations are byte-equivalent after excluding no volatile fields from the canonical JSON projection.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-005-PROCESS-FACT-CONTRACT",
+            "desc": "Process-fact registry and verify-process-fact-contract agree on the acceptance-basis command, issuer, artifact, signature, binding and non-lifecycle semantics; omission or one-sided prompt, handler, registry or contract registration causes the contract verifier to fail.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-A32A-005-MUTATION-CAMPAIGN",
+            "desc": "The focused Wave 1A smoke independently bites omission of a required adapter, duplicate adapter, static-runtime disagreement, aggregate/result/basis digest tampering, stale scope/story/closure binding, unsupported discovery and caller-forged complete, issuer or exclusion; each fails for its intended stable AT code and every destructive mutation is followed by a passing restored control.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-005-READONLY-DIAGNOSTIC-BOUNDARY",
+            "desc": "Snapshot Story bytes, receipt store, process-event count, phase, git status and lifecycle decision around diagnostic-only text and JSON reads and invalid write-shaped options: supported reads change none, write-shaped status/path/signature payloads are rejected atomically, and rendered output cannot be replayed as gate evidence or authority.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
