@@ -193,15 +193,15 @@
       "verificationEvidence": [
         {
           "intentRef": "B98B0-M2-H-PRODUCTION-PARITY",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Real compiled CLI and PLAN lifecycle consumed the shared production evaluator and passed.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "note": "Compiled production CLI, handler, canonical evaluator, and PLAN lifecycle parity passed end to end.",
+          "headHash": "64b36d8b7f2c56019dba8251e990ed0b12c96340",
           "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
           "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "timestamp": "2026-07-22T16:29:03.843Z"
         },
         {
           "intentRef": "B98B0-M2-E-CLI-CONTRACT",
@@ -217,15 +217,15 @@
         },
         {
           "intentRef": "B98B0-M2-E-REGISTRY-RATIONALE",
-          "kind": "logic_test",
+          "kind": "docs_check",
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Process-fact contract passed command, artifact, L4 consumer, read-only policy, rationale, and prompt registrations.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "note": "Registered command/artifact/consumer/rationale and dual-layer prompt guidance contract passed.",
+          "headHash": "64b36d8b7f2c56019dba8251e990ed0b12c96340",
           "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
           "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "timestamp": "2026-07-22T16:29:03.843Z"
         },
         {
           "intentRef": "B98B0-M2-A-PROCESS-FACT-MUTATION",
@@ -329,15 +329,15 @@
       "verificationEvidence": [
         {
           "intentRef": "B98B0-M3-H-PLAN-DEV",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Real story_advance entered DEV in enforce mode from structural evidence without executable completion evidence.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "note": "Real compiled story_advance integration entered DEV from structural evidence without executable completion evidence.",
+          "headHash": "64b36d8b7f2c56019dba8251e990ed0b12c96340",
           "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
           "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "timestamp": "2026-07-22T16:29:03.843Z"
         },
         {
           "intentRef": "B98B0-M3-H-TYPED-NEW-PATH",
@@ -496,15 +496,15 @@
       "verificationEvidence": [
         {
           "intentRef": "B98B0-M4-H-FOCUSED-SMOKE",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
           "result": "pass",
-          "note": "Focused Wave 2 production-path smoke passed end to end.",
-          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "note": "Focused compiled production-path integration smoke passed end to end.",
+          "headHash": "64b36d8b7f2c56019dba8251e990ed0b12c96340",
           "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
           "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
-          "timestamp": "2026-07-22T16:28:48.822Z"
+          "timestamp": "2026-07-22T16:29:03.843Z"
         },
         {
           "intentRef": "B98B0-M4-H-DOCS-TRANSCRIPT",
