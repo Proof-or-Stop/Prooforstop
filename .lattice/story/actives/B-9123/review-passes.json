@@ -256,6 +256,35 @@
         "scanEscalationReason": null
       },
       "_hash": "27def983344232e164739803af0e5cf4235b9532a01f175a742d25d4d73d967f"
+    },
+    {
+      "id": "B-9123:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: 21/21 must verification intents have current passing evidence with zero waivers; both trusted-key re-signed nested provenance mutation tables cover the exact 10 actor fields with unchanged controls; the runtime receipt inventory reconciles all 18 top-level fields; prior freshness, replay, exclusion authority, process mutation, production-chain, lifecycle boundary, and restoration/no-residue matrices remain intact. Independent focused smoke passed on current story material.",
+      "createdAt": "2026-07-22T20:06:27.026Z",
+      "reviewRound": "2026-07-22T19:59:42.947Z",
+      "reviewRunId": "B-9123:RR-018",
+      "envelopeId": "7452b095b2cdfaba0f614a054173653249474fa95b028f70fb1a9e1ee695b75e",
+      "writerSessionId": "sess-3fbb01086441f3dc0c119a29fe9dd8bc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e0504a806153c4ae23e3e497d4509843b3abc457e3d5804a2abf90933564afad"
     }
   ]
 }
