@@ -212,6 +212,75 @@
           "packages/main/src/core/acceptance-basis-receipt.ts"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-A32A-003-SIGNED-BOUND-RECEIPT",
+            "desc": "A successful registered verifier invocation through the sole writer command acceptance_basis_generate issues one signed receipt whose verified payload binds Story ID, phase basis, basis and topology digests, workspace identity, scope-check and applicable scope-contract digests, storyFilesHash and closureFilesHash; verification resolves the same canonical basis and registered issuer, while acceptance_basis remains read-only.",
+            "type": "cli",
+            "requiredIn": "light",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-A32A-BASIS-RECEIPT",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-A32A-GENERATE-BASIS-HANDLER",
+                  "role": "producer",
+                  "expectedArtifactKind": "handler",
+                  "expectedFileRef": "packages/main/src/handlers/proofstory.ts",
+                  "expectedSymbolOrFact": "acceptance_basis_generate",
+                  "fileDeclarationRef": "CHK-003:files:modify:4"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-A32A-VERIFY-BASIS-RECEIPT",
+                    "role": "consumer",
+                    "expectedArtifactKind": "process_fact",
+                    "expectedFileRef": "packages/main/src/core/acceptance-basis-receipt.ts",
+                    "expectedSymbolOrFact": "verifyAcceptanceBasisReceipt",
+                    "fileDeclarationRef": "CHK-003:files:create:0"
+                  }
+                ],
+                "outputFactRef": "process-fact:acceptance-coverage-basis-receipt"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-A32A-003-FRESHNESS-CLASSIFICATION",
+            "desc": "Canonical freshness checks reject changes to frozen scope, topology, discovery inputs, storyFilesHash or closureFilesHash; headHash-only and unrelated material movement are classified only by the existing freshness reader and never silently rebound by the writer or renderer.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-003-LEGACY-AND-ATOMICITY",
+            "desc": "A legacy Story without a Wave 1A receipt remains readable and is reported missing or inconclusive rather than upgraded; failed generation or verification leaves no partial receipt, process fact, evidence record or lifecycle mutation.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-A32A-003-CALLER-ISSUER-FORGERY",
+            "desc": "Submit caller-chosen status, path inventory, receiptRef, basisDigest, issuer identity, signature or binding hashes through command schema and direct handler calls; schema and runtime independently reject the request before persistence, and an implementer or forged registered-verifier label cannot issue an admissible receipt.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-003-TAMPER-AND-HASH-REBIND",
+            "desc": "Alter each signed binding or basis field, swap the Story or workspace, tamper signature bytes, or copy an old inventory and receipt onto freshly recomputed hashes without rerunning discovery; every mutation must fail signature, digest or freshness verification and the original restored receipt must verify.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
