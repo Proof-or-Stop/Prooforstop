@@ -705,6 +705,25 @@
       ],
       "signatureTag": "edge|ts|local-module-resolution",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-036",
+      "desc": "Directory traversal still has a TOCTOU gap that can omit a new consumer or follow a swapped directory outside the canonical root. enumerateBoundedSourceTree queues child path strings from Dirent state, then later calls opendirSync(directory) at acceptance-discovery-adapters.ts:180-203 without re-lstat/realpath containment or before/after directory identity and mtime checks. A queued child replaced with a symlink can be followed by opendirSync and expose external names/sizes; a consumer added, removed, or renamed while the iterator runs can be absent from the admitted deterministic set without any blind spot. File-level readSourceSafely may later reject external content, but it does not detect an omitted concurrent entry, so completeness can be issued over a non-snapshot inventory. Revalidate each directory immediately before open without following symlinks, compare identity/change metadata after iteration, fail partial on mutation, and add directory swap plus add/remove-during-iteration mutations with handle-close assertions.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T09:38:53.434Z",
+      "reviewRound": "2026-07-22T09:35:50.677Z",
+      "reviewRunId": "B-a32a:RR-030",
+      "_hash": "3c54cd0ecd93885ba5805e577d40bb3bd14e97b6f28f20f2cedae5c5c0270186",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|directory-traversal-still",
+      "signatureTagSource": "auto"
     }
   ]
 }
