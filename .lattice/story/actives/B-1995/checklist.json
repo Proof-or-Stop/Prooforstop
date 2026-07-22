@@ -275,9 +275,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#derived-acceptance-matrix"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-22T03:15:29.170Z",
-      "endTime": null,
+      "endTime": "2026-07-22T03:15:52.487Z",
       "verificationIntent": {
         "happy": [
           {
@@ -342,7 +342,75 @@
         "test": [
           "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-1995-003-MATRIX-USER-DEMO",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js acceptance_matrix --storyId=B-1995 --json",
+          "result": "pass",
+          "note": "Live CLI returned four canonical acceptance rows with observe/readOnly/non-evidentiary fields.",
+          "headHash": "f15f6d2eb269b5e9ff220bcd037fd8269766450e",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:53.478Z"
+        },
+        {
+          "intentRef": "VI-1995-003-LEGACY-AND-CONFLICT",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Real CLI renders configured, legacy_missing, unsupported, and malformed inputs without fabricated completion.",
+          "headHash": "f15f6d2eb269b5e9ff220bcd037fd8269766450e",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:54.156Z"
+        },
+        {
+          "intentRef": "VI-1995-003-DETERMINISTIC-ORDER",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Permuted sources and consecutive unchanged CLI reads are byte-equivalent.",
+          "headHash": "f15f6d2eb269b5e9ff220bcd037fd8269766450e",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:55.187Z"
+        },
+        {
+          "intentRef": "VI-1995-003-NO-WRITES",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Tree digest, git status, process events, phase, and transition decision remain unchanged across text and JSON reads.",
+          "headHash": "f15f6d2eb269b5e9ff220bcd037fd8269766450e",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:55.796Z"
+        },
+        {
+          "intentRef": "VI-1995-003-WRITE-PAYLOAD-REJECTED",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js acceptance_matrix --storyId=B-1995 --verdict=pass",
+          "result": "pass",
+          "note": "CLI rejects the write-shaped verdict argument before dispatch and writes no event or artifact.",
+          "headHash": "f15f6d2eb269b5e9ff220bcd037fd8269766450e",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:56.417Z"
+        },
+        {
+          "intentRef": "VI-1995-003-NON-EVIDENTIARY",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact registry verifies acceptance_matrix as L0 with no gate consumer or evidence authority.",
+          "headHash": "f15f6d2eb269b5e9ff220bcd037fd8269766450e",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:57.089Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
