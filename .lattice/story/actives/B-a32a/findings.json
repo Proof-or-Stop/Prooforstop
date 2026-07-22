@@ -150,7 +150,7 @@
       "desc": "CHK-002 must mutation coverage is incomplete: packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:139-169 covers missing/duplicate, one undigested path edit, disagreement, and aggregate removal only. VI-A32A-002-OMISSION-AND-AGGREGATE-TAMPER / VI-A32A-002-RESULT-AND-CLOSURE-TAMPER also require aggregate addition and blindSpot tamper, recomputed adapter digest retained under the old signed basis, and omission of the registered out-of-scope consumer from closure. Lines 133-135 only prove the positive closure, not the required omission mutation. Yet both intents are marked pass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T07:03:15.377Z",
@@ -164,7 +164,11 @@
       ],
       "signatureTag": "missing|ts|mutation-coverage-incomplete",
       "signatureTagSource": "auto",
-      "clusterId": "CL-004"
+      "clusterId": "CL-004",
+      "resolvedReason": "Fixed by 53c949a2ec/70e74b7b35: current-HEAD smoke now bites aggregate add/remove/blindSpot tamper, adapter-result mutation, recomputed adapter digest retained under old signed receipt, duplicate/missing adapter, disagreement, and registered consumer closure omission; every intended diagnostic is asserted and restored control passes.",
+      "resolvedAt": "2026-07-22T07:39:02.201Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-009",
