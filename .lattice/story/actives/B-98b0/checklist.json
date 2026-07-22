@@ -269,6 +269,19 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Focused Wave 2 smoke passed: core, real CLI, PLAN→DEV modes, compatibility cases, omission/invention mutations, process-fact bite, and clean restoration all verified.",
+      "files": {
+        "modify": [
+          "docs/CLI.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ]
       }
     }
   ]
