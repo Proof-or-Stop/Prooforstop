@@ -44,6 +44,21 @@
       "resolvedAt": "2026-07-22T01:42:49.214Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4444:F-003",
+      "desc": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:311,315-323,659 — WHY: the proposed PLAN verifier cannot independently derive a planned producer→consumer path from the named canonical owners. Current ChecklistItem.files contains only modify/create/test file-path arrays (packages/main/src/core/types.ts:306-329), VerificationIntentItem supplies prose desc/type (types.ts:193-200), and ProofStoryAcceptanceBinding supplies claim/checklist/intent/milestone refs (types.ts:2102-2109); none owns structured expectedSymbolOrFact, outputFact, endpoint role, or producer→consumer relation. Therefore PlannedCoveragePathV1 must either trust the topology-authored planned symbols/edge (making coverageBasis circular and weakening the independent-universe invariant) or cannot be derived at all. Invariant 4 also still requires every producer to feed a real consumer, contradicting the stated PLAN allowance for an unimplemented planned consumer. Add or identify one canonical PLAN-owned structured path declaration outside verificationTopology, define its non-duplicating ownership/derivation rules, and make the phase-specific invariant explicitly accept typed planned consumers only at PLAN while pre-REVIEW requires actual reconciliation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T01:44:38.101Z",
+      "reviewRound": "2026-07-22T01:42:32.404Z",
+      "reviewRunId": "B-4444:RR-005",
+      "_hash": "7ae2b7a3724bf6bdc2dc0b9c65b0066f21a80887ec8918b93823078e491f38b8",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
