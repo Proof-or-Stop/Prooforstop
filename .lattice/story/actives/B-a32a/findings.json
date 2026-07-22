@@ -633,7 +633,7 @@
       "desc": "Unreadable individual source files are not converted into deterministic partial evidence. enumerateBoundedSourceTree only lstat checks size and inventories the file at acceptance-discovery-adapters.ts:160-169; analyzeLocalImportCalls then performs an unguarded readFileSync at lines 238-242. A permission-denied file, directory/file race, or transient I/O error throws out of runAcceptanceDiscoveryAdapters instead of returning the required uninspectable blind spot and partial basis. The only unreadability smoke chmods the configured root directory itself, which is rejected earlier by mode bits, so it does not exercise an unreadable inventoried file (proofstory-acceptance-basis-smoke.ts:511-519). Catch file reads and parse construction, emit a stable source-file-unreadable blind spot, and add an individual chmod/race-shaped mutation with restored control.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T09:20:34.033Z",
@@ -645,7 +645,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "edge|ts|unreadable-individual-source",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 7ec60658bc and retained through current HEAD: TypeChecker symbol binding excludes shadowing, all supported JS/TS module forms resolve canonically or fail partial, streaming inventory is bounded, and source read failures fail closed. Current threat-table mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:29.517Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-031",
