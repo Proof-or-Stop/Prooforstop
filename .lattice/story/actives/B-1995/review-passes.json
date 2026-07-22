@@ -235,6 +235,42 @@
         "scanEscalationReason": null
       },
       "_hash": "3f96ae4294f2f097bfd657baace426e5db3daf28d8e830904ecf079f628e54fe"
+    },
+    {
+      "id": "B-1995:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "final convergence coverage passed: merged HEAD has no business-code changes after 01d888403c; all 23/23 must intents retain current storyFilesHash evidence with zero waivers; current focused smoke replays declaration, topology, command-form, non-evidentiary, milestone/closeout, lifecycle, and mutation cases; the real acceptance_matrix transcript plus summary/delivery evidence shows four deterministic canonical legacy rows in observe/read-only/non-evidentiary mode; fresh strict validation is PASS with 46/46 commands and no failures.",
+      "createdAt": "2026-07-22T05:47:52.682Z",
+      "reviewRound": "2026-07-22T05:44:24.060Z",
+      "reviewRunId": "B-1995:RR-013",
+      "envelopeId": "1df07d674b672e99f2a5a6489c536ac6a01b20b667f4c760fe30c958f723c315",
+      "writerSessionId": "sess-741ea583beda234da591cc6ed40d2032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/checklist.json",
+          ".lattice/story/actives/B-1995/delivery-check.json",
+          ".lattice/story/actives/B-1995/evidence/live-smoke-transcript.json",
+          ".lattice/story/actives/B-1995/plan.md",
+          ".lattice/story/actives/B-1995/summary.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1995/done-required-evidence.json",
+          ".lattice/story/actives/B-1995/test-evidence.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a4588e711c7ffaf6713db7f4b0b5d678a0f6840d5141363b8f50bae481a9a6db"
     }
   ]
 }
