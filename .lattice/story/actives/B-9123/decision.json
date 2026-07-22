@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Least privilege and role separation",
+    "Verifier authority cannot be waived by reviewer judgment",
+    "Signed hash-bound evidence over prose",
+    "One canonical verifier and stable diagnostics",
+    "Later-wave boundaries remain explicit"
+  ],
+  "drivers": [
+    "Open Decision 10 requires explicit eligible roles and mechanical independence",
+    "Wave 2A must be separately auditable from review_pass and scope-check artifacts",
+    "Existing signing and freshness infrastructure should be reused rather than reimplemented",
+    "Adversarial mutation proof must expose any prompt-only or caller-authored bypass"
+  ],
+  "options": [
+    {
+      "name": "A: Dedicated critic and exclusion artifacts with shared signing primitives",
+      "pros": [
+        "Clear authority boundary",
+        "Full binding schema",
+        "Independent verifier and process-fact registration",
+        "Easy fail-closed mutation testing"
+      ],
+      "cons": [
+        "Adds commands, artifacts, role prompt, and lifecycle integration"
+      ]
+    },
+    {
+      "name": "B: Extend generic review_pass and scope-check records",
+      "pros": [
+        "Smaller surface",
+        "Reuses existing writers"
+      ],
+      "cons": [
+        "Conflates code review with topology authority",
+        "Cannot express all required receipt bindings cleanly",
+        "Higher risk of prompt-only independence"
+      ]
+    },
+    {
+      "name": "C: Embed critic fields in proofstory.json",
+      "pros": [
+        "Fewer artifact files"
+      ],
+      "cons": [
+        "Makes caller-owned contract partly evidentiary",
+        "Weakens writer provenance and atomic signed receipt semantics"
+      ]
+    }
+  ],
+  "chosen": "A: Dedicated critic and exclusion artifacts with shared signing primitives",
+  "rationale": "Dedicated signed artifacts keep critic and exclusion authority independently attributable while reusing canonical workspace, signature, freshness, and storyFilesHash readers. This directly satisfies Wave 2A without granting critic prose authority over the verifier-derived basis.",
+  "preMortem": [
+    {
+      "scenario": "Implementer self-signs a critic receipt using an allowed role string",
+      "trigger": "Verifier checks role text but not agent/session/dispatch/commit provenance",
+      "consequence": "Self-absolution passes the PLAN gate",
+      "mitigation": "Recompute all provenance dimensions and reject any implementer overlap; add isolated mutations for each dimension."
+    },
+    {
+      "scenario": "A valid critic receipt remains accepted after topology, scope, or source closure changes",
+      "trigger": "One required digest is omitted from the signed payload or freshness reader",
+      "consequence": "Stale criticism authorizes current work",
+      "mitigation": "Bind every V1 field and mutate each digest/hash independently with exact restoration tests."
+    },
+    {
+      "scenario": "Critic or exclusion approval converts incomplete discovery into a pass",
+      "trigger": "Gate combines critic verdict before evaluating basis completeness",
+      "consequence": "Unknown paths are silently waived",
+      "mitigation": "Evaluate basis status first and make missing/partial/unsupported/stale/tampered unconditionally non-pass."
+    },
+    {
+      "scenario": "Wave 2A accidentally introduces Wave 3 executable requirements or enables rollout",
+      "trigger": "Critic check is coupled to pre_review_check or legacy enforce configuration",
+      "consequence": "Scope leakage and unrelated Stories block",
+      "mitigation": "Keep structural critic evidence separate, default observe, and assert no executable/pre-review/selective-rollout facts are required or claimed."
+    }
+  ],
+  "timestamp": "2026-07-22T17:54:49.421Z"
+}

@@ -11,7 +11,45 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Topology critic eligibility: PASS — role=lattice-review-topology-critic, independentFromImplementer=true, exclusionApprover=lattice-review-scope-plan."
+      "userSees": "Topology critic eligibility: PASS — role=lattice-review-topology-critic, independentFromImplementer=true, exclusionApprover=lattice-review-scope-plan.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-CRITIC-ELIGIBLE",
+            "desc": "Production critic-receipt flow accepts a receipt only when the signer has registered role lattice-review-topology-critic and the signer is mechanically distinct from the implementation provenance on all four dimensions: agent identity, session identity, dispatch provenance, and business commit author; assert the verifier returns ok and reports all four comparisons as independent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-CRITIC-FOUR-DIMENSION-MATRIX",
+            "desc": "Run a table-driven verifier test with exactly one independence dimension colliding at a time (same agent, same session, same dispatch, or same business commit author) while the other three remain distinct; each case must fail with the dimension-specific reason, and the fully distinct control must pass.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "VI-CRITIC-MISSING-PROVENANCE",
+            "desc": "Omit or make unverifiable each signer/implementer provenance input used by the four-dimensional comparison; the production verifier must fail closed rather than treating absence, legacy identity, or an unresolvable business commit author as independence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-CRITIC-ROLE-SPOOF",
+            "desc": "Submit a self-authored or ineligible-role receipt whose prompt text/name claims lattice-review-topology-critic; verify registry-backed role and dispatch provenance reject it, proving prompt identity or user-controlled labels cannot confer authority.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-CRITIC-SESSION-DISPATCH-REPLAY",
+            "desc": "Replay a valid critic identity through the implementer's session or dispatch, and replay a previously valid critic dispatch against a different business commit; both production verification attempts must be rejected.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,35 @@
+{
+  "task": "Implement Wave 2A independent topology critic eligibility, signed receipts, and separately attributable exclusion approval on top of completed Waves 1, 1A, and 2.",
+  "outcome": "Topology critic receipt: PASS — signature valid, eligible independent critic, current basis/topology/scope/story/closure bindings; self-authored or ineligible receipts and any partial or unsupported basis are deterministically REJECTED.",
+  "facts": [
+    "B-98b0 completed the canonical Wave 2 structural evaluator and PLAN-to-DEV gate.",
+    "The execution plan requires TopologyCriticReceiptV1 with full material, scope, finding, exclusion, verdict, time, and signature bindings.",
+    "Existing reviewer-run and prompt-envelope infrastructure provides signed role/session provenance patterns but cannot be treated as critic evidence without an explicit Wave 2A artifact and verifier.",
+    "The project legacy devGateMode is enforce, while acceptanceTopologyGateMode defaults to observe and must remain rollout-safe."
+  ],
+  "constraints": [
+    "Only lattice-review-topology-critic may sign critic receipts.",
+    "Only lattice-review-scope-plan may approve exclusions.",
+    "Critic and approver must be mechanically independent from implementer agent, session, dispatch provenance, and business commit author.",
+    "Critic verdict cannot override missing, partial, unsupported, stale, or tampered verifier basis.",
+    "Wave 3 pre_review_check and executable evidence, Wave 3A selective applicability, and Wave 4 measured rollout remain excluded.",
+    "Gate-consumed facts require prompt plus CLI/handler/process-fact protection.",
+    "No direct edits to story or fixture storage and no OMX."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/",
+    "packages/main/templates/agents/",
+    "docs/CLI.md",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-07-22T17:54:48.530Z"
+}
