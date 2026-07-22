@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1995",
+  "allowedCommands": [
+    "git diff*",
+    "git show*",
+    "git status*",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "rg"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "omx*"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Wave 1 only. Exact source/test file scope will be narrowed during PLAN scope review; no remote publication or destructive git operations.",
+  "createdAt": "2026-07-22T02:40:01.946Z",
+  "updatedAt": "2026-07-22T02:40:01.946Z",
+  "_hash": "82fa4824f3c724ce4ee0ac7230cdaa8fd535d126599c595202b81e5d7a32079c"
+}

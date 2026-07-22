@@ -1,0 +1,30 @@
+{
+  "storyId": "B-1995",
+  "checkedAt": "2026-07-22T02:39:18.839Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "INIT correctly bounds Wave 1 to additive schema and observe-only diagnostics, but it does not yet state one concrete user-observable completion path: CHK-001/002/004 are internal mechanics and CHK-003 defers renderer placement to PLAN. During PLAN, bind the renderer to a named read-only CLI/status surface and define a completion demonstration showing a topology-enabled Story, a legacy Story, stable source IDs, deterministic diagnostics, and unchanged lifecycle transitions; otherwise the user cannot unambiguously recognize Wave 1 as delivered."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-22T02:38:55.420Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-22T02:39:18.839Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "INIT correctly bounds Wave 1 to additive schema and observe-only diagnostics, but it does not yet state one concrete user-observable completion path: CHK-001/002/004 are internal mechanics and CHK-003 defers renderer placement to PLAN. During PLAN, bind the renderer to a named read-only CLI/status surface and define a completion demonstration showing a topology-enabled Story, a legacy Story, stable source IDs, deterministic diagnostics, and unchanged lifecycle transitions; otherwise the user cannot unambiguously recognize Wave 1 as delivered."
+        }
+      ]
+    }
+  ],
+  "_hash": "2591353567d2ab904ebbeb8a786f774703fb4f3282d37ba78bd7d209dc3d6b5a"
+}
