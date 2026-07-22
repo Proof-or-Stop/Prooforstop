@@ -1,0 +1,391 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-9123",
+    "phaseBasis": "plan",
+    "status": "unsupported",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "lattice acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for handler_dispatch_inventory"
+        ],
+        "provenanceRefs": [
+          "registered:handler_dispatch_inventory:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:.claude/agents/*.md",
+            "scope:file:.lattice-codex/agents/*.md",
+            "scope:file:AGENTS.md",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/CLI.md",
+            "scope:file:docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/cli/activity-policy.ts",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/acceptance-topology.ts",
+            "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/prompt-registry.ts",
+            "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/topology-critic-receipt.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/proofstory.ts",
+            "scope:file:packages/main/src/handlers/story-dispatch.ts",
+            "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+            "scope:file:packages/main/src/registry.ts",
+            "scope:file:packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+            "scope:file:packages/main/templates/agents/*.md",
+            "scope:file:scripts/verify-process-fact-contract.mjs",
+            "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
+          ]
+        },
+        "resultDigest": "sha256:5287b9b6b36c3310cdd99627e2104d4db493beaf27d9bfde61350062935717bd"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for process_fact_registry"
+        ],
+        "provenanceRefs": [
+          "registered:process_fact_registry:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:.claude/agents/*.md",
+            "scope:file:.lattice-codex/agents/*.md",
+            "scope:file:AGENTS.md",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/CLI.md",
+            "scope:file:docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/cli/activity-policy.ts",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/acceptance-topology.ts",
+            "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/prompt-registry.ts",
+            "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/topology-critic-receipt.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/proofstory.ts",
+            "scope:file:packages/main/src/handlers/story-dispatch.ts",
+            "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+            "scope:file:packages/main/src/registry.ts",
+            "scope:file:packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+            "scope:file:packages/main/templates/agents/*.md",
+            "scope:file:scripts/verify-process-fact-contract.mjs",
+            "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
+          ]
+        },
+        "resultDigest": "sha256:40bd77380f9af4ecf16cd57f01c7806016627db2c645dd63c3c1c1eabefaf835"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for runtime_trace"
+        ],
+        "provenanceRefs": [
+          "registered:runtime_trace:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:.claude/agents/*.md",
+            "scope:file:.lattice-codex/agents/*.md",
+            "scope:file:AGENTS.md",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/CLI.md",
+            "scope:file:docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/cli/activity-policy.ts",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/acceptance-topology.ts",
+            "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/prompt-registry.ts",
+            "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/topology-critic-receipt.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/proofstory.ts",
+            "scope:file:packages/main/src/handlers/story-dispatch.ts",
+            "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+            "scope:file:packages/main/src/registry.ts",
+            "scope:file:packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+            "scope:file:packages/main/templates/agents/*.md",
+            "scope:file:scripts/verify-process-fact-contract.mjs",
+            "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
+          ]
+        },
+        "resultDigest": "sha256:30d81cd2c9aacc34d2ef2310e72bb936d4baa441f7bc4674be454a47aeca76db"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for scope_contract"
+        ],
+        "provenanceRefs": [
+          "registered:scope_contract:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:.claude/agents/*.md",
+            "scope:file:.lattice-codex/agents/*.md",
+            "scope:file:AGENTS.md",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/CLI.md",
+            "scope:file:docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/cli/activity-policy.ts",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/acceptance-topology.ts",
+            "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/prompt-registry.ts",
+            "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/topology-critic-receipt.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/proofstory.ts",
+            "scope:file:packages/main/src/handlers/story-dispatch.ts",
+            "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+            "scope:file:packages/main/src/registry.ts",
+            "scope:file:packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+            "scope:file:packages/main/templates/agents/*.md",
+            "scope:file:scripts/verify-process-fact-contract.mjs",
+            "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
+          ]
+        },
+        "resultDigest": "sha256:e9cc8c5574ed0a312a44afe2acc4872d27762d79aed343086ef6acd55e43986b"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for static_call_graph"
+        ],
+        "provenanceRefs": [
+          "registered:static_call_graph:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:file:.claude/agents/*.md",
+            "scope:file:.lattice-codex/agents/*.md",
+            "scope:file:AGENTS.md",
+            "scope:file:CLAUDE.md",
+            "scope:file:docs/CLI.md",
+            "scope:file:docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/cli/activity-policy.ts",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/acceptance-topology.ts",
+            "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/prompt-registry.ts",
+            "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/topology-critic-receipt.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/proofstory.ts",
+            "scope:file:packages/main/src/handlers/story-dispatch.ts",
+            "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+            "scope:file:packages/main/src/registry.ts",
+            "scope:file:packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+            "scope:file:packages/main/templates/agents/*.md",
+            "scope:file:scripts/verify-process-fact-contract.mjs",
+            "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
+          ]
+        },
+        "resultDigest": "sha256:8dcbcd4312c35aca0f78a462a223b778a12d0fd5ce6575a281070f51bf4a2bfe"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
+      "scope:checklist:CHK-004",
+      "scope:file:.claude/agents/*.md",
+      "scope:file:.lattice-codex/agents/*.md",
+      "scope:file:AGENTS.md",
+      "scope:file:CLAUDE.md",
+      "scope:file:docs/CLI.md",
+      "scope:file:docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "scope:file:package-lock.json",
+      "scope:file:package.json",
+      "scope:file:packages/main/package.json",
+      "scope:file:packages/main/src/cli/activity-policy.ts",
+      "scope:file:packages/main/src/cli/command-catalog.ts",
+      "scope:file:packages/main/src/core/acceptance-topology.ts",
+      "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+      "scope:file:packages/main/src/core/command-policy.ts",
+      "scope:file:packages/main/src/core/process-fact-levels.ts",
+      "scope:file:packages/main/src/core/process-fact-registry.ts",
+      "scope:file:packages/main/src/core/prompt-registry.ts",
+      "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+      "scope:file:packages/main/src/core/store.ts",
+      "scope:file:packages/main/src/core/topology-critic-receipt.ts",
+      "scope:file:packages/main/src/core/types.ts",
+      "scope:file:packages/main/src/handlers/proofstory.ts",
+      "scope:file:packages/main/src/handlers/story-dispatch.ts",
+      "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
+      "scope:file:packages/main/src/registry.ts",
+      "scope:file:packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+      "scope:file:packages/main/templates/agents/*.md",
+      "scope:file:scripts/verify-process-fact-contract.mjs",
+      "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
+    ],
+    "sourceInventoryRefs": [],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:inventory_unsealable:inventory:configured-source-root",
+      "snapshot-seal:snapshot_missing:config:lattice.config.json",
+      "unsupported discovery profile for handler_dispatch_inventory",
+      "unsupported discovery profile for process_fact_registry",
+      "unsupported discovery profile for runtime_trace",
+      "unsupported discovery profile for scope_contract",
+      "unsupported discovery profile for static_call_graph"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryDirectoryCount": 0,
+      "sourceSnapshotDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sourceSnapshotCount": 0,
+      "configSnapshotDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "inventory_unsealable",
+          "targetKind": "inventory",
+          "canonicalRef": "configured-source-root"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "config",
+          "canonicalRef": "lattice.config.json"
+        }
+      ],
+      "sealDigest": "sha256:269f98535dff8073b5c93168b48e4e231ad1add998f8be0f3efc64a105f9c5f8"
+    },
+    "binding": {
+      "headHash": "d9fad95fd5fae59ba86342fee1dcfe75f4cec486",
+      "materialHash": "a47671e4d5552db4f0ab985943bfcdb22d770d9a21855357106df82ba1dde8e2",
+      "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scopeCheckDigest": "sha256:1bb24509ce3f67f9c02f1fa18794ea110e667c43ddd7bf3014602cef961a587a",
+      "scopeContractDigest": "sha256:d18fe2bc48422ce0a2bfa3e264e8d8a7f111a50138b4d03a4ab3944c3f64a78e",
+      "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "receiptRef": "receipt:coverage-basis:B-9123:plan:29d0a66b9a4b9880",
+    "basisDigest": "sha256:aada4196010b500dc64fe15cbb4f86cc582752292c85118158aca0ffe1cda58b"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-9123:plan:29d0a66b9a4b9880",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
+    "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
+    "storyId": "B-9123",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:aada4196010b500dc64fe15cbb4f86cc582752292c85118158aca0ffe1cda58b",
+    "topologyDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "scopeCheckDigest": "sha256:1bb24509ce3f67f9c02f1fa18794ea110e667c43ddd7bf3014602cef961a587a",
+    "scopeContractDigest": "sha256:d18fe2bc48422ce0a2bfa3e264e8d8a7f111a50138b4d03a4ab3944c3f64a78e",
+    "headHash": "d9fad95fd5fae59ba86342fee1dcfe75f4cec486",
+    "materialHash": "a47671e4d5552db4f0ab985943bfcdb22d770d9a21855357106df82ba1dde8e2",
+    "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "sealDigest": "sha256:269f98535dff8073b5c93168b48e4e231ad1add998f8be0f3efc64a105f9c5f8",
+    "workspaceIdentityDigest": "sha256:d3533930f83100bad873f419738d84c92a8b29707d90cd5a3519af6a3ac4dfb8",
+    "signature": "z9QCgUmTM1k2OuH9/GiVTv6Ho79PRdqSHzq5dZZsWbPO+5kFds0czmEQ1xZ900to8lYvgF0QbCmgR6sGQY5DDw=="
+  }
+}
