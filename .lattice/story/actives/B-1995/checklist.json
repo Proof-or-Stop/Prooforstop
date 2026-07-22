@@ -214,13 +214,13 @@
         {
           "intentRef": "VI-1995-002-VALID-REFERENCE-GRAPH",
           "kind": "logic_test",
-          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Reference-only planned graph resolves canonical declaration and endpoint IDs yet remains inconclusive_basis_unverified.",
-          "headHash": "3c0c55c5c4832495bcfc641d3b65247e66e781c8",
-          "materialHash": "8a77d188a9d92bb699de646921a66ce4ee607b7df814f449f0c2d38542166719",
-          "storyFilesHash": "48322d44ba1187db0de847cb51deef3e31d8517140ec67abd659bf0169fe35fc",
-          "timestamp": "2026-07-22T03:39:46.689Z"
+          "note": "Focused smoke at 35de890d50 proves a legitimate logic-test note may say the graph remains inconclusive_basis_unverified and still covers its intent.",
+          "headHash": "35de890d50b536bd4e7ad828bdaac5ab924b56eb",
+          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
+          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
+          "timestamp": "2026-07-22T03:57:57.364Z"
         },
         {
           "intentRef": "VI-1995-002-LEGACY-MISSING",
@@ -417,11 +417,11 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Expanded focused smoke at cef7fc56fe proves exact command provenance, paraphrased reserved-result rejection, unrelated warning-prose acceptance, and all real evidence-writer surfaces.",
-          "headHash": "cef7fc56feb1a7e1e70d533b9f0b8ba26f22e102",
-          "materialHash": "ee9af19f9d42b1cdbd2b7595d7f13293a0a3c822c15a641db111991832db4372",
-          "storyFilesHash": "aab32935fd6e66f9e803bfa61a6fcd903af486ffe3a88523ce6ae111f5209520",
-          "timestamp": "2026-07-22T03:54:02.236Z"
+          "note": "Focused smoke at 35de890d50 proves manual transcript fallback remains non-evidentiary while exact command provenance rejects every evidence kind.",
+          "headHash": "35de890d50b536bd4e7ad828bdaac5ab924b56eb",
+          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
+          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
+          "timestamp": "2026-07-22T03:57:57.364Z"
         }
       ]
     },
@@ -520,11 +520,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Expanded focused smoke at cef7fc56fe proves bounded legacy compatibility and no Result-warning false positive.",
-          "headHash": "cef7fc56feb1a7e1e70d533b9f0b8ba26f22e102",
-          "materialHash": "ee9af19f9d42b1cdbd2b7595d7f13293a0a3c822c15a641db111991832db4372",
-          "storyFilesHash": "aab32935fd6e66f9e803bfa61a6fcd903af486ffe3a88523ce6ae111f5209520",
-          "timestamp": "2026-07-22T03:54:02.236Z"
+          "note": "Focused smoke at 35de890d50 covers logic/integration reserved-token compatibility plus manual legacy projection rejection.",
+          "headHash": "35de890d50b536bd4e7ad828bdaac5ab924b56eb",
+          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
+          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
+          "timestamp": "2026-07-22T03:57:57.364Z"
         },
         {
           "intentRef": "VI-1995-004-LIFECYCLE-EQUIVALENCE",
