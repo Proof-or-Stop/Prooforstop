@@ -41,6 +41,11 @@ const repositoryRoot = resolve(sourceRoot, '..', '..');
 const latticeBin = join(repositoryRoot, 'bin/lattice.js');
 const storyId = 'B-topology-critic-smoke';
 const now = '2026-07-22T00:00:00.000Z';
+const smokeArgs = process.argv.slice(2);
+if (smokeArgs.length > 1 || (smokeArgs.length === 1 && smokeArgs[0] !== '--live-happy')) {
+  throw new Error(`unsupported proofstory topology critic smoke arguments: ${smokeArgs.join(' ') || '<none>'}`);
+}
+const liveHappy = smokeArgs[0] === '--live-happy';
 
 function write(root: string, rel: string, content: string): void {
   mkdirSync(dirname(join(root, rel)), { recursive: true });
@@ -139,7 +144,7 @@ function writeDiscoveryRegistration(root: string): void {
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-topology-critic-'));
 const originalCwd = process.cwd();
-try {
+smokeSuite: try {
   write(root, '.gitignore', [
     LATTICE_RUNTIME_IGNORE_BLOCK_START,
     ...listRuntimeArtifactIgnorePatterns(),
@@ -196,9 +201,19 @@ try {
   const basisOutput = planBasisOutput;
   assert.equal(JSON.parse(basisOutput).artifact.basis.status, 'complete', basisOutput);
   const producerOutput = cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, TOPOLOGY_CRITIC_ROLE, 'sess-critic');
-  assert.equal(JSON.parse(producerOutput).verification.ok, true, producerOutput);
+  const producerResult = JSON.parse(producerOutput);
+  assert.equal(producerResult.verification.ok, true, producerOutput);
   const checkOutput = cli(root, 'topology_critic_receipt_check', { storyId, json: true });
-  assert.equal(JSON.parse(checkOutput).verification.ok, true, checkOutput);
+  const checkResult = JSON.parse(checkOutput);
+  assert.equal(checkResult.verification.ok, true, checkOutput);
+  if (liveHappy) {
+    assert.equal(producerResult.receipt.criticRole, TOPOLOGY_CRITIC_ROLE, 'live critic receipt uses the registered canonical role');
+    assert.deepEqual(producerResult.verification.independence, { agent: true, session: true, dispatch: true, businessCommitAuthor: true }, 'live critic remains independent in all four dimensions');
+    assert.equal(checkResult.verification.code, 'ok', checkOutput);
+    console.log('Topology critic eligibility: PASS role=lattice-review-topology-critic independence=agent:true,session:true,dispatch:true,businessCommitAuthor:true');
+    console.log(`Topology critic receipt: PASS check=${checkResult.verification.code} semanticOk=${checkResult.verification.ok}`);
+    break smokeSuite;
+  }
   git(root, ['config', 'user.name', 'lattice-implementer']);
   git(root, ['config', 'user.email', 'lattice-implementer@noreply.local']);
   cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_CRITIC_ROLE }, TOPOLOGY_CRITIC_ROLE, 'sess-critic-business-collision');
