@@ -39,6 +39,21 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4ec1:F-003",
+      "desc": "packages/main/src/core/pre-review-check.ts:180-185 missing artifact is misclassified as cryptographic/content tampering: verifyPreReviewCheckArtifact returns PR_ARTIFACT_TAMPERED when artifact is null. The live B-4ec1 DEV-to-REVIEW run had no .lattice/story/actives/B-4ec1/pre-review-check.json and emitted mode=observe status=fail code=PR_ARTIFACT_TAMPERED, so production audit output cannot distinguish an unrun producer from an altered signed artifact, and the real transition did not prove the promised self-hosted PASS path. Observe being non-blocking is expected rollout behavior but does not make the false failure classification or absent live artifact acceptable. Add a deterministic missing-artifact result/remediation and a live production DEV-to-REVIEW assertion that persists and consumes the verifier-owned artifact; retain PR_ARTIFACT_TAMPERED only for invalid stored artifacts.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T23:31:54.734Z",
+      "reviewRound": "2026-07-22T23:29:25.093Z",
+      "reviewRunId": "B-4ec1:RR-001",
+      "_hash": "9897d2fc5a9991b40a94d9f96ce1d1e93c05c4e078a88df521e13281292c3a8b",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
