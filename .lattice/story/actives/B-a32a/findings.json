@@ -887,7 +887,7 @@
       "desc": "The new immutable content cache does not preserve a single workspace-membership/content snapshot through graph, provenance, closure hash, and return. enumerateBoundedSourceTree performs its final directory revalidation only inside enumeration (acceptance-discovery-adapters.ts:305-320) and returns only files/blindSpots, discarding admittedDirectories. buildBoundedSourceGraph then reads and analyzes those files afterward (lines 726-795), and runAcceptanceDiscoverySnapshot builds adapters/provenance and returns cached contents still later (lines 951-971), with no final directory or per-file identity revalidation. A C2 created after configuredSourceInventory returns is absent from boundedUniverse and can coexist at receipt issuance with status complete; likewise a cached consumer changed after its read remains the graph/provenance/hash truth even though the workspace now differs. The added mutation test fires before the enumerator final revalidation, so it cannot bite this post-enumeration/post-read window. Retain directory and opened-file snapshot identities in the discovery snapshot and revalidate all of them after adapter/provenance/hash assembly (or bind to an immutable git/object snapshot); any drift must make the same derivation partial and discard complete. Add hooks that add a C2 after inventory return and mutate an early-read C2 before runAcceptanceDiscoverySnapshot returns.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T10:02:04.446Z",
@@ -900,7 +900,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|immutable-content-cache",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 44d531f2e0 and retained through current HEAD: config joins the bounded no-follow snapshot and an end-of-assembly directory/file/config seal detects late membership/content drift before basis return. Current late-C2/config/file mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:38.672Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-042",
