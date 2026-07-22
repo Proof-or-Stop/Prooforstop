@@ -25,7 +25,7 @@
       "desc": "packages/main/src/core/acceptance-coverage-basis.ts:160 computes closureFilesHash from only planned endpoint files; registered producer/consumer closure entries are appended as literal inventory strings and their referenced source files are never resolved or content-hashed. deriveRegisteredProcessFactClosure likewise emits producer/consumer labels rather than resolvable source paths (acceptance-discovery-adapters.ts:44). Therefore an out-of-scope registered consumer can change while closureFilesHash remains unchanged, defeating the receipt freshness binding explicitly required by Wave 1A.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T07:02:45.924Z",
@@ -34,7 +34,11 @@
       "_hash": "a61400e76b87e14ac6e3802a90b7b2f374183822de466fd85f3afa6283ba39e0",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto",
-      "clusterId": "CL-002"
+      "clusterId": "CL-002",
+      "resolvedReason": "Fixed by 53c949a2ec and 70e74b7b35: closureFilesHash now resolves and hashes content for every registered producer/consumer source ref, not literal labels; any missing/uninspectable source emits a blind spot and prevents complete. Current-HEAD closure-source content drift and closure-omission mutations bite, restored control passes.",
+      "resolvedAt": "2026-07-22T07:38:55.497Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-003",
