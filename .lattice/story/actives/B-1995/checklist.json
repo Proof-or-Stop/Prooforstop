@@ -125,7 +125,57 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-1995-003-MATRIX-USER-DEMO",
+            "desc": "Running the named read-only surface lattice acceptance_matrix --storyId=B-1995 --json for a topology-enabled fixture emits one row per acceptance binding with canonical acceptance, milestone, verification-intent, declaration, endpoint and diagnostic IDs, so a user can trace each displayed cell back to its owner.",
+            "type": "cli",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-1995-003-LEGACY-AND-CONFLICT",
+            "desc": "The same acceptance_matrix surface renders legacy bindings as legacy_missing and renders conflicting or unresolved canonical inputs as diagnostics; it does not crash, invent replacement values, or silently label either case complete.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-003-DETERMINISTIC-ORDER",
+            "desc": "Equivalent inputs with shuffled source insertion order produce the same ordered rows, source IDs and diagnostic-code order in JSON, and two consecutive reads of unchanged inputs are byte-equivalent after excluding no fields because the renderer adds no timestamps or random IDs.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-1995-003-NO-WRITES",
+            "desc": "Snapshot Story files, process-event length and git status before and after acceptance_matrix text and JSON invocations: both commands exit through a read-only path and leave every persisted artifact, evidence collection, lifecycle state and worktree byte unchanged.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-003-WRITE-PAYLOAD-REJECTED",
+            "desc": "Attempt to submit a result, verdict, row, acceptance-matrix payload or other write-shaped option to the renderer: argument validation rejects it and no writable acceptance_matrix artifact or completion truth source is created.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-003-NON-EVIDENTIARY",
+            "desc": "Feed rendered matrix output or its computed result label back as verification evidence or gate authority: canonical evidence validation must not recognize the L0 projection as a receipt, pass or authority fact.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
