@@ -136,7 +136,7 @@
       "desc": "quality-phase-profile-consistency: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:540-569 includes actual_diff_hunks and an actual-diff adapter in the topology-bound phaseBasis=plan example, but the normative invariant at lines 848-852 and human audit criterion at lines 1631-1633 say actual diff hunks are added at pre-REVIEW. This leaves the registered PLAN discovery profile ambiguous and can reintroduce a DEV-output requirement into the structural-only gate. Remove actual_diff_hunks/result from the PLAN example or explicitly redefine the normative phase rules to require a PLAN-safe diff adapter with its empty/pre-DEV semantics.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T01:58:32.464Z",
@@ -147,7 +147,11 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
       ],
       "signatureTag": "edge|md|quality-phase-profile",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit cd314c6ac1: PLAN discovery profile and example now exclude actual_diff_hunks (five required adapters), while pre-REVIEW retains it (six adapters). Normative invariant, algorithm, prose and audit rubric all state the phase distinction. Original quality reviewer re-inspected current HEAD and confirmed no residual blocker.",
+      "resolvedAt": "2026-07-22T02:02:58.503Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
