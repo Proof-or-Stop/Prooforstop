@@ -183,6 +183,12 @@
             "desc": "M4: Feed representative M1-M3 failures through direct command and lifecycle entrypoints and require identical stable codes/remediation, no duplicate verifier semantics, no dirty-worktree or failed-transition partial write, and an immediate clean retry after exact repair to succeed.",
             "type": "logic",
             "priority": "must"
+          },
+          {
+            "id": "VI-W3-M4-CRITIC-REATTESTATION",
+            "desc": "M4: For enforced high-assurance DEV-to-REVIEW, require a fresh independent lattice-review-topology-critic re-attestation bound to the recomputed pre_review basis, topology, scope, storyFilesHash and closureFilesHash; an old PLAN/Wave2A receipt, implementer/self-authored critic, stale or replayed receipt, or receipt bound to a different basis must fail, while observe/warn remain non-blocking diagnostics under the flat project mode.",
+            "type": "cli",
+            "priority": "must"
           }
         ],
         "adversarial": [
