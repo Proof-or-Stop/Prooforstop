@@ -28,7 +28,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:184-220,463-470,530-533,569-585 — MEDIUM: the reconciliation rules require each discovery adapter to retain its path set, coverage claim, blind spots, provenance, and typed asymmetry policy, but AcceptanceCoverageBasisV1 stores only discoveryMethods plus aggregate paths/blindSpots. The signed basis shape therefore cannot show which adapter reported a path or claim, which policy explained an asymmetry, or whether a required adapter was silently ignored, so AT_DISCOVERY_DISAGREEMENT is not auditable/replayable from the proposed artifact. Add hash-bound per-adapter result records (or signed refs with equivalent fields) and define their inclusion in basisDigest, then mutate/remove one adapter result and assert deterministic failure.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-22T01:33:02.934Z",
@@ -39,7 +39,11 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit b23fe0198d: registered discovery profiles and hash-bound CoverageAdapterResultV1 records retain per-adapter paths, claims, blind spots, provenance, asymmetry policy and digests in basisDigest and receipt. Required-adapter omission, invalidity, tamper and aggregate mismatch codes plus mutation rows are specified; original docs reviewer confirmed closure.",
+      "resolvedAt": "2026-07-22T01:42:49.214Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
