@@ -14,6 +14,21 @@
       "_hash": "f4723808a9758e3c6966f11f1b79ac0ad07a9ea4058dd95ed706ae7e4ab24fa3",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9123:F-002",
+      "desc": ".claude/agents/lattice-review-topology-critic.md:1 (mirrored in .lattice-codex and packages/main/templates) starts with literal +--- instead of YAML delimiter ---. packages/main/src/core/prompt-registry.ts:337-342 requires the first trimmed line to equal ---, so the promised topology-critic host asset cannot be parsed/bootstrapped even though the role is registered. This is an undelivered role entrypoint and must be corrected in all three mirrors with a parser/adapter verification that exercises this template.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T18:34:41.958Z",
+      "reviewRound": "2026-07-22T18:32:54.616Z",
+      "reviewRunId": "B-9123:RR-001",
+      "_hash": "71884c0d6a928cd8bdc9ca11e9a7fca74e56173267e719d7eaa92b69b01c03b6",
+      "signatureTag": "missing|unknown|claude-agents-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
