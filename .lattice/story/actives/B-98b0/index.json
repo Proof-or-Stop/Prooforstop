@@ -4,7 +4,7 @@
   "title": "Implement ProofStory acceptance topology Wave 2 PLAN structural gate",
   "description": "Integrate acceptance_topology_check at PLAN to DEV behind flat project observe/warn/enforce configuration, consuming the verifier-derived Wave 1A basis and Wave 1 topology without duplicating verificationIntent or requiring executed DEV evidence.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -28,6 +28,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-da20c7f8979c9756768738c51324dc67",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-22T15:48:56.812Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-da20c7f8979c9756768738c51324dc67",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-98b0",
+    "branch": "story/B-98b0",
+    "createdAt": "2026-07-22T15:48:54.240Z"
+  }
 }
