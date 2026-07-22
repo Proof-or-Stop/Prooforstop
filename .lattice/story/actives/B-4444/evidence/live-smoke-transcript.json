@@ -1,0 +1,20 @@
+{
+  "storyId": "B-4444",
+  "expected": "The current-state table shows milestone ledger, acceptanceBindings, verificationIntent, evidence, and REVIEW completeness as distinct existing owners, and explicitly says no standalone acceptance-matrix truth source will be created.",
+  "actual": {
+    "command": "rg -n \"There SHALL NOT be a writable acceptance-matrix|acceptance_topology_check|pre_review_check|Wave 1|Verification and mutation matrix|Human audit checklist\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "exitCode": 0,
+    "stdout": "22:1. `acceptance_topology_check` at PLAN → DEV checks structure and graph totality.\n26:2. `pre_review_check` at DEV → REVIEW checks current executable evidence. It\n90:| ProofStory DEV diagnostics | Check intent artifacts, known refs, and coverage | Adds structural topology diagnostics through `acceptance_topology_check` |\n92:| DEV → REVIEW transition | Does not require the complete proposed proof topology to have current executable evidence | Adds `pre_review_check` before REVIEW begins |\n126:There SHALL NOT be a writable acceptance-matrix truth source.\n422:dispatch inventory is claimed. Wave 1A must build adapters that start from facts\n650:    \"command\": \"lattice pre_review_check --storyId=B-4444\",\n813:`acceptance_topology_check` evaluates the following invariants:\n920:## 7. `acceptance_topology_check` — PLAN → DEV\n1032:## 8. `pre_review_check` — DEV → REVIEW\n1208:lattice acceptance_topology_check --storyId=B-xxxx [--json]\n1209:lattice pre_review_check --storyId=B-xxxx [--json]\n1309:Before naming new topology fields, Wave 1 must inspect the dormant,\n1322:### Wave 1 — Schema and read-only diagnostics\n1335:### Wave 1A — Independently derived coverage basis\n1341:Dependency: Wave 1 schema ownership plus frozen scope/diff and process-fact\n1356:Wave 1A includes building the producer→consumer and handler/dispatch discovery\n1362:Outcome: integrate `acceptance_topology_check` at PLAN → DEV behind\n1391:Outcome: implement `pre_review_check`, current-worktree basis recomputation,\n1438:## 16. Verification and mutation matrix\n1597:## 20. Human audit checklist\n1655:- [ ] `acceptance_topology_check` is structural-only and belongs before DEV.\n1656:- [ ] `pre_review_check` requires current executable evidence before REVIEW.\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-22T02:16:29.468Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "effe5a522878b6c6ce4b89826aaad2621a0b37cc",
+  "materialHash": "95ff01e3ccac07cdebfd779aeaeaf5cc021b2e6df379009ce5e7f183e2325dfc"
+}
