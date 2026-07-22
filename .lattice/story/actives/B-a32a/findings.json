@@ -404,6 +404,21 @@
       "signatureTagSource": "auto",
       "clusterId": "CL-007",
       "resolvedBy": "CL-007@d5f03a9"
+    },
+    {
+      "id": "B-a32a:F-020",
+      "desc": "doc-promise-undelivered: packages/main/src/core/acceptance-discovery-adapters.ts:106-181 builds its reverse-import universe only from signed scope seed files plus already-declared PROCESS_FACT_REGISTRY source refs. A consumer outside Story scope that is not already listed in producerSourceRefs/consumerSourceRefs is never scanned and creates no blind spot; reached entries also no longer fail partial when consumerGate exists but consumerSourceRefs is absent. The generic smoke at proofstory-acceptance-basis-smoke.ts:372-374 calls C2 external but explicitly adds packages/main/src/consumers/c2.ts to scopeRefs, so it does not prove the required outside-scope consumer closure. Removing that scope ref makes C2 invisible while the bounded discovery can remain complete. F-019/Wave 1A's global registered-consumer requirement is therefore still unresolved.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T08:39:34.636Z",
+      "reviewRound": "2026-07-22T08:37:39.733Z",
+      "reviewRunId": "B-a32a:RR-014",
+      "_hash": "a145f9ea639c570f0137dd2af421be7d8bdd801d264727931951f9c5e8246590",
+      "signatureTag": "missing|unknown|promise-undelivered-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
