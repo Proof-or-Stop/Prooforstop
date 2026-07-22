@@ -831,6 +831,37 @@
       },
       "readDiagnostics": [],
       "_hash": "e259433c61911ed59f065f6e7f91a89da4501fdb3daf4bd3ee7ef86826092f71"
+    },
+    {
+      "id": "B-a32a:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS: fresh RR-048 binds the unchanged story-owned material after finding-resolution metadata commits. The current REVIEW-round formal sequence was previously executed exactly once and all five commands passed; no command was rerun. All 25/25 must verification intents have passing evidence, with 0 semantic gaps and 0 waivers. F-020 through F-045 regressions and mutations are covered, including physical source-root containment, parser and resolution controls, bounded inventory resources, structured snapshot seal tampering, redigest attacks, and current physical rederivation. Live finding audit reports no open verified findings. Evidence remains bound to storyFilesHash 637759865b103bd2eecf720eaa4fc06edb7d4954661b55f47bbeefc451044c64.",
+      "createdAt": "2026-07-22T10:42:45.941Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-048",
+      "envelopeId": "d317476e0489d7cdbbbb8b8021543d1473941bd0482f5067d7b120148cf6ab16",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/acceptance-topology.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/scope-contract-plan-scope-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b1b523fc07406c82b8b0eac689b365ba268b087d6720177e13fe58452a885eee"
     }
   ]
 }
