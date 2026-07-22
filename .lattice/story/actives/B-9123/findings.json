@@ -300,6 +300,41 @@
       "resolvedAt": "2026-07-22T19:47:36.975Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-9123:F-015",
+      "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1131-1135 presents the TopologyCriticReceiptV1 contents but omits criticProvenance, implementationProvenance, and signerPublicKey, even though the same document canonical schema at lines 318-337 and packages/main/src/core/types.ts require all three. Update §8.2 field prose to include both provenance records and signer public key so the target-state narrative does not regress the signed receipt contract.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-22T19:49:34.133Z",
+      "reviewRound": "2026-07-22T19:47:15.369Z",
+      "reviewRunId": "B-9123:RR-016",
+      "_hash": "5c2fe2ddeab6dba65ab867223c6789dfdcfcaaf8e62c45eae9ff2c90de8dde73",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9123:F-016",
+      "desc": "packages/main/src/core/topology-critic-receipt.ts:216-264,423-439 still verifies only four actor fields (agentId/sessionId/dispatchId/businessCommitAuthor) against the dispatch event. The signed criticProvenance/approverProvenance also contains storyId, headHash, storyFilesHash, businessCommit, businessCommitAuthorSource, and businessIdentity, but none of those actor fields is compared with the current context/event; hasActorProvenance only checks non-empty shape/source enum. A trusted-key re-signed receipt or approval can therefore tamper any of those nested current-binding fields and remain ok as long as the four compared dimensions match. The smoke top-level criticProvenance mutation only changes sessionId and the new matrices likewise omit these fields. This violates CHK-002 every-field recomputation/verification and F-003 current HEAD/storyFilesHash/business-commit dispatch binding. Compare the entire actor provenance to the matched current dispatch/context, including businessIdentity consistency, and add re-signed mutation cases for every nested critic and approver provenance field.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T19:49:34.389Z",
+      "reviewRound": "2026-07-22T19:47:15.369Z",
+      "reviewRunId": "B-9123:RR-013",
+      "_hash": "fa4d7f96b77b15690d2635e98cb5e3b2e09fb33c17266a1be1b2ca939f66b158",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
