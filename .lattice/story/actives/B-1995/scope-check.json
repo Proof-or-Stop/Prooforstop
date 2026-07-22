@@ -1,0 +1,146 @@
+{
+  "storyId": "B-1995",
+  "checkedAt": "2026-07-22T02:53:26.941Z",
+  "features": [
+    {
+      "feature": "Versioned VerificationPlannedPathDeclarationV1 is nested under existing verificationIntent ownership, validates stable IDs/endpoints/artifact/file/fact refs, and preserves legacy intents",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "milestone M1; checklist CHK-001; plan.md CHK-001; approved decision §§4–5.2, 15 Wave 1"
+    },
+    {
+      "feature": "All plannedPathDeclarations writes are accepted only from the registered verification-intent role during PLAN and remain frozen afterward across every write entrypoint",
+      "covered_by": "CHK-001 covers checklist_add/checklist_update but omits story_create",
+      "status": "gap",
+      "excluded_by": null,
+      "source": "plan.md CHK-001; packages/main/src/cli/command-schemas.ts shared verificationIntentSchema; command-catalog.ts story_create checklist schema; handlers/story-create.ts directly persists c.verificationIntent"
+    },
+    {
+      "feature": "Optional proofstory.acceptance_topology.v1 normalization is reference-only, rejects self-authored semantics/results/authority promotion, and emits deterministic structural diagnostics",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "milestone M2; checklist CHK-002; plan.md CHK-002; approved decision §§5–6, 15 Wave 1"
+    },
+    {
+      "feature": "Legacy ProofStory contracts without topology remain readable as legacy_missing and configured Wave 1 results never claim complete or ready-for-review",
+      "covered_by": "CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "original intent; plan.md delivery boundary/CHK-002/CHK-004; verification intents VI-1995-002-LEGACY-MISSING and VI-1995-004-COMPATIBILITY-MATRIX"
+    },
+    {
+      "feature": "Dedicated lattice acceptance_matrix text/JSON command derives deterministic canonical rows and is visibly observe, read-only, L0, and non-evidentiary",
+      "covered_by": "CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "milestone M3; decision option A; plan.md CHK-003; command/policy/activity/process-fact touchpoints frozen in checklist"
+    },
+    {
+      "feature": "acceptance_matrix rejects write-shaped arguments and leaves Story files, phase, evidence, process events, and git state unchanged",
+      "covered_by": "CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "VI-1995-003-NO-WRITES, VI-1995-003-WRITE-PAYLOAD-REJECTED; plan.md CHK-003/CHK-004"
+    },
+    {
+      "feature": "Focused smoke proves schema round-trip, stable diagnostics, legacy/docs-only compatibility, real CLI output, deterministic ordering, mutation bites, and unchanged lifecycle decisions",
+      "covered_by": "CHK-001, CHK-002, CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "milestone M4; 23 verification intents; plan.md CHK-004; approved decision §16 Wave-1-applicable rows"
+    },
+    {
+      "feature": "CLI documentation, command registration/policy/process-fact L0 classification, focused script wiring, and patch-version synchronization",
+      "covered_by": "CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-003/CHK-004; scope-contract allowed files include docs/CLI.md, package manifests, lattice-brand.ts, process-fact-levels.ts and verifier script"
+    },
+    {
+      "feature": "Dormant authority-contract target/evidence vocabulary is inspected for ownership/name collisions but is not revived as topology truth",
+      "covered_by": "CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding fact 6; plan.md CHK-002; approved decision §14; packages/main/src/core/authority-contracts.ts"
+    },
+    {
+      "feature": "Wave 1A coverage-basis verifier, discovery adapters, signed basis receipts/digests, closure completeness and basis rendering",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit Wave 1 boundary; deferred to Wave 1A and forbidden by CHK-004 NO-GATE-OR-BASIS-SHIP.",
+      "source": "understanding constraints; plan.md delivery boundary/CHK-004; approved decision §15 Wave 1A"
+    },
+    {
+      "feature": "acceptance_topology_check, pre_review_check, PLAN/DEV lifecycle blocking, machine.ts and phase-gates.ts changes",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly deferred to Waves 2–3; Wave 1 must preserve lifecycle transition equivalence.",
+      "source": "scope-contract protected/excluded paths; plan.md CHK-004; approved decision §§7–8, 15"
+    },
+    {
+      "feature": "Writable acceptance matrix or any parallel completion/evidence truth source",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Canonical ownership invariant requires a derived-only renderer and the Story explicitly rejects matrix writes.",
+      "source": "decision option C rejected; plan.md delivery boundary; approved decision §§1,4,11"
+    },
+    {
+      "feature": "Remote PR/release or enforcement rollout",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Execution boundary limits this Story to local Wave 1 implementation and existing TEST/DONE flow.",
+      "source": "story scope boundary/execution boundary; approved decision §§12,15"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "packages/main/src/cli/activity-policy.ts",
+      "packages/main/src/cli/command-catalog.ts",
+      "packages/main/src/cli/command-schemas.ts",
+      "packages/main/src/core/authority-contracts.ts",
+      "packages/main/src/core/command-policy.ts",
+      "packages/main/src/core/process-fact-levels.ts",
+      "packages/main/src/core/process-fact-registry.ts",
+      "packages/main/src/core/proofstory.ts",
+      "packages/main/src/core/types.ts",
+      "packages/main/src/handlers/checklist.ts",
+      "packages/main/src/handlers/proofstory.ts",
+      "packages/main/src/handlers/story-create.ts",
+      "packages/main/src/registry.ts"
+    ],
+    "filesTriagedByName": [
+      "docs/CLI.md",
+      "package.json",
+      "packages/main/package.json",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 13,
+    "covered": 8,
+    "excluded": 4,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e7a205b85adc9fde7b2b6898d57053d54f56f797cc6f34ef0fe8d3fe8e3fa3e9",
+  "openQuestions": [
+    {
+      "id": "OQ-B1995-CANONICAL-SOURCE-REF",
+      "q": "What bounded existing-source namespace must Wave 1 use to decide that an ExistingTopologySourceRefV1.canonicalSourceRef is known, given that handler/dispatch/static discovery adapters are explicitly deferred to Wave 1A?",
+      "evidence": "CHK-002 promises deterministic AT_UNKNOWN_REF for unknown canonical refs, while the approved example uses both command review_run_start and non-command symbol verifyReviewRunPromptEnvelope. PROCESS_FACT_REGISTRY is a flat fact catalog and the decision doc explicitly says it is not a handler/dispatch graph.",
+      "sourcePointers": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:215",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:456",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:467",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:947",
+        "packages/main/src/core/process-fact-registry.ts:1"
+      ]
+    }
+  ]
+}
