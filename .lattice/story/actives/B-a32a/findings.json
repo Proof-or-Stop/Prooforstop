@@ -234,6 +234,21 @@
       "_hash": "0c7be08addc275c943c2fe8e588d97b90db78b14ec7e358629d92a3e67358da5",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-012",
+      "desc": "packages/main/src/core/acceptance-coverage-basis.ts:339-348 enforces topology mapping only for planned: and path:existing: entries. Paths actually emitted by the repaired registry/runtime adapters use path:process-fact: and path:runtime-fact:, so they bypass AT_UNMAPPED_SCOPE_REF entirely; the reverse topology loop also cannot map those encodings. A globally discovered consumer can therefore remain absent from topology/exclusions without making the basis partial, contrary to the required registered-consumer closure invariant.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T07:41:47.077Z",
+      "reviewRound": "2026-07-22T07:36:41.806Z",
+      "reviewRunId": "B-a32a:RR-006",
+      "_hash": "bb7c3c8b6fafe2c0f8e8e9e68b1bb79dd3b110094eba147f2dc92860851686b4",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
