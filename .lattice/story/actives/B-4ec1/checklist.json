@@ -287,7 +287,7 @@
           "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
         ]
       },
-      "userSees": "DEV-to-REVIEW reports the canonical pre-review result and, in enforce mode, requires a fresh independent critic re-attestation before admission."
+      "userSees": "User sees \"Pre-review check: PASS criticReattestation=current\" before enforce-mode DEV-to-REVIEW admission, otherwise a stable blocking code and remediation."
     }
   ]
 }
