@@ -1,146 +1,146 @@
 {
   "storyId": "B-a32a",
-  "checkedAt": "2026-07-22T06:26:30.261Z",
+  "checkedAt": "2026-07-22T06:35:03.223Z",
   "features": [
     {
       "feature": "Verifier-derived basis uses exactly complete/partial/unsupported and only complete can later satisfy closure",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json; execution plan §5/§7/Wave 1A"
+      "source": "understanding.json; plan CHK-001; execution plan Wave 1A"
     },
     {
-      "feature": "Caller, implementer, reviewer, topology prose, or request fields cannot author inventory/exclusions or force complete",
+      "feature": "Caller, implementer, reviewer, topology prose, or request fields cannot author inventory or force complete",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "background.md; decision.json; CHK-001"
+      "source": "background.md; decision.json; verification intents VI-A32A-001"
     },
     {
-      "feature": "Registered required adapter profile emits replayable typed per-adapter records and digests",
+      "feature": "Registered TypeScript/Node adapter profile emits replayable typed per-adapter records and digests",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-002; execution plan §7.1"
+      "source": "plan CHK-002; VI-A32A-002-REGISTERED-UNION-CLOSURE"
     },
     {
-      "feature": "Adapter reconciliation is deterministic union; omission, disagreement, blind spots, and unsupported profiles fail closed",
+      "feature": "Adapter reconciliation is deterministic union; omission, duplication, disagreement, blind spots, and unsupported profiles fail closed",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-002; decision pre-mortem"
+      "source": "CHK-002 verification intents; execution plan §7.1"
     },
     {
-      "feature": "Producer-consumer and handler/dispatch discovery traverses global consumers outside Story scope and binds closureFilesHash",
+      "feature": "Producer-consumer and handler/dispatch traversal includes global consumers outside Story scope and binds closureFilesHash",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "understanding.json; execution plan §5.2/Wave 1A"
+      "source": "understanding facts; VI-A32A-002-REGISTERED-UNION-CLOSURE"
     },
     {
-      "feature": "Verifier-issued durable receipt binds workspace, scope check/contract, topology, storyFilesHash, closureFilesHash, adapter results and verifier identity",
+      "feature": "acceptance_basis_generate is the sole verifier-owned receipt writer and canonical StoryStore is the persistence owner",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-003; decision chosen option A"
+      "source": "plan CHK-003; CHK-003 userSees; core/store.ts scope"
     },
     {
-      "feature": "Stale/tampered/hash-only-rebound basis receipts fail closed under canonical freshness semantics",
+      "feature": "acceptance_basis is a separate read-only renderer/getter and cannot write, rebind, or mint evidence",
+      "covered_by": "CHK-003, CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan CHK-003/CHK-005; VI-A32A-005-READONLY-DIAGNOSTIC-BOUNDARY"
+    },
+    {
+      "feature": "Signed receipt binds workspace, scope check/contract, topology, basis, adapter results, storyFilesHash, closureFilesHash and verifier identity",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-003; proof-admissibility hardening C3-C8"
+      "source": "VI-A32A-003-SIGNED-BOUND-RECEIPT"
     },
     {
-      "feature": "Frozen verificationIntent planned paths are independently derived and reconciled; topology cannot invent or override them",
+      "feature": "Canonical evidence-freshness reader rejects stale/tampered/hash-only rebound receipts without a parallel classifier",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding touchpoints; VI-A32A-003-FRESHNESS-CLASSIFICATION"
+    },
+    {
+      "feature": "Frozen verificationIntent planned paths are independently derived and topology cannot invent or override them",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-004; current Wave 1 acceptance-topology.ts"
+      "source": "CHK-004 verification intents; current Wave 1 acceptance-topology.ts"
     },
     {
-      "feature": "Exclusions require independently eligible decision refs and unexplained planned/actual drift is diagnostic",
+      "feature": "Wave 1A exclusions require a foundational auditable eligible decisionRef while critic identity/approval remains Wave 2A",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-004; execution plan structural rules"
+      "source": "plan CHK-004; VI-A32A-004-ELIGIBLE-EXCLUSION"
     },
     {
-      "feature": "Read-only acceptance_basis diagnostics remain non-caller-writable and legacy compatible",
+      "feature": "Read-only basis diagnostics render legacy-missing, partial, unsupported and complete receipt states deterministically",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-001 userSees; CHK-005"
+      "source": "plan CHK-005; VI-A32A-005-REAL-CLI-TRANSCRIPT"
     },
     {
-      "feature": "Focused positive plus omission/disagreement/stale/tamper mutation coverage proves restored control",
+      "feature": "Focused production CLI/store smoke bites omission, disagreement, stale binding, signature/result tampering and caller forgery with restored controls",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-005; execution plan §16"
+      "source": "VI-A32A-005-MUTATION-CAMPAIGN"
+    },
+    {
+      "feature": "Process-fact levels/registry and contract verifier cover writer, issuer, signed artifact, bindings, and non-lifecycle semantics",
+      "covered_by": "CHK-003, CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-003/CHK-005 files and VI-A32A-005-PROCESS-FACT-CONTRACT"
+    },
+    {
+      "feature": "Implementation scope owns canonical freshness/store/handler/registry surfaces plus both package manifests and lockfiles, and plan.md freezes all five checklist sections",
+      "covered_by": "CHK-001, CHK-002, CHK-003, CHK-004, CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "understanding touchpoints; checklist files; committed plan.md"
     },
     {
       "feature": "Wave 2 acceptance_topology_check and PLAN-to-DEV lifecycle consumption",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Separate Wave 2 Story; B-a32a constraint forbids PLAN lifecycle enforcement",
-      "source": "understanding.json constraints; execution plan Wave 2"
+      "excluded_by": "Separate Wave 2 Story; B-a32a forbids PLAN lifecycle enforcement",
+      "source": "understanding constraints; execution plan Wave 2"
     },
     {
-      "feature": "Wave 2A independent topology critic, role eligibility and exclusion-approval receipt",
+      "feature": "Wave 2A independent topology critic, eligible-role policy and exclusion-approval receipt",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Separate Wave 2A Story and unresolved human role-policy decision",
-      "source": "execution plan Wave 2A/Open Decision 10"
+      "excluded_by": "Separate Wave 2A Story; Wave 1A only validates foundational decisionRef",
+      "source": "plan Scope/CHK-004; execution plan Wave 2A"
     },
     {
-      "feature": "Wave 3 pre_review_check, executable evidence, current-diff basis and planned-to-actual gate",
+      "feature": "Wave 3 pre_review_check, executable evidence, current-diff basis and planned-to-actual lifecycle gate",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Separate Wave 3 Story; B-a32a explicitly excludes DEV-to-REVIEW enforcement",
-      "source": "understanding.json; execution plan Wave 3"
+      "excluded_by": "Separate Wave 3 Story; B-a32a forbids DEV-to-REVIEW enforcement",
+      "source": "understanding constraints; execution plan Wave 3"
     },
     {
       "feature": "Wave 3A explicit per-Story/policy applicability selection",
       "covered_by": null,
       "status": "excluded",
       "excluded_by": "Separate optional Wave 3A capability",
-      "source": "execution plan Wave 3A"
+      "source": "plan Scope; execution plan Wave 3A"
     },
     {
       "feature": "Wave 4 prompt integration, warn/enforce telemetry and measured rollout",
       "covered_by": null,
       "status": "excluded",
       "excluded_by": "Separate Wave 4 Story after Waves 1-3/2A",
-      "source": "execution plan Wave 4"
-    },
-    {
-      "feature": "Canonical freshness implementation touchpoint",
-      "covered_by": "CHK-003",
-      "status": "drift",
-      "excluded_by": null,
-      "source": "understanding.json names nonexistent packages/main/src/core/freshness.ts; repository owner is packages/main/src/core/evidence-freshness.ts"
-    },
-    {
-      "feature": "Durable basis-receipt persistence owner and read/write surface",
-      "covered_by": "CHK-003",
-      "status": "gap",
-      "excluded_by": null,
-      "source": "decision chooses durable artifact, but checklist declares neither core/store.ts nor core/evidence/artifact-store.ts and does not state which canonical store owns it"
-    },
-    {
-      "feature": "Process-fact level registration and complete manifest/lockfile ownership",
-      "covered_by": "CHK-005",
-      "status": "gap",
-      "excluded_by": null,
-      "source": "understanding requires process-fact-levels.ts; checklist omits it and both package-lock files while declaring package manifests"
-    },
-    {
-      "feature": "Canonical PLAN artifact available to freeze the implementation scope",
-      "covered_by": null,
-      "status": "gap",
-      "excluded_by": null,
-      "source": "canonical dispatch requires .lattice/story/actives/B-a32a/plan.md, but the artifact is absent"
+      "source": "plan Scope; execution plan Wave 4"
     }
   ],
   "readManifest": {
@@ -148,6 +148,7 @@
       ".lattice/story/actives/B-a32a/background.md",
       ".lattice/story/actives/B-a32a/checklist.json",
       ".lattice/story/actives/B-a32a/decision.json",
+      ".lattice/story/actives/B-a32a/plan.md",
       ".lattice/story/actives/B-a32a/understanding.json",
       "docs/CLI.md",
       "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
@@ -282,7 +283,6 @@
       "packages/main/src/cli/command-schemas.ts",
       "packages/main/src/core/command-policy.ts",
       "packages/main/src/core/evidence-freshness.ts",
-      "packages/main/src/core/evidence/artifact-store.ts",
       "packages/main/src/core/process-fact-levels.ts",
       "packages/main/src/core/process-fact-registry.ts",
       "packages/main/src/core/store.ts",
@@ -295,33 +295,13 @@
   },
   "summary": {
     "total": 20,
-    "covered": 11,
+    "covered": 15,
     "excluded": 5,
-    "gaps": 3,
+    "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
   "reviewRound": "",
-  "_hash": "e332dae80cf55298f0e2b04657cb473f6ba25fcab7afa890beea308dcf7ae2f9",
-  "openQuestions": [
-    {
-      "id": "OQ-BASIS-STORE",
-      "q": "Which canonical persistence owner must hold the durable signed basis receipt: StoryStore story metadata or the immutable evidence artifact store?",
-      "evidence": "Decision A requires a durable signed artifact, while current checklist declares no storage owner; choosing later changes file scope and admissibility semantics.",
-      "sourcePointers": [
-        ".lattice/story/actives/B-a32a/decision.json",
-        "packages/main/src/core/store.ts",
-        "packages/main/src/core/evidence/artifact-store.ts"
-      ]
-    },
-    {
-      "id": "OQ-FRESHNESS-PATH",
-      "q": "Should CHK-003 replace the nonexistent core/freshness.ts touchpoint with core/evidence-freshness.ts and explicitly include it in files.modify?",
-      "evidence": "Repository search found canonical storyFilesHash freshness implementation only in packages/main/src/core/evidence-freshness.ts.",
-      "sourcePointers": [
-        ".lattice/story/actives/B-a32a/understanding.json",
-        "packages/main/src/core/evidence-freshness.ts"
-      ]
-    }
-  ]
+  "_hash": "4dee8f172457991f52628778e9934f7593942147d2779bbda813fff477d62e5e",
+  "openQuestions": []
 }

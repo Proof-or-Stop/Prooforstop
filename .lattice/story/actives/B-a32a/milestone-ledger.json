@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-a32a",
+  "state": "candidate",
+  "ledgerHash": "sha256:c81de2c71c05df6bd2566f137ecae85052f3f95cec87221eed1e129abb3a7215",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-W1A-BASIS",
+      "claim": "Canonical verifier-derived coverage basis has bounded complete, partial, or unsupported semantics and no caller-writable completeness.",
+      "doneMeans": "Production basis derivation deterministically classifies supported, partial and unsupported inputs and caller-forgery/optimism mutations bite.",
+      "requiredEvidence": [
+        "logic_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-W1A-ADAPTERS",
+      "claim": "Registered discovery adapters produce deterministic replayable union reconciliation.",
+      "doneMeans": "Every required adapter result is digest-bound; omission, duplicate, disagreement, aggregate tamper and closure omission fail closed.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-W1A-RECEIPT",
+      "claim": "The sole writer issues a signed basis receipt bound to workspace, scope, topology, Story and closure identities.",
+      "doneMeans": "acceptance_basis_generate atomically writes a verifiable receipt; acceptance_basis is read-only; stale, forged, rebound or tampered receipts are rejected.",
+      "requiredEvidence": [
+        "integration_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-W1A-RECONCILIATION",
+      "claim": "Frozen planned declarations and foundational auditable exclusion decisionRefs reconcile against independently discovered paths.",
+      "doneMeans": "New planned endpoints resolve through frozen files; invented/drifted topology paths and malformed, stale, unrelated or ineligible decision kinds fail with stable diagnostics.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:edge:1",
+        "CHK-004:adversarial:0",
+        "CHK-004:adversarial:1"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-W1A-DIAGNOSTICS",
+      "claim": "Read-only basis diagnostics and focused adversarial proof cover the production command/store chain.",
+      "doneMeans": "Real CLI text/JSON is deterministic and non-mutating; focused smoke and process-fact contract bite omission, disagreement, stale, tamper, unsupported and caller-forgery mutations.",
+      "requiredEvidence": [
+        "manual_transcript",
+        "logic_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:edge:1",
+        "CHK-005:adversarial:0",
+        "CHK-005:adversarial:1"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-22T06:34:44.775Z",
+  "updatedAt": "2026-07-22T06:34:44.775Z"
+}
