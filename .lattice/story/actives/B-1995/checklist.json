@@ -64,7 +64,57 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-1995-002-VALID-REFERENCE-GRAPH",
+            "desc": "A proofstory.acceptance_topology.v1 binding that references existing canonical sources and frozen planned declaration and endpoint IDs normalizes into a reference-only graph; every producer has a consumer, every consumer has a producer, canonical source IDs remain visible, and observe-only diagnostics report the structurally valid result without treating it as evidence.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-1995-002-LEGACY-MISSING",
+            "desc": "A legacy ProofStory acceptance binding with no verificationTopology remains readable, normalizes to topologyState legacy_missing, and receives only an observe-mode diagnostic rather than an exception or implicit full-proof status.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-002-STABLE-INVALID-REFS",
+            "desc": "Unknown declaration or endpoint refs, unknown canonical refs, duplicate topology-local IDs, orphan producers and orphan consumers yield deterministic ordered diagnostics with stable codes such as AT_UNKNOWN_REF, AT_DUPLICATE_ID, AT_ORPHAN_PRODUCER and AT_ORPHAN_CONSUMER.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-1995-002-SELF-AUTHORSHIP-MUTATION",
+            "desc": "Delete the verificationIntent-owned planned declaration while leaving topology IDs and an invented producer-to-consumer relation in place: normalization must not accept topology self-authorship and must report AT_PLANNED_PATH_DECLARATION_MISSING; restoring the declaration restores the valid structural result.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-002-SEMANTIC-OVERRIDE-MUTATION",
+            "desc": "Keep a valid declaration but mutate topology to restate or override its endpoint role, expected file, symbol, relation or output fact: the reference-only verifier rejects the override with AT_PLANNED_PATH_DECLARATION_DRIFT or an equivalently stable structural code and never trusts copied semantics.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-002-NO-WAVE1A-PROMOTION",
+            "desc": "Caller-authored completeness, coverage-basis, authority, observed result or pass fields cannot promote a Wave 1 topology diagnostic into gate evidence; inline result or authority promotion attempts are rejected or ignored with explicit deterministic diagnostics.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
