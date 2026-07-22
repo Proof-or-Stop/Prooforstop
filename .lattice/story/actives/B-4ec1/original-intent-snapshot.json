@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-4ec1",
+  "sourceText": "Strictly continue Story 6 until all bounded waves are implemented and DONE; eliminate repeated REVIEW rounds by mechanically validating the final acceptance topology and executable evidence before REVIEW.",
+  "normalizedOutcome": "Before any reviewer round, the user can run pre_review_check and see a deterministic PASS only when the current worktree reconciles planned-to-actual paths and has fresh admissible executable, mutation and transcript proof; an omitted basis-backed topology path produces AT_UNMAPPED_SCOPE_REF and blocks DEV-to-REVIEW in enforce mode.",
+  "acceptanceClaim": "The production pre_review_check and DEV-to-REVIEW consumer share a signed current verifier result, pass the real chain, reject omission/stale/tamper/weak-authority mutations, restore cleanly, and add no Wave 3A or Wave 4 behavior.",
+  "keyRequirementIds": [
+    "WAVE3-EXECUTABLE-PROOF",
+    "WAVE3-LIFECYCLE-INTEGRATION",
+    "WAVE3-PLANNED-ACTUAL",
+    "WAVE3-PRE-REVIEW-ARTIFACT"
+  ],
+  "requestHash": "sha256:074797dc28d5cab2b348c301e323e67a240fd95a575309835af191a56c381a24",
+  "createdAt": "2026-07-22T22:33:32.206Z",
+  "updatedAt": "2026-07-22T22:33:32.206Z"
+}

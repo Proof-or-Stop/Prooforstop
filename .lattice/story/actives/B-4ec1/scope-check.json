@@ -1,0 +1,160 @@
+{
+  "storyId": "B-4ec1",
+  "checkedAt": "2026-07-22T22:35:25.838Z",
+  "features": [
+    {
+      "feature": "Canonical verifier-owned signed/hash-bound pre_review_check artifact and deterministic read-only verifier results",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#CHK-001"
+    },
+    {
+      "feature": "Artifact binds story, PLAN/pre-review basis, topology, scope, story/closure hashes, executable refs, issuance and signature without caller-written verdicts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#CHK-001"
+    },
+    {
+      "feature": "Current-worktree phaseBasis=pre_review recomputation linked through priorPlanBasisDigest",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#CHK-002"
+    },
+    {
+      "feature": "Every planned path reconciles to actual discovery as exact, expanded, or independently approved replaced",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#CHK-002"
+    },
+    {
+      "feature": "Missing, partial, unsupported, stale, omitted, duplicate, or tampered adapter/basis/reconciliation inputs fail closed",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/checklist.json#CHK-002"
+    },
+    {
+      "feature": "Topology-only omission mutation retains the independently derived basis path and fails AT_UNMAPPED_SCOPE_REF",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#CHK-002"
+    },
+    {
+      "feature": "Positive evidence exercises the real producer-to-consumer route and every adverse mutation bites for the intended semantic reason",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#CHK-003"
+    },
+    {
+      "feature": "Clean control passes after exact restoration and transcript evidence is claim/event related",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#CHK-003"
+    },
+    {
+      "feature": "Authority and freshness are mechanically derived/admissible; caller cannot supply authority, relation, inventory, freshness or PASS",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#CHK-003"
+    },
+    {
+      "feature": "DEV-to-REVIEW calls the shared evaluator before actor.send; observe/warn diagnose and enforce blocks",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#CHK-004"
+    },
+    {
+      "feature": "Legacy/docs-only compatibility, rollback, process-fact registration, CLI docs, production smoke, restoration and no residue",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#CHK-004"
+    },
+    {
+      "feature": "Independent topology critic re-attests the recomputed DEV/pre-review basis before enforced REVIEW admission",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#8.2-independent-topology-critic"
+    },
+    {
+      "feature": "Wave 3A selective per-Story/per-policy applicability resolver",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly separate optional Wave 3A; current story retains the flat project mode and must add no selective resolver.",
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#Wave-3A"
+    },
+    {
+      "feature": "Wave 4 prompt integration, telemetry thresholds and measured rollout/enforcement activation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly separate Wave 4; this story may implement flat-mode semantics but cannot claim measured rollout or activation.",
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#Wave-4"
+    },
+    {
+      "feature": "No second writable acceptance matrix or caller-owned acceptance/coverage truth source",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#4-canonical-ownership"
+    },
+    {
+      "feature": "High-risk implementation verification uses four independent reviewer lanes and full 3x2 Codex CLI plus Claude CLI quorum",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#Verification-order"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-4ec1/background.md",
+      ".lattice/story/actives/B-4ec1/checklist.json",
+      ".lattice/story/actives/B-4ec1/decision.json",
+      ".lattice/story/actives/B-4ec1/milestone-ledger.json",
+      ".lattice/story/actives/B-4ec1/original-intent-snapshot.json",
+      ".lattice/story/actives/B-4ec1/plan.md",
+      ".lattice/story/actives/B-4ec1/understanding.json",
+      "AGENTS.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 16,
+    "covered": 13,
+    "excluded": 2,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "672097ca01c4c64fb88e2a57d79b8e4e6de5d560e9b64d3125cc0382d76d1c5c",
+  "openQuestions": [
+    {
+      "id": "OQ-B4EC1-001",
+      "q": "Does Wave 3 own lifecycle consumption of a fresh independent topology-critic re-attestation bound to the recomputed pre-review basis, or is that consumption intentionally deferred to Wave 4?",
+      "evidence": "Section 8.2 says enforced high-assurance paths consume critic re-attestation before REVIEW after phase-appropriate Wave 3/Wave 4 gate work, and says binding pre-REVIEW consumption begins only in later Wave 3/Wave 4 work. B-4ec1 implements enforce behavior but CHK-001..004 and M1..M4 do not explicitly require or exclude that re-attestation.",
+      "sourcePointers": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1125",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1391",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1422",
+        ".lattice/story/actives/B-4ec1/checklist.json"
+      ]
+    }
+  ]
+}
