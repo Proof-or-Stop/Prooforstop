@@ -2,20 +2,20 @@
   "storyId": "B-9123",
   "expected": "Topology critic eligibility: PASS — role=lattice-review-topology-critic, independentFromImplementer=true, exclusionApprover=lattice-review-scope-plan.",
   "actual": {
-    "command": "node bin/lattice.js topology_critic_receipt_check '{\"storyId\":\"B-9123\",\"json\":true}'",
-    "exitCode": 0,
-    "stdout": "{\n  \"storyId\": \"B-9123\",\n  \"verification\": {\n    \"ok\": false,\n    \"code\": \"AT_TOPOLOGY_CRITIC_CONTEXT_INVALID\",\n    \"diagnostics\": [\n      \"topology critic basis verification failed: AT_SCOPE_BINDING_MISSING: basis semantic discovery digest mismatch; topology digest mismatch; scope-check digest mismatch; scope-contract digest mismatch; freshness mismatch: evidence materialHash does not match current entity file state\"\n    ]\n  }\n}\n",
-    "stderr": "[0.1s] running topology_critic_receipt_check...\n[1.1s] topology_critic_receipt_check done\n"
+    "command": "node bin/lattice.js validate --story=B-9123",
+    "exitCode": null,
+    "stdout": "",
+    "stderr": "[0.2s] running validate...\n[9.6s] routine validation reuse refused: refusalReasons=validation-identity-changed priorIdentityDigest=74419e1d9218f118fc3f96476750fb909d377d5c104c32ec41683f4b9e293abc currentIdentityDigest=c6f35d4b14bdd17b9109b8585d3847d7380d60f1d5264a8e9c4da5dcdbc2bd78\n[9.6s] running 46 configured validate.command(s)\n[9.7s] validate progress: command 1/46 started configured validate.commands[0]: npm --prefix packages/main run build timeoutMs=290000\n[33.5s] validate progress: command 1/46 ended configured validate.commands[0]: code=0 elapsedMs=23890\n[33.6s] validate progress: command 2/46 started configured validate.commands[1]: node packages/main/tests/milestone-status.test.mjs timeoutMs=270000\n\n[capture error] command exceeded 60000ms timeout; process group terminated"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-22T21:05:08.155Z",
+  "capturedAtIso": "2026-07-22T21:17:31.639Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "bd190f9956e3147f93032a5b5c209deb2f376b0f",
+  "headHash": "a2236fb0799727f9fd6cdb7c407bb2f0749e8061",
   "materialHash": "2a29d3e8474bce4b82d95bc169cd606621dc840a69c9e7cf4a01d9d6cfcd70e7"
 }
