@@ -725,7 +725,7 @@
       "desc": "The TypeChecker comparison is exact only after a binding has been classified, but classification/call extraction still has silent false edges. requireSpecifier at acceptance-discovery-adapters.ts:419-445 accepts any identifier text named require without checking its symbol, so a locally declared `function require(){...}` plus `const { emit } = require(./producer.js); emit()` is falsely treated as a CommonJS producer import; a focused TypeChecker probe confirms that shadowed require has its own local symbol. Conversely the call visitor at lines 447-470 recognizes only bare Identifier, PropertyAccess, and string ElementAccess callees, so real direct calls through valid transparent TS wrappers such as `(consume)()`, `consume!()`, and `(consume as Fn)()` are silently omitted; the AST probe reports ParenthesizedExpression/NonNullExpression rather than Identifier. Optional bare calls work, but these variants are untested. Validate require against the intended unshadowed CommonJS binding or fail partial, recursively unwrap semantically transparent call expressions before symbol equality, and add false-require plus wrapped-call mutations.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T09:38:18.222Z",
@@ -737,7 +737,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|typechecker-comparison-exact",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 16f71aa5be and retained through current HEAD: inline require/static dynamic import and wrapper bindings are exact, all source ingress shares pre-allocation O_NOFOLLOW budgets, module paths are canonical, and directory mutations are detected. Current threat-table mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:32.588Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-035",
