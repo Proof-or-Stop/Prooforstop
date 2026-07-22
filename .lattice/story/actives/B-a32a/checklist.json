@@ -402,55 +402,55 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Real CLI generate path writes one Ed25519-signed receipt bound to basis, topology, scope, workspace, story and closure identities; read verifier passes.",
-          "headHash": "b08db5ed7f721514aacc36775b0f3e04fc3e7009",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:46.159Z"
+          "note": "Current-HEAD production CLI issues and verifies the registered-key signed bound receipt.",
+          "headHash": "9aad97efdc7753d1c5124109ea197cf9b8f10848",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:06.014Z"
         },
         {
           "intentRef": "VI-A32A-003-FRESHNESS-CLASSIFICATION",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Canonical freshness reader accepts metadata-only head drift and rejects committed closure/story material drift without rebinding.",
-          "headHash": "b08db5ed7f721514aacc36775b0f3e04fc3e7009",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:46.159Z"
+          "note": "Current-HEAD canonical freshness and closure drift controls pass.",
+          "headHash": "9aad97efdc7753d1c5124109ea197cf9b8f10848",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:06.014Z"
         },
         {
           "intentRef": "VI-A32A-003-LEGACY-AND-ATOMICITY",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Legacy missing basis reports explicitly; rejected write-shaped requests leave story, receipt, events, phase and git state unchanged.",
-          "headHash": "b08db5ed7f721514aacc36775b0f3e04fc3e7009",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:46.159Z"
+          "note": "Current-HEAD legacy and atomic rejection controls pass.",
+          "headHash": "9aad97efdc7753d1c5124109ea197cf9b8f10848",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:06.014Z"
         },
         {
           "intentRef": "VI-A32A-003-CALLER-ISSUER-FORGERY",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Real production CLI transcript shows caller-selected complete, inventory and issuer fields rejected before persistence.",
-          "headHash": "b08db5ed7f721514aacc36775b0f3e04fc3e7009",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:46.159Z"
+          "note": "Current-HEAD real CLI and self-signed attacker-key issuer forgery controls reject atomically.",
+          "headHash": "9aad97efdc7753d1c5124109ea197cf9b8f10848",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:06.014Z"
         },
         {
           "intentRef": "VI-A32A-003-TAMPER-AND-HASH-REBIND",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Signature, basis, story, workspace, scope and closure binding mutations each fail; restored signed receipt passes after every bite.",
-          "headHash": "b08db5ed7f721514aacc36775b0f3e04fc3e7009",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:46.159Z"
+          "note": "Current-HEAD receipt tamper and hash-rebind campaign bites with restored controls.",
+          "headHash": "9aad97efdc7753d1c5124109ea197cf9b8f10848",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:06.014Z"
         }
       ]
     },
