@@ -24,7 +24,7 @@
       "desc": "packages/main/src/core/acceptance-topology.ts:269 planned_endpoint_role_not_validated: planned source resolution checks only that endpointRef exists, so a topology producer may reference the declaration consumer endpoint while its consumer references the producer endpoint and receive zero diagnostics/result=inconclusive_basis_unverified. This violates verificationIntent ownership of endpoint roles and the promised producer/consumer role-mismatch diagnostic. Validate expected endpoint role at producerRefs/consumerRefs and add a swap mutation bite.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T03:19:39.117Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-1995:RR-001",
       "_hash": "34dc1af4af9c08b02d3cec51a24b2d205d121f4d078f29889f98e519d8ee7306",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 92d375b70a: planned source refs are validated against graph position, so producer/consumer role swaps emit AT_PLANNED_PATH_DECLARATION_DRIFT; mutation control passes.",
+      "resolvedAt": "2026-07-22T03:40:51.182Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1995:F-003",
