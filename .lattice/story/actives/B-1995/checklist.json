@@ -286,7 +286,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#derived-acceptance-matrix"
       ],
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-07-22T03:15:29.170Z",
       "endTime": "2026-07-22T03:54:09.966Z",
       "verificationIntent": {
@@ -640,6 +640,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Typed provenance false-positive narrowed and verified at 35de890d50."
+    },
+    {
+      "timestamp": "2026-07-22T04:02:37.750Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "REVIEW round 3 F-013 requires actual Proofbound subcommand parsing instead of token-presence classification.",
+      "agent": "lattice-implementer"
     }
   ]
 }
