@@ -67,6 +67,40 @@
         "scanEscalationReason": null
       },
       "_hash": "4900bea7e70ee33877a81910db69f4f468d5cc67f807c07be9cfcaa2dd730ab2"
+    },
+    {
+      "id": "B-98b0:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review at HEAD 22f9c71 found no blocker. F-001 is fixed: status is derived solely from structural/basis semantics, while only blocking depends on acceptanceTopologyGateMode; missing/partial/unsupported remain inconclusive across modes. The new independent default-observe config resolver, caller-forgery CLI schema, shared CLI/lifecycle evaluator, read-only policy, and L4 process-fact registrations are coherent. Static review found no dead code, unsafe cast in production paths, swallowed error, or duplicate evaluator. verify-process-fact-contract, packages/main build, and git diff --check pass; focused smoke was intentionally not duplicated because the test-coverage lane owns its single execution.",
+      "createdAt": "2026-07-22T16:57:44.770Z",
+      "reviewRound": "2026-07-22T16:55:09.966Z",
+      "reviewRunId": "B-98b0:RR-005",
+      "envelopeId": "c515d3b787266141405f0b4088636bfaf173af885f7a75b4840cbe1bcd1b32bc",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8f9b30bff14e3f5bb22463f9604d8fac52d9ebad4b3b6747fd9a44bb810388f5"
     }
   ]
 }
