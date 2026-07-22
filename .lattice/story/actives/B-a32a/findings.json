@@ -352,7 +352,7 @@
       "desc": "CHK-005 evidence remains incomplete after F-010 repair. VI-A32A-005-LEGACY-UNSUPPORTED-DETERMINISM requires real-CLI legacy-missing, partial, and unsupported cases plus shuffled-equivalent adapter inputs; the smoke has real legacy/partial paths but unsupported only at the pure reconciliation layer and no shuffled adapter-order replay. VI-A32A-005-READONLY-DIAGNOSTIC-BOUNDARY requires rendered output to be rejected when replayed as gate evidence/authority, not merely labeled non-evidentiary. VI-A32A-005-PROCESS-FACT-CONTRACT requires omission/one-sided prompt, handler, registry, or contract registration mutations, while lines 475-487 exercise only drop-acceptance-basis-registry. Three must evidence rows therefore remain incomplete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T07:42:42.828Z",
@@ -365,7 +365,11 @@
       ],
       "signatureTag": "missing|ts|evidence-remains-incomplete",
       "signatureTagSource": "auto",
-      "clusterId": "CL-006"
+      "clusterId": "CL-006",
+      "resolvedReason": "Fixed by f4de47a239, 9fb0dd5f24 and b926319a11: current-HEAD production CLI covers legacy missing/partial/unsupported and shuffled deterministic replay; diagnostic output is rejected as authority; prompt/handler/registry/contract one-sided mutations each fail then restored contract passes. Prompt side is the lattice-implementer sole-writer/read-only/non-authority boundary; writer command/artifact are L3 non-gate, explicitly preventing Wave2 enforcement.",
+      "resolvedAt": "2026-07-22T08:20:46.581Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
