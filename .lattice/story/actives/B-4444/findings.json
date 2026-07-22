@@ -59,6 +59,24 @@
       "_hash": "7ae2b7a3724bf6bdc2dc0b9c65b0066f21a80887ec8918b93823078e491f38b8",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4444:F-004",
+      "desc": "quality-schema-consistency: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:408 says verificationTopology.coverageBasisDigest is sha256:coverage-basis-digest, while the only referenced basis at lines 488-601 is phaseBasis=pre_review with that same basisDigest; this contradicts lines 869-871, which require topology to remain bound to the PLAN basis and the pre-REVIEW basis to carry a distinct freshly signed digest linked by priorPlanBasisDigest. Split the example into a topology-bound PLAN basis plus a separate pre-REVIEW basis (or change the reference/digests) so implementers cannot collapse the two-phase trust boundary.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T01:44:41.260Z",
+      "reviewRound": "2026-07-22T01:42:32.404Z",
+      "reviewRunId": "B-4444:RR-007",
+      "_hash": "4466b8636a619322984c84ead257234db2750485599f873c12cc51cea47853e9",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "edge|md|quality-schema-consistency",
+      "signatureTagSource": "auto"
     }
   ]
 }
