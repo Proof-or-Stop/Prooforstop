@@ -67,11 +67,11 @@
           "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "command": "rg -n \"Canonical ownership|There SHALL NOT be a writable acceptance-matrix|legacy_missing|Documentation-only story|PROPOSED — AUDIT REQUIRED — NOT IMPLEMENTED|Authority\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "result": "pass",
-          "note": "Canonical ownership table separates milestone, acceptance binding, intent, evidence, REVIEW and lifecycle responsibilities.",
-          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
-          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
-          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
-          "timestamp": "2026-07-22T01:29:16.021Z"
+          "note": "Canonical ownership remains separated.",
+          "headHash": "b23fe0198d5575f84673d5b1c331912855c1b38b",
+          "materialHash": "30e13d31f594bc7284fa3e0c1e24719839e030533d6fcef342713c1d6794354b",
+          "storyFilesHash": "49c83a251b8e753c17fc55bef14f69fb8d9ad6b92bab52bd808b344180f8b296",
+          "timestamp": "2026-07-22T01:40:49.651Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -80,11 +80,11 @@
           "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "command": "rg -n \"Canonical ownership|There SHALL NOT be a writable acceptance-matrix|legacy_missing|Documentation-only story|PROPOSED — AUDIT REQUIRED — NOT IMPLEMENTED|Authority\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "result": "pass",
-          "note": "The matrix is explicitly a derived read-only projection and cannot be independently authored.",
-          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
-          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
-          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
-          "timestamp": "2026-07-22T01:29:16.397Z"
+          "note": "Matrix remains derived and read-only.",
+          "headHash": "b23fe0198d5575f84673d5b1c331912855c1b38b",
+          "materialHash": "30e13d31f594bc7284fa3e0c1e24719839e030533d6fcef342713c1d6794354b",
+          "storyFilesHash": "49c83a251b8e753c17fc55bef14f69fb8d9ad6b92bab52bd808b344180f8b296",
+          "timestamp": "2026-07-22T01:40:49.970Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -93,11 +93,11 @@
           "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "command": "rg -n \"Canonical ownership|There SHALL NOT be a writable acceptance-matrix|legacy_missing|Documentation-only story|PROPOSED — AUDIT REQUIRED — NOT IMPLEMENTED|Authority\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "result": "pass",
-          "note": "Ordinary, milestone-triggered and legacy applicability boundaries are explicit.",
-          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
-          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
-          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
-          "timestamp": "2026-07-22T01:29:16.776Z"
+          "note": "Applicability boundaries remain explicit.",
+          "headHash": "b23fe0198d5575f84673d5b1c331912855c1b38b",
+          "materialHash": "30e13d31f594bc7284fa3e0c1e24719839e030533d6fcef342713c1d6794354b",
+          "storyFilesHash": "49c83a251b8e753c17fc55bef14f69fb8d9ad6b92bab52bd808b344180f8b296",
+          "timestamp": "2026-07-22T01:40:50.293Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -106,11 +106,11 @@
           "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "command": "rg -n \"Canonical ownership|There SHALL NOT be a writable acceptance-matrix|legacy_missing|Documentation-only story|PROPOSED — AUDIT REQUIRED — NOT IMPLEMENTED|Authority\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "result": "pass",
-          "note": "The plan is labeled proposed and not implemented, with docs-only and runtime boundaries separated.",
-          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
-          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
-          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
-          "timestamp": "2026-07-22T01:29:17.098Z"
+          "note": "Proposed versus implemented boundary remains explicit.",
+          "headHash": "b23fe0198d5575f84673d5b1c331912855c1b38b",
+          "materialHash": "30e13d31f594bc7284fa3e0c1e24719839e030533d6fcef342713c1d6794354b",
+          "storyFilesHash": "49c83a251b8e753c17fc55bef14f69fb8d9ad6b92bab52bd808b344180f8b296",
+          "timestamp": "2026-07-22T01:40:50.601Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -119,11 +119,11 @@
           "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "command": "rg -n \"Canonical ownership|There SHALL NOT be a writable acceptance-matrix|legacy_missing|Documentation-only story|PROPOSED — AUDIT REQUIRED — NOT IMPLEMENTED|Authority\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "result": "pass",
-          "note": "Search confirms no writable acceptance-matrix truth source is proposed.",
-          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
-          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
-          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
-          "timestamp": "2026-07-22T01:29:17.423Z"
+          "note": "No writable matrix truth source is introduced.",
+          "headHash": "b23fe0198d5575f84673d5b1c331912855c1b38b",
+          "materialHash": "30e13d31f594bc7284fa3e0c1e24719839e030533d6fcef342713c1d6794354b",
+          "storyFilesHash": "49c83a251b8e753c17fc55bef14f69fb8d9ad6b92bab52bd808b344180f8b296",
+          "timestamp": "2026-07-22T01:40:50.930Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -132,11 +132,11 @@
           "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "command": "rg -n \"Canonical ownership|There SHALL NOT be a writable acceptance-matrix|legacy_missing|Documentation-only story|PROPOSED — AUDIT REQUIRED — NOT IMPLEMENTED|Authority\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "result": "pass",
-          "note": "Authority and completion language prevents planning or local evidence from satisfying REVIEW, DONE or production proof.",
-          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
-          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
-          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
-          "timestamp": "2026-07-22T01:29:17.736Z"
+          "note": "Authority and completion boundaries remain non-promotable.",
+          "headHash": "b23fe0198d5575f84673d5b1c331912855c1b38b",
+          "materialHash": "30e13d31f594bc7284fa3e0c1e24719839e030533d6fcef342713c1d6794354b",
+          "storyFilesHash": "49c83a251b8e753c17fc55bef14f69fb8d9ad6b92bab52bd808b344180f8b296",
+          "timestamp": "2026-07-22T01:40:51.286Z"
         }
       ]
     },
