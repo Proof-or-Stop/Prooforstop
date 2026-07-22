@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-a32a",
+  "phase": "TEST",
+  "generatedAt": "2026-07-22T15:44:33.490Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "872e8dc982445998b793ee7b209019a64572b387d480176371e7920d4074d5c8",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:f614d40b714985ef565521fb11005d4dcd34006738635fda37f2fbf476290a76"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "18963d7bf5cde5b7e1fe29545fdac9730f4b7ae8",
+    "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+    "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Canonical verifier-derived coverage basis has bounded complete, partial, or unsupported semantics and no caller-writable completeness.",
+      "acceptance": "Production basis derivation deterministically classifies supported, partial and unsupported inputs and caller-forgery/optimism mutations bite.",
+      "evidence": [
+        "VI-A32A-001-VERIFIER-DERIVATION [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-001-VERIFIER-DERIVATION, including registered runtime-fact discovery.",
+        "VI-A32A-001-BOUNDED-NONCOMPLETE [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-001-BOUNDED-NONCOMPLETE, including registered runtime-fact discovery.",
+        "VI-A32A-001-CANONICAL-TOTALITY [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-001-CANONICAL-TOTALITY, including registered runtime-fact discovery.",
+        "VI-A32A-001-CALLER-FORGERY [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-001-CALLER-FORGERY, including registered runtime-fact discovery.",
+        "VI-A32A-001-OPTIMISM-MUTATION [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-001-OPTIMISM-MUTATION, including registered runtime-fact discovery."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Registered discovery adapters produce deterministic replayable union reconciliation.",
+      "acceptance": "Every required adapter result is digest-bound; omission, duplicate, disagreement, aggregate tamper and closure omission fail closed.",
+      "evidence": [
+        "VI-A32A-002-REGISTERED-UNION-CLOSURE [pass/integration_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-002-REGISTERED-UNION-CLOSURE, including registered runtime-fact discovery.",
+        "VI-A32A-002-TYPED-ASYMMETRY [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-002-TYPED-ASYMMETRY, including registered runtime-fact discovery.",
+        "VI-A32A-002-PROFILE-TOTALITY [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-002-PROFILE-TOTALITY, including registered runtime-fact discovery.",
+        "VI-A32A-002-OMISSION-AND-AGGREGATE-TAMPER [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-002-OMISSION-AND-AGGREGATE-TAMPER, including registered runtime-fact discovery.",
+        "VI-A32A-002-RESULT-AND-CLOSURE-TAMPER [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-002-RESULT-AND-CLOSURE-TAMPER, including registered runtime-fact discovery."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "The sole writer issues a signed basis receipt bound to workspace, scope, topology, Story and closure identities.",
+      "acceptance": "acceptance_basis_generate atomically writes a verifiable receipt; acceptance_basis is read-only; stale, forged, rebound or tampered receipts are rejected.",
+      "evidence": [
+        "VI-A32A-003-SIGNED-BOUND-RECEIPT [pass/integration_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-003-SIGNED-BOUND-RECEIPT, including registered runtime-fact discovery.",
+        "VI-A32A-003-FRESHNESS-CLASSIFICATION [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-003-FRESHNESS-CLASSIFICATION, including registered runtime-fact discovery.",
+        "VI-A32A-003-LEGACY-AND-ATOMICITY [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-003-LEGACY-AND-ATOMICITY, including registered runtime-fact discovery.",
+        "VI-A32A-003-CALLER-ISSUER-FORGERY [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-003-CALLER-ISSUER-FORGERY, including registered runtime-fact discovery.",
+        "VI-A32A-003-TAMPER-AND-HASH-REBIND [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-003-TAMPER-AND-HASH-REBIND, including registered runtime-fact discovery."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Frozen planned declarations and foundational auditable exclusion decisionRefs reconcile against independently discovered paths.",
+      "acceptance": "New planned endpoints resolve through frozen files; invented/drifted topology paths and malformed, stale, unrelated or ineligible decision kinds fail with stable diagnostics.",
+      "evidence": [
+        "VI-A32A-004-PLANNED-DERIVATION-RECONCILIATION [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-004-PLANNED-DERIVATION-RECONCILIATION, including registered runtime-fact discovery.",
+        "VI-A32A-004-GENUINELY-NEW-ENDPOINTS [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-004-GENUINELY-NEW-ENDPOINTS, including registered runtime-fact discovery.",
+        "VI-A32A-004-ELIGIBLE-EXCLUSION [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-004-ELIGIBLE-EXCLUSION, including registered runtime-fact discovery.",
+        "VI-A32A-004-TOPOLOGY-INVENTION-AND-DRIFT [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-004-TOPOLOGY-INVENTION-AND-DRIFT, including registered runtime-fact discovery.",
+        "VI-A32A-004-BIDIRECTIONAL-OMISSION [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-004-BIDIRECTIONAL-OMISSION, including registered runtime-fact discovery."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M5",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Read-only basis diagnostics and focused adversarial proof cover the production command/store chain.",
+      "acceptance": "Real CLI text/JSON is deterministic and non-mutating; focused smoke and process-fact contract bite omission, disagreement, stale, tamper, unsupported and caller-forgery mutations.",
+      "evidence": [
+        "VI-A32A-005-REAL-CLI-TRANSCRIPT [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-005-REAL-CLI-TRANSCRIPT, including registered runtime-fact discovery.",
+        "VI-A32A-005-LEGACY-UNSUPPORTED-DETERMINISM [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-005-LEGACY-UNSUPPORTED-DETERMINISM, including registered runtime-fact discovery.",
+        "VI-A32A-005-PROCESS-FACT-CONTRACT [pass/docs_check] node scripts/verify-process-fact-contract.mjs file=scripts/verify-process-fact-contract.mjs note=Current HEAD 70e74b7b35 process-fact contract passed; one-sided acceptance_basis_generate registry mutation fails the ordinary verifier.",
+        "VI-A32A-005-MUTATION-CAMPAIGN [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-005-MUTATION-CAMPAIGN, including registered runtime-fact discovery.",
+        "VI-A32A-005-READONLY-DIAGNOSTIC-BOUNDARY [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js file=packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts note=Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-005-READONLY-DIAGNOSTIC-BOUNDARY, including registered runtime-fact discovery."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}
