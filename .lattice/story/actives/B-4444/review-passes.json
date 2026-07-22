@@ -393,6 +393,58 @@
       },
       "readDiagnostics": [],
       "_hash": "73a2e45b533d12661639f03258620449f2ffa7f611e180dff430836c348fb68f"
+    },
+    {
+      "id": "B-4444:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Current-material concept review found no deletion/replacement residue, parallel truth source, or unmarked runtime promise. F-007 is consistently resolved: actual_diff_hunks remains a supported method but is excluded from the registered structural PLAN profile and added only by the distinct pre-REVIEW profile after DEV, preserving the PLAN structural versus pre-REVIEW executable boundary throughout examples, invariants, algorithms, and audit criteria.",
+      "createdAt": "2026-07-22T02:03:51.971Z",
+      "reviewRound": "2026-07-22T02:02:48.588Z",
+      "reviewRunId": "B-4444:RR-013",
+      "envelopeId": "f87a3f092d271de3d0a4bb63f9a442524c3c3fdcf2e541f9e503a05b3b57bc3e",
+      "writerSessionId": "sess-30c5ec7d173fc80bc5a6dd0d61db5876",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4444/background.md",
+          ".lattice/story/actives/B-4444/checklist.json",
+          ".lattice/story/actives/B-4444/plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "eca5b5af69557d6e2ecd132cc92e3058ed93f1f6b58ad85210ed7e70ebc23cf1"
+      },
+      "readDiagnostics": [],
+      "_hash": "1e590867c2e17d96c4630a92058903fcd2e1f452e5bb1a6397f2a9e853c07924"
     }
   ]
 }
