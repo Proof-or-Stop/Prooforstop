@@ -983,7 +983,7 @@
       "desc": "doc-code-drift: docs/CLI.md:389-404 describes the signed acceptance-basis receipt bindings only through closureFilesHash and says the reader verifies current canonical bindings, but the public persisted schema now includes structured basis.snapshotSeal and receipt.sealDigest (packages/main/src/core/types.ts:312-393), the issuer signs that digest, and both acceptance_basis_generate/current read re-derive paths verify expectedSealDigest (packages/main/src/core/acceptance-basis-receipt.ts:89-146; packages/main/src/handlers/proofstory.ts:177-248). The process-fact registry was correctly updated to name this integrity fact, so the CLI reference must also document snapshotSeal/sealDigest and current re-derive verification; otherwise users cannot tell that the structured seal is a signed, verified part of Wave 1A output. This is documentation completeness only: retain L3, no lifecycle gate consumer, non-Authority, and no Wave 2 claim.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-22T10:33:57.852Z",
@@ -998,7 +998,11 @@
         "packages/main/src/core/process-fact-registry.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by docs commit 948c8ea854: docs/CLI.md now documents snapshotSeal fields, signed sealDigest, current physical rederive, partial semantics, and Wave1A L3 nongating/non-Authority boundary; round-13 docs reviewer PASS.",
+      "resolvedAt": "2026-07-22T10:41:41.988Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
