@@ -245,55 +245,55 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Focused production-chain smoke runs every registered PLAN adapter, proves deterministic union, and retains a registered consumer outside Story scope in closure inventory.",
-          "headHash": "6caf01801fa19798ac5a099ed8b2267bc52fe116",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:33.349Z"
+          "note": "Current-HEAD production chain proves registered adapters, union and global consumer closure.",
+          "headHash": "f1d0c243bff451323c81690eac34ba9439e4a97b",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:04.833Z"
         },
         {
           "intentRef": "VI-A32A-002-TYPED-ASYMMETRY",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Static C2 survives a bounded non-exhaustive runtime omission; unexplained registry/dispatch disagreement emits AT_DISCOVERY_DISAGREEMENT.",
-          "headHash": "6caf01801fa19798ac5a099ed8b2267bc52fe116",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:33.349Z"
+          "note": "Current-HEAD bounded runtime asymmetry and unexplained disagreement controls pass.",
+          "headHash": "f1d0c243bff451323c81690eac34ba9439e4a97b",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:04.833Z"
         },
         {
           "intentRef": "VI-A32A-002-PROFILE-TOTALITY",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Unsupported profiles and missing or duplicate required adapter results classify non-complete with stable codes.",
-          "headHash": "6caf01801fa19798ac5a099ed8b2267bc52fe116",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:33.349Z"
+          "note": "Current-HEAD unsupported/missing/duplicate adapter profile controls pass.",
+          "headHash": "f1d0c243bff451323c81690eac34ba9439e4a97b",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:04.833Z"
         },
         {
           "intentRef": "VI-A32A-002-OMISSION-AND-AGGREGATE-TAMPER",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Required-adapter omission/duplication and aggregate omission mutations bite; restored control passes.",
-          "headHash": "6caf01801fa19798ac5a099ed8b2267bc52fe116",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:33.349Z"
+          "note": "Current-HEAD omission, duplication and aggregate tamper mutations bite.",
+          "headHash": "f1d0c243bff451323c81690eac34ba9439e4a97b",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:04.833Z"
         },
         {
           "intentRef": "VI-A32A-002-RESULT-AND-CLOSURE-TAMPER",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Adapter result tamper, global consumer closure binding, and stale closure source mutations fail closed.",
-          "headHash": "6caf01801fa19798ac5a099ed8b2267bc52fe116",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:33.349Z"
+          "note": "Current-HEAD result and closure tamper mutations bite with restored controls.",
+          "headHash": "f1d0c243bff451323c81690eac34ba9439e4a97b",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:04.833Z"
         }
       ]
     },
