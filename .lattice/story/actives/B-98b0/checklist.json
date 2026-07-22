@@ -110,6 +110,23 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "lattice acceptance_topology_check --storyId=<id> reports the canonical ordered structural result and stable AT diagnostics without writing evidence.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/CLI.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ]
       }
     },
     {
