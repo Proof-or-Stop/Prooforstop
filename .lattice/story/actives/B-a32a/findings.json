@@ -679,7 +679,7 @@
       "desc": "The advertised 2 MiB lexical-source budget is checked only after the entire file has already been read into memory. readSourceSafely calls readFileSync(descriptor, utf8) at acceptance-discovery-adapters.ts:324 before createBindingAnalysisContext applies MAX_LEXICAL_SOURCE_BYTES at lines 345-349; sourceProvenance also calls readSourceSafely without applying that lexical cap. A static 50–90 MiB source still fits the 100 MiB inventory budget and is fully allocated/read before being classified partial, and a TOCTOU growth after inventory lstat can make the read arbitrarily larger before the post-read inode/size check rejects it. Thus F-029 bounded-work semantics and F-030 TOCTOU handling are outcome-fail-closed but not resource-bounded. Check opened-fd fstat size against the per-file cap before reading, use a bounded read that detects one byte over cap, and ensure provenance reuses the bounded snapshot; add instrumentation proving oversized and growth-race cases never read beyond cap+1.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T09:37:40.232Z",
@@ -691,7 +691,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "edge|ts|advertised-lexical-source",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 16f71aa5be and retained through current HEAD: inline require/static dynamic import and wrapper bindings are exact, all source ingress shares pre-allocation O_NOFOLLOW budgets, module paths are canonical, and directory mutations are detected. Current threat-table mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:31.115Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-033",
