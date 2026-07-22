@@ -102,7 +102,20 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The focused Wave 1A smoke prints `ProofStory acceptance coverage basis Wave 1A smoke passed`; omission, disagreement, stale-binding and tamper mutations fail before the restored control passes.",
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/CLI.md",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ]
+      }
     }
   ]
 }
