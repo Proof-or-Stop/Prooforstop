@@ -1,4 +1,4 @@
-import { closeSync, constants as fsConstants, existsSync, fstatSync, lstatSync, opendirSync, openSync, readFileSync, realpathSync, type Dirent } from 'node:fs';
+import { closeSync, constants as fsConstants, existsSync, fstatSync, lstatSync, opendirSync, openSync, readFileSync, readSync, realpathSync, type Dirent, type Stats } from 'node:fs';
 import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import ts from 'typescript';
 import type { CoverageAdapterResultV1, CoverageDiscoveryMethodV1, PlannedCoveragePathV1 } from './types.js';
@@ -45,12 +45,16 @@ export interface AcceptanceDiscoveryReconciliation {
 }
 
 function stable(values: readonly string[]): string[] {
-  return [...new Set(values.filter(value => typeof value === 'string' && value.trim().length > 0))].sort();
+  return [...new Set(values.filter(value => typeof value === 'string' && value.trim().length > 0))].sort(compareCodeUnits);
+}
+
+function compareCodeUnits(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
 function stableRows<T extends { imported: string; local: string; sourceFile: string }>(rows: readonly T[]): T[] {
   return [...new Map(rows.map(row => [`${row.sourceFile}\0${row.imported}\0${row.local}`, row])).values()]
-    .sort((left, right) => `${left.sourceFile}:${left.imported}:${left.local}`.localeCompare(`${right.sourceFile}:${right.imported}:${right.local}`));
+    .sort((left, right) => compareCodeUnits(`${left.sourceFile}:${left.imported}:${left.local}`, `${right.sourceFile}:${right.imported}:${right.local}`));
 }
 
 function sourceFiles(entry: ProcessFactRegistryEntry): string[] {
@@ -76,6 +80,7 @@ interface BoundedSourceGraph {
   factories: FactoryInventory[];
   sourceScans: Map<string, LocalImportCallScan>;
   blindSpots: string[];
+  readContext: SourceReadContext;
 }
 
 interface LocalImportCallScan {
@@ -91,6 +96,7 @@ interface BindingAnalysisContext {
   sourceFiles: Map<string, ts.SourceFile>;
   readBlindSpots: Map<string, string[]>;
   checker: ts.TypeChecker;
+  readContext: SourceReadContext;
 }
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
@@ -114,7 +120,12 @@ export interface SourceInventoryTraversalResult {
   files: string[];
   blindSpots: string[];
   stopped: boolean;
-  stats: { directories: number; entries: number; files: number; bytes: number; iteratorReads: number; peakBufferedEntries: number };
+  stats: { directories: number; entries: number; files: number; bytes: number; iteratorReads: number; peakBufferedEntries: number; handlesOpened: number; handlesClosed: number };
+}
+
+export interface SourceInventoryTraversalHooks {
+  beforeDirectoryOpen?: (directory: string) => void;
+  afterDirectoryRead?: (directory: string) => void;
 }
 
 function relativeFile(root: string, absolute: string): string | null {
@@ -124,19 +135,22 @@ function relativeFile(root: string, absolute: string): string | null {
 
 interface LocalModuleResolution { sourceFile: string | null; blindSpot?: string }
 
-function physicallyContainedRegularFile(root: string, file: string): boolean {
+function physicallyContainedRegularFile(root: string, file: string): { canonical: string; spellingDrift: boolean } | null {
   try {
     const physicalRoot = realpathSync(root);
     let absolute = physicalRoot;
     for (const component of file.split('/').filter(Boolean)) {
       absolute = resolve(absolute, component);
       const stat = lstatSync(absolute);
-      if (stat.isSymbolicLink()) return false;
+      if (stat.isSymbolicLink()) return null;
     }
     const physical = realpathSync(absolute);
     const rel = relative(physicalRoot, physical);
-    return !rel.startsWith('..') && !isAbsolute(rel) && lstatSync(physical).isFile();
-  } catch { return false; }
+    if (rel.startsWith('..') || isAbsolute(rel) || !lstatSync(physical).isFile()) return null;
+    const canonical = relativeFile(physicalRoot, physical);
+    if (!canonical) return null;
+    return { canonical, spellingDrift: canonical !== file.replace(/\\/g, '/') };
+  } catch { return null; }
 }
 
 function resolveLocalModule(root: string, importer: string, specifier: string): LocalModuleResolution {
@@ -151,12 +165,16 @@ function resolveLocalModule(root: string, importer: string, specifier: string): 
             : [base]
     : [...SOURCE_EXTENSIONS].map(candidateExtension => `${base}${candidateExtension}`)
       .concat([...SOURCE_EXTENSIONS].map(candidateExtension => resolve(base, `index${candidateExtension}`)));
-  const viable = stable(variants.flatMap(candidate => {
+  const candidates = variants.flatMap(candidate => {
     try {
       const rel = relativeFile(root, candidate);
-      return rel && physicallyContainedRegularFile(root, rel) ? [rel] : [];
+      const contained = rel ? physicallyContainedRegularFile(root, rel) : null;
+      return contained ? [{ lexical: rel!, ...contained }] : [];
     } catch { return []; }
-  }));
+  });
+  const drift = candidates.find(candidate => candidate.spellingDrift);
+  if (drift) return { sourceFile: null, blindSpot: `local module spelling differs from canonical physical path for ${specifier} from ${importer}: ${drift.lexical} -> ${drift.canonical}` };
+  const viable = stable(candidates.map(candidate => candidate.canonical));
   if (viable.length === 1) return { sourceFile: viable[0] };
   if (viable.length === 0) return { sourceFile: null, blindSpot: `unresolved local module ${specifier} from ${importer}` };
   return { sourceFile: null, blindSpot: `ambiguous local module ${specifier} from ${importer}: ${viable.join(', ')}` };
@@ -167,10 +185,11 @@ export function enumerateBoundedSourceTree(
   physicalWorkspace: string,
   physicalSourceRoot: string,
   budget: SourceInventoryTraversalBudget = DEFAULT_SOURCE_INVENTORY_BUDGET,
+  hooks: SourceInventoryTraversalHooks = {},
 ): SourceInventoryTraversalResult {
   const files: string[] = [];
   const blindSpots: string[] = [];
-  const stats = { directories: 0, entries: 0, files: 0, bytes: 0, iteratorReads: 0, peakBufferedEntries: 0 };
+  const stats = { directories: 0, entries: 0, files: 0, bytes: 0, iteratorReads: 0, peakBufferedEntries: 0, handlesOpened: 0, handlesClosed: 0 };
   const directories = [physicalSourceRoot];
   let stopped = false;
   const stop = (dimension: keyof SourceInventoryTraversalBudget): void => {
@@ -180,12 +199,21 @@ export function enumerateBoundedSourceTree(
   while (directories.length > 0 && !stopped) {
     if (stats.directories >= budget.maxDirectories) { stop('maxDirectories'); break; }
     const directory = directories.pop()!;
+    hooks.beforeDirectoryOpen?.(directory);
     stats.directories += 1;
     const remainingEntries = budget.maxEntries - stats.entries;
     const rows: Dirent[] = [];
+    let before: Stats;
+    let physicalBefore: string;
     let handle;
     try {
-      handle = opendirSync(directory);
+      before = lstatSync(directory);
+      if (before.isSymbolicLink() || !before.isDirectory()) throw new Error('not a stable directory');
+      physicalBefore = realpathSync(directory);
+      const contained = relative(physicalWorkspace, physicalBefore);
+      if (contained.startsWith('..') || isAbsolute(contained)) throw new Error('directory escapes workspace');
+      handle = opendirSync(physicalBefore);
+      stats.handlesOpened += 1;
       while (rows.length <= remainingEntries) {
         const row = handle.readSync();
         stats.iteratorReads += 1;
@@ -193,14 +221,28 @@ export function enumerateBoundedSourceTree(
         rows.push(row);
         stats.peakBufferedEntries = Math.max(stats.peakBufferedEntries, rows.length);
       }
-      handle.closeSync();
+      hooks.afterDirectoryRead?.(directory);
     } catch {
-      try { handle?.closeSync(); } catch { /* already fail-closed below */ }
       blindSpots.push(`configured source directory is unreadable: ${relativeFile(physicalWorkspace, directory) ?? directory}`);
+      continue;
+    } finally {
+      try { if (handle) { handle.closeSync(); stats.handlesClosed += 1; handle = undefined; } } catch { /* post-close failure remains a blind spot below */ }
+    }
+    try {
+      const after = lstatSync(directory);
+      const physicalAfter = realpathSync(directory);
+      if (after.isSymbolicLink() || !after.isDirectory() || physicalAfter !== physicalBefore!
+        || before!.dev !== after.dev || before!.ino !== after.ino || before!.size !== after.size
+        || before!.mtimeMs !== after.mtimeMs || before!.ctimeMs !== after.ctimeMs) {
+        blindSpots.push(`configured source directory changed during enumeration: ${relativeFile(physicalWorkspace, directory) ?? directory}`);
+        continue;
+      }
+    } catch {
+      blindSpots.push(`configured source directory changed during enumeration: ${relativeFile(physicalWorkspace, directory) ?? directory}`);
       continue;
     }
     if (rows.length > remainingEntries) { stop('maxEntries'); break; }
-    rows.sort((a, b) => a.name.localeCompare(b.name));
+    rows.sort((a, b) => compareCodeUnits(a.name, b.name));
     const childDirectories: string[] = [];
     for (const row of rows) {
       if (stats.entries >= budget.maxEntries) { stop('maxEntries'); break; }
@@ -295,58 +337,126 @@ function scriptKindFor(file: string): ts.ScriptKind {
   return ts.ScriptKind.TS;
 }
 
-function readSourceSafely(root: string, physicalRoot: string, file: string): { text?: string; blindSpot?: string } {
+interface SourceReadContext {
+  physicalRoot: string;
+  maxFiles: number;
+  maxBytes: number;
+  maxPerFileBytes: number;
+  forceNoFollow: boolean;
+  files: number;
+  bytes: number;
+  maxAllocatedBytes: number;
+  snapshots: Map<string, string>;
+  failures: Map<string, string>;
+}
+
+export interface SourceReadTestResult {
+  acceptedFiles: string[];
+  blindSpots: string[];
+  stats: { files: number; bytes: number; maxAllocatedBytes: number };
+}
+
+function createSourceReadContext(root: string, options: Partial<Pick<SourceReadContext, 'maxFiles' | 'maxBytes' | 'maxPerFileBytes' | 'forceNoFollow'>> = {}): SourceReadContext {
+  let physicalRoot: string;
+  try { physicalRoot = realpathSync(root); }
+  catch { physicalRoot = resolve(root); }
+  return {
+    physicalRoot,
+    maxFiles: options.maxFiles ?? DEFAULT_SOURCE_INVENTORY_BUDGET.maxFiles,
+    maxBytes: options.maxBytes ?? DEFAULT_SOURCE_INVENTORY_BUDGET.maxBytes,
+    maxPerFileBytes: options.maxPerFileBytes ?? MAX_LEXICAL_SOURCE_BYTES,
+    forceNoFollow: options.forceNoFollow ?? false,
+    files: 0,
+    bytes: 0,
+    maxAllocatedBytes: 0,
+    snapshots: new Map(),
+    failures: new Map(),
+  };
+}
+
+function readSourceSafely(context: SourceReadContext, file: string): { text?: string; blindSpot?: string } {
+  const cached = context.snapshots.get(file);
+  if (cached !== undefined) return { text: cached };
+  const cachedFailure = context.failures.get(file);
+  if (cachedFailure) return { blindSpot: cachedFailure };
+  const fail = (message: string): { blindSpot: string } => { context.failures.set(file, message); return { blindSpot: message }; };
   const relativePath = file.replace(/\\/g, '/');
-  if (isAbsolute(relativePath) || relativePath.split('/').includes('..')) return { blindSpot: `source file path escapes workspace: ${file}` };
-  let absolute = physicalRoot;
+  if (isAbsolute(relativePath) || relativePath.split('/').includes('..')) return fail(`source file path escapes workspace: ${file}`);
+  let absolute = context.physicalRoot;
   let before;
   try {
     for (const component of relativePath.split('/').filter(Boolean)) {
       absolute = resolve(absolute, component);
       const stat = lstatSync(absolute);
-      if (stat.isSymbolicLink()) return { blindSpot: `source file traverses symlink during read: ${file}` };
+      if (stat.isSymbolicLink()) return fail(`source file traverses symlink during read: ${file}`);
       before = stat;
     }
-    if (!before?.isFile() || (before.mode & 0o444) === 0) return { blindSpot: `source file is unreadable: ${file}` };
+    if (!before?.isFile() || (before.mode & 0o444) === 0) return fail(`source file is unreadable: ${file}`);
     const physicalFile = realpathSync(absolute);
-    const rel = relative(physicalRoot, physicalFile);
-    if (rel.startsWith('..') || isAbsolute(rel)) return { blindSpot: `source file physically escapes workspace: ${file}` };
-    const noFollow = typeof fsConstants.O_NOFOLLOW === 'number' ? fsConstants.O_NOFOLLOW : 0;
+    const rel = relative(context.physicalRoot, physicalFile);
+    if (rel.startsWith('..') || isAbsolute(rel)) return fail(`source file physically escapes workspace: ${file}`);
+    const noFollow = context.forceNoFollow ? undefined : fsConstants.O_NOFOLLOW;
+    if (typeof noFollow !== 'number' || noFollow <= 0) return fail(`safe no-follow source read is unsupported: ${file}`);
+    if (before.size > context.maxPerFileBytes) return fail(`source file exceeds lexical scan budget: ${file}`);
+    if (context.files >= context.maxFiles) return fail(`source read exhausted maxFiles budget: ${file}`);
+    if (context.bytes + before.size > context.maxBytes) return fail(`source read exhausted maxBytes budget: ${file}`);
     const descriptor = openSync(physicalFile, fsConstants.O_RDONLY | noFollow);
     let text: string;
     let after;
     try {
       const opened = fstatSync(descriptor);
-      if (before.dev !== opened.dev || before.ino !== opened.ino) return { blindSpot: `source file changed before read: ${file}` };
-      text = readFileSync(descriptor, 'utf8');
+      if (before.dev !== opened.dev || before.ino !== opened.ino || before.size !== opened.size) return fail(`source file changed before read: ${file}`);
+      const allocation = opened.size + 1;
+      context.maxAllocatedBytes = Math.max(context.maxAllocatedBytes, allocation);
+      const buffer = Buffer.alloc(allocation);
+      let offset = 0;
+      while (offset < allocation) {
+        const count = readSync(descriptor, buffer, offset, allocation - offset, null);
+        if (count === 0) break;
+        offset += count;
+      }
+      if (offset !== opened.size) return fail(`source file changed during bounded read: ${file}`);
+      text = buffer.subarray(0, opened.size).toString('utf8');
       after = fstatSync(descriptor);
     } finally {
       closeSync(descriptor);
     }
     const currentPhysical = realpathSync(absolute);
-    if (currentPhysical !== physicalFile || before.dev !== after.dev || before.ino !== after.ino || before.size !== after.size || before.mtimeMs !== after.mtimeMs) {
-      return { blindSpot: `source file changed during read: ${file}` };
+    if (currentPhysical !== physicalFile || before.dev !== after.dev || before.ino !== after.ino || before.size !== after.size || before.mtimeMs !== after.mtimeMs || before.ctimeMs !== after.ctimeMs) {
+      return fail(`source file changed during read: ${file}`);
     }
+    context.files += 1;
+    context.bytes += before.size;
+    context.snapshots.set(file, text);
     return { text };
   } catch {
-    return { blindSpot: `source file is unreadable or disappeared: ${file}` };
+    return fail(`source file is unreadable or disappeared: ${file}`);
   }
 }
 
-function createBindingAnalysisContext(root: string, files: readonly string[]): BindingAnalysisContext {
-  let physicalRoot: string;
-  try { physicalRoot = realpathSync(root); }
-  catch { physicalRoot = resolve(root); }
+/** Test seam proving the shared source-read budget rejects before unbounded allocation. */
+export function readBoundedSourceSetForTest(
+  root: string,
+  files: readonly string[],
+  options: { maxFiles: number; maxBytes: number; maxPerFileBytes: number; forceNoFollow?: boolean },
+): SourceReadTestResult {
+  const context = createSourceReadContext(root, options);
+  for (const file of stable(files)) readSourceSafely(context, file);
+  return {
+    acceptedFiles: stable([...context.snapshots.keys()]),
+    blindSpots: stable([...context.failures.values()]),
+    stats: { files: context.files, bytes: context.bytes, maxAllocatedBytes: context.maxAllocatedBytes },
+  };
+}
+
+function createBindingAnalysisContext(root: string, files: readonly string[], readContext = createSourceReadContext(root)): BindingAnalysisContext {
+  const physicalRoot = readContext.physicalRoot;
   const sourceFiles = new Map<string, ts.SourceFile>();
   const readBlindSpots = new Map<string, string[]>();
   const absoluteSources = new Map<string, ts.SourceFile>();
   for (const file of stable(files)) {
-    const read = readSourceSafely(root, physicalRoot, file);
+    const read = readSourceSafely(readContext, file);
     if (read.blindSpot || read.text === undefined) { readBlindSpots.set(file, [read.blindSpot ?? `source file is unreadable: ${file}`]); continue; }
-    if (Buffer.byteLength(read.text, 'utf8') > MAX_LEXICAL_SOURCE_BYTES) {
-      readBlindSpots.set(file, [`source file exceeds lexical scan budget: ${file}`]);
-      continue;
-    }
     try {
       const absolute = resolve(physicalRoot, file);
       const source = ts.createSourceFile(absolute, read.text, ts.ScriptTarget.Latest, true, scriptKindFor(file));
@@ -366,7 +476,16 @@ function createBindingAnalysisContext(root: string, files: readonly string[]): B
     writeFile: () => undefined,
   };
   const program = ts.createProgram({ rootNames: [...absoluteSources.keys()], options, host });
-  return { root, physicalRoot, sourceFiles, readBlindSpots, checker: program.getTypeChecker() };
+  return { root, physicalRoot, sourceFiles, readBlindSpots, checker: program.getTypeChecker(), readContext };
+}
+
+function unwrapExpression(expression: ts.Expression): ts.Expression {
+  let current = expression;
+  while (ts.isParenthesizedExpression(current) || ts.isAsExpression(current) || ts.isTypeAssertionExpression(current)
+    || ts.isNonNullExpression(current) || ts.isSatisfiesExpression(current) || ts.isPartiallyEmittedExpression(current)) {
+    current = current.expression;
+  }
+  return current;
 }
 
 function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string): LocalImportCallScan {
@@ -416,22 +535,43 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
       if (sourceFile) addBinding('*', statement.name, sourceFile, true, true);
     }
   }
-  const requireSpecifier = (expression: ts.Expression | undefined): string | null => {
-    if (!expression || !ts.isCallExpression(expression) || !ts.isIdentifier(expression.expression) || expression.expression.text !== 'require'
-      || expression.arguments.length !== 1 || !ts.isStringLiteral(expression.arguments[0])) return null;
-    return expression.arguments[0].text.startsWith('.') ? expression.arguments[0].text : null;
+  const moduleCall = (expression: ts.Expression | undefined): { specifier: string; call: ts.CallExpression; kind: 'require' | 'import' } | null => {
+    if (!expression) return null;
+    let value = unwrapExpression(expression);
+    if (ts.isAwaitExpression(value)) value = unwrapExpression(value.expression);
+    if (!ts.isCallExpression(value) || value.arguments.length !== 1 || !ts.isStringLiteral(value.arguments[0]) || !value.arguments[0].text.startsWith('.')) return null;
+    const callee = unwrapExpression(value.expression);
+    if (callee.kind === ts.SyntaxKind.ImportKeyword) return { specifier: value.arguments[0].text, call: value, kind: 'import' };
+    if (ts.isIdentifier(callee) && callee.text === 'require') {
+      const symbol = context.checker.getSymbolAtLocation(callee);
+      const locallyDeclared = symbol?.declarations?.some(declaration => declaration.getSourceFile() === source) ?? false;
+      if (!locallyDeclared) return { specifier: value.arguments[0].text, call: value, kind: 'require' };
+    }
+    return null;
   };
-  const visitRequires = (node: ts.Node): void => {
+  const supportedModuleCalls = new Set<ts.CallExpression>();
+  const propertyModuleCall = (expression: ts.Expression | undefined): { module: ReturnType<typeof moduleCall>; property: string } | null => {
+    if (!expression) return null;
+    const value = unwrapExpression(expression);
+    if (ts.isPropertyAccessExpression(value)) {
+      const module = moduleCall(value.expression);
+      return module ? { module, property: value.name.text } : null;
+    }
+    if (ts.isElementAccessExpression(value) && value.argumentExpression && ts.isStringLiteral(value.argumentExpression)) {
+      const module = moduleCall(value.expression);
+      return module ? { module, property: value.argumentExpression.text } : null;
+    }
+    return null;
+  };
+  const visitModuleBindings = (node: ts.Node): void => {
     if (ts.isVariableDeclaration(node)) {
-      let required = requireSpecifier(node.initializer);
-      let importedProperty: string | null = null;
-      if (!required && node.initializer && ts.isPropertyAccessExpression(node.initializer)) {
-        required = requireSpecifier(node.initializer.expression);
-        importedProperty = required ? node.initializer.name.text : null;
-      }
-      if (required) {
-        const sourceFile = resolveSpecifier(required);
-        if (sourceFile && ts.isIdentifier(node.name)) addBinding(importedProperty ?? 'default', node.name, sourceFile, true, importedProperty === null);
+      let module = moduleCall(node.initializer);
+      const property = module ? null : propertyModuleCall(node.initializer);
+      module ??= property?.module ?? null;
+      if (module) {
+        supportedModuleCalls.add(module.call);
+        const sourceFile = resolveSpecifier(module.specifier);
+        if (sourceFile && ts.isIdentifier(node.name)) addBinding(property?.property ?? 'default', node.name, sourceFile, true, property === null);
         if (sourceFile && ts.isObjectBindingPattern(node.name)) {
           for (const element of node.name.elements) if (ts.isIdentifier(element.name)) {
             const imported = element.propertyName && (ts.isIdentifier(element.propertyName) || ts.isStringLiteral(element.propertyName)) ? element.propertyName.text : element.name.text;
@@ -440,22 +580,28 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
         }
       }
     }
-    ts.forEachChild(node, visitRequires);
+    ts.forEachChild(node, visitModuleBindings);
   };
-  visitRequires(source);
+  visitModuleBindings(source);
   const called: Array<{ imported: string; local: string; sourceFile: string }> = [];
   const visit = (node: ts.Node): void => {
     if (ts.isCallExpression(node)) {
+      const directProperty = propertyModuleCall(node.expression);
+      if (directProperty?.module) {
+        supportedModuleCalls.add(directProperty.module.call);
+        const sourceFile = resolveSpecifier(directProperty.module.specifier);
+        if (sourceFile) called.push({ imported: directProperty.property, local: directProperty.property, sourceFile });
+      }
       let target: ts.Identifier | null = null;
       let property: string | null = null;
-      if (ts.isIdentifier(node.expression)) target = node.expression;
-      else if (ts.isPropertyAccessExpression(node.expression) && ts.isIdentifier(node.expression.expression)) {
-        target = node.expression.expression;
-        property = node.expression.name.text;
-      } else if (ts.isElementAccessExpression(node.expression) && ts.isIdentifier(node.expression.expression)
-        && node.expression.argumentExpression && ts.isStringLiteral(node.expression.argumentExpression)) {
-        target = node.expression.expression;
-        property = node.expression.argumentExpression.text;
+      const callee = unwrapExpression(node.expression);
+      if (ts.isIdentifier(callee)) target = callee;
+      else if (ts.isPropertyAccessExpression(callee)) {
+        const base = unwrapExpression(callee.expression);
+        if (ts.isIdentifier(base)) { target = base; property = callee.name.text; }
+      } else if (ts.isElementAccessExpression(callee) && callee.argumentExpression && ts.isStringLiteral(callee.argumentExpression)) {
+        const base = unwrapExpression(callee.expression);
+        if (ts.isIdentifier(base)) { target = base; property = callee.argumentExpression.text; }
       }
       if (target) {
         const targetSymbol = context.checker.getSymbolAtLocation(target);
@@ -466,10 +612,21 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
           if (property !== null && binding.property) called.push({ imported: property, local: binding.local, sourceFile: binding.sourceFile });
         }
       }
+      const possibleDynamic = unwrapExpression(node.expression);
+      if (possibleDynamic.kind === ts.SyntaxKind.ImportKeyword && !supportedModuleCalls.has(node)) {
+        bindingBlindSpots.push(`unsupported dynamic import shape in ${file}`);
+      }
     }
     ts.forEachChild(node, visit);
   };
   visit(source);
+  const visitUnsupportedDynamicImports = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) && unwrapExpression(node.expression).kind === ts.SyntaxKind.ImportKeyword && !supportedModuleCalls.has(node)) {
+      bindingBlindSpots.push(`unsupported dynamic import shape in ${file}`);
+    }
+    ts.forEachChild(node, visitUnsupportedDynamicImports);
+  };
+  visitUnsupportedDynamicImports(source);
   return { imports: stableRows(imports), calledImports: stableRows(called), blindSpots: stable(bindingBlindSpots), unresolvedImports: stable(unresolved) };
 }
 
@@ -495,11 +652,12 @@ function sourceSeedFiles(input: AcceptanceDiscoveryInput): string[] {
 
 function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSourceGraph {
   const root = input.workspaceRoot;
+  const readContext = createSourceReadContext(root);
   const seedFiles = sourceSeedFiles(input);
   const sourceInventory = configuredSourceInventory(root);
   const blindSpots: string[] = [...sourceInventory.blindSpots];
   const registryCandidates = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)]);
-  const analysisContext = createBindingAnalysisContext(root, stable([...sourceInventory.files, ...seedFiles, ...registryCandidates]));
+  const analysisContext = createBindingAnalysisContext(root, stable([...sourceInventory.files, ...seedFiles, ...registryCandidates]), readContext);
   const registryFiles = registryCandidates.filter(file => file === 'packages/main/src/registry.ts'
     || executableText(analysisContext.sourceFiles.get(file)?.text ?? '').includes('registerBatch('));
   const factories: FactoryInventory[] = [];
@@ -561,7 +719,7 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
     }
   }
   for (const file of closure) if (!sourceScans.has(file)) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
-  return { seedFiles, sourceInventoryFiles: sourceInventory.files, closureFiles: stable([...closure]), entries: [...reached], factories, sourceScans, blindSpots: stable(blindSpots) };
+  return { seedFiles, sourceInventoryFiles: sourceInventory.files, closureFiles: stable([...closure]), entries: [...reached], factories, sourceScans, blindSpots: stable(blindSpots), readContext };
 }
 
 /** Resolve canonical process-fact closure and its producer/consumer source files. */
@@ -595,10 +753,9 @@ function adapterId(method: CoverageDiscoveryMethodV1): string {
   return `${method.replace(/_/g, '-')}:plan:v1`;
 }
 
-function sourceProvenance(root: string, file: string): string {
+function sourceProvenance(context: SourceReadContext, file: string): string {
   try {
-    const physicalRoot = realpathSync(root);
-    const read = readSourceSafely(root, physicalRoot, file);
+    const read = readSourceSafely(context, file);
     return read.text !== undefined ? `source-file:${file}:sha256:${digestCanonicalJson(read.text)}` : `source-file:${file}:uninspectable`;
   } catch { return `source-file:${file}:uninspectable`; }
 }
@@ -610,10 +767,9 @@ function executableText(text: string): string {
     .replace(/^\s*import\b.*$/gm, '');
 }
 
-function catalogCommands(root: string): Set<string> {
+function catalogCommands(context: SourceReadContext): Set<string> {
   try {
-    const physicalRoot = realpathSync(root);
-    const read = readSourceSafely(root, physicalRoot, 'packages/main/src/cli/command-catalog.ts');
+    const read = readSourceSafely(context, 'packages/main/src/cli/command-catalog.ts');
     if (read.text === undefined) return new Set();
     return new Set([...executableText(read.text).matchAll(/^\s*\{?\s*name:\s*['"]([a-z][a-z0-9_]*)['"]/gm)].map(match => match[1]));
   }
@@ -654,14 +810,14 @@ function buildResult(
       provenanceRefs = stable([
         ...input.scopeRefs,
         ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers])
-          .map(endpoint => sourceProvenance(input.workspaceRoot, endpoint.expectedFileRef)),
+          .map(endpoint => sourceProvenance(graph.readContext, endpoint.expectedFileRef)),
       ]);
     } else if (method === 'process_fact_registry') {
       pathRefs = graph.entries.map(processFactPath);
       blindSpots = graph.blindSpots;
-      provenanceRefs = stable(graph.entries.flatMap(entry => [`process-fact:${entry.name}:${digestCanonicalJson(entry)}`, ...sourceFiles(entry).map(file => sourceProvenance(input.workspaceRoot, file))]));
+      provenanceRefs = stable(graph.entries.flatMap(entry => [`process-fact:${entry.name}:${digestCanonicalJson(entry)}`, ...sourceFiles(entry).map(file => sourceProvenance(graph.readContext, file))]));
     } else if (method === 'handler_dispatch_inventory') {
-      const commands = catalogCommands(input.workspaceRoot);
+      const commands = catalogCommands(graph.readContext);
       const registeredKeys = new Set(graph.factories.filter(factory => factory.registered).flatMap(factory => factory.commandKeys));
       const inspectableEntries = graph.entries.filter(entry => commandNamesForEntry(entry).some(command => registeredKeys.has(command) && commands.has(command)));
       pathRefs = inspectableEntries.map(processFactPath);
@@ -672,20 +828,24 @@ function buildResult(
         ...graph.entries.filter(entry => commandNamesForEntry(entry).length > 0 && !inspectableEntries.includes(entry)).map(entry => `registered process fact ${entry.name} has no exact registered handler/catalog dispatch`),
       ]);
       provenanceRefs = stable(['packages/main/src/cli/command-catalog.ts', 'packages/main/src/registry.ts', ...graph.factories.map(factory => factory.sourceFile)]
-        .map(file => sourceProvenance(input.workspaceRoot, file)));
+        .map(file => sourceProvenance(graph.readContext, file)));
     } else if (method === 'static_call_graph') {
       const inspectableEntries = graph.entries.filter(entry => sourceFiles(entry).every(file => existsSync(resolve(input.workspaceRoot, file))));
       const staticCalls = staticCallPaths(input.workspaceRoot, graph);
       pathRefs = inspectableEntries.map(processFactPath);
       pathRefs.push(...staticCalls.paths);
       blindSpots = stable([...graph.blindSpots, ...staticCalls.blindSpots, ...graph.entries.filter(entry => !inspectableEntries.includes(entry)).map(entry => `static registered source graph is incomplete for ${entry.name}`)]);
-      provenanceRefs = stable(graph.closureFiles.map(file => sourceProvenance(input.workspaceRoot, file)));
+      provenanceRefs = stable(graph.closureFiles.map(file => sourceProvenance(graph.readContext, file)));
     } else {
       pathRefs = stable(input.runtimeObservedPathRefs ?? []);
       provenanceRefs = [
         `runtime-fact-registry:sha256:${digestCanonicalJson(RUNTIME_FACT_REGISTRY)}`,
         `runtime-trace:story:${input.storyId}:bounded`,
       ];
+    }
+    if (method !== 'runtime_trace') {
+      const blockingReadFailures = [...graph.readContext.failures.values()].filter(message => /budget|no-follow/.test(message));
+      blindSpots = stable([...blindSpots, ...blockingReadFailures]);
     }
   }
   const unsigned: Omit<CoverageAdapterResultV1, 'resultDigest'> = {
@@ -749,8 +909,8 @@ export function reconcileAcceptanceDiscoveryResults(results: readonly CoverageAd
   const blindSpots = stable(results.flatMap(result => result.blindSpots));
   const unsupported = results.some(result => result.coverageClaim === 'unsupported' || result.asymmetryPolicy.kind === 'unsupported');
   const partial = diagnostics.length > 0 || blindSpots.length > 0 || results.some(result => result.coverageClaim === 'partial');
-  return { adapterResults: [...results].sort((a, b) => a.adapterId.localeCompare(b.adapterId)), enumeratedPathRefs, blindSpots,
-    diagnostics: diagnostics.sort((a, b) => `${a.code}:${a.adapterId ?? ''}:${a.message}`.localeCompare(`${b.code}:${b.adapterId ?? ''}:${b.message}`)),
+  return { adapterResults: [...results].sort((a, b) => compareCodeUnits(a.adapterId, b.adapterId)), enumeratedPathRefs, blindSpots,
+    diagnostics: diagnostics.sort((a, b) => compareCodeUnits(`${a.code}:${a.adapterId ?? ''}:${a.message}`, `${b.code}:${b.adapterId ?? ''}:${b.message}`)),
     status: unsupported ? 'unsupported' : partial ? 'partial' : 'complete' };
 }
 

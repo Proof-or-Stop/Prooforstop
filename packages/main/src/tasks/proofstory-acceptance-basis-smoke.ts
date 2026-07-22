@@ -21,6 +21,7 @@ import {
   deriveRegisteredProcessFactClosure,
   digestCoverageAdapterResult,
   enumerateBoundedSourceTree,
+  readBoundedSourceSetForTest,
   runAcceptanceDiscoveryAdapters,
 } from '../core/acceptance-discovery-adapters.js';
 import { verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
@@ -459,6 +460,32 @@ try {
       assert.ok(deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']).sourceFileRefs.includes(consumerFile), `${row.extension} consumer enters closure`);
       rmSync(join(genericRoot, consumerFile), { force: true });
     }
+    for (const row of [
+      { label: 'inline require property', extension: 'cjs', source: "exports.c2 = () => require('../handlers/review-run.js').emitReviewRunFact();" },
+      { label: 'dynamic import namespace', extension: 'ts', source: "export const c2 = async () => { const review = await import('../handlers/review-run.js'); return review.emitReviewRunFact(); };" },
+      { label: 'dynamic import destructure', extension: 'ts', source: "export const c2 = async () => { const { emitReviewRunFact: consume } = await import('../handlers/review-run.js'); return consume(); };" },
+      { label: 'dynamic import direct property', extension: 'ts', source: "export const c2 = async () => (await import('../handlers/review-run.js')).emitReviewRunFact();" },
+      { label: 'parenthesized binding call', extension: 'ts', source: "import { emitReviewRunFact as consume } from '../handlers/review-run.js'; export const c2 = () => (consume)();" },
+      { label: 'non-null binding call', extension: 'ts', source: "import { emitReviewRunFact as consume } from '../handlers/review-run.js'; export const c2 = () => consume!();" },
+      { label: 'as-expression binding call', extension: 'ts', source: "import { emitReviewRunFact as consume } from '../handlers/review-run.js'; export const c2 = () => (consume as typeof consume)();" },
+      { label: 'wrapped namespace property', extension: 'ts', source: "import * as review from '../handlers/review-run.js'; export const c2 = () => (review as typeof review).emitReviewRunFact();" },
+    ]) {
+      const consumerFile = `packages/main/src/consumers/c2.${row.extension}`;
+      write(genericRoot, 'packages/main/src/consumers/c2.ts', 'export const inactive = true;\n');
+      write(genericRoot, consumerFile, `${row.source}\n`);
+      const result = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+      assert.equal(result.status, 'complete', `${row.label} discovers a bound consumer`);
+      assert.ok(deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']).sourceFileRefs.includes(consumerFile), `${row.label} enters closure`);
+      if (consumerFile !== 'packages/main/src/consumers/c2.ts') rmSync(join(genericRoot, consumerFile), { force: true });
+    }
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', "const target = '../handlers/review-run.js'; export const c2 = async () => (await import(target)).emitReviewRunFact();\n");
+    const dynamicUnknown = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+    assert.equal(dynamicUnknown.status, 'partial', 'non-literal dynamic import fails closed');
+    assert.ok(dynamicUnknown.blindSpots.some(item => item.includes('unsupported dynamic import shape')), 'non-literal dynamic import emits a deterministic blind spot');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', "function require(_specifier: string) { return { emitReviewRunFact: () => true }; } export const c2 = () => require('../handlers/review-run.js').emitReviewRunFact();\n");
+    const shadowedRequire = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+    assert.equal(shadowedRequire.status, 'partial', 'lexically shadowed require cannot satisfy the consumer gate');
+    assert.ok(!shadowedRequire.enumeratedPathRefs.some(path => path.includes('consumer:packages/main/src/consumers/c2.ts')), 'shadowed require emits no static call edge');
     write(genericRoot, 'packages/main/src/bridges/index.ts', [
       "import { emitReviewRunFact as consume } from '../handlers/review-run.js';",
       'export const bridge = () => consume();', '',
@@ -601,7 +628,7 @@ try {
     });
     assert.equal(exactBoundary.stopped, false, 'exact source inventory file boundary remains complete');
     assert.deepEqual(exactBoundary.files, ['a/01.ts', 'a/02.ts', 'b/03.ts', 'b/04.ts'], 'bounded traversal order is deterministic and unrelated extensions stay excluded');
-    assert.deepEqual(exactBoundary.stats, { directories: 3, entries: 7, files: 4, bytes: 8, iteratorReads: 10, peakBufferedEntries: 3 }, 'exact-boundary traversal instrumentation is stable');
+    assert.deepEqual(exactBoundary.stats, { directories: 3, entries: 7, files: 4, bytes: 8, iteratorReads: 10, peakBufferedEntries: 3, handlesOpened: 3, handlesClosed: 3 }, 'exact-boundary traversal instrumentation is stable');
 
     const wideDeepRoot = join(budgetRoot, 'wide-deep');
     for (const file of ['a/00.ts', 'a/01.ts', 'a/02.ts', 'b/deep/03.ts', 'z-after/04.ts']) write(wideDeepRoot, file, 'x\n');
@@ -611,7 +638,7 @@ try {
     });
     assert.equal(exhausted.stopped, true, 'global source inventory cap stops traversal from a deep recursive frame');
     assert.deepEqual(exhausted.files, ['a/00.ts', 'a/01.ts', 'a/02.ts'], 'over-cap candidate and later sibling tree are never retained');
-    assert.deepEqual(exhausted.stats, { directories: 4, entries: 8, files: 3, bytes: 6, iteratorReads: 12, peakBufferedEntries: 3 }, 'instrumentation proves traversal stops on the first over-cap source candidate');
+    assert.deepEqual(exhausted.stats, { directories: 4, entries: 8, files: 3, bytes: 6, iteratorReads: 12, peakBufferedEntries: 3, handlesOpened: 4, handlesClosed: 4 }, 'instrumentation proves traversal stops on the first over-cap source candidate');
     assert.deepEqual(exhausted.blindSpots, ['configured source-root inventory exhausted maxFiles budget'], 'budget exhaustion emits one deterministic partial blind spot');
     for (const row of [
       { dimension: 'maxDirectories' as const, budget: { maxDirectories: 2, maxEntries: 20, maxFiles: 20, maxBytes: 100 }, stat: 'directories' as const, cap: 2 },
@@ -649,6 +676,30 @@ try {
     assert.equal(fanout.stats.iteratorReads, 6, 'streaming iterator reads at most remainingEntries plus one');
     assert.equal(fanout.stats.peakBufferedEntries, 6, 'streaming buffer is bounded at remainingEntries plus one');
     assert.deepEqual(fanout.blindSpots, ['configured source-root inventory exhausted maxEntries budget']);
+
+    const readRoot = join(budgetRoot, 'read-budget');
+    write(readRoot, 'a.ts', '12345');
+    write(readRoot, 'b.ts', '67890');
+    write(readRoot, 'oversized.ts', 'x'.repeat(32));
+    const perFile = readBoundedSourceSetForTest(readRoot, ['oversized.ts'], { maxFiles: 10, maxBytes: 100, maxPerFileBytes: 8 });
+    assert.equal(perFile.stats.maxAllocatedBytes, 0, 'oversized source is rejected before allocation');
+    assert.ok(perFile.blindSpots.some(item => item.includes('lexical scan budget')), 'per-file rejection is explicit');
+    const aggregate = readBoundedSourceSetForTest(readRoot, ['a.ts', 'b.ts'], { maxFiles: 10, maxBytes: 7, maxPerFileBytes: 8 });
+    assert.deepEqual(aggregate.acceptedFiles, ['a.ts'], 'aggregate read budget applies across the source union');
+    assert.equal(aggregate.stats.maxAllocatedBytes, 6, 'bounded allocation never exceeds accepted stat size plus sentinel');
+    const noFollow = readBoundedSourceSetForTest(readRoot, ['a.ts'], { maxFiles: 10, maxBytes: 100, maxPerFileBytes: 8, forceNoFollow: true });
+    assert.equal(noFollow.stats.maxAllocatedBytes, 0, 'missing O_NOFOLLOW rejects before allocation');
+    assert.ok(noFollow.blindSpots.some(item => item.includes('no-follow')), 'missing O_NOFOLLOW is a deterministic blind spot');
+
+    const mutationRoot = join(budgetRoot, 'directory-mutation');
+    write(mutationRoot, 'stable.ts', 'x\n');
+    const physicalMutationRoot = realpathSync(mutationRoot);
+    const mutatedDirectory = enumerateBoundedSourceTree(physicalMutationRoot, physicalMutationRoot, {
+      maxDirectories: 5, maxEntries: 10, maxFiles: 10, maxBytes: 100,
+    }, { afterDirectoryRead: directory => write(directory, 'added.ts', 'x\n') });
+    assert.deepEqual(mutatedDirectory.files, [], 'directory mutation discards the pre-mutation snapshot');
+    assert.ok(mutatedDirectory.blindSpots.some(item => item.includes('changed during enumeration')), 'directory mutation emits an explicit blind spot');
+    assert.equal(mutatedDirectory.stats.handlesOpened, mutatedDirectory.stats.handlesClosed, 'directory mutation closes every opened handle');
   } finally {
     rmSync(budgetRoot, { recursive: true, force: true });
   }
