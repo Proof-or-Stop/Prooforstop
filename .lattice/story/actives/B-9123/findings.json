@@ -152,7 +152,7 @@
       "desc": "packages/main/src/handlers/transition-orchestrator.ts:486 creates an enforce-mode PLAN→DEV deadlock: the new gate requires a valid critic receipt before DEV, but its producer calls currentImplementationBusinessCommit (packages/main/src/core/topology-critic-receipt.ts:105), which requires an implementer-authored business commit that a normal Story cannot have before entering DEV. The smoke masks this by committing implementation.ts before constructing a PLAN Story (packages/main/src/tasks/proofstory-topology-critic-smoke.ts:158-164), then changes phase directly to DEV and never executes the PLAN→DEV transition. Add a realistic clean PLAN lifecycle test and use phase-appropriate PLAN provenance/bindings so enforce admission can actually succeed without pre-DEV implementation.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T19:12:16.696Z",
@@ -160,7 +160,11 @@
       "reviewRunId": "B-9123:RR-006",
       "_hash": "57475d1a82d720170122ab4293a703d3a4042f24e1e2aa40f4385b1b1b0cc23e",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e99895c94e removed the erroneous topology critic receipt requirement from PLAN→DEV. Fresh owner production smoke exercised an enforce-mode temporary repo with complete structural basis and no critic receipt; real bin/lattice.js story_advance to DEV passed, proving no deadlock.",
+      "resolvedAt": "2026-07-22T19:28:54.071Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9123:F-009",
