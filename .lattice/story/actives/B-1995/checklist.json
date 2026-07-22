@@ -132,9 +132,9 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#target-schema",
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#structural-integrity-and-totality-rules"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-22T03:15:18.009Z",
-      "endTime": null,
+      "endTime": "2026-07-22T03:15:22.431Z",
       "verificationIntent": {
         "happy": [
           {
@@ -198,7 +198,75 @@
         "test": [
           "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-1995-002-VALID-REFERENCE-GRAPH",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Reference-only planned graph resolves canonical declaration and endpoint IDs yet remains inconclusive_basis_unverified.",
+          "headHash": "15da7c6230210b299b43ca90ec042afcea0e090b",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:22.861Z"
+        },
+        {
+          "intentRef": "VI-1995-002-LEGACY-MISSING",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Missing topology normalizes to legacy_missing without exception or authority promotion.",
+          "headHash": "15da7c6230210b299b43ca90ec042afcea0e090b",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:23.323Z"
+        },
+        {
+          "intentRef": "VI-1995-002-STABLE-INVALID-REFS",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Unknown, duplicate, and orphan mutations emit deterministic AT_* codes.",
+          "headHash": "15da7c6230210b299b43ca90ec042afcea0e090b",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:23.982Z"
+        },
+        {
+          "intentRef": "VI-1995-002-SELF-AUTHORSHIP-MUTATION",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Deleting the canonical declaration emits AT_PLANNED_PATH_DECLARATION_MISSING; topology cannot self-author it.",
+          "headHash": "15da7c6230210b299b43ca90ec042afcea0e090b",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:24.494Z"
+        },
+        {
+          "intentRef": "VI-1995-002-SEMANTIC-OVERRIDE-MUTATION",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Inline edge semantics emit AT_PLANNED_PATH_DECLARATION_DRIFT.",
+          "headHash": "15da7c6230210b299b43ca90ec042afcea0e090b",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:24.996Z"
+        },
+        {
+          "intentRef": "VI-1995-002-NO-WAVE1A-PROMOTION",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Inline result and basis/authority fields emit forbidden diagnostics and cannot promote the Wave 1 result.",
+          "headHash": "15da7c6230210b299b43ca90ec042afcea0e090b",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:15:25.503Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
