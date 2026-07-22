@@ -15,6 +15,12 @@ import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import { extractTemplateFrontmatter, readPromptRegistry } from '../core/prompt-registry.js';
 import { exportPublicKeyRaw, importPrivateKeyRaw, signCanonical } from '../core/authority-signing.js';
+import {
+  findRuntimeArtifactEntry,
+  LATTICE_RUNTIME_IGNORE_BLOCK_END,
+  LATTICE_RUNTIME_IGNORE_BLOCK_START,
+  listRuntimeArtifactIgnorePatterns,
+} from '../core/runtime-artifact-registry.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo, TopologyCriticReceiptV1 } from '../core/types.js';
 import {
   canonicalTopologyReceiptContext,
@@ -133,6 +139,12 @@ function writeDiscoveryRegistration(root: string): void {
 const root = mkdtempSync(join(tmpdir(), 'proofstory-topology-critic-'));
 const originalCwd = process.cwd();
 try {
+  write(root, '.gitignore', [
+    LATTICE_RUNTIME_IGNORE_BLOCK_START,
+    ...listRuntimeArtifactIgnorePatterns(),
+    LATTICE_RUNTIME_IGNORE_BLOCK_END,
+    '',
+  ].join('\n'));
   write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements' }));
   write(root, 'tsconfig.json', '{}\n');
   writeDiscoveryRegistration(root);
@@ -326,7 +338,15 @@ try {
       encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
     }), `process-fact mutation ${mutation} must bite`);
   }
-  assert.equal(git(root, ['status', '--porcelain']), '', 'all filesystem mutations restore exactly and leave the temp repo clean');
+  assert.equal(findRuntimeArtifactEntry('.lattice/activity.jsonl')?.id, 'runtime-activity-log', 'activity log is classified by the production runtime-artifact registry');
+  assert.equal(git(root, ['ls-files', '.lattice/activity.jsonl']), '', 'runtime activity log is never tracked in the business baseline');
+  execFileSync('git', ['check-ignore', '-q', '.lattice/activity.jsonl'], { cwd: root, stdio: 'ignore' });
+  assert.throws(() => execFileSync('git', ['check-ignore', '-q', `.lattice/story/actives/${storyId}/topology-critic-receipt.json`], { cwd: root, stdio: 'ignore' }), 'gate-consumed critic proof remains visible rather than hidden by a broad .lattice ignore');
+  assert.throws(() => execFileSync('git', ['check-ignore', '-q', `.lattice/story/actives/${storyId}/acceptance-basis.json`], { cwd: root, stdio: 'ignore' }), 'gate-consumed basis proof remains visible rather than hidden by a broad .lattice ignore');
+  const persistedReceiptBytes = readFileSync(join(root, '.lattice/story/actives', storyId, 'topology-critic-receipt.json'), 'utf8');
+  assert.doesNotMatch(persistedReceiptBytes, /forged|tampered|nonexistent/, 'no forged or mutated critic proof remains reusable');
+  assert.equal(store.readTopologyExclusionApprovals(storyId).approvals.length, 0, 'no synthetic exclusion approval remains persisted');
+  assert.equal(git(root, ['status', '--porcelain', '--untracked-files=all']), '', 'all proof mutations restore exactly; only registered ignored runtime artifacts may remain');
   assert.ok(existsSync(join(sourceRoot, 'src/core/topology-critic-receipt.ts')));
   console.log('ProofStory topology critic smoke: PASS');
   console.log('  real bin/lattice dispatch + producer + read-only verifier + lifecycle consumer: PASS');
