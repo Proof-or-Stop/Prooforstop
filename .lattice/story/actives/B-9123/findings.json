@@ -258,7 +258,7 @@
       "desc": "doc-code-drift: docs/CLI.md:470-500 describes the Wave 2A set/check commands and says pre_review_check remains Wave 3, but it still does not explicitly state the now-canonical boundary implemented in packages/main/src/core/process-fact-levels.ts:341-343 and the execution plan: topology critic receipts have no lifecycle admission consumer and their absence/failure cannot block PLAN→DEV. Because the prior implementation incorrectly attached this receipt to the existing Wave 2 enforce path, mentioning only that pre_review_check is absent does not remove the ambiguity. Add the same explicit no-lifecycle-admission statement to the CLI section.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-22T19:30:46.336Z",
@@ -272,7 +272,11 @@
         "packages/main/src/core/process-fact-registry.ts"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commits e96af21484 and 877ede43fc make CLI, execution plan §8.2/Wave2A contract, process-fact rationale, and source comments explicit: Wave2A has no lifecycle admission consumer; receipt absence/failure cannot block PLAN→DEV; Wave3 owns pre_review_check. Fresh contracts pass.",
+      "resolvedAt": "2026-07-22T19:47:34.928Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9123:F-014",
