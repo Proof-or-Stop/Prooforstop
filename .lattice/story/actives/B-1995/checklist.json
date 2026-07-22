@@ -286,9 +286,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#derived-acceptance-matrix"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-22T03:15:29.170Z",
-      "endTime": "2026-07-22T03:54:09.966Z",
+      "endTime": "2026-07-22T04:08:34.345Z",
       "verificationIntent": {
         "happy": [
           {
@@ -650,6 +650,15 @@
       "to": "in_progress",
       "reason": "REVIEW round 3 F-013 requires actual Proofbound subcommand parsing instead of token-presence classification.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-22T04:08:34.345Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-013 bounded producer-command parser and writer/consumer false-positive controls pass at 01d888403c."
     }
   ]
 }
