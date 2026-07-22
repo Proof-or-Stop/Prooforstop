@@ -327,7 +327,7 @@
       "desc": "CHK-003 caller/freshness evidence remains incomplete after F-009 repair. The forbidden-field matrix at packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:333-345 omits receiptRef, basisDigest, issuer identity, signature, and the individual binding-hash fields explicitly required by VI-A32A-003-CALLER-ISSUER-FORGERY. The receipt mutation matrix proves signed tamper rejection, but VI-A32A-003-FRESHNESS-CLASSIFICATION separately requires headHash-only and unrelated-material movement to be classified by the existing freshness reader and never silently rebound; no such classification controls exist. Thus the two recorded pass rows still overclaim their must intents.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T07:42:40.335Z",
@@ -341,7 +341,11 @@
       ],
       "signatureTag": "missing|ts|caller-freshness-evidence",
       "signatureTagSource": "auto",
-      "clusterId": "CL-006"
+      "clusterId": "CL-006",
+      "resolvedReason": "Fixed by f4de47a239 plus b926319a11/9fb0dd5f24 contract correction: both public strict schemas and direct handlers reject receiptRef, basisDigest, issuer/signature and every individual binding hash in addition to inventory fields. Current-HEAD freshness controls classify head-only and unrelated-material/storyFilesHash-unchanged movement through the canonical reader without rebinding or artifact mutation.",
+      "resolvedAt": "2026-07-22T08:20:45.426Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-017",
