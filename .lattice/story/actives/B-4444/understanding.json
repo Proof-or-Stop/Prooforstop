@@ -1,0 +1,23 @@
+{
+  "task": "Produce an auditable execution plan for adding explicit acceptance verification topology and pre-review checks to the existing ProofStory contract.",
+  "outcome": "The user opens one Markdown plan and can audit, section by section, why the milestone ledger remains the intent-totality source, what exact topology fields and gate rules would be added, how failures are detected before REVIEW, and which implementation stories and tests would follow—without the document claiming those runtime changes already exist.",
+  "facts": [
+    "MilestoneLedgerItem already owns requirement claims, doneMeans, requiredEvidence, checklistRefs, and verificationIntentRefs.",
+    "ProofStory acceptanceBindings already map acceptance claims to checklist, verificationIntent, and milestone references.",
+    "Current pre-DEV diagnostics check structural coverage while REVIEW completeness checks passing evidence later.",
+    "B-407c exposed missing producer-consumer-mutation-transcript obligations incrementally across repeated REVIEW rounds.",
+    "The requested deliverable is a plan for audit, not runtime implementation."
+  ],
+  "constraints": [
+    "Do not create a parallel acceptance_matrix truth source.",
+    "Do not modify runtime code, tests, schemas, prompts, configuration, versions, Story files directly, or unrelated untracked work.",
+    "Any future gate-consumed artifact or semantic must have CLI/handler enforcement and process-fact contract coverage.",
+    "Legacy stories must remain compatible through an explicit observe-warn-enforce rollout.",
+    "The document must distinguish proposed behavior from already implemented behavior."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+  ],
+  "timestamp": "2026-07-21T15:21:05.537Z"
+}
