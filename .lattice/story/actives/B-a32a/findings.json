@@ -219,6 +219,21 @@
       "resolvedAt": "2026-07-22T07:39:04.593Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a32a:F-011",
+      "desc": "packages/main/src/core/acceptance-discovery-adapters.ts:164-180 still does not implement an independently enumerating handler/dispatch inventory or static call graph: both adapters iterate only closure.entries already selected from PROCESS_FACT_REGISTRY using planned-path seeds, then use substring presence to mark each known entry inspectable. runAcceptanceDiscoveryAdapters at lines 210-214 supplies no checklist/scope file inventory, so an unregistered handler/consumer (or any Story with no plannedPathRecords) is never scanned and produces neither a path nor a blind spot. The basis can therefore call the discovery profile complete while an omitted C2 outside that preselected registry closure is invisible; F-001's independent discovery requirement remains unresolved.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T07:41:44.668Z",
+      "reviewRound": "2026-07-22T07:36:41.806Z",
+      "reviewRunId": "B-a32a:RR-006",
+      "_hash": "0c7be08addc275c943c2fe8e588d97b90db78b14ec7e358629d92a3e67358da5",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
