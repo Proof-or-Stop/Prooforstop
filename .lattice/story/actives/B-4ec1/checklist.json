@@ -90,7 +90,7 @@
           "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
         ]
       },
-      "userSees": "Pre-review check: PASS with a signed, current verifier-owned artifact, or a stable PR_* failure code naming the invalid binding."
+      "userSees": "User sees \"Pre-review check: PASS\" for a signed current verifier-owned artifact, or \"Pre-review check: FAIL code=PR_*\" naming the invalid binding."
     },
     {
       "id": "CHK-002",
