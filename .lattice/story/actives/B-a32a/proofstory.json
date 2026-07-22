@@ -36,7 +36,7 @@
     }
   ],
   "originalIntentRequestHash": "sha256:3ca8f4097ff52320dc32cfccf68b7b1a03032835280e01851808d5901294bb97",
-  "confirmedMilestoneLedgerHash": "sha256:c81de2c71c05df6bd2566f137ecae85052f3f95cec87221eed1e129abb3a7215",
+  "confirmedMilestoneLedgerHash": "sha256:f614d40b714985ef565521fb11005d4dcd34006738635fda37f2fbf476290a76",
   "acceptanceBindings": [
     {
       "id": "AB-W1A-COMPLETE",
@@ -48,31 +48,31 @@
         "CHK-005"
       ],
       "verificationIntentRefs": [
-        "CHK-001:happy:0",
-        "CHK-001:edge:0",
-        "CHK-001:edge:1",
-        "CHK-001:adversarial:0",
-        "CHK-001:adversarial:1",
-        "CHK-002:happy:0",
-        "CHK-002:edge:0",
-        "CHK-002:edge:1",
-        "CHK-002:adversarial:0",
-        "CHK-002:adversarial:1",
-        "CHK-003:happy:0",
-        "CHK-003:edge:0",
-        "CHK-003:edge:1",
-        "CHK-003:adversarial:0",
-        "CHK-003:adversarial:1",
-        "CHK-004:happy:0",
-        "CHK-004:edge:0",
-        "CHK-004:edge:1",
-        "CHK-004:adversarial:0",
-        "CHK-004:adversarial:1",
-        "CHK-005:happy:0",
-        "CHK-005:edge:0",
-        "CHK-005:edge:1",
-        "CHK-005:adversarial:0",
-        "CHK-005:adversarial:1"
+        "VI-A32A-001-VERIFIER-DERIVATION",
+        "VI-A32A-001-BOUNDED-NONCOMPLETE",
+        "VI-A32A-001-CANONICAL-TOTALITY",
+        "VI-A32A-001-CALLER-FORGERY",
+        "VI-A32A-001-OPTIMISM-MUTATION",
+        "VI-A32A-002-REGISTERED-UNION-CLOSURE",
+        "VI-A32A-002-TYPED-ASYMMETRY",
+        "VI-A32A-002-PROFILE-TOTALITY",
+        "VI-A32A-002-OMISSION-AND-AGGREGATE-TAMPER",
+        "VI-A32A-002-RESULT-AND-CLOSURE-TAMPER",
+        "VI-A32A-003-SIGNED-BOUND-RECEIPT",
+        "VI-A32A-003-FRESHNESS-CLASSIFICATION",
+        "VI-A32A-003-LEGACY-AND-ATOMICITY",
+        "VI-A32A-003-CALLER-ISSUER-FORGERY",
+        "VI-A32A-003-TAMPER-AND-HASH-REBIND",
+        "VI-A32A-004-PLANNED-DERIVATION-RECONCILIATION",
+        "VI-A32A-004-GENUINELY-NEW-ENDPOINTS",
+        "VI-A32A-004-ELIGIBLE-EXCLUSION",
+        "VI-A32A-004-TOPOLOGY-INVENTION-AND-DRIFT",
+        "VI-A32A-004-BIDIRECTIONAL-OMISSION",
+        "VI-A32A-005-REAL-CLI-TRANSCRIPT",
+        "VI-A32A-005-LEGACY-UNSUPPORTED-DETERMINISM",
+        "VI-A32A-005-PROCESS-FACT-CONTRACT",
+        "VI-A32A-005-MUTATION-CAMPAIGN",
+        "VI-A32A-005-READONLY-DIAGNOSTIC-BOUNDARY"
       ],
       "milestoneIds": [
         "M1",
@@ -82,30 +82,11 @@
         "M5"
       ],
       "acceptanceClaim": "Wave 1A verifier independently derives and signs a replayable coverage basis; callers cannot author completeness, and omission/tampering/disagreement/stale mutations bite deterministically.",
-      "note": "Binds the full Wave 1A outcome; writer/read-only separation is defined by the confirmed intent collision."
+      "note": "Binds all canonical Wave 1A intent IDs; writer/read-only separation is defined by the confirmed intent collision."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "missing_red_evidence",
-      "severity": "warn",
-      "artifact": "red-evidence.json",
-      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
-      "triggeredBy": [
-        "red_evidence_required"
-      ]
-    },
-    {
-      "code": "scope_ambiguity",
-      "severity": "warn",
-      "artifact": "scope-contract.json",
-      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
-      "triggeredBy": [
-        "scope_ambiguity"
-      ]
-    }
-  ],
-  "note": "Wave 1A acceptance contract only; later lifecycle enforcement waves are excluded.",
+  "diagnosticGaps": [],
+  "note": "Wave 1A acceptance contract only; later lifecycle enforcement waves remain separately delivered.",
   "createdAt": "2026-07-22T06:38:09.019Z",
-  "updatedAt": "2026-07-22T06:38:09.019Z"
+  "updatedAt": "2026-07-22T06:40:28.049Z"
 }
