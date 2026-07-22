@@ -49,7 +49,74 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-CRITIC-ELIGIBLE",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-CRITIC-FOUR-DIMENSION-MATRIX",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-CRITIC-MISSING-PROVENANCE",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-CRITIC-ROLE-SPOOF",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-CRITIC-SESSION-DISPATCH-REPLAY",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -100,7 +167,74 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-RECEIPT-PRODUCTION-ROUNDTRIP",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-RECEIPT-FRESHNESS-MATRIX",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-RECEIPT-CANONICAL-COLLECTIONS",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-RECEIPT-EVERY-FIELD-TAMPER",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-RECEIPT-SIGNATURE-FORGERY",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -151,7 +285,74 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-EXCLUSION-INDEPENDENT-APPROVAL",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-EXCLUSION-ONE-TO-ONE-COVERAGE",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-NO-EXCLUSION-CONTROL",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-EXCLUSION-AUTHORITY-SPOOF",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-CRITIC-CANNOT-OVERRIDE-DISCOVERY",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -208,7 +409,87 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-WAVE2A-PRODUCTION-CHAIN",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-WAVE2A-CLEAN-MUTATE-RESTORE",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-WAVE-BOUNDARY-NO-LEAK",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-PROCESS-FACT-MUTATIONS",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Owner rerun passed the process-fact contract and 17-role prompt baseline, including registered prompt/handler/verifier/gate facts and mutation bite.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-PRODUCTION-BYPASS-ATTEMPTS",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        },
+        {
+          "intentRef": "VI-RESTORATION-AND-NO-RESIDUE",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
+          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
+          "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
+          "timestamp": "2026-07-22T18:32:00.413Z"
+        }
+      ]
     }
   ]
 }

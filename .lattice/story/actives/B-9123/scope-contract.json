@@ -9,8 +9,10 @@
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/prompt-role-contract-registry.ts",
     "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-measurement.ts",
     "packages/main/src/core/agent-dispatch-registry.ts",
     "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
     "packages/main/src/handlers/proofstory.ts",
     "packages/main/src/handlers/story-dispatch.ts",
     "packages/main/src/handlers/transition-orchestrator.ts",
@@ -22,6 +24,9 @@
     ".lattice-codex/agents/*.md",
     "scripts/verify-process-fact-contract.mjs",
     "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json",
     "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
     "docs/CLI.md",
     "AGENTS.md",
@@ -54,10 +59,107 @@
     "packages/main/src/core/*rollout-telemetry*.ts",
     "packages/main/src/tasks/*rollout-telemetry*.ts"
   ],
-  "scopeChangeReason": "Reviewer correction: include production role dispatch and CLI documentation surfaces; protect shared files from Wave 3 pre-review/planned-to-actual, Wave 3A selective-applicability, and Wave 4 rollout symbols.",
-  "acknowledgements": [],
+  "scopeChangeReason": "Corrected the reviewer-identified anchor typo: the existing reader is verifyPromptMeasurementReport, not validatePromptMeasurementReport; only generator and verifier role-count invariants may change.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Independent scope-plan reviewer approved this minimal DEV expansion because DEFAULT_PHASE_TOOLS is the production phase ceiling for the two new reviewerWrite L4 producers; only that anchor may change and process-fact policy alignment is required.",
+      "timestamp": "2026-07-22T18:15:43.260Z",
+      "paths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "944e3aaba7044b5205efb7f83d9c6e24a1fe3a0b",
+      "materialHash": "a47671e4d5552db4f0ab985943bfcdb22d770d9a21855357106df82ba1dde8e2",
+      "anchors": [
+        "DEFAULT_PHASE_TOOLS"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Independent baseline contract requires the approved prompt-role manifest, overlap matrix, and measurement baseline to refresh when lattice-review-topology-critic becomes the seventeenth registered role; otherwise verifier retains a mechanical 16-to-17 drift.",
+      "timestamp": "2026-07-22T18:24:32.131Z",
+      "paths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "944e3aaba7044b5205efb7f83d9c6e24a1fe3a0b",
+      "materialHash": "a47671e4d5552db4f0ab985943bfcdb22d770d9a21855357106df82ba1dde8e2"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The prompt measurement generator mechanically requires exactly sixteen roles; registering lattice-review-topology-critic makes seventeen, so only the role-count invariant and its error text inside generatePromptMeasurementReport may change.",
+      "timestamp": "2026-07-22T18:26:19.168Z",
+      "paths": [
+        "packages/main/src/core/prompt-measurement.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-measurement.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "944e3aaba7044b5205efb7f83d9c6e24a1fe3a0b",
+      "materialHash": "a47671e4d5552db4f0ab985943bfcdb22d770d9a21855357106df82ba1dde8e2",
+      "anchors": [
+        "generatePromptMeasurementReport"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The prompt measurement reader still rejects any report not containing exactly sixteen records; after registering the seventeenth role it must validate seventeen, limited to validatePromptMeasurementReport role-count invariant and error text.",
+      "timestamp": "2026-07-22T18:27:57.254Z",
+      "paths": [
+        "packages/main/src/core/prompt-measurement.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-measurement.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "944e3aaba7044b5205efb7f83d9c6e24a1fe3a0b",
+      "materialHash": "a47671e4d5552db4f0ab985943bfcdb22d770d9a21855357106df82ba1dde8e2",
+      "anchors": [
+        "validatePromptMeasurementReport"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Correcting the prior acknowledgement typo: the actual prompt measurement reader is verifyPromptMeasurementReport, whose role-count invariant must accept seventeen records after registering lattice-review-topology-critic.",
+      "timestamp": "2026-07-22T18:28:42.446Z",
+      "paths": [
+        "packages/main/src/core/prompt-measurement.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-measurement.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "944e3aaba7044b5205efb7f83d9c6e24a1fe3a0b",
+      "materialHash": "a47671e4d5552db4f0ab985943bfcdb22d770d9a21855357106df82ba1dde8e2",
+      "anchors": [
+        "verifyPromptMeasurementReport"
+      ]
+    }
+  ],
   "createdAt": "2026-07-22T17:59:20.813Z",
-  "updatedAt": "2026-07-22T18:01:09.840Z",
+  "updatedAt": "2026-07-22T18:28:42.446Z",
   "fileRules": [
     {
       "path": "packages/main/src/handlers/proofstory.ts",
@@ -83,6 +185,32 @@
         "pre_review_check",
         "selective_applicability_check",
         "rollout_telemetry"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/config.ts",
+      "allowedAnchors": [
+        "DEFAULT_PHASE_TOOLS"
+      ],
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "VI-WAVE2A-PRODUCTION-CHAIN",
+        "VI-PROCESS-FACT-MUTATIONS"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/prompt-measurement.ts",
+      "allowedAnchors": [
+        "generatePromptMeasurementReport",
+        "verifyPromptMeasurementReport"
+      ],
+      "allowedChangeKinds": [
+        "modify"
+      ],
+      "intentRefs": [
+        "VI-PROCESS-FACT-MUTATIONS"
       ]
     }
   ],
@@ -128,7 +256,12 @@
     "packages/main/src/tasks/*rollout-telemetry*.ts": "packages/main/src/tasks/*rollout-telemetry*.ts",
     "packages/main/src/core/agent-dispatch-registry.ts": "packages/main/src/core/agent-dispatch-registry.ts",
     "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
-    "docs/CLI.md": "docs/CLI.md"
+    "docs/CLI.md": "docs/CLI.md",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/core/prompt-measurement.ts": "packages/main/src/core/prompt-measurement.ts"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",
