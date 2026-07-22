@@ -117,6 +117,37 @@
         "scanEscalationReason": null
       },
       "_hash": "7b38102dd99f9fa4189591d11058b9173e3bc4e07491c316435c2f9274ecfb32"
+    },
+    {
+      "id": "B-1995:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "coverage round 4 passed: 23/23 must intents have current storyFilesHash evidence with zero waivers; F-013 command-form mutation table classifies supported lattice/bin-lattice wrappers and bounded --root acceptance_matrix invocations as non-evidentiary while rg, printf, test arguments, help, and other subcommands remain legitimate; F-012 replay still rejects matrix rows in general verification, ProofStory completeness, milestone evidence/requiredEvidence, and closeout; current build-focused-smoke-process-contract chain passed with no coverage regression.",
+      "createdAt": "2026-07-22T04:11:38.701Z",
+      "reviewRound": "2026-07-22T04:08:53.232Z",
+      "reviewRunId": "B-1995:RR-011",
+      "envelopeId": "e7782d457c217d86d0fe2c099d08182a4fff0d3358d985c40675dcbeded0fd63",
+      "writerSessionId": "sess-741ea583beda234da591cc6ed40d2032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/checklist.json",
+          ".lattice/story/actives/B-1995/plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "aa7eeeacbe1de63b1f6ca220abe483c10639fc2eb0806202df606fabf426cc9d"
     }
   ]
 }
