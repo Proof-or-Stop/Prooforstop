@@ -148,6 +148,35 @@
         "scanEscalationReason": null
       },
       "_hash": "aa7eeeacbe1de63b1f6ca220abe483c10639fc2eb0806202df606fabf426cc9d"
+    },
+    {
+      "id": "B-1995:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality round 4 found no blocker. Replayed F-013 with 36 true-invocation combinations across all six evidence kinds, all three evidence writers, and general/ProofStory/milestone consumers; real global, project wrapper, absolute and --root forms fail closed. rg/printf/test-argument/echo/other-subcommand controls remain admissible. Focused topology smoke and process-fact contract pass.",
+      "createdAt": "2026-07-22T04:11:59.112Z",
+      "reviewRound": "2026-07-22T04:08:53.232Z",
+      "reviewRunId": "B-1995:RR-012",
+      "envelopeId": "caa543aaab6f569ea309928bc14fd0068a97a283b2229d9a6d2ab31c6fdcdc93",
+      "writerSessionId": "sess-4b622e09c65b4b8c76d20e981c104f48",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/types.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2c55103ec81df323c6902e1984efb785d678901015c59fcca43b64ba33b3cd61"
     }
   ]
 }
