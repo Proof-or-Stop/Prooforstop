@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-4444:F-001",
+      "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:22-25,428-459,515-538 — HIGH: the proposed PLAN→DEV gate requires every producer/consumer/command ref to already exist in a canonical owner and in a complete basis independently derived from current diff/source/runtime inputs, while also forbidding implementation commands. For a Story that introduces a new handler, dispatch edge, or consumer, those refs and diff hunks cannot exist before DEV; rules 3/18 therefore yield AT_UNKNOWN_REF or AT_TOPOLOGY_OUTSIDE_BASIS and prevent the implementation that would make them discoverable. The plan needs an explicit planned-path representation and PLAN-safe validation semantics (separate from the DEV current-worktree basis), or a mechanically bounded deferral/reconciliation rule, plus a negative test proving a genuinely new producer→consumer path can enter DEV without weakening pre-REVIEW closure.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-22T01:32:46.282Z",
+      "reviewRound": "2026-07-22T01:29:55.357Z",
+      "reviewRunId": "B-4444:RR-003",
+      "_hash": "2ace9c70cdd53d2c03cea79c115ff6fb3abba33953bf654ef5656ccf671991d3",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "edge|md|code-drift-docs",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
