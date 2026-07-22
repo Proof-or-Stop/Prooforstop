@@ -220,7 +220,7 @@
       "desc": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1125-1135 still requires the independent critic before DEV admission on enforced high-assurance paths, while the new Wave 2A paragraph at 1400-1404 and e99895c remove all lifecycle admission consumption. The same implementation also contradicts VI-WAVE2A-PRODUCTION-CHAIN (requires an applicable lifecycle consumer) and VI-PROCESS-FACT-MUTATIONS (requires mutating the lifecycle/gate consumer): the smoke now proves the opposite, that story_advance succeeds with no critic receipt, and the mutation merely rejects adding a consumer. This is an unresolved canonical design/acceptance conflict, not a complete F-008–F-010 fix. Either implement reachable phase-appropriate PLAN critic provenance and the specified enforce consumer, or formally revise the canonical §8.2 plus story acceptance intent through the authorized scope/intent change path; do not keep both contracts.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T19:30:13.362Z",
@@ -228,7 +228,11 @@
       "reviewRunId": "B-9123:RR-010",
       "_hash": "aab4f9a3842011d4aad1035eb7508fd9cb1e1295d9c44b18355b375f74591711",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replanned through the legal DEV→PLAN path. Independent verification-intent updated only the two conflicting CHK-004 intents; canonical §8.2 now distinguishes target Wave3/4 gate consumption from Wave2A CLI-only receipt verification. PLAN scope review passed 5 covered/3 excluded/0 gaps, story_review round5 had zero blockers, and real no-receipt PLAN→DEV control passed.",
+      "resolvedAt": "2026-07-22T19:47:30.782Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9123:F-012",
