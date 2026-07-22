@@ -85,7 +85,7 @@
       "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:141-184 does not prove the promised real verification-intent CLI persistence path. It instantiates handler factories directly and manually sets LATTICE_AGENT, bypassing command-schema parsing, registry dispatch, and the production CLI envelope/role binding. CHK-001 and VI-1995-001-ROUNDTRIP explicitly require round-trip through the real verification-intent CLI flow, while VI-1995-001-WRITER-FREEZE requires every shared-schema persistence surface. Add a temp-repo CLI test using the registered verification-intent dispatch/role environment for the eligible PLAN checklist_update, plus CLI-level unauthorized story_create/checklist_add/checklist_update and post-PLAN bites, asserting bytes/events remain unchanged on rejection.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T03:20:03.462Z",
@@ -98,7 +98,11 @@
         "packages/main/src/handlers/story-create.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 92d375b70a: temp-repo real CLI tests prove registered verification-intent PLAN success plus unauthorized checklist_update/checklist_add/story_create and post-PLAN rejection with atomic bytes/events.",
+      "resolvedAt": "2026-07-22T03:40:55.167Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1995:F-006",
