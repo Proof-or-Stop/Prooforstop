@@ -1129,10 +1129,15 @@ implemented and enabled, enforced high-assurance paths consume an independent
 topology critic before DEV admission and consume its re-attestation of the
 recomputed DEV basis before REVIEW. The critic challenges scope, discovery
 methods, exclusions, and closure. Its result must be a signed, hash-bound
-`TopologyCriticReceiptV1` containing Story ID, critic identity and eligible
-role, basis digest, topology digest, `scopeCheckDigest`, the phase-applicable
-`scopeContractDigest`, `storyFilesHash`, `closureFilesHash`, finding refs,
-approved-exclusion refs, verdict, issuance time, and signature.
+`TopologyCriticReceiptV1` containing `schemaVersion`, `storyId`,
+`criticIdentity`, `criticRole`, `criticProvenance`,
+`implementationProvenance`, `basisDigest`, `topologyDigest`,
+`scopeCheckDigest`, the phase-applicable `scopeContractDigest`,
+`storyFilesHash`, `closureFilesHash`, `findingRefs`,
+`approvedExclusionRefs`, `verdict`, `issuedAt`, `signerPublicKey`, and
+`signature`. This inventory mirrors every field in the actual
+`TopologyCriticReceiptV1` type; adding a signed field requires updating both
+the verifier binding and this inventory.
 
 Wave 2A is deliberately narrower than that target state. It only produces and
 verifies the signed receipt and exclusion approvals through explicit CLI

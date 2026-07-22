@@ -224,7 +224,8 @@ try {
   assert.equal(readFileSync(join(repositoryRoot, '.claude/agents/lattice-review-topology-critic.md'), 'utf8'), canonicalPrompt, 'Claude prompt mirror is exact');
   assert.equal(readFileSync(join(repositoryRoot, '.lattice-codex/agents/lattice-review-topology-critic.md'), 'utf8'), canonicalPrompt, 'Codex prompt mirror is exact');
 
-  const topLevelFields: Array<keyof TopologyCriticReceiptV1> = ['schemaVersion', 'storyId', 'criticIdentity', 'criticRole', 'criticProvenance', 'implementationProvenance', 'basisDigest', 'topologyDigest', 'scopeCheckDigest', 'scopeContractDigest', 'storyFilesHash', 'closureFilesHash', 'findingRefs', 'approvedExclusionRefs', 'verdict', 'issuedAt', 'signerPublicKey', 'signature'];
+  const topLevelFields = ['schemaVersion', 'storyId', 'criticIdentity', 'criticRole', 'criticProvenance', 'implementationProvenance', 'basisDigest', 'topologyDigest', 'scopeCheckDigest', 'scopeContractDigest', 'storyFilesHash', 'closureFilesHash', 'findingRefs', 'approvedExclusionRefs', 'verdict', 'issuedAt', 'signerPublicKey', 'signature'] as const satisfies readonly (keyof TopologyCriticReceiptV1)[];
+  assert.deepEqual([...topLevelFields].sort(), Object.keys(receipt).sort(), 'receipt field inventory stays exact with the actual TopologyCriticReceiptV1 artifact');
   for (const field of topLevelFields) {
     const changed = structuredClone(receipt) as any;
     if (field === 'signature') changed[field] = 'forged';
@@ -258,6 +259,18 @@ try {
     ['dispatch', 'dispatchId'],
     ['businessCommitAuthor', 'businessCommitAuthor'],
   ] as const;
+  const actorProvenanceFields = [
+    ['agentId', 'agent'],
+    ['sessionId', 'session'],
+    ['dispatchId', 'dispatch'],
+    ['storyId', 'storyId'],
+    ['headHash', 'headHash'],
+    ['storyFilesHash', 'storyFilesHash'],
+    ['businessCommit', 'businessCommit'],
+    ['businessCommitAuthor', 'businessCommitAuthor'],
+    ['businessCommitAuthorSource', 'businessCommitAuthorSource'],
+    ['businessIdentity', 'businessIdentity'],
+  ] as const;
   for (const [dimension, field] of criticProvenanceDimensions) {
     for (const missingValue of [undefined, ''] as const) {
       const missing = structuredClone(receipt) as any;
@@ -279,6 +292,14 @@ try {
     assert.equal(collisionResult.ok, false, `freshly re-signed critic ${dimension} collision fails verifier`);
     assert.ok(collisionResult.diagnostics.includes(`topology critic independence failed: ${dimension}`), `verifier emits dimension-specific critic ${dimension} collision`);
   }
+  for (const [field, diagnosticName] of actorProvenanceFields) {
+    const tampered = structuredClone(receipt) as any;
+    tampered.criticProvenance[field] = `${String(tampered.criticProvenance[field])}-tampered`;
+    const result = verify(resign(tampered, criticPrivateKey));
+    assert.equal(result.ok, false, `trusted-key re-signed critic provenance mutation fails: ${field}`);
+    assert.ok(result.diagnostics.includes(`topology critic provenance missing or unverifiable: ${diagnosticName}`), `critic provenance mutation identifies ${field}`);
+  }
+  assert.equal(verify(receipt).ok, true, 'unchanged critic provenance control remains valid after full nested-field mutation table');
   for (const [dimension, field] of criticProvenanceDimensions) {
     for (const replacement of [undefined, '', `unverifiable-${dimension}`] as const) {
       const malformed = structuredClone(receipt) as any;
@@ -351,6 +372,20 @@ try {
     assert.ok(noEventsApproval.includes(`exclusion approver provenance missing or unverifiable: ${dimension}`), `no-events exclusion approval diagnostic covers ${dimension}`);
   }
   const scopePrivateKey = readFileSync(join(commonDir, `proofstory-${TOPOLOGY_EXCLUSION_APPROVER_ROLE}-v1.key`), 'utf8').trim();
+  for (const [field, diagnosticName] of actorProvenanceFields) {
+    const tampered = structuredClone(approval) as any;
+    tampered.approverProvenance[field] = `${String(tampered.approverProvenance[field])}-tampered`;
+    const diagnostics = verifyTopologyExclusionApproval({
+      gitCwd: root,
+      context: excludedContext,
+      approval: resign(tampered, scopePrivateKey),
+      implementation,
+      critic: criticActor,
+      events,
+    });
+    assert.ok(diagnostics.includes(`exclusion approver provenance missing or unverifiable: ${diagnosticName}`), `trusted-key re-signed exclusion approver provenance mutation identifies ${field}`);
+  }
+  assert.deepEqual(verifyTopologyExclusionApproval({ gitCwd: root, context: excludedContext, approval, implementation, critic: criticActor, events }), [], 'unchanged exclusion approver provenance control remains valid after full nested-field mutation table');
   for (const [dimension, field] of criticProvenanceDimensions) {
     const implementationCollision = structuredClone(approval) as any;
     implementationCollision.approverProvenance[field] = implementation[field];

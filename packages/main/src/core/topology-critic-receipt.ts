@@ -213,7 +213,21 @@ const PROVENANCE_DIMENSIONS = [
   ['businessCommitAuthor', 'businessCommitAuthor'],
 ] as const;
 
+const ACTOR_PROVENANCE_FIELDS = [
+  ['agentId', 'agent'],
+  ['sessionId', 'session'],
+  ['dispatchId', 'dispatch'],
+  ['storyId', 'storyId'],
+  ['headHash', 'headHash'],
+  ['storyFilesHash', 'storyFilesHash'],
+  ['businessCommit', 'businessCommit'],
+  ['businessCommitAuthor', 'businessCommitAuthor'],
+  ['businessCommitAuthorSource', 'businessCommitAuthorSource'],
+  ['businessIdentity', 'businessIdentity'],
+] as const;
+
 function actorDispatchDiagnostics(args: {
+  gitCwd: string;
   events: readonly ProcessEvent[];
   actor: unknown;
   expectedRole: typeof TOPOLOGY_CRITIC_ROLE | typeof TOPOLOGY_EXCLUSION_APPROVER_ROLE;
@@ -225,41 +239,55 @@ function actorDispatchDiagnostics(args: {
     ? args.actor as Record<string, unknown>
     : {};
   const diagnostics: string[] = [];
-  for (const [dimension, field] of PROVENANCE_DIMENSIONS) {
+  for (const [field, diagnosticName] of ACTOR_PROVENANCE_FIELDS) {
     if (typeof actor[field] !== 'string' || !(actor[field] as string).trim()) {
-      diagnostics.push(`${args.label} provenance missing or unverifiable: ${dimension}`);
+      diagnostics.push(`${args.label} provenance missing or unverifiable: ${diagnosticName}`);
     }
   }
   if (!Array.isArray(args.events) || args.events.length === 0) {
-    for (const [dimension] of PROVENANCE_DIMENSIONS) {
-      const message = `${args.label} provenance missing or unverifiable: ${dimension}`;
+    for (const [, diagnosticName] of ACTOR_PROVENANCE_FIELDS) {
+      const message = `${args.label} provenance missing or unverifiable: ${diagnosticName}`;
       if (!diagnostics.includes(message)) diagnostics.push(message);
     }
     return diagnostics;
   }
-  if (diagnostics.length > 0) return diagnostics;
-  const dimensions = {
-    agent: (event: ProcessEvent) => event.agentType,
-    session: (event: ProcessEvent) => event.sessionId,
-    dispatch: (event: ProcessEvent) => dispatchIdentity(event),
-    businessCommitAuthor: (event: ProcessEvent) => event.businessCommitAuthor,
-  } as const;
   const candidates = args.events.filter(event => event.type === 'dispatch'
     && event.agentType === args.expectedRole
     && event.storyId === args.context.storyId
     && event.businessCommit === args.implementation.businessCommit
     && event.storyFilesHash === args.context.storyFilesHash
-    && event.businessCommitAuthorSource === 'git-var:GIT_AUTHOR_IDENT');
-  const fullMatch = candidates.some(event => PROVENANCE_DIMENSIONS.every(([dimension, field]) => dimensions[dimension](event) === actor[field]));
-  if (fullMatch) return diagnostics;
-  for (const [dimension] of PROVENANCE_DIMENSIONS) {
-    const allOtherDimensionsMatch = candidates.some(event => PROVENANCE_DIMENSIONS
-      .filter(([other]) => other !== dimension)
-      .every(([other, field]) => dimensions[other](event) === actor[field]));
-    if (allOtherDimensionsMatch) diagnostics.push(`${args.label} provenance missing or unverifiable: ${dimension}`);
-  }
-  if (!diagnostics.some(item => item.startsWith(`${args.label} provenance missing or unverifiable:`))) {
+    && event.businessCommitAuthorSource === 'git-var:GIT_AUTHOR_IDENT'
+    && typeof event.sessionId === 'string'
+    && Boolean(event.sessionId)
+    && typeof event.businessCommitAuthor === 'string'
+    && Boolean(event.businessCommitAuthor)
+    && typeof event.headHash === 'string'
+    && Boolean(event.headHash)
+    && isAncestor(args.gitCwd, event.headHash));
+  const expectedForEvent = (event: ProcessEvent): Record<(typeof ACTOR_PROVENANCE_FIELDS)[number][0], string | undefined> => ({
+    agentId: args.expectedRole,
+    sessionId: String(event.sessionId),
+    dispatchId: dispatchIdentity(event),
+    storyId: args.context.storyId,
+    headHash: String(event.headHash),
+    storyFilesHash: args.context.storyFilesHash,
+    businessCommit: args.implementation.businessCommit,
+    businessCommitAuthor: String(event.businessCommitAuthor),
+    businessCommitAuthorSource: 'git-var:GIT_AUTHOR_IDENT',
+    businessIdentity: String(event.businessCommitAuthor),
+  });
+  const ranked = candidates.map(event => {
+    const expected = expectedForEvent(event);
+    const mismatches = ACTOR_PROVENANCE_FIELDS.filter(([field]) => actor[field] !== expected[field]);
+    return { expected, mismatches };
+  }).sort((a, b) => a.mismatches.length - b.mismatches.length);
+  if (ranked.length === 0) {
     diagnostics.push(`${args.label} provenance is missing or unverifiable against a current registered dispatch`);
+    return diagnostics;
+  }
+  for (const [field, diagnosticName] of ranked[0].mismatches) {
+    const message = `${args.label} provenance missing or unverifiable: ${diagnosticName}`;
+    if (!diagnostics.includes(message)) diagnostics.push(message);
   }
   return diagnostics;
 }
@@ -342,6 +370,7 @@ export function verifyTopologyExclusionApproval(args: {
     || approval.approverProvenance.businessCommitAuthorSource !== 'git-var:GIT_AUTHOR_IDENT'
     || approval.approvalRef !== expectedApprovalRef || !isValidIssuedAt(approval.issuedAt)) diagnostics.push('exclusion approval role/story binding mismatch');
   diagnostics.push(...actorDispatchDiagnostics({
+    gitCwd: args.gitCwd,
     events: args.events,
     actor: approval.approverProvenance,
     expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE,
@@ -426,6 +455,7 @@ export function verifyTopologyCriticReceipt(args: {
     || receipt.criticProvenance.businessCommitAuthorSource !== 'git-var:GIT_AUTHOR_IDENT'
     || !isValidIssuedAt(receipt.issuedAt)) diagnostics.push('topology critic role/story binding mismatch');
   diagnostics.push(...actorDispatchDiagnostics({
+    gitCwd: args.gitCwd,
     events: args.events,
     actor: receipt.criticProvenance,
     expectedRole: TOPOLOGY_CRITIC_ROLE,
