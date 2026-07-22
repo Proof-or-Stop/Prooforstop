@@ -542,7 +542,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-A32A-004-PLANNED-DERIVATION-RECONCILIATION",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Verifier derives planned records directly from frozen intent declarations and checklist file refs, independent of topology copies.",
+          "headHash": "78cd36f4c61cf51f7a5ec23aa497f7abe99b7424",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:58:03.828Z"
+        },
+        {
+          "intentRef": "VI-A32A-004-GENUINELY-NEW-ENDPOINTS",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Genuinely new scoped endpoint files derive planned records before symbols exist; mismatched frozen file refs fail AT_PLANNED_PATH_INVALID.",
+          "headHash": "78cd36f4c61cf51f7a5ec23aa497f7abe99b7424",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:58:03.828Z"
+        },
+        {
+          "intentRef": "VI-A32A-004-ELIGIBLE-EXCLUSION",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Free-form self-approved exclusion prose fails AT_UNJUSTIFIED_EXCLUSION; Wave 2A critic role policy is not introduced.",
+          "headHash": "78cd36f4c61cf51f7a5ec23aa497f7abe99b7424",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:58:03.828Z"
+        },
+        {
+          "intentRef": "VI-A32A-004-TOPOLOGY-INVENTION-AND-DRIFT",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Invented topology consumer outside the independently derived basis fails AT_TOPOLOGY_OUTSIDE_BASIS.",
+          "headHash": "78cd36f4c61cf51f7a5ec23aa497f7abe99b7424",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:58:03.828Z"
+        },
+        {
+          "intentRef": "VI-A32A-004-BIDIRECTIONAL-OMISSION",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Deleting a frozen declaration while retaining topology fails AT_PLANNED_PATH_OUTSIDE_BASIS; aggregate basis omission fails digest verification.",
+          "headHash": "78cd36f4c61cf51f7a5ec23aa497f7abe99b7424",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:58:03.828Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
