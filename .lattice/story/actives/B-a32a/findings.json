@@ -5,7 +5,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/core/acceptance-discovery-adapters.ts:81 declares five registered discovery adapters, but buildResult assigns the same preassembled input.pathRefs to process_fact_registry, handler_dispatch_inventory, and static_call_graph, while runtime_trace performs no discovery. runAcceptanceDiscoveryAdapters only relabels this one input set; it never inspects handler/dispatch source, a static graph, or runtime facts. Because deriveAcceptanceCoverageBasis constructs input.pathRefs from the topology/planned declarations themselves, the adapters cannot independently discover an omitted path or naturally disagree and can falsely classify the self-described closure complete. This violates Wave 1A's independent registered-adapter exit condition.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T07:02:43.500Z",
@@ -14,7 +14,11 @@
       "_hash": "8e8a4b38c663037f54b511575902401ae7d82ed6ff3600f38a68fe9a5a304794",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
       "signatureTagSource": "auto",
-      "clusterId": "CL-001"
+      "clusterId": "CL-001",
+      "resolvedReason": "Fixed by 53c949a2ec and 70e74b7b35: registered adapters now derive from separate canonical scope-contract, PROCESS_FACT_REGISTRY, handler/dispatch registry source refs, static endpoint source inspection, and bounded runtime inputs rather than relabelling topology pathRefs. Current-HEAD focused smoke proves a real omitted registered consumer is discovered/fails closed and restored control passes.",
+      "resolvedAt": "2026-07-22T07:38:54.325Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-002",
