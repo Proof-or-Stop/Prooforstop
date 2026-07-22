@@ -174,7 +174,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/core/acceptance-topology.ts:191-202 resolves a planned endpoint by ID existence only; producerRefs and consumerRefs call the same validator at lines 269-298 without an expected role. On the current production build, swapping producerRefs to declaration consumer EP-C and consumerRefs to producer EP-P returned result=inconclusive_basis_unverified with diagnostics=[] instead of warning/drift. This lets topology invert the verificationIntent-owned direction while appearing structurally coherent, contrary to CHK-002 role-mismatch totality and the docs/CLI.md no-endpoint-role-override promise. Validate planned endpoint role against graph position and add an independent swapped-role mutation bite.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T03:20:48.525Z",
@@ -182,7 +182,11 @@
       "reviewRunId": "B-1995:RR-003",
       "_hash": "3c199f6318677368ecd7f28dc975d10d4ffab64c017104e42635dc75583ccf18",
       "signatureTag": "adversarial|unknown|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 92d375b70a: graph source positions enforce canonical planned endpoint roles and role-swap mutations now deterministically bite with AT_PLANNED_PATH_DECLARATION_DRIFT.",
+      "resolvedAt": "2026-07-22T03:41:01.609Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1995:F-010",
