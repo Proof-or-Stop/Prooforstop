@@ -101,6 +101,35 @@
       },
       "readDiagnostics": [],
       "_hash": "97de379d2f8f885f906680ab9d37007e67b489e3011326408defe15088fbf44f"
+    },
+    {
+      "id": "B-9123:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 21/21 must intents have fresh current-storyFilesHash evidence; independently reran the focused real-bin smoke and verified PLAN-to-DEV no-receipt control, re-signed critic/implementation/approver four-dimensional matrices, missing/blank/unverifiable/no-events fail-closed behavior, mutations, restoration, runtime artifact policy, strict clean, and no later-wave leakage.",
+      "createdAt": "2026-07-22T19:50:14.539Z",
+      "reviewRound": "2026-07-22T19:47:15.369Z",
+      "reviewRunId": "B-9123:RR-015",
+      "envelopeId": "f804545726e5a52767a97d8bb402e1c1973a3bbac10c0263564e787e7cac4a94",
+      "writerSessionId": "sess-3fbb01086441f3dc0c119a29fe9dd8bc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "15b960c863388021ece886dcf9e23872b5c31853dd57955fb314f39a727ec938"
     }
   ]
 }
