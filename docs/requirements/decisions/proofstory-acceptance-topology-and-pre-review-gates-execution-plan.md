@@ -85,7 +85,7 @@ The target outcome is not “eliminate REVIEW.” It is:
 |---|---|---|
 | `MilestoneLedgerItem` | Owns requirement claim, `doneMeans`, required evidence classes, checklist refs, verification-intent refs, and candidate/confirmed intent binding | Remains unchanged as the canonical intent-totality ledger |
 | `ProofStoryAcceptanceBinding` | Owns an acceptance binding ID plus claim/checklist/intent/milestone refs | Adds an optional versioned `verificationTopology` |
-| `verificationIntent` | Declares planned happy, edge, and adversarial scenarios | Remains checklist-scoped; topology references its stable intent refs |
+| `verificationIntent` | Declares planned happy, edge, and adversarial scenarios | Remains checklist-scoped and gains an optional versioned planned-path declaration on an intent item; topology references stable intent/declaration/endpoint IDs |
 | `verificationEvidence` | Records observed command/manual/docs results against intent refs | Remains the observation store; topology references evidence IDs/receipts rather than copying results |
 | ProofStory DEV diagnostics | Check intent artifacts, known refs, and coverage | Adds structural topology diagnostics through `acceptance_topology_check` |
 | `evaluateReviewCompleteness` | At REVIEW → TEST, checks bound intent refs have passing evidence | Remains in place; consumes the stronger topology after implementation |
@@ -115,7 +115,7 @@ The current source facts behind this table are in:
 | What outcomes did the user require? | Original intent snapshot and confirmed milestone ledger | Executed test results |
 | What does completion mean for each milestone? | `MilestoneLedgerItem.doneMeans` and `requiredEvidence` | Reviewer verdicts or Authority claims |
 | Which accepted claim maps to which work and intent? | `ProofStoryAcceptanceBinding` | Copied milestone claims or evidence status |
-| Which scenarios must be verified? | Checklist `verificationIntent` | Observed pass/fail results |
+| Which scenarios and not-yet-implemented path relations must be verified? | Checklist `verificationIntent`; its versioned planned-path declaration owns endpoint roles, expected symbols/facts, file declaration refs, and producer→consumer relation | Observed pass/fail results or topology closure verdicts |
 | What actually ran or was inspected? | `verificationEvidence` and signed receipts | New acceptance claims |
 | Is the implementation independently acceptable? | REVIEW runs, findings, passes, quorum policy | PLAN completeness |
 | Is the Story lifecycle complete? | Existing TEST/DONE gates | Milestone status or derived matrix alone |
@@ -161,6 +161,35 @@ interface ProofStoryAcceptanceBinding {
   verificationTopology?: AcceptanceVerificationTopologyV1;
 }
 
+/** Proposed additive field on the existing checklist verificationIntent item. */
+interface VerificationIntentItem {
+  id?: string;
+  desc: string;
+  type: VerificationIntentType;
+  requiredIn?: VerificationRequiredIn;
+  priority?: VerificationPriority;
+  plannedPathDeclarations?: VerificationPlannedPathDeclarationV1[];
+}
+
+interface VerificationPlannedPathEndpointV1 {
+  id: string;
+  role: 'producer' | 'consumer';
+  expectedArtifactKind: 'source_file' | 'handler' | 'dispatch' | 'process_fact';
+  expectedFileRef: string;
+  expectedSymbolOrFact: string;
+  /** Resolves to this checklist item's existing files.modify/create/test entry. */
+  fileDeclarationRef: string;
+}
+
+interface VerificationPlannedPathDeclarationV1 {
+  schemaVersion: 'proofstory.verification_planned_path_declaration.v1';
+  id: string;
+  relation: 'producer_to_consumer';
+  producer: VerificationPlannedPathEndpointV1;
+  consumers: VerificationPlannedPathEndpointV1[];
+  outputFactRef: string;
+}
+
 interface AcceptanceVerificationTopologyV1 {
   schemaVersion: 'proofstory.acceptance_topology.v1';
   /** Signed verifier-produced basis; never a caller-authored inventory. */
@@ -188,13 +217,9 @@ interface ExistingTopologySourceRefV1 {
 
 interface PlannedTopologySourceRefV1 {
   refKind: 'planned';
-  plannedPathRef: string;
-  endpoint: 'producer' | 'consumer';
-  expectedArtifactKind: 'source_file' | 'handler' | 'dispatch' | 'process_fact';
-  expectedFileRef: string;
-  expectedSymbolOrFact: string;
-  /** Existing PLAN-owned declarations; not free-form topology prose. */
-  declarationRefs: string[];
+  /** Stable ref into a frozen verificationIntent item; topology owns no edge prose. */
+  plannedPathDeclarationRef: string;
+  endpointRef: string;
 }
 
 type TopologySourceRefV1 =
@@ -204,8 +229,10 @@ type TopologySourceRefV1 =
 interface PlannedCoveragePathV1 {
   schemaVersion: 'proofstory.planned_coverage_path.v1';
   plannedPathRef: string;
-  producerRef: PlannedTopologySourceRefV1;
-  consumerRefs: PlannedTopologySourceRefV1[];
+  plannedPathDeclarationRef: string;
+  declarationDigest: string;
+  producer: VerificationPlannedPathEndpointV1;
+  consumers: VerificationPlannedPathEndpointV1[];
   outputFactRef: string;
   acceptanceBindingRefs: string[];
   verificationIntentRefs: string[];
@@ -312,7 +339,8 @@ Required referenced records:
 | Record | Required fields | Meaning |
 |---|---|---|
 | coverage basis | `phaseBasis`, `status`, verifier identity, discovery profile, per-adapter results, scope/source/planned/actual path refs, exclusions, blind spots, current binding, receipt, digest | Independently derived closure universe against which topology completeness is judged |
-| planned path | typed producer/consumer endpoints, expected artifact/file/symbol or fact, existing declaration refs, binding/intent refs, digest | PLAN-safe statement of a genuinely new path, derived from canonical PLAN declarations rather than nonexistent DEV code |
+| verification planned-path declaration | ID, relation, typed producer/consumer endpoints, expected artifact/file/symbol or fact, `ChecklistItem.files` refs | Canonical PLAN owner for a genuinely new path; written/frozen with verificationIntent, outside verificationTopology |
+| planned path | declaration ref/digest, verifier-derived endpoints/fact, binding/intent refs, digest | Signed PLAN-basis projection independently derived from the frozen declaration, checklist files, and scope |
 | planned→actual reconciliation | planned path ref, actual path refs, typed relation, optional independent replacement decision, digest | Mandatory pre-REVIEW mapping from each planned obligation to current discovered code |
 | adapter result | adapter ID/method, path set, claim, blind spots, provenance, typed asymmetry policy, digest | Replayable discovery contribution; required results cannot be omitted or rewritten inside an aggregate |
 | producer | `id`, `kind`, typed existing-or-planned `sourceRef`, `outputFact` | The production path that creates, or is planned to create, the fact under test |
@@ -332,16 +360,25 @@ The topology stores only the basis reference and digest so a self-reported basis
 cannot make its own graph appear complete.
 
 PLAN and pre-REVIEW use two typed views of the same proof obligation, not two
-truth sources. At PLAN, a new endpoint that does not exist yet uses
-`TopologySourceRefV1.refKind: "planned"`. Its `declarationRefs` must resolve to
-existing canonical PLAN facts: the applicable acceptance binding and intent,
-the signed scope-check, and the existing `ChecklistItem.files` declaration
-(`modify`, `create`, or `test`; plus the scope contract when phase-applicable). The
-registered verifier derives `PlannedCoveragePathV1`; the topology author cannot
-invent a path merely by naming a future symbol. A PLAN basis may be `complete`
-relative to the frozen planning scope when every existing path and every typed
-planned path is closed, even though the planned implementation does not yet
-exist. That classification is structural only and is not evidence that code ran.
+truth sources. The target schema additively nests
+`VerificationPlannedPathDeclarationV1[]` on the existing
+`VerificationIntentItem`; it does not create a new artifact, store, acceptance
+claim, or completion fact. The verification-intent flow writes and freezes the
+declaration with the intent. That declaration—not `verificationTopology`—owns
+endpoint roles, expected artifacts/files/symbols or facts, output fact, and the
+producer→consumer relation. Its `fileDeclarationRef` values must resolve to the
+same checklist item's existing `files.modify/create/test` entries and the files
+must remain inside the signed scope-check/phase-applicable scope contract.
+
+At PLAN, topology uses `TopologySourceRefV1.refKind: "planned"` only to reference
+the frozen declaration ID and one of its endpoint IDs. It cannot restate or
+override the declaration's edge semantics. The registered verifier loads the
+declaration directly from canonical verificationIntent ownership, checks the
+file/scope refs, and independently derives `PlannedCoveragePathV1` plus its
+declaration digest. A PLAN basis may be `complete` relative to the frozen
+planning scope when every existing path and every declared planned path is
+closed, even though the planned implementation does not yet exist. That
+classification is structural only and is not evidence that code ran.
 
 At pre-REVIEW, planned refs are no longer accepted as unresolved promises. The
 verifier recomputes the actual basis from the current worktree and emits a
@@ -390,7 +427,7 @@ consumer outside the Story scope remains part of the closure.
 including files outside `storyFilesHash`; inability to resolve or inspect a
 relevant consumer forces `partial`, never optimistic completeness.
 
-### 5.3 Complete example
+### 5.3 Phase-separated example
 
 ```json
 {
@@ -405,8 +442,8 @@ relevant consumer forces `partial`, never optimistic completeness.
   "milestoneIds": ["M2"],
   "verificationTopology": {
     "schemaVersion": "proofstory.acceptance_topology.v1",
-    "coverageBasisRef": "CB-B-4444-001",
-    "coverageBasisDigest": "sha256:coverage-basis-digest",
+    "coverageBasisRef": "CB-B-4444-PLAN-001",
+    "coverageBasisDigest": "sha256:plan-coverage-basis-digest",
     "applicability": {
       "mode": "required"
     },
@@ -485,14 +522,13 @@ relevant consumer forces `partial`, never optimistic completeness.
 }
 ```
 
-The referenced basis is produced independently, for example:
+The topology-bound PLAN basis is produced independently, for example:
 
 ```json
 {
   "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
   "storyId": "B-4444",
-  "phaseBasis": "pre_review",
-  "priorPlanBasisDigest": "sha256:plan-coverage-basis-digest",
+  "phaseBasis": "plan",
   "status": "complete",
   "generatedBy": {
     "verifier": "acceptance-coverage-basis-verifier",
@@ -597,54 +633,186 @@ The referenced basis is produced independently, for example:
     "scopeContractDigest": "sha256:current-scope-contract",
     "closureFilesHash": "sha256:all-discovered-closure-files"
   },
-  "receiptRef": "receipt:coverage-basis:B-4444:001",
-  "basisDigest": "sha256:coverage-basis-digest"
+  "receiptRef": "receipt:coverage-basis:B-4444:plan:001",
+  "basisDigest": "sha256:plan-coverage-basis-digest"
 }
 ```
 
+After DEV, the verifier produces a second artifact. It does not replace the
+topology's PLAN ref/digest or reuse the PLAN receipt. This linkage-focused view
+shows the fields that must differ; the real artifact also contains every
+required schema field and freshly produced adapter/reconciliation record shown
+above:
+
+```json
+{
+  "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+  "storyId": "B-4444",
+  "phaseBasis": "pre_review",
+  "priorPlanBasisDigest": "sha256:plan-coverage-basis-digest",
+  "status": "complete",
+  "generatedBy": {
+    "verifier": "acceptance-coverage-basis-verifier",
+    "command": "lattice pre_review_check --storyId=B-4444",
+    "algorithmVersion": "v1"
+  },
+  "discoveryProfileRef": "profile:typescript-proof-gate:pre-review:v1",
+  "discoveryProfileDigest": "sha256:registered-pre-review-profile",
+  "discoveryMethods": ["scope_contract", "actual_diff_hunks", "process_fact_registry", "handler_dispatch_inventory", "static_call_graph", "runtime_trace"],
+  "adapterResults": [
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "scope-contract:pre-review:v1",
+      "method": "scope_contract",
+      "pathRefs": [],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["scope-contract:B-4444:post-dev"],
+      "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:scope:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:pre-review-adapter-scope"
+    },
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "actual-diff:pre-review:v1",
+      "method": "actual_diff_hunks",
+      "pathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["diff:post-dev-story"],
+      "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:diff:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:pre-review-adapter-diff"
+    },
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "process-facts:pre-review:v1",
+      "method": "process_fact_registry",
+      "pathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["registry:process-facts:post-dev"],
+      "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:registry:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:pre-review-adapter-registry"
+    },
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "handler-dispatch:pre-review:v1",
+      "method": "handler_dispatch_inventory",
+      "pathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["inventory:handler-dispatch:post-dev"],
+      "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:dispatch:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:pre-review-adapter-dispatch"
+    },
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "typescript-static:pre-review:v1",
+      "method": "static_call_graph",
+      "pathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["static-graph:pre-review-current"],
+      "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:typescript-static:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:pre-review-adapter-static"
+    },
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "bounded-runtime:pre-review:v1",
+      "method": "runtime_trace",
+      "pathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["trace:cutoff-smoke:post-dev"],
+      "asymmetryPolicy": {"kind": "bounded_non_exhaustive", "policyRef": "policy:bounded-runtime:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:pre-review-adapter-runtime"
+    }
+  ],
+  "scopeRefs": ["scope:path:review-run", "scope:path:review-verifier"],
+  "sourceInventoryRefs": ["handler:review_run_start", "verifier:verifyReviewRunPromptEnvelope"],
+  "plannedPathRecords": [],
+  "plannedActualReconciliations": [],
+  "enumeratedPathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
+  "excludedPathRefs": [],
+  "blindSpots": [],
+  "binding": {
+    "headHash": "post-dev-head",
+    "materialHash": "sha256:post-dev-material",
+    "storyFilesHash": "sha256:post-dev-story-files",
+    "scopeCheckDigest": "sha256:signed-scope-check",
+    "scopeContractDigest": "sha256:post-dev-scope-contract",
+    "closureFilesHash": "sha256:post-dev-closure-files"
+  },
+  "receiptRef": "receipt:coverage-basis:B-4444:pre-review:001",
+  "basisDigest": "sha256:pre-review-coverage-basis-digest"
+}
+```
+
+The PLAN and pre-REVIEW refs, receipts, and digests are deliberately different.
 The example illustrates the target shape only. It is not a claim that this
 schema or command exists.
 
 ### 5.4 PLAN-safe new-path example
 
-A Story that will add `review_run_finalize` and a new receipt verifier does not
-claim those symbols already exist. The topology endpoints use typed planned
-refs, and the verifier derives the corresponding basis record from existing
-PLAN declarations:
+A Story that will create a finalize handler and receipt verifier does not claim
+those files or symbols already exist. The verification-intent flow writes this
+declaration inside the relevant frozen intent item; its file refs point to two
+genuinely new `ChecklistItem.files.create` entries:
 
 ```json
 {
-  "schemaVersion": "proofstory.planned_coverage_path.v1",
-  "plannedPathRef": "planned-path:finalize->verify-final-receipt",
-  "producerRef": {
-    "refKind": "planned",
-    "plannedPathRef": "planned-path:finalize->verify-final-receipt",
-    "endpoint": "producer",
-    "expectedArtifactKind": "handler",
-    "expectedFileRef": "packages/main/src/handlers/review-run.ts",
-    "expectedSymbolOrFact": "review_run_finalize",
-    "declarationRefs": ["scope-check:B-new", "CHK-002:files:create:0"]
-  },
-  "consumerRefs": [{
-    "refKind": "planned",
-    "plannedPathRef": "planned-path:finalize->verify-final-receipt",
-    "endpoint": "consumer",
-    "expectedArtifactKind": "process_fact",
-    "expectedFileRef": "packages/main/src/core/review-run.ts",
-    "expectedSymbolOrFact": "verifyFinalReviewReceipt",
-    "declarationRefs": ["scope-check:B-new", "CHK-002:files:create:1"]
-  }],
-  "outputFactRef": "planned-fact:final-review-receipt",
-  "acceptanceBindingRefs": ["AC-FINAL-RECEIPT"],
-  "verificationIntentRefs": ["CHK-002:happy:0", "CHK-002:adversarial:0"],
-  "declarationRefs": ["scope-check:B-new", "CHK-002"],
-  "plannedPathDigest": "sha256:canonical-planned-path"
+  "id": "CHK-002:happy:0",
+  "desc": "finalized runs produce a verifiable final receipt",
+  "type": "cli",
+  "priority": "must",
+  "plannedPathDeclarations": [{
+    "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+    "id": "VPP-FINAL-RECEIPT",
+    "relation": "producer_to_consumer",
+    "producer": {
+      "id": "ENDPOINT-FINALIZE",
+      "role": "producer",
+      "expectedArtifactKind": "handler",
+      "expectedFileRef": "packages/main/src/handlers/review-run-finalize.ts",
+      "expectedSymbolOrFact": "review_run_finalize",
+      "fileDeclarationRef": "CHK-002:files:create:0"
+    },
+    "consumers": [{
+      "id": "ENDPOINT-VERIFY-FINAL",
+      "role": "consumer",
+      "expectedArtifactKind": "process_fact",
+      "expectedFileRef": "packages/main/src/core/final-review-receipt.ts",
+      "expectedSymbolOrFact": "verifyFinalReviewReceipt",
+      "fileDeclarationRef": "CHK-002:files:create:1"
+    }],
+    "outputFactRef": "planned-fact:final-review-receipt"
+  }]
 }
 ```
 
-This record is inside the signed PLAN basis. It is neither executable evidence
-nor a second scope/checklist store. At pre-REVIEW it must reconcile to actual
-discovered paths, or admission fails.
+Topology references but cannot redefine that owner:
+
+```json
+{
+  "producerSourceRef": {
+    "refKind": "planned",
+    "plannedPathDeclarationRef": "CHK-002:happy:0:VPP-FINAL-RECEIPT",
+    "endpointRef": "ENDPOINT-FINALIZE"
+  },
+  "consumerSourceRef": {
+    "refKind": "planned",
+    "plannedPathDeclarationRef": "CHK-002:happy:0:VPP-FINAL-RECEIPT",
+    "endpointRef": "ENDPOINT-VERIFY-FINAL"
+  }
+}
+```
+
+The verifier reads the frozen intent declaration directly, confirms both file
+declaration refs and scope boundaries, and emits the `PlannedCoveragePathV1`
+inside the signed PLAN basis. The derived record binds the declaration digest;
+it does not trust endpoint semantics copied from topology. Neither the nested
+declaration nor its derived basis projection is executable evidence, a new
+artifact, or a parallel completion truth. At pre-REVIEW it must reconcile to
+actual discovered paths, or admission fails.
 
 ## 6. Structural integrity and totality rules
 
@@ -654,9 +822,12 @@ discovered paths, or admission fails.
 2. All topology IDs are non-empty and unique within the binding.
 3. Every referenced checklist, intent, milestone, command, and claim exists in
    its canonical owner. Existing producer/consumer source refs must resolve now;
-   planned source refs instead resolve through a typed `plannedPathRef` whose
-   declaration refs exist in canonical PLAN owners.
-4. Every required producer feeds at least one real consumer.
+   planned source refs resolve only to an endpoint in a frozen
+   `VerificationPlannedPathDeclarationV1` owned by verificationIntent.
+4. At PLAN, every required producer feeds at least one existing consumer or one
+   typed planned consumer from that canonical declaration. At pre-REVIEW, every
+   required producer must feed an actually discovered consumer through a valid
+   planned→actual reconciliation; a planned-only consumer cannot pass.
 5. Every required consumer points to at least one producer.
 6. Every must-priority intent appears in at least one positive assertion,
    mutation case, or transcript assertion appropriate to its lane.
@@ -702,10 +873,11 @@ discovered paths, or admission fails.
 23. Process-fact and dispatch traversal reaches registered consumers outside
     Story scope. Every such consumer is mapped or independently excluded, and
     failure to inspect one forces `partial`.
-24. A PLAN basis may contain a planned path only when all typed declaration refs
-    resolve and bind that path to an acceptance binding, intent, scope, expected
-    file/artifact kind, producer, consumer, and output fact. A bare future string
-    is invalid.
+24. A PLAN basis may contain a planned path only when its frozen verification-
+    intent declaration owns and binds the relation, endpoint roles, expected
+    file/artifact/symbol or fact, output fact, and valid `ChecklistItem.files`
+    refs. Topology references the declaration/endpoint IDs only; a bare future
+    string or topology-owned restatement is invalid.
 25. Every planned path is reconciled to current actual discovery before REVIEW.
     No unresolved planned endpoint can satisfy executable readiness; expansions
     and approved replacements remain subject to topology/basis closure.
@@ -743,6 +915,8 @@ discovered paths, or admission fails.
 | `AT_REGISTERED_CONSUMER_UNMAPPED` | A globally registered consumer reached from a Story fact is absent from topology/exclusions |
 | `AT_CLOSURE_FILES_STALE` | A producer/consumer closure source changed while the topology-bound closure hash remained old |
 | `AT_PLANNED_PATH_INVALID` | A planned path is free-form, incomplete, duplicate, or lacks resolvable canonical PLAN declaration refs |
+| `AT_PLANNED_PATH_DECLARATION_MISSING` | A planned topology endpoint has no frozen verification-intent declaration or names an unknown declaration/endpoint ID |
+| `AT_PLANNED_PATH_DECLARATION_DRIFT` | Topology or basis attempts to restate/override declaration-owned relation, role, file, symbol/fact, or output-fact semantics |
 | `AT_PLANNED_PATH_OUTSIDE_BASIS` | Topology declares a planned path that the PLAN verifier did not derive from frozen scope/declarations |
 | `AT_REQUIRED_ADAPTER_RESULT_MISSING` | The registered profile requires an adapter for this scope but its result record is absent or duplicated |
 | `AT_ADAPTER_RESULT_DIGEST_MISMATCH` | An adapter record or its aggregate projection does not match its result digest/basis digest |
@@ -758,8 +932,8 @@ Inputs:
 - confirmed milestone ledger when the milestone path applies;
 - ProofStory acceptance bindings and topology;
 - checklist and frozen verificationIntent;
-- typed planned-path declarations bound to `ChecklistItem.files` for endpoints
-  that DEV will introduce;
+- frozen `VerificationPlannedPathDeclarationV1` records owned by verification-
+  intent and bound to `ChecklistItem.files` for endpoints DEV will introduce;
 - independently generated coverage basis and verifier receipt;
 - applicability decisions and configured rollout mode.
 
@@ -775,7 +949,9 @@ Algorithm:
 
 ```text
 normalize supported topology versions
-resolve existing canonical refs and validate typed planned refs against canonical PLAN declarations
+resolve existing canonical refs
+resolve each planned topology ref to a frozen verification-intent declaration/endpoint
+reject topology-owned restatements or overrides of declaration semantics
 derive applicability for each binding
 bind the applicable existing scope-check/scope-contract artifacts
 load the registered discovery profile for this scope
@@ -783,7 +959,7 @@ run each required adapter and hash its complete result record
 reject missing, duplicate, invalid, or digest-mismatched required adapter results
 seed global registry/dispatch traversal from Story facts and follow all registered consumers
 reconcile adapter outputs by union under typed per-adapter policies
-derive planned path records from frozen scope + binding/intent/ChecklistItem.files declarations
+derive planned path records independently from frozen intent declarations + ChecklistItem.files + scope
 independently derive PLAN basis from current paths + typed planned paths
 classify basis as complete, partial, or unsupported
 stop with INCONCLUSIVE unless required basis status is complete
@@ -811,7 +987,8 @@ structuralPass =
   AND topology.coverageBasisDigest == basis.basisDigest
   AND every profile-required adapter has one valid hash-bound result
   AND aggregate methods, paths, and blind spots equal the adapter-result projection
-  AND every planned topology path was independently derived into basis.plannedPathRecords
+  AND every planned topology ref resolves to a frozen declaration endpoint
+  AND every planned basis path was independently derived from that declaration
   AND every basis path is mapped or independently excluded
   AND every topology path belongs to basis
   AND all remaining topology invariants pass
@@ -900,6 +1077,7 @@ evidence evaluation:
 
 ```text
 load the signed PLAN basis and its plannedPathRecords
+load each frozen verification-intent declaration and verify its PLAN-bound digest
 recompute a phaseBasis=pre_review basis from actual diff/source/runtime inputs
 verify all profile-required adapter records and reconstruct their union
 for each plannedPathRef, resolve current producer, consumer, fact, and source endpoints
@@ -992,8 +1170,9 @@ Rules:
    identity; otherwise it is a new run, not a refresh.
 9. Coverage-basis freshness is stricter than evidence freshness: a change to
    frozen scope, relevant diff hunks, registered producer/consumer facts,
-   topology, or discovery inputs requires basis recomputation. Rebinding an old
-   path inventory to a new hash is forbidden.
+   topology, frozen planned-path declaration, or discovery inputs requires basis
+   recomputation. Rebinding an old path inventory or declaration projection to a
+   new hash is forbidden.
 
 ## 10. Applicability and compatibility
 
@@ -1147,12 +1326,15 @@ avoid a second concept with a misleading synonym.
 
 ### Wave 1 — Schema and read-only diagnostics
 
-Outcome: normalize v1 topology, validate references/totality, and render the
-derived matrix in observe mode.
+Outcome: add/freeze the versioned planned-path declaration under existing
+verificationIntent ownership, normalize v1 topology references, validate
+references/totality, and render the derived matrix in observe mode.
 
 Entry: this plan is human-approved.  
-Exit: schema round-trips; legacy contracts read; derived rows expose canonical
-IDs; no lifecycle behavior changes.  
+Exit: planned declarations round-trip inside checklist verificationIntent;
+verification-intent flow owns their write/freeze semantics; topology can only
+reference declaration/endpoint IDs; legacy contracts read; derived rows expose
+canonical IDs; no lifecycle behavior changes.
 Stop: any need for a separate writable artifact or ambiguous canonical owner.
 
 ### Wave 1A — Independently derived coverage basis
@@ -1168,7 +1350,9 @@ runtime paths are reconciled by union under typed adapter policies; global
 registry/dispatch traversal includes consumers outside Story scope; blind spots
 or unexplained discovery disagreement cause `INCONCLUSIVE`; every required
 adapter has a replayable hash-bound result and omission/tampering fails;
-verifier-derived typed planned paths permit genuinely new endpoints at PLAN;
+verifier-derived typed planned paths come from frozen verification-intent
+declarations and permit genuinely new endpoints at PLAN without circularly
+trusting topology;
 existing scope artifacts and both Story/closure hashes are bound; stale bindings
 fail; every exclusion requires an eligible decision ref.
 Stop: basis completeness depends on self-report, reviewer prose, silently
@@ -1186,7 +1370,9 @@ observe/warn/enforce configuration.
 Dependency: Waves 1 and 1A.
 Exit: missing edges and prompt-only facts produce stable codes; docs-only and
 single-outcome paths avoid false blocks; a declared new producer→consumer path
-can enter DEV without pretending its code exists; process facts are registered.
+can enter DEV without pretending its code exists; PLAN accepts its typed planned
+consumer, while pre-REVIEW requires an actual reconciled consumer; process facts
+are registered.
 Stop: the check requires executed evidence or duplicates verificationIntent.
 
 ### Wave 2A — Independent topology critic and role eligibility
@@ -1259,9 +1445,11 @@ decomposition. A wave cannot claim later-wave completion.
 | Scenario/mutation | Stage | Expected result/code |
 |---|---|---|
 | Complete verifier-produced basis plus basis-closed required topology | PLAN | pass |
-| New handler P and consumer C do not exist yet, but a typed planned path is bound to signed scope/checklist/binding/intent declarations | PLAN | structural pass; DEV may begin without executable evidence |
+| New handler P and consumer C do not exist yet, but frozen verificationIntent declaration VPP owns their typed edge and valid files/scope refs | PLAN | structural pass; DEV may begin without executable evidence |
 | New path is declared only as free-form future symbols or lacks a `ChecklistItem.files`/scope declaration | PLAN | `AT_PLANNED_PATH_INVALID` |
-| Topology invents planned path P→C that the verifier cannot derive into the PLAN basis | PLAN | `AT_PLANNED_PATH_OUTSIDE_BASIS` |
+| Topology invents planned P→C without a frozen verification-intent declaration/endpoint | PLAN | `AT_PLANNED_PATH_DECLARATION_MISSING` |
+| Topology restates VPP but changes its endpoint role, symbol/fact, file, or relation | PLAN | `AT_PLANNED_PATH_DECLARATION_DRIFT` |
+| A valid declaration exists but verifier cannot derive P→C into the PLAN basis from it/files/scope | PLAN | `AT_PLANNED_PATH_OUTSIDE_BASIS` |
 | Required topology has no signed basis | PLAN | `AT_COVERAGE_BASIS_MISSING` |
 | Basis is caller-authored or issuer is ineligible | PLAN | reject artifact; no completeness state |
 | Basis is `partial` or `unsupported` | PLAN | `AT_COVERAGE_BASIS_PARTIAL`; `INCONCLUSIVE` |
@@ -1273,8 +1461,10 @@ decomposition. A wave cannot claim later-wave completion.
 | Runtime finds C2 while static misses C2 without explained adapter policy | PLAN | union retains C2 and `AT_DISCOVERY_DISAGREEMENT`; basis is `partial` |
 | Static/runtime adapters disagree semantically without reconciliation | both | `AT_DISCOVERY_DISAGREEMENT` / `PR_DISCOVERY_DISAGREEMENT`; cannot pass |
 | Remove a profile-required static adapter result while leaving its method/path in the aggregate | PLAN | `AT_REQUIRED_ADAPTER_RESULT_MISSING`; cannot pass |
+| Duplicate one profile-required adapter result with the same adapter ID/method | PLAN | `AT_REQUIRED_ADAPTER_RESULT_MISSING`; exactly-once cardinality fails |
 | Delete a required method from the basis payload while the registered profile still requires it | PLAN | `AT_REQUIRED_ADAPTER_RESULT_MISSING`; caller cannot narrow profile |
 | Change one adapter's C2 path set, claim, blind spots, provenance, or asymmetry policy without recomputing its digest and signed basis | PLAN | `AT_ADAPTER_RESULT_DIGEST_MISMATCH` |
+| Keep every signed adapter result unchanged but independently add/remove C2 in aggregate `enumeratedPathRefs` or alter aggregate `blindSpots` | PLAN | `AT_ADAPTER_RESULT_DIGEST_MISMATCH`; derived projection fails |
 | Recompute an adapter digest after tampering but retain the old signed basis receipt | PLAN | `AT_ADAPTER_RESULT_DIGEST_MISMATCH`; receipt/basis digest verification fails |
 | Story changes producer P whose registered consumer C2 is outside Story scope | PLAN | global traversal retains C2; missing mapping yields `AT_REGISTERED_CONSUMER_UNMAPPED` |
 | Missing producer | PLAN | `AT_UNKNOWN_REF` or `AT_ORPHAN_CONSUMER` |
@@ -1290,6 +1480,8 @@ decomposition. A wave cannot claim later-wave completion.
 | Planned P→C is implemented as P→D with changed fact semantics and no approved replacement | pre-REVIEW | `PR_PLANNED_PATH_MISMATCH` |
 | Remove or alter the planned→actual reconciliation while retaining its signed pre-REVIEW basis | pre-REVIEW | `PR_PLANNED_PATH_RECONCILIATION_TAMPERED` |
 | Remove/tamper a required adapter result after DEV | pre-REVIEW | `PR_REQUIRED_ADAPTER_RESULT_MISSING` / `PR_ADAPTER_RESULT_DIGEST_MISMATCH` |
+| Duplicate one profile-required current-worktree adapter result after DEV | pre-REVIEW | `PR_REQUIRED_ADAPTER_RESULT_MISSING`; exactly-once cardinality fails |
+| Keep every signed current-worktree adapter result unchanged but independently mutate aggregate paths or aggregate blind spots | pre-REVIEW | `PR_ADAPTER_RESULT_DIGEST_MISMATCH`; derived projection fails |
 | DEV adds consumer C2 after PLAN | pre-REVIEW | `PR_COVERAGE_BASIS_CHANGED` plus `PR_NEW_PATH_UNMAPPED` |
 | Remove C2 from topology while current basis retains C2 | both | omission mutation must fail with `AT_UNMAPPED_SCOPE_REF` |
 | Dynamic path cannot be enumerated or traced | pre-REVIEW | `PR_COVERAGE_INCONCLUSIVE` |
@@ -1355,7 +1547,8 @@ to find genuinely unmodeled issues.
 | Parallel truth source emerges | Matrix becomes writable | Conflicting completion facts | Derived-only renderer; reject writes |
 | Schema duplicates claims/results | Inline prose and verdicts are accepted | Drift and laundering | Reference-only normalization; `AT_INLINE_RESULT_FORBIDDEN` |
 | Coverage basis is self-reported | Implementer supplies both universe and topology | Omitted C2 passes both gates | Registered verifier independently derives basis; caller cannot set status or inventory |
-| PLAN requires new code to exist | Canonical-ref rule has no planned form | Genuine new producer/consumer can never enter DEV | Typed verifier-derived planned paths at PLAN; mandatory actual reconciliation before REVIEW |
+| Topology circularly owns planned edges | Future symbols/relations exist only inside topology | Basis merely repeats the graph it is meant to challenge | Frozen verification-intent declaration owns the edge; topology references IDs; verifier derives basis from declaration/files/scope |
+| PLAN requires new code to exist | Canonical-ref rule has no planned form | Genuine new producer/consumer can never enter DEV | Verification-intent-owned declaration plus verifier-derived planned path at PLAN; mandatory actual reconciliation before REVIEW |
 | Planned promises survive into REVIEW | DEV omits or changes a declared path | Structural plan is mistaken for implemented closure | Fail closed on unresolved/mismatched/tampered planned→actual reconciliation |
 | Adapter aggregation loses provenance | Basis retains only a union/method list | Required adapter can be ignored or its claim/policy rewritten invisibly | Hash-bound per-adapter records, registered required profile, reproducible projection, signed basis digest |
 | Basis says complete despite blind spots | Dynamic/reflection/plugin paths are not discoverable | False completeness | Three-state classification; unresolved blind spot forces `partial`/`unsupported` and `INCONCLUSIVE` |
@@ -1420,12 +1613,19 @@ Mark **Pass** only if every required row below is true. Otherwise mark
 - [ ] The topology schema is reference-based and versioned.
 - [ ] `coverageBasis` is generated by a registered verifier, not supplied by the
       implementer or reviewer.
-- [ ] A genuinely new producer/consumer uses a typed, verifier-derived planned
-      path bound to existing PLAN declarations; it need not exist before DEV and
-      cannot remain an unresolved promise before REVIEW.
+- [ ] `VerificationPlannedPathDeclarationV1` is nested under existing
+      verificationIntent ownership, written/frozen by that flow, and canonically
+      owns endpoint roles, expected files/symbols/facts, file refs, and relation.
+- [ ] Topology only references planned declaration/endpoint IDs; the verifier
+      independently derives the PLAN-basis projection from the frozen declaration,
+      `ChecklistItem.files`, and scope. No new artifact or completion truth exists.
+- [ ] A genuinely new declared producer/consumer need not exist before DEV, but
+      its planned consumer cannot remain unresolved before REVIEW.
 - [ ] Planned→actual reconciliation is digest-bound, included in the signed
       pre-REVIEW basis, and fails closed for omitted, mismatched, expanded-but-
       unmapped, or tampered paths.
+- [ ] The topology references the PLAN basis/ref/receipt only; pre-REVIEW uses a
+      distinct basis digest and receipt linked through `priorPlanBasisDigest`.
 - [ ] Basis status is exactly `complete`, `partial`, or `unsupported`, and only
       `complete` can satisfy topology completeness.
 - [ ] The PLAN basis is derived from frozen scope, current discoverable paths,
@@ -1443,6 +1643,9 @@ Mark **Pass** only if every required row below is true. Otherwise mark
 - [ ] Adapter records and digests are included in `basisDigest`/signed receipt;
       omission, duplication, field tampering, or aggregate mismatch has
       deterministic PLAN and pre-REVIEW failure codes and negative tests.
+- [ ] The mutation matrix separately bites duplicate required adapter records and
+      aggregate-only path/blind-spot projection tampering at both PLAN and
+      pre-REVIEW.
 - [ ] Registry/dispatch discovery traverses globally from Story facts to every
       registered consumer, including outside Story scope, and binds a separate
       `closureFilesHash`.
