@@ -2,11 +2,11 @@
   "schemaVersion": "proof-or-stop.prompt-baseline.v8",
   "storyId": "B-3928",
   "sourcePlan": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-  "expectedRoleCount": 16,
+  "expectedRoleCount": 17,
   "promptPolicyApproval": {
     "model": "independent-hardcoded-role-and-mode-aware-whole-prompt-digest-manifest",
     "algorithm": "sha256",
-    "roleCount": 16,
+    "roleCount": 17,
     "primaryBoundary": "The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.",
     "roles": [
       {
@@ -60,6 +60,10 @@
       {
         "role": "lattice-review-test-coverage",
         "templateHash": "d0b67884622aaf5c99959639328709005223df5686e2f0efce32303321a47f31"
+      },
+      {
+        "role": "lattice-review-topology-critic",
+        "templateHash": "6146d87bed6252f394b9f208a6697f8937ba714d19d31aba3bd77a26fec4bed0"
       },
       {
         "role": "product-reviewer",
@@ -136,8 +140,8 @@
     "module": "packages/main/dist/core/prompt-registry.js",
     "schemaVersion": "lattice.prompt-registry.v1",
     "source": "@lattice/core/templates/agents",
-    "agentCount": 16,
-    "materialHash": "99b87d3266072c4b7df53f04b0860e997e772f3ddc28dcc0179970aacc957cd9",
+    "agentCount": 17,
+    "materialHash": "25c0e9bd567b5a382aeeed6597a92f25c4265c46149ea5f62a83ae7abe6c9633",
     "roles": [
       {
         "role": "implementation-reviewer",
@@ -242,6 +246,14 @@
         "templateHash": "d0b67884622aaf5c99959639328709005223df5686e2f0efce32303321a47f31",
         "bytes": 2386,
         "lines": 42
+      },
+      {
+        "role": "lattice-review-topology-critic",
+        "file": "lattice-review-topology-critic.md",
+        "relPath": "templates/agents/lattice-review-topology-critic.md",
+        "templateHash": "6146d87bed6252f394b9f208a6697f8937ba714d19d31aba3bd77a26fec4bed0",
+        "bytes": 1096,
+        "lines": 22
       },
       {
         "role": "product-reviewer",
@@ -350,6 +362,12 @@
         "sha256": "41b169fad63ae50937565df9f6323cc27964aeb05407e1f01e471131f6815dc5",
         "bytes": 476,
         "lines": 11
+      },
+      {
+        "role": "lattice-review-topology-critic",
+        "sha256": "bd29a06ed5e944b832413befce85605218fec6427d2e51e3d22c4d91d4b4e9c0",
+        "bytes": 1097,
+        "lines": 23
       },
       {
         "role": "product-reviewer",
@@ -542,6 +560,19 @@
       "notes": "Current replacement for the value of legacy TEST_CASE_REVIEW."
     },
     {
+      "role": "lattice-review-topology-critic",
+      "status": "active",
+      "phase": "PLAN/DEV/REVIEW",
+      "purpose": "Independently reviews acceptance topology completeness and signs a current critic receipt.",
+      "commands": "git diff; topology_critic_receipt_set; topology_critic_receipt_check.",
+      "directFileAccess": "Reads current source, topology, basis, and scope artifacts; writes only through registered Lattice receipt commands.",
+      "inputs": "Current acceptance basis/topology, scope bindings, findings, exclusions, and implementation provenance.",
+      "outputs": "Signed topology-critic receipt with pass or request_changes verdict.",
+      "capabilities": "Topology completeness criticism; four-dimensional independence verification; exclusion-approval validation.",
+      "overlapCategory": "independent acceptance-topology authority critic",
+      "notes": "Cannot override partial or unsupported discovery and cannot approve its own exclusions."
+    },
+    {
       "role": "product-reviewer",
       "status": "compatibility",
       "phase": "INIT/DONE advisory",
@@ -674,6 +705,11 @@
           "role": "lattice-review-test-coverage",
           "relPath": "templates/agents/lattice-review-test-coverage.md",
           "templateHash": "d0b67884622aaf5c99959639328709005223df5686e2f0efce32303321a47f31"
+        },
+        {
+          "role": "lattice-review-topology-critic",
+          "relPath": "templates/agents/lattice-review-topology-critic.md",
+          "templateHash": "6146d87bed6252f394b9f208a6697f8937ba714d19d31aba3bd77a26fec4bed0"
         },
         {
           "role": "product-reviewer",

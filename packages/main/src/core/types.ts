@@ -28,6 +28,7 @@ export type AgentDispatchCanonicalType =
   | 'lattice-review-story-init'
   | 'product-reviewer'
   | 'lattice-review-scope-plan'
+  | 'lattice-review-topology-critic'
   | 'lattice-review-concept'
   | 'lattice-review-quality'
   | 'lattice-review-test-coverage'
@@ -57,6 +58,7 @@ export type AgentDispatchPromptBuilderKey =
   | 'init-review'
   | 'product-init-review'
   | 'scope-plan-review'
+  | 'topology-critic-review'
   | 'story-review'
   | 'item-review'
   | 'coverage-review'
@@ -68,6 +70,8 @@ export type AgentDispatchMutationCommand =
   | 'checklist_update'
   | 'init_check_set'
   | 'scope_check_save'
+  | 'topology_exclusion_approval_set'
+  | 'topology_critic_receipt_set'
   | 'review_run_start'
   | 'finding_add'
   | 'review_pass_set'
@@ -78,6 +82,7 @@ export type AgentDispatchReviewerLane =
   | 'lattice-review-story-init'
   | 'product-reviewer'
   | 'lattice-review-scope-plan'
+  | 'lattice-review-topology-critic'
   | 'lattice-review-concept'
   | 'lattice-review-quality'
   | 'lattice-review-test-coverage'
@@ -91,6 +96,8 @@ export type AgentDispatchEvidenceOwnership =
   | 'verification-intent'
   | 'init-check'
   | 'scope-check'
+  | 'topology-exclusion-approval'
+  | 'topology-critic-receipt'
   | 'review-run'
   | 'finding'
   | 'review-pass'
@@ -399,6 +406,66 @@ export interface AcceptanceBasisArtifactV1 {
   schemaVersion: 'proofstory.acceptance_basis_artifact.v1';
   basis: AcceptanceCoverageBasisV1;
   receipt: AcceptanceBasisReceiptV1;
+}
+
+export interface TopologyActorProvenanceV1 {
+  agentId: string;
+  sessionId: string;
+  dispatchId: string;
+  businessIdentity: string;
+}
+
+export interface TopologyImplementationProvenanceV1 extends TopologyActorProvenanceV1 {
+  businessCommit: string;
+  businessCommitAuthor: string;
+}
+
+export interface TopologyExclusionApprovalV1 {
+  schemaVersion: 'proofstory.topology_exclusion_approval.v1';
+  approvalRef: string;
+  storyId: string;
+  exclusionRef: string;
+  scopeRef: string;
+  approverIdentity: string;
+  approverRole: 'lattice-review-scope-plan';
+  approverProvenance: TopologyActorProvenanceV1;
+  implementationProvenance: TopologyImplementationProvenanceV1;
+  basisDigest: string;
+  topologyDigest: string;
+  scopeCheckDigest: string;
+  scopeContractDigest?: string;
+  storyFilesHash: string;
+  closureFilesHash: string;
+  issuedAt: string;
+  signerPublicKey: string;
+  signature: string;
+}
+
+export interface TopologyExclusionApprovalsDataV1 {
+  schemaVersion: 'proofstory.topology_exclusion_approvals.v1';
+  storyId: string;
+  approvals: TopologyExclusionApprovalV1[];
+}
+
+export interface TopologyCriticReceiptV1 {
+  schemaVersion: 'proofstory.topology_critic_receipt.v1';
+  storyId: string;
+  criticIdentity: string;
+  criticRole: 'lattice-review-topology-critic';
+  criticProvenance: TopologyActorProvenanceV1;
+  implementationProvenance: TopologyImplementationProvenanceV1;
+  basisDigest: string;
+  topologyDigest: string;
+  scopeCheckDigest: string;
+  scopeContractDigest?: string;
+  storyFilesHash: string;
+  closureFilesHash: string;
+  findingRefs: string[];
+  approvedExclusionRefs: string[];
+  verdict: 'pass' | 'request_changes';
+  issuedAt: string;
+  signerPublicKey: string;
+  signature: string;
 }
 
 export type VerificationIntent = Record<VerificationLane, VerificationIntentItem[]>;

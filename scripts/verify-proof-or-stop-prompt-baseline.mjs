@@ -32,7 +32,7 @@ const PROMPT_MEASUREMENT_BASELINE_PATH = join(
   ROOT,
   'docs/requirements/baselines/role-prompt-measurement-baseline.json',
 );
-const EXPECTED_ROLE_COUNT = 16;
+const EXPECTED_ROLE_COUNT = 17;
 const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v8';
 const PLAN_PATH = 'docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md';
 const WRITE_MODE = process.argv.includes('--write');
@@ -93,6 +93,10 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
     role: 'lattice-review-test-coverage',
     templateHash: 'd0b67884622aaf5c99959639328709005223df5686e2f0efce32303321a47f31',
+  },
+  {
+    role: 'lattice-review-topology-critic',
+    templateHash: '6146d87bed6252f394b9f208a6697f8937ba714d19d31aba3bd77a26fec4bed0',
   },
   {
     role: 'product-reviewer',
@@ -443,6 +447,18 @@ const ROLE_MATRIX_DEFAULTS = {
     capabilities: 'Fresh-context intake review; story clarity; risk sanity check.',
     overlapCategory: 'overlaps scope-plan on checklist sanity',
     notes: 'Baseline includes grandfathered direct story-file reads and init-self-check write wording.',
+  },
+  'lattice-review-topology-critic': {
+    status: 'active',
+    phase: 'PLAN/DEV/REVIEW',
+    purpose: 'Independently reviews acceptance topology completeness and signs a current critic receipt.',
+    commands: 'git diff; topology_critic_receipt_set; topology_critic_receipt_check.',
+    directFileAccess: 'Reads current source, topology, basis, and scope artifacts; writes only through registered Lattice receipt commands.',
+    inputs: 'Current acceptance basis/topology, scope bindings, findings, exclusions, and implementation provenance.',
+    outputs: 'Signed topology-critic receipt with pass or request_changes verdict.',
+    capabilities: 'Topology completeness criticism; four-dimensional independence verification; exclusion-approval validation.',
+    overlapCategory: 'independent acceptance-topology authority critic',
+    notes: 'Cannot override partial or unsupported discovery and cannot approve its own exclusions.',
   },
   'lattice-review-test-coverage': {
     status: 'active',
@@ -1955,11 +1971,11 @@ async function verifyPromptMeasurementSidecar(failures) {
     failures.push(`role-prompt measurement sidecar expected ${EXPECTED_ROLE_COUNT} records, got ${current.records?.length ?? 'missing'}`);
   }
   if (
-    current.aggregate?.activeRoleCount !== 12 ||
+    current.aggregate?.activeRoleCount !== 13 ||
     current.aggregate?.compatibilityRoleCount !== 3 ||
     current.aggregate?.retiredRoleCount !== 1
   ) {
-    failures.push('role-prompt measurement sidecar lifecycle partition must remain 12 active / 3 compatibility / 1 retired');
+    failures.push('role-prompt measurement sidecar lifecycle partition must remain 13 active / 3 compatibility / 1 retired');
   }
   for (const [index, record] of (current.records ?? []).entries()) {
     if (record.schemaVersion !== 'proofbound.prompt-measurement.v1') {
@@ -3357,12 +3373,12 @@ async function verifyBaseline() {
     process.exit(1);
   }
 
-  console.log('PASS proof-or-stop prompt baseline: independent approval manifest binds all 16 exact role IDs and complete prompt bodies');
-  console.log('PASS proof-or-stop prompt baseline: roleCount=16 registry hashes verified');
-  console.log('PASS proof-or-stop prompt baseline: roleCount=16 registry snapshot integrity verified');
-  console.log('PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for 16 roles');
+  console.log(`PASS proof-or-stop prompt baseline: independent approval manifest binds all ${EXPECTED_ROLE_COUNT} exact role IDs and complete prompt bodies`);
+  console.log(`PASS proof-or-stop prompt baseline: roleCount=${EXPECTED_ROLE_COUNT} registry hashes verified`);
+  console.log(`PASS proof-or-stop prompt baseline: roleCount=${EXPECTED_ROLE_COUNT} registry snapshot integrity verified`);
+  console.log(`PASS proof-or-stop prompt baseline: agent_prompt output hashes verified for ${EXPECTED_ROLE_COUNT} roles`);
   console.log('PASS proof-or-stop prompt baseline: 10 snapshot mutations plus isolated real source/assembled collection mutation→failure→restore→pass and unknown-role command rejected');
-  console.log('PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for 16 roles');
+  console.log(`PASS proof-or-stop prompt baseline: role matrix snapshot integrity verified for ${EXPECTED_ROLE_COUNT} roles`);
   console.log('PASS proof-or-stop prompt baseline: role matrix field/Markdown/role-count/missing-row drift rejected');
   console.log('INFO proof-or-stop prompt baseline: all human-authored role-matrix semantics remain reviewer-audited');
   console.log('PASS proof-or-stop prompt baseline: legacy vocabulary findings classified');
@@ -3370,7 +3386,7 @@ async function verifyBaseline() {
   console.log('PASS proof-or-stop prompt baseline: direct story-file findings classified');
   console.log(`INFO proof-or-stop prompt baseline: story-reference scanner diagnostics audit ${DIRECT_STORY_REFERENCE_ALLOWLIST.length} exact references inside manifest-approved prompt bodies`);
   console.log('PASS proof-or-stop prompt baseline: direct story-write diagnostics have 1 exact registered INIT write');
-  console.log('PASS proof-or-stop prompt baseline: deterministic 16-role PromptMeasurementRecord sidecar verified without refresh authority');
+  console.log(`PASS proof-or-stop prompt baseline: deterministic ${EXPECTED_ROLE_COUNT}-role PromptMeasurementRecord sidecar verified without refresh authority`);
 }
 
 if (PROBE_DIRECT_STORY_CLASSIFIER) {

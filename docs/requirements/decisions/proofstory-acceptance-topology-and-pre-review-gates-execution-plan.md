@@ -1386,6 +1386,17 @@ Stop: independence is inferred from prompt text or self-report, critic evidence
 is not mechanically verified, or critic/exclusion approval can override
 discovery incompleteness.
 
+Implementation contract: the registered critic role is
+`lattice-review-topology-critic`; the independently registered exclusion
+approver is `lattice-review-scope-plan`. The production writer commands are
+`topology_critic_receipt_set` and `topology_exclusion_approval_set`, while
+`topology_critic_receipt_check` is read-only. Their signed artifacts bind the
+current basis/topology/scope/workspace hashes and exact actor, session,
+dispatch, and business-commit-author provenance. Exclusions require a current
+one-to-one signed approval mapping. A `partial` or `unsupported` basis is an
+unconditional non-pass. These mechanics do not imply Wave 3 executable
+evidence, Wave 3A applicability selection, or Wave 4 rollout.
+
 ### Wave 3 — Executable pre-review evidence
 
 Outcome: implement `pre_review_check`, current-worktree basis recomputation,
