@@ -10,7 +10,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B98B0-M1-H-CANONICAL",
+            "desc": "M1: With a registered verifier-issued current PLAN basis whose status is complete and whose normalized topology is basis-closed, the canonical evaluator returns structuralPass=true, a deterministic ordered row/code set, and the identical semantic result consumed by direct core evaluation, the CLI handler, and PLAN→DEV lifecycle evaluation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B98B0-M1-E-NONPASS-BASIS",
+            "desc": "M1: Missing, partial, unsupported, stale, closure-stale, signature/digest-tampered, required-adapter-missing, or aggregate-projection-tampered basis inputs never pass; each produces its documented stable AT_* diagnostic and partial/unsupported remain INCONCLUSIVE even when the declared topology is internally closed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M1-E-MODES",
+            "desc": "M1: The flat project observe/warn/enforce resolver preserves the same canonical ordered diagnostics and evaluation result across modes; observe and warn do not block admission, enforce blocks only on the canonical non-pass result, and no fuzzy Story risk/milestone text selects a different mode.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B98B0-M1-A-CALLER-FORGERY",
+            "desc": "M1: Attempts by a caller or topology payload to forge complete/status, path inventory, blind spots, exclusions, issuer/authority, mode, or pass verdict are ignored or rejected; the verifier independently re-derives the basis and lifecycle status.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M1-A-OMISSION-INVENTION",
+            "desc": "M1: Starting from a clean complete basis containing C1+C2, deleting only C2 from topology fails AT_UNMAPPED_SCOPE_REF; inventing a topology path absent from the unchanged basis fails AT_TOPOLOGY_OUTSIDE_BASIS; restoring the exact clean inputs passes again.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
