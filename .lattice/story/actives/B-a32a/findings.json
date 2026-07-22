@@ -534,6 +534,25 @@
       ],
       "signatureTag": "edge|ts|global-directory-budget",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-027",
+      "desc": "AST parsing fixes regex and template lexing, but imported-call exactness is still name-only rather than binding-aware. acceptance-discovery-adapters.ts:263-269 collects every identifier CallExpression text into one file-wide Set and marks an import called when its local name appears anywhere. Valid nested shadowing therefore invents a consumer: `import { emit as consume } from ./producer.js; function wrapper(consume) { return consume(); }` has zero parse diagnostics and calledNames=[consume], although the imported binding is never called. That false edge can add an outside-scope file to closure and satisfy discoveredConsumer. The focused AST reproduction printed parseDiagnostics:0, calledNames:[consume], importedBindingActuallyCalled:false. Current smoke tests aliases and syntax forms but has no shadowed parameter, local binding, catch binding, or nested-scope mutation. Resolve each call identifier to the actual ImportSpecifier or ImportClause symbol, or conservatively mark shadowed/unprovable bindings partial, and add shadowing mutations plus a restored imported alias call.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T09:19:46.495Z",
+      "reviewRound": "2026-07-22T09:17:25.176Z",
+      "reviewRunId": "B-a32a:RR-026",
+      "_hash": "31646629c9098f706e31e2c5067408853219a429debb5dc8f46890dacb49160e",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|parsing-fixes-regex",
+      "signatureTagSource": "auto"
     }
   ]
 }
