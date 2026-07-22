@@ -29,9 +29,63 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Include the canonical verifier-owned acceptance-basis artifact written by acceptance_basis_generate; critic re-attestation remains a CHK-004 requirement and Wave 3A/Wave 4 stay excluded.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Wave 3 command registration requires the canonical read-only activity classification, command ownership/gate policy, and DEV phase allowlist; these are necessary mechanical consumers of the planned pre_review_check CLI path.",
+      "timestamp": "2026-07-22T23:01:46.892Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "78e97269993796c91cc6cb67f49ba4a0ea403a52",
+      "materialHash": "d4c7cef25f4b99aac498a0a51ab75ebd3a2d824040bf76151151b329f635a7f2",
+      "anchors": [
+        "pre_review_check",
+        "pre_review_check_read",
+        "runPreReviewCheckGate"
+      ]
+    },
+    {
+      "actor": "lattice-implementer",
+      "reason": "Wave 3 phase-bounded discovery changes the shared Wave 1A and Wave 2A closure; these focused compatibility fixtures must include the new registered source and replace stale pre-Wave-3 leakage expectations so backward behavior is mechanically revalidated.",
+      "timestamp": "2026-07-22T23:18:57.890Z",
+      "paths": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "fb2170f016a9e48d354e4b0506701eb372a9b05c",
+      "materialHash": "38311722e185b1b87ae9754e608c2dc7c73082fed9d0e05eb6ec2f92c12db957",
+      "anchors": [
+        "runAcceptanceDiscoveryAdapters",
+        "deriveAcceptanceCoverageBasis",
+        "writeDiscoveryRegistration",
+        "topologyCriticReceipt"
+      ]
+    }
+  ],
   "createdAt": "2026-07-22T22:41:51.162Z",
-  "updatedAt": "2026-07-22T22:43:58.386Z",
+  "updatedAt": "2026-07-22T23:18:57.890Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -52,6 +106,13 @@
     "docs/CLI.md": "docs/CLI.md",
     "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
-    ".lattice/story/actives/B-4ec1/acceptance-basis.json": ".lattice/story/actives/B-4ec1/acceptance-basis.json"
+    ".lattice/story/actives/B-4ec1/acceptance-basis.json": ".lattice/story/actives/B-4ec1/acceptance-basis.json",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
   }
 }

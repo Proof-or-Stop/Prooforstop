@@ -262,6 +262,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     storyId: input.storyId,
     plannedPathRecords: planned.records,
     scopeRefs,
+    phaseBasis: input.phaseBasis ?? 'plan',
     testHooks: input.discoveryTestHooks,
   });
   const registeredClosure = discovery.registeredClosure;

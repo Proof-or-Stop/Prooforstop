@@ -23,6 +23,7 @@ export interface AcceptanceDiscoveryInput {
   storyId: string;
   plannedPathRecords: PlannedCoveragePathV1[];
   scopeRefs: string[];
+  phaseBasis?: 'plan' | 'pre_review';
   /** Test-only bounded runtime observations; production derives without caller-authored paths. */
   runtimeObservedPathRefs?: string[];
   /** Test-only mutation point after graph/provenance assembly and before the derivation seal. */
@@ -926,10 +927,20 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const boundedUniverse = sourceInventory.files;
   const sourceScans = new Map(boundedUniverse.map(file => [file, analyzeLocalImportCalls(analysisContext, file)]));
   blindSpots.push(...[...sourceScans.values()].flatMap(scan => scan.blindSpots));
+  const planControlFacts = new Set(['acceptance_basis', 'acceptance_basis_generate', 'acceptance_topology_check', 'artifact:acceptance-basis.json']);
+  const preReviewControlFacts = new Set(['pre_review_check', 'pre_review_check_read', 'artifact:pre-review-check.json']);
+  const phaseControlFacts = new Set([...planControlFacts, ...preReviewControlFacts, 'acceptance_topology_check',
+    'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'topology_critic_receipt_check',
+    'artifact:topology-exclusion-approvals.json', 'artifact:topology-critic-receipt.json']);
+  const allowedPhaseControlFacts = (input.phaseBasis ?? 'plan') === 'pre_review'
+    ? new Set([...planControlFacts, ...preReviewControlFacts]) : planControlFacts;
   let changed = true;
   while (changed) {
     changed = false;
     for (const entry of PROCESS_FACT_REGISTRY) {
+      if (phaseControlFacts.has(entry.name)) {
+        if (!allowedPhaseControlFacts.has(entry.name)) continue;
+      }
       const files = entryFiles(entry).filter(file => !hubs.has(file));
       const commandMatch = commandNamesForEntry(entry).some(command => handlerCommands.has(command));
       if (!commandMatch && !files.some(file => closure.has(file))) continue;

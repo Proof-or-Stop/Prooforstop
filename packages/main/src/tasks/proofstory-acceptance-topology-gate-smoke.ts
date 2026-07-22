@@ -166,6 +166,12 @@ function writeDiscoveryRegistration(root: string): void {
     'export const acceptance_topology_check = "acceptance_basis acceptance_basis_generate transition-orchestrator PLAN to DEV structural gate";\n');
   write(root, 'packages/main/src/core/acceptance-topology.ts',
     'export const evaluateAcceptanceTopologyCheck = () => "PLAN to DEV structural gate";\n');
+  write(root, 'packages/main/src/core/agent-dispatch-registry.ts',
+    'export const acceptanceTopologyDispatch = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/pre-review-check.ts',
+    'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/topology-critic-receipt.ts',
+    'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts',
     'export const evaluateAcceptanceTopologyForContext = () => "acceptance_topology_check";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs',

@@ -143,10 +143,33 @@ try {
   assert.equal(parsed.ok, true, 'exact topology restoration returns the clean control to PASS');
 
   const artifact = store.readPreReviewCheck(storyId)!;
-  artifact.storyId = 'B-cross-story'; store.writePreReviewCheck(storyId, artifact);
-  const tampered = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
-  assert.ok(tampered.codes.includes('PR_ARTIFACT_TAMPERED'), JSON.stringify(tampered));
+  const artifactMutations: Array<[string, (value: any) => void]> = [
+    ['story', value => { value.storyId = 'B-cross-story'; }], ['mode', value => { value.mode = 'enforce'; }],
+    ['cutoff', value => { value.cutoffAt = baseAt; }], ['plan basis', value => { value.planBasisDigest = 'sha256:forged'; }],
+    ['topology', value => { value.topologyDigest = 'sha256:forged'; }], ['scope', value => { value.scopeCheckDigest = 'sha256:forged'; }],
+    ['story files', value => { value.storyFilesHash = 'sha256:forged'; }], ['closure files', value => { value.closureFilesHash = 'sha256:forged'; }],
+    ['evidence refs', value => { value.evidenceRefs = []; }], ['issued at', value => { value.issuedAt = baseAt; }],
+    ['signer', value => { value.signerPublicKey = 'forged'; }], ['signature', value => { value.signature = 'forged'; }],
+    ['adapter record', value => { value.preReviewBasisArtifact.basis.adapterResults.pop(); }],
+    ['reconciliation', value => { value.preReviewBasisArtifact.basis.plannedActualReconciliations[0].reconciliationDigest = 'sha256:forged'; }],
+  ];
+  for (const [label, mutate] of artifactMutations) {
+    const value = structuredClone(artifact); mutate(value); store.writePreReviewCheck(storyId, value);
+    const tampered = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+    assert.ok(tampered.codes.includes('PR_ARTIFACT_TAMPERED'), `${label}: ${JSON.stringify(tampered.codes)}`);
+  }
   store.writePreReviewCheck(storyId, parsed.artifact);
+
+  write(root, 'evidence/pre-review-transcript.json', JSON.stringify({ storyId, events: [{ kind: 'consumer', intentRef: 'INT-PRE' }, { kind: 'producer', intentRef: 'INT-PRE' }], mutation: { applied: true, expectedCode: 'X', observedCode: 'X', controlRestored: true } }));
+  const unrelatedTranscript = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+  assert.ok(unrelatedTranscript.codes.includes('PR_TRANSCRIPT_UNRELATED'), JSON.stringify(unrelatedTranscript.codes));
+  write(root, 'evidence/pre-review-transcript.json', JSON.stringify({ storyId, events: [{ kind: 'producer', intentRef: 'INT-PRE' }, { kind: 'consumer', intentRef: 'INT-PRE' }], mutation: { applied: true, expectedCode: 'PR_PRODUCTION_PATH_UNPROVEN', observedCode: 'PR_PRODUCTION_PATH_UNPROVEN', controlRestored: true } }));
+
+  write(root, 'packages/main/src/consumer.ts', 'export const wrongSymbol=()=>false;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'mutation remove planned consumer']);
+  const unresolved = cli(root, 'pre_review_check', { storyId, json: true });
+  assert.match(unresolved, /PR_PLANNED_PATH_UNRESOLVED/, 'removing the declared current consumer makes planned-to-actual reconciliation fail');
+  write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore planned consumer']);
+  parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'source restoration returns clean control to PASS');
 
   const equalCutoff = store.readChecklist(storyId); equalCutoff.items[0].verificationEvidence![0].timestamp = parsed.artifact.cutoffAt; store.writeChecklist(storyId, equalCutoff);
   const cutoff = cli(root, 'pre_review_check_read', { storyId, json: true });

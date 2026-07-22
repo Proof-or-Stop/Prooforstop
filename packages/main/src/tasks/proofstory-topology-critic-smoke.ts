@@ -138,6 +138,7 @@ function writeDiscoveryRegistration(root: string): void {
   write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['acceptance_basis','acceptance_basis_generate','topology_critic_receipt_set','topology_critic_receipt_check','artifact:acceptance-basis.json'];\n");
   write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology=true;\n');
   write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const topologyCriticRole=true;\n');
+  write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt=true;\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const topologyConsumer=true;\n');
 }
@@ -474,8 +475,8 @@ smokeSuite: try {
 
   const handlerSource = readFileSync(join(sourceRoot, 'src/handlers/proofstory.ts'), 'utf8');
   const catalogSource = readFileSync(join(sourceRoot, 'src/cli/command-catalog.ts'), 'utf8');
-  for (const forbidden of ['pre_review_check', 'evaluatePlannedToActual', 'selective_applicability_check', 'rollout_telemetry']) {
-    assert.equal(handlerSource.includes(forbidden) || catalogSource.includes(forbidden), false, `Wave 2A must not leak ${forbidden}`);
+  for (const forbidden of ['evaluatePlannedToActual', 'selective_applicability_check', 'rollout_telemetry']) {
+    assert.equal(handlerSource.includes(forbidden) || catalogSource.includes(forbidden), false, `Wave 3 must not leak ${forbidden}`);
   }
   for (const mutation of ['drop-topology-critic-prompt', 'drop-topology-critic-handler', 'drop-topology-critic-cli-schema', 'drop-topology-critic-verifier', 'add-topology-critic-lifecycle-consumer', 'weaken-topology-critic-incomplete-basis']) {
     assert.throws(() => execFileSync(process.execPath, [join(repositoryRoot, 'scripts/verify-process-fact-contract.mjs')], {

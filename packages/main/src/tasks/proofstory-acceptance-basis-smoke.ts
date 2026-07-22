@@ -148,6 +148,11 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
     '',
   ].join('\n'));
   write(root, 'packages/main/src/core/process-fact-registry.ts', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
+  write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const agentDispatchRegistry = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const planConsumer = "acceptance_basis_generate";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
 }
 
@@ -197,7 +202,7 @@ try {
     storyId, workspaceRoot: pureRoot, checklist: checklist(), contract: contract(), scopeCheck: scopeCheck(pureRoot), scopeContract: scopeContract(),
     headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
   });
-  assert.equal(plannedBeforeCode.basis.status, 'complete', `valid PLAN endpoints are structurally complete before implementation files exist: ${JSON.stringify({ diagnostics: plannedBeforeCode.diagnostics, adapters: plannedBeforeCode.basis.adapterResults }, null, 2)}`);
+  assert.equal(plannedBeforeCode.basis.status, 'complete', `valid PLAN endpoints are structurally complete before implementation files exist: ${JSON.stringify({ diagnostics: plannedBeforeCode.diagnostics, adapters: plannedBeforeCode.basis.adapterResults, blindSpots: plannedBeforeCode.basis.blindSpots, seal: plannedBeforeCode.basis.snapshotSeal }, null, 2)}`);
   write(pureRoot, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
   write(pureRoot, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => true;\n');
   const input = {
@@ -290,8 +295,8 @@ try {
   }
   const adapterControl = runAcceptanceDiscoveryAdapters({ supported: true, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1', 'scope:file:packages/main/src/handlers/proofstory.ts'] });
   const globalClosure = deriveRegisteredProcessFactClosure(pureRoot, ['packages/main/src/handlers/proofstory.ts']);
-  assert.ok(globalClosure.pathRefs.some(path => path.includes('acceptance_basis_generate->consumer:<audit-only>')), 'non-gate writer remains registered without inventing a lifecycle consumer');
-  assert.ok(globalClosure.pathRefs.some(path => path.includes('artifact:acceptance-basis.json') && path.includes('consumer:acceptance_basis read-only receipt verification')), 'signed artifact retains its read-only verifier consumer boundary');
+  assert.ok(globalClosure.pathRefs.some(path => path.includes('acceptance_basis->consumer:<audit-only>')), 'non-gate reader remains registered without inventing a lifecycle consumer');
+  assert.ok(globalClosure.pathRefs.some(path => path.includes('artifact:acceptance-basis.json') && path.includes('consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate')), 'signed artifact retains its canonical lifecycle consumer boundary');
   assert.ok(globalClosure.sourceFileRefs.includes('scripts/verify-process-fact-contract.mjs'), 'global consumer source enters closure binding');
   const adapterControlReconciled = reconcileAcceptanceDiscoveryResults(adapterControl);
   assert.equal(adapterControlReconciled.status, 'complete', JSON.stringify(adapterControlReconciled, null, 2));
