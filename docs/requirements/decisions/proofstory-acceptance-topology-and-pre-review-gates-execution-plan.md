@@ -522,7 +522,13 @@ relevant consumer forces `partial`, never optimistic completeness.
 }
 ```
 
-The topology-bound PLAN basis is produced independently, for example:
+The topology-bound PLAN basis is produced independently. Its registered PLAN
+profile excludes `actual_diff_hunks`: DEV has not produced an implementation
+diff yet, so requiring one would violate the structural-only gate. PLAN derives
+from frozen scope, current discoverable source/registry/dispatch/static/runtime
+facts that already exist before DEV, and frozen planned-path declarations.
+The distinct pre-REVIEW profile adds `actual_diff_hunks` after implementation.
+For example:
 
 ```json
 {
@@ -535,11 +541,10 @@ The topology-bound PLAN basis is produced independently, for example:
     "command": "lattice acceptance_coverage_basis_check --storyId=B-4444",
     "algorithmVersion": "v1"
   },
-  "discoveryProfileRef": "profile:typescript-proof-gate:v1",
-  "discoveryProfileDigest": "sha256:registered-profile",
+  "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+  "discoveryProfileDigest": "sha256:registered-plan-profile",
   "discoveryMethods": [
     "scope_contract",
-    "actual_diff_hunks",
     "process_fact_registry",
     "handler_dispatch_inventory",
     "static_call_graph",
@@ -556,17 +561,6 @@ The topology-bound PLAN basis is produced independently, for example:
       "provenanceRefs": ["scope-contract:B-4444"],
       "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:scope:v1", "scopeRefs": ["scope:path:review-run"]},
       "resultDigest": "sha256:adapter-scope"
-    },
-    {
-      "schemaVersion": "proofstory.coverage_adapter_result.v1",
-      "adapterId": "actual-diff:v1",
-      "method": "actual_diff_hunks",
-      "pathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
-      "coverageClaim": "complete_for_scope",
-      "blindSpots": [],
-      "provenanceRefs": ["diff:current-story"],
-      "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:diff:v1", "scopeRefs": ["scope:path:review-run"]},
-      "resultDigest": "sha256:adapter-diff"
     },
     {
       "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -848,8 +842,9 @@ actual discovered paths, or admission fails.
 15. Every required topology references a signed basis independently recomputed
     from phase-applicable inputs. PLAN uses frozen scope, current registered
     facts/dispatch/static/runtime inputs, and verifier-derived planned paths;
-    pre-REVIEW additionally requires actual diff hunks and current implementation
-    discovery.
+    its profile excludes DEV-output `actual_diff_hunks`. Pre-REVIEW uses a
+    distinct profile that additionally requires actual diff hunks and current
+    implementation discovery.
 16. Completeness PASS requires `coverageBasis.status === 'complete'`; `partial`
     and `unsupported` are `INCONCLUSIVE`, even if all declared topology nodes are
     internally connected.
@@ -954,7 +949,7 @@ resolve each planned topology ref to a frozen verification-intent declaration/en
 reject topology-owned restatements or overrides of declaration semantics
 derive applicability for each binding
 bind the applicable existing scope-check/scope-contract artifacts
-load the registered discovery profile for this scope
+load the registered PLAN discovery profile for this scope (actual_diff_hunks excluded)
 run each required adapter and hash its complete result record
 reject missing, duplicate, invalid, or digest-mismatched required adapter results
 seed global registry/dispatch traversal from Story facts and follow all registered consumers
@@ -1629,8 +1624,9 @@ Mark **Pass** only if every required row below is true. Otherwise mark
 - [ ] Basis status is exactly `complete`, `partial`, or `unsupported`, and only
       `complete` can satisfy topology completeness.
 - [ ] The PLAN basis is derived from frozen scope, current discoverable paths,
-      registries, and typed planned declarations; the pre-REVIEW basis adds
-      actual diff hunks and current handler/dispatch/static/runtime discovery.
+      registries, and typed planned declarations; its profile excludes DEV-output
+      `actual_diff_hunks`. The distinct pre-REVIEW profile adds actual diff hunks
+      and current handler/dispatch/static/runtime discovery.
 - [ ] Frozen scope binds the existing signed `scope-check.json` and phase-
       applicable `scope-contract.json`; no parallel writable scope artifact is
       introduced.
