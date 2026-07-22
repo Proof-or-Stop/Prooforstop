@@ -496,6 +496,25 @@
       ],
       "signatureTag": "edge|ts|canonical-source-inventory",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-025",
+      "desc": "AST discovery still does not prove that a direct-call identifier is bound to the imported producer. analyzeLocalImportCalls records imported local names at acceptance-discovery-adapters.ts:250-261, then collects every CallExpression identifier by text across all scopes at lines 263-269. Legal shadowing such as `import { emitReviewRunFact as consumeReviewRun } from ../handlers/review-run.js; export const c2 = (consumeReviewRun: () => boolean) => consumeReviewRun();` parses cleanly but the only call targets the parameter, not the import; the current calledNames/intersection nevertheless emits the producer->C2 edge, enters C2 into closure, and can satisfy consumerGate as complete. The added AST smoke covers regex/template/parse/size cases but no shadow-binding mutation (proofstory-acceptance-basis-smoke.ts:391-440). This violates the exact imported direct-call condition and reopens false completeness. Resolve the identifier binding with a TypeScript Program/type checker or a conservative lexical scope tracker, fail partial when binding cannot be proven, and add parameter/local/function/catch shadow mutations plus a restored imported-call control.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T09:18:58.874Z",
+      "reviewRound": "2026-07-22T09:17:25.176Z",
+      "reviewRunId": "B-a32a:RR-025",
+      "_hash": "166f24eccd021e40096e8180e6b6c97bdf4d0bf4f734e7d63bb1eb8f53db9e86",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|discovery-still-prove",
+      "signatureTagSource": "auto"
     }
   ]
 }
