@@ -171,7 +171,7 @@
       "desc": "doc-code-drift: packages/main/src/handlers/transition-orchestrator.ts:483-495 now consumes the independent topology critic receipt as a blocking PLAN→DEV gate whenever acceptance topology mode is enforce, but docs/CLI.md:470-500 and the Wave 2A implementation contract at docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1376-1401 describe only producer/read-only verification and never disclose this lifecycle consumer or its mode condition. Document that enforce mode requires a fresh valid critic receipt before DEV, while observe/warn behavior remains unchanged; retain the explicit Wave 3/3A/4 non-claims.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-22T19:12:25.766Z",
@@ -185,7 +185,11 @@
         "packages/main/src/core/process-fact-levels.ts"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit e99895c94e aligned code, process-fact levels, CLI docs, and the execution plan: Wave 2A critic receipt is an L3 signed artifact/read-only diagnostic and explicitly has no lifecycle admission consumer; Wave 3 owns pre_review_check enforcement. Fresh process-fact and 17-role prompt contracts passed.",
+      "resolvedAt": "2026-07-22T19:28:56.184Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9123:F-010",
