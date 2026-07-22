@@ -161,7 +161,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-W3-M4-LIFECYCLE-MODE-MATRIX",
+            "desc": "M4: Through the real DEV-to-REVIEW transition, consume the canonical pre_review_check result under the existing flat project mode contract: a passing current artifact permits transition; observe records deterministic diagnostics without blocking; warn emits the exact would-block remediation while permitting transition; enforce blocks only the configured applicable transition on the same verifier result.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-W3-M4-LEGACY-DOCS-ROLLBACK",
+            "desc": "M4: Verify legacy topology normalizes visibly to legacy_missing and docs-only/single-outcome claims follow their bounded source/docs assertions without fabricated executable mutations; in observe/warn they remain diagnosable without accidental hard blocking, and rollback from enforce to warn changes only admission behavior while preserving artifacts, codes and audit history.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M4-STABLE-GATE-CODES",
+            "desc": "M4: Feed representative M1-M3 failures through direct command and lifecycle entrypoints and require identical stable codes/remediation, no duplicate verifier semantics, no dirty-worktree or failed-transition partial write, and an immediate clean retry after exact repair to succeed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-W3-M4-PROCESS-FACT-FOUR-LAYER",
+            "desc": "M4: Remove or weaken the pre-review obligation independently from role prompt, CLI/handler producer, process-fact registry/rationale-verifier contract, and DEV-to-REVIEW gate consumer; each mutation must be detected, and prompt compliance or caller prose alone must never bypass the mechanical gate.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
+            "desc": "M4 boundary: assert Wave 3 adds only the canonical executable pre-review verifier and flat observe/warn/enforce consumption; no Wave 3A per-Story/policy selective applicability, triggered-enforcement machinery, or Wave 4 prompt rollout/telemetry/threshold activation is introduced. Seed forbidden config/flags and require rejection or inert diagnostics rather than hidden enforcement.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
