@@ -683,6 +683,40 @@
         "scanEscalationReason": null
       },
       "_hash": "5c2692d51adb3ce7570459a61b4c62131d3e6642f7914af899e4b7f92e8de0fb"
+    },
+    {
+      "id": "B-a32a:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Static concept audit of 2cd97942da found no blocker: snapshotSeal canonically binds directory/source/config projections and structured issues; basis verification enforces seal digest, exact blind-spot/status projection, receipt binding, and current-workspace semantic re-derivation. The mutation seam exists only immediately before the final seal; old afterSeal/afterAssemblyBeforeSeal references are absent.",
+      "createdAt": "2026-07-22T10:34:42.986Z",
+      "reviewRound": "2026-07-22T10:32:39.434Z",
+      "reviewRunId": "B-a32a:RR-042",
+      "envelopeId": "2d9f3b6411884502e7cca949d716d46187699320a72352e48bc255ff31506fe6",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "38e4827cd516dfc8ff186b54acd31171efd488bf0140ee31cf964f429e58d469"
     }
   ]
 }
