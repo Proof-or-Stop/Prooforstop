@@ -156,10 +156,26 @@
       "anchors": [
         "verifyPromptMeasurementReport"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This is the signed command-generated PLAN artifact emitted by lattice acceptance_basis_generate and already verified by acceptance_topology_check; it is not hand-authored business code, but the current scope classifier lacks its lifecycle-artifact registry classification.",
+      "timestamp": "2026-07-22T18:32:47.370Z",
+      "paths": [
+        ".lattice/story/actives/B-9123/acceptance-basis.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-9123/acceptance-basis.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9d67418014e4b889d3e919138a0def06019b8cf1",
+      "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334"
     }
   ],
   "createdAt": "2026-07-22T17:59:20.813Z",
-  "updatedAt": "2026-07-22T18:28:42.446Z",
+  "updatedAt": "2026-07-22T18:32:47.370Z",
   "fileRules": [
     {
       "path": "packages/main/src/handlers/proofstory.ts",
@@ -261,7 +277,8 @@
     "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
     "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
     "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
-    "packages/main/src/core/prompt-measurement.ts": "packages/main/src/core/prompt-measurement.ts"
+    "packages/main/src/core/prompt-measurement.ts": "packages/main/src/core/prompt-measurement.ts",
+    ".lattice/story/actives/B-9123/acceptance-basis.json": ".lattice/story/actives/B-9123/acceptance-basis.json"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",
