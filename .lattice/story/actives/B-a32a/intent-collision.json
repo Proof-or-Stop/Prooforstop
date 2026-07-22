@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-a32a",
+  "id": "IC-20260722063656",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-a32a strictly implements Wave 1A only: a registered verifier independently derives complete/partial/unsupported coverage basis data; acceptance_basis_generate is the sole verifier-owned signed-receipt writer and acceptance_basis is read-only non-authoritative diagnostics. Wave 1A validates foundational auditable exclusion decisionRefs only; topology-critic identity, role eligibility and exclusion-approval authority remain Wave 2A. PLAN/REVIEW gates, executable evidence enforcement, selective applicability and rollout remain Waves 2 through 4.",
+  "acceptedInterpretationHash": "sha256:0162c7d27eabad32c05d2384b32992bb6b66da9b9717b45c45f4d163a9e54ee9",
+  "notes": "Independent collision audit confirmed a bijection between M1-M5 and REQ-W1A-BASIS/ADAPTERS/RECEIPT/RECONCILIATION/DIAGNOSTICS, with all 25 must verification intents referenced. Writer/read-only separation is explicit. No later-wave authority or lifecycle behavior is imported; the broader user request for all remaining waves is preserved for separate dependent Stories.",
+  "ledgerHashBeforeDecision": "sha256:c81de2c71c05df6bd2566f137ecae85052f3f95cec87221eed1e129abb3a7215",
+  "confirmedLedgerHash": "sha256:c81de2c71c05df6bd2566f137ecae85052f3f95cec87221eed1e129abb3a7215",
+  "createdAt": "2026-07-22T06:36:56.937Z",
+  "updatedAt": "2026-07-22T06:36:56.937Z"
+}
