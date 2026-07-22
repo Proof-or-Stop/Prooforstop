@@ -113,6 +113,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ]
       }
     },
     {
