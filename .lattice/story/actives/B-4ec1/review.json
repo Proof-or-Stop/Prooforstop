@@ -103,6 +103,24 @@
         }
       ],
       "_hash": "a86d5772de62d7ca9cb18d98ded020872231ca306cc3eb155fdab3d553d7ab9d"
+    },
+    {
+      "timestamp": "2026-07-22T22:44:51.160Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Define canonical pre-review check artifact and deterministic verifier results + Recompute and reconcile current-worktree planned and actual paths are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4ec1\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "07681865b97c679d28175f10c198d3c10292a32809fd08084df2bb7c24d1a1ab"
     }
   ]
 }
