@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-1995:F-001",
+      "desc": "packages/main/src/handlers/checklist.ts:581 planned_path_authority_bypass: authorization inspects only the incoming verificationIntent. In PLAN, an ordinary main-agent can replace an existing verificationIntent containing plannedPathDeclarations with an otherwise identical intent that omits them; checklist_update succeeds and erases the frozen canonical declaration. Targeted handler probe observed outcome=verificationIntent updated, changed=true, plannedRemaining=false. Guard old and new values under the checklist lock and reject any add/change/removal unless the dispatched verification-intent role owns the write; add an atomic removal mutation test.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T03:19:34.410Z",
+      "reviewRound": "2026-07-22T03:16:36.414Z",
+      "reviewRunId": "B-1995:RR-001",
+      "_hash": "cae6be588df01a46bb71185eacc3a317b775360de9c69391cef5b7fd9e676083",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
