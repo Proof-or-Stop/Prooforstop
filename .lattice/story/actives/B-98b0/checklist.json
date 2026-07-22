@@ -60,7 +60,69 @@
         "test": [
           "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B98B0-M1-H-CANONICAL",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Focused production smoke passed canonical evaluator, CLI, and lifecycle parity.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M1-E-NONPASS-BASIS",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed partial, tampered, stale, and independently re-derived non-pass basis cases.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M1-E-MODES",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed observe, warn, and enforce mode-equivalence assertions with flat config resolution.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M1-A-CALLER-FORGERY",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed schema rejection of caller-supplied status, mode, and authority plus verifier re-derivation.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M1-A-OMISSION-INVENTION",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed C2 omission and topology invention mutation-to-failure followed by exact restoration.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -127,7 +189,69 @@
         "test": [
           "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B98B0-M2-H-PRODUCTION-PARITY",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Real compiled CLI and PLAN lifecycle consumed the shared production evaluator and passed.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M2-E-CLI-CONTRACT",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed deterministic text/JSON output and rejection of unsupported authority/result fields.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M2-E-REGISTRY-RATIONALE",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact contract passed command, artifact, L4 consumer, read-only policy, rationale, and prompt registrations.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M2-A-PROCESS-FACT-MUTATION",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke passed isolated prompt, handler, and PLAN gate process-contract mutations that each fail before restore.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M2-A-PROMPT-ONLY",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed dual-layer mutations proving prompt-only and mechanical-only omissions cannot mask each other.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -201,7 +325,93 @@
         "test": [
           "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B98B0-M3-H-PLAN-DEV",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Real story_advance entered DEV in enforce mode from structural evidence without executable completion evidence.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M3-H-TYPED-NEW-PATH",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed verifier derivation of a typed planned producer-to-consumer declaration with absent future endpoints.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M3-E-COMPATIBILITY",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed legacy-readable, docs-only, and ordinary single-outcome compatibility matrices without fabricated runtime obligations.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M3-E-MODE-LIFECYCLE",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed identical structural reports across modes and enforce production transition consumption.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M3-A-BLOCKERS",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed stable structural blockers for omitted, invented, partial, tampered, and stale inputs.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M3-A-PLANNED-PATH-TAMPER",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed basis-closed planned-path derivation and topology invention rejection; topology strings cannot mint facts.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M3-A-NO-LATER-WAVE-LEAKAGE",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Passed PLAN structural admission without critic identity, executable transcript, pre-review, or production-readiness prerequisites.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -282,7 +492,105 @@
         "test": [
           "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B98B0-M4-H-FOCUSED-SMOKE",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Focused Wave 2 production-path smoke passed end to end.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M4-H-DOCS-TRANSCRIPT",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Real CLI text/JSON transcript assertions passed and docs describe fields, modes, authority, compatibility, and next action.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M4-E-COMPATIBILITY-MATRIX",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Compatibility matrix passed complete, partial, stale, tampered, legacy, docs-only, single-outcome, planned-path, and mode cases.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M4-E-STABLE-DIAGNOSTICS",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Stable ordered AT diagnostics passed across core, CLI, and lifecycle surfaces.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M4-A-REAL-MUTATIONS",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Real omission, invention, caller-forgery, adapter-tamper, freshness, prompt, handler, and gate mutations bit.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M4-A-POLARITY-RESTORE",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Each destructive data mutation asserted clean pass, named failure, exact byte restoration, then clean pass.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M4-A-PROCESS-FACT-BITE",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Isolated prompt, handler, and lifecycle-consumer mutations each made the real process-fact contract fail.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        },
+        {
+          "intentRef": "B98B0-M4-A-SCOPE-BOUNDARY",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Contract and CLI docs passed with Wave 2 explicitly structural-only and later Waves 2A/3/3A/4 excluded.",
+          "headHash": "889338721a32da31610d08491b26a4935622b2aa",
+          "materialHash": "0d9994f60358791ccd2e99401320d6a35f36dafe233086df54330c44885107ac",
+          "storyFilesHash": "f55c26e094224ef9a79db0de34c7d0d717f8190b623c0df3ddc13e9cccf1e29a",
+          "timestamp": "2026-07-22T16:28:48.822Z"
+        }
+      ]
     }
   ]
 }
