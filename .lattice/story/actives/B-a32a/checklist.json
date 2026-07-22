@@ -55,7 +55,21 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A successful verifier run writes a signed receipt bound to the exact workspace, scope, topology, Story and closure hashes; a stale or tampered receipt is rejected rather than rebound.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/core/acceptance-basis-receipt.ts"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-004",
