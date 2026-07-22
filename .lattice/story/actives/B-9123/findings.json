@@ -98,6 +98,26 @@
       ],
       "signatureTag": "doc-code-drift|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9123:F-007",
+      "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:318-334 defines TopologyCriticReceiptV1 without the required criticProvenance, implementationProvenance, and signerPublicKey fields present in packages/main/src/core/types.ts:450-468 and described later by the Wave 2A implementation contract. Update the canonical schema block so the documented receipt is sufficient to represent the mechanically verified four-dimensional provenance and signer binding.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-22T18:36:13.357Z",
+      "reviewRound": "2026-07-22T18:32:54.616Z",
+      "reviewRunId": "B-9123:RR-004",
+      "_hash": "1ea516cf12d1f139fe54247b0cbd580c533da7441f38e5f3bdbae70b810b56cc",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
