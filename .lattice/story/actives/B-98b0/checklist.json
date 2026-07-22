@@ -172,7 +172,63 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B98B0-M4-H-FOCUSED-SMOKE",
+            "desc": "M4: A focused production-path smoke creates representative complete basis/topology Stories and proves canonical evaluator, real acceptance_topology_check CLI, and PLAN→DEV lifecycle parity for complete existing paths and a typed genuinely new planned endpoint relation.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M4-H-DOCS-TRANSCRIPT",
+            "desc": "M4: A captured real CLI transcript and docs check show actual text/JSON fields, stable AT_* codes, flat observe/warn/enforce behavior, read-only/non-authority boundaries, PLAN-only structural semantics, compatibility cases, and the exact next action without claiming executable or later-wave assurance.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B98B0-M4-E-COMPATIBILITY-MATRIX",
+            "desc": "M4: Focused cases prove deterministic behavior for complete versus missing/partial/unsupported/stale/tampered basis, legacy topology missing, docs-only claims, single-outcome Stories, typed planned paths, and each flat gate mode, with no false block and no silent pass.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M4-E-STABLE-DIAGNOSTICS",
+            "desc": "M4: Every required omission/invention/planned-path/adapter/freshness/authority/reference failure produces the documented stable AT_* code and deterministic ordering through core, CLI, and lifecycle surfaces, including multiple simultaneous failures.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B98B0-M4-A-REAL-MUTATIONS",
+            "desc": "M4: Isolated real-consumer/verifier mutations cover at minimum topology-only C2 omission while basis retains C2, topology invention outside basis, caller-forged complete/status, adapter result omission/tamper, stale binding, prompt-only fact, and mode bypass; each mutation must make the named semantic assertion fail rather than merely change an expected test string.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M4-A-POLARITY-RESTORE",
+            "desc": "M4: Every destructive mutation follows clean control pass → targeted mutation → expected named AT_* failure/block classification → exact restoration → clean control pass, and the suite verifies no worktree/source/config residue or rewritten evidence remains after restoration.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M4-A-PROCESS-FACT-BITE",
+            "desc": "M4: Removing one gate-consumed process-fact producer/consumer/verifier/rationale registration or disconnecting the production CLI/lifecycle from the canonical evaluator makes the contract/smoke fail; restoring it passes, proving prompt text or a duplicate evaluator cannot mask the missing mechanical path.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M4-A-SCOPE-BOUNDARY",
+            "desc": "M4: The Wave 2 suite and documentation do not claim or implement topology-critic independence/eligibility/signatures (Wave 2A), executable pre-review evidence or planned-to-actual reconciliation (Wave 3), selective per-Story applicability (Wave 3A), or measured rollout (Wave 4); any such claimed completion is rejected as scope leakage.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
