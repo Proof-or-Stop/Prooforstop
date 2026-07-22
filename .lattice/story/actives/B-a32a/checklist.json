@@ -96,55 +96,55 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Focused production-chain smoke proves deterministic verifier derivation, bounded classification, and canonical replay.",
-          "headHash": "bff1a4c2772a553204bae4fb0ee0491dede50982",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:04.826Z"
+          "note": "Current-HEAD focused smoke proves deterministic verifier derivation and canonical replay.",
+          "headHash": "c5edc8f1e8da84ffa263e5f37f1e3912790a5d4e",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:03.652Z"
         },
         {
           "intentRef": "VI-A32A-001-BOUNDED-NONCOMPLETE",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Focused smoke proves partial and unsupported inputs never render as complete.",
-          "headHash": "bff1a4c2772a553204bae4fb0ee0491dede50982",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:04.826Z"
+          "note": "Current-HEAD focused smoke proves partial and unsupported never become complete.",
+          "headHash": "c5edc8f1e8da84ffa263e5f37f1e3912790a5d4e",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:03.652Z"
         },
         {
           "intentRef": "VI-A32A-001-CANONICAL-TOTALITY",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Focused smoke proves shuffled path inputs canonicalize and meaningful changes alter signed digests.",
-          "headHash": "bff1a4c2772a553204bae4fb0ee0491dede50982",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:04.826Z"
+          "note": "Current-HEAD canonical replay and digest totality controls pass.",
+          "headHash": "c5edc8f1e8da84ffa263e5f37f1e3912790a5d4e",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:03.652Z"
         },
         {
           "intentRef": "VI-A32A-001-CALLER-FORGERY",
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Real CLI transcript rejects caller status, inventory, issuer, signature, exclusions, and hash bindings atomically.",
-          "headHash": "72fabbb5a125f7e2c5ad19e9f4e57b09f35be4db",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:19.663Z"
+          "note": "Current-HEAD real CLI caller-forgery transcript rejects write-shaped claims atomically.",
+          "headHash": "c5edc8f1e8da84ffa263e5f37f1e3912790a5d4e",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:03.652Z"
         },
         {
           "intentRef": "VI-A32A-001-OPTIMISM-MUTATION",
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Mutation changing a partial adapter to an optimistic complete basis bites, while restored control passes.",
-          "headHash": "bff1a4c2772a553204bae4fb0ee0491dede50982",
-          "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
-          "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:04.826Z"
+          "note": "Current-HEAD optimism mutation bites and restored control passes.",
+          "headHash": "c5edc8f1e8da84ffa263e5f37f1e3912790a5d4e",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:59:03.652Z"
         }
       ]
     },
