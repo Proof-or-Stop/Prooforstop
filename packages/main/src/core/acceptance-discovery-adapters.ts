@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import type { CoverageAdapterResultV1, CoverageDiscoveryMethodV1, PlannedCoveragePathV1 } from './types.js';
 import { digestCanonicalJson } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
+import { RUNTIME_FACT_REGISTRY } from './runtime-fact-registry.js';
 
 export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
   ref: 'profile:typescript-proof-gate:plan:v1',
@@ -178,8 +179,15 @@ function buildResult(
       ];
       provenanceRefs = stable([...closure.sourceFileRefs, ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef))].map(file => sourceProvenance(input.workspaceRoot, file)));
     } else {
-      pathRefs = stable(input.runtimeObservedPathRefs ?? []);
-      provenanceRefs = [`runtime-trace:story:${input.storyId}:bounded`];
+      const seeds = input.plannedPathRecords.flatMap(record => [record.outputFactRef, record.producer.expectedSymbolOrFact, ...record.consumers.map(item => item.expectedSymbolOrFact)]).map(normalized);
+      const registeredRuntimePaths = RUNTIME_FACT_REGISTRY
+        .filter(entry => seeds.some(seed => [entry.id, entry.checker, entry.outputKey].map(normalized).some(token => seed.includes(token) || token.includes(seed))))
+        .map(entry => `path:runtime-fact:${entry.id}->checker:${entry.checker}`);
+      pathRefs = stable([...(input.runtimeObservedPathRefs ?? []), ...registeredRuntimePaths]);
+      provenanceRefs = [
+        `runtime-fact-registry:sha256:${digestCanonicalJson(RUNTIME_FACT_REGISTRY)}`,
+        `runtime-trace:story:${input.storyId}:bounded`,
+      ];
     }
   }
   const unsigned: Omit<CoverageAdapterResultV1, 'resultDigest'> = {
