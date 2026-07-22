@@ -227,6 +227,35 @@
       },
       "readDiagnostics": [],
       "_hash": "1db95101bbd163879ccbc18d1f949610278b9f3faf5b7fc0ed48fe81891fe78f"
+    },
+    {
+      "id": "B-9123:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Fresh round 5 docs review extracted 192 changed symbols and compared 5 affected documentation/contract paragraphs. F-015 is fixed: the documented 18-field TopologyCriticReceiptV1 inventory exactly matches the production type and exact-key smoke. CLI, execution-plan sections, process-fact rationale, and source behavior consistently keep Wave 2A receipt verification non-gating; all three prompt mirrors are identical and the 17-role baseline passes.",
+      "createdAt": "2026-07-22T20:04:39.961Z",
+      "reviewRound": "2026-07-22T19:59:42.947Z",
+      "reviewRunId": "B-9123:RR-022",
+      "envelopeId": "a29edc77c5126491b200bd85c57cbeeb017776a50b2401652c495181b9313a3f",
+      "writerSessionId": "sess-1313e9164fe0e7dbf3ffb69098594ae5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "27def983344232e164739803af0e5cf4235b9532a01f175a742d25d4d73d967f"
     }
   ]
 }
