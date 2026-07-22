@@ -164,7 +164,51 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Wave 2A critic smoke: PASS — eligible receipt accepted; self-authored, ineligible, stale, tampered, forged-exclusion, partial, and unsupported cases rejected; later-wave claims remain false."
+      "userSees": "Wave 2A critic smoke: PASS — eligible receipt accepted; self-authored, ineligible, stale, tampered, forged-exclusion, partial, and unsupported cases rejected; later-wave claims remain false.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-WAVE2A-PRODUCTION-CHAIN",
+            "desc": "In an isolated real temp repository, drive the production CLI basis/topology inputs, independent scope-plan approval where needed, critic receipt producer, read-only verifier, and applicable lifecycle consumer from a clean valid state; assert the complete Wave 2A chain passes and emits auditable structured facts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-WAVE2A-CLEAN-MUTATE-RESTORE",
+            "desc": "For each authoritative critic/exclusion/binding input, demonstrate clean pass → one controlled mutation produces the expected fail-closed diagnostic → exact byte/content restoration returns to pass without hand-editing generated evidence.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-WAVE-BOUNDARY-NO-LEAK",
+            "desc": "Verify Wave 2A adds only independent critic receipts and exclusion authority: it must not require or synthesize Wave 3 pre_review_check/executable evidence/planned-to-actual reconciliation, Wave 3A selective-applicability behavior, or Wave 4 warn/enforce rollout telemetry/configuration.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-PROCESS-FACT-MUTATIONS",
+            "desc": "Mutation-test the Wave 2A process-fact contract at all required layers: remove or weaken the critic/exclusion rule independently in reviewer prompt/registry guidance, CLI schema/producer-handler verification, and lifecycle/gate consumer; the contract or focused production-path test must fail for every mutation.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-PRODUCTION-BYPASS-ATTEMPTS",
+            "desc": "Against production CLI surfaces, attempt self-authored critic, ineligible critic, stale receipt, every-field digest/payload tamper, scope drift, forged/missing exclusion approval, partial discovery, and unsupported discovery; assert no command, read-only verifier, or lifecycle path reports success.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-RESTORATION-AND-NO-RESIDUE",
+            "desc": "After all adversarial mutations, restore exact inputs and assert production verification passes, git worktree is clean, and no mutated or forged process artifact remains eligible for later reuse.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
