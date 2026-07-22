@@ -1397,8 +1397,12 @@ approver is `lattice-review-scope-plan`. The production writer commands are
 current basis/topology/scope/workspace hashes and exact actor, session,
 dispatch, and business-commit-author provenance. Exclusions require a current
 one-to-one signed approval mapping. A `partial` or `unsupported` basis is an
-unconditional non-pass. These mechanics do not imply Wave 3 executable
-evidence, Wave 3A applicability selection, or Wave 4 rollout.
+unconditional non-pass. Wave 2A adds no lifecycle admission gate: PLAN → DEV
+continues to consume only Wave 2 `acceptance_topology_check` structural
+semantics under its existing observe/warn/enforce rollout. A critic receipt is
+produced and verified through the explicit CLI set/check path; its absence or
+failure cannot independently block PLAN → DEV. These mechanics do not imply
+Wave 3 executable evidence, Wave 3A applicability selection, or Wave 4 rollout.
 
 ### Wave 3 — Executable pre-review evidence
 

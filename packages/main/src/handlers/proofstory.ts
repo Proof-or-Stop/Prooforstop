@@ -202,6 +202,7 @@ export function evaluateTopologyCriticReceiptForContext(ctx: HandlerContext, sto
     receipt: ctx.store.readTopologyCriticReceipt(storyId),
     approvals,
     implementation: state.implementation,
+    events: ctx.store.readProcessEvents(storyId),
   });
 }
 
@@ -363,7 +364,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       const approvals = store.readTopologyExclusionApprovals(args.storyId).approvals;
       const receipt = issueTopologyCriticReceipt({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, critic, implementation: state.implementation, approvals, verdict: args.verdict });
       store.writeTopologyCriticReceipt(args.storyId, receipt);
-      const verification = verifyTopologyCriticReceipt({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, receipt, approvals, implementation: state.implementation });
+      const verification = verifyTopologyCriticReceipt({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, receipt, approvals, implementation: state.implementation, events: store.readProcessEvents(args.storyId) });
       if (args.verdict === 'pass' && !verification.ok) throw new Error(`topology critic receipt self-verification failed: ${verification.code}: ${verification.diagnostics.join('; ')}`);
       const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'topology_critic_receipt_set');
       if (args.json) return stringify({ receipt, verification });

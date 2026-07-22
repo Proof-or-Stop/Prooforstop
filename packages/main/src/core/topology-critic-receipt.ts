@@ -187,12 +187,74 @@ export function independenceMatrix(actor: TopologyActorProvenanceV1, implementat
   };
 }
 
+function verifierIndependenceMatrix(actor: unknown, implementation: TopologyImplementationProvenanceV1) {
+  const value = actor && typeof actor === 'object' && !Array.isArray(actor) ? actor as Record<string, unknown> : {};
+  return {
+    agent: typeof value.agentId === 'string' && value.agentId.trim().length > 0 && value.agentId !== implementation.agentId,
+    session: typeof value.sessionId === 'string' && value.sessionId.trim().length > 0 && value.sessionId !== implementation.sessionId,
+    dispatch: typeof value.dispatchId === 'string' && value.dispatchId.trim().length > 0 && value.dispatchId !== implementation.dispatchId,
+    businessCommitAuthor: typeof value.businessCommitAuthor === 'string' && value.businessCommitAuthor.trim().length > 0
+      && value.businessCommitAuthor !== implementation.businessCommitAuthor,
+  };
+}
+
 function hasActorProvenance(value: unknown): value is TopologyActorProvenanceV1 {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
   const actor = value as Record<string, unknown>;
   return ['agentId', 'sessionId', 'dispatchId', 'storyId', 'headHash', 'storyFilesHash', 'businessCommit', 'businessCommitAuthor', 'businessIdentity']
     .every(field => typeof actor[field] === 'string' && Boolean((actor[field] as string).trim()))
     && (actor.businessCommitAuthorSource === 'git-var:GIT_AUTHOR_IDENT' || actor.businessCommitAuthorSource === 'git-log:commit-author');
+}
+
+const PROVENANCE_DIMENSIONS = [
+  ['agent', 'agentId'],
+  ['session', 'sessionId'],
+  ['dispatch', 'dispatchId'],
+  ['businessCommitAuthor', 'businessCommitAuthor'],
+] as const;
+
+function actorDispatchDiagnostics(args: {
+  events: readonly ProcessEvent[] | undefined;
+  actor: unknown;
+  expectedRole: typeof TOPOLOGY_CRITIC_ROLE | typeof TOPOLOGY_EXCLUSION_APPROVER_ROLE;
+  context: ReceiptContext;
+  implementation: TopologyImplementationProvenanceV1;
+  label: string;
+}): string[] {
+  const actor = args.actor && typeof args.actor === 'object' && !Array.isArray(args.actor)
+    ? args.actor as Record<string, unknown>
+    : {};
+  const diagnostics: string[] = [];
+  for (const [dimension, field] of PROVENANCE_DIMENSIONS) {
+    if (typeof actor[field] !== 'string' || !(actor[field] as string).trim()) {
+      diagnostics.push(`${args.label} provenance missing or unverifiable: ${dimension}`);
+    }
+  }
+  if (!args.events || diagnostics.length > 0) return diagnostics;
+  const dimensions = {
+    agent: (event: ProcessEvent) => event.agentType,
+    session: (event: ProcessEvent) => event.sessionId,
+    dispatch: (event: ProcessEvent) => dispatchIdentity(event),
+    businessCommitAuthor: (event: ProcessEvent) => event.businessCommitAuthor,
+  } as const;
+  const candidates = args.events.filter(event => event.type === 'dispatch'
+    && event.agentType === args.expectedRole
+    && event.storyId === args.context.storyId
+    && event.businessCommit === args.implementation.businessCommit
+    && event.storyFilesHash === args.context.storyFilesHash
+    && event.businessCommitAuthorSource === 'git-var:GIT_AUTHOR_IDENT');
+  const fullMatch = candidates.some(event => PROVENANCE_DIMENSIONS.every(([dimension, field]) => dimensions[dimension](event) === actor[field]));
+  if (fullMatch) return diagnostics;
+  for (const [dimension] of PROVENANCE_DIMENSIONS) {
+    const allOtherDimensionsMatch = candidates.some(event => PROVENANCE_DIMENSIONS
+      .filter(([other]) => other !== dimension)
+      .every(([other, field]) => dimensions[other](event) === actor[field]));
+    if (allOtherDimensionsMatch) diagnostics.push(`${args.label} provenance missing or unverifiable: ${dimension}`);
+  }
+  if (!diagnostics.some(item => item.startsWith(`${args.label} provenance missing or unverifiable:`))) {
+    diagnostics.push(`${args.label} provenance is missing or unverifiable against a current registered dispatch`);
+  }
+  return diagnostics;
 }
 
 function requireIndependent(actor: TopologyActorProvenanceV1, implementation: TopologyImplementationProvenanceV1): void {
@@ -251,6 +313,7 @@ export function verifyTopologyExclusionApproval(args: {
   approval: TopologyExclusionApprovalV1;
   implementation: TopologyImplementationProvenanceV1;
   critic?: TopologyActorProvenanceV1;
+  events?: readonly ProcessEvent[];
 }): string[] {
   const { approval, context } = args;
   const diagnostics: string[] = [];
@@ -262,15 +325,21 @@ export function verifyTopologyExclusionApproval(args: {
     || !hasActorProvenance(approval.approverProvenance) || approval.approverProvenance.agentId !== TOPOLOGY_EXCLUSION_APPROVER_ROLE
     || approval.approverProvenance.businessCommitAuthorSource !== 'git-var:GIT_AUTHOR_IDENT'
     || approval.approvalRef !== expectedApprovalRef || !isValidIssuedAt(approval.issuedAt)) diagnostics.push('exclusion approval role/story binding mismatch');
+  diagnostics.push(...actorDispatchDiagnostics({
+    events: args.events,
+    actor: approval.approverProvenance,
+    expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE,
+    context,
+    implementation: args.implementation,
+    label: 'exclusion approver',
+  }));
   if (JSON.stringify(approval.implementationProvenance) !== JSON.stringify(args.implementation)) diagnostics.push('exclusion implementation provenance mismatch');
   const expected = context.exclusions.filter(item => item.decisionRef === approval.exclusionRef && item.pathRef === approval.scopeRef);
   if (expected.length !== 1) diagnostics.push('exclusion approval is missing, orphaned, duplicated, or cross-story');
   if (approval.basisDigest !== context.basisDigest || approval.topologyDigest !== context.topologyDigest
     || approval.scopeCheckDigest !== context.scopeCheckDigest || approval.scopeContractDigest !== context.scopeContractDigest
     || approval.storyFilesHash !== context.storyFilesHash || approval.closureFilesHash !== context.closureFilesHash) diagnostics.push('exclusion approval freshness binding mismatch');
-  const independence = hasActorProvenance(approval.approverProvenance)
-    ? independenceMatrix(approval.approverProvenance, args.implementation)
-    : { agent: false, session: false, dispatch: false, businessCommitAuthor: false };
+  const independence = verifierIndependenceMatrix(approval.approverProvenance, args.implementation);
   if (Object.values(independence).some(value => !value)) diagnostics.push(`exclusion approver is not independent: ${Object.entries(independence).filter(([, ok]) => !ok).map(([key]) => key).join(', ')}`);
   if (args.critic && hasActorProvenance(approval.approverProvenance) && (approval.approverProvenance.agentId === args.critic.agentId
     || approval.approverProvenance.sessionId === args.critic.sessionId
@@ -326,6 +395,7 @@ export function verifyTopologyCriticReceipt(args: {
   receipt: TopologyCriticReceiptV1 | null;
   approvals: TopologyExclusionApprovalV1[];
   implementation: TopologyImplementationProvenanceV1;
+  events?: readonly ProcessEvent[];
 }): TopologyCriticVerification {
   const empty = { agent: false, session: false, dispatch: false, businessCommitAuthor: false };
   if (!args.receipt) return { ok: false, code: 'AT_TOPOLOGY_CRITIC_RECEIPT_MISSING', diagnostics: ['topology critic receipt is missing'], independence: empty };
@@ -338,9 +408,15 @@ export function verifyTopologyCriticReceipt(args: {
     || !hasActorProvenance(receipt.criticProvenance) || receipt.criticProvenance.agentId !== TOPOLOGY_CRITIC_ROLE
     || receipt.criticProvenance.businessCommitAuthorSource !== 'git-var:GIT_AUTHOR_IDENT'
     || !isValidIssuedAt(receipt.issuedAt)) diagnostics.push('topology critic role/story binding mismatch');
-  const independence = hasActorProvenance(receipt.criticProvenance)
-    ? independenceMatrix(receipt.criticProvenance, args.implementation)
-    : empty;
+  diagnostics.push(...actorDispatchDiagnostics({
+    events: args.events,
+    actor: receipt.criticProvenance,
+    expectedRole: TOPOLOGY_CRITIC_ROLE,
+    context,
+    implementation: args.implementation,
+    label: 'topology critic',
+  }));
+  const independence = verifierIndependenceMatrix(receipt.criticProvenance, args.implementation);
   for (const [dimension, independent] of Object.entries(independence)) if (!independent) diagnostics.push(`topology critic independence failed: ${dimension}`);
   if (JSON.stringify(receipt.implementationProvenance) !== JSON.stringify(args.implementation)) diagnostics.push('critic implementation provenance mismatch');
   if (context.basisStatus !== 'complete') diagnostics.push(`critic cannot override ${context.basisStatus} discovery`);

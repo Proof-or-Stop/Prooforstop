@@ -108,7 +108,7 @@ import {
   readLifecycleMetadataOutputHashes,
   type LifecycleMetadataTransaction,
 } from '../core/auto-commit-metadata.js';
-import { evaluateAcceptanceTopologyForContext, evaluateTopologyCriticReceiptForContext } from './proofstory.js';
+import { evaluateAcceptanceTopologyForContext } from './proofstory.js';
 
 /** Arguments for one story_advance transition. */
 export interface StoryTransitionArgs {
@@ -482,16 +482,6 @@ async function runStoryTransitionInner(
           topology.diagnostics.map(item => `  - ${item.code}: ${item.message}`).join('\n') +
           `\n\n-> ${topology.nextAction}`,
         );
-      }
-      if (topology.mode === 'enforce') {
-        const critic = evaluateTopologyCriticReceiptForContext(ctx, args.storyId);
-        if (!critic.ok) {
-          throw new Error(
-            `Cannot enter DEV: independent topology critic gate rejected PLAN admission [${critic.code}].\n`
-            + critic.diagnostics.map(item => `  - ${item}`).join('\n')
-            + `\n\n-> Dispatch ${'lattice-review-topology-critic'} and produce a fresh signed receipt for the current implementation and topology basis.`,
-          );
-        }
       }
     }
 

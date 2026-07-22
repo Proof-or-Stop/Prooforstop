@@ -148,9 +148,9 @@ const requiredProcessFactSemantics = {
   acceptance_topology_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
   acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
-  topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
-  topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
-  topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
+  topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
+  topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
+  topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -168,7 +168,7 @@ const requiredProcessFactSemantics = {
 };
 const requiredRuntimeFactSemantics = {
   'runtime:acceptance_topology_plan_dev_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
-  'runtime:topology_critic_authority_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'verification-policy', 'gate-evidence'],
+  'runtime:topology_critic_authority_verification': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'verification-policy'],
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
   'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
@@ -584,8 +584,8 @@ function read(relPath) {
   if (mutation === 'drop-topology-critic-cli-schema' && relPath === 'packages/main/src/cli/command-catalog.ts') {
     text = text.replace(/topology_critic_receipt_set/g, 'topology_critic_receipt_schema_removed');
   }
-  if (mutation === 'drop-topology-critic-lifecycle-consumer' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
-    text = text.replace(/evaluateTopologyCriticReceiptForContext/g, 'topologyCriticLifecycleConsumerRemoved');
+  if (mutation === 'add-topology-critic-lifecycle-consumer' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
+    text += '\n// forbidden Wave 2A lifecycle consumer: evaluateTopologyCriticReceiptForContext; if (!critic.ok) {}\n';
   }
   if (mutation === 'drop-topology-critic-verifier' && relPath === 'packages/main/src/core/topology-critic-receipt.ts') {
     text = text.replace(/verifyTopologyCriticReceipt/g, 'verifyTopologyCriticReceiptRemoved');
@@ -748,17 +748,17 @@ function assertProofStoryProgressiveBoundary() {
       && topologyCriticText.includes("context.basisStatus !== 'complete'")
       && topologyCriticText.includes('independenceMatrix')
       && topologyCriticText.includes('exact one-to-one independent approvals')
-      && processRegistryText.includes('runtime:topology_critic_authority_gate')
-      && processLevelText.includes('runtime:topology_critic_authority_gate')
+      && processRegistryText.includes('runtime:topology_critic_authority_verification')
+      && processLevelText.includes('runtime:topology_critic_authority_verification')
       && processRegistryText.includes('artifact:topology-critic-receipt.json')
       && processRegistryText.includes('artifact:topology-exclusion-approvals.json')
-      && transitionOrchestratorText.includes('evaluateTopologyCriticReceiptForContext')
-      && transitionOrchestratorText.includes('if (!critic.ok)')
-      && topologyCriticPolicy?.status === 'gateEvidence'
-      && topologyCriticPolicy.gateEvidence === true
+      && !transitionOrchestratorText.includes('evaluateTopologyCriticReceiptForContext')
+      && !transitionOrchestratorText.includes('independent topology critic gate rejected PLAN admission')
+      && topologyCriticPolicy?.status === 'supported'
+      && topologyCriticPolicy.gateEvidence !== true
       && activityPolicyText.includes("'topology_critic_receipt_check'")
       && topologyCriticPromptPaths.every(path => read(path).startsWith('---\n') && read(path).includes('- A pass is forbidden when the basis')),
-    'topology critic contract must bind role prompt, production producer/read-only verifier, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and process-fact consumers',
+    'topology critic contract must bind role prompt, production producer/read-only verifier, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');
