@@ -328,6 +328,62 @@ The Mac App is no longer required for release or provider/config status. It is
 an optional dashboard/archive surface unless a future, explicitly reviewed
 receipt-backed runner path lands.
 
+### Acceptance Matrix (Wave 1)
+
+`lattice acceptance_matrix --storyId=<id> [--json]` renders a deterministic
+projection of ProofStory acceptance bindings, milestone refs, checklist and
+verification-intent refs, verification-intent-owned planned-path declarations,
+and existing evidence refs.
+
+The command is observe-only, read-only, and non-evidentiary. Text output states
+those boundaries explicitly; JSON contains `mode: "observe"`,
+`readOnly: true`, and `evidentiary: false`. Each row exposes canonical source
+IDs and stable `AT_*` structural diagnostics. A legacy binding without
+`verificationTopology` reports `legacy_missing`. A configured Wave 1 graph can
+report only `warning` or `inconclusive_basis_unverified`; it never reports
+`complete`, `pass`, `ready-for-review`, or another authority-bearing result.
+
+Wave 1 accepts only reference-only `proofstory.acceptance_topology.v1` data.
+Existing source references are bounded to `acceptance-binding:`, `checklist:`,
+`intent:`, `milestone:`, and `evidence:` owners. Planned source references name
+a frozen `proofstory.verification_planned_path_declaration.v1` and endpoint ID
+owned by checklist `verificationIntent`; topology cannot copy or override the
+declared relation, endpoint role, file, symbol/fact, or output fact.
+
+Only a dispatched registered verification-intent role may add a planned-path
+declaration through `checklist_update` during PLAN. `story_create`,
+`checklist_add`, ordinary callers, and post-PLAN mutations are rejected before
+persistence. Existing verificationIntent items without declarations remain
+compatible.
+
+The renderer accepts only `storyId` and `json`. Write-shaped arguments such as
+`mode`, `write`, `output`, `apply`, `result`, `verdict`, `evidence`, or `rows`
+are rejected. It writes no matrix artifact, process event, evidence, phase, or
+other lifecycle fact. Coverage-basis discovery, signed basis receipts,
+`acceptance_topology_check`, `pre_review_check`, and lifecycle enforcement are
+not part of Wave 1.
+
+Topology producer and consumer positions must resolve to declaration endpoints
+with the matching canonical role. Every bound must-priority intent must be
+mapped by an appropriate positive or mutation assertion, and non-docs graphs
+require a command reference; omissions report stable diagnostics such as
+`AT_PLANNED_PATH_DECLARATION_DRIFT`, `AT_INTENT_UNCOVERED`, and
+`AT_COMMAND_MISSING`.
+
+`acceptance_matrix` output also cannot be submitted back through
+`verificationEvidence`. New matrix-derived rows are rejected before
+persistence, and legacy or injected rows are ignored by general verification,
+ProofStory completeness, and milestone status/closeout consumers. The shared
+classifier derives provenance from an exact `acceptance_matrix` producer-command
+position where possible: the supported `lattice` or `bin/lattice.js` wrapper,
+optional bounded `--root`, then the exact subcommand. A token used only as `rg`
+search text, `printf` data, or a test-script argument is not producer provenance.
+Legacy compatibility is bounded to reserved matrix result
+tokens, exact output lines, or JSON `evidentiary: false` on legacy
+`manual_transcript` rows only. Paraphrased manual projection results cannot
+bypass it, while logic/integration test notes may discuss those labels and
+unrelated `Result: warning ...` prose is not classified as matrix output.
+
 ### Milestone Status
 
 `lattice milestone_status` is a read-only progress reporter over existing

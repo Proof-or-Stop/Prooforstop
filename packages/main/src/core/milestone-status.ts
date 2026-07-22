@@ -20,6 +20,7 @@ import {
   EMPTY_STORY_FILES_HASH,
 } from './evidence-freshness.js';
 import { collectVerificationIntents } from './verification.js';
+import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
 
 export const MILESTONE_STATUS_SCHEMA_VERSION = 'proofbound.milestone_status.v1';
 export const MILESTONE_CLOSEOUT_SCHEMA_VERSION = 'proofbound.milestone_closeout.v1';
@@ -203,6 +204,7 @@ function evidenceStatus(evidence: VerificationEvidence): MilestoneStatusEvidence
 }
 
 function evidenceCanCover(evidence: VerificationEvidence): boolean {
+  if (isAcceptanceMatrixDerivedEvidence(evidence)) return false;
   if (evidence.kind === 'waiver') {
     return evidence.waiverType === 'permanent' && evidence.result !== 'fail';
   }

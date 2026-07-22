@@ -28,6 +28,7 @@ import {
 } from '../core/repro-evidence-binding-gate.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
+import { verificationIntentHasPlannedPathDeclarations } from '../core/acceptance-topology.js';
 
 type StoryCreateScopeBoundaryInput = {
   mode?: ScopeBoundaryMode;
@@ -473,6 +474,11 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       fromDraft?: string; // B-9975 CHK-003: from-draft mode
       reproFirstBypassReason?: string; // Allows story_create_from_repro/emergency intake to create the envelope before binding exists.
     }): string {
+      if (args.checklist?.some(item => verificationIntentHasPlannedPathDeclarations(item.verificationIntent))) {
+        throw new Error(
+          'story_create refused: plannedPathDeclarations may only be authored by the dispatched verification-intent role through checklist_update during PLAN [planned_path_writer_not_authorized]',
+        );
+      }
       // B-6812 CHK-001 / B-f60c CHK-003: serialize the whole story_create body
       // (fromDraft branch + normal branch) so the idempotency scan →
       // nextStoryId → writeStory → writeChecklist sequence is atomic against

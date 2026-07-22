@@ -14,6 +14,7 @@ import { type EvidenceQualityProfile, getEvidenceQualityIssues, type EvidenceQua
 import { evaluateAttestationEvidence, type AttestationIssue } from './attestation.js';
 import { evaluateActorTrustEvidence, type ActorTrustIssue, type ActorTrustOptions } from './actor-trust.js';
 import { evaluateFactProvenanceEvidence, type FactProvenanceIssue, type FactProvenanceOptions } from './fact-provenance.js';
+import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
 
 export const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
 export type DeferredGateEvidenceMode = 'covered' | 'missing';
@@ -80,7 +81,8 @@ export function detectLegacyEvidenceWithoutIntent(
 }
 
 function pickEvidence(item: ChecklistItem, ref: string): VerificationEvidence | undefined {
-  return (item.verificationEvidence || []).find(e => evidenceMatches(e, ref));
+  return (item.verificationEvidence || []).find(e =>
+    evidenceMatches(e, ref) && !isAcceptanceMatrixDerivedEvidence(e));
 }
 
 function headMatches(a: string, b: string): boolean {

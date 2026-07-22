@@ -1,0 +1,83 @@
+{
+  "principles": [
+    "Keep milestone ledger, acceptance bindings, verificationIntent, and evidence as the only canonical owners of their existing facts.",
+    "Make topology reference-only and the matrix a deterministic L0 projection.",
+    "Preserve backward compatibility and lifecycle behavior in observe-only Wave 1.",
+    "Fail diagnostics deterministically on malformed, duplicate, unresolved, or self-authored topology references."
+  ],
+  "drivers": [
+    "Reviewer must see the complete producer-to-consumer proof design before REVIEW without creating a second truth source.",
+    "Verification-intent ownership and PLAN freeze already provide the correct write boundary for planned paths.",
+    "A concrete, scriptable CLI transcript is required for user-visible acceptance and compatibility testing."
+  ],
+  "options": [
+    {
+      "name": "A: Nested topology plus dedicated acceptance_matrix command",
+      "pros": [
+        "Matches the approved ownership model and keeps atomic ProofStory versioning.",
+        "Creates a clear read-only surface with deterministic JSON/text output.",
+        "Separates diagnostics from existing gate status so Wave 1 cannot accidentally change lifecycle semantics."
+      ],
+      "cons": [
+        "Adds one handler/command registration surface.",
+        "Requires explicit read-only classification tests."
+      ]
+    },
+    {
+      "name": "B: Nested topology rendered only through existing proofstory status",
+      "pros": [
+        "Avoids a new command name.",
+        "Reuses an existing status family."
+      ],
+      "cons": [
+        "Couples experimental topology output to existing gate diagnostics.",
+        "Makes read-only user acceptance and non-gating boundaries less isolated and harder to test."
+      ]
+    },
+    {
+      "name": "C: Separate topology table or writable matrix artifact",
+      "pros": [
+        "Could centralize rows in one new file."
+      ],
+      "cons": [
+        "Creates a second writable truth source.",
+        "Violates the approved Wave 1 stop condition and risks drift from milestone/checklist/evidence owners."
+      ]
+    }
+  ],
+  "chosen": "A: Nested topology plus dedicated acceptance_matrix command",
+  "rationale": "Choose A because it implements the approved nested ownership, gives users a precise deterministic read-only transcript, and isolates observe-only diagnostics from existing ProofStory lifecycle gates. The command derives rows at read time and persists nothing.",
+  "preMortem": [
+    {
+      "scenario": "Topology becomes a second author of producer-consumer semantics.",
+      "trigger": "Schema accepts inline endpoint prose or copied claims instead of stable refs.",
+      "consequence": "Matrix can appear complete while disagreeing with verificationIntent.",
+      "mitigation": "Normalize only typed reference objects and add a mutation test that inline/self-authored edge fields are rejected."
+    },
+    {
+      "scenario": "Read-only renderer mutates runtime or story state.",
+      "trigger": "Command is omitted from read-only policy or handler writes cache/activity/evidence.",
+      "consequence": "A diagnostic changes auditable state and can masquerade as evidence.",
+      "mitigation": "Register ownershipClass readOnly, add READ_ONLY_COMMANDS membership, and byte/hash-compare story/runtime artifacts before and after CLI execution."
+    },
+    {
+      "scenario": "Wave 1 accidentally blocks lifecycle transitions.",
+      "trigger": "New diagnostics are consumed by phase gates or existing proofstory report status.",
+      "consequence": "Legacy and topology-missing Stories cannot progress despite observe rollout.",
+      "mitigation": "Keep evaluator separate from gate consumers and prove identical transition results for topology-enabled and legacy fixtures."
+    },
+    {
+      "scenario": "Unstable ordering causes nondeterministic evidence and reviewer churn.",
+      "trigger": "Rows or diagnostics follow input/object iteration order.",
+      "consequence": "Equivalent inputs produce different transcripts and hashes.",
+      "mitigation": "Canonicalize stable IDs and sort bindings, refs, rows, and diagnostics; run permutation equality tests."
+    },
+    {
+      "scenario": "Wave 1 overclaims coverage-basis completeness.",
+      "trigger": "Placeholder coverageBasisRef is treated as verified or discovery is inferred from caller topology.",
+      "consequence": "Reviewer trusts self-reported scope coverage before Wave 1A exists.",
+      "mitigation": "Render basis as unavailable/observe-only, use no complete verdict, and test that caller-authored completeness cannot be promoted."
+    }
+  ],
+  "timestamp": "2026-07-22T02:44:54.750Z"
+}

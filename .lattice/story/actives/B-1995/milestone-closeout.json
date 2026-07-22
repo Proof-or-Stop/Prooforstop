@@ -1,0 +1,86 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-1995",
+  "phase": "TEST",
+  "generatedAt": "2026-07-22T05:54:05.659Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "3fe834f640e0cfc38b6180c367416ef5088d9b5bb8d83a4ce5d3b2cdf8a6404d",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:ef20fa6fe6ecdd47b52846a2f2ddbdad957108c8c0511d9097553ff14b5a6134"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "495b8f4b0eb7704dee93955db38565ab99ab2bd3",
+    "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+    "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Planned producer-consumer paths are canonically declared and frozen inside verificationIntent.",
+      "acceptance": "A valid versioned declaration round-trips through the real PLAN authoring flow, invalid references fail deterministically, and post-PLAN mutation is rejected.",
+      "evidence": [
+        "VI-1995-001-ROUNDTRIP [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js note=Focused smoke directly asserts pure planned-path normalization preserves stable declaration and endpoint IDs; handler integration remains covered by VI-1995-001-WRITER-FREEZE.",
+        "VI-1995-001-ROUNDTRIP [pass/logic_test] npm --prefix packages/main run test:proofstory-acceptance-topology-smoke note=The same focused suite directly asserts pure planned-path normalization preserves stable declaration and endpoint IDs.",
+        "VI-1995-001-WRITER-FREEZE [pass/integration_test] npm --prefix packages/main run test:proofstory-acceptance-topology-smoke note=story_create, checklist_add, ordinary checklist_update, and DEV mutation bites preserve pre-call bytes; registered PLAN role succeeds."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "ProofStory acceptance topology is optional, versioned, reference-only, and structurally diagnosed in observe mode.",
+      "acceptance": "Valid references resolve, legacy contracts report legacy_missing, and self-authored or unresolved path mutations produce stable diagnostics without becoming evidence.",
+      "evidence": [
+        "VI-1995-002-VALID-REFERENCE-GRAPH [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js note=Focused smoke at 35de890d50 proves a legitimate logic-test note may say the graph remains inconclusive_basis_unverified and still covers its intent.",
+        "VI-1995-002-SELF-AUTHORSHIP-MUTATION [pass/logic_test] npm --prefix packages/main run test:proofstory-acceptance-topology-smoke note=Deleting the canonical declaration emits AT_PLANNED_PATH_DECLARATION_MISSING; topology cannot self-author it."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Users can inspect a deterministic derived acceptance matrix through a dedicated read-only CLI.",
+      "acceptance": "acceptance_matrix text and JSON output expose canonical IDs and diagnostics byte-deterministically while creating no story, evidence, process-event, or matrix writes.",
+      "evidence": [
+        "VI-1995-003-MATRIX-USER-DEMO [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js note=Focused smoke captures the real supported acceptance_matrix CLI transcript and verifies its canonical read-only output without submitting the L0 producer command itself as evidence.",
+        "VI-1995-003-NO-WRITES [pass/integration_test] npm --prefix packages/main run test:proofstory-acceptance-topology-smoke note=Tree digest, git status, process events, phase, and transition decision remain unchanged across text and JSON reads."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Wave 1 remains backward-compatible and non-gating.",
+      "acceptance": "Focused mutation and compatibility tests prove legacy/docs-only readability, unchanged lifecycle transition results, and absence of Wave 1A basis/discovery/enforcement behavior.",
+      "evidence": [
+        "VI-1995-004-FOCUSED-SUITE [pass/integration_test] npm --prefix packages/main run test:proofstory-acceptance-topology-smoke note=Clean build focused suite covers schema, topology diagnostics, and real acceptance_matrix text/JSON surfaces.",
+        "VI-1995-004-LIFECYCLE-EQUIVALENCE [pass/logic_test] npm --prefix packages/main run test:proofstory-acceptance-topology-smoke note=Machine transition decisions and phase remain equal before and after valid/malformed topology diagnostics.",
+        "VI-1995-004-NO-GATE-OR-BASIS-SHIP [pass/integration_test] node scripts/verify-process-fact-contract.mjs note=Process-fact contract at cef7fc56fe verifies the shared bounded provenance classifier is consumed by writer, general verification, ProofStory, and milestone paths without promoting acceptance_matrix above L0."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

@@ -197,6 +197,73 @@ export interface VerificationIntentItem {
   type: VerificationIntentType;
   requiredIn?: VerificationRequiredIn;
   priority?: VerificationPriority;
+  /** PLAN-only, verification-intent-owned declarations for paths DEV will add. */
+  plannedPathDeclarations?: VerificationPlannedPathDeclarationV1[];
+}
+
+export type VerificationPlannedPathArtifactKind = 'source_file' | 'handler' | 'dispatch' | 'process_fact';
+
+export interface VerificationPlannedPathEndpointV1 {
+  id: string;
+  role: 'producer' | 'consumer';
+  expectedArtifactKind: VerificationPlannedPathArtifactKind;
+  expectedFileRef: string;
+  expectedSymbolOrFact: string;
+  fileDeclarationRef: string;
+}
+
+export interface VerificationPlannedPathDeclarationV1 {
+  schemaVersion: 'proofstory.verification_planned_path_declaration.v1';
+  id: string;
+  relation: 'producer_to_consumer';
+  producer: VerificationPlannedPathEndpointV1;
+  consumers: VerificationPlannedPathEndpointV1[];
+  outputFactRef: string;
+}
+
+export interface ExistingTopologySourceRefV1 {
+  refKind: 'existing';
+  canonicalSourceRef: string;
+}
+
+export interface PlannedTopologySourceRefV1 {
+  refKind: 'planned';
+  plannedPathDeclarationRef: string;
+  endpointRef: string;
+}
+
+export type TopologySourceRefV1 = ExistingTopologySourceRefV1 | PlannedTopologySourceRefV1;
+
+export interface AcceptanceTopologyProducerRefV1 {
+  id: string;
+  sourceRef: TopologySourceRefV1;
+}
+
+export interface AcceptanceTopologyConsumerRefV1 {
+  id: string;
+  sourceRef: TopologySourceRefV1;
+  producerRefs: string[];
+}
+
+export interface AcceptanceTopologyAssertionRefV1 {
+  id: string;
+  sourceRef: TopologySourceRefV1;
+  producerRefs: string[];
+  consumerRefs: string[];
+}
+
+/**
+ * Wave 1 is deliberately reference-only. It contains no copied edge semantics,
+ * observed outcomes, coverage basis, authority, freshness, or verdict fields.
+ */
+export interface AcceptanceVerificationTopologyV1 {
+  schemaVersion: 'proofstory.acceptance_topology.v1';
+  producerRefs: AcceptanceTopologyProducerRefV1[];
+  consumerRefs: AcceptanceTopologyConsumerRefV1[];
+  positiveAssertionRefs: AcceptanceTopologyAssertionRefV1[];
+  mutationCaseRefs: AcceptanceTopologyAssertionRefV1[];
+  transcriptAssertionRefs: AcceptanceTopologyAssertionRefV1[];
+  commandRefs: TopologySourceRefV1[];
 }
 
 export type VerificationIntent = Record<VerificationLane, VerificationIntentItem[]>;
@@ -2106,6 +2173,7 @@ export interface ProofStoryAcceptanceBinding {
   verificationIntentRefs: string[];
   milestoneIds: string[];
   note?: string;
+  verificationTopology?: AcceptanceVerificationTopologyV1;
 }
 
 export interface ProofStoryDiagnosticGap {

@@ -8,6 +8,28 @@ export const verificationIntentTypeSchema = z.preprocess((value) => {
   return value;
 }, z.enum(['logic', 'cli', 'browser', 'manual', 'docs']));
 
+const plannedPathEndpointSchema = z.object({
+  id: z.string().trim().min(1),
+  role: z.enum(['producer', 'consumer']),
+  expectedArtifactKind: z.enum(['source_file', 'handler', 'dispatch', 'process_fact']),
+  expectedFileRef: z.string().trim().min(1),
+  expectedSymbolOrFact: z.string().trim().min(1),
+  fileDeclarationRef: z.string().regex(/^CHK-\d{3}:files:(modify|create|test):\d+$/),
+}).strict();
+
+export const verificationPlannedPathDeclarationSchema = z.object({
+  schemaVersion: z.literal('proofstory.verification_planned_path_declaration.v1'),
+  id: z.string().trim().min(1),
+  relation: z.literal('producer_to_consumer'),
+  producer: plannedPathEndpointSchema.extend({ role: z.literal('producer') }),
+  consumers: z.array(plannedPathEndpointSchema.extend({ role: z.literal('consumer') })).min(1),
+  outputFactRef: z.string().trim().min(1),
+}).strict().superRefine((declaration, ctx) => {
+  const ids = [declaration.producer.id, ...declaration.consumers.map(endpoint => endpoint.id)];
+  const duplicate = ids.find((id, index) => ids.indexOf(id) !== index);
+  if (duplicate) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['consumers'], message: `duplicate planned endpoint id: ${duplicate}` });
+});
+
 /**
  * @task B-ef9c
  * @checklist CHK-003
@@ -28,6 +50,11 @@ export const verificationIntentItemSchema = z.object({
   type: verificationIntentTypeSchema.describe('Verification type.'),
   requiredIn: z.enum(['light', 'balanced', 'strict']).optional().describe('Minimum workflow profile that requires this.'),
   priority: z.enum(['must', 'should', 'nice']).optional().describe('must enters the evidence gate.'),
+  plannedPathDeclarations: z.array(verificationPlannedPathDeclarationSchema).optional(),
+}).strict().superRefine((item, ctx) => {
+  const ids = (item.plannedPathDeclarations ?? []).map(declaration => declaration.id);
+  const duplicate = ids.find((id, index) => ids.indexOf(id) !== index);
+  if (duplicate) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['plannedPathDeclarations'], message: `duplicate planned path declaration id: ${duplicate}` });
 });
 
 /**
