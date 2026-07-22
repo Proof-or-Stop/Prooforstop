@@ -44,6 +44,25 @@
       "_hash": "dac9c9ecbe1e6c0eae67da4d2905f607de399093d863378abffea1f1e88cb75a",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9123:F-004",
+      "desc": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts:142-210 — 21/21 must intents have evidence rows, but the shared smoke does not actually satisfy several claimed contracts. It invokes createProofStoryHandlers directly instead of the registered bin/lattice CLI; the four-dimension cases call the issuer rather than the production verifier; receipt fields are only altered, never individually deleted; signature coverage only replaces signature with forged text (no untrusted re-sign or cross-story/critic/time signature replay); missing/unverifiable signer and implementer provenance is absent; role replay does not cover a different business commit; canonical ref ordering/dedup/nonexistent refs is absent; exclusion coverage only exercises one exclusion and omits zero/multiple, orphan/stale/cross-story plus approver-vs-critic collision/spoof cases; incomplete discovery only covers partial/unsupported, not missing/stale/tampered; restoration is shown only for one approval mutation and never asserts git clean/no reusable forged artifact; process-fact mutations omit the CLI-schema and lifecycle/gate-consumer layers (lines 205-210 only mutate prompt, handler, verifier, incomplete-basis predicate). Add table-driven production-path cases for these missing assertions, including clean→mutation→exact restore, then record fresh intent-specific evidence rather than reusing the broad transcript note.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T18:35:12.419Z",
+      "reviewRound": "2026-07-22T18:32:54.616Z",
+      "reviewRunId": "B-9123:RR-003",
+      "_hash": "19fceca31e76664f2a93dcfab8be029d2458d46d4cebf00e76101806165718c5",
+      "files": [
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
