@@ -669,7 +669,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-A32A-005-REAL-CLI-TRANSCRIPT",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Temporary real git repository invokes production CLI generate and two read-only JSON reads; verified report identifies profile, adapters, paths, bindings and receipt without completion claims.",
+          "headHash": "4ee337d94be9dfb882822bfe96fd7a0efe9b11ac",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:58:21.829Z"
+        },
+        {
+          "intentRef": "VI-A32A-005-LEGACY-UNSUPPORTED-DETERMINISM",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Focused real CLI/pure controls prove legacy-missing and unsupported rendering plus byte-equivalent unchanged JSON reads.",
+          "headHash": "4ee337d94be9dfb882822bfe96fd7a0efe9b11ac",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:58:21.829Z"
+        },
+        {
+          "intentRef": "VI-A32A-005-PROCESS-FACT-CONTRACT",
+          "kind": "docs_check",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process Fact Contract verified with command, signed artifact, issuer, binding, freshness, and read-only non-lifecycle semantics registered on both sides.",
+          "headHash": "4ee337d94be9dfb882822bfe96fd7a0efe9b11ac",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:58:21.829Z"
+        },
+        {
+          "intentRef": "VI-A32A-005-MUTATION-CAMPAIGN",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Focused campaign bites adapter omission/duplicate/disagreement, aggregate/result/basis/signature/scope/workspace/story/closure tamper, unsupported input, optimism and caller forgery, with restored controls.",
+          "headHash": "4ee337d94be9dfb882822bfe96fd7a0efe9b11ac",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:58:21.829Z"
+        },
+        {
+          "intentRef": "VI-A32A-005-READONLY-DIAGNOSTIC-BOUNDARY",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Before/after snapshots prove diagnostic reads and rejected write-shaped options mutate no Story bytes, receipt, events, phase or git status.",
+          "headHash": "4ee337d94be9dfb882822bfe96fd7a0efe9b11ac",
+          "materialHash": "0c74d19fdde6eef7027f24e00c9b71d7044be685adc296a32aee89642186a760",
+          "storyFilesHash": "90dcdf46c1e190d04520b1c35a96738fcfde79dab2aa0acdfc4d900427e27824",
+          "timestamp": "2026-07-22T06:58:21.829Z"
+        }
+      ]
     }
   ]
 }
