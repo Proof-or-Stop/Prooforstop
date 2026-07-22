@@ -458,6 +458,25 @@
       ],
       "signatureTag": "adversarial|ts|canonical-source-root",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-023",
+      "desc": "The new lexicalCodeMask still does not model JavaScript regular-expression literals, so F-022 remains open for both false-positive and false-negative edges. At acceptance-discovery-adapters.ts:364-390, slash is handled only for line and block comments; ordinary regex content is copied as executable code and a closing brace inside a regex is treated as the end of a template interpolation. The unchanged alias-call regex at lines 196-200 and 410-415 therefore classifies `const p=/consumeReviewRun(foo)/;` as a real imported call, while a real call in `${/}/.test(v) ? consumeReviewRun() : false}` is masked after the regex brace. A focused reproduction using the exact mask printed the first case classifiedAsCall:true and the second classifiedAsCall:false. The smoke at proofstory-acceptance-basis-smoke.ts:390-414 covers comments, quoted strings, static template text, and a simple interpolation only; it has no regex-literal mutation. This can still invent an outside-scope consumer or omit a real interpolated consumer and incorrectly satisfy or fail the completeness claim. Parse call expressions with a syntax-aware scanner, or conservatively emit a blind spot when regex versus division cannot be proven; add both regex mutations and restored real-call controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T09:06:10.698Z",
+      "reviewRound": "2026-07-22T09:03:23.999Z",
+      "reviewRunId": "B-a32a:RR-023",
+      "_hash": "759ae7de076f4f7abb2016bdb2550f787c9bfaba00bb35093a5f79c5b96f9c33",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|lexicalcodemask-still-model",
+      "signatureTagSource": "auto"
     }
   ]
 }
