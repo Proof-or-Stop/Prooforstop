@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import type { CoverageAdapterResultV1, CoverageDiscoveryMethodV1, PlannedCoveragePathV1 } from './types.js';
 import { digestCanonicalJson } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
@@ -46,10 +46,6 @@ function stable(values: readonly string[]): string[] {
   return [...new Set(values.filter(value => typeof value === 'string' && value.trim().length > 0))].sort();
 }
 
-function normalized(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, '');
-}
-
 function sourceFiles(entry: ProcessFactRegistryEntry): string[] {
   return stable([...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]);
 }
@@ -58,39 +54,139 @@ function processFactPath(entry: ProcessFactRegistryEntry): string {
   return `path:process-fact:${entry.name}->consumer:${entry.consumerGate ?? '<audit-only>'}`;
 }
 
-function discoveryTerms(records: readonly PlannedCoveragePathV1[]): string[] {
-  return stable(records.flatMap(record => [record.outputFactRef, record.producer.expectedSymbolOrFact, ...record.consumers.map(item => item.expectedSymbolOrFact)]))
-    .flatMap(value => [normalized(value), normalized(value).replace(/^processfact/, '')])
-    .filter(value => value.length >= 4);
+interface FactoryInventory {
+  factory: string;
+  sourceFile: string;
+  registered: boolean;
+  commandKeys: string[];
 }
 
-function relevantProcessFacts(records: readonly PlannedCoveragePathV1[]): ProcessFactRegistryEntry[] {
-  const terms = discoveryTerms(records);
-  return PROCESS_FACT_REGISTRY.filter(entry => {
-    const candidates = [entry.name, entry.producer, entry.artifact?.name ?? '', entry.artifact?.path ?? '', entry.artifact?.producerCommand ?? ''].map(normalized).filter(Boolean);
-    return terms.some(term => candidates.some(candidate => term.includes(candidate) || candidate.includes(term)));
-  });
+interface BoundedSourceGraph {
+  seedFiles: string[];
+  closureFiles: string[];
+  entries: ProcessFactRegistryEntry[];
+  factories: FactoryInventory[];
+  blindSpots: string[];
+}
+
+function relativeFile(root: string, absolute: string): string | null {
+  const value = relative(root, absolute).replace(/\\/g, '/');
+  return value.startsWith('../') || value === '..' ? null : value;
+}
+
+function resolveLocalImport(root: string, importer: string, specifier: string): string | null {
+  if (!specifier.startsWith('.')) return null;
+  const base = resolve(root, dirname(importer), specifier);
+  const candidates = [base, base.replace(/\.js$/, '.ts'), `${base}.ts`, resolve(base, 'index.ts')];
+  for (const candidate of candidates) {
+    if (!existsSync(candidate)) continue;
+    const rel = relativeFile(root, candidate);
+    if (rel) return rel;
+  }
+  return null;
+}
+
+function localImports(root: string, file: string): Array<{ imported: string; local: string; sourceFile: string }> {
+  const absolute = resolve(root, file);
+  if (!existsSync(absolute)) return [];
+  const text = readFileSync(absolute, 'utf8');
+  const rows: Array<{ imported: string; local: string; sourceFile: string }> = [];
+  for (const match of text.matchAll(/import\s+(?:type\s+)?\{([^}]+)\}\s+from\s+['"]([^'"]+)['"]/g)) {
+    const sourceFile = resolveLocalImport(root, file, match[2]);
+    if (!sourceFile) continue;
+    for (const token of match[1].split(',')) {
+      const parts = token.trim().split(/\s+as\s+/);
+      if (/^[A-Za-z_$][\w$]*$/.test(parts[0] ?? '') && /^[A-Za-z_$][\w$]*$/.test(parts[1] ?? parts[0] ?? '')) {
+        rows.push({ imported: parts[0], local: parts[1] ?? parts[0], sourceFile });
+      }
+    }
+  }
+  for (const match of text.matchAll(/import\s+([A-Za-z_$][\w$]*)\s+from\s+['"]([^'"]+)['"]/g)) {
+    const sourceFile = resolveLocalImport(root, file, match[2]);
+    if (sourceFile) rows.push({ imported: 'default', local: match[1], sourceFile });
+  }
+  return rows;
+}
+
+function returnedHandlerKeys(root: string, file: string): string[] {
+  const absolute = resolve(root, file);
+  if (!existsSync(absolute)) return [];
+  const text = executableText(readFileSync(absolute, 'utf8'));
+  const returnIndex = text.indexOf('return {');
+  if (returnIndex < 0) return [];
+  const body = text.slice(returnIndex + 'return {'.length);
+  return stable([...body.matchAll(/^\s+([a-z][a-z0-9_]*)\s*(?:\([^\n]*\)\s*(?::[^\n{]+)?\{|:\s*)/gm)].map(match => match[1]));
+}
+
+function commandNamesForEntry(entry: ProcessFactRegistryEntry): string[] {
+  const producerCommands = (entry.artifact?.producerCommand ?? '').split('/').filter(value => /^[a-z][a-z0-9_]*$/.test(value));
+  return stable([...producerCommands, ...(/^[a-z][a-z0-9_]*$/.test(entry.name) ? [entry.name] : [])]);
+}
+
+function sourceSeedFiles(input: AcceptanceDiscoveryInput): string[] {
+  return stable([
+    ...input.scopeRefs.filter(ref => ref.startsWith('scope:file:')).map(ref => ref.slice('scope:file:'.length)),
+    ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
+  ]);
+}
+
+function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSourceGraph {
+  const root = input.workspaceRoot;
+  const seedFiles = sourceSeedFiles(input);
+  const blindSpots: string[] = [];
+  const registryFiles = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)
+    .filter(file => existsSync(resolve(root, file)) && executableText(readFileSync(resolve(root, file), 'utf8')).includes('registerBatch('))]);
+  const factories: FactoryInventory[] = [];
+  for (const registryFile of registryFiles) {
+    const absolute = resolve(root, registryFile);
+    if (!existsSync(absolute)) continue;
+    const text = executableText(readFileSync(absolute, 'utf8'));
+    const imports = localImports(root, registryFile);
+    const registrations = new Set([...text.matchAll(/registry\.registerBatch\(\s*([A-Za-z_$][\w$]*)\s*\(\s*ctx\s*\)\s*\)/g)].map(match => match[1]));
+    for (const imported of imports.filter(item => /Handlers$/.test(item.imported) || /Handlers$/.test(item.local))) {
+      if (!seedFiles.includes(imported.sourceFile)) continue;
+      const registered = registrations.has(imported.local);
+      const commandKeys = returnedHandlerKeys(root, imported.sourceFile);
+      factories.push({ factory: imported.local, sourceFile: imported.sourceFile, registered, commandKeys });
+      if (!registered) blindSpots.push(`handler factory ${imported.local} from ${imported.sourceFile} lacks exact registerBatch(factory(ctx))`);
+      if (commandKeys.length === 0) blindSpots.push(`handler factory ${imported.local} from ${imported.sourceFile} has ambiguous or empty returned command object`);
+    }
+  }
+  const handlerCommands = new Set(factories.flatMap(factory => factory.commandKeys));
+  const inferredHandlerFiles = new Map<string, string>();
+  for (const factory of factories) for (const command of factory.commandKeys) inferredHandlerFiles.set(command, factory.sourceFile);
+  const entryFiles = (entry: ProcessFactRegistryEntry): string[] => stable([
+    ...sourceFiles(entry),
+    ...commandNamesForEntry(entry).map(command => inferredHandlerFiles.get(command) ?? '').filter(Boolean),
+  ]);
+  const closure = new Set(seedFiles);
+  const reached = new Set<ProcessFactRegistryEntry>();
+  const hubs = new Set(registryFiles);
+  const boundedUniverse = stable([...seedFiles, ...PROCESS_FACT_REGISTRY.flatMap(entryFiles)]);
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const entry of PROCESS_FACT_REGISTRY) {
+      const files = entryFiles(entry).filter(file => !hubs.has(file));
+      const commandMatch = commandNamesForEntry(entry).some(command => handlerCommands.has(command));
+      if (!commandMatch && !files.some(file => closure.has(file))) continue;
+      if (!reached.has(entry)) { reached.add(entry); changed = true; }
+      for (const file of files) if (!closure.has(file)) { closure.add(file); changed = true; }
+    }
+    for (const file of boundedUniverse.filter(file => !hubs.has(file) && !closure.has(file))) {
+      if (localImports(root, file).some(item => closure.has(item.sourceFile))) { closure.add(file); changed = true; }
+    }
+  }
+  for (const entry of reached) {
+    for (const file of entryFiles(entry)) if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
+  }
+  return { seedFiles, closureFiles: stable([...closure]), entries: [...reached], factories, blindSpots: stable(blindSpots) };
 }
 
 /** Resolve canonical process-fact closure and its producer/consumer source files. */
 export function deriveRegisteredProcessFactClosure(workspaceRoot: string, seedRefs: readonly string[]): RegisteredProcessFactClosure {
-  const seeds = stable(seedRefs.flatMap(ref => {
-    const value = normalized(ref);
-    const tail = normalized(ref.split(/[:#]/).at(-1) ?? ref);
-    return [value, value.replace(/^(?:processfact|artifact|handler|dispatch)/, ''), tail];
-  })).filter(value => value.length >= 4);
-  const reached = PROCESS_FACT_REGISTRY.filter(entry => {
-    const candidates = [entry.name, entry.producer, entry.artifact?.name ?? '', entry.artifact?.path ?? ''].map(normalized).filter(Boolean);
-    return seeds.some(seed => candidates.some(candidate => seed.includes(candidate) || candidate.includes(seed)));
-  });
-  const blindSpots: string[] = [];
-  for (const entry of reached) {
-    if (!entry.producerSourceRefs?.length) blindSpots.push(`process fact ${entry.name} has no canonical producer source refs`);
-    if (entry.consumerGate && !entry.consumerSourceRefs?.length) blindSpots.push(`process fact ${entry.name} has no canonical consumer source refs`);
-    for (const file of sourceFiles(entry)) {
-      if (!existsSync(resolve(workspaceRoot, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
-    }
-  }
+  const graph = buildBoundedSourceGraph({ supported: true, workspaceRoot, storyId: '<closure>', plannedPathRecords: [], scopeRefs: seedRefs.map(ref => ref.startsWith('scope:file:') ? ref : `scope:file:${ref}`) });
+  const reached = graph.entries;
   return {
     pathRefs: stable(reached.map(processFactPath)),
     sourceInventoryRefs: stable(reached.flatMap(entry => [
@@ -98,9 +194,9 @@ export function deriveRegisteredProcessFactClosure(workspaceRoot: string, seedRe
       ...((entry.producerSourceRefs ?? []).map(file => `source-file:producer:${encodeURIComponent(entry.name)}:${file}`)),
       ...((entry.consumerSourceRefs ?? []).map(file => `source-file:consumer:${encodeURIComponent(entry.name)}:${file}`)),
       ...(entry.artifact ? [`artifact:${entry.artifact.path}`] : []),
-    ])),
-    sourceFileRefs: stable(reached.flatMap(sourceFiles)),
-    blindSpots: stable(blindSpots),
+    ]).concat(graph.closureFiles.map(file => `source-file:closure:${file}`))),
+    sourceFileRefs: graph.closureFiles,
+    blindSpots: graph.blindSpots,
     entries: reached,
   };
 }
@@ -132,29 +228,30 @@ function executableText(text: string): string {
     .replace(/^\s*import\b.*$/gm, '');
 }
 
-function exactDispatchRegistered(root: string, command: string): boolean {
-  const catalog = resolve(root, 'packages/main/src/cli/command-catalog.ts');
-  const registry = resolve(root, 'packages/main/src/registry.ts');
-  const handler = resolve(root, 'packages/main/src/handlers/proofstory.ts');
-  if (![catalog, registry, handler].every(existsSync)) return false;
-  const catalogText = executableText(readFileSync(catalog, 'utf8'));
-  const registryText = executableText(readFileSync(registry, 'utf8'));
-  const handlerText = executableText(readFileSync(handler, 'utf8'));
-  return new RegExp(`^\\s*\\{?\\s*name:\\s*['\"]${command}['\"]`, 'm').test(catalogText)
-    && /registry\.registerBatch\(\s*createProofStoryHandlers\(ctx\)\s*\)/.test(registryText)
-    && new RegExp(`^\\s*${command}\\s*\\(`, 'm').test(handlerText);
+function catalogCommands(root: string): Set<string> {
+  const file = resolve(root, 'packages/main/src/cli/command-catalog.ts');
+  if (!existsSync(file)) return new Set();
+  return new Set([...executableText(readFileSync(file, 'utf8')).matchAll(/^\s*\{?\s*name:\s*['"]([a-z][a-z0-9_]*)['"]/gm)].map(match => match[1]));
 }
 
-function exactStaticSources(root: string, entry: ProcessFactRegistryEntry): boolean {
-  const files = sourceFiles(entry);
-  if (files.length === 0 || !files.every(file => existsSync(resolve(root, file)))) return false;
-  const command = entry.artifact?.producerCommand ?? entry.name;
-  return files.every(file => {
-    const text = executableText(readFileSync(resolve(root, file), 'utf8'));
-    if (file === 'packages/main/src/registry.ts') return /registry\.registerBatch\(\s*createProofStoryHandlers\(ctx\)\s*\)/.test(text);
-    if (file.endsWith('handlers/proofstory.ts')) return new RegExp(`^\\s*${command}\\s*\\(`, 'm').test(text);
-    return new RegExp(`['\"]?${command.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['\"]?`).test(text);
-  });
+function staticCallPaths(root: string, graph: BoundedSourceGraph): { paths: string[]; blindSpots: string[] } {
+  const paths: string[] = [];
+  const blindSpots: string[] = [];
+  for (const file of graph.closureFiles.filter(value => !value.endsWith('/registry.ts'))) {
+    const absolute = resolve(root, file);
+    if (!existsSync(absolute)) continue;
+    const text = executableText(readFileSync(absolute, 'utf8'));
+    for (const imported of localImports(root, file)) {
+      if (!graph.closureFiles.includes(imported.sourceFile) || /Handlers$/.test(imported.imported)) continue;
+      if (new RegExp(`\\b${imported.local.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\(`).test(text)) {
+        paths.push(`path:static-call:${imported.sourceFile}#${imported.imported}->consumer:${file}#${imported.local}`);
+      }
+    }
+    for (const match of text.matchAll(/from\s+['"](\.[^'"]+)['"]/g)) {
+      if (!resolveLocalImport(root, file, match[1])) blindSpots.push(`unresolved local import ${match[1]} from ${file}`);
+    }
+  }
+  return { paths: stable(paths), blindSpots: stable(blindSpots) };
 }
 
 function buildResult(
@@ -167,6 +264,7 @@ function buildResult(
   let blindSpots: string[] = [];
   let provenanceRefs: string[] = [];
   if (!unsupported) {
+    const graph = buildBoundedSourceGraph(input);
     if (method === 'scope_contract') {
       pathRefs = input.plannedPathRecords.map(record => record.plannedPathRef);
       provenanceRefs = stable([
@@ -175,30 +273,31 @@ function buildResult(
           .map(endpoint => sourceProvenance(input.workspaceRoot, endpoint.expectedFileRef)),
       ]);
     } else if (method === 'process_fact_registry') {
-      const closure = deriveRegisteredProcessFactClosure(input.workspaceRoot, discoveryTerms(input.plannedPathRecords));
-      pathRefs = closure.pathRefs;
-      blindSpots = closure.blindSpots;
-      provenanceRefs = closure.sourceInventoryRefs;
+      pathRefs = graph.entries.map(processFactPath);
+      blindSpots = graph.blindSpots;
+      provenanceRefs = stable(graph.entries.flatMap(entry => [`process-fact:${entry.name}:${digestCanonicalJson(entry)}`, ...sourceFiles(entry).map(file => sourceProvenance(input.workspaceRoot, file))]));
     } else if (method === 'handler_dispatch_inventory') {
-      const entries = relevantProcessFacts(input.plannedPathRecords);
-      const inspectableEntries = entries.filter(entry => exactDispatchRegistered(input.workspaceRoot, entry.artifact?.producerCommand ?? entry.name));
+      const commands = catalogCommands(input.workspaceRoot);
+      const registeredKeys = new Set(graph.factories.filter(factory => factory.registered).flatMap(factory => factory.commandKeys));
+      const inspectableEntries = graph.entries.filter(entry => commandNamesForEntry(entry).some(command => registeredKeys.has(command) && commands.has(command)));
       pathRefs = inspectableEntries.map(processFactPath);
-      blindSpots = entries.filter(entry => !exactDispatchRegistered(input.workspaceRoot, entry.artifact?.producerCommand ?? entry.name))
-        .map(entry => `canonical registerBatch/command/handler dispatch missing for ${entry.name}`);
-      provenanceRefs = ['packages/main/src/cli/command-catalog.ts', 'packages/main/src/registry.ts', 'packages/main/src/handlers/proofstory.ts']
-        .map(file => sourceProvenance(input.workspaceRoot, file));
+      blindSpots = stable([
+        ...graph.blindSpots,
+        ...graph.factories.filter(factory => !factory.registered).map(factory => `unregistered handler factory ${factory.factory}`),
+        ...[...registeredKeys].filter(command => !commands.has(command)).map(command => `registered handler command ${command} has no exact command catalog binding`),
+        ...graph.entries.filter(entry => commandNamesForEntry(entry).length > 0 && !inspectableEntries.includes(entry)).map(entry => `registered process fact ${entry.name} has no exact registered handler/catalog dispatch`),
+      ]);
+      provenanceRefs = stable(['packages/main/src/cli/command-catalog.ts', 'packages/main/src/registry.ts', ...graph.factories.map(factory => factory.sourceFile)]
+        .map(file => sourceProvenance(input.workspaceRoot, file)));
     } else if (method === 'static_call_graph') {
-      const entries = relevantProcessFacts(input.plannedPathRecords);
-      const inspectableEntries = entries.filter(entry => exactStaticSources(input.workspaceRoot, entry));
+      const inspectableEntries = graph.entries.filter(entry => sourceFiles(entry).every(file => existsSync(resolve(input.workspaceRoot, file))));
+      const staticCalls = staticCallPaths(input.workspaceRoot, graph);
       pathRefs = inspectableEntries.map(processFactPath);
-      blindSpots = entries.filter(entry => !exactStaticSources(input.workspaceRoot, entry)).map(entry => `static registered source/call graph missing for ${entry.name}`);
-      provenanceRefs = stable(entries.flatMap(sourceFiles).map(file => sourceProvenance(input.workspaceRoot, file)));
+      pathRefs.push(...staticCalls.paths);
+      blindSpots = stable([...graph.blindSpots, ...staticCalls.blindSpots, ...graph.entries.filter(entry => !inspectableEntries.includes(entry)).map(entry => `static registered source graph is incomplete for ${entry.name}`)]);
+      provenanceRefs = stable(graph.closureFiles.map(file => sourceProvenance(input.workspaceRoot, file)));
     } else {
-      const seeds = input.plannedPathRecords.flatMap(record => [record.outputFactRef, record.producer.expectedSymbolOrFact, ...record.consumers.map(item => item.expectedSymbolOrFact)]).map(normalized);
-      const registeredRuntimePaths = RUNTIME_FACT_REGISTRY
-        .filter(entry => seeds.some(seed => [entry.id, entry.checker, entry.outputKey].map(normalized).some(token => seed.includes(token) || token.includes(seed))))
-        .map(entry => `path:runtime-fact:${entry.id}->checker:${entry.checker}`);
-      pathRefs = stable([...(input.runtimeObservedPathRefs ?? []), ...registeredRuntimePaths]);
+      pathRefs = stable(input.runtimeObservedPathRefs ?? []);
       provenanceRefs = [
         `runtime-fact-registry:sha256:${digestCanonicalJson(RUNTIME_FACT_REGISTRY)}`,
         `runtime-trace:story:${input.storyId}:bounded`,

@@ -96,6 +96,21 @@
       ],
       "severity": "high",
       "createdAt": "2026-07-22T07:43:54.641Z"
+    },
+    {
+      "clusterId": "CL-007",
+      "rootCause": "Multiple findings all involve packages/main/src/core/acceptance-discovery-adapters.ts",
+      "findingIds": [
+        "B-a32a:F-018",
+        "B-a32a:F-019"
+      ],
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "command-catalog.ts",
+        "handlers/proofstory.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-07-22T08:26:11.716Z"
     }
   ]
 }

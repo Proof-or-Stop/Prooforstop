@@ -170,8 +170,9 @@ function sourceInventory(records: readonly PlannedCoveragePathV1[], contract: Pr
 }
 
 function inventorySourceFile(ref: string): string | null {
-  const match = ref.match(/^source-file:(?:producer|consumer):[^:]+:(.+)$/);
-  return match?.[1] ?? null;
+  const bound = ref.match(/^source-file:(?:producer|consumer):[^:]+:(.+)$/);
+  if (bound?.[1]) return bound[1];
+  return ref.match(/^source-file:closure:(.+)$/)?.[1] ?? null;
 }
 
 export function computeClosureFilesHash(workspaceRoot: string, records: readonly PlannedCoveragePathV1[], inventory: readonly string[]): string {
@@ -223,12 +224,11 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
   ]);
   const supported = input.supported ?? existsSync(resolve(input.workspaceRoot, 'tsconfig.json'));
   const initialInventory = sourceInventory(planned.records, input.contract);
-  const discoverySeeds = planned.records.flatMap(record => [
-    record.outputFactRef,
-    record.producer.expectedSymbolOrFact,
-    ...record.consumers.map(endpoint => endpoint.expectedSymbolOrFact),
+  const discoverySeedFiles = stable([
+    ...scopeRefs.filter(ref => ref.startsWith('scope:file:')).map(ref => ref.slice('scope:file:'.length)),
+    ...planned.records.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
   ]);
-  const registeredClosure = deriveRegisteredProcessFactClosure(input.workspaceRoot, discoverySeeds);
+  const registeredClosure = deriveRegisteredProcessFactClosure(input.workspaceRoot, discoverySeedFiles);
   const results = runAcceptanceDiscoveryAdapters({
     supported,
     workspaceRoot: input.workspaceRoot,

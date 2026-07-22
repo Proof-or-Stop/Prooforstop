@@ -123,9 +123,9 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
     '',
   ].join('\n'));
   write(root, 'packages/main/src/registry.ts', [
+    "import { createProofStoryHandlers } from './handlers/proofstory.js';",
     'const registry = { registerBatch: (_handlers: unknown) => undefined };',
     'const ctx = {};',
-    'const createProofStoryHandlers = (_ctx: unknown) => ({});',
     'registry.registerBatch(createProofStoryHandlers(ctx));',
     '',
   ].join('\n'));
@@ -163,7 +163,7 @@ function contract(value: AcceptanceVerificationTopologyV1 = topology): ProofStor
 
 function scopeContract(): ScopeContractData {
   return {
-    storyId, mode: 'local', allowedModify: [], allowedCreate: ['packages/main/src/producer.ts', 'packages/main/src/consumer.ts'], allowedTest: [],
+    storyId, mode: 'local', allowedModify: ['packages/main/src/handlers/proofstory.ts'], allowedCreate: ['packages/main/src/producer.ts', 'packages/main/src/consumer.ts'], allowedTest: [],
     protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: now, updatedAt: now,
   };
 }
@@ -187,7 +187,7 @@ try {
     storyId, workspaceRoot: pureRoot, checklist: checklist(), contract: contract(), scopeCheck: scopeCheck(pureRoot), scopeContract: scopeContract(),
     headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
   });
-  assert.equal(plannedBeforeCode.basis.status, 'complete', `valid PLAN endpoints are structurally complete before implementation files exist: ${JSON.stringify(plannedBeforeCode.diagnostics)}`);
+  assert.equal(plannedBeforeCode.basis.status, 'complete', `valid PLAN endpoints are structurally complete before implementation files exist: ${JSON.stringify({ diagnostics: plannedBeforeCode.diagnostics, adapters: plannedBeforeCode.basis.adapterResults }, null, 2)}`);
   write(pureRoot, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
   write(pureRoot, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => true;\n');
   const input = {
@@ -195,8 +195,8 @@ try {
     headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
   };
   const first = deriveAcceptanceCoverageBasis(input);
-  const adapterControl = runAcceptanceDiscoveryAdapters({ supported: true, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1'] });
-  const globalClosure = deriveRegisteredProcessFactClosure(pureRoot, ['process_fact:acceptance_basis_generate']);
+  const adapterControl = runAcceptanceDiscoveryAdapters({ supported: true, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1', 'scope:file:packages/main/src/handlers/proofstory.ts'] });
+  const globalClosure = deriveRegisteredProcessFactClosure(pureRoot, ['packages/main/src/handlers/proofstory.ts']);
   assert.ok(globalClosure.pathRefs.some(path => path.includes('acceptance_basis_generate->consumer:<audit-only>')), 'non-gate writer remains registered without inventing a lifecycle consumer');
   assert.ok(globalClosure.pathRefs.some(path => path.includes('artifact:acceptance-basis.json') && path.includes('consumer:acceptance_basis read-only receipt verification')), 'signed artifact retains its read-only verifier consumer boundary');
   assert.ok(globalClosure.sourceFileRefs.includes('scripts/verify-process-fact-contract.mjs'), 'global consumer source enters closure binding');
@@ -212,7 +212,9 @@ try {
   resultTamper[1].pathRefs.push('C3');
   assert.ok(reconcileAcceptanceDiscoveryResults(resultTamper).diagnostics.some(item => item.code === 'AT_ADAPTER_RESULT_DIGEST_MISMATCH'), 'adapter path mutation without digest bites');
   const disagreement = structuredClone(adapterControl);
-  disagreement.find(item => item.method === 'handler_dispatch_inventory')!.pathRefs = [];
+  const disagreementDispatch = disagreement.find(item => item.method === 'handler_dispatch_inventory')!;
+  disagreementDispatch.pathRefs = ['path:process-fact:forged-dispatch->consumer:<audit-only>'];
+  redigestAdapter(disagreementDispatch);
   assert.ok(reconcileAcceptanceDiscoveryResults(disagreement).diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'), 'unexplained registry/dispatch disagreement bites');
   assert.ok(!adapterControlReconciled.diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'), 'typed bounded runtime asymmetry retains static-only paths');
   for (const [label, mutate] of [
@@ -234,11 +236,11 @@ try {
   assert.equal(reconcileAcceptanceDiscoveryResults(declaredBlindSpot).status, 'partial', 'declared blind spot cannot reconcile complete');
   const handlerControl = bytes(pureRoot, 'packages/main/src/handlers/proofstory.ts');
   write(pureRoot, 'packages/main/src/handlers/proofstory.ts', handlerControl.replace('    acceptance_basis_generate() { return true; },', '    // acceptance_basis_generate() { return true; },'));
-  const dispatchOmission = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters({ supported: true, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1'] }));
+  const dispatchOmission = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters({ supported: true, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1', 'scope:file:packages/main/src/handlers/proofstory.ts'] }));
   assert.equal(dispatchOmission.status, 'partial', 'real registered handler deletion fails discovery; a comment token does not count as dispatch');
   assert.ok(dispatchOmission.diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'));
   write(pureRoot, 'packages/main/src/handlers/proofstory.ts', handlerControl);
-  const unsupported = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters({ supported: false, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1'] }));
+  const unsupported = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters({ supported: false, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1', 'scope:file:packages/main/src/handlers/proofstory.ts'] }));
   assert.equal(unsupported.status, 'unsupported', 'unsupported profile never becomes complete');
   const second = deriveAcceptanceCoverageBasis({ ...input, checklist: { items: [...input.checklist.items] } });
   assert.equal(first.basis.basisDigest, second.basis.basisDigest, 'unchanged canonical inputs replay to the same basis digest');
@@ -339,6 +341,79 @@ try {
   const invalidRelation = checklist();
   (invalidRelation.items[0].verificationIntent!.happy[0].plannedPathDeclarations![0] as any).relation = 'consumer_to_producer';
   assert.ok(derivePlannedCoveragePaths(invalidRelation, contract(), scopeContract()).diagnostics.some(item => item.code === 'AT_PLANNED_PATH_INVALID'), 'declaration relation drift is rejected');
+
+  const genericRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-generic-'));
+  try {
+    write(genericRoot, 'tsconfig.json', '{}\n');
+    write(genericRoot, 'packages/main/src/cli/command-catalog.ts', "export const MAIN_TOOLS = [\n  { name: 'review_run_start' },\n];\n");
+    write(genericRoot, 'packages/main/src/handlers/review-run.ts', [
+      'export const emitReviewRunFact = () => true;',
+      'export function createReviewRunHandlers() {',
+      '  return {',
+      '    review_run_start() { return emitReviewRunFact(); },',
+      '  };',
+      '}',
+      '',
+    ].join('\n'));
+    const genericRegistryControl = [
+      "import { createReviewRunHandlers as makeReviewHandlers } from './handlers/review-run.js';",
+      'const registry = { registerBatch: (_handlers: unknown) => undefined };',
+      'const ctx = {};',
+      'registry.registerBatch(makeReviewHandlers(ctx));',
+      '',
+    ].join('\n');
+    write(genericRoot, 'packages/main/src/registry.ts', genericRegistryControl);
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', [
+      "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+      'export const c2 = () => consumeReviewRun();',
+      '',
+    ].join('\n'));
+    const genericInput = {
+      supported: true, workspaceRoot: genericRoot, storyId: 'B-generic', plannedPathRecords: [],
+      scopeRefs: ['scope:file:packages/main/src/handlers/review-run.ts', 'scope:file:packages/main/src/consumers/c2.ts'],
+    };
+    const genericControl = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+    assert.equal(genericControl.status, 'complete', JSON.stringify(genericControl, null, 2));
+    const c2Path = genericControl.enumeratedPathRefs.find(path => path.includes('static-call:packages/main/src/handlers/review-run.ts#emitReviewRunFact') && path.includes('consumer:packages/main/src/consumers/c2.ts#consumeReviewRun'));
+    assert.ok(c2Path, 'empty planned declarations still discover a non-ProofStory handler and its unregistered external C2 consumer');
+    assert.ok(genericControl.enumeratedPathRefs.some(path => path.includes('process-fact:review_run_start')), 'generic factory alias resolves the registered review-run command');
+    assert.ok(!genericControl.enumeratedPathRefs.some(path => path.includes('acceptance_basis')), 'bounded graph does not pull the unrelated process registry universe');
+
+    const genericBasis = structuredClone(first.basis);
+    genericBasis.storyId = 'B-generic';
+    genericBasis.adapterResults = genericControl.adapterResults;
+    genericBasis.discoveryMethods = genericControl.adapterResults.map(item => item.method).sort();
+    genericBasis.enumeratedPathRefs = genericControl.enumeratedPathRefs;
+    genericBasis.blindSpots = genericControl.blindSpots;
+    genericBasis.plannedPathRecords = [];
+    redigestBasis(genericBasis);
+    const c2Topology: AcceptanceVerificationTopologyV1 = {
+      schemaVersion: 'proofstory.acceptance_topology.v1', producerRefs: [], consumerRefs: [], positiveAssertionRefs: [], mutationCaseRefs: [], transcriptAssertionRefs: [],
+      commandRefs: genericControl.enumeratedPathRefs.map(path => ({ refKind: 'existing' as const, canonicalSourceRef: `basis-path:${path}` })),
+    };
+    assert.equal(reconcileTopologyWithCoverageBasis(contract(c2Topology), genericBasis).length, 0, 'restored generic C2 topology control passes');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', 'export const c2 = () => true;\n');
+    const omittedC2 = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+    const omittedBasis = structuredClone(genericBasis);
+    omittedBasis.adapterResults = omittedC2.adapterResults;
+    omittedBasis.enumeratedPathRefs = omittedC2.enumeratedPathRefs;
+    omittedBasis.blindSpots = omittedC2.blindSpots;
+    redigestBasis(omittedBasis);
+    assert.ok(reconcileTopologyWithCoverageBasis(contract(c2Topology), omittedBasis).some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'), 'omitting external C2 fails the reverse topology mapping');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', [
+      "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+      'export const c2 = () => consumeReviewRun();', '',
+    ].join('\n'));
+
+    write(genericRoot, 'packages/main/src/registry.ts', genericRegistryControl.replace('registry.registerBatch(makeReviewHandlers(ctx));', '// deleted registerBatch(makeReviewHandlers(ctx));'));
+    assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'deleted generic registerBatch fails closed');
+    write(genericRoot, 'packages/main/src/registry.ts', genericRegistryControl.replace('registry.registerBatch(makeReviewHandlers(ctx));', 'registry.registerBatch(factoryMap.review(ctx));'));
+    assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'partial', 'ambiguous dynamic factory registration fails closed');
+    write(genericRoot, 'packages/main/src/registry.ts', genericRegistryControl);
+    assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'complete', 'restored generic alias factory control passes');
+  } finally {
+    rmSync(genericRoot, { recursive: true, force: true });
+  }
 } finally {
   rmSync(pureRoot, { recursive: true, force: true });
 }
