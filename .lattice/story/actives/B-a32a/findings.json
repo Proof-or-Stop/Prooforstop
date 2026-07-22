@@ -748,7 +748,7 @@
       "desc": "Local module resolution validates physical containment but returns the caller-spelled candidate path rather than the canonical physical relative path. At acceptance-discovery-adapters.ts:127-162, physicallyContainedRegularFile resolves the real target only to return boolean; viable retains `rel` derived from the lexical candidate. On a case-insensitive or Unicode-normalizing filesystem, an import with casing/normalization different from the on-disk filename can therefore yield exactly one viable sourceFile spelled differently from sourceInventory.files and seed paths. The import is reported resolved with no blind spot, yet closure equality misses the real producer or consumer; on a case-sensitive host the same import becomes partial, creating cross-host nondeterminism. Return the canonical relative path derived from realpathSync, reject or explicitly diagnose spelling collisions/case drift, use locale-independent ordering, and add case/normalization mutations appropriate to each platform.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T09:38:31.023Z",
@@ -760,7 +760,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "edge|ts|local-module-resolution",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 16f71aa5be and retained through current HEAD: inline require/static dynamic import and wrapper bindings are exact, all source ingress shares pre-allocation O_NOFOLLOW budgets, module paths are canonical, and directory mutations are detected. Current threat-table mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:33.635Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-036",
