@@ -1010,6 +1010,46 @@
         "scanEscalationReason": null
       },
       "_hash": "f8b283a48bba219fc5ccb6c373a640d1eceed230d5eac302c7d6c445c4c16c94"
+    },
+    {
+      "id": "B-a32a:RP-026",
+      "agent": "lattice-review-docs",
+      "note": "Round 14 targeted docs/baseline review found no blocker. Commit 7d714f0c82 changes only the three mechanically generated baseline artifacts and the verifier approval manifest. The lattice-implementer template hash moves consistently to 98aa71b9cde97e5571ff9d61aa0091163660eaa8cd8013ab6da4c7eedba9f45e; bytes/lines, registry material hash, direct-story-reference line/id, overlap-matrix header, measurement totals/digests, and verifier manifest all move together while all other role rows and human-authored semantics remain unchanged. The targeted verifier passed all 16-role manifest, registry, snapshot, agent_prompt, mutation, matrix parity, vocabulary/reference, and measurement checks; working tree remained clean. Target commit contains 0 exported-symbol changes and 4 bounded generated-artifact/manifest comparison groups.",
+      "createdAt": "2026-07-22T14:45:18.027Z",
+      "reviewRound": "2026-07-22T14:42:15.395Z",
+      "reviewRunId": "B-a32a:RR-053",
+      "envelopeId": "6fbfca85a93c0acd1b7ce6bf4dbeafe37e9099e61a2ddcc181cc9a5cb74cec9a",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6bd134591c9c00e2f4ae95466d83a3b794b88440b25b150e16ed035a387ad87c"
     }
   ]
 }
