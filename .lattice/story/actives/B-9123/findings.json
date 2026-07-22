@@ -306,7 +306,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1131-1135 presents the TopologyCriticReceiptV1 contents but omits criticProvenance, implementationProvenance, and signerPublicKey, even though the same document canonical schema at lines 318-337 and packages/main/src/core/types.ts require all three. Update §8.2 field prose to include both provenance records and signer public key so the target-state narrative does not regress the signed receipt contract.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-22T19:49:34.133Z",
@@ -319,7 +319,11 @@
         "packages/main/src/core/topology-critic-receipt.ts"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 6bcaca16e3 updates canonical §8.2 to inventory all 18 actual TopologyCriticReceiptV1 fields, including criticProvenance, implementationProvenance, and signerPublicKey. Fresh smoke reconciles the documented inventory exactly against Object.keys(real receipt); process and prompt contracts pass.",
+      "resolvedAt": "2026-07-22T20:00:08.233Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9123:F-016",
