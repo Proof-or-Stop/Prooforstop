@@ -110,7 +110,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-W3-M3-REAL-PROOF-CHAIN",
+            "desc": "M3: Execute one real production chain end to end—producer creates the declared fact, the actual consumer observes/verifies it, the positive control passes, a targeted adverse mutation bites with the declared semantic code, exact restoration makes the clean control pass again, a claim-related transcript proves the required event sequence, authority is admissible, and all evidence is fresh for the current storyFilesHash/closureFilesHash/cutoff; synthetic-only fixtures cannot satisfy this intent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-W3-M3-MUTATION-POLARITY-RESTORE",
+            "desc": "M3: For every required mutation, verify target, command, expected polarity and expected failure code; distinguish command crash/wrong-reason failure from a semantic bite, require isolated execution or a recorded exact restore, and prove the post-mutation unmodified control passes with no source/runtime residue.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY",
+            "desc": "M3: Verify transcript event refs and ordering are causally related to the declared producer→consumer claim across one-to-many and many-to-one paths, with separate assertion/evidence coverage for each required consumer; missing producer/consumer events, reordered events, unrelated successful commands, or reused transcripts must fail.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-W3-M3-BYPASS-CAMPAIGN",
+            "desc": "M3: Attempt synthetic producer substitution, mutation removal/no-op/wrong target, expected-code spoofing, pre-mutation transcript reuse, diagnostic-to-authority promotion, implementer/self-report evidence, stale evidence replay, cross-story receipt reuse, and silent freshness rebinding; each must fail at the production pre-review verifier with a stable PR_* code.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX",
+            "desc": "M3: Independently drift HEAD/storyFilesHash, coverage basis/topology/scope digests, closureFilesHash, evidence material, authority receipt and temporal cutoff; prove evidence after the cutoff is excluded and both removal of the cutoff and a strictness mutation such as >= to > bite where equal-time exclusion applies, while unchanged current evidence passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
