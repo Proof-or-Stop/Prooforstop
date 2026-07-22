@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a32a",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git",
+    "Lattice CLI",
+    "Node.js smoke tests",
+    "TypeScript compiler"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-a32a",
+    "docs/CLI.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "OMX",
+    "remote publishing"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Only Wave 1A implementation and its lifecycle evidence. Preserve unrelated dirty main files and do not publish remotely.",
+  "createdAt": "2026-07-22T06:17:19.083Z",
+  "updatedAt": "2026-07-22T06:17:19.083Z",
+  "_hash": "17ede752dcb3fdbb919b9831cf08882bcaf35c04996c5d6a371c1b05799ae7f7"
+}
