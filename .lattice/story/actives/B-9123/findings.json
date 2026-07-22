@@ -63,6 +63,21 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9123:F-005",
+      "desc": "packages/main/templates/agents/lattice-review-topology-critic.md:1 starts with literal +--- instead of YAML frontmatter delimiter ---. The same malformed first line is mirrored in .claude/agents/lattice-review-topology-critic.md and .lattice-codex/agents/lattice-review-topology-critic.md, so native host discovery/frontmatter parsing cannot load the new role according to the repository agent-asset contract even though raw-text baseline hashing passes. Correct all three mirrors and add a parser/adapter assertion, not only an exact raw hash.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T18:35:48.566Z",
+      "reviewRound": "2026-07-22T18:32:54.616Z",
+      "reviewRunId": "B-9123:RR-002",
+      "_hash": "1fe32ca0a73c269aab7aca89d5f3ff0a90af0a127a32f93527cb5bcbf17518b9",
+      "signatureTag": "missing|unknown|packages-main-templates",
+      "signatureTagSource": "auto"
     }
   ]
 }
