@@ -151,6 +151,27 @@
       "_hash": "3c199f6318677368ecd7f28dc975d10d4ffab64c017104e42635dc75583ccf18",
       "signatureTag": "adversarial|unknown|promise-undelivered-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1995:F-010",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:212-214 and the process-fact contract only prove that acceptance_matrix is registered L0; they never perform VI-1995-003-NON-EVIDENTIARY’s required attempt to feed the renderer/result back as verification evidence. Current gate consumption in packages/main/src/core/proofstory.ts:768-777 accepts any non-deferred verificationEvidence row with result=pass without checking command/fact authority, so an acceptance_matrix manual transcript can presently cover a bound intent despite the claimed non-evidentiary guarantee. Add a production-path negative test and a mechanical rejection/non-covering rule for acceptance_matrix-derived evidence; L0 registry labeling alone is not a gate boundary.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T03:21:00.348Z",
+      "reviewRound": "2026-07-22T03:16:36.414Z",
+      "reviewRunId": "B-1995:RR-002",
+      "_hash": "d6c8053e2e0f1f0757ef4e5f78d90f0d84f97c1de51cd1707748aefec229899e",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
