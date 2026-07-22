@@ -148,6 +148,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   slice_plan_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   parent_ledger_rollup_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   proofstory_contract_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  acceptance_topology_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
   acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -185,6 +186,7 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:composite_scope_digest_review_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'review-run', 'gate-evidence'],
   'runtime:trusted_closeout_artifact_validation': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:routine_validation_fresh_pass_reuse_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'validation-result', 'verification-policy', 'gate-evidence'],
+  'runtime:acceptance_topology_plan_dev_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
   'runtime:canonical_scope_path_gate': ['runtime-behavior', 'schema-contract', 'normalization-policy', 'freshness-policy', 'gate-evidence'],
   'runtime:ast_semantic_anchor_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:shared_gap_log_metadata_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
@@ -347,7 +349,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: true,
     signature: 'Ed25519(canonical receipt binding basis/topology/scope/workspace/storyFilesHash/closureFilesHash)',
     producerCommand: 'acceptance_basis_generate',
-    consumerGate: 'acceptance_basis read-only receipt verification and diagnostic rendering boundary',
+    consumerGate: 'acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate',
   },
   intent_collision_set: {
     name: 'intent-collision.json',
@@ -855,12 +857,12 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
     gateEvidence,
     destructiveRisk: policy?.destructiveRisk,
     producer: entry.owner,
-    producerSourceRefs: ['acceptance_basis_generate', 'acceptance_basis'].includes(entry.name)
+    producerSourceRefs: ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
       ? ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts']
       : undefined,
     consumerGate: entry.gateConsumer,
-    consumerSourceRefs: ['acceptance_basis_generate', 'acceptance_basis'].includes(entry.name)
-      ? ['packages/main/src/core/process-fact-registry.ts', 'scripts/verify-process-fact-contract.mjs']
+    consumerSourceRefs: ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
+      ? ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs']
       : undefined,
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name],
     reviewerLane: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name]?.reviewerLane,
@@ -1022,14 +1024,14 @@ export const PROCESS_FACT_ARTIFACTS = [
   {
     name: 'artifact:acceptance-basis.json',
     kind: 'signed-artifact',
-    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
-    level: 'L3',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
+    level: 'L4',
     producer: 'handlers/proofstory.acceptance_basis_generate',
     producerSourceRefs: ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts'],
-    consumerGate: 'acceptance_basis read-only receipt verification and diagnostic rendering boundary',
-    consumerSourceRefs: ['packages/main/src/core/process-fact-registry.ts', 'scripts/verify-process-fact-contract.mjs'],
+    consumerGate: 'acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate',
+    consumerSourceRefs: ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/proofstory.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.acceptance_basis_generate,
-    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. The acceptance_basis reader is diagnostic-only and cannot mint or rebind it.',
+    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. The canonical topology evaluator verifies it before PLAN to DEV; no read-only caller can mint or rebind it.',
   },
   {
     name: 'artifact:milestone-ledger.json',

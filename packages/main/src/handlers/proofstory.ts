@@ -33,13 +33,18 @@ import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
-import { buildAcceptanceMatrixReport } from '../core/acceptance-topology.js';
+import {
+  buildAcceptanceMatrixReport,
+  evaluateAcceptanceTopologyCheck,
+  type AcceptanceTopologyCheckReport,
+} from '../core/acceptance-topology.js';
 import { acceptanceCoverageBasisSemanticDigest, deriveAcceptanceCoverageBasis, reconcileTopologyWithCoverageBasis } from '../core/acceptance-coverage-basis.js';
 import { issueAcceptanceBasisReceipt, verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
+import { loadConfig, resolveAcceptanceTopologyGateMode } from '../core/config.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -66,6 +71,78 @@ function enforceOrRender(report: { blocking: boolean; mode: ProofStoryGateMode }
     throw new Error(text);
   }
   return text;
+}
+
+function readChecklistForTopology(ctx: HandlerContext, storyId: string): ChecklistData {
+  try { return ctx.store.readChecklist(storyId); }
+  catch { return emptyChecklist(); }
+}
+
+function currentBasisDerivationForContext(ctx: HandlerContext, storyId: string) {
+  const { store } = ctx;
+  const workspace = resolveStoryCommandWorkspace(store, storyId, ctx.root);
+  const headHash = currentGitHead(workspace.signedWorkspaceRoot);
+  const materialHash = currentMaterialHash(workspace.signedWorkspaceRoot, 'HEAD', workspace.metadataRoot);
+  const storyFilesHash = currentStoryFilesHash(workspace.signedWorkspaceRoot, 'HEAD', workspace.metadataRoot);
+  if (!headHash || !materialHash || !storyFilesHash) throw new Error('acceptance basis: current workspace hashes are unavailable');
+  const storedScopeCheck = store.readScopeCheck(storyId);
+  const scopeCheck = storedScopeCheck && verifyScopeCheckSignature(storyId, storedScopeCheck) ? storedScopeCheck : null;
+  const scopeContract = store.readScopeContract(storyId);
+  const derivation = deriveAcceptanceCoverageBasis({
+    storyId,
+    workspaceRoot: workspace.signedWorkspaceRoot,
+    checklist: readChecklistForTopology(ctx, storyId),
+    contract: store.readProofStoryContract(storyId),
+    scopeCheck,
+    scopeContract,
+    foundationalDecision: store.readDecision(storyId),
+    headHash,
+    materialHash,
+    storyFilesHash,
+  });
+  return { workspace, scopeCheck, scopeContract, derivation };
+}
+
+/** Shared production adapter for the CLI and PLAN→DEV lifecycle consumer. */
+export function evaluateAcceptanceTopologyForContext(ctx: HandlerContext, storyId: string): AcceptanceTopologyCheckReport {
+  const { store } = ctx;
+  store.readStory(storyId);
+  const current = currentBasisDerivationForContext(ctx, storyId);
+  const artifact = store.readAcceptanceBasis(storyId);
+  const receiptVerification = verifyAcceptanceBasisReceipt({
+    artifact,
+    gitCwd: current.workspace.signedWorkspaceRoot,
+    metadataRoot: current.workspace.metadataRoot,
+    expectedStoryId: storyId,
+    expectedTopologyDigest: current.derivation.topologyDigest,
+    expectedScopeCheckDigest: `sha256:${digestCanonicalJson(current.scopeCheck)}`,
+    ...(current.scopeContract ? { expectedScopeContractDigest: `sha256:${digestCanonicalJson(current.scopeContract)}` } : {}),
+    expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+    expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
+    expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
+  });
+  const topologyBasisDiagnostics = artifact
+    ? reconcileTopologyWithCoverageBasis(store.readProofStoryContract(storyId), artifact.basis, store.readDecision(storyId))
+    : [];
+  const currentBasisDiagnostics = [...current.derivation.diagnostics];
+  if (artifact && artifact.basis.binding.closureFilesHash !== current.derivation.basis.binding.closureFilesHash) {
+    currentBasisDiagnostics.push({
+      code: 'AT_CLOSURE_FILES_STALE',
+      pathRef: 'acceptance-basis.json.basis.binding.closureFilesHash',
+      message: 'registered producer/consumer closure changed after the PLAN basis was issued',
+    });
+  }
+  return evaluateAcceptanceTopologyCheck({
+    storyId,
+    mode: resolveAcceptanceTopologyGateMode(loadConfig(ctx.root)),
+    checklist: readChecklistForTopology(ctx, storyId),
+    contract: store.readProofStoryContract(storyId),
+    ledger: readTrustedProofStoryScopeArtifacts(store, storyId).ledger,
+    artifact,
+    receiptVerification,
+    currentBasisDiagnostics,
+    topologyBasisDiagnostics,
+  });
 }
 
 export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -132,27 +209,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
   }
 
   function currentBasisDerivation(storyId: string) {
-    const workspace = resolveStoryCommandWorkspace(store, storyId, ctx.root);
-    const headHash = currentGitHead(workspace.signedWorkspaceRoot);
-    const materialHash = currentMaterialHash(workspace.signedWorkspaceRoot, 'HEAD', workspace.metadataRoot);
-    const storyFilesHash = currentStoryFilesHash(workspace.signedWorkspaceRoot, 'HEAD', workspace.metadataRoot);
-    if (!headHash || !materialHash || !storyFilesHash) throw new Error('acceptance basis: current workspace hashes are unavailable');
-    const storedScopeCheck = store.readScopeCheck(storyId);
-    const scopeCheck = storedScopeCheck && verifyScopeCheckSignature(storyId, storedScopeCheck) ? storedScopeCheck : null;
-    const scopeContract = store.readScopeContract(storyId);
-    const derivation = deriveAcceptanceCoverageBasis({
-      storyId,
-      workspaceRoot: workspace.signedWorkspaceRoot,
-      checklist: readChecklistSafe(storyId),
-      contract: store.readProofStoryContract(storyId),
-      scopeCheck,
-      scopeContract,
-      foundationalDecision: store.readDecision(storyId),
-      headHash,
-      materialHash,
-      storyFilesHash,
-    });
-    return { workspace, scopeCheck, scopeContract, derivation };
+    return currentBasisDerivationForContext(ctx, storyId);
   }
 
   function basisReport(storyId: string) {
@@ -555,6 +612,28 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         return args.json ? stringify(result) : `ProofStory contract: not configured\nStory: ${args.storyId}`;
       }
       return renderStored('ProofStory contract', contract, args);
+    },
+
+    acceptance_topology_check(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      const report = evaluateAcceptanceTopologyForContext(ctx, args.storyId);
+      if (args.json) return enforceOrRender(report, stringify(report));
+      const text = [
+        `Acceptance topology check for ${report.storyId}`,
+        `Mode: ${report.mode} (flat project policy)`,
+        `Status: ${report.status}`,
+        `Basis status: ${report.basisStatus}`,
+        `Structural pass: ${report.structuralPass ? 'yes' : 'no'}`,
+        `Blocking: ${report.blocking ? 'yes' : 'no'}`,
+        'Authority: diagnostic_only (read-only, non-evidentiary, PLAN structural semantics only)',
+        'Diagnostics:',
+        ...(report.diagnostics.length === 0
+          ? ['  none']
+          : report.diagnostics.map(item => `  ${item.code} ${item.bindingId} ${item.path}: ${item.message}`)),
+        `Next action: ${report.nextAction}`,
+      ].join('\n');
+      return enforceOrRender(report, text);
     },
 
     acceptance_matrix(args: { storyId: string; json?: boolean }): string {

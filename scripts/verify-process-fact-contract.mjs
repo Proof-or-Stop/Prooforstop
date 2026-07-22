@@ -145,6 +145,7 @@ const requiredProcessFactSemantics = {
   milestone_ledger_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   milestone_ledger_add: ['schema-contract', 'verification-policy', 'gate-evidence'],
   proofstory_contract_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  acceptance_topology_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
   acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -163,6 +164,7 @@ const requiredProcessFactSemantics = {
   parent_roadmap_evaluate: ['schema-contract', 'verification-policy'],
 };
 const requiredRuntimeFactSemantics = {
+  'runtime:acceptance_topology_plan_dev_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
   'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
@@ -554,6 +556,18 @@ function read(relPath) {
   if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
     text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
   }
+  if (mutation === 'drop-acceptance-topology-prompt' && relPath.endsWith('lattice-implementer.md')) {
+    text = text.replace(/^Acceptance-topology boundary:.*$/m, '');
+  }
+  if (mutation === 'drop-acceptance-topology-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
+    text = text.replace(/acceptance_topology_check/g, 'topology_check_removed');
+  }
+  if (mutation === 'drop-acceptance-topology-gate' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
+    text = text.replace(/evaluateAcceptanceTopologyForContext/g, 'topology_gate_removed');
+  }
+  if (mutation === 'invert-acceptance-topology-polarity' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
+    text = text.replace('if (topology.blocking)', 'if (!topology.blocking)');
+  }
   return text;
 }
 
@@ -576,6 +590,7 @@ function assertProofStoryProgressiveBoundary() {
   const milestoneStatusText = read('packages/main/src/core/milestone-status.ts');
   const checklistHandlerText = read('packages/main/src/handlers/checklist.ts');
   const configText = read('packages/main/src/core/config.ts');
+  const activityPolicyText = read('packages/main/src/cli/activity-policy.ts');
   const commandPolicyEntries = new Map(parseCommandPolicyEntries().map(entry => [entry.name, entry]));
   const storyAdvanceText = read('packages/main/src/handlers/story-advance.ts');
   const phaseGatesText = read('packages/main/src/handlers/phase-gates.ts');
@@ -599,6 +614,7 @@ function assertProofStoryProgressiveBoundary() {
     'proofstory_contract_set',
     'proofstory_contract_get',
     'acceptance_matrix',
+    'acceptance_topology_check',
     'acceptance_basis_generate',
     'acceptance_basis',
     'intent_collision_set',
@@ -634,6 +650,7 @@ function assertProofStoryProgressiveBoundary() {
   const receiptText = read('packages/main/src/core/acceptance-basis-receipt.ts');
   const processRegistryText = read('packages/main/src/core/process-fact-registry.ts');
   const processLevelText = read(processFactLevelRegistryPath);
+  const transitionOrchestratorText = read('packages/main/src/handlers/transition-orchestrator.ts');
   const acceptanceWriterPolicy = commandPolicyEntries.get('acceptance_basis_generate');
   const acceptancePromptPaths = [
     'packages/main/templates/agents/lattice-implementer.md',
@@ -656,14 +673,37 @@ function assertProofStoryProgressiveBoundary() {
       && receiptText.includes('checkEvidenceFreshnessForGit')
       && receiptText.includes('sealDigest')
       && processRegistryText.includes('structured snapshotSeal/sealDigest integrity fact')
-      && /name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,400}semantics:\s*\[[^\]]*'workspace-binding'[^\]]*\][\s\S]{0,100}level:\s*'L3'/.test(processRegistryText)
-      && !/name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,400}semantics:\s*\[[^\]]*'gate-evidence'/.test(processRegistryText)
-      && acceptanceWriterPolicy?.status === 'supported'
-      && acceptanceWriterPolicy.gateEvidence !== true
-      && /name:\s*'acceptance_basis_generate',\s*level:\s*'L3'[\s\S]{0,500}Wave 1A has no lifecycle gate consumer/.test(processLevelText)
+      && /name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,450}semantics:\s*\[[^\]]*'workspace-binding'[^\]]*'gate-evidence'[^\]]*\][\s\S]{0,100}level:\s*'L4'/.test(processRegistryText)
+      && acceptanceWriterPolicy?.status === 'gateEvidence'
+      && acceptanceWriterPolicy.gateEvidence === true
+      && /name:\s*'acceptance_basis_generate',\s*level:\s*'L4'[\s\S]{0,500}acceptance_topology_check/.test(processLevelText)
       && acceptancePromptPaths.every(path => read(path).includes('lattice acceptance_basis_generate'))
       && acceptanceRequiredSemantics.includes('workspace-binding'),
     'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, structured seal binding, signed receipt verification, and canonical freshness consumption',
+  );
+  const topologyPolicy = commandPolicyEntries.get('acceptance_topology_check');
+  assert(
+    catalogText.includes("name: 'acceptance_topology_check'")
+      && catalogText.includes("mode: z.never()")
+      && handlerText.includes('acceptance_topology_check(args')
+      && handlerText.includes('evaluateAcceptanceTopologyForContext')
+      && topologyText.includes('evaluateAcceptanceTopologyCheck')
+      && topologyText.includes('structuralPass')
+      && topologyText.includes('AT_COVERAGE_BASIS_PARTIAL')
+      && basisText.includes('AT_UNMAPPED_SCOPE_REF')
+      && configText.includes('acceptanceTopologyGateMode')
+      && configText.includes('resolveAcceptanceTopologyGateMode')
+      && handlerText.includes('resolveAcceptanceTopologyGateMode')
+      && transitionOrchestratorText.includes('evaluateAcceptanceTopologyForContext')
+      && transitionOrchestratorText.includes('if (topology.blocking)')
+      && processRegistryText.includes('runtime:acceptance_topology_plan_dev_gate')
+      && processLevelText.includes('runtime:acceptance_topology_plan_dev_gate')
+      && topologyPolicy?.status === 'gateEvidence'
+      && topologyPolicy.gateEvidence === true
+      && policyBlockHasOwnershipClass(topologyPolicy, 'readOnly')
+      && activityPolicyText.includes("'acceptance_topology_check'")
+      && acceptancePromptPaths.every(path => read(path).includes('Acceptance-topology boundary:')),
+    'acceptance topology contract must bind CLI schema, canonical evaluator, signed basis verification, independent default-observe rollout mode, PLAN gate, process fact, and prompt guidance',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');

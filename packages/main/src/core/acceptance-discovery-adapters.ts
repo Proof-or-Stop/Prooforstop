@@ -378,6 +378,16 @@ function configuredSourceInventory(workspaceRoot: string, readContext: SourceRea
       || isAbsolute(configuredRootDir) || configuredRootDir.split(/[\\/]/).includes('..')))) {
     return { files: [], blindSpots: ['canonical scanRoot/rootDir is missing or ambiguous'], directoryFingerprints: [] };
   }
+  // Only the fields that choose discovery scope belong to the cross-run basis
+  // identity. The raw file fingerprint is still retained and revalidated below
+  // during this assembly, so a concurrent config mutation remains fail-closed.
+  // Lifecycle rollout fields (for example proofStory.acceptanceTopologyGateMode)
+  // must not
+  // change the structural inventory they merely decide whether to block on.
+  readContext.semanticDigests.set('lattice.config.json', `sha256:${digestCanonicalJson({
+    scanRoot: configuredScanRoot,
+    rootDir: configuredRootDir ?? null,
+  })}`);
   const relativeRoot = configuredRootDir ? join(configuredScanRoot, configuredRootDir) : configuredScanRoot;
   let physicalWorkspace: string;
   try {
@@ -432,6 +442,8 @@ interface SourceReadContext {
   snapshots: Map<string, string>;
   failures: Map<string, string>;
   fingerprints: Map<string, FileFingerprint>;
+  /** Cross-run semantic digests for files whose unrelated fields are non-discovery policy. */
+  semanticDigests: Map<string, string>;
 }
 
 export interface SourceReadTestResult {
@@ -456,6 +468,7 @@ function createSourceReadContext(root: string, options: Partial<Pick<SourceReadC
     snapshots: new Map(),
     failures: new Map(),
     fingerprints: new Map(),
+    semanticDigests: new Map(),
   };
 }
 
@@ -619,7 +632,8 @@ function sealSourceAssembly(
     sourceSnapshotDigest: `sha256:${digestCanonicalJson(fileProjection)}`,
     sourceSnapshotCount: fileProjection.length,
     configSnapshotDigest: `sha256:${digestCanonicalJson(configFingerprint ? {
-      canonicalRef: 'lattice.config.json', size: configFingerprint.size, contentDigest: configFingerprint.contentDigest,
+      canonicalRef: 'lattice.config.json',
+      contentDigest: context.semanticDigests.get('lattice.config.json') ?? configFingerprint.contentDigest,
     } : null)}`,
     status: stableIssues.length === 0 ? 'complete' : 'partial',
     issues: stableIssues,
@@ -984,7 +998,11 @@ function adapterId(method: CoverageDiscoveryMethodV1): string {
 function sourceProvenance(context: SourceReadContext, file: string): string {
   try {
     const read = readSourceSafely(context, file);
-    return read.text !== undefined ? `source-file:${file}:sha256:${digestCanonicalJson(read.text)}` : `source-file:${file}:uninspectable`;
+    if (read.text === undefined) return `source-file:${file}:uninspectable`;
+    const semanticDigest = context.semanticDigests.get(file);
+    return semanticDigest
+      ? `source-file:${file}:${semanticDigest}`
+      : `source-file:${file}:sha256:${digestCanonicalJson(read.text)}`;
   } catch { return `source-file:${file}:uninspectable`; }
 }
 

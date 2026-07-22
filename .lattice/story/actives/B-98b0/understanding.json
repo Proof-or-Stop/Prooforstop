@@ -1,0 +1,33 @@
+{
+  "task": "Implement Wave 2 acceptance_topology_check as the canonical structural PLAN to DEV gate over the verifier-derived basis and normalized topology.",
+  "outcome": "When the operator runs `lattice acceptance_topology_check --storyId=B-98b0`, the terminal prints `Acceptance topology check: PASS`, identifies `mode: enforce`, `basisStatus: complete`, and `PLAN structural gate: ready for DEV`; malformed, incomplete, invented, or unmapped topology prints a stable AT code and blocks only when the configured flat mode is enforce.",
+  "facts": [
+    "B-1995 already owns versioned planned-path declarations, normalized topology references, and read-only matrix diagnostics.",
+    "B-a32a already owns verifier-derived complete/partial/unsupported basis classification, signed receipt verification, adapter reconciliation and scope/workspace freshness.",
+    "ProofStory config already exposes devGateMode observe/warn/enforce and the transition orchestrator owns PLAN to DEV admission.",
+    "The approved execution plan requires Wave 2 to remain structural-only and to allow typed genuinely new endpoints before implementation."
+  ],
+  "constraints": [
+    "Do not require executable DEV evidence at PLAN.",
+    "Do not create a separately writable acceptance_matrix or duplicate verificationIntent.",
+    "Only a verified complete basis can structurally pass; partial or unsupported remains non-pass.",
+    "Legacy, docs-only and single-outcome paths must not be falsely blocked.",
+    "Gate-consumed facts require command schema, handler, lifecycle consumer, process-fact registry and contract verification.",
+    "Wave 2A critic, Wave 3 pre_review_check, Wave 3A applicability and Wave 4 rollout are excluded."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/CLI.md"
+  ],
+  "timestamp": "2026-07-22T15:50:45.112Z"
+}

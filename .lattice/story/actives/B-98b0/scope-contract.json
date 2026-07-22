@@ -1,0 +1,269 @@
+{
+  "storyId": "B-98b0",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/CLI.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    ".lattice/story/actives/B-98b0/acceptance-basis.json"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+  ],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    "packages/main/src/.omx/**"
+  ],
+  "scopeChangeReason": "Freeze the scope-plan reviewer approved 12 implementation paths and explicitly classify the verifier-owned signed PLAN basis metadata artifact; later waves remain excluded.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Add the required production CLI schema entry for acceptance_topology_check; this is the canonical command-catalog surface required by CHK-002 and does not expand beyond Wave 2.",
+      "timestamp": "2026-07-22T16:05:04.779Z",
+      "paths": [
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4a9d2bda4541a370f3078d75833f2b251ad41a97",
+      "materialHash": "2ae90968f1facb10db857c47f0ee92c79167f6a55b36b88842d4be6e1af24c0c",
+      "anchors": [
+        "acceptance_topology_check"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Update the canonical lattice-implementer guidance and its two tracked mirrors so Wave 2 acceptance_topology_check PLAN to DEV gate semantics replace the obsolete Wave 1A no-gate statement; no other prompt or role changes.",
+      "timestamp": "2026-07-22T16:09:58.915Z",
+      "paths": [
+        "packages/main/templates/agents/lattice-implementer.md",
+        ".claude/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-implementer.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/templates/agents/lattice-implementer.md",
+        ".claude/agents/lattice-implementer.md",
+        ".lattice-codex/agents/lattice-implementer.md"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "4a9d2bda4541a370f3078d75833f2b251ad41a97",
+      "materialHash": "2ae90968f1facb10db857c47f0ee92c79167f6a55b36b88842d4be6e1af24c0c",
+      "anchors": [
+        "acceptance_topology_check",
+        "latticeImplementer"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Mechanically refresh the approved lattice-implementer prompt hash and generated prompt baseline artifacts after the exact Wave 2 acceptance_topology_check guidance change; no other role semantics or baseline policy changes.",
+      "timestamp": "2026-07-22T16:10:55.386Z",
+      "paths": [
+        "packages/main/src/core/prompt-registry.ts",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-registry.ts",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "4a9d2bda4541a370f3078d75833f2b251ad41a97",
+      "materialHash": "2ae90968f1facb10db857c47f0ee92c79167f6a55b36b88842d4be6e1af24c0c",
+      "anchors": [
+        "acceptance_topology_check",
+        "promptRegistry",
+        "proofOrStopPromptBaseline"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonicalize acceptance-basis config provenance and seal to discovery-relevant scanRoot/rootDir fields so changing only proofStory.devGateMode alters blocking classification without staling structural diagnostics, while retaining raw config file revalidation during assembly.",
+      "timestamp": "2026-07-22T16:14:23.616Z",
+      "paths": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4a9d2bda4541a370f3078d75833f2b251ad41a97",
+      "materialHash": "2ae90968f1facb10db857c47f0ee92c79167f6a55b36b88842d4be6e1af24c0c",
+      "anchors": [
+        "sourceProvenance",
+        "configSnapshotDigest"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Authorize the exact existing AST function anchor runStoryTransitionInner for the already-approved Wave 2 PLAN to DEV structural gate edits covered by M3; no path or later-wave semantic expansion.",
+      "timestamp": "2026-07-22T16:19:17.268Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4a9d2bda4541a370f3078d75833f2b251ad41a97",
+      "materialHash": "2ae90968f1facb10db857c47f0ee92c79167f6a55b36b88842d4be6e1af24c0c",
+      "anchors": [
+        "runStoryTransitionInner",
+        "acceptance_topology_check"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Register acceptance_topology_check in the canonical READ_ONLY_COMMANDS set so the production CLI preserves the approved M2 read-only and non-evidentiary boundary without mutating hooks or activity writes.",
+      "timestamp": "2026-07-22T16:19:34.179Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4a9d2bda4541a370f3078d75833f2b251ad41a97",
+      "materialHash": "2ae90968f1facb10db857c47f0ee92c79167f6a55b36b88842d4be6e1af24c0c",
+      "anchors": [
+        "READ_ONLY_COMMANDS",
+        "acceptance_topology_check"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Authorize the exact remaining file-level import/declaration hunk required to wire the approved acceptance_topology_check evaluator into runStoryTransitionInner; all function-anchor hunks are already separately acknowledged.",
+      "timestamp": "2026-07-22T16:23:28.873Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4a9d2bda4541a370f3078d75833f2b251ad41a97",
+      "materialHash": "2ae90968f1facb10db857c47f0ee92c79167f6a55b36b88842d4be6e1af24c0c",
+      "anchors": [
+        "runStoryTransitionInner",
+        "acceptance_topology_check"
+      ],
+      "hunkDigest": "66d8dd0e8f70852f0b8deff0cc7e9b87d1e7002ef88aa01843ec2e74a12093c8"
+    }
+  ],
+  "createdAt": "2026-07-22T16:00:48.357Z",
+  "updatedAt": "2026-07-22T16:23:28.874Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/handlers/transition-orchestrator.ts",
+      "allowedAnchors": [
+        "PLAN",
+        "DEV",
+        "acceptance_topology_check",
+        "ProofStory"
+      ],
+      "deniedAnchors": [
+        "pre_review_check",
+        "topologyCritic",
+        "criticReceipt"
+      ],
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "B98B0-M3-H-PLAN-DEV",
+        "B98B0-M3-E-MODE-LIFECYCLE",
+        "B98B0-M3-A-NO-LATER-WAVE-LEAKAGE"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/acceptance-topology.ts",
+      "deniedAnchors": [
+        "pre_review_check",
+        "criticEligibility",
+        "selectiveApplicability"
+      ],
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "B98B0-M1-H-CANONICAL",
+        "B98B0-M1-A-OMISSION-INVENTION"
+      ]
+    }
+  ],
+  "protectedAnchors": [
+    "proofstory.acceptance_topology.v1"
+  ],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "docs/CLI.md": "docs/CLI.md",
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "docs/story/**": "docs/story/**",
+    "tests/fixtures/**": "tests/fixtures/**",
+    "packages/main/src/.omx/**": ".omx/**",
+    ".lattice/story/actives/B-98b0/acceptance-basis.json": ".lattice/story/actives/B-98b0/acceptance-basis.json",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/templates/agents/lattice-implementer.md": "packages/main/templates/agents/lattice-implementer.md",
+    ".claude/agents/lattice-implementer.md": ".claude/agents/lattice-implementer.md",
+    ".lattice-codex/agents/lattice-implementer.md": ".lattice-codex/agents/lattice-implementer.md",
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
+}

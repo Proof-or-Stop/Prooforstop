@@ -1,0 +1,238 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-98b0",
+    "phaseBasis": "plan",
+    "status": "unsupported",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "lattice acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for handler_dispatch_inventory"
+        ],
+        "provenanceRefs": [
+          "registered:handler_dispatch_inventory:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004"
+          ]
+        },
+        "resultDigest": "sha256:914d3d713fae333e13e4a003f793821e48582cd36dc704eca5d0f789586ac38c"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for process_fact_registry"
+        ],
+        "provenanceRefs": [
+          "registered:process_fact_registry:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004"
+          ]
+        },
+        "resultDigest": "sha256:a17adb67c70198f8e78b1070096bf51dfebda690eb012016a85bafd8271c582f"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for runtime_trace"
+        ],
+        "provenanceRefs": [
+          "registered:runtime_trace:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004"
+          ]
+        },
+        "resultDigest": "sha256:287204059b2d17f6ed501c031ff3099182a0b9c0cc9a04edc25d0decb5bd027c"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for scope_contract"
+        ],
+        "provenanceRefs": [
+          "registered:scope_contract:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004"
+          ]
+        },
+        "resultDigest": "sha256:b05ad9859bd67dc5105fbb8f4983eb1f10b7e3932d31685931a91918bcfaa802"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for static_call_graph"
+        ],
+        "provenanceRefs": [
+          "registered:static_call_graph:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004"
+          ]
+        },
+        "resultDigest": "sha256:9e9269f54d82caccc5d9ef9222dd943c9b92948f69b88b0aabad5fe3dd898022"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
+      "scope:checklist:CHK-004"
+    ],
+    "sourceInventoryRefs": [
+      "existing:checklist:CHK-001",
+      "existing:checklist:CHK-002",
+      "existing:checklist:CHK-003",
+      "existing:checklist:CHK-004"
+    ],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:existing:checklist:CHK-001->existing:checklist:CHK-002",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:existing:checklist:CHK-001->existing:checklist:CHK-003",
+      "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:existing:checklist:CHK-001->existing:checklist:CHK-004",
+      "snapshot-seal:inventory_unsealable:inventory:configured-source-root",
+      "snapshot-seal:snapshot_missing:config:lattice.config.json",
+      "unsupported discovery profile for handler_dispatch_inventory",
+      "unsupported discovery profile for process_fact_registry",
+      "unsupported discovery profile for runtime_trace",
+      "unsupported discovery profile for scope_contract",
+      "unsupported discovery profile for static_call_graph"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryDirectoryCount": 0,
+      "sourceSnapshotDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sourceSnapshotCount": 0,
+      "configSnapshotDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:existing:checklist:CHK-001->existing:checklist:CHK-002"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:existing:checklist:CHK-001->existing:checklist:CHK-003"
+        },
+        {
+          "code": "derivation_diagnostic",
+          "targetKind": "inventory",
+          "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:existing:checklist:CHK-001->existing:checklist:CHK-004"
+        },
+        {
+          "code": "inventory_unsealable",
+          "targetKind": "inventory",
+          "canonicalRef": "configured-source-root"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "config",
+          "canonicalRef": "lattice.config.json"
+        }
+      ],
+      "sealDigest": "sha256:6bde1118310b809494c638c1284a1d3fb632834d728c3b412af30ab33e1867a2"
+    },
+    "binding": {
+      "headHash": "2de10f238849934a3a5e4dcb1badedbc37988a3b",
+      "materialHash": "2ae90968f1facb10db857c47f0ee92c79167f6a55b36b88842d4be6e1af24c0c",
+      "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scopeCheckDigest": "sha256:911c0e93ebe2e2674f8a587b77f1712d6d09b4cc6a8926ad8d18ba8a9488062e",
+      "closureFilesHash": "sha256:76632b0730696980cede7108e37f91a694401bcd1b8bb404e62774dc318e08b7"
+    },
+    "receiptRef": "receipt:coverage-basis:B-98b0:plan:e44740d815fd24d6",
+    "basisDigest": "sha256:040bfc90b2b2f3d14b161bc70065d9f467869b5f459fe86016b083b2f13a6b65"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-98b0:plan:e44740d815fd24d6",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
+    "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
+    "storyId": "B-98b0",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:040bfc90b2b2f3d14b161bc70065d9f467869b5f459fe86016b083b2f13a6b65",
+    "topologyDigest": "sha256:4d73b2073be7867e92fbaf17e6a023d1eaba42e463057eb485b8069563275faa",
+    "scopeCheckDigest": "sha256:911c0e93ebe2e2674f8a587b77f1712d6d09b4cc6a8926ad8d18ba8a9488062e",
+    "headHash": "2de10f238849934a3a5e4dcb1badedbc37988a3b",
+    "materialHash": "2ae90968f1facb10db857c47f0ee92c79167f6a55b36b88842d4be6e1af24c0c",
+    "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "closureFilesHash": "sha256:76632b0730696980cede7108e37f91a694401bcd1b8bb404e62774dc318e08b7",
+    "sealDigest": "sha256:6bde1118310b809494c638c1284a1d3fb632834d728c3b412af30ab33e1867a2",
+    "workspaceIdentityDigest": "sha256:1d848ea4fb36ffc1c4d4bdc3e4394b8e2cb8f95f9c32729b714eaa5e061922c8",
+    "signature": "JMC2WCyEMi8FgUELm5ifhPiREd7srE/rt3I0Cxn4WUczVQ11mDeldzk7HGdoVPQGkfctyFInq5jXHDHiNZodDg=="
+  }
+}

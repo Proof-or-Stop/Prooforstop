@@ -8,9 +8,121 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#wave-2-plan-structural-gate",
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#acceptance_topology_check-plan-dev"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-22T16:03:47.787Z",
+      "endTime": "2026-07-22T16:29:19.525Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B98B0-M1-H-CANONICAL",
+            "desc": "M1: With a registered verifier-issued current PLAN basis whose status is complete and whose normalized topology is basis-closed, the canonical evaluator returns structuralPass=true, a deterministic ordered row/code set, and the identical semantic result consumed by direct core evaluation, the CLI handler, and PLAN→DEV lifecycle evaluation.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B98B0-M1-E-NONPASS-BASIS",
+            "desc": "M1: Missing, partial, unsupported, stale, closure-stale, signature/digest-tampered, required-adapter-missing, or aggregate-projection-tampered basis inputs never pass; each produces its documented stable AT_* diagnostic and partial/unsupported remain INCONCLUSIVE even when the declared topology is internally closed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M1-E-MODES",
+            "desc": "M1: The flat project observe/warn/enforce resolver preserves the same canonical ordered diagnostics and evaluation result across modes; observe and warn do not block admission, enforce blocks only on the canonical non-pass result, and no fuzzy Story risk/milestone text selects a different mode.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B98B0-M1-A-CALLER-FORGERY",
+            "desc": "M1: Attempts by a caller or topology payload to forge complete/status, path inventory, blind spots, exclusions, issuer/authority, mode, or pass verdict are ignored or rejected; the verifier independently re-derives the basis and lifecycle status.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M1-A-OMISSION-INVENTION",
+            "desc": "M1: Starting from a clean complete basis containing C1+C2, deleting only C2 from topology fails AT_UNMAPPED_SCOPE_REF; inventing a topology path absent from the unchanged basis fails AT_TOPOLOGY_OUTSIDE_BASIS; restoring the exact clean inputs passes again.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Acceptance topology check: PASS — mode=enforce, basisStatus=complete, structuralPass=true, diagnostics=none.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B98B0-M1-H-CANONICAL",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Clean basis passes; for the same failing basis the direct production core adapter and real CLI JSON are deep-equal, and lifecycle consumes that result.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M1-E-NONPASS-BASIS",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Real assertions cover missing, partial, unsupported, closure-stale, receipt-signature-tampered, aggregate-tampered, required-adapter-missing, and source-root-stale basis families; none passes.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M1-E-MODES",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "The same failing temp-repo basis has identical status, structuralPass, basis/topology state, rows, diagnostics, and nextAction in observe/warn/enforce; only blocking changes.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M1-A-CALLER-FORGERY",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Real CLI schema rejects caller status/mode/authority; verifier re-derives basis, receipt, and report fields.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M1-A-OMISSION-INVENTION",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "C2 topology-only omission yields AT_UNMAPPED_SCOPE_REF; invented basis path yields AT_TOPOLOGY_OUTSIDE_BASIS/unknown; exact restoration passes.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,11 +130,128 @@
       "context": "Register command, handler, prompt/CLI semantics and process-fact obligations so diagnostics and gate consumption share one canonical evaluator.",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#process-fact-and-authority-obligations",
-        "AGENTS.md#流程事实双层契约"
+        "AGENTS.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-22T16:03:49.786Z",
+      "endTime": "2026-07-22T16:29:20.884Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B98B0-M2-H-PRODUCTION-PARITY",
+            "desc": "M2: A real acceptance_topology_check CLI invocation traverses the registered production command schema and handler, reports the canonical evaluator exact ordered rows/codes/mode/read-only authority semantics, and matches the PLAN lifecycle consumer for the same Story and binding.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B98B0-M2-E-CLI-CONTRACT",
+            "desc": "M2: Unsupported arguments, malformed Story/binding inputs, and JSON/text output variants fail or render deterministically without allowing caller-supplied result/status/mode/authority fields, lifecycle writes, executable evidence, or a second writable acceptance matrix.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M2-E-REGISTRY-RATIONALE",
+            "desc": "M2: The command fact, basis fact, producer, verifier, PLAN gate consumer, phase allowlist, freshness/material binding, rationale, and prompt guidance are all registered consistently in process-fact levels/registry and expose the intended gate-consumed semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B98B0-M2-A-PROCESS-FACT-MUTATION",
+            "desc": "M2: In isolated mutations, removing or mismatching any one of the CLI command registration, schema/handler route, canonical evaluator consumption, process-fact/level entry, producer/verifier declaration, PLAN gate consumer, or rationale makes the process-fact contract or production-path smoke fail; exact restoration makes the clean contract pass.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M2-A-PROMPT-ONLY",
+            "desc": "M2: Removing the mechanical handler/gate/process-fact consumer while leaving role prompt text intact cannot pass the contract or admit DEV; conversely removing prompt guidance while retaining code is detected by the prompt/process-fact contract rather than silently treated as full dual-layer coverage.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "lattice acceptance_topology_check --storyId=<id> reports the canonical ordered structural result and stable AT diagnostics without writing evidence.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/CLI.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B98B0-M2-H-PRODUCTION-PARITY",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Compiled production CLI report deep-equals the direct shared production adapter and is consumed by real story_advance.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M2-E-CLI-CONTRACT",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Real text/JSON outputs render deterministically and forbidden caller status/mode/authority fields fail schema validation.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M2-E-REGISTRY-RATIONALE",
+          "kind": "docs_check",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact contract passed command schema, L4 basis/artifact facts, independent default-observe rollout resolver, read-only policy, lifecycle consumer, rationale, and prompt guidance.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M2-A-PROCESS-FACT-MUTATION",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke executes isolated prompt, handler, lifecycle-consumer, and blocking-polarity source mutations; every mutated contract exits nonzero.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M2-A-PROMPT-ONLY",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Isolated prompt deletion and independent mechanical handler/gate deletion mutations each fail the real dual-layer contract.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,9 +261,157 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#applicability-and-compatibility",
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#plan-safe-new-path-example"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-22T16:03:51.511Z",
+      "endTime": "2026-07-22T16:29:22.281Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B98B0-M3-H-PLAN-DEV",
+            "desc": "M3: In enforce mode, a Story with a confirmed ledger, current complete PLAN basis, basis-closed topology, and frozen intents enters DEV through the canonical lifecycle gate without running commands, requiring verificationEvidence, requiring an implementation transcript, or writing a completion fact.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M3-H-TYPED-NEW-PATH",
+            "desc": "M3: A genuinely new producer-to-consumer path whose non-existent endpoints are owned by a frozen proofstory.verification_planned_path_declaration.v1 with valid endpoint roles, file declarations, scope refs, symbols/facts, relation, and output fact is verifier-derived into the PLAN basis and may enter DEV without pretending the code already exists.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B98B0-M3-E-COMPATIBILITY",
+            "desc": "M3: Legacy bindings, docs-only claims, and single-outcome Stories receive deterministic compatibility treatment: no fabricated runtime mutation/transcript is required, legacy behavior does not retroactively hard-block outside configured policy, and every applicable structural obligation remains explicit.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M3-E-MODE-LIFECYCLE",
+            "desc": "M3: The same failing structural report is visible but non-blocking in observe/warn and blocking in enforce; rollback from enforce to warn changes only admission behavior and does not rewrite diagnostics, artifacts, or prior failure history.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B98B0-M3-A-BLOCKERS",
+            "desc": "M3: Missing topology/basis edges, unmapped basis refs, unjustified exclusions, topology paths outside basis, orphan endpoints, uncovered must intents, required mutation/transcript declarations, or prompt-only facts block enforce-mode PLAN→DEV with stable AT_* codes and cannot be bypassed by prose.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M3-A-PLANNED-PATH-TAMPER",
+            "desc": "M3: A free-form future path, unknown declaration/endpoint, wrong role, missing files/scope ref, declaration semantic restatement/drift, or planned topology edge not independently derived into the basis fails with the documented AT_PLANNED_PATH_* code; a topology-owned string cannot create a new canonical fact.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M3-A-NO-LATER-WAVE-LEAKAGE",
+            "desc": "M3: PLAN admission remains structural-only and does not require or claim Wave 2A critic identity/receipt/exclusion approval mechanics, Wave 3 actual-diff reconciliation/executable mutation/transcript evidence, pre_review_check, or production readiness; tests fail if those later-wave facts become prerequisites or are emitted as Wave 2 completion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "PLAN→DEV proceeds only when the canonical structural report passes in enforce mode; observe/warn display the same diagnostics without blocking.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B98B0-M3-H-PLAN-DEV",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Real enforce-mode story_advance enters DEV for a clean complete structural report without verificationEvidence, executable transcript, or completion fact.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M3-H-TYPED-NEW-PATH",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "A valid frozen typed planned producer/consumer declaration is independently derived into the signed PLAN basis and admitted by real story_advance.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M3-E-COMPATIBILITY",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Direct core matrices prove legacy readability plus docs-only and ordinary single-outcome compatibility without fabricated mutation/transcript/command requirements.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M3-E-MODE-LIFECYCLE",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Three independent real temp repos use the same failing topology: observe/warn advance to DEV, enforce remains PLAN, while canonical reports are identical except mode/blocking.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M3-A-BLOCKERS",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Real CLI assertions cover missing/unmapped/outside-basis paths, unjustified exclusion, orphan, uncovered must intent, and required mutation/transcript/command declaration codes; enforce lifecycle blocks.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M3-A-PLANNED-PATH-TAMPER",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Assertions cover topology semantic restatement, unknown endpoint, wrong endpoint role, missing checklist file declaration, and endpoint outside scope with AT_PLANNED_PATH_DECLARATION_* or AT_PLANNED_PATH_INVALID.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M3-A-NO-LATER-WAVE-LEAKAGE",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Real PLAN admission succeeds without critic identity/receipt, executable evidence, pre_review_check, planned-to-actual reconciliation, or production-readiness facts; CLI docs retain later-wave boundary.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -44,9 +421,176 @@
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#verification-and-mutation-matrix",
         "docs/CLI.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-22T16:03:53.292Z",
+      "endTime": "2026-07-22T16:29:23.626Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B98B0-M4-H-FOCUSED-SMOKE",
+            "desc": "M4: A focused production-path smoke creates representative complete basis/topology Stories and proves canonical evaluator, real acceptance_topology_check CLI, and PLAN→DEV lifecycle parity for complete existing paths and a typed genuinely new planned endpoint relation.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M4-H-DOCS-TRANSCRIPT",
+            "desc": "M4: A captured real CLI transcript and docs check show actual text/JSON fields, stable AT_* codes, flat observe/warn/enforce behavior, read-only/non-authority boundaries, PLAN-only structural semantics, compatibility cases, and the exact next action without claiming executable or later-wave assurance.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "B98B0-M4-E-COMPATIBILITY-MATRIX",
+            "desc": "M4: Focused cases prove deterministic behavior for complete versus missing/partial/unsupported/stale/tampered basis, legacy topology missing, docs-only claims, single-outcome Stories, typed planned paths, and each flat gate mode, with no false block and no silent pass.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M4-E-STABLE-DIAGNOSTICS",
+            "desc": "M4: Every required omission/invention/planned-path/adapter/freshness/authority/reference failure produces the documented stable AT_* code and deterministic ordering through core, CLI, and lifecycle surfaces, including multiple simultaneous failures.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B98B0-M4-A-REAL-MUTATIONS",
+            "desc": "M4: Isolated real-consumer/verifier mutations cover at minimum topology-only C2 omission while basis retains C2, topology invention outside basis, caller-forged complete/status, adapter result omission/tamper, stale binding, prompt-only fact, and mode bypass; each mutation must make the named semantic assertion fail rather than merely change an expected test string.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M4-A-POLARITY-RESTORE",
+            "desc": "M4: Every destructive mutation follows clean control pass → targeted mutation → expected named AT_* failure/block classification → exact restoration → clean control pass, and the suite verifies no worktree/source/config residue or rewritten evidence remains after restoration.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M4-A-PROCESS-FACT-BITE",
+            "desc": "M4: Removing one gate-consumed process-fact producer/consumer/verifier/rationale registration or disconnecting the production CLI/lifecycle from the canonical evaluator makes the contract/smoke fail; restoring it passes, proving prompt text or a duplicate evaluator cannot mask the missing mechanical path.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "B98B0-M4-A-SCOPE-BOUNDARY",
+            "desc": "M4: The Wave 2 suite and documentation do not claim or implement topology-critic independence/eligibility/signatures (Wave 2A), executable pre-review evidence or planned-to-actual reconciliation (Wave 3), selective per-Story applicability (Wave 3A), or measured rollout (Wave 4); any such claimed completion is rejected as scope leakage.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Focused Wave 2 smoke passed: core, real CLI, PLAN→DEV modes, compatibility cases, omission/invention mutations, process-fact bite, and clean restoration all verified.",
+      "files": {
+        "modify": [
+          "docs/CLI.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B98B0-M4-H-FOCUSED-SMOKE",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Final compiled focused production-path smoke passed all core, CLI, lifecycle, compatibility, failure-family, restoration, and mutation assertions.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M4-H-DOCS-TRANSCRIPT",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Docs and prompt baseline pass with independent default-observe rollout, mode-invariant status/diagnostics, read-only authority, structural-only semantics, compatibility, and remediation boundaries.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M4-E-COMPATIBILITY-MATRIX",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Matrix and production cases cover complete/missing/partial/unsupported/stale/tampered basis, legacy/docs/single-outcome, typed planned paths, and all modes.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M4-E-STABLE-DIAGNOSTICS",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Targeted assertions name every required AT code; the same failing report is deep-equal across direct core adapter and CLI and remains semantically equal across all lifecycle modes.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M4-A-REAL-MUTATIONS",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Real mutations cover C2 omission, topology invention, caller forgery, required-adapter omission, aggregate projection, receipt signature, closure/source-root staleness, prompt/handler/gate removal, and polarity inversion.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M4-A-POLARITY-RESTORE",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Each contract/artifact/config/source mutation asserts named failure, exact restoration of the targeted bytes, then clean pass; temp repositories are removed in finally.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M4-A-PROCESS-FACT-BITE",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+          "result": "pass",
+          "note": "Four isolated real source mutations remove prompt, handler, lifecycle gate, or invert blocking polarity; each makes the process-fact contract fail.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        },
+        {
+          "intentRef": "B98B0-M4-A-SCOPE-BOUNDARY",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process contract and CLI docs pass while explicitly excluding Wave 2A critic authority, Wave 3 executable/pre-review work, Wave 3A selective applicability, and Wave 4 rollout completion.",
+          "headHash": "de9bd22659f29fc63a5744d71438f46308c802a9",
+          "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+          "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+          "timestamp": "2026-07-22T16:54:15.394Z"
+        }
+      ]
     }
   ]
 }

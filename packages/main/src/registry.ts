@@ -344,8 +344,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-7287 M0-M2: ProofStory progressive intent hardening diagnostics only.
   // ProofStory handlers also own the registered acceptance-basis verifier
-  // writer and its read-only verifier projection. Discovery adapter selection
-  // remains fixed in core/acceptance-discovery-adapters, never caller supplied.
+  // writer, its read-only verifier projection, and acceptance_topology_check.
+  // The latter shares the canonical evaluator with PLAN→DEV; discovery adapter
+  // selection remains fixed in core/acceptance-discovery-adapters, never caller supplied.
   registry.registerBatch(createProofStoryHandlers(ctx));
   registry.registerBatch(createParentRoadmapHandlers(ctx));
 

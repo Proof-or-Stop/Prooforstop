@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-98b0",
+  "phase": "TEST",
+  "generatedAt": "2026-07-22T17:47:38.800Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "8f024ebb518dfec158457999cfd301762b9af6eac291acd7a2b735011c5de788",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:e439b460e21be89a180d5e0fc8a368f3a070d4e2822d591fafff4d70cd5407a5"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "681b5aec11db636d34a281ac918093424a71fa21",
+    "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+    "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "A canonical deterministic structural evaluator compares verified complete basis coverage with normalized topology and resolves flat mode semantics.",
+      "acceptance": "The CLI and lifecycle consumer return the same ordered result and stable AT diagnostics for complete, partial, unsupported, stale, omitted and invented inputs.",
+      "evidence": [
+        "B98B0-M1-H-CANONICAL [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Clean basis passes; for the same failing basis the direct production core adapter and real CLI JSON are deep-equal, and lifecycle consumes that result.",
+        "B98B0-M1-E-NONPASS-BASIS [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Real assertions cover missing, partial, unsupported, closure-stale, receipt-signature-tampered, aggregate-tampered, required-adapter-missing, and source-root-stale basis families; none passes.",
+        "B98B0-M1-E-MODES [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=The same failing temp-repo basis has identical status, structuralPass, basis/topology state, rows, diagnostics, and nextAction in observe/warn/enforce; only blocking changes.",
+        "B98B0-M1-A-CALLER-FORGERY [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Real CLI schema rejects caller status/mode/authority; verifier re-derives basis, receipt, and report fields.",
+        "B98B0-M1-A-OMISSION-INVENTION [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=C2 topology-only omission yields AT_UNMAPPED_SCOPE_REF; invented basis path yields AT_TOPOLOGY_OUTSIDE_BASIS/unknown; exact restoration passes."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "acceptance_topology_check is exposed through production CLI/handler/registry and registered as a gate-consumed process fact.",
+      "acceptance": "A real CLI transcript reports the structural result and the process-fact contract fails when any command, handler, registry or consumer registration is removed.",
+      "evidence": [
+        "B98B0-M2-H-PRODUCTION-PARITY [pass/integration_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Compiled production CLI report deep-equals the direct shared production adapter and is consumed by real story_advance.",
+        "B98B0-M2-E-CLI-CONTRACT [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Real text/JSON outputs render deterministically and forbidden caller status/mode/authority fields fail schema validation.",
+        "B98B0-M2-E-REGISTRY-RATIONALE [pass/docs_check] node scripts/verify-process-fact-contract.mjs file=scripts/verify-process-fact-contract.mjs note=Process-fact contract passed command schema, L4 basis/artifact facts, independent default-observe rollout resolver, read-only policy, lifecycle consumer, rationale, and prompt guidance.",
+        "B98B0-M2-A-PROCESS-FACT-MUTATION [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=scripts/verify-process-fact-contract.mjs note=Focused smoke executes isolated prompt, handler, lifecycle-consumer, and blocking-polarity source mutations; every mutated contract exits nonzero.",
+        "B98B0-M2-A-PROMPT-ONLY [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=scripts/verify-process-fact-contract.mjs note=Isolated prompt deletion and independent mechanical handler/gate deletion mutations each fail the real dual-layer contract."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "PLAN to DEV consumes the canonical structural check without requiring executable DEV evidence.",
+      "acceptance": "An enforce-mode Story with a complete closed topology enters DEV; missing/unmapped or prompt-only facts block with stable codes, while typed genuinely new endpoints are accepted at PLAN.",
+      "evidence": [
+        "B98B0-M3-H-PLAN-DEV [pass/integration_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Real enforce-mode story_advance enters DEV for a clean complete structural report without verificationEvidence, executable transcript, or completion fact.",
+        "B98B0-M3-H-TYPED-NEW-PATH [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=A valid frozen typed planned producer/consumer declaration is independently derived into the signed PLAN basis and admitted by real story_advance.",
+        "B98B0-M3-E-COMPATIBILITY [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Direct core matrices prove legacy readability plus docs-only and ordinary single-outcome compatibility without fabricated mutation/transcript/command requirements.",
+        "B98B0-M3-E-MODE-LIFECYCLE [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Three independent real temp repos use the same failing topology: observe/warn advance to DEV, enforce remains PLAN, while canonical reports are identical except mode/blocking.",
+        "B98B0-M3-A-BLOCKERS [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Real CLI assertions cover missing/unmapped/outside-basis paths, unjustified exclusion, orphan, uncovered must intent, and required mutation/transcript/command declaration codes; enforce lifecycle blocks.",
+        "B98B0-M3-A-PLANNED-PATH-TAMPER [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Assertions cover topology semantic restatement, unknown endpoint, wrong endpoint role, missing checklist file declaration, and endpoint outside scope with AT_PLANNED_PATH_DECLARATION_* or AT_PLANNED_PATH_INVALID.",
+        "B98B0-M3-A-NO-LATER-WAVE-LEAKAGE [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Real PLAN admission succeeds without critic identity/receipt, executable evidence, pre_review_check, planned-to-actual reconciliation, or production-readiness facts; CLI docs retain later-wave boundary."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Compatibility and mode boundaries avoid false blocks and have adversarial restoration coverage.",
+      "acceptance": "Focused production-path tests prove observe/warn/enforce, legacy, docs-only, single-outcome, omission, invention, partial/unsupported and restored-control behavior; CLI docs match actual output.",
+      "evidence": [
+        "B98B0-M4-H-FOCUSED-SMOKE [pass/integration_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Final compiled focused production-path smoke passed all core, CLI, lifecycle, compatibility, failure-family, restoration, and mutation assertions.",
+        "B98B0-M4-H-DOCS-TRANSCRIPT [pass/docs_check] node scripts/verify-proof-or-stop-prompt-baseline.mjs file=docs/CLI.md note=Docs and prompt baseline pass with independent default-observe rollout, mode-invariant status/diagnostics, read-only authority, structural-only semantics, compatibility, and remediation boundaries.",
+        "B98B0-M4-E-COMPATIBILITY-MATRIX [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Matrix and production cases cover complete/missing/partial/unsupported/stale/tampered basis, legacy/docs/single-outcome, typed planned paths, and all modes.",
+        "B98B0-M4-E-STABLE-DIAGNOSTICS [pass/manual_transcript] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Targeted assertions name every required AT code; the same failing report is deep-equal across direct core adapter and CLI and remains semantically equal across all lifecycle modes.",
+        "B98B0-M4-A-REAL-MUTATIONS [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Real mutations cover C2 omission, topology invention, caller forgery, required-adapter omission, aggregate projection, receipt signature, closure/source-root staleness, prompt/handler/gate removal, and polarity inversion.",
+        "B98B0-M4-A-POLARITY-RESTORE [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts note=Each contract/artifact/config/source mutation asserts named failure, exact restoration of the targeted bytes, then clean pass; temp repositories are removed in finally.",
+        "B98B0-M4-A-PROCESS-FACT-BITE [pass/logic_test] node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js file=scripts/verify-process-fact-contract.mjs note=Four isolated real source mutations remove prompt, handler, lifecycle gate, or invert blocking polarity; each makes the process-fact contract fail.",
+        "B98B0-M4-A-SCOPE-BOUNDARY [pass/docs_check] node scripts/verify-process-fact-contract.mjs file=docs/CLI.md note=Process contract and CLI docs pass while explicitly excluding Wave 2A critic authority, Wave 3 executable/pre-review work, Wave 3A selective applicability, and Wave 4 rollout completion."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

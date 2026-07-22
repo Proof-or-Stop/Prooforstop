@@ -54,10 +54,20 @@ export interface ReproFirstPreflightConfig {
 export interface ProofStoryConfig {
   /** PLAN/INIT_CHECK/REVIEW rollback DEV admission ProofStory gate. Defaults to observe. */
   devGateMode?: 'observe' | 'warn' | 'enforce';
+  /** Wave 2 PLAN acceptance-topology structural gate rollout. Defaults to observe. */
+  acceptanceTopologyGateMode?: 'observe' | 'warn' | 'enforce';
   /** REVIEW completeness diagnostic mode. Defaults to observe. */
   reviewGateMode?: 'observe' | 'warn' | 'enforce';
   /** DONE intent-equivalence diagnostic mode. Defaults to observe. */
   doneGateMode?: 'observe' | 'warn' | 'enforce';
+}
+
+export type AcceptanceTopologyGateMode = NonNullable<ProofStoryConfig['acceptanceTopologyGateMode']>;
+
+/** Flat project policy only; Story prose/risk/milestone text never selects it. */
+export function resolveAcceptanceTopologyGateMode(config: Pick<LatticeConfig, 'proofStory'>): AcceptanceTopologyGateMode {
+  const mode = config.proofStory?.acceptanceTopologyGateMode;
+  return mode === 'warn' || mode === 'enforce' ? mode : 'observe';
 }
 
 export interface LifecycleControlConfig {
@@ -279,7 +289,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
     'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase
-    'original_intent_snapshot_get', 'milestone_ledger_get', 'slice_plan_get', 'parent_ledger_rollup_get', 'proofstory_contract_get', 'acceptance_matrix', 'acceptance_basis',
+    'original_intent_snapshot_get', 'milestone_ledger_get', 'slice_plan_get', 'parent_ledger_rollup_get', 'proofstory_contract_get', 'acceptance_matrix', 'acceptance_topology_check', 'acceptance_basis',
     'intent_collision_get', 'scope_shrinkage_decision_get', 'red_evidence_get', 'spike_get',
     'intent_coverage_check', 'proofstory_gate_check', 'done_intent_equivalence_check', 'proofstory_review_completeness_check', // ProofStory read-only diagnostics; enforce mode exits nonzero but writes no evidence
     'parent_roadmap_status', 'parent_roadmap_evaluate', // Parent-roadmap totality diagnostics; read-only and no server-backed completion semantics

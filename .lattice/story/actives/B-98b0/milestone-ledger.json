@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-98b0",
+  "state": "confirmed",
+  "ledgerHash": "sha256:e439b460e21be89a180d5e0fc8a368f3a070d4e2822d591fafff4d70cd5407a5",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "W2-STRUCTURAL-EVALUATOR",
+      "claim": "A canonical deterministic structural evaluator compares verified complete basis coverage with normalized topology and resolves flat mode semantics.",
+      "doneMeans": "The CLI and lifecycle consumer return the same ordered result and stable AT diagnostics for complete, partial, unsupported, stale, omitted and invented inputs.",
+      "requiredEvidence": [
+        "logic_test",
+        "mutation_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "B98B0-M1-H-CANONICAL",
+        "B98B0-M1-E-NONPASS-BASIS",
+        "B98B0-M1-E-MODES",
+        "B98B0-M1-A-CALLER-FORGERY",
+        "B98B0-M1-A-OMISSION-INVENTION"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "W2-PRODUCTION-SURFACE",
+      "claim": "acceptance_topology_check is exposed through production CLI/handler/registry and registered as a gate-consumed process fact.",
+      "doneMeans": "A real CLI transcript reports the structural result and the process-fact contract fails when any command, handler, registry or consumer registration is removed.",
+      "requiredEvidence": [
+        "integration_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "B98B0-M2-H-PRODUCTION-PARITY",
+        "B98B0-M2-E-CLI-CONTRACT",
+        "B98B0-M2-E-REGISTRY-RATIONALE",
+        "B98B0-M2-A-PROCESS-FACT-MUTATION",
+        "B98B0-M2-A-PROMPT-ONLY"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "W2-PLAN-DEV-GATE",
+      "claim": "PLAN to DEV consumes the canonical structural check without requiring executable DEV evidence.",
+      "doneMeans": "An enforce-mode Story with a complete closed topology enters DEV; missing/unmapped or prompt-only facts block with stable codes, while typed genuinely new endpoints are accepted at PLAN.",
+      "requiredEvidence": [
+        "integration_test",
+        "mutation_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "B98B0-M3-H-PLAN-DEV",
+        "B98B0-M3-H-TYPED-NEW-PATH",
+        "B98B0-M3-E-COMPATIBILITY",
+        "B98B0-M3-E-MODE-LIFECYCLE",
+        "B98B0-M3-A-BLOCKERS",
+        "B98B0-M3-A-PLANNED-PATH-TAMPER",
+        "B98B0-M3-A-NO-LATER-WAVE-LEAKAGE"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "W2-COMPATIBILITY-PROOF",
+      "claim": "Compatibility and mode boundaries avoid false blocks and have adversarial restoration coverage.",
+      "doneMeans": "Focused production-path tests prove observe/warn/enforce, legacy, docs-only, single-outcome, omission, invention, partial/unsupported and restored-control behavior; CLI docs match actual output.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test",
+        "manual_transcript",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "B98B0-M4-H-FOCUSED-SMOKE",
+        "B98B0-M4-H-DOCS-TRANSCRIPT",
+        "B98B0-M4-E-COMPATIBILITY-MATRIX",
+        "B98B0-M4-E-STABLE-DIAGNOSTICS",
+        "B98B0-M4-A-REAL-MUTATIONS",
+        "B98B0-M4-A-POLARITY-RESTORE",
+        "B98B0-M4-A-PROCESS-FACT-BITE",
+        "B98B0-M4-A-SCOPE-BOUNDARY"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-22T15:51:25.915Z",
+  "updatedAt": "2026-07-22T15:54:59.495Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260722155459",
+    "acceptedInterpretationHash": "sha256:09425cffc3d603fa818da52f9837e4971ff5fa05b3df4d6c5b14b446f009ca02",
+    "acceptedAt": "2026-07-22T15:54:59.495Z"
+  }
+}
