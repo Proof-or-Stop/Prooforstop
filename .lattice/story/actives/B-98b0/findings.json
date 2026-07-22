@@ -24,7 +24,7 @@
       "desc": "doc-code-drift: Wave 2 is documented as leaving measured rollout for Wave 4 and the authoritative execution plan forbids enabling enforce before measured criteria are approved, but transition-orchestrator immediately consumes proofStory.devGateMode and this repository already sets that flat project value to enforce. Thus merging this Story activates the new topology blocker project-wide now, contradicting docs/CLI.md:463-464 and the execution-plan rollout boundary/non-goal; the B-98b0 decision did not account for the pre-existing enforce value. Repro: lattice.config.json:30-33 plus packages/main/src/handlers/transition-orchestrator.ts:468-485; node bin/lattice.js acceptance_topology_check --storyId=B-98b0 --json reports mode=enforce and blocking=true. Resolve with an explicit rollout-safe activation consistent with the plan (or a documented human approval plus measured criteria), then make CLI guidance state the actual activation boundary.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-22T16:33:08.657Z",
@@ -39,7 +39,11 @@
         "packages/main/src/core/config.ts"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-wave",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "de9bd226 introduces independent proofStory.acceptanceTopologyGateMode default observe; round-2 docs RR-006 / RP-004 verified legacy devGateMode=enforce does not activate Wave 2 and prompt baseline PASS.",
+      "resolvedAt": "2026-07-22T17:00:12.672Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-98b0:F-003",
