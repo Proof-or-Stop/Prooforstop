@@ -302,6 +302,75 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-A32A-004-PLANNED-DERIVATION-RECONCILIATION",
+            "desc": "The PLAN verifier derives PlannedCoveragePathV1 records from frozen verificationIntent declarations plus ChecklistItem.files and signed scope, preserving declaration, endpoint and output-fact semantics and mapping the derived path bidirectionally to topology without trusting topology-owned copies.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-A32A-PLANNED-BASIS-MAP",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-A32A-DERIVE-PLANNED-PATHS",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/acceptance-topology.ts",
+                  "expectedSymbolOrFact": "derivePlannedCoveragePaths",
+                  "fileDeclarationRef": "CHK-004:files:modify:0"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-A32A-RECONCILE-TOPOLOGY-BASIS",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/core/acceptance-topology.ts",
+                    "expectedSymbolOrFact": "reconcileTopologyWithCoverageBasis",
+                    "fileDeclarationRef": "CHK-004:files:modify:0"
+                  }
+                ],
+                "outputFactRef": "process-fact:planned-coverage-path"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-A32A-004-GENUINELY-NEW-ENDPOINTS",
+            "desc": "A versioned declaration for genuinely new producer and consumer endpoints whose fileDeclarationRefs resolve to this checklist's frozen files and signed scope is accepted at PLAN and appears in the independently derived basis even though symbols do not yet exist; free-form or unresolved files, endpoints or relations are rejected deterministically.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-004-ELIGIBLE-EXCLUSION",
+            "desc": "A discovered path may be excluded only when an independently auditable decisionRef resolves under the current foundational decision schema and eligible decision kind and is included in the canonical basis digest; missing, stale, malformed, duplicate or unrelated decisionRefs yield AT_UNJUSTIFIED_EXCLUSION and cannot remove the path obligation. This does not require or imply Wave 2A critic identity or approval policy.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-A32A-004-TOPOLOGY-INVENTION-AND-DRIFT",
+            "desc": "Invent a topology planned edge absent from frozen intents, or retain declaration IDs while changing endpoint role, expected artifact, file, symbol, relation or output fact; the mutations must fail with AT_PLANNED_PATH_DECLARATION_MISSING or AT_PLANNED_PATH_DECLARATION_DRIFT and cannot be normalized into the basis.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-004-BIDIRECTIONAL-OMISSION",
+            "desc": "Remove a basis path from topology, add a topology path outside basis, or delete a planned declaration after deriving the basis; each mutation must fail with AT_UNMAPPED_SCOPE_REF, AT_TOPOLOGY_OUTSIDE_BASIS, AT_PLANNED_PATH_OUTSIDE_BASIS or a stale digest, then the restored control must pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
