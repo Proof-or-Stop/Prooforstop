@@ -17,7 +17,8 @@
     "packages/main/src/core/process-fact-levels.ts",
     "scripts/verify-process-fact-contract.mjs",
     "docs/CLI.md",
-    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    ".lattice/story/actives/B-4ec1/acceptance-basis.json"
   ],
   "allowedCreate": [
     "packages/main/src/core/pre-review-check.ts"
@@ -27,10 +28,10 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Wave 3 machine-readable scope includes the independently designed topology-critic re-attestation in CHK-004 and excludes later-wave behavior semantically through its verification intent.",
+  "scopeChangeReason": "Include the canonical verifier-owned acceptance-basis artifact written by acceptance_basis_generate; critic re-attestation remains a CHK-004 requirement and Wave 3A/Wave 4 stay excluded.",
   "acknowledgements": [],
   "createdAt": "2026-07-22T22:41:51.162Z",
-  "updatedAt": "2026-07-22T22:41:51.162Z",
+  "updatedAt": "2026-07-22T22:43:58.386Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -50,6 +51,7 @@
     "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
     "docs/CLI.md": "docs/CLI.md",
     "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    ".lattice/story/actives/B-4ec1/acceptance-basis.json": ".lattice/story/actives/B-4ec1/acceptance-basis.json"
   }
 }

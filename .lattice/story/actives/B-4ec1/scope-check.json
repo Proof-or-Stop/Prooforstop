@@ -1,6 +1,6 @@
 {
   "storyId": "B-4ec1",
-  "checkedAt": "2026-07-22T22:43:32.740Z",
+  "checkedAt": "2026-07-22T22:44:37.183Z",
   "features": [
     {
       "feature": "Canonical verifier-owned signed/hash-bound pre_review_check artifact and deterministic read-only verifier results",
@@ -102,16 +102,16 @@
     },
     {
       "feature": "Machine-readable enforce scope admits every canonical artifact generated or consumed by this PLAN, including acceptance-basis.json",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-002",
+      "status": "covered",
       "excluded_by": null,
-      "source": "scope_contract_check:B-4ec1 OUT_OF_SCOPE .lattice/story/actives/B-4ec1/acceptance-basis.json"
+      "source": ".lattice/story/actives/B-4ec1/scope-contract.json; scope_contract_check PASS 0 violations"
     },
     {
       "feature": "Wave 3A selective per-Story/per-policy applicability resolver",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicitly separate optional Wave 3A; current Story retains the flat project mode and rejects selective resolver behavior.",
+      "excluded_by": "Explicitly separate optional Wave 3A; current Story retains flat project mode and rejects selective resolver behavior.",
       "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M4-NO-LATER-WAVE-LEAKAGE"
     },
     {
@@ -145,13 +145,13 @@
   },
   "summary": {
     "total": 17,
-    "covered": 14,
+    "covered": 15,
     "excluded": 2,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "4419e398393d23a5decb1595dce55bfcfdcd8414227bcc417efaff10f6db43f7",
+  "_hash": "4cbcb5615b9971de7c4ce720777ab6cec3aa687b8eabdb28ab36077ce052e5d7",
   "openQuestions": []
 }
