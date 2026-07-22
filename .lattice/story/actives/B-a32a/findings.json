@@ -959,7 +959,7 @@
       "desc": "The end-of-assembly seal is not independently bound into the basis verifier. deriveAcceptanceCoverageBasis appends discovery.seal() output only to the aggregate basis.blindSpots (acceptance-coverage-basis.ts:312-317), while verifyAcceptanceCoverageBasis reconstructs only adapter-result blind spots and accepts every remaining string by a broad prefix regex (lines 335-340). Consequently the new late-C2 partial fixture can be mutated by deleting its `directory changed before derivation seal` blind spot, setting status='complete', and recomputing basisDigest; because its pre-seal adapter results reconcile complete, verifyAcceptanceCoverageBasis returns ok=true. Conversely a complete basis accepts an attacker-authored `source file forged...` blind spot when status is changed to partial and the basis is re-digested. The existing aggregate blind-spot mutation test uses a non-whitelisted prefix (smoke.ts:348-351), so it does not exercise this bypass. Represent seal observations as a canonical digest-bound result (or another mechanically reconstructible signed projection) and require exact projection equality; add mutations for both allowed-prefix forgery and removal of a real seal blind spot, with the latter required to keep verification non-ok after re-digesting.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T10:17:37.135Z",
@@ -972,7 +972,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|seal-blindspot-projection",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by 2cd97942da and retained through current HEAD: no post-seal callback remains; structured snapshotSeal issues/status/digests are exactly projected, basis/receipt signed, and current workspace rederived. Deletion/forgery/tamper mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:41.134Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-045",
