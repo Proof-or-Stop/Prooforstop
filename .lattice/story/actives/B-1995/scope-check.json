@@ -1,6 +1,6 @@
 {
   "storyId": "B-1995",
-  "checkedAt": "2026-07-22T02:53:26.941Z",
+  "checkedAt": "2026-07-22T02:56:56.023Z",
   "features": [
     {
       "feature": "Versioned VerificationPlannedPathDeclarationV1 is nested under existing verificationIntent ownership, validates stable IDs/endpoints/artifact/file/fact refs, and preserves legacy intents",
@@ -10,11 +10,11 @@
       "source": "milestone M1; checklist CHK-001; plan.md CHK-001; approved decision §§4–5.2, 15 Wave 1"
     },
     {
-      "feature": "All plannedPathDeclarations writes are accepted only from the registered verification-intent role during PLAN and remain frozen afterward across every write entrypoint",
-      "covered_by": "CHK-001 covers checklist_add/checklist_update but omits story_create",
-      "status": "gap",
+      "feature": "All plannedPathDeclarations writes are accepted only from the registered verification-intent role during PLAN and remain frozen afterward across every shared-schema persistence entrypoint",
+      "covered_by": "CHK-001",
+      "status": "covered",
       "excluded_by": null,
-      "source": "plan.md CHK-001; packages/main/src/cli/command-schemas.ts shared verificationIntentSchema; command-catalog.ts story_create checklist schema; handlers/story-create.ts directly persists c.verificationIntent"
+      "source": "plan.md CHK-001 explicitly covers story_create/checklist_add/checklist_update; VI-1995-001-WRITER-FREEZE requires atomic rejection and unchanged bytes; scope contract now authorizes handlers/story-create.ts"
     },
     {
       "feature": "Optional proofstory.acceptance_topology.v1 normalization is reference-only, rejects self-authored semantics/results/authority promotion, and emits deterministic structural diagnostics",
@@ -24,11 +24,18 @@
       "source": "milestone M2; checklist CHK-002; plan.md CHK-002; approved decision §§5–6, 15 Wave 1"
     },
     {
+      "feature": "Wave 1 existing canonicalSourceRef resolution is bounded to persisted Story-owner acceptance-binding/checklist/intent/milestone/evidence IDs; unknown prefixes/IDs diagnose AT_UNKNOWN_REF without discovery or lifecycle blocking",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "resolved OQ-B1995-CANONICAL-SOURCE-REF; plan.md CHK-002 exact prefix grammar; VI-1995-002-STABLE-INVALID-REFS"
+    },
+    {
       "feature": "Legacy ProofStory contracts without topology remain readable as legacy_missing and configured Wave 1 results never claim complete or ready-for-review",
       "covered_by": "CHK-002, CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "original intent; plan.md delivery boundary/CHK-002/CHK-004; verification intents VI-1995-002-LEGACY-MISSING and VI-1995-004-COMPATIBILITY-MATRIX"
+      "source": "original intent; plan.md delivery boundary/CHK-002/CHK-004; VI-1995-002-LEGACY-MISSING and VI-1995-004-COMPATIBILITY-MATRIX"
     },
     {
       "feature": "Dedicated lattice acceptance_matrix text/JSON command derives deterministic canonical rows and is visibly observe, read-only, L0, and non-evidentiary",
@@ -77,21 +84,14 @@
       "covered_by": null,
       "status": "excluded",
       "excluded_by": "Explicitly deferred to Waves 2–3; Wave 1 must preserve lifecycle transition equivalence.",
-      "source": "scope-contract protected/excluded paths; plan.md CHK-004; approved decision §§7–8, 15"
+      "source": "scope-contract protected files; plan.md CHK-004; approved decision §§7–8, 15"
     },
     {
-      "feature": "Writable acceptance matrix or any parallel completion/evidence truth source",
+      "feature": "Writable acceptance matrix, parallel completion truth, remote publish, or enforcement rollout",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Canonical ownership invariant requires a derived-only renderer and the Story explicitly rejects matrix writes.",
-      "source": "decision option C rejected; plan.md delivery boundary; approved decision §§1,4,11"
-    },
-    {
-      "feature": "Remote PR/release or enforcement rollout",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Execution boundary limits this Story to local Wave 1 implementation and existing TEST/DONE flow.",
-      "source": "story scope boundary/execution boundary; approved decision §§12,15"
+      "excluded_by": "Canonical ownership and execution boundaries require a local derived-only Wave 1 renderer; later enforcement and publish are outside this Story.",
+      "source": "decision option C rejected; plan.md delivery boundary; approved decision §§1,4,11–15"
     }
   ],
   "readManifest": {
@@ -121,26 +121,13 @@
   },
   "summary": {
     "total": 13,
-    "covered": 8,
-    "excluded": 4,
-    "gaps": 1,
+    "covered": 10,
+    "excluded": 3,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "e7a205b85adc9fde7b2b6898d57053d54f56f797cc6f34ef0fe8d3fe8e3fa3e9",
-  "openQuestions": [
-    {
-      "id": "OQ-B1995-CANONICAL-SOURCE-REF",
-      "q": "What bounded existing-source namespace must Wave 1 use to decide that an ExistingTopologySourceRefV1.canonicalSourceRef is known, given that handler/dispatch/static discovery adapters are explicitly deferred to Wave 1A?",
-      "evidence": "CHK-002 promises deterministic AT_UNKNOWN_REF for unknown canonical refs, while the approved example uses both command review_run_start and non-command symbol verifyReviewRunPromptEnvelope. PROCESS_FACT_REGISTRY is a flat fact catalog and the decision doc explicitly says it is not a handler/dispatch graph.",
-      "sourcePointers": [
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#bounded-implementation-waves",
-        "CHK-002",
-        ".lattice/story/actives/B-1995/plan.md#CHK-002"
-      ],
-      "resolution": "Wave 1 resolves existing canonicalSourceRef only against persisted Story-owner IDs using the exact prefixes acceptance-binding, checklist, intent, milestone, and evidence with deterministic composite evidence refs. Unknown prefixes or unresolved IDs produce AT_UNKNOWN_REF in observe-only output. It does not infer command, handler, dispatch, process-fact, static graph, or runtime trace sources; those remain Wave 1A discovery work.",
-      "resolvedAt": "2026-07-22T02:55:51.265Z"
-    }
-  ]
+  "_hash": "7915985753600bacb7c7eb4d1a42a6ce8200c576229cb26c9321623e60ad8416",
+  "openQuestions": []
 }

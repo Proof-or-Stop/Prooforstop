@@ -5,6 +5,7 @@
     "packages/main/src/core/types.ts",
     "packages/main/src/cli/command-schemas.ts",
     "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/story-create.ts",
     "packages/main/src/core/proofstory.ts",
     "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/handlers/proofstory.ts",
@@ -32,22 +33,19 @@
   ],
   "explicitExcludes": [
     "packages/main/src/core/machine.ts",
-    "packages/main/src/handlers/phase-gates.ts",
-    "packages/main/src/coverage basis verifier",
-    "packages/main/src/discovery adapters",
-    "packages/main/src/pre_review_check",
-    "packages/main/src/acceptance_topology_check"
+    "packages/main/src/handlers/phase-gates.ts"
   ],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
   "acknowledgements": [],
   "createdAt": "2026-07-22T02:48:37.641Z",
-  "updatedAt": "2026-07-22T02:48:37.641Z",
+  "updatedAt": "2026-07-22T02:55:57.222Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
     "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
     "packages/main/src/cli/command-schemas.ts": "packages/main/src/cli/command-schemas.ts",
     "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/story-create.ts": "packages/main/src/handlers/story-create.ts",
     "packages/main/src/core/proofstory.ts": "packages/main/src/core/proofstory.ts",
     "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
@@ -65,10 +63,6 @@
     "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
     "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
     "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
-    "packages/main/src/handlers/phase-gates.ts": "packages/main/src/handlers/phase-gates.ts",
-    "packages/main/src/coverage basis verifier": "coverage basis verifier",
-    "packages/main/src/discovery adapters": "discovery adapters",
-    "packages/main/src/pre_review_check": "pre_review_check",
-    "packages/main/src/acceptance_topology_check": "acceptance_topology_check"
+    "packages/main/src/handlers/phase-gates.ts": "packages/main/src/handlers/phase-gates.ts"
   }
 }
