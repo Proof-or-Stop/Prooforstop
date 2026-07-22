@@ -724,6 +724,25 @@
       ],
       "signatureTag": "adversarial|ts|directory-traversal-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-037",
+      "desc": "Dynamic-import namespace bindings are incorrectly classified as directly callable default imports, leaving a false-completeness edge in the F-031 repair. moduleCall correctly identifies `await import(./producer.js)` as kind=import (acceptance-discovery-adapters.ts:538-550), but visitModuleBindings passes every identifier binding to addBinding as imported=`default`, direct=true, property=true whenever there is no selected property (lines 566-580). Thus valid syntax `const review = await import(../handlers/review-run.js); review();` has no parse ambiguity; the checker resolves review to that binding and lines 606-613 emit a static call edge to producer#default even though an ESM module namespace object is not callable and no producer export is invoked. This can enter an outside-scope C2 and satisfy consumerGate as complete. The smoke covers review.emitReviewRunFact(), destructuring, and direct import().property(), but not a direct call of the namespace variable. Classify assigned dynamic import as imported=*, direct=false, property=true (while destructured/property-selected bindings remain direct), optionally surface semantic non-callability as partial, and add namespace-direct-call false-edge plus restored property-call controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T09:50:51.677Z",
+      "reviewRound": "2026-07-22T09:49:17.027Z",
+      "reviewRunId": "B-a32a:RR-032",
+      "_hash": "c36f2c7ec9e167a112ce4c36518f0296cb006f20ad4a5ae09af8f1dfabcb9550",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|dynamic-import-namespace",
+      "signatureTagSource": "auto"
     }
   ]
 }
