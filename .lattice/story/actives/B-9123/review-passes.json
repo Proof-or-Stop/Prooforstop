@@ -424,6 +424,48 @@
         "scanEscalationReason": null
       },
       "_hash": "929c5dbd77dc1c064e1b2c7b0b67e593fa001684f8e6b66b7525235527dbb18e"
+    },
+    {
+      "id": "B-9123:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 21/21 must intents have unique current storyFilesHash-bound evidence, 0 gaps, 0 waivers; independently reran full production smoke and process-fact/prompt mutation contracts; fresh live-happy transcript proves exitCode=0 plus check=ok semanticOk=true.",
+      "createdAt": "2026-07-22T21:33:16.745Z",
+      "reviewRound": "2026-07-22T21:28:54.878Z",
+      "reviewRunId": "B-9123:RR-025",
+      "envelopeId": "da17140036aed61a455ffc84320c21f38429bae8fde4477abfacc0d48cbee560",
+      "writerSessionId": "sess-ae2724e357515312328ab3b65a4137af",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-9123/background.md",
+          ".lattice/story/actives/B-9123/evidence/live-smoke-transcript.json",
+          ".lattice/story/actives/B-9123/plan.md",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ce0c7dad7e9e281e244f7d8c5d1bef6e4accd2154ad1914e544487e231cc60f5"
+      },
+      "readDiagnostics": [],
+      "_hash": "3896fd8e191d37a09b02705d679e705182bc4f1c728addddd79439b121178341"
     }
   ]
 }
