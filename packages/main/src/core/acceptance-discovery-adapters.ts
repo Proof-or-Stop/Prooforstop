@@ -1,11 +1,10 @@
-import { closeSync, constants as fsConstants, existsSync, fstatSync, lstatSync, opendirSync, openSync, readFileSync, readSync, realpathSync, type Dir, type Dirent, type Stats } from 'node:fs';
+import { closeSync, constants as fsConstants, existsSync, fstatSync, lstatSync, opendirSync, openSync, readSync, realpathSync, type Dir, type Dirent, type Stats } from 'node:fs';
 import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import ts from 'typescript';
 import type { CoverageAdapterResultV1, CoverageDiscoveryMethodV1, PlannedCoveragePathV1 } from './types.js';
 import { digestCanonicalJson, digestText } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
 import { RUNTIME_FACT_REGISTRY } from './runtime-fact-registry.js';
-import { loadConfig } from './config.js';
 
 export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
   ref: 'profile:typescript-proof-gate:plan:v1',
@@ -20,6 +19,11 @@ export interface AcceptanceDiscoveryInput {
   scopeRefs: string[];
   /** Test-only bounded runtime observations; production derives without caller-authored paths. */
   runtimeObservedPathRefs?: string[];
+  /** Test-only mutation point after graph/provenance assembly and before the derivation seal. */
+  testHooks?: {
+    afterAssemblyBeforeSeal?: () => void;
+    afterSeal?: (result: { directoryCount: number; fileCount: number; blindSpots: string[] }) => void;
+  };
 }
 
 export interface RegisteredProcessFactClosure {
@@ -41,6 +45,8 @@ export interface AcceptanceDiscoverySnapshot {
   registeredClosure: RegisteredProcessFactClosure;
   sourceSnapshots: AcceptanceSourceSnapshot[];
   sourceReadBlindSpots: string[];
+  seal: () => string[];
+  afterAssemblyBeforeSeal?: () => void;
 }
 
 export interface AcceptanceDiscoveryDiagnostic {
@@ -94,6 +100,7 @@ interface BoundedSourceGraph {
   sourceScans: Map<string, LocalImportCallScan>;
   blindSpots: string[];
   readContext: SourceReadContext;
+  directoryFingerprints: DirectoryFingerprint[];
 }
 
 interface LocalImportCallScan {
@@ -134,6 +141,23 @@ export interface SourceInventoryTraversalResult {
   blindSpots: string[];
   stopped: boolean;
   stats: { directories: number; entries: number; files: number; bytes: number; iteratorReads: number; peakBufferedEntries: number; handlesOpened: number; handlesClosed: number };
+  directoryFingerprints: DirectoryFingerprint[];
+}
+
+export interface DirectoryFingerprint {
+  path: string;
+  physicalPath: string;
+  dev: number;
+  ino: number;
+  size: number;
+  mtimeMs: number;
+  ctimeMs: number;
+  entryCount: number;
+  entriesDigest: string;
+}
+
+interface FileFingerprint extends DirectoryFingerprint {
+  contentDigest: string;
 }
 
 export interface SourceInventoryTraversalHooks {
@@ -206,7 +230,7 @@ export function enumerateBoundedSourceTree(
   const blindSpots: string[] = [];
   const stats = { directories: 0, entries: 0, files: 0, bytes: 0, iteratorReads: 0, peakBufferedEntries: 0, handlesOpened: 0, handlesClosed: 0 };
   const directories = [physicalSourceRoot];
-  const admittedDirectories: Array<{ directory: string; physical: string; stat: Stats }> = [];
+  const admittedDirectories: Array<{ directory: string; physical: string; stat: Stats; entryCount: number; entriesDigest: string }> = [];
   let stopped = false;
   const stop = (dimension: keyof SourceInventoryTraversalBudget): void => {
     if (!stopped) blindSpots.push(`configured source-root inventory exhausted ${dimension} budget`);
@@ -275,8 +299,9 @@ export function enumerateBoundedSourceTree(
       break;
     }
     if (rows.length > remainingEntries) { stop('maxEntries'); break; }
-    admittedDirectories.push({ directory, physical: physicalBefore!, stat: before! });
     rows.sort((a, b) => compareCodeUnits(a.name, b.name));
+    const entriesDigest = digestText(rows.map(row => `${row.name}\0${row.isDirectory() ? 'd' : row.isFile() ? 'f' : row.isSymbolicLink() ? 'l' : 'o'}`).join('\n'));
+    admittedDirectories.push({ directory, physical: physicalBefore!, stat: before!, entryCount: rows.length, entriesDigest });
     const childDirectories: string[] = [];
     for (const row of rows) {
       if (SOURCE_INVENTORY_EXCLUDED_DIRECTORIES.has(row.name)) continue;
@@ -317,19 +342,28 @@ export function enumerateBoundedSourceTree(
       break;
     }
   }
-  return { files, blindSpots: stable(blindSpots), stopped, stats };
+  return {
+    files, blindSpots: stable(blindSpots), stopped, stats,
+    directoryFingerprints: admittedDirectories.map(snapshot => ({
+      path: snapshot.directory, physicalPath: snapshot.physical, dev: snapshot.stat.dev, ino: snapshot.stat.ino,
+      size: snapshot.stat.size, mtimeMs: snapshot.stat.mtimeMs, ctimeMs: snapshot.stat.ctimeMs,
+      entryCount: snapshot.entryCount, entriesDigest: snapshot.entriesDigest,
+    })),
+  };
 }
 
-function configuredSourceInventory(workspaceRoot: string): { files: string[]; blindSpots: string[] } {
-  const configPath = resolve(workspaceRoot, 'lattice.config.json');
-  if (!existsSync(configPath)) return { files: [], blindSpots: ['canonical lattice.config.json is missing; source-root inventory is unavailable'] };
+const MAX_LATTICE_CONFIG_BYTES = 64 * 1024;
+
+function configuredSourceInventory(workspaceRoot: string, readContext: SourceReadContext): { files: string[]; blindSpots: string[]; directoryFingerprints: DirectoryFingerprint[] } {
   let rawConfig: Record<string, unknown>;
   try {
-    const parsed = JSON.parse(readFileSync(configPath, 'utf8')) as unknown;
+    const read = readSourceSafely(readContext, 'lattice.config.json', MAX_LATTICE_CONFIG_BYTES);
+    if (read.text === undefined) throw new Error(read.blindSpot ?? 'safe config snapshot is unavailable');
+    const parsed = JSON.parse(read.text) as unknown;
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('top-level value must be an object');
     rawConfig = parsed as Record<string, unknown>;
   } catch (error) {
-    return { files: [], blindSpots: [`canonical source-root config is unreadable: ${error instanceof Error ? error.message : String(error)}`] };
+    return { files: [], blindSpots: [`canonical source-root config is unreadable: ${error instanceof Error ? error.message : String(error)}`], directoryFingerprints: [] };
   }
   const configuredScanRoot = rawConfig.scanRoot;
   const configuredRootDir = rawConfig.rootDir;
@@ -337,42 +371,39 @@ function configuredSourceInventory(workspaceRoot: string): { files: string[]; bl
     || isAbsolute(configuredScanRoot) || configuredScanRoot.split(/[\\/]/).includes('..')
     || (configuredRootDir !== undefined && (typeof configuredRootDir !== 'string' || configuredRootDir.trim().length === 0
       || isAbsolute(configuredRootDir) || configuredRootDir.split(/[\\/]/).includes('..')))) {
-    return { files: [], blindSpots: ['canonical scanRoot/rootDir is missing or ambiguous'] };
+    return { files: [], blindSpots: ['canonical scanRoot/rootDir is missing or ambiguous'], directoryFingerprints: [] };
   }
-  let config;
-  try { config = loadConfig(workspaceRoot); }
-  catch (error) { return { files: [], blindSpots: [`canonical source-root config is unreadable: ${error instanceof Error ? error.message : String(error)}`] }; }
-  const relativeRoot = config.rootDir ? join(config.scanRoot, config.rootDir) : config.scanRoot;
+  const relativeRoot = configuredRootDir ? join(configuredScanRoot, configuredRootDir) : configuredScanRoot;
   let physicalWorkspace: string;
   try {
     physicalWorkspace = realpathSync(workspaceRoot);
   } catch {
-    return { files: [], blindSpots: ['canonical workspace root is missing or unreadable'] };
+    return { files: [], blindSpots: ['canonical workspace root is missing or unreadable'], directoryFingerprints: [] };
   }
   let absoluteRoot = physicalWorkspace;
   for (const component of relativeRoot.split(/[\\/]/).filter(value => value.length > 0 && value !== '.')) {
     absoluteRoot = resolve(absoluteRoot, component);
     let componentStat;
     try { componentStat = lstatSync(absoluteRoot); }
-    catch { return { files: [], blindSpots: [`configured source root is missing or unreadable: ${relativeRoot}`] }; }
-    if (componentStat.isSymbolicLink()) return { files: [], blindSpots: [`configured source root traverses symlink component: ${relativeRoot}`] };
-    if (!componentStat.isDirectory()) return { files: [], blindSpots: [`configured source root component is not a directory: ${relativeRoot}`] };
+    catch { return { files: [], blindSpots: [`configured source root is missing or unreadable: ${relativeRoot}`], directoryFingerprints: [] }; }
+    if (componentStat.isSymbolicLink()) return { files: [], blindSpots: [`configured source root traverses symlink component: ${relativeRoot}`], directoryFingerprints: [] };
+    if (!componentStat.isDirectory()) return { files: [], blindSpots: [`configured source root component is not a directory: ${relativeRoot}`], directoryFingerprints: [] };
     if ((componentStat.mode & 0o444) === 0 || (componentStat.mode & 0o111) === 0) {
-      return { files: [], blindSpots: [`configured source root is unreadable: ${relativeRoot}`] };
+      return { files: [], blindSpots: [`configured source root is unreadable: ${relativeRoot}`], directoryFingerprints: [] };
     }
   }
   let physicalSourceRoot: string;
   try { physicalSourceRoot = realpathSync(absoluteRoot); }
-  catch { return { files: [], blindSpots: [`configured source root is missing or unreadable: ${relativeRoot}`] }; }
+  catch { return { files: [], blindSpots: [`configured source root is missing or unreadable: ${relativeRoot}`], directoryFingerprints: [] }; }
   const physicalRelative = relative(physicalWorkspace, physicalSourceRoot);
   if (physicalRelative.startsWith('..') || isAbsolute(physicalRelative)) {
-    return { files: [], blindSpots: [`configured source root physically escapes workspace: ${relativeRoot}`] };
+    return { files: [], blindSpots: [`configured source root physically escapes workspace: ${relativeRoot}`], directoryFingerprints: [] };
   }
   const canonicalRelativeRoot = relativeFile(physicalWorkspace, physicalSourceRoot);
-  if (!canonicalRelativeRoot) return { files: [], blindSpots: [`configured source root physically escapes workspace: ${relativeRoot}`] };
+  if (!canonicalRelativeRoot) return { files: [], blindSpots: [`configured source root physically escapes workspace: ${relativeRoot}`], directoryFingerprints: [] };
   absoluteRoot = physicalSourceRoot;
   const traversal = enumerateBoundedSourceTree(physicalWorkspace, absoluteRoot);
-  return { files: traversal.files, blindSpots: traversal.blindSpots };
+  return { files: traversal.files, blindSpots: traversal.blindSpots, directoryFingerprints: traversal.directoryFingerprints };
 }
 
 function scriptKindFor(file: string): ts.ScriptKind {
@@ -395,6 +426,7 @@ interface SourceReadContext {
   maxAllocatedBytes: number;
   snapshots: Map<string, string>;
   failures: Map<string, string>;
+  fingerprints: Map<string, FileFingerprint>;
 }
 
 export interface SourceReadTestResult {
@@ -418,10 +450,11 @@ function createSourceReadContext(root: string, options: Partial<Pick<SourceReadC
     maxAllocatedBytes: 0,
     snapshots: new Map(),
     failures: new Map(),
+    fingerprints: new Map(),
   };
 }
 
-function readSourceSafely(context: SourceReadContext, file: string): { text?: string; blindSpot?: string } {
+function readSourceSafely(context: SourceReadContext, file: string, perFileCap = context.maxPerFileBytes): { text?: string; blindSpot?: string } {
   const cached = context.snapshots.get(file);
   if (cached !== undefined) return { text: cached };
   const cachedFailure = context.failures.get(file);
@@ -446,7 +479,7 @@ function readSourceSafely(context: SourceReadContext, file: string): { text?: st
     if (!canonicalFile || canonicalFile !== relativePath) return fail(`source file spelling differs from canonical physical path: ${file}${canonicalFile ? ` -> ${canonicalFile}` : ''}`);
     const noFollow = context.forceNoFollow ? undefined : fsConstants.O_NOFOLLOW;
     if (typeof noFollow !== 'number' || noFollow <= 0) return fail(`safe no-follow source read is unsupported: ${file}`);
-    if (before.size > context.maxPerFileBytes) return fail(`source file exceeds lexical scan budget: ${file}`);
+    if (before.size > perFileCap) return fail(`source file exceeds lexical scan budget: ${file}`);
     if (context.files >= context.maxFiles) return fail(`source read exhausted maxFiles budget: ${file}`);
     if (context.bytes + before.size > context.maxBytes) return fail(`source read exhausted maxBytes budget: ${file}`);
     const descriptor = openSync(physicalFile, fsConstants.O_RDONLY | noFollow);
@@ -477,10 +510,82 @@ function readSourceSafely(context: SourceReadContext, file: string): { text?: st
     context.files += 1;
     context.bytes += before.size;
     context.snapshots.set(canonicalFile, text);
+    context.fingerprints.set(canonicalFile, {
+      path: canonicalFile, physicalPath: physicalFile, dev: before.dev, ino: before.ino, size: before.size,
+      mtimeMs: before.mtimeMs, ctimeMs: before.ctimeMs, contentDigest: digestText(text),
+      entryCount: 0, entriesDigest: '',
+    });
     return { text };
   } catch {
     return fail(`source file is unreadable or disappeared: ${file}`);
   }
+}
+
+function revalidateDirectoryFingerprint(fingerprint: DirectoryFingerprint): string | null {
+  let handle: Dir | undefined;
+  try {
+    const current = lstatSync(fingerprint.path);
+    const physical = realpathSync(fingerprint.path);
+    if (current.isSymbolicLink() || !current.isDirectory() || physical !== fingerprint.physicalPath
+      || current.dev !== fingerprint.dev || current.ino !== fingerprint.ino || current.size !== fingerprint.size
+      || current.mtimeMs !== fingerprint.mtimeMs || current.ctimeMs !== fingerprint.ctimeMs) throw new Error('changed');
+    handle = opendirSync(physical);
+    const rows: Dirent[] = [];
+    while (rows.length <= fingerprint.entryCount) {
+      const row = handle.readSync();
+      if (!row) break;
+      rows.push(row);
+    }
+    handle.closeSync();
+    handle = undefined;
+    rows.sort((a, b) => compareCodeUnits(a.name, b.name));
+    const entriesDigest = digestText(rows.map(row => `${row.name}\0${row.isDirectory() ? 'd' : row.isFile() ? 'f' : row.isSymbolicLink() ? 'l' : 'o'}`).join('\n'));
+    if (rows.length !== fingerprint.entryCount || entriesDigest !== fingerprint.entriesDigest) throw new Error('entries changed');
+    return null;
+  } catch { return `configured source directory changed before derivation seal: ${fingerprint.path}`; }
+  finally { if (handle) try { handle.closeSync(); } catch { /* already a failed seal */ } }
+}
+
+function revalidateFileFingerprint(context: SourceReadContext, fingerprint: FileFingerprint): string | null {
+  const fail = (): string => `source file changed before derivation seal: ${fingerprint.path}`;
+  let absolute = context.physicalRoot;
+  let descriptor: number | undefined;
+  try {
+    for (const component of fingerprint.path.split('/').filter(Boolean)) {
+      absolute = resolve(absolute, component);
+      if (lstatSync(absolute).isSymbolicLink()) return fail();
+    }
+    const physical = realpathSync(absolute);
+    if (physical !== fingerprint.physicalPath) return fail();
+    const noFollow = context.forceNoFollow ? undefined : fsConstants.O_NOFOLLOW;
+    if (typeof noFollow !== 'number' || noFollow <= 0) return `safe no-follow derivation seal is unsupported: ${fingerprint.path}`;
+    descriptor = openSync(physical, fsConstants.O_RDONLY | noFollow);
+    const opened = fstatSync(descriptor);
+    if (opened.dev !== fingerprint.dev || opened.ino !== fingerprint.ino || opened.size !== fingerprint.size
+      || opened.mtimeMs !== fingerprint.mtimeMs || opened.ctimeMs !== fingerprint.ctimeMs) return fail();
+    const buffer = Buffer.alloc(fingerprint.size + 1);
+    let offset = 0;
+    while (offset < buffer.length) {
+      const count = readSync(descriptor, buffer, offset, buffer.length - offset, null);
+      if (count === 0) break;
+      offset += count;
+    }
+    if (offset !== fingerprint.size || digestText(buffer.subarray(0, fingerprint.size).toString('utf8')) !== fingerprint.contentDigest) return fail();
+    const after = fstatSync(descriptor);
+    if (after.dev !== fingerprint.dev || after.ino !== fingerprint.ino || after.size !== fingerprint.size
+      || after.mtimeMs !== fingerprint.mtimeMs || after.ctimeMs !== fingerprint.ctimeMs) return fail();
+    closeSync(descriptor);
+    descriptor = undefined;
+    return null;
+  } catch { return fail(); }
+  finally { if (descriptor !== undefined) try { closeSync(descriptor); } catch { /* seal already fails only if observable above */ } }
+}
+
+function sealSourceAssembly(context: SourceReadContext, directories: readonly DirectoryFingerprint[]): string[] {
+  return stable([
+    ...directories.map(revalidateDirectoryFingerprint).filter((value): value is string => Boolean(value)),
+    ...stable([...context.fingerprints.keys()]).map(file => revalidateFileFingerprint(context, context.fingerprints.get(file)!)).filter((value): value is string => Boolean(value)),
+  ]);
 }
 
 /** Test seam proving the shared source-read budget rejects before unbounded allocation. */
@@ -727,7 +832,7 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const root = input.workspaceRoot;
   const readContext = createSourceReadContext(root);
   const seedFiles = sourceSeedFiles(input);
-  const sourceInventory = configuredSourceInventory(root);
+  const sourceInventory = configuredSourceInventory(root, readContext);
   const blindSpots: string[] = [...sourceInventory.blindSpots];
   const registryCandidates = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)]);
   const analysisContext = createBindingAnalysisContext(root, stable([...sourceInventory.files, ...seedFiles, ...registryCandidates]), readContext);
@@ -792,7 +897,10 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
     }
   }
   for (const file of closure) if (!sourceScans.has(file)) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
-  return { seedFiles, sourceInventoryFiles: sourceInventory.files, closureFiles: stable([...closure]), entries: [...reached], factories, sourceScans, blindSpots: stable(blindSpots), readContext };
+  return {
+    seedFiles, sourceInventoryFiles: sourceInventory.files, closureFiles: stable([...closure]), entries: [...reached], factories,
+    sourceScans, blindSpots: stable(blindSpots), readContext, directoryFingerprints: sourceInventory.directoryFingerprints,
+  };
 }
 
 /** Resolve canonical process-fact closure and its producer/consumer source files. */
@@ -805,7 +913,7 @@ function registeredProcessFactClosureFromGraph(graph: BoundedSourceGraph): Regis
       ...((entry.producerSourceRefs ?? []).map(file => `source-file:producer:${encodeURIComponent(entry.name)}:${file}`)),
       ...((entry.consumerSourceRefs ?? []).map(file => `source-file:consumer:${encodeURIComponent(entry.name)}:${file}`)),
       ...(entry.artifact ? [`artifact:${entry.artifact.path}`] : []),
-    ]).concat(graph.closureFiles.map(file => `source-file:closure:${file}`))),
+    ]).concat(graph.closureFiles.map(file => `source-file:closure:${file}`), ['source-file:config:lattice.config.json'])),
     sourceFileRefs: graph.closureFiles,
     blindSpots: graph.blindSpots,
     entries: reached,
@@ -921,6 +1029,7 @@ function buildResult(
       ];
     }
     if (method !== 'runtime_trace') {
+      provenanceRefs = stable([...provenanceRefs, sourceProvenance(graph.readContext, 'lattice.config.json')]);
       const blockingReadFailures = [...graph.readContext.failures.values()].filter(message => /budget|no-follow/.test(message));
       blindSpots = stable([...blindSpots, ...blockingReadFailures]);
     }
@@ -956,6 +1065,8 @@ export function runAcceptanceDiscoverySnapshot(input: AcceptanceDiscoveryInput):
       registeredClosure: { pathRefs: [], sourceInventoryRefs: [], sourceFileRefs: [], blindSpots: [], entries: [] },
       sourceSnapshots: [],
       sourceReadBlindSpots: [],
+      seal: () => [],
+      afterAssemblyBeforeSeal: input.testHooks?.afterAssemblyBeforeSeal,
     };
   }
   const graph = buildBoundedSourceGraph(input);
@@ -968,6 +1079,14 @@ export function runAcceptanceDiscoverySnapshot(input: AcceptanceDiscoveryInput):
       return { canonicalFile, contentDigest: digestText(content), content };
     }),
     sourceReadBlindSpots: stable([...graph.readContext.failures.values()]),
+    seal: () => {
+      const blindSpots = graph.directoryFingerprints.length > 0
+        ? sealSourceAssembly(graph.readContext, graph.directoryFingerprints)
+        : ['configured source inventory lacks sealable directory fingerprints'];
+      input.testHooks?.afterSeal?.({ directoryCount: graph.directoryFingerprints.length, fileCount: graph.readContext.fingerprints.size, blindSpots });
+      return blindSpots;
+    },
+    afterAssemblyBeforeSeal: input.testHooks?.afterAssemblyBeforeSeal,
   };
 }
 

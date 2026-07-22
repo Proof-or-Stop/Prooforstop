@@ -199,6 +199,67 @@ try {
     headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
   };
   const first = deriveAcceptanceCoverageBasis(input);
+  assert.equal(first.basis.status, 'complete', 'stable end-of-assembly seal preserves the complete control');
+  const lateC2 = join(pureRoot, 'packages/main/src/late-c2.ts');
+  let lateSealObservation: { directoryCount: number; fileCount: number; blindSpots: string[] } | undefined;
+  const lateAddition = deriveAcceptanceCoverageBasis({
+    ...input,
+    discoveryTestHooks: {
+      afterAssemblyBeforeSeal: () => writeFileSync(lateC2, "export const late = () => true;\n"),
+      afterSeal: result => { lateSealObservation = result; },
+    },
+  });
+  assert.equal(lateAddition.basis.status, 'partial', `C2 added after initial enumeration is detected by the derivation seal: ${JSON.stringify(lateSealObservation)}`);
+  assert.ok(lateAddition.basis.blindSpots.some(item => item.includes('directory changed before derivation seal')), 'late C2 addition invalidates its inventory directory fingerprint');
+  rmSync(lateC2, { force: true });
+  const producerControl = 'export const produceBasis = () => true;\n';
+  const earlyReadMutation = deriveAcceptanceCoverageBasis({
+    ...input,
+    discoveryTestHooks: { afterAssemblyBeforeSeal: () => writeFileSync(join(pureRoot, 'packages/main/src/producer.ts'), `${producerControl}// late mutation\n`) },
+  });
+  assert.equal(earlyReadMutation.basis.status, 'partial', 'early-read source mutation is rejected at the final seal');
+  assert.ok(earlyReadMutation.basis.blindSpots.some(item => item.includes('source file changed before derivation seal')), 'early-read mutation reports a file fingerprint blind spot');
+  writeFileSync(join(pureRoot, 'packages/main/src/producer.ts'), producerControl);
+  const configPath = join(pureRoot, 'lattice.config.json');
+  const configControl = readFileSync(configPath, 'utf8');
+  const configMutation = deriveAcceptanceCoverageBasis({
+    ...input,
+    discoveryTestHooks: { afterAssemblyBeforeSeal: () => writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'other' })) },
+  });
+  assert.equal(configMutation.basis.status, 'partial', 'config changed after assembly is rejected at the final seal');
+  assert.ok(configMutation.basis.blindSpots.some(item => item.includes('lattice.config.json')), 'config mutation names the sealed canonical config');
+  writeFileSync(configPath, configControl);
+  const configSwapRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-config-swap-'));
+  try {
+    write(configSwapRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'narrow', rootDir: 'src' }));
+    const configSwap = deriveAcceptanceCoverageBasis({
+      ...input,
+      discoveryTestHooks: { afterAssemblyBeforeSeal: () => { rmSync(configPath); symlinkSync(join(configSwapRoot, 'lattice.config.json'), configPath, 'file'); } },
+    });
+    assert.equal(configSwap.basis.status, 'partial', 'config symlink swap before seal fails closed');
+  } finally {
+    rmSync(configPath, { force: true });
+    writeFileSync(configPath, configControl);
+    rmSync(configSwapRoot, { recursive: true, force: true });
+  }
+  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(70 * 1024) }));
+  const oversizedConfig = deriveAcceptanceCoverageBasis(input);
+  assert.equal(oversizedConfig.basis.status, 'partial', 'oversized config is rejected by the strict config snapshot cap');
+  assert.ok(oversizedConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'oversized config produces a bounded-read blind spot');
+  writeFileSync(configPath, configControl);
+  const initialConfigSwapRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-config-initial-swap-'));
+  try {
+    write(initialConfigSwapRoot, 'lattice.config.json', configControl);
+    rmSync(configPath);
+    symlinkSync(join(initialConfigSwapRoot, 'lattice.config.json'), configPath, 'file');
+    const initialConfigSwap = deriveAcceptanceCoverageBasis(input);
+    assert.equal(initialConfigSwap.basis.status, 'partial', 'initial symlinked config is never followed');
+    assert.ok(initialConfigSwap.basis.blindSpots.some(item => item.includes('symlink')), 'initial config symlink reports deterministic safe-read failure');
+  } finally {
+    rmSync(configPath, { force: true });
+    writeFileSync(configPath, configControl);
+    rmSync(initialConfigSwapRoot, { recursive: true, force: true });
+  }
   const producerFile = join(pureRoot, 'packages/main/src/producer.ts');
   writeFileSync(producerFile, `export const oversized = '${'x'.repeat((2 * 1024 * 1024) + 1)}';\n`);
   const oversizedDerivation = deriveAcceptanceCoverageBasis(input);

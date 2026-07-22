@@ -39,6 +39,11 @@ export interface AcceptanceBasisDerivationInput {
   storyFilesHash: string;
   supported?: boolean;
   foundationalDecision?: DecisionData | null;
+  /** Test-only mutation point immediately before the end-of-assembly seal. */
+  discoveryTestHooks?: {
+    afterAssemblyBeforeSeal?: () => void;
+    afterSeal?: (result: { directoryCount: number; fileCount: number; blindSpots: string[] }) => void;
+  };
 }
 
 export interface AcceptanceBasisDerivation {
@@ -173,7 +178,7 @@ function sourceInventory(records: readonly PlannedCoveragePathV1[], contract: Pr
 function inventorySourceFile(ref: string): string | null {
   const bound = ref.match(/^source-file:(?:producer|consumer):[^:]+:(.+)$/);
   if (bound?.[1]) return bound[1];
-  return ref.match(/^source-file:closure:(.+)$/)?.[1] ?? null;
+  return ref.match(/^source-file:closure:(.+)$/)?.[1] ?? ref.match(/^source-file:config:(.+)$/)?.[1] ?? null;
 }
 
 export function computeClosureFilesHashFromSnapshots(
@@ -254,6 +259,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     storyId: input.storyId,
     plannedPathRecords: planned.records,
     scopeRefs,
+    testHooks: input.discoveryTestHooks,
   });
   const registeredClosure = discovery.registeredClosure;
   const reconciled = reconcileAcceptanceDiscoveryResults(discovery.adapterResults);
@@ -267,14 +273,14 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     const absentPlannedFile = matched && plannedFiles.has(matched) && /unreadable or disappeared/.test(message);
     return !absentPlannedFile;
   });
-  const derivationBlindSpots = stable([...reconciled.blindSpots, ...registeredClosure.blindSpots, ...closureSnapshot.blindSpots, ...sourceReadBlindSpots]);
+  const preSealBlindSpots = stable([...reconciled.blindSpots, ...registeredClosure.blindSpots, ...closureSnapshot.blindSpots, ...sourceReadBlindSpots]);
   const topologyDigest = digest((input.contract?.acceptanceBindings ?? []).map(binding => ({ id: binding.id, topology: binding.verificationTopology ?? null })));
   const receiptRef = `receipt:coverage-basis:${input.storyId}:plan:${digest({ storyId: input.storyId, topologyDigest, closureFilesHash }).slice(7, 23)}`;
   let unsigned: Omit<AcceptanceCoverageBasisV1, 'basisDigest'> = {
     schemaVersion: 'proofstory.acceptance_coverage_basis.v1',
     storyId: input.storyId,
     phaseBasis: 'plan',
-    status: classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, derivationBlindSpots),
+    status: classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, preSealBlindSpots),
     generatedBy: {
       verifier: 'acceptance-coverage-basis-verifier',
       command: 'lattice acceptance_basis_generate',
@@ -290,7 +296,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     plannedActualReconciliations: [],
     enumeratedPathRefs: reconciled.enumeratedPathRefs,
     excludedPathRefs: [],
-    blindSpots: derivationBlindSpots,
+    blindSpots: preSealBlindSpots,
     binding: {
       headHash: input.headHash,
       materialHash: input.materialHash,
@@ -303,9 +309,12 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
   };
   const provisional = { ...unsigned, basisDigest: digestAcceptanceCoverageBasis(unsigned) };
   diagnostics.push(...reconcileTopologyWithCoverageBasis(input.contract, provisional, input.foundationalDecision));
+  discovery.afterAssemblyBeforeSeal?.();
+  const derivationBlindSpots = stable([...preSealBlindSpots, ...discovery.seal()]);
   unsigned = {
     ...unsigned,
-    status: classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, reconciled.blindSpots),
+    blindSpots: derivationBlindSpots,
+    status: classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, derivationBlindSpots),
   };
   return { basis: { ...unsigned, basisDigest: digestAcceptanceCoverageBasis(unsigned) }, diagnostics, topologyDigest };
 }
@@ -325,8 +334,10 @@ export function verifyAcceptanceCoverageBasis(
   }
   const reconciled = reconcileAcceptanceDiscoveryResults(basis.adapterResults);
   diagnostics.push(...reconciled.diagnostics);
+  const independentBlindSpots = basis.blindSpots.filter(item => !reconciled.blindSpots.includes(item));
+  const independentBlindSpotsValid = independentBlindSpots.every(item => /^(?:closure source lacks immutable bounded snapshot|source file |configured source |canonical source-root config |canonical lattice\.config\.json|safe no-follow )/.test(item));
   if (JSON.stringify(reconciled.enumeratedPathRefs) !== JSON.stringify(basis.enumeratedPathRefs)
-    || JSON.stringify(reconciled.blindSpots) !== JSON.stringify(basis.blindSpots)
+    || reconciled.blindSpots.some(item => !basis.blindSpots.includes(item)) || !independentBlindSpotsValid
     || JSON.stringify(stable(reconciled.adapterResults.map(result => result.method))) !== JSON.stringify(stable(basis.discoveryMethods))) {
     diagnostics.push({ code: 'AT_ADAPTER_RESULT_DIGEST_MISMATCH', message: 'basis aggregate does not match adapter result projection' });
   }
@@ -336,7 +347,7 @@ export function verifyAcceptanceCoverageBasis(
     if (basis.status !== 'unsupported' && !basis.enumeratedPathRefs.includes(record.plannedPathRef)) diagnostics.push({ code: 'AT_PLANNED_PATH_OUTSIDE_BASIS', message: `planned path absent from basis union: ${record.plannedPathRef}` });
   }
   const expectedStatus = classifyAcceptanceCoverageBasis(
-    reconciled.status !== 'unsupported', diagnostics, reconciled.status, reconciled.blindSpots,
+    reconciled.status !== 'unsupported', diagnostics, reconciled.status, basis.blindSpots,
   );
   if (basis.status === 'complete' && expectedStatus !== 'complete') {
     diagnostics.push({ code: 'AT_COVERAGE_BASIS_PARTIAL', message: `basis claims complete but verifier classifies ${expectedStatus}` });
