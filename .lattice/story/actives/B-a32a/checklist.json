@@ -59,7 +59,12 @@
       "userSees": "A successful verifier run writes a signed receipt bound to the exact workspace, scope, topology, Story and closure hashes; a stale or tampered receipt is rejected rather than rebound.",
       "files": {
         "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/process-fact-levels.ts",
           "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/context.ts",
           "packages/main/src/cli/command-catalog.ts",
           "packages/main/src/cli/command-schemas.ts",
           "packages/main/src/cli/activity-policy.ts",

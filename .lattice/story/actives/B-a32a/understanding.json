@@ -19,10 +19,14 @@
   "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/core/acceptance-basis-receipt.ts",
     "packages/main/src/core/types.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
-    "packages/main/src/core/freshness.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/store.ts",
     "packages/main/src/handlers/proofstory.ts",
     "packages/main/src/handlers/context.ts",
     "packages/main/src/cli/command-catalog.ts",
@@ -34,7 +38,9 @@
     "scripts/verify-process-fact-contract.mjs",
     "docs/CLI.md",
     "package.json",
-    "packages/main/package.json"
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/package-lock.json"
   ],
-  "timestamp": "2026-07-22T06:19:58.942Z"
+  "timestamp": "2026-07-22T06:26:14.036Z"
 }
