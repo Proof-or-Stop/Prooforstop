@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement verificationIntent-owned planned-path declaration schema",
+      "context": "Add versioned VerificationPlannedPathDeclarationV1 under existing verificationIntent ownership with round-trip normalization, stable IDs, endpoint/file/fact validation, and write/freeze enforcement by the verification-intent flow. Do not create a new artifact or allow verificationTopology to own planned-edge semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#wave-1-schema-and-read-only-diagnostics"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement reference-only acceptance topology v1 normalization and structural diagnostics",
+      "context": "Add optional topology on ProofStory acceptance bindings, resolve existing and planned declaration/endpoint refs, validate IDs and structural totality in observe-only diagnostics, preserve legacy readability, and keep lifecycle behavior unchanged.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#target-schema",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#structural-integrity-and-totality-rules"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement derived read-only acceptance matrix rendering",
+      "context": "Render canonical source IDs and structural diagnostic rows from milestone ledger, acceptance bindings, verificationIntent and existing evidence without persisting verdicts or accepting matrix writes. Resolve renderer placement during PLAN and keep output non-evidentiary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#derived-acceptance-matrix"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prove Wave 1 compatibility and non-gating boundaries",
+      "context": "Add focused round-trip, legacy, invalid-ref, topology-self-authorship, read-only renderer, docs-only and no-lifecycle-behavior-change tests. Verify no Wave 1A basis completeness or pre-review gate behavior is accidentally shipped.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#verification-and-mutation-matrix",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#non-goals"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
