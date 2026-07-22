@@ -1050,6 +1050,38 @@
       },
       "readDiagnostics": [],
       "_hash": "6bd134591c9c00e2f4ae95466d83a3b794b88440b25b150e16ed035a387ad87c"
+    },
+    {
+      "id": "B-a32a:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS, round 14 targeted review: 25/25 must intents have refreshed passing evidence at storyFilesHash 96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f, with 0 gaps and 0 waivers. Evidence records the actual Wave 1A focused production-chain smoke PASS and process-fact contract PASS. The implementer additionally reported full root npm test exit 0 after baseline repair; I did not rerun that full suite. Static audit confirms root npm test wires both proof-or-stop baseline and process-fact verifiers. The acknowledged four-path expansion is covered: the verifier reads and compares the prompt baseline JSON, overlap matrix Markdown, measurement baseline JSON, and approved manifest hash in the verifier; its ordinary path executes 10 snapshot mutations, isolated real source/output mutation-fail-restore-pass, role-matrix JSON/Markdown/count/removal bites, and measurement-sidecar verification. No open findings remain.",
+      "createdAt": "2026-07-22T14:45:44.065Z",
+      "reviewRound": "2026-07-22T14:42:15.395Z",
+      "reviewRunId": "B-a32a:RR-055",
+      "envelopeId": "78825caf5a12e413f3c3d31eef13565b9c1a951478a4db5fd71354aa11b3c672",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a32a/scope-contract.json",
+          ".lattice/story/actives/B-a32a/test-evidence.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "package.json",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "000cbfe092f3fa1fe2522c327f640789dbb711ae8ae30f92fc1172f91638933e"
     }
   ]
 }
