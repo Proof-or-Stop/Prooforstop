@@ -206,6 +206,35 @@
         "scanEscalationReason": null
       },
       "_hash": "80858e3689990a9a6311fdb9921db87bdb8280e25bd195f1213b2edcaafc0dd2"
+    },
+    {
+      "id": "B-1995:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 final convergence review passed on current merged HEAD 32906a80e0. Incremental basis reports changedFiles=[] and ELIGIBLE_NO_MATERIAL_CHANGE; independent git comparison confirms no business source/docs/package/test-script diff since final fix 01d888403c. Current validation evidence is PASS at 2026-07-22T05:44:45.988Z with storyFilesHash 77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327, 23/23 required intents covered, 0 missing; all 24 recorded evidence rows pass with no waivers, and all 13 findings are resolved. Prior concept checks remain applicable: bounded producer subcommand parsing, no L0 promotion, and no Wave1A/basis/machine/phase-gate overreach. No concept or promised-delivery regression found.",
+      "createdAt": "2026-07-22T05:46:31.373Z",
+      "reviewRound": "2026-07-22T05:44:24.060Z",
+      "reviewRunId": "B-1995:RR-015",
+      "envelopeId": "ed811b668fba883d93170d66653cf03e64d84d15434aaa305143754606d8ebd0",
+      "writerSessionId": "sess-1078f9ca1b8239bf4fae7e6ca717ca58",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/plan.md",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1995/checklist.json",
+          ".lattice/story/actives/B-1995/findings.json",
+          ".lattice/story/actives/B-1995/test-evidence.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3f96ae4294f2f097bfd657baace426e5db3daf28d8e830904ecf079f628e54fe"
     }
   ]
 }
