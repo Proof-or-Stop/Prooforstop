@@ -633,6 +633,8 @@ function assertProofStoryProgressiveBoundary() {
   const adaptersText = read('packages/main/src/core/acceptance-discovery-adapters.ts');
   const receiptText = read('packages/main/src/core/acceptance-basis-receipt.ts');
   const processRegistryText = read('packages/main/src/core/process-fact-registry.ts');
+  const processLevelText = read(processFactLevelRegistryPath);
+  const acceptanceWriterPolicy = commandPolicyEntries.get('acceptance_basis_generate');
   const acceptancePromptPaths = [
     'packages/main/templates/agents/lattice-implementer.md',
     '.claude/agents/lattice-implementer.md',
@@ -653,6 +655,9 @@ function assertProofStoryProgressiveBoundary() {
       && receiptText.includes('checkEvidenceFreshnessForGit')
       && /name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,400}semantics:\s*\[[^\]]*'workspace-binding'[^\]]*\][\s\S]{0,100}level:\s*'L3'/.test(processRegistryText)
       && !/name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,400}semantics:\s*\[[^\]]*'gate-evidence'/.test(processRegistryText)
+      && acceptanceWriterPolicy?.status === 'supported'
+      && acceptanceWriterPolicy.gateEvidence !== true
+      && /name:\s*'acceptance_basis_generate',\s*level:\s*'L3'[\s\S]{0,500}Wave 1A has no lifecycle gate consumer/.test(processLevelText)
       && acceptancePromptPaths.every(path => read(path).includes('lattice acceptance_basis_generate'))
       && acceptanceRequiredSemantics.includes('workspace-binding'),
     'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, signed receipt verification, and canonical freshness consumption',

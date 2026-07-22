@@ -197,7 +197,8 @@ try {
   const first = deriveAcceptanceCoverageBasis(input);
   const adapterControl = runAcceptanceDiscoveryAdapters({ supported: true, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1'] });
   const globalClosure = deriveRegisteredProcessFactClosure(pureRoot, ['process_fact:acceptance_basis_generate']);
-  assert.ok(globalClosure.pathRefs.some(path => path.includes('acceptance_basis_generate') && path.includes('consumer:acceptance_basis read-only receipt verification')), 'process-fact traversal retains registered diagnostic consumers outside Story scope');
+  assert.ok(globalClosure.pathRefs.some(path => path.includes('acceptance_basis_generate->consumer:<audit-only>')), 'non-gate writer remains registered without inventing a lifecycle consumer');
+  assert.ok(globalClosure.pathRefs.some(path => path.includes('artifact:acceptance-basis.json') && path.includes('consumer:acceptance_basis read-only receipt verification')), 'signed artifact retains its read-only verifier consumer boundary');
   assert.ok(globalClosure.sourceFileRefs.includes('scripts/verify-process-fact-contract.mjs'), 'global consumer source enters closure binding');
   const adapterControlReconciled = reconcileAcceptanceDiscoveryResults(adapterControl);
   assert.equal(adapterControlReconciled.status, 'complete', JSON.stringify(adapterControlReconciled, null, 2));
