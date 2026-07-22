@@ -18,6 +18,24 @@
       ],
       "signatureTag": "edge|md|code-drift-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4444:F-002",
+      "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:184-220,463-470,530-533,569-585 — MEDIUM: the reconciliation rules require each discovery adapter to retain its path set, coverage claim, blind spots, provenance, and typed asymmetry policy, but AcceptanceCoverageBasisV1 stores only discoveryMethods plus aggregate paths/blindSpots. The signed basis shape therefore cannot show which adapter reported a path or claim, which policy explained an asymmetry, or whether a required adapter was silently ignored, so AT_DISCOVERY_DISAGREEMENT is not auditable/replayable from the proposed artifact. Add hash-bound per-adapter result records (or signed refs with equivalent fields) and define their inclusion in basisDigest, then mutate/remove one adapter result and assert deterministic failure.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-22T01:33:02.934Z",
+      "reviewRound": "2026-07-22T01:29:55.357Z",
+      "reviewRunId": "B-4444:RR-003",
+      "_hash": "2a8949788dd6d1037f681ed8aa9ff1477994a9d8def5660009aa0988cc0117ff",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
