@@ -587,7 +587,7 @@
       "desc": "Canonical inventory and module resolution silently omit source kinds that the scanner claims or TypeScript supports. SOURCE_EXTENSIONS at acceptance-discovery-adapters.ts:83 excludes .jsx, .mts, and .cts even though scriptKindFor at lines 231-235 has an otherwise unreachable JSX branch and the profile is TypeScript-based. resolveLocalImport at lines 112-121 only maps .js to .ts plus bare .ts/index.ts, so imports resolving to .tsx/.jsx/.mts/.cts are also missed. Conversely .cjs is inventoried and parsed as JS, but analyzeLocalImportCalls at lines 252-261 recognizes only ES ImportDeclaration and neither CommonJS require nor TypeScript import-equals; those consumers are silently ignored without an unsupported-source blind spot. If another valid consumer already satisfies consumerGate, an additional outside-scope C2 in any omitted form disappears while the basis can remain complete. The smoke contains only a .ts named ES import and has no source-extension/module-form matrix. Either fully support the declared canonical source kinds and Node/TS resolution or emit deterministic partial blind spots for unsupported extensions/forms; add outside-scope .jsx/.mts/.cts and .cjs require mutations proving omission cannot remain complete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T09:19:57.765Z",
@@ -599,7 +599,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "missing|ts|canonical-inventory-module",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 7ec60658bc and retained through current HEAD: TypeChecker symbol binding excludes shadowing, all supported JS/TS module forms resolve canonically or fail partial, streaming inventory is bounded, and source read failures fail closed. Current threat-table mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:27.978Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-029",
