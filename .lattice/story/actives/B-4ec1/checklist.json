@@ -174,6 +174,18 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/live-smoke-transcript-evidence.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ]
       }
     },
     {
