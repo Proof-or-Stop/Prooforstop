@@ -94,15 +94,15 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-W3-M1-PRE-REVIEW-ROUNDTRIP",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Production CLI transcript proves signed artifact roundtrip through producer, read-only verifier and lifecycle consumer.",
-          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
+          "note": "Current-HEAD registered CLI producer, read-only verifier and lifecycle consumer integration roundtrip passed with one signed canonical artifact.",
+          "headHash": "8326b6852e4f10dfc0eb0e912319a4c429ef8a4c",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:28:09.603Z"
+          "timestamp": "2026-07-22T23:28:29.161Z"
         },
         {
           "intentRef": "VI-W3-M1-DETERMINISTIC-CODES",
@@ -218,15 +218,15 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Production transcript proves current worktree producer/consumer reconciliation.",
-          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
+          "note": "Current-HEAD integration reconciled declared producer and consumer endpoints to actual worktree source and registered closure.",
+          "headHash": "8326b6852e4f10dfc0eb0e912319a4c429ef8a4c",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:28:09.603Z"
+          "timestamp": "2026-07-22T23:28:29.161Z"
         },
         {
           "intentRef": "VI-W3-M2-PLANNED-ACTUAL-MATRIX",
@@ -343,15 +343,15 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-W3-M3-REAL-PROOF-CHAIN",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Production transcript proves real producer-consumer-mutation-restoration-authority chain.",
-          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
+          "note": "Current-HEAD integration executed the real producer-consumer-mutation-restoration-transcript-authority proof chain.",
+          "headHash": "8326b6852e4f10dfc0eb0e912319a4c429ef8a4c",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:28:09.603Z"
+          "timestamp": "2026-07-22T23:28:29.161Z"
         },
         {
           "intentRef": "VI-W3-M3-MUTATION-POLARITY-RESTORE",
@@ -477,15 +477,15 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-W3-M4-LIFECYCLE-MODE-MATRIX",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
           "result": "pass",
-          "note": "Lifecycle transcript proves observe/warn/enforce behavior over one canonical verifier.",
-          "headHash": "37c6a472147b72cf2ec749bef6d7aa233dc7a355",
+          "note": "Current-HEAD lifecycle integration proved observe, warn and enforce consume the same canonical verifier result.",
+          "headHash": "8326b6852e4f10dfc0eb0e912319a4c429ef8a4c",
           "materialHash": "00e232fba636a27a9583edc20692bd26450fd2d3833334eabff37bea9c4ceeda",
           "storyFilesHash": "b93005b559d8c818d5f178e8b3159026177eff374617c0367ca45c04f8ddd68e",
-          "timestamp": "2026-07-22T23:28:09.603Z"
+          "timestamp": "2026-07-22T23:28:29.161Z"
         },
         {
           "intentRef": "VI-W3-M4-LEGACY-DOCS-ROLLBACK",
