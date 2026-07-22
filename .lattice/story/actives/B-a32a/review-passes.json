@@ -717,6 +717,34 @@
         "scanEscalationReason": null
       },
       "_hash": "38e4827cd516dfc8ff186b54acd31171efd488bf0140ee31cf964f429e58d469"
+    },
+    {
+      "id": "B-a32a:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Final quality signoff: implementation and tests are byte-unchanged from the round-12 quality-pass commit 2cd97942da; 948c8ea854 changes only docs/CLI.md. The documented snapshot seal fields, signed receipt/current rederivation behavior, partial semantics, and L3 non-gate boundary match the reviewed implementation with no undelivered promise.",
+      "createdAt": "2026-07-22T10:38:01.832Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-046",
+      "envelopeId": "d93352bfd4ebb094386c11159f92b46dd779f3bc5c41f5e6e8570ecf074824bc",
+      "writerSessionId": "sess-b01b895fc61f1f104910bdcd61ca40ee",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e142ed1aa3d0a7b1ae141163183fc1a0eadbc4517ce4f43f3a5c9ed8e3639038"
     }
   ]
 }
