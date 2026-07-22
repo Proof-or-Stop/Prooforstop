@@ -78,7 +78,11 @@ export interface ProcessFactRegistryEntry {
   gateEvidence?: boolean;
   destructiveRisk?: CommandDestructiveRisk;
   producer: string;
+  /** Canonical repository sources that implement/register the producer. */
+  producerSourceRefs?: readonly string[];
   consumerGate?: string;
+  /** Canonical repository sources that declare or implement the consumer. */
+  consumerSourceRefs?: readonly string[];
   artifact?: ProcessFactArtifactRef;
   reviewerLane?: string;
   rationale: string;
@@ -105,6 +109,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   review_host_availability_probe: 'host-availability-probe',
   review_escalation_fallback_set: 'gate-evidence',
   story_create_from_repro: 'gate-evidence',
+  acceptance_basis_generate: 'signed-artifact',
 };
 
 export const PROCESS_FACT_REQUIRED_SEMANTICS = {
@@ -143,6 +148,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   slice_plan_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   parent_ledger_rollup_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   proofstory_contract_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
+  acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -333,6 +340,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'proofstory_contract_set',
     consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+  },
+  acceptance_basis_generate: {
+    name: 'acceptance-basis.json',
+    path: 'acceptance-basis.json',
+    signed: true,
+    signature: 'Ed25519(canonical receipt binding basis/topology/scope/workspace/storyFilesHash/closureFilesHash)',
+    producerCommand: 'acceptance_basis_generate',
+    consumerGate: 'acceptance_basis read-only receipt verification and diagnostic rendering boundary',
   },
   intent_collision_set: {
     name: 'intent-collision.json',
@@ -840,7 +855,13 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
     gateEvidence,
     destructiveRisk: policy?.destructiveRisk,
     producer: entry.owner,
+    producerSourceRefs: ['acceptance_basis_generate', 'acceptance_basis'].includes(entry.name)
+      ? ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts']
+      : undefined,
     consumerGate: entry.gateConsumer,
+    consumerSourceRefs: ['acceptance_basis_generate', 'acceptance_basis'].includes(entry.name)
+      ? ['packages/main/src/core/process-fact-registry.ts', 'scripts/verify-process-fact-contract.mjs']
+      : undefined,
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name],
     reviewerLane: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name]?.reviewerLane,
     rationale: entry.rationale,
@@ -997,6 +1018,18 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.original_intent_snapshot_set,
     rationale: 'Original intent snapshot freezes sourceText/keyRequirementIds into an immutable requestHash for progressive intent diagnostics and opt-in enforcement.',
+  },
+  {
+    name: 'artifact:acceptance-basis.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
+    level: 'L3',
+    producer: 'handlers/proofstory.acceptance_basis_generate',
+    producerSourceRefs: ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts'],
+    consumerGate: 'acceptance_basis read-only receipt verification and diagnostic rendering boundary',
+    consumerSourceRefs: ['packages/main/src/core/process-fact-registry.ts', 'scripts/verify-process-fact-contract.mjs'],
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.acceptance_basis_generate,
+    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. The acceptance_basis reader is diagnostic-only and cannot mint or rebind it.',
   },
   {
     name: 'artifact:milestone-ledger.json',

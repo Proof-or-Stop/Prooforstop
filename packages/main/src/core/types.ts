@@ -266,6 +266,141 @@ export interface AcceptanceVerificationTopologyV1 {
   commandRefs: TopologySourceRefV1[];
 }
 
+export type CoverageDiscoveryMethodV1 =
+  | 'scope_contract'
+  | 'actual_diff_hunks'
+  | 'process_fact_registry'
+  | 'handler_dispatch_inventory'
+  | 'static_call_graph'
+  | 'runtime_trace';
+
+export interface CoverageAdapterResultV1 {
+  schemaVersion: 'proofstory.coverage_adapter_result.v1';
+  adapterId: string;
+  method: CoverageDiscoveryMethodV1;
+  pathRefs: string[];
+  coverageClaim: 'complete_for_scope' | 'partial' | 'unsupported';
+  blindSpots: string[];
+  provenanceRefs: string[];
+  asymmetryPolicy: {
+    kind: 'exhaustive' | 'bounded_non_exhaustive' | 'unsupported';
+    policyRef: string;
+    scopeRefs: string[];
+  };
+  resultDigest: string;
+}
+
+export interface PlannedCoveragePathV1 {
+  schemaVersion: 'proofstory.planned_coverage_path.v1';
+  plannedPathRef: string;
+  plannedPathDeclarationRef: string;
+  declarationDigest: string;
+  producer: VerificationPlannedPathEndpointV1;
+  consumers: VerificationPlannedPathEndpointV1[];
+  outputFactRef: string;
+  acceptanceBindingRefs: string[];
+  verificationIntentRefs: string[];
+  declarationRefs: string[];
+  plannedPathDigest: string;
+}
+
+export interface PlannedActualPathReconciliationV1 {
+  schemaVersion: 'proofstory.planned_actual_path_reconciliation.v1';
+  plannedPathRef: string;
+  actualPathRefs: string[];
+  relation: 'exact' | 'expanded' | 'replaced';
+  replacementDecisionRef?: string;
+  reconciliationDigest: string;
+}
+
+export type AcceptanceSnapshotSealIssueCodeV1 =
+  | 'directory_changed'
+  | 'source_file_changed'
+  | 'safe_no_follow_unsupported'
+  | 'inventory_unsealable'
+  | 'snapshot_missing'
+  | 'derivation_diagnostic';
+
+export interface AcceptanceSnapshotSealIssueV1 {
+  code: AcceptanceSnapshotSealIssueCodeV1;
+  targetKind: 'directory' | 'source_file' | 'config' | 'inventory';
+  canonicalRef: string;
+}
+
+export interface AcceptanceSnapshotSealV1 {
+  schemaVersion: 'proofstory.acceptance_snapshot_seal.v1';
+  inventoryDirectoryDigest: string;
+  inventoryDirectoryCount: number;
+  sourceSnapshotDigest: string;
+  sourceSnapshotCount: number;
+  configSnapshotDigest: string;
+  status: 'complete' | 'partial';
+  issues: AcceptanceSnapshotSealIssueV1[];
+  sealDigest: string;
+}
+
+export interface AcceptanceCoverageBasisV1 {
+  schemaVersion: 'proofstory.acceptance_coverage_basis.v1';
+  storyId: string;
+  phaseBasis: 'plan' | 'pre_review';
+  priorPlanBasisDigest?: string;
+  status: 'complete' | 'partial' | 'unsupported';
+  generatedBy: {
+    verifier: 'acceptance-coverage-basis-verifier';
+    command: 'lattice acceptance_basis_generate';
+    algorithmVersion: 'v1';
+  };
+  discoveryProfileRef: string;
+  discoveryProfileDigest: string;
+  discoveryMethods: CoverageDiscoveryMethodV1[];
+  adapterResults: CoverageAdapterResultV1[];
+  scopeRefs: string[];
+  sourceInventoryRefs: string[];
+  plannedPathRecords: PlannedCoveragePathV1[];
+  plannedActualReconciliations: PlannedActualPathReconciliationV1[];
+  enumeratedPathRefs: string[];
+  excludedPathRefs: Array<{ pathRef: string; decisionRef: string }>;
+  blindSpots: string[];
+  snapshotSeal: AcceptanceSnapshotSealV1;
+  binding: {
+    headHash: string;
+    materialHash: string;
+    storyFilesHash: string;
+    scopeCheckDigest: string;
+    scopeContractDigest?: string;
+    closureFilesHash: string;
+  };
+  receiptRef: string;
+  basisDigest: string;
+}
+
+export interface AcceptanceBasisReceiptV1 {
+  schemaVersion: 'proofstory.acceptance_basis_receipt.v1';
+  receiptRef: string;
+  issuer: 'acceptance-coverage-basis-verifier';
+  issuerKeyId: string;
+  signerPublicKey: string;
+  storyId: string;
+  phaseBasis: 'plan' | 'pre_review';
+  basisDigest: string;
+  topologyDigest: string;
+  scopeCheckDigest: string;
+  scopeContractDigest?: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  closureFilesHash: string;
+  sealDigest: string;
+  workspaceIdentityDigest: string;
+  signature: string;
+}
+
+export interface AcceptanceBasisArtifactV1 {
+  schemaVersion: 'proofstory.acceptance_basis_artifact.v1';
+  basis: AcceptanceCoverageBasisV1;
+  receipt: AcceptanceBasisReceiptV1;
+}
+
 export type VerificationIntent = Record<VerificationLane, VerificationIntentItem[]>;
 
 export interface AttestationMetadata {

@@ -145,6 +145,8 @@ const requiredProcessFactSemantics = {
   milestone_ledger_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   milestone_ledger_add: ['schema-contract', 'verification-policy', 'gate-evidence'],
   proofstory_contract_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
+  acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -544,7 +546,15 @@ function read(relPath) {
   const absPath = join(root, relPath);
   assert(existsSync(absPath), `${relPath} should exist`);
   if (!existsSync(absPath)) return '';
-  return readFileSync(absPath, 'utf8');
+  let text = readFileSync(absPath, 'utf8');
+  const mutation = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
+  if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('lattice-implementer.md')) {
+    text = text.replace(/^Acceptance-basis boundary: only `lattice acceptance_basis_generate`.*$/m, '');
+  }
+  if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
+    text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
+  }
+  return text;
 }
 
 function listMarkdown(dir) {
@@ -589,6 +599,8 @@ function assertProofStoryProgressiveBoundary() {
     'proofstory_contract_set',
     'proofstory_contract_get',
     'acceptance_matrix',
+    'acceptance_basis_generate',
+    'acceptance_basis',
     'intent_collision_set',
     'intent_collision_get',
     'scope_shrinkage_decision_set',
@@ -617,6 +629,42 @@ function assertProofStoryProgressiveBoundary() {
     && milestoneStatusText.includes('isAcceptanceMatrixDerivedEvidence')
     && checklistHandlerText.includes('acceptance_matrix_non_evidentiary_projection'),
   'acceptance_matrix L0 projection must derive bounded provenance, reject evidence writes, and remain ignored by general/ProofStory/milestone consumers');
+  const basisText = read('packages/main/src/core/acceptance-coverage-basis.ts');
+  const adaptersText = read('packages/main/src/core/acceptance-discovery-adapters.ts');
+  const receiptText = read('packages/main/src/core/acceptance-basis-receipt.ts');
+  const processRegistryText = read('packages/main/src/core/process-fact-registry.ts');
+  const processLevelText = read(processFactLevelRegistryPath);
+  const acceptanceWriterPolicy = commandPolicyEntries.get('acceptance_basis_generate');
+  const acceptancePromptPaths = [
+    'packages/main/templates/agents/lattice-implementer.md',
+    '.claude/agents/lattice-implementer.md',
+    '.lattice-codex/agents/lattice-implementer.md',
+  ];
+  const acceptanceRequiredSemantics = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-contract'
+    ? requiredProcessFactSemantics.acceptance_basis_generate.filter(item => item !== 'workspace-binding')
+    : requiredProcessFactSemantics.acceptance_basis_generate;
+  assert(
+    handlerText.includes('acceptance_basis_generate')
+      && handlerText.includes('acceptance_basis(args')
+      && catalogText.includes("status: z.never()")
+      && basisText.includes('deriveAcceptanceCoverageBasis')
+      && basisText.includes('verifyAcceptanceCoverageBasis')
+      && basisText.includes('snapshotSeal')
+      && adaptersText.includes('AT_REQUIRED_ADAPTER_RESULT_MISSING')
+      && adaptersText.includes('AT_DISCOVERY_DISAGREEMENT')
+      && receiptText.includes('verifyAcceptanceBasisReceipt')
+      && receiptText.includes('checkEvidenceFreshnessForGit')
+      && receiptText.includes('sealDigest')
+      && processRegistryText.includes('structured snapshotSeal/sealDigest integrity fact')
+      && /name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,400}semantics:\s*\[[^\]]*'workspace-binding'[^\]]*\][\s\S]{0,100}level:\s*'L3'/.test(processRegistryText)
+      && !/name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,400}semantics:\s*\[[^\]]*'gate-evidence'/.test(processRegistryText)
+      && acceptanceWriterPolicy?.status === 'supported'
+      && acceptanceWriterPolicy.gateEvidence !== true
+      && /name:\s*'acceptance_basis_generate',\s*level:\s*'L3'[\s\S]{0,500}Wave 1A has no lifecycle gate consumer/.test(processLevelText)
+      && acceptancePromptPaths.every(path => read(path).includes('lattice acceptance_basis_generate'))
+      && acceptanceRequiredSemantics.includes('workspace-binding'),
+    'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, structured seal binding, signed receipt verification, and canonical freshness consumption',
+  );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');
   assert(catalogText.includes('parentLedgerId') && catalogText.includes('assignedStory'), 'CLI schema: milestone ledger rows must expose optional parent/assigned-story fields');
@@ -3096,7 +3144,7 @@ function parseProcessFactRegistry() {
   assertProcessFactMappedSourceContracts(sourceText);
 
   if (builtProcessFactRegistryModule?.PROCESS_FACT_REGISTRY) {
-    const entries = builtProcessFactRegistryModule.PROCESS_FACT_REGISTRY.map(entry => ({
+    let entries = builtProcessFactRegistryModule.PROCESS_FACT_REGISTRY.map(entry => ({
       name: entry.name,
       kind: entry.kind,
       semantics: Array.isArray(entry.semantics) ? [...entry.semantics] : [],
@@ -3115,6 +3163,12 @@ function parseProcessFactRegistry() {
       reviewerLane: entry.reviewerLane || '',
       rationale: entry.rationale || '',
     }));
+    // Mutation seam used by the focused production-contract smoke: remove one
+    // side of registration and require the ordinary cross-registry assertions
+    // below to fail. It never changes normal verification behavior.
+    if (process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
+      entries = entries.filter(entry => entry.name !== 'acceptance_basis_generate');
+    }
     assert(entries.length > 0, `${processFactRegistryPath}: compiled PROCESS_FACT_REGISTRY should not be empty`);
     cachedProcessFactRegistryEntries = entries;
     return entries;
@@ -3185,6 +3239,9 @@ function parseProcessFactRegistry() {
     ...flowPolicyEntries,
     ...closeoutTelemetryEntries,
   ];
+  if (process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
+    cachedProcessFactRegistryEntries = cachedProcessFactRegistryEntries.filter(entry => entry.name !== 'acceptance_basis_generate');
+  }
   return cachedProcessFactRegistryEntries;
 }
 

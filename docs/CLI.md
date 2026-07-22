@@ -384,6 +384,49 @@ tokens, exact output lines, or JSON `evidentiary: false` on legacy
 bypass it, while logic/integration test notes may discuss those labels and
 unrelated `Result: warning ...` prose is not classified as matrix output.
 
+### Acceptance coverage basis (Wave 1A)
+
+`lattice acceptance_basis_generate --storyId=<id> [--json]` is the sole writer
+for `acceptance-basis.json`. It runs the registered PLAN discovery profile,
+derives the path union and `complete | partial | unsupported` classification,
+derives planned paths from frozen `verificationIntent` declarations, and signs
+a receipt bound to the topology, scope artifacts, workspace identity,
+`storyFilesHash`, discovered `closureFilesHash`, and the basis's structured
+`snapshotSeal.sealDigest`. `snapshotSeal` records:
+
+- `inventoryDirectoryDigest` / `inventoryDirectoryCount` for the canonical,
+  bounded source-directory inventory;
+- `sourceSnapshotDigest` / `sourceSnapshotCount` for safely read source files;
+- `configSnapshotDigest` for the single bounded, no-follow
+  `lattice.config.json` snapshot used to choose the source root;
+- `status` (`complete | partial`), closed machine-coded `issues`, and the
+  canonical `sealDigest` over those fields.
+
+The signed receipt repeats `sealDigest`, so the receipt signature binds both
+the complete basis (`basisDigest`) and its snapshot integrity result. The
+command accepts no caller-written status, path inventory, exclusions, seal,
+issuer, signature, or hash bindings. Missing/duplicate adapter results, digest
+tampering, unresolved blind spots, unsupported discovery, unexplained
+disagreement, an unsealable inventory, or any directory/file/config identity
+or content change before the final seal cannot produce a complete basis. Such
+conditions fail closed as deterministic `partial` output with structured seal
+issues; arbitrary free-text blind spots are not accepted as seal evidence.
+
+`lattice acceptance_basis --storyId=<id> [--json]` is read-only. It recomputes
+the current canonical discovery and physical snapshot seal, then verifies the
+stored structured seal, `sealDigest`, `basisDigest`, signed receipt binding,
+and expected current seal/semantic digest. A source/config change or a newly
+added consumer after receipt issuance therefore makes the read invalid rather
+than reusing the old complete claim. A legacy Story without the artifact
+reports `legacy_missing`; an authentic partial basis remains explicitly
+`partial`, while stale or tampered artifacts report deterministic `AT_*`
+diagnostics.
+
+Wave 1A remains an L3 diagnostic signed artifact with no lifecycle-gate
+consumer. These commands are non-Authority and non-evidentiary: they do not
+advance lifecycle state, grant a verdict, or claim completion of Wave 2
+pre-review enforcement.
+
 ### Milestone Status
 
 `lattice milestone_status` is a read-only progress reporter over existing

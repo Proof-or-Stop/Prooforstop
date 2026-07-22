@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-a32a",
+  "records": [
+    {
+      "id": "RED-W1A-MISSING-COMMAND",
+      "trigger": "Wave 1A behavior is absent before implementation: the production CLI has no acceptance_basis command.",
+      "acceptanceTargetRef": "M5",
+      "baselineHeadHash": "0554262336f964d143132479e58776f434b3145c",
+      "baselineMaterialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+      "observedFailure": "`node bin/lattice.js acceptance_basis --storyId=B-a32a --json` exits 1 with `Unknown command: acceptance_basis` on the pre-fix HEAD.",
+      "failingCommand": "node bin/lattice.js acceptance_basis --storyId=B-a32a --json",
+      "expectedGreenCommand": "node bin/lattice.js acceptance_basis --storyId=B-a32a --json",
+      "greenRelation": {
+        "targetRef": "M5",
+        "relation": "regression_to_green",
+        "command": "node bin/lattice.js acceptance_basis --storyId=B-a32a --json"
+      },
+      "note": "Observed live in the Wave 1A worktree before any business implementation; expected green will use the real production registry and read-only renderer.",
+      "createdAt": "2026-07-22T06:38:09.943Z"
+    }
+  ],
+  "createdAt": "2026-07-22T06:38:09.943Z",
+  "updatedAt": "2026-07-22T06:38:09.943Z"
+}

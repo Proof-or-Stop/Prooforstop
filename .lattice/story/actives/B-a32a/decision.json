@@ -1,0 +1,93 @@
+{
+  "principles": [
+    "Completeness is mechanically derived, never self-reported.",
+    "One canonical owner per fact and no parallel writable acceptance truth.",
+    "Unsupported knowledge and disagreement fail closed.",
+    "Every consumed claim is issuer-, digest-, workspace- and freshness-bound.",
+    "Wave boundaries remain enforceable."
+  ],
+  "drivers": [
+    "Wave 2 and Wave 3 need replayable basis identities without recomputing against a different workspace.",
+    "Reviewers need deterministic diagnostics and omission/tamper bites.",
+    "Proofbound already has signed process-fact and canonical freshness infrastructure.",
+    "Discovery support must be explicit per language/profile."
+  ],
+  "options": [
+    {
+      "name": "A: Verifier-issued durable signed receipt with recomputable adapter inputs",
+      "pros": [
+        "Replayable exact basis identity for later gates",
+        "Clear legal writer and signature verification",
+        "Can bind adapter-result digests and current workspace/scope hashes"
+      ],
+      "cons": [
+        "Adds one generated lifecycle artifact",
+        "Requires careful stale classification and atomic writes"
+      ]
+    },
+    {
+      "name": "B: Recomputable basis section inside proofstory.json",
+      "pros": [
+        "Fewer artifact paths",
+        "Atomic with topology envelope"
+      ],
+      "cons": [
+        "Mixes caller-authored topology envelope with verifier-owned inventory",
+        "Harder to prove writer separation and replay the exact prior PLAN basis"
+      ]
+    },
+    {
+      "name": "C: Pure read-time report with no signed receipt",
+      "pros": [
+        "Smallest implementation",
+        "No persistence lifecycle"
+      ],
+      "cons": [
+        "Cannot safely bind later Wave 2/3 consumers",
+        "No stable replay or omission-proof receipt",
+        "Fails approved Wave 1A exit criteria"
+      ]
+    }
+  ],
+  "chosen": "A: Verifier-issued durable signed receipt with recomputable adapter inputs",
+  "rationale": "Choose A because later structural and pre-review gates require a stable, independently issued basis identity. The receipt is generated only by the registered verifier, while the underlying adapter results remain reproducible and digest-bound. This preserves ProofStory topology as reference-only and prevents a second caller-writable truth source.",
+  "preMortem": [
+    {
+      "scenario": "Caller injects an inventory and forces complete",
+      "trigger": "CLI or normalization accepts paths/status fields from request payload",
+      "consequence": "False completeness can satisfy later gates",
+      "mitigation": "Command schema accepts only story/profile selection; handler recomputes every path and status, with mutation tests rejecting write-shaped payloads."
+    },
+    {
+      "scenario": "A required adapter silently disappears",
+      "trigger": "Registry/config changes but receipt generation does not require the adapter set",
+      "consequence": "Coverage shrinks while status remains complete",
+      "mitigation": "Versioned adapter policy declares required IDs; receipt binds policy and result digests; omission mutation must yield partial."
+    },
+    {
+      "scenario": "Static and runtime discoveries disagree",
+      "trigger": "One adapter observes a handler/consumer absent from another",
+      "consequence": "A path is silently lost or duplicated",
+      "mitigation": "Union all paths, emit deterministic disagreement diagnostics, and classify partial until explicitly reconciled."
+    },
+    {
+      "scenario": "Old receipt is rebound to a new hash",
+      "trigger": "Metadata-only writer changes head/workspace fields without rerunning adapters",
+      "consequence": "Stale inventory appears current",
+      "mitigation": "Sign semantic fields plus adapter outputs and canonical scope/story/closure hashes; legal writer always executes verifier and rejects hash-only rebind."
+    },
+    {
+      "scenario": "Topology or reviewer prose authors completeness",
+      "trigger": "Basis verifier trusts acceptanceTopology refs or evidence notes as discovered paths",
+      "consequence": "Circular proof and self-absolution",
+      "mitigation": "Topology is only compared after independent discovery; prose is never parsed as protocol; tests delete topology rows while basis remains and vice versa."
+    },
+    {
+      "scenario": "Unsupported language is treated as empty complete",
+      "trigger": "No matching adapter returns an empty result without unsupported classification",
+      "consequence": "Unknown codebase receives false PASS",
+      "mitigation": "Profiles without a sufficient registered adapter set return unsupported, never complete."
+    }
+  ],
+  "timestamp": "2026-07-22T06:20:27.932Z"
+}

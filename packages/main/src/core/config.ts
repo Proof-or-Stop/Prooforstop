@@ -279,7 +279,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
     'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase
-    'original_intent_snapshot_get', 'milestone_ledger_get', 'slice_plan_get', 'parent_ledger_rollup_get', 'proofstory_contract_get', 'acceptance_matrix',
+    'original_intent_snapshot_get', 'milestone_ledger_get', 'slice_plan_get', 'parent_ledger_rollup_get', 'proofstory_contract_get', 'acceptance_matrix', 'acceptance_basis',
     'intent_collision_get', 'scope_shrinkage_decision_get', 'red_evidence_get', 'spike_get',
     'intent_coverage_check', 'proofstory_gate_check', 'done_intent_equivalence_check', 'proofstory_review_completeness_check', // ProofStory read-only diagnostics; enforce mode exits nonzero but writes no evidence
     'parent_roadmap_status', 'parent_roadmap_evaluate', // Parent-roadmap totality diagnostics; read-only and no server-backed completion semantics
@@ -378,6 +378,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'milestone_ledger_set', 'milestone_ledger_add',
     'slice_plan_set', 'parent_ledger_rollup_set',
     'proofstory_contract_set',
+    'acceptance_basis_generate',
     'intent_collision_set',
     'scope_shrinkage_decision_set',
     'red_evidence_create',
@@ -402,6 +403,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_shrinkage_decision_set',
     'parent_ledger_rollup_set',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
+    'acceptance_basis_generate', // Wave 1A registered verifier writer; DEV is allowed for implementation-time regeneration, without lifecycle consumption
   ],
   REVIEW: [
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes

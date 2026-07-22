@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-a32a",
+  "id": "IC-20260722063656",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-a32a strictly implements Wave 1A only: a registered verifier independently derives complete/partial/unsupported coverage basis data; acceptance_basis_generate is the sole verifier-owned signed-receipt writer and acceptance_basis is read-only non-authoritative diagnostics. Wave 1A validates foundational auditable exclusion decisionRefs only; topology-critic identity, role eligibility and exclusion-approval authority remain Wave 2A. PLAN/REVIEW gates, executable evidence enforcement, selective applicability and rollout remain Waves 2 through 4.",
+  "acceptedInterpretationHash": "sha256:0162c7d27eabad32c05d2384b32992bb6b66da9b9717b45c45f4d163a9e54ee9",
+  "notes": "Independent re-audit of candidate ledger sha256:f614d40b714985ef565521fb11005d4dcd34006738635fda37f2fbf476290a76 confirmed all 25 canonical VI-A32A intent IDs exist exactly once in the checklist and exactly once in the ledger, with five uniquely owned intents for each M1-M5/CHK-001-CHK-005 pair. The update only normalizes positional refs to canonical intent IDs; requirement coverage, claims, doneMeans, evidence obligations and Wave boundaries are unchanged.",
+  "ledgerHashBeforeDecision": "sha256:f614d40b714985ef565521fb11005d4dcd34006738635fda37f2fbf476290a76",
+  "confirmedLedgerHash": "sha256:f614d40b714985ef565521fb11005d4dcd34006738635fda37f2fbf476290a76",
+  "createdAt": "2026-07-22T06:36:56.937Z",
+  "updatedAt": "2026-07-22T06:40:26.972Z"
+}

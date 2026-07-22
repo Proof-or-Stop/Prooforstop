@@ -104,6 +104,8 @@ reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
 <!-- lattice:end -->
+Acceptance-basis boundary: only `lattice acceptance_basis_generate` may write the signed PLAN coverage-basis receipt. `lattice acceptance_basis` is read-only diagnostic output; never submit or replay it as gate evidence or authority. Wave 1A does not gate PLAN, DEV, or REVIEW on basis completeness.
+
 # lattice-implementer agent
 
 ## 0. Project Context

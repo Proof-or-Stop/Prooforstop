@@ -1,0 +1,75 @@
+{
+  "storyId": "B-a32a",
+  "checkedAt": "2026-07-22T15:33:36.471Z",
+  "headHash": "f46f3475100e7756b2270682330079ca86b2966c",
+  "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+  "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+  "reviewRound": "2026-07-22T14:42:15.395Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist:CHK-001:userSees",
+      "promise": "acceptance_basis reports only verifier-derived complete, partial, or unsupported and rejects caller-forced complete",
+      "status": "verified",
+      "verifiedBy": "current 46-command validation, fresh 3x2 review, command schema and handler review",
+      "evidence": "Current binding 96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f has validation PASS, 25/25 coverage, and independent full-3x2 assurance; caller write-shaped fields remain schema/runtime rejected"
+    },
+    {
+      "docPath": "checklist:CHK-002:userSees",
+      "promise": "basis diagnostics enumerate registered adapters and fail closed for omission or disagreement",
+      "status": "verified",
+      "verifiedBy": "current validation and mutation-evidence review",
+      "evidence": "Registered-union, typed-asymmetry, omission, duplicate, disagreement, aggregate and result-tamper must intents remain covered on the current binding"
+    },
+    {
+      "docPath": "checklist:CHK-003:userSees",
+      "promise": "acceptance_basis_generate is the sole signed writer bound to workspace, scope, topology, Story, closure and structured seal; acceptance_basis is read-only",
+      "status": "verified",
+      "verifiedBy": "current receipt, handler, process-fact and transcript review",
+      "evidence": "Current full-3x2 review and 46-command validation cover generation, verification, freshness, atomicity, issuer-forgery and hash-rebind controls"
+    },
+    {
+      "docPath": "checklist:CHK-004:userSees",
+      "promise": "frozen planned paths reconcile with the independently derived basis; invented topology paths and unjustified exclusions fail deterministically",
+      "status": "verified",
+      "verifiedBy": "current topology/mutation evidence review",
+      "evidence": "All five CHK-004 must intents remain current and covered, including invention, drift, bidirectional omission and exclusion controls"
+    },
+    {
+      "docPath": "docs/CLI.md#acceptance-coverage-basis-wave-1a",
+      "promise": "Wave 1A documentation matches structured seal, signed binding, physical rederivation and non-authority behavior",
+      "status": "verified",
+      "verifiedBy": "backward docs-to-current-code review plus acknowledged baseline expansion review",
+      "evidence": "The only post-signature scope expansion synchronizes the approved lattice-implementer prompt hash into verifier manifests and generated baselines; scope-contract acknowledgement records all four paths and current validation/full-3x2 bind the resulting storyFilesHash"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh lattice validate at storyFilesHash 96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f recorded PASS: 46 commands complete, zero required/optional failures, and 25/25 required intents covered."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Current validation and full-3x2 assurance cover registered adapter union, typed asymmetry, omission, duplicate, disagreement and aggregate/result tamper controls."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Current validation and full-3x2 assurance cover receipt generation/verification, freshness, legacy atomicity, issuer-forgery and hash-rebind controls."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Current validation and full-3x2 assurance cover planned-path derivation, new endpoints, exclusion, topology drift and bidirectional omission controls."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Fresh production CLI transcript: node bin/lattice.js acceptance_basis --storyId=B-a32a exited 0 and truthfully returned unsupported, AT_COVERAGE_BASIS_MISSING, mode read-only, evidentiary false; authorityDone and productionDone claims are false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS on current binding: all five delivery promises remain implemented, documented and covered; fresh validation is 46/46 with 25/25 required intents; full 3x2 is current; the scope expansion is explicitly acknowledged and limited to generated prompt-baseline synchronization; the live transcript is truthful; no open finding or bug remains. DONE-required validation remains a separate stale/failed gate that must be rerun and is not waived by this delivery signature."
+  },
+  "_hash": "d29c98ec979be1e5168088ff711c91c4ba5661c7b16dd38da4d69e773f3dd7cf"
+}
