@@ -836,15 +836,15 @@ The implementation Story must confirm exact file ownership before freezing its
 scope; this table does not grant broad modification rights.
 
 Before naming new topology fields, Wave 1 must inspect the dormant,
-non-gate-consumed `VerificationTargetContract` /
-`TargetBoundEvidenceInput` vocabulary in
-`authority-contracts.ts`, including `producerRunId`, `verifierRunId`,
-`coveredRefs`, `uncoveredRefs`, `failedRefs`, `negativeControls`, and
-`transcriptHash`. Those shapes are not active gate truth and must not be revived
-or treated as canonical merely because names overlap. The review is a vocabulary
-and migration-collision check: reuse a name only when semantics and ownership are
-identical; otherwise record the distinction explicitly and avoid a second
-concept with a misleading synonym.
+non-gate-consumed `VerificationTargetContract`, `TargetBoundEvidenceInput`, and
+`EvidenceEnvelopeContract` vocabulary in `authority-contracts.ts`.
+`VerificationTargetContract` owns target requirements; the latter two carry
+run/ref/transcript bindings, while `negativeControls` belongs specifically to
+`EvidenceEnvelopeContract`. Those shapes are not active gate truth and must not
+be revived or treated as canonical merely because names overlap. The review is
+a vocabulary and migration-collision check: reuse a name only when semantics
+and ownership are identical; otherwise record the distinction explicitly and
+avoid a second concept with a misleading synonym.
 
 ## 15. Bounded implementation waves
 
