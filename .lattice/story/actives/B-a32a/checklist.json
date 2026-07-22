@@ -126,14 +126,14 @@
         },
         {
           "intentRef": "VI-A32A-001-CALLER-FORGERY",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Real CLI schema and handler chain reject caller status, inventory, issuer, signature, exclusions, and hash bindings atomically.",
-          "headHash": "bff1a4c2772a553204bae4fb0ee0491dede50982",
+          "note": "Real CLI transcript rejects caller status, inventory, issuer, signature, exclusions, and hash bindings atomically.",
+          "headHash": "72fabbb5a125f7e2c5ad19e9f4e57b09f35be4db",
           "materialHash": "5a10bb6cdcd077234d982d50d83c2ece74b61a774b00c062a1ad84d451738548",
           "storyFilesHash": "7ef5efe3eb205fea99f57f8ecf6182ffe7439738dce4cb9167592b50dd342bf7",
-          "timestamp": "2026-07-22T06:56:04.826Z"
+          "timestamp": "2026-07-22T06:56:19.663Z"
         },
         {
           "intentRef": "VI-A32A-001-OPTIMISM-MUTATION",
