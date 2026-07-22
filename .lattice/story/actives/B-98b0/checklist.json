@@ -189,6 +189,18 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "PLAN→DEV proceeds only when the canonical structural report passes in enforce mode; observe/warn display the same diagnostics without blocking.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ]
       }
     },
     {
