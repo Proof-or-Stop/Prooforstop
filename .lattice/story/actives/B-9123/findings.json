@@ -1,0 +1,19 @@
+{
+  "findings": [
+    {
+      "id": "B-9123:F-001",
+      "desc": "packages/main/src/core/topology-critic-receipt.ts:117-143 — four-dimensional independence is not mechanically established in production: deriveRoleProvenance hard-codes reviewer businessIdentity to the role string, then independenceMatrix compares that synthetic constant with the implementation commit author. The production path therefore cannot observe or fail closed when the critic/scope approver is the same business author; the smoke only injects a synthetic low-level collision that deriveRoleProvenance can never emit. This violates CHK-001/VI-CRITIC-FOUR-DIMENSION-MATRIX and the Wave 2A stop condition against inferred/self-reported independence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T18:34:32.233Z",
+      "reviewRound": "2026-07-22T18:32:54.616Z",
+      "reviewRunId": "B-9123:RR-001",
+      "_hash": "f4723808a9758e3c6966f11f1b79ac0ad07a9ea4058dd95ed706ae7e4ab24fa3",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
