@@ -10,8 +10,8 @@
         "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
         "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-22T01:29:12.994Z",
       "endTime": null,
       "userSees": "The current-state table shows milestone ledger, acceptanceBindings, verificationIntent, evidence, and REVIEW completeness as distinct existing owners, and explicitly says no standalone acceptance-matrix truth source will be created.",
       "files": {
@@ -177,6 +177,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-22T01:29:12.994Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin evidence-backed closeout of the audited execution plan."
     }
   ]
 }
