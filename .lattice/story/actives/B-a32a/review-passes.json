@@ -151,6 +151,39 @@
       },
       "readDiagnostics": [],
       "_hash": "cda64dd070069e1b9130fd6dc0a726864a488c0b0be6dc1a94b4d74474d425d3"
+    },
+    {
+      "id": "B-a32a:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 25/25 must intents have current admissible evidence, 0 semantic gaps, 0 waivers. Independently ran current-HEAD build, Wave 1A focused production-chain/mutation smoke, Wave 1 topology smoke, and process-fact contract; all passed. Verified F-015..F-017 controls including invalid claim/provenance/blind-spot/asymmetry and discoveryMethods narrowing, complete caller-forgery/freshness cases, real unsupported/shuffled/replay rejection, four prompt-handler-registry-contract bites with restored controls, and acceptance_basis_generate/artifact remain L3 signed diagnostics with no gate-evidence semantic or lifecycle consumer.",
+      "createdAt": "2026-07-22T08:25:20.647Z",
+      "reviewRound": "2026-07-22T08:20:21.801Z",
+      "reviewRunId": "B-a32a:RR-011",
+      "envelopeId": "97e7e5cd8e92258859ca286cda5e8eaf3e7e42addf62d36df5c640ddb6cda75a",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "81df6d158e59ca75c1b1a0b855f144891d6b05891a8e1b59a919f16e0e1d2fad"
     }
   ]
 }
