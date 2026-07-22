@@ -69,14 +69,14 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-1995-001-ROUNDTRIP",
-          "kind": "integration_test",
-          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Real checklist handler round-trips stable declaration and endpoint IDs through the registered PLAN verification-intent path.",
-          "headHash": "3c0c55c5c4832495bcfc641d3b65247e66e781c8",
+          "note": "Focused smoke directly asserts pure planned-path normalization preserves stable declaration and endpoint IDs; handler integration remains covered by VI-1995-001-WRITER-FREEZE.",
+          "headHash": "11b6c35e61bdff2d160b1742444b0bc8cc178504",
           "materialHash": "8a77d188a9d92bb699de646921a66ce4ee607b7df814f449f0c2d38542166719",
           "storyFilesHash": "48322d44ba1187db0de847cb51deef3e31d8517140ec67abd659bf0169fe35fc",
-          "timestamp": "2026-07-22T03:39:46.689Z"
+          "timestamp": "2026-07-22T03:40:07.329Z"
         },
         {
           "intentRef": "VI-1995-001-ROUNDTRIP",
@@ -358,14 +358,14 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-1995-003-MATRIX-USER-DEMO",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Focused smoke invokes the real acceptance_matrix JSON CLI and verifies canonical observe-only rows without using its L0 output as evidence.",
-          "headHash": "92d375b70a73677369bdf28b32e802485742acf0",
+          "note": "Focused smoke captures and asserts the real acceptance_matrix JSON CLI transcript while its L0 output is deliberately not submitted as evidence.",
+          "headHash": "11b6c35e61bdff2d160b1742444b0bc8cc178504",
           "materialHash": "8a77d188a9d92bb699de646921a66ce4ee607b7df814f449f0c2d38542166719",
           "storyFilesHash": "48322d44ba1187db0de847cb51deef3e31d8517140ec67abd659bf0169fe35fc",
-          "timestamp": "2026-07-22T03:39:37.370Z"
+          "timestamp": "2026-07-22T03:40:07.329Z"
         },
         {
           "intentRef": "VI-1995-003-LEGACY-AND-CONFLICT",
