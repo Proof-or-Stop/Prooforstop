@@ -340,7 +340,7 @@
         "happy": [
           {
             "id": "VI-WAVE2A-PRODUCTION-CHAIN",
-            "desc": "In an isolated real temp repository, drive the production CLI basis/topology inputs, independent scope-plan approval where needed, critic receipt producer, read-only verifier, and applicable lifecycle consumer from a clean valid state; assert the complete Wave 2A chain passes and emits auditable structured facts.",
+            "desc": "In an isolated real temp repository, drive the production CLI basis/topology inputs, independent scope-plan approval where needed, critic receipt producer, and read-only verifier from a clean valid state; assert the real Wave 2A set/check chain passes and emits auditable structured facts, then run a real PLAN→DEV control with the receipt absent or failing and assert lifecycle admission remains governed only by the Wave 2 acceptance_topology_check structural gate, with no Wave 3 consumer.",
             "type": "cli",
             "priority": "must"
           }
@@ -362,7 +362,7 @@
         "adversarial": [
           {
             "id": "VI-PROCESS-FACT-MUTATIONS",
-            "desc": "Mutation-test the Wave 2A process-fact contract at all required layers: remove or weaken the critic/exclusion rule independently in reviewer prompt/registry guidance, CLI schema/producer-handler verification, and lifecycle/gate consumer; the contract or focused production-path test must fail for every mutation.",
+            "desc": "Mutation-test the Wave 2A process-fact contract at all required layers: remove or weaken the critic/exclusion rule independently in reviewer prompt/registry guidance and the production CLI schema/producer-handler/read-only verifier, then add a false Wave 2A lifecycle/gate consumer or otherwise weaken the explicit no-lifecycle-consumer boundary; the contract or focused production-path test must fail for every mutation, while the unmutated control proves receipt absence/failure does not block PLAN→DEV.",
             "type": "cli",
             "priority": "must"
           },
