@@ -66,16 +66,16 @@
         },
         {
           "intentRef": "VI-CRITIC-FOUR-DIMENSION-MATRIX",
-          "kind": "manual_transcript",
+          "kind": "logic_test",
           "verdict": "success",
           "file": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "command": "node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
           "result": "pass",
-          "note": "Owner rerun passed the isolated production-path topology critic smoke covering signed producer/read-only verifier, exact authority/freshness/tamper/exclusion mutations, clean restoration, and Wave 3/3A/4 non-leakage.",
-          "headHash": "78a483a4d6b706df0d8ea123ed17b3ad890ff198",
+          "note": "Owner rerun passed the table-driven four-dimensional independence matrix; each agent/session/dispatch/business-author collision failed and the fully independent control passed.",
+          "headHash": "635b74b28e3de6133efd0b15264740f954c350b3",
           "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334",
           "storyFilesHash": "9ff53dc9c5383537cad3f862b546f1d6b123d8953a226d3e3532750cf855dce1",
-          "timestamp": "2026-07-22T18:32:00.413Z"
+          "timestamp": "2026-07-22T18:32:23.032Z"
         },
         {
           "intentRef": "VI-CRITIC-MISSING-PROVENANCE",
