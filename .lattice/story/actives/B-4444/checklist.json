@@ -149,8 +149,8 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/requirements/decisions/story-files-hash-material-drift.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-22T01:29:19.907Z",
       "endTime": null,
       "userSees": "The document contains a field-level acceptance topology schema and deterministic PLAN-to-DEV acceptance_topology_check plus DEV-to-REVIEW pre_review_check algorithms, including authority, freshness, mutation polarity, transcript, and failure-code rules.",
       "files": {
@@ -277,6 +277,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Current committed plan passed targeted documentation checks plus independent Claude CLI and Agy CLI audits."
+    },
+    {
+      "timestamp": "2026-07-22T01:29:19.907Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin evidence-backed closeout of the audited execution plan."
     }
   ]
 }
