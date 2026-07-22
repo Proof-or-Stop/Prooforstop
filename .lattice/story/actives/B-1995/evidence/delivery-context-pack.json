@@ -1,0 +1,104 @@
+{
+  "storyId": "B-1995",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-1995/checklist.json",
+      ".lattice/story/actives/B-1995/closeout-write-receipts.jsonl",
+      ".lattice/story/actives/B-1995/decision.json",
+      ".lattice/story/actives/B-1995/evidence/live-smoke-transcript.json",
+      ".lattice/story/actives/B-1995/findings.json",
+      ".lattice/story/actives/B-1995/index.json",
+      ".lattice/story/actives/B-1995/intent-collision.json",
+      ".lattice/story/actives/B-1995/milestone-ledger.json",
+      ".lattice/story/actives/B-1995/original-intent-snapshot.json",
+      ".lattice/story/actives/B-1995/plan.md",
+      ".lattice/story/actives/B-1995/process-events.jsonl",
+      ".lattice/story/actives/B-1995/process-metrics.json",
+      ".lattice/story/actives/B-1995/prompt-envelopes.json",
+      ".lattice/story/actives/B-1995/proofstory.json",
+      ".lattice/story/actives/B-1995/review-passes.json",
+      ".lattice/story/actives/B-1995/review-runs.json",
+      ".lattice/story/actives/B-1995/review.json",
+      ".lattice/story/actives/B-1995/scope-check.json",
+      ".lattice/story/actives/B-1995/scope-contract.json",
+      ".lattice/story/actives/B-1995/test-evidence.json",
+      ".lattice/story/actives/B-1995/understanding.json",
+      "docs/CLI.md",
+      "package-lock.json",
+      "package.json",
+      "packages/main/package-lock.json",
+      "packages/main/package.json",
+      "packages/main/src/cli/activity-policy.ts",
+      "packages/main/src/cli/command-catalog.ts",
+      "packages/main/src/cli/command-schemas.ts",
+      "packages/main/src/core/acceptance-topology.ts",
+      "packages/main/src/core/command-policy.ts",
+      "packages/main/src/core/config.ts",
+      "packages/main/src/core/lattice-brand.ts",
+      "packages/main/src/core/milestone-status.ts",
+      "packages/main/src/core/process-fact-levels.ts",
+      "packages/main/src/core/proofstory.ts",
+      "packages/main/src/core/types.ts",
+      "packages/main/src/core/verification.ts",
+      "packages/main/src/handlers/checklist.ts",
+      "packages/main/src/handlers/proofstory.ts",
+      "packages/main/src/handlers/story-create.ts",
+      "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "summary": " .lattice/story/actives/B-1995/checklist.json       |  638 +++++++++-\n .../actives/B-1995/closeout-write-receipts.jsonl   |    4 +\n .lattice/story/actives/B-1995/decision.json        |   83 ++\n .../B-1995/evidence/live-smoke-transcript.json     |   21 +\n .lattice/story/actives/B-1995/findings.json        |  279 +++++\n .lattice/story/actives/B-1995/index.json           |   95 +-\n .../story/actives/B-1995/intent-collision.json     |   14 +\n .../story/actives/B-1995/milestone-ledger.json     |   87 ++\n .../actives/B-1995/original-intent-snapshot.json   |   16 +\n .lattice/story/actives/B-1995/plan.md              |   50 +\n .lattice/story/actives/B-1995/process-events.jsonl |   69 ++\n .lattice/story/actives/B-1995/process-metrics.json |  360 ++++++\n .../story/actives/B-1995/prompt-envelopes.json     |  639 ++++++++++\n .lattice/story/actives/B-1995/proofstory.json      |  107 ++\n .lattice/story/actives/B-1995/review-passes.json   |  182 +++\n .lattice/story/actives/B-1995/review-runs.json     | 1210 +++++++++++++++++++\n .lattice/story/actives/B-1995/review.json          |   57 +\n .lattice/story/actives/B-1995/scope-check.json     |  133 +++\n .lattice/story/actives/B-1995/scope-contract.json  |   74 ++\n .lattice/story/actives/B-1995/test-evidence.json   | 1223 ++++++++++++++++++++\n .lattice/story/actives/B-1995/understanding.json   |   35 +\n docs/CLI.md                                        |   56 +\n package-lock.json                                  |    4 +-\n package.json                                       |    3 +-\n packages/main/package-lock.json                    |    4 +-\n packages/main/package.json                         |    3 +-\n packages/main/src/cli/activity-policy.ts           |    1 +\n packages/main/src/cli/command-catalog.ts           |   13 +\n packages/main/src/cli/command-schemas.ts           |   27 +\n packages/main/src/core/acceptance-topology.ts      |  520 +++++++++\n packages/main/src/core/command-policy.ts           |    1 +\n packages/main/src/core/config.ts                   |    2 +-\n packages/main/src/core/lattice-brand.ts            |    2 +-\n packages/main/src/core/milestone-status.ts         |    2 +\n packages/main/src/core/process-fact-levels.ts      |    1 +\n packages/main/src/core/proofstory.ts               |    8 +\n packages/main/src/core/types.ts                    |   68 ++\n packages/main/src/core/verification.ts             |    4 +-\n packages/main/src/handlers/checklist.ts            |   48 +-\n packages/main/src/handlers/proofstory.ts           |   29 +\n packages/main/src/handlers/story-create.ts         |    6 +\n .../tasks/proofstory-acceptance-topology-smoke.ts  |  753 ++++++++++++\n scripts/verify-process-fact-contract.mjs           |   12 +\n 43 files changed, 6919 insertions(+), 24 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "A verification-intent author can save a valid planned producer→consumer declaration during PLAN; invalid, ordinary-caller, and post-PLAN writes are rejected without changing the saved declaration."
+    },
+    {
+      "source": "userSees",
+      "promise": "The terminal prints `Topology state: legacy_missing` for an old contract, or `Result: inconclusive_basis_unverified` plus stable `AT_*` diagnostics for a configured contract; it never prints `complete` or `ready-for-review`."
+    },
+    {
+      "source": "userSees",
+      "promise": "`lattice acceptance_matrix --storyId=<id>` prints deterministic canonical rows and legacy/warning/inconclusive diagnostics, explicitly marked observe, read-only, and non-evidentiary."
+    },
+    {
+      "source": "userSees",
+      "promise": "The focused test exits 0 and prints `ProofStory acceptance topology Wave 1 smoke passed`; lifecycle phase/guard equality, read-only bytes, and no-Wave-1A assertions are all included in that pass."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [
+      "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
+      "node scripts/verify-process-fact-contract.mjs",
+      "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke"
+    ]
+  },
+  "candidateRouting": null,
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-07-22T05:03:16.719Z",
+    "headHash": "2f131588d0087c4fea0aa811b362ef5028f0b736",
+    "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+    "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327"
+  },
+  "reviewRound": "2026-07-22T04:08:53.232Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}
