@@ -1,0 +1,55 @@
+{
+  "storyId": "B-4ec1",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-basis-receipt.ts",
+    "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/live-smoke-transcript-evidence.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/CLI.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/pre-review-check.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Wave 3 machine-readable scope includes the independently designed topology-critic re-attestation in CHK-004 and excludes later-wave behavior semantically through its verification intent.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-22T22:41:51.162Z",
+  "updatedAt": "2026-07-22T22:41:51.162Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-basis-receipt.ts": "packages/main/src/core/acceptance-basis-receipt.ts",
+    "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/live-smoke-transcript-evidence.ts": "packages/main/src/core/live-smoke-transcript-evidence.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "docs/CLI.md": "docs/CLI.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+  }
+}
