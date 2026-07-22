@@ -2581,7 +2581,7 @@ Behavior:
   { name: 'acceptance_topology_check', description: 'Evaluate the canonical PLAN structural topology under the flat project gate mode', schema: {
     storyId: z.string().min(1).describe('Story ID'),
     json: z.boolean().optional().describe('Output deterministic structured JSON.'),
-    mode: z.never().optional().describe('Forbidden: mode comes only from proofStory.devGateMode.'),
+    mode: z.never().optional().describe('Forbidden: mode comes only from proofStory.acceptanceTopologyGateMode.'),
     status: z.never().optional().describe('Forbidden: status is evaluator-derived.'),
     structuralPass: z.never().optional().describe('Forbidden: structural pass is evaluator-derived.'),
     blocking: z.never().optional().describe('Forbidden: lifecycle blocking is evaluator-derived.'),

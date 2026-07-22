@@ -565,6 +565,9 @@ function read(relPath) {
   if (mutation === 'drop-acceptance-topology-gate' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
     text = text.replace(/evaluateAcceptanceTopologyForContext/g, 'topology_gate_removed');
   }
+  if (mutation === 'invert-acceptance-topology-polarity' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
+    text = text.replace('if (topology.blocking)', 'if (!topology.blocking)');
+  }
   return text;
 }
 
@@ -688,8 +691,11 @@ function assertProofStoryProgressiveBoundary() {
       && topologyText.includes('structuralPass')
       && topologyText.includes('AT_COVERAGE_BASIS_PARTIAL')
       && basisText.includes('AT_UNMAPPED_SCOPE_REF')
+      && configText.includes('acceptanceTopologyGateMode')
+      && configText.includes('resolveAcceptanceTopologyGateMode')
+      && handlerText.includes('resolveAcceptanceTopologyGateMode')
       && transitionOrchestratorText.includes('evaluateAcceptanceTopologyForContext')
-      && transitionOrchestratorText.includes('topology.blocking')
+      && transitionOrchestratorText.includes('if (topology.blocking)')
       && processRegistryText.includes('runtime:acceptance_topology_plan_dev_gate')
       && processLevelText.includes('runtime:acceptance_topology_plan_dev_gate')
       && topologyPolicy?.status === 'gateEvidence'
@@ -697,7 +703,7 @@ function assertProofStoryProgressiveBoundary() {
       && policyBlockHasOwnershipClass(topologyPolicy, 'readOnly')
       && activityPolicyText.includes("'acceptance_topology_check'")
       && acceptancePromptPaths.every(path => read(path).includes('Acceptance-topology boundary:')),
-    'acceptance topology contract must bind CLI schema, canonical evaluator, signed basis verification, flat-mode PLAN gate, process fact, and prompt guidance',
+    'acceptance topology contract must bind CLI schema, canonical evaluator, signed basis verification, independent default-observe rollout mode, PLAN gate, process fact, and prompt guidance',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');

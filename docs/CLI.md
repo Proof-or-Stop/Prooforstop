@@ -437,10 +437,14 @@ only topology. Text and JSON both report `mode`, `status`, `basisStatus`,
 JSON additionally states `readOnly: true`, `evidentiary: false`, and
 `authority: "diagnostic_only"`.
 
-Mode comes only from the flat project `proofStory.devGateMode` setting:
+Mode comes only from the independent flat project
+`proofStory.acceptanceTopologyGateMode` setting. It defaults to `observe` even
+when the older ProofStory `devGateMode` is `enforce`, so shipping Wave 2 does
+not silently enable its project-wide rollout:
 
-- `observe` and `warn` return the same structural result and ordered `AT_*`
-  diagnostics without blocking PLAN→DEV;
+- all three modes return the same `status`, `structuralPass`, and ordered
+  `AT_*` diagnostics;
+- `observe` and `warn` do not block PLAN→DEV;
 - `enforce` blocks PLAN→DEV when that same canonical result is non-pass;
 - rollback from `enforce` to `warn` changes admission only and does not rewrite
   the basis, topology, diagnostics, evidence, or prior history.

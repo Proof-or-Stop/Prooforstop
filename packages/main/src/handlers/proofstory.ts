@@ -44,7 +44,7 @@ import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
-import { loadConfig, resolveProofStoryDevGateMode } from '../core/config.js';
+import { loadConfig, resolveAcceptanceTopologyGateMode } from '../core/config.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -124,15 +124,23 @@ export function evaluateAcceptanceTopologyForContext(ctx: HandlerContext, storyI
   const topologyBasisDiagnostics = artifact
     ? reconcileTopologyWithCoverageBasis(store.readProofStoryContract(storyId), artifact.basis, store.readDecision(storyId))
     : [];
+  const currentBasisDiagnostics = [...current.derivation.diagnostics];
+  if (artifact && artifact.basis.binding.closureFilesHash !== current.derivation.basis.binding.closureFilesHash) {
+    currentBasisDiagnostics.push({
+      code: 'AT_CLOSURE_FILES_STALE',
+      pathRef: 'acceptance-basis.json.basis.binding.closureFilesHash',
+      message: 'registered producer/consumer closure changed after the PLAN basis was issued',
+    });
+  }
   return evaluateAcceptanceTopologyCheck({
     storyId,
-    mode: resolveProofStoryDevGateMode(loadConfig(ctx.root)),
+    mode: resolveAcceptanceTopologyGateMode(loadConfig(ctx.root)),
     checklist: readChecklistForTopology(ctx, storyId),
     contract: store.readProofStoryContract(storyId),
     ledger: readTrustedProofStoryScopeArtifacts(store, storyId).ledger,
     artifact,
     receiptVerification,
-    currentBasisDiagnostics: current.derivation.diagnostics,
+    currentBasisDiagnostics,
     topologyBasisDiagnostics,
   });
 }

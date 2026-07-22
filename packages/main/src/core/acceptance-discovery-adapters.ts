@@ -381,7 +381,8 @@ function configuredSourceInventory(workspaceRoot: string, readContext: SourceRea
   // Only the fields that choose discovery scope belong to the cross-run basis
   // identity. The raw file fingerprint is still retained and revalidated below
   // during this assembly, so a concurrent config mutation remains fail-closed.
-  // Lifecycle rollout fields (for example proofStory.devGateMode) must not
+  // Lifecycle rollout fields (for example proofStory.acceptanceTopologyGateMode)
+  // must not
   // change the structural inventory they merely decide whether to block on.
   readContext.semanticDigests.set('lattice.config.json', `sha256:${digestCanonicalJson({
     scanRoot: configuredScanRoot,

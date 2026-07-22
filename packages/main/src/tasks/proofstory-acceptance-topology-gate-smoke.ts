@@ -7,9 +7,12 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resetConfigCache } from '../core/config.js';
+import { resetConfigCache, resolveAcceptanceTopologyGateMode } from '../core/config.js';
 import { buildAcceptanceMatrixReport } from '../core/acceptance-topology.js';
+import { derivePlannedCoveragePaths, reconcileTopologyWithCoverageBasis } from '../core/acceptance-coverage-basis.js';
 import { StoryStore } from '../core/store.js';
+import { evaluateAcceptanceTopologyForContext } from '../handlers/proofstory.js';
+import type { HandlerContext } from '../handlers/context.js';
 import type {
   AcceptanceVerificationTopologyV1,
   ChecklistData,
@@ -40,15 +43,20 @@ function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
 
-function run(root: string, command: string, args: Record<string, unknown>, allowFailure = false): string {
+function invoke(root: string, command: string, args: Record<string, unknown>): { status: number; output: string } {
   const result = spawnSync(process.execPath, [cliPath, '--root', root, command, JSON.stringify(args)], {
     cwd: root,
     env: { ...process.env, LATTICE_SESSION_ID: 'topology-gate-smoke', LATTICE_AGENT: 'lattice-implementer' },
     encoding: 'utf8',
   });
   const output = `${result.stdout || ''}${result.stderr || ''}`;
-  if (!allowFailure && result.status !== 0) throw new Error(output);
-  return output;
+  return { status: result.status ?? 1, output };
+}
+
+function run(root: string, command: string, args: Record<string, unknown>, allowFailure = false): string {
+  const result = invoke(root, command, args);
+  if (!allowFailure && result.status !== 0) throw new Error(result.output);
+  return result.output;
 }
 
 function config(mode: 'observe' | 'warn' | 'enforce'): string {
@@ -56,7 +64,9 @@ function config(mode: 'observe' | 'warn' | 'enforce'): string {
     storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
     scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist',
     testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures',
-    proofStory: { devGateMode: mode },
+    // The pre-existing ProofStory DEV gate remains enforce here on purpose:
+    // Wave 2 rollout must be controlled only by its independent field.
+    proofStory: { devGateMode: 'enforce', acceptanceTopologyGateMode: mode },
   }, null, 2);
 }
 
@@ -170,6 +180,72 @@ function parseJsonOutput(output: string): any {
   return JSON.parse(output.slice(start, end + 1));
 }
 
+function codes(report: any): string[] {
+  return report.diagnostics.map((item: any) => item.code);
+}
+
+function assertCode(report: any, code: string, message: string): void {
+  assert.ok(codes(report).includes(code), `${message}: expected ${code}, observed ${JSON.stringify(codes(report))}`);
+}
+
+function cloneContractBytes(value: string): ProofStoryContractData {
+  return JSON.parse(value) as ProofStoryContractData;
+}
+
+function exerciseFailingLifecycleMode(mode: 'observe' | 'warn' | 'enforce'): { report: any; coreReport: any; advanceStatus: number; advanceOutput: string; phase: string } {
+  const root = mkdtempSync(join(tmpdir(), `proofstory-topology-${mode}-`));
+  try {
+    git(root, ['init', '-b', 'main']);
+    git(root, ['config', 'user.email', 'topology-smoke@example.test']);
+    git(root, ['config', 'user.name', 'Topology Smoke']);
+    write(root, 'lattice.config.json', config(mode));
+    write(root, 'tsconfig.json', '{}\n');
+    write(root, 'packages/main/src/producer.ts', 'export const produce = () => true;\n');
+    write(root, 'packages/main/src/consumer.ts', 'export const consume = () => true;\n');
+    writeDiscoveryRegistration(root);
+    resetConfigCache();
+    const store = new StoryStore(root);
+    store.writeStory(storyId, {
+      storyId, name: 'structural-plan-smoke', title: 'Structural plan smoke', description: 'focused production chain',
+      type: 'feature', phase: 'PLAN', priority: 'low', createdAt: now, startedAt: now, endedAt: null,
+      events: [], parallelSafe: 'no',
+    });
+    store.writeChecklist(storyId, checklist());
+    const failing = contract();
+    failing.acceptanceBindings[0].verificationTopology!.commandRefs = failing.acceptanceBindings[0].verificationTopology!.commandRefs
+      .filter(ref => !(ref.refKind === 'existing' && ref.canonicalSourceRef === 'process-fact:acceptance_topology_check'));
+    store.writeProofStoryContract(storyId, failing);
+    store.writeScopeContract(storyId, scopeContract());
+    store.writeScopeCheck(storyId, scopeCheck(root));
+    const reviewAt = '2026-07-22T00:00:01.000Z';
+    const reviewHash = createHash('sha256').update(`${storyId}:${reviewAt}:0:0:lattice-review-integrity-v1`).digest('hex');
+    store.writeReview(storyId, { reviews: [{ timestamp: reviewAt, issueCount: 0, blockerCount: 0, issues: [], _hash: reviewHash }] } as any);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', `seed ${mode} failing topology`]);
+    run(root, 'original_intent_snapshot_set', {
+      storyId,
+      sourceText: 'Verify the structural plan path before development.',
+      normalizedOutcome: 'A complete structural plan can enter development.',
+      acceptanceClaim: 'The production transition consumes the same structural evaluator as the read-only check.',
+    });
+    run(root, 'acceptance_basis_generate', { storyId, json: true });
+    const report = parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true }, mode === 'enforce'));
+    const previous = process.cwd();
+    let coreReport;
+    try {
+      process.chdir(root);
+      const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
+      coreReport = evaluateAcceptanceTopologyForContext(ctx, storyId);
+    } finally {
+      process.chdir(previous);
+    }
+    const advance = invoke(root, 'story_advance', { storyId, phase: 'DEV' });
+    return { report, coreReport, advanceStatus: advance.status, advanceOutput: advance.output, phase: store.readStory(storyId).phase };
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertCompatibilityMatrix(type: 'docs' | 'logic'): void {
   const intentId = `INT-${type.toUpperCase()}`;
   const item: ChecklistData = { items: [{
@@ -196,6 +272,30 @@ function assertCompatibilityMatrix(type: 'docs' | 'logic'): void {
 
 assertCompatibilityMatrix('docs');
 assertCompatibilityMatrix('logic');
+assert.equal(resolveAcceptanceTopologyGateMode({ proofStory: { devGateMode: 'enforce' } }), 'observe', 'Wave 2 rollout defaults to observe independently of the pre-existing DEV gate');
+assert.equal(resolveAcceptanceTopologyGateMode({ proofStory: { acceptanceTopologyGateMode: 'warn' } }), 'warn');
+
+const assertInvalidPlannedDeclaration = (label: string, mutate: (value: ChecklistData) => void): void => {
+  const value = checklist();
+  mutate(value);
+  assert.ok(derivePlannedCoveragePaths(value, contract(), scopeContract()).diagnostics
+    .some(item => item.code === 'AT_PLANNED_PATH_INVALID'), `${label} must fail AT_PLANNED_PATH_INVALID`);
+};
+assertInvalidPlannedDeclaration('wrong endpoint role', value => {
+  value.items[0].verificationIntent!.happy[0].plannedPathDeclarations![0].producer.role = 'consumer' as any;
+});
+assertInvalidPlannedDeclaration('missing checklist file declaration', value => {
+  value.items[0].verificationIntent!.happy[0].plannedPathDeclarations![0].producer.fileDeclarationRef = 'CHK-001:files:create:99';
+});
+assertInvalidPlannedDeclaration('planned endpoint outside scope', value => {
+  value.items[0].files = {
+    ...value.items[0].files!,
+    create: [...value.items[0].files!.create, 'packages/main/src/outside.ts'],
+  };
+  const producer = value.items[0].verificationIntent!.happy[0].plannedPathDeclarations![0].producer;
+  producer.fileDeclarationRef = 'CHK-001:files:create:2';
+  producer.expectedFileRef = 'packages/main/src/outside.ts';
+});
 const legacyMatrix = buildAcceptanceMatrixReport({
   storyId: 'B-legacy', checklist: { items: [] }, ledger: null,
   contract: {
@@ -205,6 +305,36 @@ const legacyMatrix = buildAcceptanceMatrixReport({
   },
 });
 assert.equal(legacyMatrix.rows[0]?.topologyState, 'legacy_missing', 'legacy topology remains readable and explicit');
+
+const failingLifecycle = (['observe', 'warn', 'enforce'] as const).map(exerciseFailingLifecycleMode);
+const semanticFailureProjection = (result: typeof failingLifecycle[number]) => ({
+  status: result.report.status,
+  structuralPass: result.report.structuralPass,
+  basisStatus: result.report.basisStatus,
+  topologyState: result.report.topologyState,
+  rows: result.report.rows,
+  diagnostics: result.report.diagnostics,
+  nextAction: result.report.nextAction,
+});
+for (const result of failingLifecycle) {
+  assert.notEqual(result.report.status, 'pass', 'failing structural report cannot pass');
+  assert.equal(result.report.status, failingLifecycle[0].report.status, 'failing structural status is mode-invariant');
+  assert.equal(result.report.structuralPass, false);
+  assertCode(result.report, 'AT_UNMAPPED_SCOPE_REF', 'real failing lifecycle fixture');
+  assert.deepEqual(result.report, result.coreReport, 'core adapter and production CLI expose the exact same canonical report');
+}
+assert.deepEqual(semanticFailureProjection(failingLifecycle[1]), semanticFailureProjection(failingLifecycle[0]), 'warn preserves the exact failing canonical report');
+assert.deepEqual(semanticFailureProjection(failingLifecycle[2]), semanticFailureProjection(failingLifecycle[0]), 'enforce preserves the exact failing canonical report');
+assert.equal(failingLifecycle[0].report.blocking, false);
+assert.equal(failingLifecycle[1].report.blocking, false);
+assert.equal(failingLifecycle[2].report.blocking, true);
+assert.equal(failingLifecycle[0].advanceStatus, 0, failingLifecycle[0].advanceOutput);
+assert.equal(failingLifecycle[1].advanceStatus, 0, failingLifecycle[1].advanceOutput);
+assert.equal(failingLifecycle[0].phase, 'DEV');
+assert.equal(failingLifecycle[1].phase, 'DEV');
+assert.notEqual(failingLifecycle[2].advanceStatus, 0, 'enforce must reject the same failing report');
+assert.match(failingLifecycle[2].advanceOutput, /acceptance topology structural gate blocked PLAN admission/);
+assert.equal(failingLifecycle[2].phase, 'PLAN');
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-topology-gate-'));
 try {
@@ -254,6 +384,61 @@ try {
   const cleanContractBytes = bytes(root, contractPath);
   const cleanArtifactBytes = bytes(root, artifactPath);
 
+  const assertContractMutation = (
+    label: string,
+    mutate: (value: ProofStoryContractData) => void,
+    expectedCodes: string[],
+    mutatedChecklist?: ChecklistData,
+  ): void => {
+    const value = cloneContractBytes(cleanContractBytes);
+    mutate(value);
+    if (mutatedChecklist) store.writeChecklist(storyId, mutatedChecklist);
+    write(root, contractPath, `${JSON.stringify(value, null, 2)}\n`);
+    const report = parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true }));
+    for (const code of expectedCodes) assertCode(report, code, label);
+    if (mutatedChecklist) store.writeChecklist(storyId, checklist());
+    write(root, contractPath, cleanContractBytes);
+    assert.equal(parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true })).structuralPass, true, `${label}: exact restoration returns clean pass`);
+  };
+
+  assertContractMutation('orphan producer', value => {
+    value.acceptanceBindings[0].verificationTopology!.consumerRefs = [];
+  }, ['AT_ORPHAN_PRODUCER']);
+  assertContractMutation('uncovered must intent', value => {
+    value.acceptanceBindings[0].verificationTopology!.positiveAssertionRefs = [];
+  }, ['AT_INTENT_UNCOVERED']);
+  assertContractMutation('missing mutation declaration', value => {
+    value.acceptanceBindings[0].verificationIntentRefs.push('INT-EDGE');
+    value.acceptanceBindings[0].verificationTopology!.mutationCaseRefs = [];
+  }, ['AT_MUTATION_MISSING'], (() => {
+    const value = checklist();
+    value.items[0].verificationIntent!.edge.push({ id: 'INT-EDGE', desc: 'edge outcome', type: 'logic', priority: 'must' });
+    return value;
+  })());
+  assertContractMutation('missing transcript declaration', value => {
+    value.acceptanceBindings[0].verificationIntentRefs.push('INT-EDGE');
+    value.acceptanceBindings[0].verificationTopology!.transcriptAssertionRefs = [];
+  }, ['AT_TRANSCRIPT_MISSING'], (() => {
+    const value = checklist();
+    value.items[0].verificationIntent!.edge.push({ id: 'INT-EDGE', desc: 'edge outcome', type: 'logic', priority: 'must' });
+    return value;
+  })());
+  assertContractMutation('missing command declaration', value => {
+    value.acceptanceBindings[0].verificationIntentRefs.push('INT-EDGE');
+    value.acceptanceBindings[0].verificationTopology!.commandRefs = [];
+  }, ['AT_COMMAND_MISSING'], (() => {
+    const value = checklist();
+    value.items[0].verificationIntent!.edge.push({ id: 'INT-EDGE', desc: 'edge outcome', type: 'logic', priority: 'must' });
+    return value;
+  })());
+  assertContractMutation('planned path semantic restatement', value => {
+    (value.acceptanceBindings[0].verificationTopology!.producerRefs[0].sourceRef as any).role = 'producer';
+  }, ['AT_PLANNED_PATH_DECLARATION_DRIFT']);
+  assertContractMutation('planned path unknown endpoint', value => {
+    const source = value.acceptanceBindings[0].verificationTopology!.consumerRefs[0].sourceRef as any;
+    source.endpointRef = 'EP-UNKNOWN';
+  }, ['AT_PLANNED_PATH_DECLARATION_MISSING']);
+
   // Clean → topology-only omission while the independently derived basis keeps C2 → restore → clean.
   const omitted = JSON.parse(cleanContractBytes) as ProofStoryContractData;
   omitted.acceptanceBindings[0].verificationTopology!.commandRefs = omitted.acceptanceBindings[0].verificationTopology!.commandRefs
@@ -272,15 +457,39 @@ try {
   write(root, contractPath, cleanContractBytes);
   assert.equal(parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true })).structuralPass, true, 'exact invention restoration returns clean pass');
 
-  const tampered = JSON.parse(cleanArtifactBytes);
-  tampered.basis.status = 'partial';
-  tampered.basis.adapterResults.pop();
-  write(root, artifactPath, `${JSON.stringify(tampered, null, 2)}\n`);
-  const tamperedReport = parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true }));
-  assert.ok(tamperedReport.diagnostics.some((item: any) => item.code === 'AT_COVERAGE_BASIS_PARTIAL'));
-  assert.ok(tamperedReport.diagnostics.some((item: any) => item.code === 'AT_ADAPTER_RESULT_DIGEST_MISMATCH'));
+  const assertArtifactMutation = (label: string, mutate: (value: any) => void, expectedCodes: string[]): void => {
+    const value = JSON.parse(cleanArtifactBytes);
+    mutate(value);
+    write(root, artifactPath, `${JSON.stringify(value, null, 2)}\n`);
+    const report = parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true }));
+    assert.equal(report.structuralPass, false, `${label}: tampered basis cannot pass`);
+    for (const code of expectedCodes) assertCode(report, code, label);
+    write(root, artifactPath, cleanArtifactBytes);
+    assert.equal(parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true })).structuralPass, true, `${label}: exact restoration returns clean pass`);
+  };
+
+  rmSync(join(root, artifactPath));
+  assertCode(parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true })), 'AT_COVERAGE_BASIS_MISSING', 'missing basis');
   write(root, artifactPath, cleanArtifactBytes);
-  assert.equal(parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true })).structuralPass, true, 'exact basis restoration returns clean pass');
+  assertArtifactMutation('partial basis', value => { value.basis.status = 'partial'; }, ['AT_COVERAGE_BASIS_PARTIAL']);
+  assertArtifactMutation('unsupported basis', value => { value.basis.status = 'unsupported'; }, ['AT_COVERAGE_BASIS_PARTIAL']);
+  assertArtifactMutation('required adapter omission', value => { value.basis.adapterResults.pop(); }, ['AT_REQUIRED_ADAPTER_RESULT_MISSING', 'AT_ADAPTER_RESULT_DIGEST_MISMATCH']);
+  assertArtifactMutation('aggregate projection tamper', value => { value.basis.enumeratedPathRefs.push('path:invented-aggregate'); }, ['AT_ADAPTER_RESULT_DIGEST_MISMATCH']);
+  assertArtifactMutation('receipt signature tamper', value => { value.receipt.signature = 'AAAA'; }, ['AT_ADAPTER_RESULT_DIGEST_MISMATCH']);
+
+  const excluded = JSON.parse(cleanArtifactBytes);
+  excluded.basis.excludedPathRefs = [{ pathRef: excluded.basis.enumeratedPathRefs[0], decisionRef: 'decision:unapproved' }];
+  assert.ok(reconcileTopologyWithCoverageBasis(contract(), excluded.basis, null)
+    .some(item => item.code === 'AT_UNJUSTIFIED_EXCLUSION'), 'unapproved coverage exclusion must be rejected');
+  write(root, artifactPath, `${JSON.stringify(excluded, null, 2)}\n`);
+  assertCode(parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true })), 'AT_UNJUSTIFIED_EXCLUSION', 'real CLI rejects unapproved exclusion');
+  write(root, artifactPath, cleanArtifactBytes);
+
+  write(root, 'packages/main/src/consumer.ts', 'export const consume = () => false;\n');
+  const closureStale = parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true }));
+  assertCode(closureStale, 'AT_CLOSURE_FILES_STALE', 'closure source drift');
+  write(root, 'packages/main/src/consumer.ts', 'export const consume = () => true;\n');
+  assert.equal(parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true })).structuralPass, true, 'closure source restoration returns clean pass');
 
   for (const mode of ['observe', 'warn', 'enforce'] as const) {
     write(root, 'lattice.config.json', config(mode));
@@ -323,7 +532,7 @@ try {
   assert.equal(bytes(root, 'packages/main/src/producer.ts'), 'export const produce = () => true;\n');
   assert.equal(bytes(root, 'packages/main/src/consumer.ts'), 'export const consume = () => true;\n');
 
-  for (const mutation of ['drop-acceptance-topology-prompt', 'drop-acceptance-topology-handler', 'drop-acceptance-topology-gate']) {
+  for (const mutation of ['drop-acceptance-topology-prompt', 'drop-acceptance-topology-handler', 'drop-acceptance-topology-gate', 'invert-acceptance-topology-polarity']) {
     const result = spawnSync(process.execPath, ['scripts/verify-process-fact-contract.mjs'], {
       cwd: repositoryRoot,
       env: { ...process.env, LATTICE_PROCESS_FACT_CONTRACT_MUTATION: mutation },

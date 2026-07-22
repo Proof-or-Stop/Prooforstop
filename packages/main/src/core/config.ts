@@ -54,17 +54,19 @@ export interface ReproFirstPreflightConfig {
 export interface ProofStoryConfig {
   /** PLAN/INIT_CHECK/REVIEW rollback DEV admission ProofStory gate. Defaults to observe. */
   devGateMode?: 'observe' | 'warn' | 'enforce';
+  /** Wave 2 PLAN acceptance-topology structural gate rollout. Defaults to observe. */
+  acceptanceTopologyGateMode?: 'observe' | 'warn' | 'enforce';
   /** REVIEW completeness diagnostic mode. Defaults to observe. */
   reviewGateMode?: 'observe' | 'warn' | 'enforce';
   /** DONE intent-equivalence diagnostic mode. Defaults to observe. */
   doneGateMode?: 'observe' | 'warn' | 'enforce';
 }
 
-export type ProofStoryDevGateMode = NonNullable<ProofStoryConfig['devGateMode']>;
+export type AcceptanceTopologyGateMode = NonNullable<ProofStoryConfig['acceptanceTopologyGateMode']>;
 
 /** Flat project policy only; Story prose/risk/milestone text never selects it. */
-export function resolveProofStoryDevGateMode(config: Pick<LatticeConfig, 'proofStory'>): ProofStoryDevGateMode {
-  const mode = config.proofStory?.devGateMode;
+export function resolveAcceptanceTopologyGateMode(config: Pick<LatticeConfig, 'proofStory'>): AcceptanceTopologyGateMode {
+  const mode = config.proofStory?.acceptanceTopologyGateMode;
   return mode === 'warn' || mode === 'enforce' ? mode : 'observe';
 }
 

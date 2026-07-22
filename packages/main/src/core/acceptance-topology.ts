@@ -59,7 +59,7 @@ export interface AcceptanceTopologyCheckReport {
   readOnly: true;
   evidentiary: false;
   authority: 'diagnostic_only';
-  status: 'pass' | 'warn' | 'fail' | 'inconclusive';
+  status: 'pass' | 'fail' | 'inconclusive';
   structuralPass: boolean;
   blocking: boolean;
   basisStatus: 'missing' | 'complete' | 'partial' | 'unsupported';
@@ -618,6 +618,18 @@ export function evaluateAcceptanceTopologyCheck(args: {
       path: 'acceptance-basis.json.receipt',
       message: args.receiptVerification.diagnostics.join('; ') || 'coverage basis receipt verification failed',
     });
+    // The receipt verifier includes independently derived basis diagnostics as
+    // stable `AT_*: message` entries. Preserve those machine codes instead of
+    // collapsing every adapter/aggregate failure into the receipt summary.
+    for (const message of args.receiptVerification.diagnostics) {
+      const match = /^(AT_[A-Z0-9_]+):\s*(.*)$/.exec(message);
+      if (match) diagnostics.push({
+        code: match[1],
+        bindingId: '<story>',
+        path: 'acceptance-basis.json.basis',
+        message: match[2] || message,
+      });
+    }
   }
   for (const item of [...args.currentBasisDiagnostics, ...args.topologyBasisDiagnostics]) {
     diagnostics.push({
@@ -634,9 +646,7 @@ export function evaluateAcceptanceTopologyCheck(args: {
   const inconclusive = basisStatus === 'missing' || basisStatus === 'partial' || basisStatus === 'unsupported';
   const status: AcceptanceTopologyCheckReport['status'] = structuralPass
     ? 'pass'
-    : blocking
-      ? inconclusive ? 'inconclusive' : 'fail'
-      : 'warn';
+    : inconclusive ? 'inconclusive' : 'fail';
   return {
     storyId: args.storyId,
     mode: args.mode,
