@@ -187,7 +187,57 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-1995-004-FOCUSED-SUITE",
+            "desc": "A focused Wave 1 smoke or test suite exercises planned-declaration round-trip, reference-only topology normalization, stable structural diagnostics, the acceptance_matrix CLI text and JSON surfaces, and passes from a clean build.",
+            "type": "cli",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-1995-004-COMPATIBILITY-MATRIX",
+            "desc": "The focused suite covers topology-enabled, legacy missing-topology, docs-only and unsupported-version fixtures and proves each remains readable with its explicit observe-only diagnostic classification and no fabricated runtime mutation requirement.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-004-LIFECYCLE-EQUIVALENCE",
+            "desc": "For otherwise identical Stories, lifecycle transition guards and phase outcomes are identical before and after adding valid, missing or invalid Wave 1 topology data; diagnostics may differ, but PLAN to DEV and DEV to REVIEW are not newly blocked or auto-advanced.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-1995-004-MUTATION-BITES",
+            "desc": "Seed real mutations independently: remove a referenced declaration, change a planned endpoint ID, introduce a duplicate ID, orphan each graph direction, inject topology-owned edge semantics, and add a write-shaped matrix request; each mutation fails for its intended stable diagnostic or read-only reason and the restored control passes.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-004-NO-GATE-OR-BASIS-SHIP",
+            "desc": "Source inventory plus behavior tests prove Wave 1 does not register acceptance topology as a lifecycle-consumed process fact, does not persist or sign a coverage basis, does not add PLAN or pre-REVIEW blocking guards, and does not implement Wave 1A discovery adapters under another name.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-004-LEGACY-TRANSITION-MUTATION",
+            "desc": "Mutate a legacy Story from no topology to malformed topology while holding all canonical lifecycle facts constant: only read-only diagnostic output changes, no new process event or gate artifact appears, and transition decisions remain unchanged.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
