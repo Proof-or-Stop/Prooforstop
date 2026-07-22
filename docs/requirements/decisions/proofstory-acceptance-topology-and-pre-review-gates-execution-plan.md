@@ -181,25 +181,93 @@ interface AcceptanceVerificationTopologyV1 {
   freshness: TopologyFreshnessPolicy;
 }
 
+interface ExistingTopologySourceRefV1 {
+  refKind: 'existing';
+  canonicalSourceRef: string;
+}
+
+interface PlannedTopologySourceRefV1 {
+  refKind: 'planned';
+  plannedPathRef: string;
+  endpoint: 'producer' | 'consumer';
+  expectedArtifactKind: 'source_file' | 'handler' | 'dispatch' | 'process_fact';
+  expectedFileRef: string;
+  expectedSymbolOrFact: string;
+  /** Existing PLAN-owned declarations; not free-form topology prose. */
+  declarationRefs: string[];
+}
+
+type TopologySourceRefV1 =
+  | ExistingTopologySourceRefV1
+  | PlannedTopologySourceRefV1;
+
+interface PlannedCoveragePathV1 {
+  schemaVersion: 'proofstory.planned_coverage_path.v1';
+  plannedPathRef: string;
+  producerRef: PlannedTopologySourceRefV1;
+  consumerRefs: PlannedTopologySourceRefV1[];
+  outputFactRef: string;
+  acceptanceBindingRefs: string[];
+  verificationIntentRefs: string[];
+  declarationRefs: string[];
+  plannedPathDigest: string;
+}
+
+interface PlannedActualPathReconciliationV1 {
+  schemaVersion: 'proofstory.planned_actual_path_reconciliation.v1';
+  plannedPathRef: string;
+  actualPathRefs: string[];
+  relation: 'exact' | 'expanded' | 'replaced';
+  replacementDecisionRef?: string;
+  reconciliationDigest: string;
+}
+
+type CoverageDiscoveryMethodV1 =
+  | 'scope_contract'
+  | 'actual_diff_hunks'
+  | 'process_fact_registry'
+  | 'handler_dispatch_inventory'
+  | 'static_call_graph'
+  | 'runtime_trace';
+
+interface CoverageAdapterResultV1 {
+  schemaVersion: 'proofstory.coverage_adapter_result.v1';
+  adapterId: string;
+  method: CoverageDiscoveryMethodV1;
+  pathRefs: string[];
+  coverageClaim: 'complete_for_scope' | 'partial' | 'unsupported';
+  blindSpots: string[];
+  provenanceRefs: string[];
+  asymmetryPolicy: {
+    kind: 'exhaustive' | 'bounded_non_exhaustive' | 'unsupported';
+    policyRef: string;
+    scopeRefs: string[];
+  };
+  /** Canonical hash of every preceding field in this record. */
+  resultDigest: string;
+}
+
 interface AcceptanceCoverageBasisV1 {
   schemaVersion: 'proofstory.acceptance_coverage_basis.v1';
   storyId: string;
+  phaseBasis: 'plan' | 'pre_review';
+  /** Required on pre_review and equal to the topology-bound PLAN basis digest. */
+  priorPlanBasisDigest?: string;
   status: 'complete' | 'partial' | 'unsupported';
   generatedBy: {
     verifier: string;
     command: string;
     algorithmVersion: string;
   };
-  discoveryMethods: Array<
-    | 'scope_contract'
-    | 'actual_diff_hunks'
-    | 'process_fact_registry'
-    | 'handler_dispatch_inventory'
-    | 'static_call_graph'
-    | 'runtime_trace'
-  >;
+  /** Registered profile decides required adapters; the caller cannot narrow it. */
+  discoveryProfileRef: string;
+  discoveryProfileDigest: string;
+  discoveryMethods: CoverageDiscoveryMethodV1[];
+  adapterResults: CoverageAdapterResultV1[];
   scopeRefs: string[];
   sourceInventoryRefs: string[];
+  plannedPathRecords: PlannedCoveragePathV1[];
+  plannedActualReconciliations: PlannedActualPathReconciliationV1[];
   enumeratedPathRefs: string[];
   excludedPathRefs: Array<{
     pathRef: string;
@@ -216,6 +284,7 @@ interface AcceptanceCoverageBasisV1 {
     closureFilesHash: string;
   };
   receiptRef: string;
+  /** Includes profile, every adapter result/digest, planned paths, and all bindings. */
   basisDigest: string;
 }
 
@@ -242,9 +311,12 @@ Required referenced records:
 
 | Record | Required fields | Meaning |
 |---|---|---|
-| coverage basis | `status`, verifier identity, discovery methods, scope/source/path refs, exclusions, blind spots, current binding, receipt, digest | Independently derived closure universe against which topology completeness is judged |
-| producer | `id`, `kind`, `sourceRef`, `outputFact` | The production path that creates the fact under test |
-| consumer | `id`, `kind`, `sourceRef`, `inputFact`, `producerRefs` | A real consumer that must observe or reject the producer fact |
+| coverage basis | `phaseBasis`, `status`, verifier identity, discovery profile, per-adapter results, scope/source/planned/actual path refs, exclusions, blind spots, current binding, receipt, digest | Independently derived closure universe against which topology completeness is judged |
+| planned path | typed producer/consumer endpoints, expected artifact/file/symbol or fact, existing declaration refs, binding/intent refs, digest | PLAN-safe statement of a genuinely new path, derived from canonical PLAN declarations rather than nonexistent DEV code |
+| planned→actual reconciliation | planned path ref, actual path refs, typed relation, optional independent replacement decision, digest | Mandatory pre-REVIEW mapping from each planned obligation to current discovered code |
+| adapter result | adapter ID/method, path set, claim, blind spots, provenance, typed asymmetry policy, digest | Replayable discovery contribution; required results cannot be omitted or rewritten inside an aggregate |
+| producer | `id`, `kind`, typed existing-or-planned `sourceRef`, `outputFact` | The production path that creates, or is planned to create, the fact under test |
+| consumer | `id`, `kind`, typed existing-or-planned `sourceRef`, `inputFact`, `producerRefs` | A real or explicitly planned consumer that must observe or reject the producer fact |
 | positive assertion | `id`, `intentRef`, `producerRefs`, `consumerRefs`, `expectedOutcome`, `evidenceRefs` | Expected success behavior |
 | mutation case | `id`, `mutates`, `targetRefs`, `expectedPolarity`, `expectedFailureCode`, `commandRef`, `evidenceRefs` | A negative control that must bite |
 | transcript assertion | `id`, `claimRef`, `eventRefs`, `expectedSequence`, `evidenceRefs` | A claim-related end-to-end event or CLI transcript |
@@ -259,9 +331,43 @@ may submit arbitrary `enumeratedPathRefs`, `status: complete`, or exclusions.
 The topology stores only the basis reference and digest so a self-reported basis
 cannot make its own graph appear complete.
 
+PLAN and pre-REVIEW use two typed views of the same proof obligation, not two
+truth sources. At PLAN, a new endpoint that does not exist yet uses
+`TopologySourceRefV1.refKind: "planned"`. Its `declarationRefs` must resolve to
+existing canonical PLAN facts: the applicable acceptance binding and intent,
+the signed scope-check, and the existing `ChecklistItem.files` declaration
+(`modify`, `create`, or `test`; plus the scope contract when phase-applicable). The
+registered verifier derives `PlannedCoveragePathV1`; the topology author cannot
+invent a path merely by naming a future symbol. A PLAN basis may be `complete`
+relative to the frozen planning scope when every existing path and every typed
+planned path is closed, even though the planned implementation does not yet
+exist. That classification is structural only and is not evidence that code ran.
+
+At pre-REVIEW, planned refs are no longer accepted as unresolved promises. The
+verifier recomputes the actual basis from the current worktree and emits a
+`PlannedActualPathReconciliationV1` for every planned path. `exact` and
+`expanded` mappings must resolve to discovered actual paths already represented
+by the topology. `replaced` additionally requires an independently auditable
+decision ref and the replacement actual path remains subject to full closure.
+Missing implementation, a changed endpoint/fact without an approved
+replacement, or a new actual path without topology coverage fails closed. The
+reconciliation records and digests enter the pre-REVIEW basis digest/receipt;
+they do not become a writable completion ledger.
+
+Adapter evidence is equally non-lossy. The applicable registered discovery
+profile determines required methods independently of the submitted basis. Each
+required invocation produces one `CoverageAdapterResultV1`; `resultDigest` is
+computed over the canonical record excluding that digest. `basisDigest` is the
+canonical hash of the complete basis excluding `basisDigest`, including the
+profile ref/digest, the deterministically sorted full adapter records and their
+digests, planned-path/reconciliation records, aggregate union, exclusions, and
+workspace bindings. The receipt signs `basisDigest`. `discoveryMethods` and the
+aggregate path/blind-spot fields are derived projections and must exactly match
+the adapter records; they cannot hide a missing or disagreeing adapter.
+
 “Frozen scope” reuses existing lifecycle artifacts; this plan does not create a
 parallel scope truth source. At PLAN, discovery binds the signed
-`scope-check.json` plus checklist planned-file declarations and existing
+`scope-check.json` plus existing checklist `files` declarations and existing
 scope-boundary facts. `scope_contract_init_from_plan` is an existing manual
 PLAN/DEV command; it produces the contract before the transition that consumes
 it. At DEV → REVIEW, discovery binds the then-current `scope-contract.json`.
@@ -308,7 +414,10 @@ relevant consumer forces `partial`, never optimistic completeness.
       {
         "id": "P-B",
         "kind": "handler",
-        "sourceRef": "review_run_start",
+        "sourceRef": {
+          "refKind": "existing",
+          "canonicalSourceRef": "review_run_start"
+        },
         "outputFact": "reviewRunEnvelope:B"
       }
     ],
@@ -316,7 +425,10 @@ relevant consumer forces `partial`, never optimistic completeness.
       {
         "id": "C-VERIFY-B",
         "kind": "verifier",
-        "sourceRef": "verifyReviewRunPromptEnvelope",
+        "sourceRef": {
+          "refKind": "existing",
+          "canonicalSourceRef": "verifyReviewRunPromptEnvelope"
+        },
         "inputFact": "reviewRunEnvelope:B",
         "producerRefs": ["P-B"]
       }
@@ -379,12 +491,16 @@ The referenced basis is produced independently, for example:
 {
   "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
   "storyId": "B-4444",
+  "phaseBasis": "pre_review",
+  "priorPlanBasisDigest": "sha256:plan-coverage-basis-digest",
   "status": "complete",
   "generatedBy": {
     "verifier": "acceptance-coverage-basis-verifier",
     "command": "lattice acceptance_coverage_basis_check --storyId=B-4444",
     "algorithmVersion": "v1"
   },
+  "discoveryProfileRef": "profile:typescript-proof-gate:v1",
+  "discoveryProfileDigest": "sha256:registered-profile",
   "discoveryMethods": [
     "scope_contract",
     "actual_diff_hunks",
@@ -393,11 +509,81 @@ The referenced basis is produced independently, for example:
     "static_call_graph",
     "runtime_trace"
   ],
+  "adapterResults": [
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "scope-contract:v1",
+      "method": "scope_contract",
+      "pathRefs": [],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["scope-contract:B-4444"],
+      "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:scope:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:adapter-scope"
+    },
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "actual-diff:v1",
+      "method": "actual_diff_hunks",
+      "pathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["diff:current-story"],
+      "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:diff:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:adapter-diff"
+    },
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "process-facts:v1",
+      "method": "process_fact_registry",
+      "pathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["registry:process-facts:current"],
+      "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:registry:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:adapter-registry"
+    },
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "handler-dispatch:v1",
+      "method": "handler_dispatch_inventory",
+      "pathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["inventory:handler-dispatch:current"],
+      "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:dispatch:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:adapter-dispatch"
+    },
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "typescript-static:v1",
+      "method": "static_call_graph",
+      "pathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["static-graph:current"],
+      "asymmetryPolicy": {"kind": "exhaustive", "policyRef": "policy:typescript-static:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:adapter-static"
+    },
+    {
+      "schemaVersion": "proofstory.coverage_adapter_result.v1",
+      "adapterId": "bounded-runtime:v1",
+      "method": "runtime_trace",
+      "pathRefs": ["path:review_run_start->verifyReviewRunPromptEnvelope"],
+      "coverageClaim": "complete_for_scope",
+      "blindSpots": [],
+      "provenanceRefs": ["trace:cutoff-smoke:current"],
+      "asymmetryPolicy": {"kind": "bounded_non_exhaustive", "policyRef": "policy:bounded-runtime:v1", "scopeRefs": ["scope:path:review-run"]},
+      "resultDigest": "sha256:adapter-runtime"
+    }
+  ],
   "scopeRefs": ["scope:path:review-run", "scope:path:review-verifier"],
   "sourceInventoryRefs": [
     "handler:review_run_start",
     "verifier:verifyReviewRunPromptEnvelope"
   ],
+  "plannedPathRecords": [],
+  "plannedActualReconciliations": [],
   "enumeratedPathRefs": [
     "path:review_run_start->verifyReviewRunPromptEnvelope"
   ],
@@ -419,14 +605,57 @@ The referenced basis is produced independently, for example:
 The example illustrates the target shape only. It is not a claim that this
 schema or command exists.
 
+### 5.4 PLAN-safe new-path example
+
+A Story that will add `review_run_finalize` and a new receipt verifier does not
+claim those symbols already exist. The topology endpoints use typed planned
+refs, and the verifier derives the corresponding basis record from existing
+PLAN declarations:
+
+```json
+{
+  "schemaVersion": "proofstory.planned_coverage_path.v1",
+  "plannedPathRef": "planned-path:finalize->verify-final-receipt",
+  "producerRef": {
+    "refKind": "planned",
+    "plannedPathRef": "planned-path:finalize->verify-final-receipt",
+    "endpoint": "producer",
+    "expectedArtifactKind": "handler",
+    "expectedFileRef": "packages/main/src/handlers/review-run.ts",
+    "expectedSymbolOrFact": "review_run_finalize",
+    "declarationRefs": ["scope-check:B-new", "CHK-002:files:create:0"]
+  },
+  "consumerRefs": [{
+    "refKind": "planned",
+    "plannedPathRef": "planned-path:finalize->verify-final-receipt",
+    "endpoint": "consumer",
+    "expectedArtifactKind": "process_fact",
+    "expectedFileRef": "packages/main/src/core/review-run.ts",
+    "expectedSymbolOrFact": "verifyFinalReviewReceipt",
+    "declarationRefs": ["scope-check:B-new", "CHK-002:files:create:1"]
+  }],
+  "outputFactRef": "planned-fact:final-review-receipt",
+  "acceptanceBindingRefs": ["AC-FINAL-RECEIPT"],
+  "verificationIntentRefs": ["CHK-002:happy:0", "CHK-002:adversarial:0"],
+  "declarationRefs": ["scope-check:B-new", "CHK-002"],
+  "plannedPathDigest": "sha256:canonical-planned-path"
+}
+```
+
+This record is inside the signed PLAN basis. It is neither executable evidence
+nor a second scope/checklist store. At pre-REVIEW it must reconcile to actual
+discovered paths, or admission fails.
+
 ## 6. Structural integrity and totality rules
 
 `acceptance_topology_check` evaluates the following invariants:
 
 1. Every required acceptance binding has exactly one topology version.
 2. All topology IDs are non-empty and unique within the binding.
-3. Every referenced checklist, intent, milestone, producer, consumer, command,
-   and claim exists in its canonical owner.
+3. Every referenced checklist, intent, milestone, command, and claim exists in
+   its canonical owner. Existing producer/consumer source refs must resolve now;
+   planned source refs instead resolve through a typed `plannedPathRef` whose
+   declaration refs exist in canonical PLAN owners.
 4. Every required producer feeds at least one real consumer.
 5. Every required consumer points to at least one producer.
 6. Every must-priority intent appears in at least one positive assertion,
@@ -446,8 +675,10 @@ schema or command exists.
 14. The binding-to-topology graph and topology-to-binding graph are both total:
     no required binding is unrepresented and no topology node is orphaned.
 15. Every required topology references a signed basis independently recomputed
-    from the frozen scope, actual diff hunks, registered process facts,
-    handler/dispatch inventory, and applicable static/runtime path discovery.
+    from phase-applicable inputs. PLAN uses frozen scope, current registered
+    facts/dispatch/static/runtime inputs, and verifier-derived planned paths;
+    pre-REVIEW additionally requires actual diff hunks and current implementation
+    discovery.
 16. Completeness PASS requires `coverageBasis.status === 'complete'`; `partial`
     and `unsupported` are `INCONCLUSIVE`, even if all declared topology nodes are
     internally connected.
@@ -471,6 +702,19 @@ schema or command exists.
 23. Process-fact and dispatch traversal reaches registered consumers outside
     Story scope. Every such consumer is mapped or independently excluded, and
     failure to inspect one forces `partial`.
+24. A PLAN basis may contain a planned path only when all typed declaration refs
+    resolve and bind that path to an acceptance binding, intent, scope, expected
+    file/artifact kind, producer, consumer, and output fact. A bare future string
+    is invalid.
+25. Every planned path is reconciled to current actual discovery before REVIEW.
+    No unresolved planned endpoint can satisfy executable readiness; expansions
+    and approved replacements remain subject to topology/basis closure.
+26. The registered discovery profile, not the basis payload, determines required
+    adapters. Every required adapter has exactly one digest-valid result record.
+27. `discoveryMethods`, aggregate paths, and aggregate blind spots equal the
+    deterministic projection/union of adapter results. Each result's path set,
+    claim, provenance, blind spots, and asymmetry policy is covered by its result
+    digest and by `basisDigest`.
 
 ### 6.1 Deterministic structural codes
 
@@ -498,6 +742,11 @@ schema or command exists.
 | `AT_DISCOVERY_DISAGREEMENT` | Discovery adapters disagree without a typed reconciliation policy; basis is `partial` |
 | `AT_REGISTERED_CONSUMER_UNMAPPED` | A globally registered consumer reached from a Story fact is absent from topology/exclusions |
 | `AT_CLOSURE_FILES_STALE` | A producer/consumer closure source changed while the topology-bound closure hash remained old |
+| `AT_PLANNED_PATH_INVALID` | A planned path is free-form, incomplete, duplicate, or lacks resolvable canonical PLAN declaration refs |
+| `AT_PLANNED_PATH_OUTSIDE_BASIS` | Topology declares a planned path that the PLAN verifier did not derive from frozen scope/declarations |
+| `AT_REQUIRED_ADAPTER_RESULT_MISSING` | The registered profile requires an adapter for this scope but its result record is absent or duplicated |
+| `AT_ADAPTER_RESULT_DIGEST_MISMATCH` | An adapter record or its aggregate projection does not match its result digest/basis digest |
+| `AT_ADAPTER_RESULT_INVALID` | Adapter claim, provenance, blind spots, or typed asymmetry policy is missing or invalid |
 
 ## 7. `acceptance_topology_check` — PLAN → DEV
 
@@ -509,6 +758,8 @@ Inputs:
 - confirmed milestone ledger when the milestone path applies;
 - ProofStory acceptance bindings and topology;
 - checklist and frozen verificationIntent;
+- typed planned-path declarations bound to `ChecklistItem.files` for endpoints
+  that DEV will introduce;
 - independently generated coverage basis and verifier receipt;
 - applicability decisions and configured rollout mode.
 
@@ -524,13 +775,16 @@ Algorithm:
 
 ```text
 normalize supported topology versions
-resolve all canonical refs
+resolve existing canonical refs and validate typed planned refs against canonical PLAN declarations
 derive applicability for each binding
 bind the applicable existing scope-check/scope-contract artifacts
-run each required discovery adapter and retain its paths, claim, blind spots, and provenance
+load the registered discovery profile for this scope
+run each required adapter and hash its complete result record
+reject missing, duplicate, invalid, or digest-mismatched required adapter results
 seed global registry/dispatch traversal from Story facts and follow all registered consumers
 reconcile adapter outputs by union under typed per-adapter policies
-independently derive coverage basis from frozen scope + current repository/runtime inputs
+derive planned path records from frozen scope + binding/intent/ChecklistItem.files declarations
+independently derive PLAN basis from current paths + typed planned paths
 classify basis as complete, partial, or unsupported
 stop with INCONCLUSIVE unless required basis status is complete
 check bidirectional graph totality
@@ -548,12 +802,16 @@ The decisive predicate is:
 ```text
 structuralPass =
   basis.issuer is registered verifier
+  AND basis.phaseBasis == plan
   AND basis.status == complete
   AND basis.binding is current
   AND basis.binding.scopeCheckDigest is current
   AND the phase-applicable scopeContractDigest is current
   AND basis.binding.closureFilesHash is current
   AND topology.coverageBasisDigest == basis.basisDigest
+  AND every profile-required adapter has one valid hash-bound result
+  AND aggregate methods, paths, and blind spots equal the adapter-result projection
+  AND every planned topology path was independently derived into basis.plannedPathRecords
   AND every basis path is mapped or independently excluded
   AND every topology path belongs to basis
   AND all remaining topology invariants pass
@@ -568,7 +826,10 @@ turn a `partial` basis into `complete`.
 
 Each adapter emits discovered path refs, a coverage claim
 (`complete_for_scope`, `partial`, or `unsupported`), explicit blind spots, and
-provenance. Reconciliation follows these mechanical rules:
+provenance in a hash-bound `CoverageAdapterResultV1`. Required adapters come
+from the registered `discoveryProfileRef`; deleting a method from
+`discoveryMethods` cannot make its result optional. Reconciliation follows these
+mechanical rules:
 
 1. The candidate basis is the union of paths reported by every admissible
    adapter. It is never an intersection or “majority” set.
@@ -583,6 +844,11 @@ provenance. Reconciliation follows these mechanical rules:
 5. At pre-REVIEW, the equivalent condition yields
    `PR_DISCOVERY_DISAGREEMENT`; reviewer prose or critic approval cannot waive it
    into `complete`.
+6. Before unioning paths, the verifier checks each result digest, profile
+   membership, exactly-once presence, provenance, coverage claim, blind spots,
+   and typed asymmetry policy. The derived aggregate must reproduce exactly from
+   those records. Omission or tampering is a deterministic failure, not merely a
+   disagreement advisory.
 
 Disagreement may add obligations, but it cannot erase an obligation discovered
 by another admissible source.
@@ -600,7 +866,12 @@ For every applicable required binding, it verifies:
 
 - coverage basis is independently recomputed from the actual current diff,
   source inventory, registries/dispatch paths, and applicable runtime traces;
-- recomputed basis remains `complete` and its digest matches the topology;
+- topology still binds the valid PLAN basis, while the recomputed pre-REVIEW
+  basis remains `complete`, names that PLAN digest in `priorPlanBasisDigest`, and
+  carries its own freshly signed digest;
+- every required discovery adapter has one complete, digest-valid result record
+  and its aggregate projection is reproducible;
+- every PLAN `plannedPathRef` has a digest-bound planned→actual reconciliation;
 - every newly discovered path maps to topology or an approved exclusion;
 - positive assertions have current successful evidence;
 - producer and consumer evidence exercise the declared production path;
@@ -624,6 +895,26 @@ in the traversed global producer/consumer closure. Either hash changing requires
 recomputation; unchanged `storyFilesHash` does not excuse stale external
 consumers.
 
+Planned→actual reconciliation is mandatory and ordered before executable
+evidence evaluation:
+
+```text
+load the signed PLAN basis and its plannedPathRecords
+recompute a phaseBasis=pre_review basis from actual diff/source/runtime inputs
+verify all profile-required adapter records and reconstruct their union
+for each plannedPathRef, resolve current producer, consumer, fact, and source endpoints
+emit exact/expanded/replaced reconciliation and its canonical digest
+reject an unresolved path, endpoint/fact mismatch, or unapproved replacement
+feed every expanded/replacement actual path back through topology closure
+only then evaluate positive, mutation, transcript, authority, and freshness evidence
+```
+
+An empty diff cannot satisfy a planned new path. Conversely, discovery of more
+actual consumers than planned does not invalidate DEV work by itself, but every
+additional path must be represented or independently excluded before REVIEW.
+The pre-REVIEW basis/receipt binds the ordered reconciliation records; copying a
+PLAN digest onto current hashes is not reconciliation.
+
 It does not replace REVIEW. A pass means the implementation is ready to be
 reviewed against a complete proof plan. Reviewers can still find missing paths,
 weak assertions, design problems, or unmodeled interactions.
@@ -643,11 +934,17 @@ weak assertions, design problems, or unmodeled interactions.
 | `PR_EVIDENCE_STALE` | Binding is stale under the freshness reader |
 | `PR_CUTOFF_UNBOUND` | Temporal producer/verifier cutoff relation is missing |
 | `PR_LEGACY_EVIDENCE_WEAK` | Legacy record is readable but cannot satisfy strong proof |
-| `PR_COVERAGE_BASIS_CHANGED` | Current DEV-derived basis differs from the topology-bound PLAN basis |
+| `PR_COVERAGE_BASIS_CHANGED` | Current actual closure differs from the PLAN basis without complete planned→actual/new-path reconciliation; raw phase-basis digest inequality alone is expected |
 | `PR_NEW_PATH_UNMAPPED` | Current source/runtime discovery finds a path absent from topology |
 | `PR_COVERAGE_INCONCLUSIVE` | Current path discovery is partial or unsupported |
 | `PR_DISCOVERY_DISAGREEMENT` | Required adapters disagree without a typed reconciliation policy |
 | `PR_CLOSURE_FILES_CHANGED` | A source in the global producer/consumer closure changed after basis binding |
+| `PR_PLANNED_PATH_UNRESOLVED` | A PLAN planned path has no current actual producer→consumer implementation |
+| `PR_PLANNED_PATH_MISMATCH` | Actual endpoint/fact semantics do not match the planned path and no eligible replacement decision applies |
+| `PR_PLANNED_PATH_RECONCILIATION_TAMPERED` | Reconciliation record/digest is missing, altered, duplicated, or absent from the pre-REVIEW basis digest |
+| `PR_REQUIRED_ADAPTER_RESULT_MISSING` | A profile-required current-worktree adapter result is absent or duplicated |
+| `PR_ADAPTER_RESULT_DIGEST_MISMATCH` | A current-worktree adapter record, aggregate projection, or basis digest was altered |
+| `PR_ADAPTER_RESULT_INVALID` | A current adapter result lacks admissible claim, blind-spot, provenance, or asymmetry-policy fields |
 
 ### 8.2 Independent topology critic
 
@@ -713,7 +1010,7 @@ Rules:
 | One producer to many consumers | Each required consumer has its own assertion/evidence edge |
 | Many producers to one consumer | Assertion declares whether all or any producer is required |
 | Legacy ProofStory without topology | Readable as `legacy_missing`; observe/warn initially, never silently treated as full proof |
-| Machine-enumerable frozen scope | Basis may be `complete` after all required discovery methods agree and blind spots are empty |
+| Machine-enumerable frozen scope | Basis may be `complete` after every profile-required adapter has a valid result, their union is reconciled under typed policies, and blind spots are empty |
 | Dynamic/reflection/plugin path with admissible trace coverage | Basis may be `complete` only if policy declares the runtime trace sufficient for that bounded scope |
 | Relevant dynamic path without admissible trace | Basis is `partial`; result is `INCONCLUSIVE` |
 | Unsupported language/framework discovery | Basis is `unsupported`; result is `INCONCLUSIVE` |
@@ -869,9 +1166,11 @@ interfaces.
 Exit: callers cannot submit path inventory or force `complete`; known static and
 runtime paths are reconciled by union under typed adapter policies; global
 registry/dispatch traversal includes consumers outside Story scope; blind spots
-or unexplained discovery disagreement cause `INCONCLUSIVE`; existing scope
-artifacts and both Story/closure hashes are bound; stale bindings fail; every
-exclusion requires an eligible decision ref.
+or unexplained discovery disagreement cause `INCONCLUSIVE`; every required
+adapter has a replayable hash-bound result and omission/tampering fails;
+verifier-derived typed planned paths permit genuinely new endpoints at PLAN;
+existing scope artifacts and both Story/closure hashes are bound; stale bindings
+fail; every exclusion requires an eligible decision ref.
 Stop: basis completeness depends on self-report, reviewer prose, silently
 ignored adapters, or a hash-only rebind of an old inventory.
 
@@ -886,7 +1185,8 @@ observe/warn/enforce configuration.
 
 Dependency: Waves 1 and 1A.
 Exit: missing edges and prompt-only facts produce stable codes; docs-only and
-single-outcome paths avoid false blocks; process facts are registered.  
+single-outcome paths avoid false blocks; a declared new producer→consumer path
+can enter DEV without pretending its code exists; process facts are registered.
 Stop: the check requires executed evidence or duplicates verificationIntent.
 
 ### Wave 2A — Independent topology critic and role eligibility
@@ -914,8 +1214,9 @@ admissibility, and freshness consumption.
 Dependency: Waves 1–2A plus canonical evidence/receipt identifiers.
 Exit: real producer-to-consumer tests pass; every adverse mutation bites; clean
 controls pass after restoration; deleting a topology path that remains in the
-basis fails; stale, changed, partial, and weak basis/evidence fail
-deterministically.
+basis fails; every planned path reconciles to actual current discovery; required
+adapter omission or record/reconciliation tampering fails; stale, changed,
+partial, and weak basis/evidence fail deterministically.
 Stop: the implementation relies on caller-written authority or silent rebinding.
 
 ### Wave 3A — Explicit applicability selection for selective enforcement
@@ -958,6 +1259,9 @@ decomposition. A wave cannot claim later-wave completion.
 | Scenario/mutation | Stage | Expected result/code |
 |---|---|---|
 | Complete verifier-produced basis plus basis-closed required topology | PLAN | pass |
+| New handler P and consumer C do not exist yet, but a typed planned path is bound to signed scope/checklist/binding/intent declarations | PLAN | structural pass; DEV may begin without executable evidence |
+| New path is declared only as free-form future symbols or lacks a `ChecklistItem.files`/scope declaration | PLAN | `AT_PLANNED_PATH_INVALID` |
+| Topology invents planned path P→C that the verifier cannot derive into the PLAN basis | PLAN | `AT_PLANNED_PATH_OUTSIDE_BASIS` |
 | Required topology has no signed basis | PLAN | `AT_COVERAGE_BASIS_MISSING` |
 | Basis is caller-authored or issuer is ineligible | PLAN | reject artifact; no completeness state |
 | Basis is `partial` or `unsupported` | PLAN | `AT_COVERAGE_BASIS_PARTIAL`; `INCONCLUSIVE` |
@@ -968,6 +1272,10 @@ decomposition. A wave cannot claim later-wave completion.
 | Static finds C2 while runtime trace misses C2 under a declared non-exhaustive trace policy | PLAN | union retains C2; no omission |
 | Runtime finds C2 while static misses C2 without explained adapter policy | PLAN | union retains C2 and `AT_DISCOVERY_DISAGREEMENT`; basis is `partial` |
 | Static/runtime adapters disagree semantically without reconciliation | both | `AT_DISCOVERY_DISAGREEMENT` / `PR_DISCOVERY_DISAGREEMENT`; cannot pass |
+| Remove a profile-required static adapter result while leaving its method/path in the aggregate | PLAN | `AT_REQUIRED_ADAPTER_RESULT_MISSING`; cannot pass |
+| Delete a required method from the basis payload while the registered profile still requires it | PLAN | `AT_REQUIRED_ADAPTER_RESULT_MISSING`; caller cannot narrow profile |
+| Change one adapter's C2 path set, claim, blind spots, provenance, or asymmetry policy without recomputing its digest and signed basis | PLAN | `AT_ADAPTER_RESULT_DIGEST_MISMATCH` |
+| Recompute an adapter digest after tampering but retain the old signed basis receipt | PLAN | `AT_ADAPTER_RESULT_DIGEST_MISMATCH`; receipt/basis digest verification fails |
 | Story changes producer P whose registered consumer C2 is outside Story scope | PLAN | global traversal retains C2; missing mapping yields `AT_REGISTERED_CONSUMER_UNMAPPED` |
 | Missing producer | PLAN | `AT_UNKNOWN_REF` or `AT_ORPHAN_CONSUMER` |
 | Missing consumer | PLAN | `AT_ORPHAN_PRODUCER` |
@@ -977,6 +1285,11 @@ decomposition. A wave cannot claim later-wave completion.
 | Self-authored not-applicable note | PLAN | `AT_INVALID_NA_DECISION` |
 | Topology stores `result: pass` | PLAN | `AT_INLINE_RESULT_FORBIDDEN` |
 | Complete positive production-path evidence | pre-REVIEW | pass |
+| Typed planned P→C is implemented and exact actual discovery is digest-bound | pre-REVIEW | reconciliation passes, then executable evidence is evaluated |
+| Typed planned P→C entered DEV but P or C was never implemented | pre-REVIEW | `PR_PLANNED_PATH_UNRESOLVED` |
+| Planned P→C is implemented as P→D with changed fact semantics and no approved replacement | pre-REVIEW | `PR_PLANNED_PATH_MISMATCH` |
+| Remove or alter the planned→actual reconciliation while retaining its signed pre-REVIEW basis | pre-REVIEW | `PR_PLANNED_PATH_RECONCILIATION_TAMPERED` |
+| Remove/tamper a required adapter result after DEV | pre-REVIEW | `PR_REQUIRED_ADAPTER_RESULT_MISSING` / `PR_ADAPTER_RESULT_DIGEST_MISMATCH` |
 | DEV adds consumer C2 after PLAN | pre-REVIEW | `PR_COVERAGE_BASIS_CHANGED` plus `PR_NEW_PATH_UNMAPPED` |
 | Remove C2 from topology while current basis retains C2 | both | omission mutation must fail with `AT_UNMAPPED_SCOPE_REF` |
 | Dynamic path cannot be enumerated or traced | pre-REVIEW | `PR_COVERAGE_INCONCLUSIVE` |
@@ -1042,6 +1355,9 @@ to find genuinely unmodeled issues.
 | Parallel truth source emerges | Matrix becomes writable | Conflicting completion facts | Derived-only renderer; reject writes |
 | Schema duplicates claims/results | Inline prose and verdicts are accepted | Drift and laundering | Reference-only normalization; `AT_INLINE_RESULT_FORBIDDEN` |
 | Coverage basis is self-reported | Implementer supplies both universe and topology | Omitted C2 passes both gates | Registered verifier independently derives basis; caller cannot set status or inventory |
+| PLAN requires new code to exist | Canonical-ref rule has no planned form | Genuine new producer/consumer can never enter DEV | Typed verifier-derived planned paths at PLAN; mandatory actual reconciliation before REVIEW |
+| Planned promises survive into REVIEW | DEV omits or changes a declared path | Structural plan is mistaken for implemented closure | Fail closed on unresolved/mismatched/tampered planned→actual reconciliation |
+| Adapter aggregation loses provenance | Basis retains only a union/method list | Required adapter can be ignored or its claim/policy rewritten invisibly | Hash-bound per-adapter records, registered required profile, reproducible projection, signed basis digest |
 | Basis says complete despite blind spots | Dynamic/reflection/plugin paths are not discoverable | False completeness | Three-state classification; unresolved blind spot forces `partial`/`unsupported` and `INCONCLUSIVE` |
 | Discovery adapters disagree and intersection wins | One adapter misses C2 | C2 silently disappears | Union every discovered path; unexplained disagreement forces `partial` with deterministic codes |
 | A parallel frozen-scope truth appears | New topology-specific scope artifact is introduced | Scope contracts drift | Bind existing signed scope-check/scope-contract artifacts and their digests only |
@@ -1104,16 +1420,29 @@ Mark **Pass** only if every required row below is true. Otherwise mark
 - [ ] The topology schema is reference-based and versioned.
 - [ ] `coverageBasis` is generated by a registered verifier, not supplied by the
       implementer or reviewer.
+- [ ] A genuinely new producer/consumer uses a typed, verifier-derived planned
+      path bound to existing PLAN declarations; it need not exist before DEV and
+      cannot remain an unresolved promise before REVIEW.
+- [ ] Planned→actual reconciliation is digest-bound, included in the signed
+      pre-REVIEW basis, and fails closed for omitted, mismatched, expanded-but-
+      unmapped, or tampered paths.
 - [ ] Basis status is exactly `complete`, `partial`, or `unsupported`, and only
       `complete` can satisfy topology completeness.
-- [ ] The basis is derived from frozen scope, actual diff hunks, registries,
-      handler/dispatch inventory, and applicable static/runtime discovery.
+- [ ] The PLAN basis is derived from frozen scope, current discoverable paths,
+      registries, and typed planned declarations; the pre-REVIEW basis adds
+      actual diff hunks and current handler/dispatch/static/runtime discovery.
 - [ ] Frozen scope binds the existing signed `scope-check.json` and phase-
       applicable `scope-contract.json`; no parallel writable scope artifact is
       introduced.
 - [ ] Adapter reconciliation uses the union of all discovered paths; unexplained
       static/runtime disagreement is `partial` with deterministic PLAN and
       pre-REVIEW codes.
+- [ ] The registered discovery profile independently determines required
+      adapters; every adapter result retains method, path set, claim, blind
+      spots, provenance, typed asymmetry policy, and its own digest.
+- [ ] Adapter records and digests are included in `basisDigest`/signed receipt;
+      omission, duplication, field tampering, or aggregate mismatch has
+      deterministic PLAN and pre-REVIEW failure codes and negative tests.
 - [ ] Registry/dispatch discovery traverses globally from Story facts to every
       registered consumer, including outside Story scope, and binds a separate
       `closureFilesHash`.
@@ -1146,7 +1475,8 @@ Mark **Pass** only if every required row below is true. Otherwise mark
 - [ ] Follow-up work is divided into bounded waves with entry, exit, dependency,
       and stop conditions.
 - [ ] The negative-control matrix includes producer/consumer deletion, polarity,
-      transcript, authority, and freshness mutations.
+      transcript, authority, freshness, planned→actual reconciliation, and
+      adapter-result omission/tampering mutations.
 - [ ] An omission mutation removes C2 only from topology while retaining it in
       the independently derived basis, and the gate fails.
 - [ ] Success metrics include false passes, false blocks, waiver use, and total
