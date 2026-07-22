@@ -62,7 +62,45 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Topology critic receipt: PASS — signature valid, eligible independent critic, current basis/topology/scope/story/closure bindings, and deterministic finding/exclusion refs."
+      "userSees": "Topology critic receipt: PASS — signature valid, eligible independent critic, current basis/topology/scope/story/closure bindings, and deterministic finding/exclusion refs.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-RECEIPT-PRODUCTION-ROUNDTRIP",
+            "desc": "Through the registered production CLI producer and read-only verifier, create and verify a signed TopologyCriticReceiptV1 that contains and binds storyId, critic identity, eligible role, basisDigest, topologyDigest, scopeCheckDigest, phase-applicable scopeContractDigest, storyFilesHash, closureFilesHash, findingRefs, approvedExclusionRefs, verdict, issuedAt, and signature; assert persisted and verified values equal canonical recomputation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-RECEIPT-FRESHNESS-MATRIX",
+            "desc": "After a valid round-trip, independently drift basis, topology, scope check, applicable scope contract, story-owned files, and closure files; the read-only verifier must classify every corresponding receipt stale/invalid, while an unchanged immediate re-verification passes.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-RECEIPT-CANONICAL-COLLECTIONS",
+            "desc": "Verify findingRefs and approvedExclusionRefs use canonical ordering/deduplication: semantically identical producer input round-trips deterministically, but omission, invention, duplication that changes semantics, or reference to a nonexistent fact is rejected.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-RECEIPT-EVERY-FIELD-TAMPER",
+            "desc": "Use one table-driven production-verifier mutation suite that alters or deletes each TopologyCriticReceiptV1 field individually—storyId, critic identity, eligible role, basisDigest, topologyDigest, scopeCheckDigest, scopeContractDigest, storyFilesHash, closureFilesHash, findingRefs, approvedExclusionRefs, verdict, issuedAt, and signature—and assert every case fails with no partial acceptance.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-RECEIPT-SIGNATURE-FORGERY",
+            "desc": "Prove payload re-signing with an untrusted key, copying a signature from another story/critic/time, and altering a payload then retaining the old signature all fail the production verifier.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
