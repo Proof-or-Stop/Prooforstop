@@ -977,6 +977,39 @@
       },
       "readDiagnostics": [],
       "_hash": "3fee288470aa378acc7574fbae37eaa2be442cde9cd0c65737ff20e9416b26ba"
+    },
+    {
+      "id": "B-a32a:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed 7d714f0c82 and acknowledged scope expansion. The only authored policy-manifest change is lattice-implementer templateHash 98aa71b... required by the two-line Wave 1A acceptance-basis boundary added identically to the implementer prompt surfaces. The three regenerated baselines differ only in that role's hashes/render/size/line/repetition metrics, aggregate digests, registry material hash, and the mechanically shifted direct-story-reference line. `node scripts/verify-proof-or-stop-prompt-baseline.mjs` passed all registry, approval-manifest, snapshot, role-matrix, mutation, and measurement checks. No hidden business-policy change or blocker.",
+      "createdAt": "2026-07-22T14:44:48.595Z",
+      "reviewRound": "2026-07-22T14:42:15.395Z",
+      "reviewRunId": "B-a32a:RR-054",
+      "envelopeId": "1d8cdbe16875944ae3e38612ea379a1d903d97310ea3dff512944f7c09fb30de",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "docs/CLI.md",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8b283a48bba219fc5ccb6c373a640d1eceed230d5eac302c7d6c445c4c16c94"
     }
   ]
 }
