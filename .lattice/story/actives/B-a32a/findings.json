@@ -419,6 +419,25 @@
       "_hash": "a145f9ea639c570f0137dd2af421be7d8bdd801d264727931951f9c5e8246590",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-021",
+      "desc": "Canonical source-root inventory does not fail closed when an intermediate scanRoot/rootDir component is a symlink that escapes the workspace. configuredSourceInventory validates only the lexical resolve/relative result (lines 117-120) and lstatSync(absoluteRoot) on the final path (lines 121-128). lstat on /workspace/link/src follows the intermediate link, so with scanRoot=link, rootDir=src, and link -> /outside, the external /outside/src directory is accepted and enumerated as if canonical workspace source. No realpath containment or component-by-component symlink check exists. The added smoke covers only a missing root (lines 431-433), not malformed/escaping/root-symlink/unreadable roots. This violates the targeted F-020 repair requirement that escaping and symlinked canonical roots yield partial. Bind workspace and source-root realpaths, reject any root whose physical path escapes the physical workspace or traverses a symlink/ambiguous component, and add adversarial controls for parent-component symlink escape plus malformed, lexical escape, and unreadable roots.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T08:53:36.213Z",
+      "reviewRound": "2026-07-22T08:51:29.961Z",
+      "reviewRunId": "B-a32a:RR-018",
+      "_hash": "468c1c9422de82bf441d0ce87c96d8b767d94d0c8c8529931bc87b756d9f96b1",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|canonical-source-root",
+      "signatureTagSource": "auto"
     }
   ]
 }
