@@ -330,7 +330,7 @@
       "desc": "packages/main/src/core/topology-critic-receipt.ts:216-264,423-439 still verifies only four actor fields (agentId/sessionId/dispatchId/businessCommitAuthor) against the dispatch event. The signed criticProvenance/approverProvenance also contains storyId, headHash, storyFilesHash, businessCommit, businessCommitAuthorSource, and businessIdentity, but none of those actor fields is compared with the current context/event; hasActorProvenance only checks non-empty shape/source enum. A trusted-key re-signed receipt or approval can therefore tamper any of those nested current-binding fields and remain ok as long as the four compared dimensions match. The smoke top-level criticProvenance mutation only changes sessionId and the new matrices likewise omit these fields. This violates CHK-002 every-field recomputation/verification and F-003 current HEAD/storyFilesHash/business-commit dispatch binding. Compare the entire actor provenance to the matched current dispatch/context, including businessIdentity consistency, and add re-signed mutation cases for every nested critic and approver provenance field.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T19:49:34.389Z",
@@ -338,7 +338,11 @@
       "reviewRunId": "B-9123:RR-013",
       "_hash": "fa4d7f96b77b15690d2635e98cb5e3b2e09fb33c17266a1be1b2ca939f66b158",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 6bcaca16e3 binds exact 10-field critic and exclusion approver provenance to a current registered dispatch under role/story/businessCommit/storyFilesHash/source/session/author/head/head-ancestor constraints. Fresh trusted-key re-sign mutation tables alter each nested field independently for both artifact types and every case fails with field-specific diagnostics; unchanged controls pass.",
+      "resolvedAt": "2026-07-22T20:00:15.234Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
