@@ -201,6 +201,20 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "`lattice acceptance_matrix --storyId=<id>` prints deterministic canonical rows and legacy/warning/inconclusive diagnostics, explicitly marked observe, read-only, and non-evidentiary.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ]
       }
     },
     {
