@@ -34,7 +34,7 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { buildAcceptanceMatrixReport } from '../core/acceptance-topology.js';
-import { deriveAcceptanceCoverageBasis, computeClosureFilesHash } from '../core/acceptance-coverage-basis.js';
+import { acceptanceCoverageBasisSemanticDigest, deriveAcceptanceCoverageBasis, computeClosureFilesHash, reconcileTopologyWithCoverageBasis } from '../core/acceptance-coverage-basis.js';
 import { issueAcceptanceBasisReceipt, verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveStoryCommandWorkspace } from './context.js';
@@ -147,6 +147,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       contract: store.readProofStoryContract(storyId),
       scopeCheck,
       scopeContract,
+      foundationalDecision: store.readDecision(storyId),
       headHash,
       materialHash,
       storyFilesHash,
@@ -181,12 +182,29 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         current.derivation.basis.plannedPathRecords,
         current.derivation.basis.sourceInventoryRefs,
       ),
+      expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
     });
+    const topologyDiagnostics = reconcileTopologyWithCoverageBasis(
+      store.readProofStoryContract(storyId),
+      artifact.basis,
+      store.readDecision(storyId),
+    );
+    const effectiveVerification = artifact.basis.status === 'complete' && (current.derivation.diagnostics.length > 0 || topologyDiagnostics.length > 0)
+      ? {
+        ok: false as const,
+        code: 'AT_ADAPTER_RESULT_DIGEST_MISMATCH' as const,
+        diagnostics: [
+          ...verification.diagnostics,
+          ...current.derivation.diagnostics.map(item => `${item.code}: ${item.message}`),
+          ...topologyDiagnostics.map(item => `${item.code}: ${item.message}`),
+        ],
+      }
+      : verification;
     return {
       storyId,
       mode: 'read_only',
       evidentiary: false,
-      status: verification.ok ? 'verified' : 'invalid',
+      status: effectiveVerification.ok ? 'verified' : 'invalid',
       basisStatus: artifact.basis.status,
       discoveryProfileRef: artifact.basis.discoveryProfileRef,
       discoveryProfileDigest: artifact.basis.discoveryProfileDigest,
@@ -197,7 +215,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       blindSpots: artifact.basis.blindSpots,
       binding: artifact.basis.binding,
       receipt: artifact.receipt,
-      receiptVerification: verification,
+      receiptVerification: effectiveVerification,
       diagnostics: current.derivation.diagnostics,
     };
   }
@@ -208,6 +226,9 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       if (!args.storyId) throw new Error('storyId is required');
       store.readStory(args.storyId);
       const current = currentBasisDerivation(args.storyId);
+      if (current.derivation.basis.status === 'complete' && current.derivation.diagnostics.length > 0) {
+        throw new Error(`acceptance_basis_generate refused unreconciled complete basis: ${current.derivation.diagnostics.map(item => item.code).join(', ')}`);
+      }
       const receipt = issueAcceptanceBasisReceipt({
         gitCwd: current.workspace.signedWorkspaceRoot,
         basis: current.derivation.basis,
@@ -227,6 +248,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         expectedScopeCheckDigest: current.derivation.basis.binding.scopeCheckDigest,
         ...(current.derivation.basis.binding.scopeContractDigest ? { expectedScopeContractDigest: current.derivation.basis.binding.scopeContractDigest } : {}),
         expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+        expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
       });
       if (!verification.ok) throw new Error(`acceptance_basis_generate refused invalid receipt: ${verification.code}: ${verification.diagnostics.join('; ')}`);
       store.writeAcceptanceBasis(args.storyId, artifact);

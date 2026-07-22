@@ -78,7 +78,11 @@ export interface ProcessFactRegistryEntry {
   gateEvidence?: boolean;
   destructiveRisk?: CommandDestructiveRisk;
   producer: string;
+  /** Canonical repository sources that implement/register the producer. */
+  producerSourceRefs?: readonly string[];
   consumerGate?: string;
+  /** Canonical repository sources that declare or implement the consumer. */
+  consumerSourceRefs?: readonly string[];
   artifact?: ProcessFactArtifactRef;
   reviewerLane?: string;
   rationale: string;
@@ -851,7 +855,13 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
     gateEvidence,
     destructiveRisk: policy?.destructiveRisk,
     producer: entry.owner,
+    producerSourceRefs: ['acceptance_basis_generate', 'acceptance_basis'].includes(entry.name)
+      ? ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts']
+      : undefined,
     consumerGate: entry.gateConsumer,
+    consumerSourceRefs: ['acceptance_basis_generate', 'acceptance_basis'].includes(entry.name)
+      ? ['packages/main/src/core/process-fact-registry.ts', 'scripts/verify-process-fact-contract.mjs']
+      : undefined,
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name],
     reviewerLane: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name]?.reviewerLane,
     rationale: entry.rationale,
@@ -1015,7 +1025,9 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/proofstory.acceptance_basis_generate',
+    producerSourceRefs: ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts'],
     consumerGate: 'Wave 2 acceptance_topology_check (not yet active in Wave 1A)',
+    consumerSourceRefs: ['packages/main/src/core/process-fact-registry.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.acceptance_basis_generate,
     rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash and closureFilesHash. The acceptance_basis reader is diagnostic-only and cannot mint or rebind it.',
   },

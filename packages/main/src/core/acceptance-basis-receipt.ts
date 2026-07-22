@@ -11,7 +11,7 @@ import {
 } from './authority-signing.js';
 import { digestCanonicalJson } from './digest.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
-import { verifyAcceptanceCoverageBasis } from './acceptance-coverage-basis.js';
+import { acceptanceCoverageBasisSemanticDigest, verifyAcceptanceCoverageBasis } from './acceptance-coverage-basis.js';
 
 const KEY_FILE = 'lattice-acceptance-basis-verifier-v1.key';
 
@@ -104,6 +104,7 @@ export function verifyAcceptanceBasisReceipt(args: {
   expectedScopeCheckDigest?: string;
   expectedScopeContractDigest?: string;
   expectedClosureFilesHash?: string;
+  expectedBasisSemanticDigest?: string;
 }): AcceptanceBasisReceiptVerification {
   if (!args.artifact) return { ok: false, code: 'AT_COVERAGE_BASIS_MISSING', diagnostics: ['acceptance basis receipt is missing'] };
   const { basis, receipt } = args.artifact;
@@ -115,6 +116,9 @@ export function verifyAcceptanceBasisReceipt(args: {
   if (!trustedPublicKey || !verifyCanonical(unsignedReceipt(receipt), receipt.signature, trustedPublicKey)) diagnostics.push('receipt signature is invalid');
   const basisVerification = verifyAcceptanceCoverageBasis(basis);
   diagnostics.push(...basisVerification.diagnostics.map(item => `${item.code}: ${item.message}`));
+  if (args.expectedBasisSemanticDigest && acceptanceCoverageBasisSemanticDigest(basis) !== args.expectedBasisSemanticDigest) {
+    diagnostics.push('basis semantic discovery digest mismatch');
+  }
   if (receipt.issuer !== 'acceptance-coverage-basis-verifier'
     || receipt.storyId !== args.expectedStoryId
     || basis.storyId !== args.expectedStoryId

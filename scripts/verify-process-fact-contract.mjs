@@ -3115,7 +3115,7 @@ function parseProcessFactRegistry() {
   assertProcessFactMappedSourceContracts(sourceText);
 
   if (builtProcessFactRegistryModule?.PROCESS_FACT_REGISTRY) {
-    const entries = builtProcessFactRegistryModule.PROCESS_FACT_REGISTRY.map(entry => ({
+    let entries = builtProcessFactRegistryModule.PROCESS_FACT_REGISTRY.map(entry => ({
       name: entry.name,
       kind: entry.kind,
       semantics: Array.isArray(entry.semantics) ? [...entry.semantics] : [],
@@ -3134,6 +3134,12 @@ function parseProcessFactRegistry() {
       reviewerLane: entry.reviewerLane || '',
       rationale: entry.rationale || '',
     }));
+    // Mutation seam used by the focused production-contract smoke: remove one
+    // side of registration and require the ordinary cross-registry assertions
+    // below to fail. It never changes normal verification behavior.
+    if (process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
+      entries = entries.filter(entry => entry.name !== 'acceptance_basis_generate');
+    }
     assert(entries.length > 0, `${processFactRegistryPath}: compiled PROCESS_FACT_REGISTRY should not be empty`);
     cachedProcessFactRegistryEntries = entries;
     return entries;
@@ -3204,6 +3210,9 @@ function parseProcessFactRegistry() {
     ...flowPolicyEntries,
     ...closeoutTelemetryEntries,
   ];
+  if (process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
+    cachedProcessFactRegistryEntries = cachedProcessFactRegistryEntries.filter(entry => entry.name !== 'acceptance_basis_generate');
+  }
   return cachedProcessFactRegistryEntries;
 }
 

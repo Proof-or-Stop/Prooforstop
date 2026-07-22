@@ -4,6 +4,7 @@ import type {
   AcceptanceCoverageBasisV1,
   AcceptanceVerificationTopologyV1,
   ChecklistData,
+  DecisionData,
   PlannedCoveragePathV1,
   ProofStoryContractData,
   ScopeCheckData,
@@ -36,6 +37,7 @@ export interface AcceptanceBasisDerivationInput {
   materialHash: string;
   storyFilesHash: string;
   supported?: boolean;
+  foundationalDecision?: DecisionData | null;
 }
 
 export interface AcceptanceBasisDerivation {
@@ -83,6 +85,15 @@ export function derivePlannedCoveragePaths(
     const declarationRef = `${entry.intentRef}:${entry.declaration.id}`;
     const endpoints = [entry.declaration.producer, ...entry.declaration.consumers];
     let valid = true;
+    if (entry.declaration.schemaVersion !== 'proofstory.verification_planned_path_declaration.v1'
+      || entry.declaration.relation !== 'producer_to_consumer'
+      || entry.declaration.producer.role !== 'producer'
+      || entry.declaration.consumers.length === 0
+      || entry.declaration.consumers.some(endpoint => endpoint.role !== 'consumer')
+      || !entry.declaration.outputFactRef.trim()) {
+      diagnostics.push({ code: 'AT_PLANNED_PATH_INVALID', message: `planned declaration ${declarationRef} has invalid schema, relation, endpoint roles, or output fact`, pathRef: declarationRef });
+      valid = false;
+    }
     for (const endpoint of endpoints) {
       const file = resolveDeclaredFile(checklist, entry.itemId, endpoint.fileDeclarationRef);
       if (!file || file !== endpoint.expectedFileRef || !scopeAllows(scopeContract, endpoint.expectedFileRef)) {
@@ -157,8 +168,16 @@ function sourceInventory(records: readonly PlannedCoveragePathV1[], contract: Pr
   return stable([...planned, ...existing]);
 }
 
+function inventorySourceFile(ref: string): string | null {
+  const match = ref.match(/^source-file:(?:producer|consumer):[^:]+:(.+)$/);
+  return match?.[1] ?? null;
+}
+
 export function computeClosureFilesHash(workspaceRoot: string, records: readonly PlannedCoveragePathV1[], inventory: readonly string[]): string {
-  const files = stable(records.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)));
+  const files = stable([
+    ...records.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
+    ...inventory.map(inventorySourceFile).filter((file): file is string => Boolean(file)),
+  ]);
   const rows = files.map(file => {
     const absolute = resolve(workspaceRoot, file);
     return `${file}\0${existsSync(absolute) ? digestText(readFileSync(absolute, 'utf8')) : '<planned>'}`;
@@ -173,6 +192,12 @@ function unsignedBasis(basis: AcceptanceCoverageBasisV1): Omit<AcceptanceCoverag
 
 export function digestAcceptanceCoverageBasis(basis: Omit<AcceptanceCoverageBasisV1, 'basisDigest'>): string {
   return digest(basis);
+}
+
+/** Stable semantic projection used to detect hash-only rebinding without rerunning discovery. */
+export function acceptanceCoverageBasisSemanticDigest(basis: AcceptanceCoverageBasisV1): string {
+  const { basisDigest: _basisDigest, binding: _binding, receiptRef: _receiptRef, ...semantic } = basis;
+  return digest(semantic);
 }
 
 function classifyAcceptanceCoverageBasis(
@@ -191,23 +216,32 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
   if (!input.scopeCheck) diagnostics.push({ code: 'AT_SCOPE_BINDING_MISSING', message: 'signed scope-check.json is required' });
   const planned = derivePlannedCoveragePaths(input.checklist, input.contract, input.scopeContract);
   diagnostics.push(...planned.diagnostics);
-  const topologyPathRefs = topologyPaths(input.contract);
-  const expectedPathRefs = stable([...topologyPathRefs, ...plannedPathRefs(planned.records)]);
   const scopeRefs = stable([
     ...(input.scopeContract ? [...input.scopeContract.allowedModify, ...input.scopeContract.allowedCreate, ...input.scopeContract.allowedTest].map(file => `scope:file:${file}`) : []),
     ...input.checklist.items.map(item => `scope:checklist:${item.id}`),
   ]);
   const supported = input.supported ?? existsSync(resolve(input.workspaceRoot, 'tsconfig.json'));
   const initialInventory = sourceInventory(planned.records, input.contract);
-  const registeredClosure = deriveRegisteredProcessFactClosure(initialInventory);
-  const results = runAcceptanceDiscoveryAdapters({ supported, pathRefs: stable([...expectedPathRefs, ...registeredClosure.pathRefs]), scopeRefs });
+  const discoverySeeds = planned.records.flatMap(record => [
+    record.outputFactRef,
+    record.producer.expectedSymbolOrFact,
+    ...record.consumers.map(endpoint => endpoint.expectedSymbolOrFact),
+  ]);
+  const registeredClosure = deriveRegisteredProcessFactClosure(input.workspaceRoot, discoverySeeds);
+  const results = runAcceptanceDiscoveryAdapters({
+    supported,
+    workspaceRoot: input.workspaceRoot,
+    storyId: input.storyId,
+    plannedPathRecords: planned.records,
+    scopeRefs,
+  });
   const reconciled = reconcileAcceptanceDiscoveryResults(results);
   diagnostics.push(...reconciled.diagnostics);
   const inventory = stable([...initialInventory, ...registeredClosure.sourceInventoryRefs]);
   const closureFilesHash = computeClosureFilesHash(input.workspaceRoot, planned.records, inventory);
   const topologyDigest = digest((input.contract?.acceptanceBindings ?? []).map(binding => ({ id: binding.id, topology: binding.verificationTopology ?? null })));
   const receiptRef = `receipt:coverage-basis:${input.storyId}:plan:${digest({ storyId: input.storyId, topologyDigest, closureFilesHash }).slice(7, 23)}`;
-  const unsigned: Omit<AcceptanceCoverageBasisV1, 'basisDigest'> = {
+  let unsigned: Omit<AcceptanceCoverageBasisV1, 'basisDigest'> = {
     schemaVersion: 'proofstory.acceptance_coverage_basis.v1',
     storyId: input.storyId,
     phaseBasis: 'plan',
@@ -237,6 +271,12 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
       closureFilesHash,
     },
     receiptRef,
+  };
+  const provisional = { ...unsigned, basisDigest: digestAcceptanceCoverageBasis(unsigned) };
+  diagnostics.push(...reconcileTopologyWithCoverageBasis(input.contract, provisional, input.foundationalDecision));
+  unsigned = {
+    ...unsigned,
+    status: classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, reconciled.blindSpots),
   };
   return { basis: { ...unsigned, basisDigest: digestAcceptanceCoverageBasis(unsigned) }, diagnostics, topologyDigest };
 }
@@ -278,6 +318,7 @@ export function verifyAcceptanceCoverageBasis(
 export function reconcileTopologyWithCoverageBasis(
   contract: ProofStoryContractData | null,
   basis: AcceptanceCoverageBasisV1,
+  foundationalDecision: DecisionData | null = null,
 ): AcceptanceBasisDiagnostic[] {
   const topology = new Set(topologyPaths(contract));
   const planned = new Set((contract?.acceptanceBindings ?? []).flatMap(binding => {
@@ -285,6 +326,12 @@ export function reconcileTopologyWithCoverageBasis(
     return value ? [...value.producerRefs, ...value.consumerRefs].map(sourceRefValue).filter((ref): ref is string => typeof ref === 'string' && ref.startsWith('planned:')) : [];
   }));
   const diagnostics: AcceptanceBasisDiagnostic[] = [];
+  for (const binding of contract?.acceptanceBindings ?? []) {
+    const value = binding.verificationTopology as AcceptanceVerificationTopologyV1 | undefined;
+    if (value && value.schemaVersion !== 'proofstory.acceptance_topology.v1') {
+      diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `unsupported topology schema version on ${binding.id}`, pathRef: `acceptance-binding:${binding.id}` });
+    }
+  }
   const derivedPlanned = new Set(basis.plannedPathRecords.map(record => record.plannedPathRef));
   for (const path of planned) {
     if (!derivedPlanned.has(path)) diagnostics.push({ code: 'AT_PLANNED_PATH_OUTSIDE_BASIS', message: `topology planned path has no frozen verifier-derived declaration: ${path}`, pathRef: path });
@@ -292,11 +339,30 @@ export function reconcileTopologyWithCoverageBasis(
   for (const path of basis.enumeratedPathRefs) {
     if (path.startsWith('planned:')) {
       if (!planned.has(path)) diagnostics.push({ code: 'AT_UNMAPPED_SCOPE_REF', message: `basis planned path is not mapped by topology: ${path}`, pathRef: path });
-    } else if (!topology.has(path)) diagnostics.push({ code: 'AT_UNMAPPED_SCOPE_REF', message: `basis path is not mapped by topology: ${path}`, pathRef: path });
+    } else if (path.startsWith('path:existing:') && !topology.has(path)) diagnostics.push({ code: 'AT_UNMAPPED_SCOPE_REF', message: `basis path is not mapped by topology: ${path}`, pathRef: path });
   }
-  for (const path of topology) if (!basis.enumeratedPathRefs.includes(path)) diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `topology path is outside basis: ${path}`, pathRef: path });
+  for (const path of topology) {
+    const edgeEndpoints = path.startsWith('path:') ? path.slice(5).split('->') : [];
+    const coveredByPlannedDeclarations = edgeEndpoints.length === 2
+      && edgeEndpoints.every(ref => ref.startsWith('planned:') && derivedPlanned.has(ref));
+    if (!basis.enumeratedPathRefs.includes(path) && !coveredByPlannedDeclarations) diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `topology path is outside basis: ${path}`, pathRef: path });
+  }
+  const seenDecisions = new Set<string>();
   for (const exclusion of basis.excludedPathRefs) {
-    if (!/^decision:[A-Za-z0-9._:-]+$/.test(exclusion.decisionRef)) diagnostics.push({ code: 'AT_UNJUSTIFIED_EXCLUSION', message: `exclusion lacks an auditable foundational decisionRef: ${exclusion.pathRef}`, pathRef: exclusion.pathRef });
+    const expectedRef = foundationalDecision ? foundationalExclusionDecisionRef(foundationalDecision) : null;
+    const eligibleKind = foundationalDecision?.chosen.trim().toLowerCase().startsWith('[coverage-exclusion]') === true;
+    const currentAndRelevant = Boolean(foundationalDecision
+      && Number.isFinite(Date.parse(foundationalDecision.timestamp))
+      && foundationalDecision.rationale.includes(exclusion.pathRef));
+    const duplicate = seenDecisions.has(exclusion.decisionRef);
+    seenDecisions.add(exclusion.decisionRef);
+    if (!expectedRef || exclusion.decisionRef !== expectedRef || !eligibleKind || !currentAndRelevant || duplicate) {
+      diagnostics.push({ code: 'AT_UNJUSTIFIED_EXCLUSION', message: `exclusion decisionRef is missing, stale, unrelated, duplicate, or an ineligible decision kind: ${exclusion.pathRef}`, pathRef: exclusion.pathRef });
+    }
   }
   return diagnostics.sort((a, b) => `${a.code}:${a.pathRef ?? ''}`.localeCompare(`${b.code}:${b.pathRef ?? ''}`));
+}
+
+export function foundationalExclusionDecisionRef(decision: DecisionData): string {
+  return `decision:story-design:${digest(decision).slice(7)}`;
 }
