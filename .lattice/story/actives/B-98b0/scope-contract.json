@@ -1,0 +1,104 @@
+{
+  "storyId": "B-98b0",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/CLI.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    ".lattice/story/actives/B-98b0/acceptance-basis.json"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+  ],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    "packages/main/src/.omx/**"
+  ],
+  "scopeChangeReason": "Freeze the scope-plan reviewer approved 12 implementation paths and explicitly classify the verifier-owned signed PLAN basis metadata artifact; later waves remain excluded.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-22T16:00:48.357Z",
+  "updatedAt": "2026-07-22T16:01:38.705Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/handlers/transition-orchestrator.ts",
+      "allowedAnchors": [
+        "PLAN",
+        "DEV",
+        "acceptance_topology_check",
+        "ProofStory"
+      ],
+      "deniedAnchors": [
+        "pre_review_check",
+        "topologyCritic",
+        "criticReceipt"
+      ],
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "B98B0-M3-H-PLAN-DEV",
+        "B98B0-M3-E-MODE-LIFECYCLE",
+        "B98B0-M3-A-NO-LATER-WAVE-LEAKAGE"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/acceptance-topology.ts",
+      "deniedAnchors": [
+        "pre_review_check",
+        "criticEligibility",
+        "selectiveApplicability"
+      ],
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "B98B0-M1-H-CANONICAL",
+        "B98B0-M1-A-OMISSION-INVENTION"
+      ]
+    }
+  ],
+  "protectedAnchors": [
+    "proofstory.acceptance_topology.v1"
+  ],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "docs/CLI.md": "docs/CLI.md",
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "docs/story/**": "docs/story/**",
+    "tests/fixtures/**": "tests/fixtures/**",
+    "packages/main/src/.omx/**": ".omx/**",
+    ".lattice/story/actives/B-98b0/acceptance-basis.json": ".lattice/story/actives/B-98b0/acceptance-basis.json"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
+}
