@@ -376,7 +376,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/core/acceptance-discovery-adapters.ts:61-84 and :182-195 leave F-011 unresolved. handler_dispatch_inventory and static_call_graph independently perform exact checks only after relevantProcessFacts filters PROCESS_FACT_REGISTRY by terms copied from plannedPathRecords; neither adapter enumerates checklist/scope source files or discovers handlers/consumers absent from that preselected registry subset. Therefore an unregistered real handler/consumer C2, or a Story with no plannedPathRecords, yields no path and no blind spot and can still classify complete. Exact validation of known entries fixed F-013 but is not independent enumeration. Build a bounded source inventory from canonical checklist/scope files, enumerate handler/dispatch/static relations independently of topology/planned terms, union with registered closure, and add a real undeclared/unregistered C2 omission mutation.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T08:22:03.028Z",
@@ -385,14 +385,15 @@
       "_hash": "dabf228ec57bb31d20f2c48ecf33491b4b93d65594649599cb13fe9ba6ed089b",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
       "signatureTagSource": "auto",
-      "clusterId": "CL-007"
+      "clusterId": "CL-007",
+      "resolvedBy": "CL-007@d5f03a9"
     },
     {
       "id": "B-a32a:F-019",
       "desc": "doc-promise-undelivered: packages/main/src/core/acceptance-discovery-adapters.ts:67-72 and :135-195 still do not implement a general independently enumerated handler/dispatch/static discovery adapter. Candidate entries are restricted to PROCESS_FACT_REGISTRY rows keyword-matched from plannedPathRecords; the dispatch verifier is then hard-coded to command-catalog.ts, createProofStoryHandlers(ctx), and handlers/proofstory.ts. It neither scans signed scope/checklist source files for additional consumers nor follows each registry entry's actual owner/source refs, so non-ProofStory commands such as the plan's review_run_start example can never be confirmed while an unregistered extra consumer remains invisible rather than producing a blind spot. The owner claim that f4de47a239 enumerates full registry/scope candidates is not supported by the production source; F-011's generic Wave 1A discovery requirement remains incomplete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T08:22:41.501Z",
@@ -401,7 +402,8 @@
       "_hash": "ef0293feda37edd11b08d8d0511e1c39d920fe3131df7b9834c3f9a6dd891903",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
       "signatureTagSource": "auto",
-      "clusterId": "CL-007"
+      "clusterId": "CL-007",
+      "resolvedBy": "CL-007@d5f03a9"
     }
   ]
 }
