@@ -39,7 +39,7 @@
         "adversarial": [
           {
             "id": "VI-1995-001-WRITER-FREEZE",
-            "desc": "Only the verification-intent authoring flow can add or change planned-path declarations during PLAN; an ordinary caller or a post-PLAN mutation attempt is rejected and the previously frozen declaration bytes remain unchanged.",
+            "desc": "Attempt to persist plannedPathDeclarations through every shared-schema write surface: an ordinary story_create checklist payload during INIT, an ordinary checklist_add verificationIntent payload, and an ordinary checklist_update payload must each be rejected before any declaration or partial Story or checklist write unless the command is the eligible verification-intent authoring flow in PLAN. After an eligible PLAN write is frozen, checklist_update attempts in DEV, REVIEW or later phases must also be rejected and the previously persisted declaration bytes must remain unchanged.",
             "type": "cli",
             "requiredIn": "balanced",
             "priority": "must"
