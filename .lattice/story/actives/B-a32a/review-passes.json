@@ -862,6 +862,41 @@
         "scanEscalationReason": null
       },
       "_hash": "b1b523fc07406c82b8b0eac689b365ba268b087d6720177e13fe58452a885eee"
+    },
+    {
+      "id": "B-a32a:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Fresh incremental signoff only: RR-049 reports ELIGIBLE_NO_MATERIAL_CHANGE/ELIGIBLE_TRUSTED_PRIOR_BINDINGS with storyFilesHash 637759865b103bd2eecf720eaa4fc06edb7d4954661b55f47bbeefc451044c64, matching prior concept PASS. Git comparison shows no non-.lattice business diff after 948c8ea854, and all findings are resolved. Prior Wave 1A concept review remains valid; no tests rerun or scope broadened.",
+      "createdAt": "2026-07-22T10:59:43.638Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-049",
+      "envelopeId": "f14985892382513695249d420351ecdb09384f5597b03b502a40bb6b3d2cbd85",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "docs/CLI.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3590e84c5a77bff4858db71c64c9245809d20f616ec32b8f250e20b1ec9f1634"
     }
   ]
 }
