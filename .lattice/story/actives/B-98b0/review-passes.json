@@ -1,0 +1,41 @@
+{
+  "passes": [
+    {
+      "id": "B-98b0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept blocker: Wave 1A diagnostic-only semantics were consistently promoted to the Wave 2 L4 PLAN structural gate; canonical evaluator, CLI and lifecycle share fail-closed basis/topology checks; observe/warn remain non-blocking, enforce alone blocks; later-wave critic/executable/selective-rollout claims remain excluded. Focused production smoke and process-fact/prompt contracts pass on current HEAD, and repository grep found no stale Wave 1A no-gate residue.",
+      "createdAt": "2026-07-22T16:34:09.559Z",
+      "reviewRound": "2026-07-22T16:30:08.066Z",
+      "reviewRunId": "B-98b0:RR-001",
+      "envelopeId": "ca61de8d1633da8eef8bb10e49521099ee50904c836628860ef685008bafa37d",
+      "writerSessionId": "sess-51d8a2b61b6d185a4fb242e9ad7e0aa9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice-codex/agents/lattice-review-concept.md",
+          "AGENTS.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6b40d68b48806cd4aeb3d5e74cd2087f2a0a0eb03f35a58cb3e86c9f23102271"
+    }
+  ]
+}
