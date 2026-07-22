@@ -264,7 +264,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/core/acceptance-discovery-adapters.ts:117-143 and :164-171 still do not mechanically verify handler/dispatch registration. handlerInspectable marks every producerSourceRef inspectable when each file contains any generic entry token; for acceptance_basis_generate, registry.ts can continue matching proofstory/acceptance-basis comments or imports even after registry.registerBatch(createProofStoryHandlers(ctx)) is deleted. The adapter then emits the registered process-fact path and can agree with the registry adapter, so a real dispatch omission can remain complete. The current smoke only mutates an already-built result to empty and never deletes the real dispatch registration. Parse/resolve the canonical registry/command-to-handler binding (or fail partial) and add a production-source omission mutation.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T07:41:49.423Z",
@@ -273,7 +273,11 @@
       "_hash": "db24a2b2fbdd6dd5e7f88459164b54927340701b99ceff9f2323d525302fe991",
       "signatureTag": "adversarial|unknown|promise-undelivered-packages",
       "signatureTagSource": "auto",
-      "clusterId": "CL-005"
+      "clusterId": "CL-005",
+      "resolvedReason": "Fixed by f4de47a239: handler/dispatch inspectability requires exact command-catalog name, exact registry.registerBatch(createProofStoryHandlers(ctx)) binding and exact proofstory handler method, not generic token presence. Current-HEAD production-source dispatch deletion and comment/import token decoys fail; restored registration passes.",
+      "resolvedAt": "2026-07-22T08:20:41.585Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-014",
