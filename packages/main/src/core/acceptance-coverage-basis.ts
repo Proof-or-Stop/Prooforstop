@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type {
   AcceptanceCoverageBasisV1,
@@ -11,13 +11,14 @@ import type {
   ScopeContractData,
   VerificationPlannedPathDeclarationV1,
 } from './types.js';
-import { digestCanonicalJson, digestText } from './digest.js';
+import { digestCanonicalJson } from './digest.js';
 import {
   ACCEPTANCE_PLAN_DISCOVERY_PROFILE,
+  type AcceptanceSourceSnapshot,
   discoveryProfileDigest,
-  deriveRegisteredProcessFactClosure,
   reconcileAcceptanceDiscoveryResults,
-  runAcceptanceDiscoveryAdapters,
+  runAcceptanceDiscoverySnapshot,
+  snapshotAcceptanceSourceFiles,
 } from './acceptance-discovery-adapters.js';
 
 export interface AcceptanceBasisDiagnostic {
@@ -175,16 +176,35 @@ function inventorySourceFile(ref: string): string | null {
   return ref.match(/^source-file:closure:(.+)$/)?.[1] ?? null;
 }
 
+export function computeClosureFilesHashFromSnapshots(
+  records: readonly PlannedCoveragePathV1[],
+  inventory: readonly string[],
+  snapshots: readonly AcceptanceSourceSnapshot[],
+): { hash: string; blindSpots: string[] } {
+  const files = stable([
+    ...records.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
+    ...inventory.map(inventorySourceFile).filter((file): file is string => Boolean(file)),
+  ]);
+  const plannedFiles = new Set(records.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)));
+  const snapshotByFile = new Map(snapshots.map(snapshot => [snapshot.canonicalFile, snapshot]));
+  const blindSpots: string[] = [];
+  const rows = files.map(file => {
+    const snapshot = snapshotByFile.get(file);
+    if (snapshot) return `${file}\0${snapshot.contentDigest}`;
+    if (plannedFiles.has(file)) return `${file}\0<planned>`;
+    blindSpots.push(`closure source lacks immutable bounded snapshot: ${file}`);
+    return `${file}\0<uninspectable>`;
+  });
+  return { hash: digest([...rows, ...stable(inventory)]), blindSpots: stable(blindSpots) };
+}
+
+/** Compatibility helper: one bounded no-follow snapshot, never an unbounded raw reread. */
 export function computeClosureFilesHash(workspaceRoot: string, records: readonly PlannedCoveragePathV1[], inventory: readonly string[]): string {
   const files = stable([
     ...records.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
     ...inventory.map(inventorySourceFile).filter((file): file is string => Boolean(file)),
   ]);
-  const rows = files.map(file => {
-    const absolute = resolve(workspaceRoot, file);
-    return `${file}\0${existsSync(absolute) ? digestText(readFileSync(absolute, 'utf8')) : '<planned>'}`;
-  });
-  return digest([...rows, ...stable(inventory)]);
+  return computeClosureFilesHashFromSnapshots(records, inventory, snapshotAcceptanceSourceFiles(workspaceRoot, files).sourceSnapshots).hash;
 }
 
 function unsignedBasis(basis: AcceptanceCoverageBasisV1): Omit<AcceptanceCoverageBasisV1, 'basisDigest'> {
@@ -228,25 +248,33 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     ...scopeRefs.filter(ref => ref.startsWith('scope:file:')).map(ref => ref.slice('scope:file:'.length)),
     ...planned.records.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
   ]);
-  const registeredClosure = deriveRegisteredProcessFactClosure(input.workspaceRoot, discoverySeedFiles);
-  const results = runAcceptanceDiscoveryAdapters({
+  const discovery = runAcceptanceDiscoverySnapshot({
     supported,
     workspaceRoot: input.workspaceRoot,
     storyId: input.storyId,
     plannedPathRecords: planned.records,
     scopeRefs,
   });
-  const reconciled = reconcileAcceptanceDiscoveryResults(results);
+  const registeredClosure = discovery.registeredClosure;
+  const reconciled = reconcileAcceptanceDiscoveryResults(discovery.adapterResults);
   diagnostics.push(...reconciled.diagnostics);
   const inventory = stable([...initialInventory, ...registeredClosure.sourceInventoryRefs]);
-  const closureFilesHash = computeClosureFilesHash(input.workspaceRoot, planned.records, inventory);
+  const closureSnapshot = computeClosureFilesHashFromSnapshots(planned.records, inventory, discovery.sourceSnapshots);
+  const closureFilesHash = closureSnapshot.hash;
+  const plannedFiles = new Set(planned.records.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)));
+  const sourceReadBlindSpots = discovery.sourceReadBlindSpots.filter(message => {
+    const matched = message.match(/: (.+?)(?: -> .+)?$/)?.[1];
+    const absentPlannedFile = matched && plannedFiles.has(matched) && /unreadable or disappeared/.test(message);
+    return !absentPlannedFile;
+  });
+  const derivationBlindSpots = stable([...reconciled.blindSpots, ...registeredClosure.blindSpots, ...closureSnapshot.blindSpots, ...sourceReadBlindSpots]);
   const topologyDigest = digest((input.contract?.acceptanceBindings ?? []).map(binding => ({ id: binding.id, topology: binding.verificationTopology ?? null })));
   const receiptRef = `receipt:coverage-basis:${input.storyId}:plan:${digest({ storyId: input.storyId, topologyDigest, closureFilesHash }).slice(7, 23)}`;
   let unsigned: Omit<AcceptanceCoverageBasisV1, 'basisDigest'> = {
     schemaVersion: 'proofstory.acceptance_coverage_basis.v1',
     storyId: input.storyId,
     phaseBasis: 'plan',
-    status: classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, reconciled.blindSpots),
+    status: classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, derivationBlindSpots),
     generatedBy: {
       verifier: 'acceptance-coverage-basis-verifier',
       command: 'lattice acceptance_basis_generate',
@@ -262,7 +290,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     plannedActualReconciliations: [],
     enumeratedPathRefs: reconciled.enumeratedPathRefs,
     excludedPathRefs: [],
-    blindSpots: stable(reconciled.blindSpots),
+    blindSpots: derivationBlindSpots,
     binding: {
       headHash: input.headHash,
       materialHash: input.materialHash,

@@ -199,6 +199,30 @@ try {
     headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
   };
   const first = deriveAcceptanceCoverageBasis(input);
+  const producerFile = join(pureRoot, 'packages/main/src/producer.ts');
+  writeFileSync(producerFile, `export const oversized = '${'x'.repeat((2 * 1024 * 1024) + 1)}';\n`);
+  const oversizedDerivation = deriveAcceptanceCoverageBasis(input);
+  assert.equal(oversizedDerivation.basis.status, 'partial', 'production derivation rejects oversized planned closure source before receipt completeness');
+  assert.ok(oversizedDerivation.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'production oversized closure emits bounded-read diagnostic');
+  writeFileSync(producerFile, 'export const produceBasis = () => true;\n');
+  const closureScript = join(pureRoot, 'scripts/verify-process-fact-contract.mjs');
+  const closureScriptText = readFileSync(closureScript, 'utf8');
+  rmSync(closureScript);
+  assert.equal(deriveAcceptanceCoverageBasis(input).basis.status, 'partial', 'disappearing registered closure source returns partial without throwing');
+  writeFileSync(closureScript, closureScriptText);
+  const swapRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-closure-swap-'));
+  try {
+    write(swapRoot, 'external.mjs', 'export const escaped = true;\n');
+    rmSync(closureScript);
+    symlinkSync(join(swapRoot, 'external.mjs'), closureScript, 'file');
+    const swappedClosure = deriveAcceptanceCoverageBasis(input);
+    assert.equal(swappedClosure.basis.status, 'partial', 'symlink-swapped registered closure source returns partial without external reread');
+    assert.ok(swappedClosure.basis.blindSpots.some(item => item.includes('symlink')), 'symlink-swapped closure source emits deterministic diagnostic');
+  } finally {
+    rmSync(closureScript, { force: true });
+    writeFileSync(closureScript, closureScriptText);
+    rmSync(swapRoot, { recursive: true, force: true });
+  }
   const adapterControl = runAcceptanceDiscoveryAdapters({ supported: true, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1', 'scope:file:packages/main/src/handlers/proofstory.ts'] });
   const globalClosure = deriveRegisteredProcessFactClosure(pureRoot, ['packages/main/src/handlers/proofstory.ts']);
   assert.ok(globalClosure.pathRefs.some(path => path.includes('acceptance_basis_generate->consumer:<audit-only>')), 'non-gate writer remains registered without inventing a lifecycle consumer');
@@ -462,6 +486,9 @@ try {
     }
     for (const row of [
       { label: 'inline require property', extension: 'cjs', source: "exports.c2 = () => require('../handlers/review-run.js').emitReviewRunFact();" },
+      { label: 'inline callable require', extension: 'cjs', source: "exports.c2 = () => require('../handlers/review-run.js')();" },
+      { label: 'assigned callable require', extension: 'cjs', source: "const review = require('../handlers/review-run.js'); exports.c2 = () => review();" },
+      { label: 'default import direct call', extension: 'ts', source: "import review from '../handlers/review-run.js'; export const c2 = () => review();" },
       { label: 'dynamic import namespace', extension: 'ts', source: "export const c2 = async () => { const review = await import('../handlers/review-run.js'); return review.emitReviewRunFact(); };" },
       { label: 'dynamic import destructure', extension: 'ts', source: "export const c2 = async () => { const { emitReviewRunFact: consume } = await import('../handlers/review-run.js'); return consume(); };" },
       { label: 'dynamic import direct property', extension: 'ts', source: "export const c2 = async () => (await import('../handlers/review-run.js')).emitReviewRunFact();" },
@@ -486,6 +513,16 @@ try {
     const shadowedRequire = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
     assert.equal(shadowedRequire.status, 'partial', 'lexically shadowed require cannot satisfy the consumer gate');
     assert.ok(!shadowedRequire.enumeratedPathRefs.some(path => path.includes('consumer:packages/main/src/consumers/c2.ts')), 'shadowed require emits no static call edge');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', "export const c2 = async () => { const review = await import('../handlers/review-run.js'); return review(); };\n");
+    const namespaceDirectCall = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+    assert.equal(namespaceDirectCall.status, 'partial', 'dynamic-import namespace direct call cannot satisfy the consumer gate');
+    assert.ok(!namespaceDirectCall.enumeratedPathRefs.some(path => path.includes('consumer:packages/main/src/consumers/c2.ts')), 'dynamic-import namespace direct call emits no default edge');
+    assert.ok(namespaceDirectCall.blindSpots.some(item => item.includes('namespace is not directly callable')), 'dynamic namespace misuse is diagnosed explicitly');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', "import * as review from '../handlers/review-run.js'; export const c2 = () => review();\n");
+    const staticNamespaceDirectCall = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+    assert.equal(staticNamespaceDirectCall.status, 'partial', 'static namespace direct call cannot satisfy the consumer gate');
+    assert.ok(!staticNamespaceDirectCall.enumeratedPathRefs.some(path => path.includes('consumer:packages/main/src/consumers/c2.ts')), 'static namespace direct call emits no default edge');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', 'export const inactive = true;\n');
     write(genericRoot, 'packages/main/src/bridges/index.ts', [
       "import { emitReviewRunFact as consume } from '../handlers/review-run.js';",
       'export const bridge = () => consume();', '',
@@ -700,6 +737,29 @@ try {
     assert.deepEqual(mutatedDirectory.files, [], 'directory mutation discards the pre-mutation snapshot');
     assert.ok(mutatedDirectory.blindSpots.some(item => item.includes('changed during enumeration')), 'directory mutation emits an explicit blind spot');
     assert.equal(mutatedDirectory.stats.handlesOpened, mutatedDirectory.stats.handlesClosed, 'directory mutation closes every opened handle');
+    assert.equal(mutatedDirectory.stats.entries, 1, 'discarded mutated directory still charges its iterator work');
+
+    const closeFailureRoot = join(budgetRoot, 'directory-close-failure');
+    write(closeFailureRoot, 'candidate.ts', 'x\n');
+    const physicalCloseFailureRoot = realpathSync(closeFailureRoot);
+    const closeFailure = enumerateBoundedSourceTree(physicalCloseFailureRoot, physicalCloseFailureRoot, {
+      maxDirectories: 5, maxEntries: 10, maxFiles: 10, maxBytes: 100,
+    }, { closeDirectory: () => { throw new Error('injected close failure'); } });
+    assert.deepEqual(closeFailure.files, [], 'close failure admits no provisional directory rows');
+    assert.ok(closeFailure.blindSpots.some(item => item.includes('close failed')), 'close failure emits an explicit blind spot');
+    assert.equal(closeFailure.stats.handlesOpened, closeFailure.stats.handlesClosed, 'close failure path closes the handle in finally');
+    assert.equal(closeFailure.stats.entries, 1, 'close-failed directory still charges iterator work');
+
+    const finalMutationRoot = join(budgetRoot, 'directory-final-mutation');
+    write(finalMutationRoot, 'a/first.ts', 'x\n');
+    write(finalMutationRoot, 'b/second.ts', 'x\n');
+    const physicalFinalMutationRoot = realpathSync(finalMutationRoot);
+    const finalMutation = enumerateBoundedSourceTree(physicalFinalMutationRoot, physicalFinalMutationRoot, {
+      maxDirectories: 5, maxEntries: 10, maxFiles: 10, maxBytes: 100,
+    }, { beforeFinalRevalidation: () => write(finalMutationRoot, 'a/late.ts', 'x\n') });
+    assert.deepEqual(finalMutation.files, [], 'late mutation invalidates the globally admitted inventory snapshot');
+    assert.ok(finalMutation.blindSpots.some(item => item.includes('changed after enumeration')), 'late mutation of an earlier directory is detected');
+    assert.equal(finalMutation.stats.handlesOpened, finalMutation.stats.handlesClosed, 'final revalidation path leaves no directory handles open');
   } finally {
     rmSync(budgetRoot, { recursive: true, force: true });
   }

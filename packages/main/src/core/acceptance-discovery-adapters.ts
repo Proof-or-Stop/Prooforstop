@@ -1,8 +1,8 @@
-import { closeSync, constants as fsConstants, existsSync, fstatSync, lstatSync, opendirSync, openSync, readFileSync, readSync, realpathSync, type Dirent, type Stats } from 'node:fs';
+import { closeSync, constants as fsConstants, existsSync, fstatSync, lstatSync, opendirSync, openSync, readFileSync, readSync, realpathSync, type Dir, type Dirent, type Stats } from 'node:fs';
 import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import ts from 'typescript';
 import type { CoverageAdapterResultV1, CoverageDiscoveryMethodV1, PlannedCoveragePathV1 } from './types.js';
-import { digestCanonicalJson } from './digest.js';
+import { digestCanonicalJson, digestText } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
 import { RUNTIME_FACT_REGISTRY } from './runtime-fact-registry.js';
 import { loadConfig } from './config.js';
@@ -28,6 +28,19 @@ export interface RegisteredProcessFactClosure {
   sourceFileRefs: string[];
   blindSpots: string[];
   entries: ProcessFactRegistryEntry[];
+}
+
+export interface AcceptanceSourceSnapshot {
+  canonicalFile: string;
+  contentDigest: string;
+  content: string;
+}
+
+export interface AcceptanceDiscoverySnapshot {
+  adapterResults: CoverageAdapterResultV1[];
+  registeredClosure: RegisteredProcessFactClosure;
+  sourceSnapshots: AcceptanceSourceSnapshot[];
+  sourceReadBlindSpots: string[];
 }
 
 export interface AcceptanceDiscoveryDiagnostic {
@@ -126,6 +139,8 @@ export interface SourceInventoryTraversalResult {
 export interface SourceInventoryTraversalHooks {
   beforeDirectoryOpen?: (directory: string) => void;
   afterDirectoryRead?: (directory: string) => void;
+  closeDirectory?: (directory: string, close: () => void) => void;
+  beforeFinalRevalidation?: () => void;
 }
 
 function relativeFile(root: string, absolute: string): string | null {
@@ -191,6 +206,7 @@ export function enumerateBoundedSourceTree(
   const blindSpots: string[] = [];
   const stats = { directories: 0, entries: 0, files: 0, bytes: 0, iteratorReads: 0, peakBufferedEntries: 0, handlesOpened: 0, handlesClosed: 0 };
   const directories = [physicalSourceRoot];
+  const admittedDirectories: Array<{ directory: string; physical: string; stat: Stats }> = [];
   let stopped = false;
   const stop = (dimension: keyof SourceInventoryTraversalBudget): void => {
     if (!stopped) blindSpots.push(`configured source-root inventory exhausted ${dimension} budget`);
@@ -205,7 +221,14 @@ export function enumerateBoundedSourceTree(
     const rows: Dirent[] = [];
     let before: Stats;
     let physicalBefore: string;
-    let handle;
+    let handle: Dir | undefined;
+    let closeFailed = false;
+    const closeHandle = (): void => {
+      if (!handle) return;
+      handle.closeSync();
+      handle = undefined;
+      stats.handlesClosed += 1;
+    };
     try {
       before = lstatSync(directory);
       if (before.isSymbolicLink() || !before.isDirectory()) throw new Error('not a stable directory');
@@ -222,12 +245,20 @@ export function enumerateBoundedSourceTree(
         stats.peakBufferedEntries = Math.max(stats.peakBufferedEntries, rows.length);
       }
       hooks.afterDirectoryRead?.(directory);
+      (hooks.closeDirectory ?? ((_directory: string, close: () => void) => close()))(directory, closeHandle);
     } catch {
-      blindSpots.push(`configured source directory is unreadable: ${relativeFile(physicalWorkspace, directory) ?? directory}`);
-      continue;
+      closeFailed = Boolean(handle);
+      blindSpots.push(`${closeFailed ? 'configured source directory close failed' : 'configured source directory is unreadable'}: ${relativeFile(physicalWorkspace, directory) ?? directory}`);
     } finally {
-      try { if (handle) { handle.closeSync(); stats.handlesClosed += 1; handle = undefined; } } catch { /* post-close failure remains a blind spot below */ }
+      try { closeHandle(); }
+      catch {
+        closeFailed = true;
+        blindSpots.push(`configured source directory close failed: ${relativeFile(physicalWorkspace, directory) ?? directory}`);
+      }
     }
+    const chargedEntries = Math.min(rows.length, remainingEntries);
+    stats.entries += chargedEntries;
+    if (closeFailed) { stopped = true; break; }
     try {
       const after = lstatSync(directory);
       const physicalAfter = realpathSync(directory);
@@ -235,18 +266,19 @@ export function enumerateBoundedSourceTree(
         || before!.dev !== after.dev || before!.ino !== after.ino || before!.size !== after.size
         || before!.mtimeMs !== after.mtimeMs || before!.ctimeMs !== after.ctimeMs) {
         blindSpots.push(`configured source directory changed during enumeration: ${relativeFile(physicalWorkspace, directory) ?? directory}`);
-        continue;
+        stopped = true;
+        break;
       }
     } catch {
       blindSpots.push(`configured source directory changed during enumeration: ${relativeFile(physicalWorkspace, directory) ?? directory}`);
-      continue;
+      stopped = true;
+      break;
     }
     if (rows.length > remainingEntries) { stop('maxEntries'); break; }
+    admittedDirectories.push({ directory, physical: physicalBefore!, stat: before! });
     rows.sort((a, b) => compareCodeUnits(a.name, b.name));
     const childDirectories: string[] = [];
     for (const row of rows) {
-      if (stats.entries >= budget.maxEntries) { stop('maxEntries'); break; }
-      stats.entries += 1;
       if (SOURCE_INVENTORY_EXCLUDED_DIRECTORIES.has(row.name)) continue;
       const absolute = resolve(directory, row.name);
       if (row.isSymbolicLink()) { blindSpots.push(`ambiguous source-root symlink excluded: ${relativeFile(physicalWorkspace, absolute) ?? absolute}`); continue; }
@@ -269,6 +301,21 @@ export function enumerateBoundedSourceTree(
       stats.bytes += size;
     }
     for (let index = childDirectories.length - 1; index >= 0 && !stopped; index -= 1) directories.push(childDirectories[index]);
+  }
+  hooks.beforeFinalRevalidation?.();
+  for (const snapshot of admittedDirectories) {
+    try {
+      const current = lstatSync(snapshot.directory);
+      const physical = realpathSync(snapshot.directory);
+      if (current.isSymbolicLink() || !current.isDirectory() || physical !== snapshot.physical
+        || current.dev !== snapshot.stat.dev || current.ino !== snapshot.stat.ino || current.size !== snapshot.stat.size
+        || current.mtimeMs !== snapshot.stat.mtimeMs || current.ctimeMs !== snapshot.stat.ctimeMs) throw new Error('changed');
+    } catch {
+      blindSpots.push(`configured source directory changed after enumeration: ${relativeFile(physicalWorkspace, snapshot.directory) ?? snapshot.directory}`);
+      files.length = 0;
+      stopped = true;
+      break;
+    }
   }
   return { files, blindSpots: stable(blindSpots), stopped, stats };
 }
@@ -395,6 +442,8 @@ function readSourceSafely(context: SourceReadContext, file: string): { text?: st
     const physicalFile = realpathSync(absolute);
     const rel = relative(context.physicalRoot, physicalFile);
     if (rel.startsWith('..') || isAbsolute(rel)) return fail(`source file physically escapes workspace: ${file}`);
+    const canonicalFile = relativeFile(context.physicalRoot, physicalFile);
+    if (!canonicalFile || canonicalFile !== relativePath) return fail(`source file spelling differs from canonical physical path: ${file}${canonicalFile ? ` -> ${canonicalFile}` : ''}`);
     const noFollow = context.forceNoFollow ? undefined : fsConstants.O_NOFOLLOW;
     if (typeof noFollow !== 'number' || noFollow <= 0) return fail(`safe no-follow source read is unsupported: ${file}`);
     if (before.size > context.maxPerFileBytes) return fail(`source file exceeds lexical scan budget: ${file}`);
@@ -427,7 +476,7 @@ function readSourceSafely(context: SourceReadContext, file: string): { text?: st
     }
     context.files += 1;
     context.bytes += before.size;
-    context.snapshots.set(file, text);
+    context.snapshots.set(canonicalFile, text);
     return { text };
   } catch {
     return fail(`source file is unreadable or disappeared: ${file}`);
@@ -446,6 +495,18 @@ export function readBoundedSourceSetForTest(
     acceptedFiles: stable([...context.snapshots.keys()]),
     blindSpots: stable([...context.failures.values()]),
     stats: { files: context.files, bytes: context.bytes, maxAllocatedBytes: context.maxAllocatedBytes },
+  };
+}
+
+export function snapshotAcceptanceSourceFiles(root: string, files: readonly string[]): { sourceSnapshots: AcceptanceSourceSnapshot[]; blindSpots: string[] } {
+  const context = createSourceReadContext(root);
+  for (const file of stable(files)) readSourceSafely(context, file);
+  return {
+    sourceSnapshots: stable([...context.snapshots.keys()]).map(canonicalFile => {
+      const content = context.snapshots.get(canonicalFile)!;
+      return { canonicalFile, contentDigest: digestText(content), content };
+    }),
+    blindSpots: stable([...context.failures.values()]),
   };
 }
 
@@ -571,7 +632,11 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
       if (module) {
         supportedModuleCalls.add(module.call);
         const sourceFile = resolveSpecifier(module.specifier);
-        if (sourceFile && ts.isIdentifier(node.name)) addBinding(property?.property ?? 'default', node.name, sourceFile, true, property === null);
+        if (sourceFile && ts.isIdentifier(node.name)) {
+          if (property) addBinding(property.property, node.name, sourceFile, true, false);
+          else if (module.kind === 'import') addBinding('*', node.name, sourceFile, false, true);
+          else addBinding('default', node.name, sourceFile, true, true);
+        }
         if (sourceFile && ts.isObjectBindingPattern(node.name)) {
           for (const element of node.name.elements) if (ts.isIdentifier(element.name)) {
             const imported = element.propertyName && (ts.isIdentifier(element.propertyName) || ts.isStringLiteral(element.propertyName)) ? element.propertyName.text : element.name.text;
@@ -586,6 +651,13 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
   const called: Array<{ imported: string; local: string; sourceFile: string }> = [];
   const visit = (node: ts.Node): void => {
     if (ts.isCallExpression(node)) {
+      const inlineModule = moduleCall(node.expression);
+      if (inlineModule) {
+        supportedModuleCalls.add(inlineModule.call);
+        const sourceFile = resolveSpecifier(inlineModule.specifier);
+        if (sourceFile && inlineModule.kind === 'require') called.push({ imported: 'default', local: 'default', sourceFile });
+        else if (inlineModule.kind === 'import') bindingBlindSpots.push(`module namespace is not directly callable in ${file}`);
+      }
       const directProperty = propertyModuleCall(node.expression);
       if (directProperty?.module) {
         supportedModuleCalls.add(directProperty.module.call);
@@ -609,6 +681,7 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
           if (!targetSymbol) { bindingBlindSpots.push(`unresolved call binding ${target.text} in ${file}`); continue; }
           if (!binding.symbol || targetSymbol !== binding.symbol) continue;
           if (property === null && binding.direct) called.push({ imported: binding.imported, local: binding.local, sourceFile: binding.sourceFile });
+          if (property === null && !binding.direct && binding.imported === '*') bindingBlindSpots.push(`module namespace is not directly callable in ${file}`);
           if (property !== null && binding.property) called.push({ imported: property, local: binding.local, sourceFile: binding.sourceFile });
         }
       }
@@ -723,8 +796,7 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
 }
 
 /** Resolve canonical process-fact closure and its producer/consumer source files. */
-export function deriveRegisteredProcessFactClosure(workspaceRoot: string, seedRefs: readonly string[]): RegisteredProcessFactClosure {
-  const graph = buildBoundedSourceGraph({ supported: true, workspaceRoot, storyId: '<closure>', plannedPathRecords: [], scopeRefs: seedRefs.map(ref => ref.startsWith('scope:file:') ? ref : `scope:file:${ref}`) });
+function registeredProcessFactClosureFromGraph(graph: BoundedSourceGraph): RegisteredProcessFactClosure {
   const reached = graph.entries;
   return {
     pathRefs: stable(reached.map(processFactPath)),
@@ -738,6 +810,11 @@ export function deriveRegisteredProcessFactClosure(workspaceRoot: string, seedRe
     blindSpots: graph.blindSpots,
     entries: reached,
   };
+}
+
+export function deriveRegisteredProcessFactClosure(workspaceRoot: string, seedRefs: readonly string[]): RegisteredProcessFactClosure {
+  const graph = buildBoundedSourceGraph({ supported: true, workspaceRoot, storyId: '<closure>', plannedPathRecords: [], scopeRefs: seedRefs.map(ref => ref.startsWith('scope:file:') ? ref : `scope:file:${ref}`) });
+  return registeredProcessFactClosureFromGraph(graph);
 }
 
 function unsignedResult(result: CoverageAdapterResultV1): Omit<CoverageAdapterResultV1, 'resultDigest'> {
@@ -869,6 +946,29 @@ function buildResult(
 export function runAcceptanceDiscoveryAdapters(input: AcceptanceDiscoveryInput): CoverageAdapterResultV1[] {
   const graph = input.supported ? buildBoundedSourceGraph(input) : undefined;
   return ACCEPTANCE_PLAN_DISCOVERY_PROFILE.methods.map(method => buildResult(input, method, graph));
+}
+
+/** One immutable source snapshot shared by closure discovery, adapter provenance, and receipt hashing. */
+export function runAcceptanceDiscoverySnapshot(input: AcceptanceDiscoveryInput): AcceptanceDiscoverySnapshot {
+  if (!input.supported) {
+    return {
+      adapterResults: ACCEPTANCE_PLAN_DISCOVERY_PROFILE.methods.map(method => buildResult(input, method)),
+      registeredClosure: { pathRefs: [], sourceInventoryRefs: [], sourceFileRefs: [], blindSpots: [], entries: [] },
+      sourceSnapshots: [],
+      sourceReadBlindSpots: [],
+    };
+  }
+  const graph = buildBoundedSourceGraph(input);
+  const adapterResults = ACCEPTANCE_PLAN_DISCOVERY_PROFILE.methods.map(method => buildResult(input, method, graph));
+  return {
+    adapterResults,
+    registeredClosure: registeredProcessFactClosureFromGraph(graph),
+    sourceSnapshots: stable([...graph.readContext.snapshots.keys()]).map(canonicalFile => {
+      const content = graph.readContext.snapshots.get(canonicalFile)!;
+      return { canonicalFile, contentDigest: digestText(content), content };
+    }),
+    sourceReadBlindSpots: stable([...graph.readContext.failures.values()]),
+  };
 }
 
 function sameSet(left: readonly string[], right: readonly string[]): boolean {

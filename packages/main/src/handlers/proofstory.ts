@@ -34,7 +34,7 @@ import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { buildAcceptanceMatrixReport } from '../core/acceptance-topology.js';
-import { acceptanceCoverageBasisSemanticDigest, deriveAcceptanceCoverageBasis, computeClosureFilesHash, reconcileTopologyWithCoverageBasis } from '../core/acceptance-coverage-basis.js';
+import { acceptanceCoverageBasisSemanticDigest, deriveAcceptanceCoverageBasis, reconcileTopologyWithCoverageBasis } from '../core/acceptance-coverage-basis.js';
 import { issueAcceptanceBasisReceipt, verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveStoryCommandWorkspace } from './context.js';
@@ -177,11 +177,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       expectedTopologyDigest: current.derivation.topologyDigest,
       expectedScopeCheckDigest: `sha256:${digestCanonicalJson(current.scopeCheck)}`,
       ...(current.scopeContract ? { expectedScopeContractDigest: `sha256:${digestCanonicalJson(current.scopeContract)}` } : {}),
-      expectedClosureFilesHash: computeClosureFilesHash(
-        current.workspace.signedWorkspaceRoot,
-        current.derivation.basis.plannedPathRecords,
-        current.derivation.basis.sourceInventoryRefs,
-      ),
+      expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
       expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
     });
     const topologyDiagnostics = reconcileTopologyWithCoverageBasis(
