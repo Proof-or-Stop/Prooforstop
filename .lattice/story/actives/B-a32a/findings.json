@@ -45,7 +45,7 @@
       "desc": "packages/main/src/core/acceptance-coverage-basis.ts:278 contains the only topology-versus-basis and exclusion validation, but neither deriveAcceptanceCoverageBasis nor the production generate/read handlers call it (handlers/proofstory.ts:134-184,206-234). Worse, derivation seeds every topology path into expectedPathRefs at lines 194-203 and the echo adapters reproduce it, so an invented topology path can be absorbed into a complete signed basis. The smoke calls reconcileTopologyWithCoverageBasis directly, which does not prove the real acceptance_basis_generate/acceptance_basis path rejects the mutation.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T07:02:48.175Z",
@@ -54,7 +54,11 @@
       "_hash": "65d7b95224868af5dc645c74d4a6e7bfc7bd32d3ed67f258c6ed1bd2cca9a3c2",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto",
-      "clusterId": "CL-003"
+      "clusterId": "CL-003",
+      "resolvedReason": "Fixed by 53c949a2ec: production acceptance_basis_generate and acceptance_basis verification execute topology-versus-derived-basis reconciliation before accepting complete; topology is no longer adapter seed authority. Current-HEAD production invented-topology mutation fails through generate/read while legitimate planned topology passes.",
+      "resolvedAt": "2026-07-22T07:38:56.658Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-004",
