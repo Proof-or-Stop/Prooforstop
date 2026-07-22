@@ -564,7 +564,7 @@
       "desc": "AST parsing fixes regex and template lexing, but imported-call exactness is still name-only rather than binding-aware. acceptance-discovery-adapters.ts:263-269 collects every identifier CallExpression text into one file-wide Set and marks an import called when its local name appears anywhere. Valid nested shadowing therefore invents a consumer: `import { emit as consume } from ./producer.js; function wrapper(consume) { return consume(); }` has zero parse diagnostics and calledNames=[consume], although the imported binding is never called. That false edge can add an outside-scope file to closure and satisfy discoveredConsumer. The focused AST reproduction printed parseDiagnostics:0, calledNames:[consume], importedBindingActuallyCalled:false. Current smoke tests aliases and syntax forms but has no shadowed parameter, local binding, catch binding, or nested-scope mutation. Resolve each call identifier to the actual ImportSpecifier or ImportClause symbol, or conservatively mark shadowed/unprovable bindings partial, and add shadowing mutations plus a restored imported alias call.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T09:19:46.495Z",
@@ -576,7 +576,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|parsing-fixes-regex",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 7ec60658bc and retained through current HEAD: TypeChecker symbol binding excludes shadowing, all supported JS/TS module forms resolve canonically or fail partial, streaming inventory is bounded, and source read failures fail closed. Current threat-table mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:27.185Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-028",
