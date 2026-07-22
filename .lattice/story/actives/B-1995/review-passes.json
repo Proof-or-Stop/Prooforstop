@@ -88,6 +88,35 @@
         "scanEscalationReason": null
       },
       "_hash": "88f989436fc381a67627794e6efe5341201d609fc199ad7dcd37acb087eb17c1"
+    },
+    {
+      "id": "B-1995:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 current-material concept review passed. Replayed the bounded actual-subcommand parser after 01d888403c: direct lattice and node/nodejs bin/lattice.js invocations, including bounded --root forms, classify acceptance_matrix as producer provenance; rg/printf/test-script arguments and acceptance_matrix tokens passed to other Lattice subcommands do not. Focused Wave 1 smoke, TypeScript build, and process-fact contract pass. The matrix remains L0/readOnly/non-evidentiary, with no machine/phase-gate diff, coverage basis, acceptance_topology_check, pre_review_check, Wave1A authority, or completion-result promotion.",
+      "createdAt": "2026-07-22T04:11:10.411Z",
+      "reviewRound": "2026-07-22T04:08:53.232Z",
+      "reviewRunId": "B-1995:RR-010",
+      "envelopeId": "f926d4cdb7cc3488fbdc634a892a48e9e71cb522f41d47261f0b7acad757a46d",
+      "writerSessionId": "sess-1078f9ca1b8239bf4fae7e6ca717ca58",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/plan.md",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1995/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7b38102dd99f9fa4189591d11058b9173e3bc4e07491c316435c2f9274ecfb32"
     }
   ]
 }
