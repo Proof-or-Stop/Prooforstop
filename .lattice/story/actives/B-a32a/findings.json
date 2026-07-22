@@ -29,6 +29,21 @@
       "_hash": "a61400e76b87e14ac6e3802a90b7b2f374183822de466fd85f3afa6283ba39e0",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-003",
+      "desc": "packages/main/src/core/acceptance-coverage-basis.ts:278 contains the only topology-versus-basis and exclusion validation, but neither deriveAcceptanceCoverageBasis nor the production generate/read handlers call it (handlers/proofstory.ts:134-184,206-234). Worse, derivation seeds every topology path into expectedPathRefs at lines 194-203 and the echo adapters reproduce it, so an invented topology path can be absorbed into a complete signed basis. The smoke calls reconcileTopologyWithCoverageBasis directly, which does not prove the real acceptance_basis_generate/acceptance_basis path rejects the mutation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T07:02:48.175Z",
+      "reviewRound": "2026-07-22T07:00:04.992Z",
+      "reviewRunId": "B-a32a:RR-001",
+      "_hash": "65d7b95224868af5dc645c74d4a6e7bfc7bd32d3ed67f258c6ed1bd2cca9a3c2",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
