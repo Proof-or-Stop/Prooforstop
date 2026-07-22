@@ -44,6 +44,51 @@
       "_hash": "65d7b95224868af5dc645c74d4a6e7bfc7bd32d3ed67f258c6ed1bd2cca9a3c2",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-004",
+      "desc": "packages/main/src/core/acceptance-coverage-basis.ts:289-291 implements exclusion eligibility as only a /^decision:/ string regex. It does not resolve the decisionRef from the canonical foundational decision store/schema, verify an eligible decision kind, or detect stale/unrelated decisions as required by CHK-004 and the plan. The smoke covers only free-form prose without a decision: prefix, so decision:anything would escape AT_UNJUSTIFIED_EXCLUSION. Add canonical decision resolution and negative tests for missing, stale, unrelated, and ineligible-kind refs (or explicitly leave all exclusions unsupported/non-complete in Wave 1A).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T07:02:54.222Z",
+      "reviewRound": "2026-07-22T07:00:04.992Z",
+      "reviewRunId": "B-a32a:RR-002",
+      "_hash": "df477cc94204cc6d8f6f9722eea05aa83b64d0446dfbcc1e403c62a1c863ccac",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-005",
+      "desc": "packages/main/src/core/acceptance-coverage-basis.ts:149-156 and :201-207 do not bind the discovered global closure source contents promised by closureFilesHash. computeClosureFilesHash hashes only files named by plannedPathRecords; sourceInventory entries for PROCESS_FACT_REGISTRY producers/consumer gates are merely hashed as identifier strings and are never resolved to source files. A consumer outside Story scope can change without its file content entering closureFilesHash, violating the explicit Wave 1A requirement that every discovered producer and consumer source reference, including outside storyFilesHash, be content-bound and uninspectable consumers force partial.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T07:02:54.234Z",
+      "reviewRound": "2026-07-22T07:00:04.992Z",
+      "reviewRunId": "B-a32a:RR-002",
+      "_hash": "d54ac70e1a928ea2093102f6f008d50f490cd1ea03b5ab7be4e4d9193f385c9d",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-006",
+      "desc": "doc-promise-undelivered: packages/main/src/core/acceptance-coverage-basis.ts:194-204 and packages/main/src/core/acceptance-discovery-adapters.ts:81-108 do not implement independently derived discovery. deriveAcceptanceCoverageBasis first takes path refs from the submitted topology/planned declarations, then buildResult copies that same precomputed set verbatim into process_fact_registry, handler_dispatch_inventory, and static_call_graph while runtime_trace contributes nothing. Consequently deleting an undeclared real handler/dispatch/static consumer from topology makes every synthetic adapter agree and can still yield status=complete; there is no repository/handler/dispatch/static/runtime inspection. This contradicts the Wave 1A exit condition and the new CLI promise that the registered profile derives the union. Implement method-specific adapters from canonical repository/runtime inputs and prove an actual omitted consumer is discovered/fails closed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T07:02:54.274Z",
+      "reviewRound": "2026-07-22T07:00:04.992Z",
+      "reviewRunId": "B-a32a:RR-002",
+      "_hash": "3b9d18aba03728b7fa9e4a9724551562c1dc16d5827fef2140bcce291a9d0d60",
+      "signatureTag": "missing|unknown|promise-undelivered-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
