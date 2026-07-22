@@ -227,6 +227,26 @@
       "_hash": "5ce3c644148d083ee6b88f689328d8cd809409562764319b19418b8a62647d17",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1995:F-012",
+      "desc": "packages/main/src/core/milestone-status.ts:198-209,473-540 remains an unpatched verificationEvidence consumer after the F-010 fix. Current-dist repro replaced M1’s two required evidence rows with passing commands `lattice acceptance_matrix --storyId=B-1995`; buildMilestoneStatusReport returned `ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered` and both intent subobjectives `status=covered`. Writer rejection plus filters in verification.ts/proofstory.ts do not fail closed for legacy/injected evidence in milestone_status/closeout. Apply the same non-evidentiary predicate in milestone evidence status/coverage and add a milestone-status (and derived closeout if applicable) negative mutation asserting matrix-derived rows are not covering.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T03:44:02.667Z",
+      "reviewRound": "2026-07-22T03:40:27.426Z",
+      "reviewRunId": "B-1995:RR-006",
+      "_hash": "1bcbee6a8b79cc5d0a9efa2e029175efdccc03aa8cf25f23d8f90f8435936aa0",
+      "files": [
+        "packages/main/src/core/milestone-status.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "packages/main/src/core/acceptance-topology.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
