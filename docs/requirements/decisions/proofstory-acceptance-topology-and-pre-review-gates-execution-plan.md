@@ -320,6 +320,8 @@ interface TopologyCriticReceiptV1 {
   storyId: string;
   criticIdentity: string;
   criticRole: string;
+  criticProvenance: TopologyActorProvenanceV1;
+  implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;
   topologyDigest: string;
   scopeCheckDigest: string;
@@ -330,6 +332,7 @@ interface TopologyCriticReceiptV1 {
   approvedExclusionRefs: string[];
   verdict: 'pass' | 'request_changes';
   issuedAt: string;
+  signerPublicKey: string;
   signature: string;
 }
 ```

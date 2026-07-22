@@ -63,7 +63,7 @@
       },
       {
         "role": "lattice-review-topology-critic",
-        "templateHash": "6146d87bed6252f394b9f208a6697f8937ba714d19d31aba3bd77a26fec4bed0"
+        "templateHash": "a7c1adcf0e363f91352093d6f7b0185001cc20ec390a6e8f9cf709ceb2e06575"
       },
       {
         "role": "product-reviewer",
@@ -141,7 +141,7 @@
     "schemaVersion": "lattice.prompt-registry.v1",
     "source": "@lattice/core/templates/agents",
     "agentCount": 17,
-    "materialHash": "25c0e9bd567b5a382aeeed6597a92f25c4265c46149ea5f62a83ae7abe6c9633",
+    "materialHash": "00137a57552c13b33512942b6eb757e4fd8d9f7173570631d41decd34f73065b",
     "roles": [
       {
         "role": "implementation-reviewer",
@@ -251,8 +251,8 @@
         "role": "lattice-review-topology-critic",
         "file": "lattice-review-topology-critic.md",
         "relPath": "templates/agents/lattice-review-topology-critic.md",
-        "templateHash": "6146d87bed6252f394b9f208a6697f8937ba714d19d31aba3bd77a26fec4bed0",
-        "bytes": 1096,
+        "templateHash": "a7c1adcf0e363f91352093d6f7b0185001cc20ec390a6e8f9cf709ceb2e06575",
+        "bytes": 1095,
         "lines": 22
       },
       {
@@ -365,8 +365,8 @@
       },
       {
         "role": "lattice-review-topology-critic",
-        "sha256": "bd29a06ed5e944b832413befce85605218fec6427d2e51e3d22c4d91d4b4e9c0",
-        "bytes": 1097,
+        "sha256": "59668051a5537f079f4a01b4846212a93b955993731c3810689bbbf62d19b166",
+        "bytes": 1096,
         "lines": 23
       },
       {
@@ -614,7 +614,7 @@
   ],
   "roleMatrixAudit": {
     "machineChecks": [
-      "Lock the exact 16 role snapshots and role IDs.",
+      "Lock the exact 17 role snapshots and role IDs.",
       "Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.",
       "For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.",
       "Lock agent_prompt output hashes.",
@@ -709,7 +709,7 @@
         {
           "role": "lattice-review-topology-critic",
           "relPath": "templates/agents/lattice-review-topology-critic.md",
-          "templateHash": "6146d87bed6252f394b9f208a6697f8937ba714d19d31aba3bd77a26fec4bed0"
+          "templateHash": "a7c1adcf0e363f91352093d6f7b0185001cc20ec390a6e8f9cf709ceb2e06575"
         },
         {
           "role": "product-reviewer",

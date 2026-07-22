@@ -2,6 +2,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
+import { createPublicKey, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -9,9 +10,11 @@ import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import { resetSessionIdForTest } from '../core/owner-session.js';
-import { createProofStoryHandlers } from '../handlers/proofstory.js';
+import { createProofStoryHandlers, evaluateTopologyCriticReceiptForContext } from '../handlers/proofstory.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
+import { extractTemplateFrontmatter, readPromptRegistry } from '../core/prompt-registry.js';
+import { exportPublicKeyRaw, importPrivateKeyRaw, signCanonical } from '../core/authority-signing.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo, TopologyCriticReceiptV1 } from '../core/types.js';
 import {
   canonicalTopologyReceiptContext,
@@ -26,6 +29,9 @@ import {
 } from '../core/topology-critic-receipt.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const sourceRoot = resolve(packageRoot, '..');
+const repositoryRoot = resolve(sourceRoot, '..', '..');
+const latticeBin = join(repositoryRoot, 'bin/lattice.js');
 const storyId = 'B-topology-critic-smoke';
 const now = '2026-07-22T00:00:00.000Z';
 
@@ -50,6 +56,24 @@ function asSession<T>(agent: string, sessionId: string, fn: () => T): T {
     if (priorSession === undefined) delete process.env.LATTICE_SESSION_ID; else process.env.LATTICE_SESSION_ID = priorSession;
     resetSessionIdForTest();
   }
+}
+
+function cli(root: string, command: string, args: Record<string, unknown>, agent?: string, sessionId?: string): string {
+  return execFileSync(process.execPath, [latticeBin, '--root', root, command, JSON.stringify(args)], {
+    cwd: root,
+    env: {
+      ...process.env,
+      ...(agent ? { LATTICE_AGENT: agent } : {}),
+      ...(sessionId ? { LATTICE_SESSION_ID: sessionId } : {}),
+    },
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
+
+function resign<T extends { signature: string }>(value: T, privateKey: string): T {
+  const { signature: _signature, ...unsigned } = value;
+  return { ...value, signature: signCanonical(unsigned, privateKey) };
 }
 
 const declaration = {
@@ -133,30 +157,48 @@ try {
   store.writeScopeCheck(storyId, scopeCheck(root));
   const ctx = { root, scanRoot: join(root, 'packages/main'), store };
   const dispatch = createStoryDispatchHandlers(ctx);
-  asSession(TOPOLOGY_EXCLUSION_APPROVER_ROLE, 'sess-scope', () => dispatch.dispatch({ storyId, agentType: TOPOLOGY_EXCLUSION_APPROVER_ROLE }));
+  git(root, ['config', 'user.name', 'Scope Reviewer']);
+  git(root, ['config', 'user.email', 'scope@noreply.local']);
+  cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_EXCLUSION_APPROVER_ROLE }, TOPOLOGY_EXCLUSION_APPROVER_ROLE, 'sess-scope');
   story.phase = 'DEV'; store.writeStory(storyId, story);
   asSession('lattice-implementer', 'sess-impl', () => dispatch.dispatch({ storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }));
-  asSession(TOPOLOGY_CRITIC_ROLE, 'sess-critic', () => dispatch.dispatch({ storyId, agentType: TOPOLOGY_CRITIC_ROLE }));
+  git(root, ['config', 'user.name', 'Critic Reviewer']);
+  git(root, ['config', 'user.email', 'critic@noreply.local']);
+  cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_CRITIC_ROLE }, TOPOLOGY_CRITIC_ROLE, 'sess-critic');
   git(root, ['add', '.']); git(root, ['commit', '-m', 'record story inputs and dispatch provenance']);
 
   const handlers = createProofStoryHandlers(ctx);
-  const basisOutput = handlers.acceptance_basis_generate({ storyId, json: true });
+  const basisOutput = cli(root, 'acceptance_basis_generate', { storyId, json: true });
   assert.equal(JSON.parse(basisOutput).artifact.basis.status, 'complete', basisOutput);
-  const producerOutput = asSession(TOPOLOGY_CRITIC_ROLE, 'sess-critic', () => handlers.topology_critic_receipt_set({ storyId, verdict: 'pass', json: true }));
+  const producerOutput = cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, TOPOLOGY_CRITIC_ROLE, 'sess-critic');
   assert.equal(JSON.parse(producerOutput).verification.ok, true, producerOutput);
-  const checkOutput = handlers.topology_critic_receipt_check({ storyId, json: true });
+  const checkOutput = cli(root, 'topology_critic_receipt_check', { storyId, json: true });
   assert.equal(JSON.parse(checkOutput).verification.ok, true, checkOutput);
+  git(root, ['config', 'user.name', 'lattice-implementer']);
+  git(root, ['config', 'user.email', 'lattice-implementer@noreply.local']);
+  cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_CRITIC_ROLE }, TOPOLOGY_CRITIC_ROLE, 'sess-critic-business-collision');
+  assert.throws(() => cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, TOPOLOGY_CRITIC_ROLE, 'sess-critic-business-collision'), 'production producer rejects a critic whose real git business author equals the implementer author');
+  git(root, ['config', 'user.name', 'Critic Reviewer']);
+  git(root, ['config', 'user.email', 'critic@noreply.local']);
 
   const artifact = store.readAcceptanceBasis(storyId)!;
   const receipt = store.readTopologyCriticReceipt(storyId)!;
   const events = store.readProcessEvents(storyId);
-  const implementation = deriveImplementationProvenance(root, events);
   const context = canonicalTopologyReceiptContext({ storyId, basisStatus: artifact.basis.status, basisDigest: artifact.basis.basisDigest,
     topologyDigest: receipt.topologyDigest, scopeCheckDigest: artifact.basis.binding.scopeCheckDigest,
     ...(artifact.basis.binding.scopeContractDigest ? { scopeContractDigest: artifact.basis.binding.scopeContractDigest } : {}),
     storyFilesHash: artifact.basis.binding.storyFilesHash, closureFilesHash: artifact.basis.binding.closureFilesHash, exclusions: [], findingRefs: [] });
+  const implementation = deriveImplementationProvenance(root, events, context);
   const verify = (candidate: TopologyCriticReceiptV1 | null, nextContext = context, approvals: any[] = []) => verifyTopologyCriticReceipt({ gitCwd: root, context: nextContext, receipt: candidate, approvals, implementation });
   assert.equal(verify(receipt).ok, true, 'clean production receipt passes');
+  assert.equal(evaluateTopologyCriticReceiptForContext(ctx, storyId).ok, true, 'canonical lifecycle consumer accepts the clean production receipt');
+
+  const promptEntry = readPromptRegistry(join(sourceRoot, 'templates/agents')).agents.find(entry => entry.agentId === TOPOLOGY_CRITIC_ROLE);
+  assert.ok(promptEntry, 'registered topology critic prompt is discoverable');
+  assert.equal(extractTemplateFrontmatter(readFileSync(promptEntry!.sourcePath, 'utf8'), promptEntry!.sourcePath).name, TOPOLOGY_CRITIC_ROLE, 'real prompt parser accepts topology critic frontmatter');
+  const canonicalPrompt = readFileSync(join(sourceRoot, 'templates/agents/lattice-review-topology-critic.md'), 'utf8');
+  assert.equal(readFileSync(join(repositoryRoot, '.claude/agents/lattice-review-topology-critic.md'), 'utf8'), canonicalPrompt, 'Claude prompt mirror is exact');
+  assert.equal(readFileSync(join(repositoryRoot, '.lattice-codex/agents/lattice-review-topology-critic.md'), 'utf8'), canonicalPrompt, 'Codex prompt mirror is exact');
 
   const topLevelFields: Array<keyof TopologyCriticReceiptV1> = ['schemaVersion', 'storyId', 'criticIdentity', 'criticRole', 'criticProvenance', 'implementationProvenance', 'basisDigest', 'topologyDigest', 'scopeCheckDigest', 'scopeContractDigest', 'storyFilesHash', 'closureFilesHash', 'findingRefs', 'approvedExclusionRefs', 'verdict', 'issuedAt', 'signerPublicKey', 'signature'];
   for (const field of topLevelFields) {
@@ -167,54 +209,130 @@ try {
     else if (field === 'scopeContractDigest') changed[field] = 'sha256:forged';
     else changed[field] = `${String(changed[field])}-forged`;
     assert.equal(verify(changed).ok, false, `tampering ${field} must fail`);
+    const deleted = structuredClone(receipt) as any;
+    delete deleted[field];
+    assert.equal(verify(deleted).ok, false, `deleting ${field} must fail`);
+  }
+
+  const commonDirRaw = git(root, ['rev-parse', '--git-common-dir']);
+  const commonDir = resolve(root, commonDirRaw);
+  const criticPrivateKey = readFileSync(join(commonDir, `proofstory-${TOPOLOGY_CRITIC_ROLE}-v1.key`), 'utf8').trim();
+  const untrustedPrivateKey = randomBytes(32).toString('base64');
+  const untrusted = structuredClone(receipt);
+  untrusted.signerPublicKey = exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(untrustedPrivateKey)));
+  assert.equal(verify(resign(untrusted, untrustedPrivateKey)).ok, false, 'payload re-signed by an untrusted key fails');
+  for (const field of ['storyId', 'criticIdentity', 'issuedAt'] as const) {
+    const replay = structuredClone(receipt) as any;
+    replay[field] = `${replay[field]}-other`;
+    replay.signature = receipt.signature;
+    assert.equal(verify(replay).ok, false, `cross-${field} signature replay fails`);
+  }
+
+  const canonicalContext = canonicalTopologyReceiptContext({ ...context, findingRefs: ['B-2', 'B-1', 'B-1'] });
+  const canonicalReceipt = issueTopologyCriticReceipt({ gitCwd: root, context: canonicalContext, critic: receipt.criticProvenance, implementation, approvals: [], verdict: 'pass' });
+  assert.deepEqual(canonicalReceipt.findingRefs, ['B-1', 'B-2'], 'producer canonicalizes finding refs');
+  for (const refs of [['B-1'], ['B-1', 'B-2', 'B-2'], ['B-1', 'B-2', 'B-nonexistent']] as string[][]) {
+    const malformed = resign({ ...canonicalReceipt, findingRefs: refs }, criticPrivateKey);
+    assert.equal(verifyTopologyCriticReceipt({ gitCwd: root, context: canonicalContext, receipt: malformed, approvals: [], implementation }).ok, false, `finding ref omission/duplicate/invention fails: ${refs.join(',')}`);
+  }
+
+  assert.throws(() => deriveImplementationProvenance(root, events.filter(event => event.agentType !== 'lattice-implementer'), context), /missing a session-bound/);
+  for (const missingField of ['headHash', 'businessCommitAuthor', 'storyFilesHash'] as const) {
+    const brokenEvents = structuredClone(events);
+    const event = [...brokenEvents].reverse().find(candidate => candidate.agentType === TOPOLOGY_CRITIC_ROLE && candidate.sessionId === 'sess-critic')!;
+    delete (event as any)[missingField];
+    assert.throws(() => deriveRoleProvenance({ gitCwd: root, events: brokenEvents, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: 'sess-critic', context, implementation }), /no current registered dispatch provenance|missing or unverifiable/);
   }
   for (const field of ['basisDigest', 'topologyDigest', 'scopeCheckDigest', 'scopeContractDigest', 'storyFilesHash', 'closureFilesHash'] as const) {
     const drifted = { ...context, [field]: 'sha256:drift' };
     assert.equal(verify(receipt, drifted).ok, false, `${field} freshness drift must fail`);
   }
-  for (const dimension of ['agentId', 'sessionId', 'dispatchId', 'businessIdentity'] as const) {
-    const collided = { ...receipt.criticProvenance, [dimension]: dimension === 'businessIdentity' ? implementation.businessCommitAuthor : implementation[dimension] };
+  for (const dimension of ['agentId', 'sessionId', 'dispatchId', 'businessCommitAuthor'] as const) {
+    const collided = { ...receipt.criticProvenance, [dimension]: implementation[dimension] };
     assert.throws(() => issueTopologyCriticReceipt({ gitCwd: root, context, critic: collided, implementation, approvals: [], verdict: 'pass' }), /independence failed/, `${dimension} collision must fail before signing`);
   }
   assert.deepEqual(independenceMatrix(receipt.criticProvenance, implementation), { agent: true, session: true, dispatch: true, businessCommitAuthor: true });
-  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: 'lattice-review-topology-critic-spoof', sessionId: 'sess-critic' }), /role eligibility failed/);
-  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: 'sess-impl' }), /no registered dispatch provenance/);
+  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: 'lattice-review-topology-critic-spoof', sessionId: 'sess-critic', context, implementation }), /role eligibility failed/);
+  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: 'sess-impl', context, implementation }), /no current registered dispatch provenance/);
   assert.equal(verify(receipt, { ...context, basisStatus: 'partial' }).ok, false, 'critic cannot override partial');
   assert.equal(verify(receipt, { ...context, basisStatus: 'unsupported' }).ok, false, 'critic cannot override unsupported');
 
-  const scopeActor = deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: TOPOLOGY_EXCLUSION_APPROVER_ROLE, sessionId: 'sess-scope' });
+  const basisPath = join(root, '.lattice/story/actives', storyId, 'acceptance-basis.json');
+  const cleanBasisBytes = readFileSync(basisPath, 'utf8');
+  rmSync(basisPath);
+  assert.equal(JSON.parse(cli(root, 'topology_critic_receipt_check', { storyId, json: true })).verification.ok, false, 'missing basis fails production CLI verification');
+  writeFileSync(basisPath, cleanBasisBytes, 'utf8');
+  const tamperedBasis = JSON.parse(cleanBasisBytes); tamperedBasis.basis.basisDigest = 'sha256:tampered';
+  writeFileSync(basisPath, JSON.stringify(tamperedBasis, null, 2) + '\n', 'utf8');
+  assert.equal(JSON.parse(cli(root, 'topology_critic_receipt_check', { storyId, json: true })).verification.ok, false, 'tampered basis fails production CLI verification');
+  writeFileSync(basisPath, cleanBasisBytes, 'utf8');
+  const cleanConsumerBytes = readFileSync(join(root, 'packages/main/src/consumer.ts'), 'utf8');
+  writeFileSync(join(root, 'packages/main/src/consumer.ts'), `${cleanConsumerBytes}// drift\n`, 'utf8');
+  assert.equal(JSON.parse(cli(root, 'topology_critic_receipt_check', { storyId, json: true })).verification.ok, false, 'stale source/basis binding fails production CLI verification');
+  writeFileSync(join(root, 'packages/main/src/consumer.ts'), cleanConsumerBytes, 'utf8');
+  assert.equal(JSON.parse(cli(root, 'topology_critic_receipt_check', { storyId, json: true })).verification.ok, true, 'exact basis/source restoration returns production CLI verification to pass');
+
+  const scopeActor = deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: TOPOLOGY_EXCLUSION_APPROVER_ROLE, sessionId: 'sess-scope', context, implementation });
   const criticActor = receipt.criticProvenance;
   const excludedContext = canonicalTopologyReceiptContext({ ...context, exclusions: [{ pathRef: 'scope:C2', decisionRef: 'decision:C2' }] });
   const approval = issueTopologyExclusionApproval({ gitCwd: root, context: excludedContext, exclusionRef: 'decision:C2', actor: scopeActor, implementation });
   const excludedReceipt = issueTopologyCriticReceipt({ gitCwd: root, context: excludedContext, critic: criticActor, implementation, approvals: [approval], verdict: 'pass' });
   assert.equal(verify(excludedReceipt, excludedContext, [approval]).ok, true, 'one-to-one independent exclusion passes');
+  assert.equal(verify(receipt, context, []).ok, true, 'zero-exclusion control does not fabricate an approval requirement');
+  const multipleContext = canonicalTopologyReceiptContext({ ...context, exclusions: [
+    { pathRef: 'scope:C2', decisionRef: 'decision:C2' },
+    { pathRef: 'scope:C3', decisionRef: 'decision:C3' },
+  ] });
+  const approvals = multipleContext.exclusions.map(exclusion => issueTopologyExclusionApproval({ gitCwd: root, context: multipleContext, exclusionRef: exclusion.decisionRef, actor: scopeActor, implementation }));
+  const multipleReceipt = issueTopologyCriticReceipt({ gitCwd: root, context: multipleContext, critic: criticActor, implementation, approvals, verdict: 'pass' });
+  assert.equal(verify(multipleReceipt, multipleContext, approvals).ok, true, 'multiple exclusions require and accept exact one-to-one approvals');
   assert.throws(() => issueTopologyCriticReceipt({ gitCwd: root, context: excludedContext, critic: criticActor, implementation, approvals: [], verdict: 'pass' }), /one-to-one/);
   assert.throws(() => issueTopologyCriticReceipt({ gitCwd: root, context: excludedContext, critic: criticActor, implementation, approvals: [approval, approval], verdict: 'pass' }), /one-to-one/);
   assert.equal(verify(excludedReceipt, excludedContext, []).ok, false, 'missing approval fails persisted verification');
   const forgedApproval = structuredClone(approval); forgedApproval.scopeRef = 'scope:forged';
   assert.equal(verify(excludedReceipt, excludedContext, [forgedApproval]).ok, false, 'forged approval fails');
+  for (const refs of [[], [approval.approvalRef, approval.approvalRef], ['TEA-nonexistent']] as string[][]) {
+    const malformed = resign({ ...excludedReceipt, approvedExclusionRefs: refs }, criticPrivateKey);
+    assert.equal(verify(malformed, excludedContext, [approval]).ok, false, `approval ref omission/duplicate/invention fails: ${refs.join(',') || '<empty>'}`);
+  }
+  assert.equal(verify(excludedReceipt, { ...excludedContext, storyId: 'B-cross-story' }, [approval]).ok, false, 'cross-story approval fails');
+  assert.equal(verify(excludedReceipt, { ...excludedContext, basisDigest: 'sha256:stale' }, [approval]).ok, false, 'stale approval fails');
+  assert.equal(verify(excludedReceipt, { ...excludedContext, exclusions: [{ pathRef: 'scope:orphan', decisionRef: 'decision:orphan' }] }, [approval]).ok, false, 'orphan approval fails');
+  const criticCollidingApprover = { ...scopeActor, sessionId: criticActor.sessionId };
+  const criticCollidingApproval = issueTopologyExclusionApproval({ gitCwd: root, context: excludedContext, exclusionRef: 'decision:C2', actor: criticCollidingApprover, implementation });
+  assert.ok(verifyTopologyCriticReceipt({ gitCwd: root, context: excludedContext, receipt: excludedReceipt, approvals: [criticCollidingApproval], implementation }).diagnostics.some(item => item.includes('not independent from topology critic')), 'approver-vs-critic session collision fails');
+  assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: TOPOLOGY_CRITIC_ROLE, sessionId: 'sess-scope', context, implementation }), /role eligibility failed/, 'forged scope-plan label fails');
+  assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:nonexistent', json: true }, TOPOLOGY_EXCLUSION_APPROVER_ROLE, 'sess-scope'), 'production CLI rejects nonexistent exclusion approval');
   assert.equal(verify(excludedReceipt, excludedContext, [approval]).ok, true, 'exact restoration passes without residue');
 
-  const sourceRoot = resolve(packageRoot, '..');
-  const repositoryRoot = resolve(sourceRoot, '..', '..');
+  git(root, ['commit', '--allow-empty', '--author=lattice-implementer <lattice-implementer@noreply.local>', '-m', 'new implementation business commit']);
+  assert.equal(JSON.parse(cli(root, 'topology_critic_receipt_check', { storyId, json: true })).verification.ok, false, 'old dispatch and receipt cannot replay across a new business commit');
+  git(root, ['config', 'user.name', 'Critic Reviewer']);
+  git(root, ['config', 'user.email', 'critic@noreply.local']);
+  cli(root, 'dispatch', { storyId, agentType: TOPOLOGY_CRITIC_ROLE }, TOPOLOGY_CRITIC_ROLE, 'sess-critic-fresh');
+  const refreshed = JSON.parse(cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, TOPOLOGY_CRITIC_ROLE, 'sess-critic-fresh'));
+  assert.equal(refreshed.verification.ok, true, 'fresh current-commit dispatch can re-attest after replay rejection');
+  assert.equal(JSON.parse(cli(root, 'topology_critic_receipt_check', { storyId, json: true })).verification.ok, true, 'fresh receipt restores production verification after business-commit replay mutation');
+
   const handlerSource = readFileSync(join(sourceRoot, 'src/handlers/proofstory.ts'), 'utf8');
   const catalogSource = readFileSync(join(sourceRoot, 'src/cli/command-catalog.ts'), 'utf8');
   for (const forbidden of ['pre_review_check', 'evaluatePlannedToActual', 'selective_applicability_check', 'rollout_telemetry']) {
     assert.equal(handlerSource.includes(forbidden) || catalogSource.includes(forbidden), false, `Wave 2A must not leak ${forbidden}`);
   }
-  for (const mutation of ['drop-topology-critic-prompt', 'drop-topology-critic-handler', 'drop-topology-critic-verifier', 'weaken-topology-critic-incomplete-basis']) {
+  for (const mutation of ['drop-topology-critic-prompt', 'drop-topology-critic-handler', 'drop-topology-critic-cli-schema', 'drop-topology-critic-verifier', 'drop-topology-critic-lifecycle-consumer', 'weaken-topology-critic-incomplete-basis']) {
     assert.throws(() => execFileSync(process.execPath, [join(repositoryRoot, 'scripts/verify-process-fact-contract.mjs')], {
       cwd: repositoryRoot,
       env: { ...process.env, LATTICE_PROCESS_FACT_CONTRACT_MUTATION: mutation },
       encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
     }), `process-fact mutation ${mutation} must bite`);
   }
+  assert.equal(git(root, ['status', '--porcelain']), '', 'all filesystem mutations restore exactly and leave the temp repo clean');
   assert.ok(existsSync(join(sourceRoot, 'src/core/topology-critic-receipt.ts')));
   console.log('ProofStory topology critic smoke: PASS');
-  console.log('  production handler producer + read-only verifier: PASS');
-  console.log('  all receipt fields, freshness, role spoof/replay, 4D independence: PASS');
-  console.log('  exclusion one-to-one + partial/unsupported + restoration: PASS');
-  console.log('  prompt/handler/verifier/incomplete-basis process-fact mutations: PASS');
+  console.log('  real bin/lattice dispatch + producer + read-only verifier + lifecycle consumer: PASS');
+  console.log('  alter/delete fields, signatures, provenance, freshness, replay, canonical refs: PASS');
+  console.log('  zero/one/multiple exclusions + authority/freshness/one-to-one + restoration: PASS');
+  console.log('  prompt/schema/handler/verifier/lifecycle/incomplete-basis mutations: PASS');
   console.log('  Wave 3/3A/4 leakage: absent');
 } finally {
   resetConfigCache();

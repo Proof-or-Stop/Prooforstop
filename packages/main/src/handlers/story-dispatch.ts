@@ -54,6 +54,7 @@ import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 import { getSessionIdentity } from '../core/owner-session.js';
 import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js';
 import type { PromptHost } from '../core/prompt-registry.js';
+import { currentImplementationBusinessCommit, topologyDispatchBusinessAuthor } from '../core/topology-critic-receipt.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
@@ -183,6 +184,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     promptEnvelopeDigest?: string;
     assembledPromptDigest?: string;
     promptEnvelope?: ReturnType<typeof assembleFullPromptEnvelope>['envelope'];
+    headHash?: string;
+    storyFilesHash?: string;
+    businessCommit?: string;
+    businessCommitAuthor?: string;
+    businessCommitAuthorSource?: 'git-var:GIT_AUTHOR_IDENT';
     budgetViolation?: 'incremental' | 'full';
     promptBudget?: PromptBudgetObservation;
   }): void {
@@ -199,6 +205,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         targetKind: args.targetKind,
         agentType,
         sessionId: getSessionIdentity().sessionId,
+        ...(args.headHash ? { headHash: args.headHash } : {}),
+        ...(args.storyFilesHash ? { storyFilesHash: args.storyFilesHash } : {}),
+        ...(args.businessCommit ? { businessCommit: args.businessCommit } : {}),
+        ...(args.businessCommitAuthor ? { businessCommitAuthor: args.businessCommitAuthor } : {}),
+        ...(args.businessCommitAuthorSource ? { businessCommitAuthorSource: args.businessCommitAuthorSource } : {}),
         ...(args.itemId ? { itemId: args.itemId, checklistId: args.itemId } : {}),
         ...(args.findingId ? { findingId: args.findingId } : {}),
         ...(args.clusterId ? { clusterId: args.clusterId } : {}),
@@ -271,6 +282,24 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         clusterId: args.clusterId,
       });
       ctx.log?.(`[process-events] dispatch append failed for ${args.storyId}: ${e?.message || e}`);
+    }
+  }
+
+  function topologyAuthorityDispatchBinding(story: ReturnType<StoryStore['readStory']>, required: boolean) {
+    try {
+      const snapshot = captureReviewRunSnapshot(root, { storyId: story.storyId, storyPhase: story.phase }, root);
+      if (!snapshot.storyFilesHash) throw new Error('topology authority dispatch requires a current storyFilesHash');
+      const implementation = currentImplementationBusinessCommit(root);
+      return {
+        headHash: snapshot.headHash,
+        storyFilesHash: snapshot.storyFilesHash,
+        businessCommit: implementation.businessCommit,
+        businessCommitAuthor: topologyDispatchBusinessAuthor(root),
+        businessCommitAuthorSource: 'git-var:GIT_AUTHOR_IDENT' as const,
+      };
+    } catch (error) {
+      if (required) throw error;
+      return {};
     }
   }
 
@@ -911,10 +940,12 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           agentType: canonicalType,
         });
         const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
+        const authorityBinding = topologyAuthorityDispatchBinding(story, false);
         appendDispatchEvent({
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'scope-plan-review',
+          ...authorityBinding,
           ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
@@ -923,10 +954,12 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       if (promptBuilder === 'topology-critic-review') {
         const result = buildTopologyCriticReviewPrompt({ storyId: args.storyId });
         const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
+        const authorityBinding = topologyAuthorityDispatchBinding(story, true);
         appendDispatchEvent({
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'topology-critic-review',
+          ...authorityBinding,
           ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });

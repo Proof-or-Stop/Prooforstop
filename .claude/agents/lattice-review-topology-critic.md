@@ -1,4 +1,4 @@
-+---
+---
 name: lattice-review-topology-critic
 model: sonnet
 description: Independent ProofStory acceptance-topology critic

@@ -96,7 +96,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'lattice-review-topology-critic',
-    templateHash: '6146d87bed6252f394b9f208a6697f8937ba714d19d31aba3bd77a26fec4bed0',
+    templateHash: 'a7c1adcf0e363f91352093d6f7b0185001cc20ec390a6e8f9cf709ceb2e06575',
   },
   {
     role: 'product-reviewer',
@@ -144,7 +144,7 @@ const ROLE_MATRIX_FIELDS = [
 ];
 const REVIEWER_AUDITED_ROLE_MATRIX_FIELDS = [...ROLE_MATRIX_FIELDS];
 const ROLE_MATRIX_MACHINE_CHECKS = [
-  'Lock the exact 16 role snapshots and role IDs.',
+  'Lock the exact 17 role snapshots and role IDs.',
   'Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.',
   'For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.',
   'Lock agent_prompt output hashes.',

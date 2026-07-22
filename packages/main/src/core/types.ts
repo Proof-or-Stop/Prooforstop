@@ -412,13 +412,16 @@ export interface TopologyActorProvenanceV1 {
   agentId: string;
   sessionId: string;
   dispatchId: string;
+  storyId: string;
+  headHash: string;
+  storyFilesHash: string;
+  businessCommit: string;
+  businessCommitAuthor: string;
+  businessCommitAuthorSource: 'git-var:GIT_AUTHOR_IDENT' | 'git-log:commit-author';
   businessIdentity: string;
 }
 
-export interface TopologyImplementationProvenanceV1 extends TopologyActorProvenanceV1 {
-  businessCommit: string;
-  businessCommitAuthor: string;
-}
+export interface TopologyImplementationProvenanceV1 extends TopologyActorProvenanceV1 {}
 
 export interface TopologyExclusionApprovalV1 {
   schemaVersion: 'proofstory.topology_exclusion_approval.v1';

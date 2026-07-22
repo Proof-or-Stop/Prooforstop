@@ -581,6 +581,12 @@ function read(relPath) {
   if (mutation === 'drop-topology-critic-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
     text = text.replace(/topology_critic_receipt_set/g, 'topology_critic_receipt_removed');
   }
+  if (mutation === 'drop-topology-critic-cli-schema' && relPath === 'packages/main/src/cli/command-catalog.ts') {
+    text = text.replace(/topology_critic_receipt_set/g, 'topology_critic_receipt_schema_removed');
+  }
+  if (mutation === 'drop-topology-critic-lifecycle-consumer' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
+    text = text.replace(/evaluateTopologyCriticReceiptForContext/g, 'topologyCriticLifecycleConsumerRemoved');
+  }
   if (mutation === 'drop-topology-critic-verifier' && relPath === 'packages/main/src/core/topology-critic-receipt.ts') {
     text = text.replace(/verifyTopologyCriticReceipt/g, 'verifyTopologyCriticReceiptRemoved');
   }
@@ -746,10 +752,12 @@ function assertProofStoryProgressiveBoundary() {
       && processLevelText.includes('runtime:topology_critic_authority_gate')
       && processRegistryText.includes('artifact:topology-critic-receipt.json')
       && processRegistryText.includes('artifact:topology-exclusion-approvals.json')
+      && transitionOrchestratorText.includes('evaluateTopologyCriticReceiptForContext')
+      && transitionOrchestratorText.includes('if (!critic.ok)')
       && topologyCriticPolicy?.status === 'gateEvidence'
       && topologyCriticPolicy.gateEvidence === true
       && activityPolicyText.includes("'topology_critic_receipt_check'")
-      && topologyCriticPromptPaths.every(path => read(path).includes('- A pass is forbidden when the basis')),
+      && topologyCriticPromptPaths.every(path => read(path).startsWith('---\n') && read(path).includes('- A pass is forbidden when the basis')),
     'topology critic contract must bind role prompt, production producer/read-only verifier, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and process-fact consumers',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
