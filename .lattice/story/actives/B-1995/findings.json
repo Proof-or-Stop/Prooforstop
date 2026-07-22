@@ -237,7 +237,7 @@
       "desc": "packages/main/src/core/milestone-status.ts:198-209,473-540 remains an unpatched verificationEvidence consumer after the F-010 fix. Current-dist repro replaced M1’s two required evidence rows with passing commands `lattice acceptance_matrix --storyId=B-1995`; buildMilestoneStatusReport returned `ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered` and both intent subobjectives `status=covered`. Writer rejection plus filters in verification.ts/proofstory.ts do not fail closed for legacy/injected evidence in milestone_status/closeout. Apply the same non-evidentiary predicate in milestone evidence status/coverage and add a milestone-status (and derived closeout if applicable) negative mutation asserting matrix-derived rows are not covering.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T03:44:02.667Z",
@@ -250,7 +250,11 @@
         "packages/main/src/core/acceptance-topology.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at cef7fc56fe with regression hardening at 35de890d50: milestone-status evidenceCanCover consumes the shared typed non-evidentiary predicate; injected passing matrix rows leave evidence, requiredEvidence, intent/kind subobjectives and closeout uncovered, while legitimate typed test evidence still covers. Expanded focused smoke and full milestone-status regression pass.",
+      "resolvedAt": "2026-07-22T03:58:40.265Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
