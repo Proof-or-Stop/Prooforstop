@@ -78,6 +78,26 @@
       "_hash": "1fe32ca0a73c269aab7aca89d5f3ff0a90af0a127a32f93527cb5bcbf17518b9",
       "signatureTag": "missing|unknown|packages-main-templates",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9123:F-006",
+      "desc": "doc-code-drift: docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md:10 still says the machine-checked boundary locks exactly 16 role snapshots, while line 5, the updated 17-role registry/baselines, and the passing baseline verifier all establish 17 roles. Update the stale audit-boundary count to 17 so the human-readable contract matches the mechanically enforced baseline.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-22T18:35:52.732Z",
+      "reviewRound": "2026-07-22T18:32:54.616Z",
+      "reviewRunId": "B-9123:RR-004",
+      "_hash": "9c9fc1446342971056af4941a25928d52fbf1e0424cf6c64c1b9a4fb8e22b452",
+      "files": [
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "packages/main/src/core/prompt-measurement.ts",
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
