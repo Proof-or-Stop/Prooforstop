@@ -36,6 +36,37 @@
         "scanEscalationReason": null
       },
       "_hash": "6b40d68b48806cd4aeb3d5e74cd2087f2a0a0eb03f35a58cb3e86c9f23102271"
+    },
+    {
+      "id": "B-98b0:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS on HEAD 22f9c71: de9bd226 cleanly replaces the topology rollout resolver with independent default-observe acceptanceTopologyGateMode; repo-wide residue scan found no obsolete resolveProofStoryDevGateMode use. Static inspection confirms status/diagnostics derive independently of mode, blocking alone depends on enforce, legacy devGateMode remains confined to the older ProofStory machine gate, and later-wave critic/pre_review/selective-applicability concepts are documentation boundaries rather than implemented prerequisites. F-001..F-004 semantics are addressed without Wave 2 rollout leakage; no promised-but-undelivered blocker found.",
+      "createdAt": "2026-07-22T16:57:34.092Z",
+      "reviewRound": "2026-07-22T16:55:09.966Z",
+      "reviewRunId": "B-98b0:RR-007",
+      "envelopeId": "4bc433181112a934451da7b3ad39faa1de1df0b43487ad8baf6491088e6624b0",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/config.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4900bea7e70ee33877a81910db69f4f468d5cc67f807c07be9cfcaa2dd730ab2"
     }
   ]
 }
