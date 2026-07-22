@@ -389,6 +389,34 @@
       },
       "readDiagnostics": [],
       "_hash": "cddd1c7868522d8c0f3f921b62291638d1b7dc7aa635743ebfc2478351043d80"
+    },
+    {
+      "id": "B-a32a:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Targeted round-6 review passed. F-021 is closed by physical workspace/root realpath binding, component-by-component symlink rejection, physical containment, and deterministic partial outcomes for malformed, lexical escape, missing, symlinked, and unreadable roots; resolving the workspace first preserves macOS /var-to-/private/var aliases. F-022 is closed by lexical masking of comments and literal text while retaining executable template interpolation; false consumer strings/comments/templates cannot enter closure or satisfy consumerGate. The repair adds no concept deletion and no new promised-but-undelivered surface.",
+      "createdAt": "2026-07-22T09:05:36.671Z",
+      "reviewRound": "2026-07-22T09:03:23.999Z",
+      "reviewRunId": "B-a32a:RR-021",
+      "envelopeId": "43da2e3edab875de5a30723bdb49f309ffe5ec113314875976398b2ef6fe4fec",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0dd61699b2d23ecdc4ea3bb8ec1d97fbf93654e4a7bd91d10dc6511e3576e84a"
     }
   ]
 }
