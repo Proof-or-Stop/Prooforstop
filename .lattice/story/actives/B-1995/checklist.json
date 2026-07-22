@@ -7,8 +7,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#wave-1-schema-and-read-only-diagnostics"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-22T02:59:42.560Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -296,6 +296,18 @@
           "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-22T02:59:42.560Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation delegated to lattice-implementer; owner records lifecycle status without transferring active lease.",
+      "agent": "lattice-implementer"
     }
   ]
 }
