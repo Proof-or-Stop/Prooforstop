@@ -288,9 +288,9 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-22T01:29:26.283Z",
-      "endTime": null,
+      "endTime": "2026-07-22T01:29:28.617Z",
       "userSees": "The document ends with bounded implementation waves, an observe-warn-enforce migration, positive and negative test matrices, process-fact obligations, success metrics, risks, open decisions, and an audit checklist the user can mark pass or request changes against.",
       "files": {
         "modify": [],
@@ -336,7 +336,87 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "command": "rg -n \"Bounded implementation waves|Wave 1A|Wave 2A|observe|warn|enforce|Verification and mutation matrix|Success metrics|Risks and pre-mortem|Open decisions for human audit|Human audit checklist|3×2|3×1\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "result": "pass",
+          "note": "Bounded waves define outcomes, dependencies, exits and stops without implementing runtime code in this Story.",
+          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
+          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
+          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
+          "timestamp": "2026-07-22T01:29:28.959Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "command": "rg -n \"Bounded implementation waves|Wave 1A|Wave 2A|observe|warn|enforce|Verification and mutation matrix|Success metrics|Risks and pre-mortem|Open decisions for human audit|Human audit checklist|3×2|3×1\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "result": "pass",
+          "note": "Closeout contains rollout, matrices, metrics, risks, open decisions and the audit rubric.",
+          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
+          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
+          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
+          "timestamp": "2026-07-22T01:29:29.278Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "command": "rg -n \"Bounded implementation waves|Wave 1A|Wave 2A|observe|warn|enforce|Verification and mutation matrix|Success metrics|Risks and pre-mortem|Open decisions for human audit|Human audit checklist|3×2|3×1\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "result": "pass",
+          "note": "Legacy, docs-only, high-risk and rollback behavior are explicitly bounded.",
+          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
+          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
+          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
+          "timestamp": "2026-07-22T01:29:29.594Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "command": "rg -n \"Bounded implementation waves|Wave 1A|Wave 2A|observe|warn|enforce|Verification and mutation matrix|Success metrics|Risks and pre-mortem|Open decisions for human audit|Human audit checklist|3×2|3×1\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "result": "pass",
+          "note": "High-risk waves require genuine 3x2 assurance and keep 3x1 degraded and non-authority.",
+          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
+          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
+          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
+          "timestamp": "2026-07-22T01:29:29.911Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "command": "rg -n \"Bounded implementation waves|Wave 1A|Wave 2A|observe|warn|enforce|Verification and mutation matrix|Success metrics|Risks and pre-mortem|Open decisions for human audit|Human audit checklist|3×2|3×1\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "result": "pass",
+          "note": "Negative-control matrix covers topology omission, freshness, authority, transcript and mutation polarity.",
+          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
+          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
+          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
+          "timestamp": "2026-07-22T01:29:30.326Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "command": "rg -n \"Bounded implementation waves|Wave 1A|Wave 2A|observe|warn|enforce|Verification and mutation matrix|Success metrics|Risks and pre-mortem|Open decisions for human audit|Human audit checklist|3×2|3×1\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "result": "pass",
+          "note": "Audit rubric rejects vague waves, premature enforcement, self-authored exemptions and command-only success metrics.",
+          "headHash": "1c468e8c4acb00ecbce56f30b678dcacaf4d5fbf",
+          "materialHash": "3d4a09cb35a190e300e021fdb559e1a7abf9e002ea1fbefa6b13690d28dc35ad",
+          "storyFilesHash": "31ab32cc52d5492c1e57af7f1e717c506c0a0355e13f1f263dbf1ae095b90487",
+          "timestamp": "2026-07-22T01:29:30.669Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -384,6 +464,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin evidence-backed closeout of the audited execution plan."
+    },
+    {
+      "timestamp": "2026-07-22T01:29:28.617Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Current committed plan passed targeted documentation checks plus independent Claude CLI and Agy CLI audits."
     }
   ]
 }
