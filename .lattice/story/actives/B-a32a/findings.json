@@ -65,7 +65,7 @@
       "desc": "packages/main/src/core/acceptance-coverage-basis.ts:289-291 implements exclusion eligibility as only a /^decision:/ string regex. It does not resolve the decisionRef from the canonical foundational decision store/schema, verify an eligible decision kind, or detect stale/unrelated decisions as required by CHK-004 and the plan. The smoke covers only free-form prose without a decision: prefix, so decision:anything would escape AT_UNJUSTIFIED_EXCLUSION. Add canonical decision resolution and negative tests for missing, stale, unrelated, and ineligible-kind refs (or explicitly leave all exclusions unsupported/non-complete in Wave 1A).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T07:02:54.222Z",
@@ -74,7 +74,11 @@
       "_hash": "df477cc94204cc6d8f6f9722eea05aa83b64d0446dfbcc1e403c62a1c863ccac",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto",
-      "clusterId": "CL-003"
+      "clusterId": "CL-003",
+      "resolvedReason": "Fixed by 53c949a2ec: exclusion decisionRefs are resolved against canonical foundational decision artifacts with schema, eligible kind, current relevance, uniqueness and target checks; regex-only acceptance removed. Current-HEAD valid/missing/stale/unrelated/ineligible/malformed/duplicate matrix yields stable AT_UNJUSTIFIED_EXCLUSION failures and restored valid control passes.",
+      "resolvedAt": "2026-07-22T07:38:57.741Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-005",
