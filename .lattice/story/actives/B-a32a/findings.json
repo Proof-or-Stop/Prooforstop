@@ -175,7 +175,7 @@
       "desc": "CHK-003 must receipt/freshness coverage is incomplete: packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:239-266 mutates signature, basisDigest, storyId, workspaceIdentityDigest, scopeCheckDigest, closureFilesHash, and one closure source. It does not bite topologyDigest/version, scopeContractDigest, storyFilesHash, phaseBasis, adapter-set/result bindings, a freshly re-signed hash-only rebind, frozen topology/scope/discovery/story drift, or the legacy-missing/failed-generation no-partial-artifact/event guarantees required by VI-A32A-003-SIGNED-BOUND-RECEIPT, FRESHNESS-CLASSIFICATION, LEGACY-AND-ATOMICITY, and TAMPER-AND-HASH-REBIND. Their pass evidence therefore lacks the declared negative controls.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T07:03:18.088Z",
@@ -189,7 +189,11 @@
       ],
       "signatureTag": "missing|ts|receipt-freshness-coverage",
       "signatureTagSource": "auto",
-      "clusterId": "CL-004"
+      "clusterId": "CL-004",
+      "resolvedReason": "Fixed by 53c949a2ec: current-HEAD smoke mutates receipt schema/topology digest+version/scope-check/scope-contract/head/material/storyFiles/closure/phase/adapter-set+results/story/workspace/signature, proves re-signed hash-only rebind rejection, frozen input drift, legacy missing behavior and failed-generation no-partial-artifact/event atomicity; restored receipts verify.",
+      "resolvedAt": "2026-07-22T07:39:03.341Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-010",
