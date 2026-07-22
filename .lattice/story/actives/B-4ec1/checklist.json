@@ -243,6 +243,20 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ]
       }
     }
   ]
