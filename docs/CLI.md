@@ -496,8 +496,10 @@ approvals fail verification.
 
 Neither a critic verdict nor an exclusion approval can convert a `partial` or
 `unsupported` discovery basis into a pass. Wave 2A does not add executable
-`pre_review_check`, selective applicability, enforcement rollout, or telemetry;
-those remain Wave 3, 3A, and 4 responsibilities.
+`pre_review_check`, selective applicability, enforcement rollout, or telemetry.
+The receipt has no lifecycle admission consumer in Wave 2A: its absence or
+failure cannot block PLAN → DEV. Wave 3 owns `pre_review_check` enforcement;
+selective applicability and rollout remain Wave 3A and Wave 4 responsibilities.
 
 ### Milestone Status
 

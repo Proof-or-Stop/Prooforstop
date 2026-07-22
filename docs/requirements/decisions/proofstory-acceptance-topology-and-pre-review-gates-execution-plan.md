@@ -1124,13 +1124,23 @@ weak assertions, design problems, or unmodeled interactions.
 
 ### 8.2 Independent topology critic
 
-Before DEV admission on enforced high-assurance paths, an independent topology
-critic challenges scope, discovery methods, exclusions, and closure. Before
-REVIEW, it re-attests the recomputed DEV basis. Its result must be a signed,
-hash-bound `TopologyCriticReceiptV1` containing Story ID, critic identity and
-eligible role, basis digest, topology digest, `scopeCheckDigest`, the
-phase-applicable `scopeContractDigest`, `storyFilesHash`, `closureFilesHash`,
-finding refs, approved-exclusion refs, verdict, issuance time, and signature.
+In the target state, after the phase-appropriate Wave 3 and Wave 4 gate work is
+implemented and enabled, enforced high-assurance paths consume an independent
+topology critic before DEV admission and consume its re-attestation of the
+recomputed DEV basis before REVIEW. The critic challenges scope, discovery
+methods, exclusions, and closure. Its result must be a signed, hash-bound
+`TopologyCriticReceiptV1` containing Story ID, critic identity and eligible
+role, basis digest, topology digest, `scopeCheckDigest`, the phase-applicable
+`scopeContractDigest`, `storyFilesHash`, `closureFilesHash`, finding refs,
+approved-exclusion refs, verdict, issuance time, and signature.
+
+Wave 2A is deliberately narrower than that target state. It only produces and
+verifies the signed receipt and exclusion approvals through explicit CLI
+commands. It has no lifecycle admission consumer: absence or failure of a
+Wave 2A receipt cannot block PLAN → DEV or DEV → REVIEW. Binding pre-DEV and
+pre-REVIEW consumption begins only in the later Wave 3/Wave 4 work at the
+phase-appropriate gate; this section does not authorize implementing those
+later waves early.
 
 The CLI independently verifies those bindings and the critic's eligible role.
 Prompt text, natural-language approval, or a self-authored reviewer ID is not

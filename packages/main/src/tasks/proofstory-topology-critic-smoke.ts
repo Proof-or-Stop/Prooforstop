@@ -32,6 +32,7 @@ import {
   TOPOLOGY_CRITIC_ROLE,
   TOPOLOGY_EXCLUSION_APPROVER_ROLE,
   verifyTopologyCriticReceipt,
+  verifyTopologyExclusionApproval,
 } from '../core/topology-critic-receipt.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -272,10 +273,30 @@ try {
     const unverifiableResult = verify(resign(unverifiable, criticPrivateKey));
     assert.equal(unverifiableResult.ok, false, `verifier rejects unverifiable critic ${dimension} provenance`);
     assert.ok(unverifiableResult.diagnostics.includes(`topology critic provenance missing or unverifiable: ${dimension}`), `verifier identifies unverifiable ${dimension} against registered dispatch`);
+    const collided = structuredClone(receipt) as any;
+    collided.criticProvenance[field] = implementation[field];
+    const collisionResult = verify(resign(collided, criticPrivateKey));
+    assert.equal(collisionResult.ok, false, `freshly re-signed critic ${dimension} collision fails verifier`);
+    assert.ok(collisionResult.diagnostics.includes(`topology critic independence failed: ${dimension}`), `verifier emits dimension-specific critic ${dimension} collision`);
+  }
+  for (const [dimension, field] of criticProvenanceDimensions) {
+    for (const replacement of [undefined, '', `unverifiable-${dimension}`] as const) {
+      const malformed = structuredClone(receipt) as any;
+      if (replacement === undefined) delete malformed.implementationProvenance[field];
+      else malformed.implementationProvenance[field] = replacement;
+      const result = verify(resign(malformed, criticPrivateKey));
+      assert.equal(result.ok, false, `verifier rejects ${replacement === undefined ? 'missing' : replacement === '' ? 'blank' : 'unverifiable'} implementation ${dimension} provenance`);
+      assert.ok(result.diagnostics.includes(`implementation provenance missing or unverifiable: ${dimension}`), `verifier emits field-specific implementation ${dimension} provenance diagnostic`);
+    }
+  }
+  const noEventsCritic = verifyTopologyCriticReceipt({ gitCwd: root, context, receipt, approvals: [], implementation, events: undefined } as any);
+  assert.equal(noEventsCritic.ok, false, 'critic verifier fails closed without registered dispatch events');
+  for (const [dimension] of criticProvenanceDimensions) {
+    assert.ok(noEventsCritic.diagnostics.includes(`topology critic provenance missing or unverifiable: ${dimension}`), `no-events critic diagnostic covers ${dimension}`);
   }
 
   const canonicalContext = canonicalTopologyReceiptContext({ ...context, findingRefs: ['B-2', 'B-1', 'B-1'] });
-  const canonicalReceipt = issueTopologyCriticReceipt({ gitCwd: root, context: canonicalContext, critic: receipt.criticProvenance, implementation, approvals: [], verdict: 'pass' });
+  const canonicalReceipt = issueTopologyCriticReceipt({ gitCwd: root, context: canonicalContext, critic: receipt.criticProvenance, implementation, approvals: [], events, verdict: 'pass' });
   assert.deepEqual(canonicalReceipt.findingRefs, ['B-1', 'B-2'], 'producer canonicalizes finding refs');
   for (const refs of [['B-1'], ['B-1', 'B-2', 'B-2'], ['B-1', 'B-2', 'B-nonexistent']] as string[][]) {
     const malformed = resign({ ...canonicalReceipt, findingRefs: refs }, criticPrivateKey);
@@ -295,7 +316,7 @@ try {
   }
   for (const dimension of ['agentId', 'sessionId', 'dispatchId', 'businessCommitAuthor'] as const) {
     const collided = { ...receipt.criticProvenance, [dimension]: implementation[dimension] };
-    assert.throws(() => issueTopologyCriticReceipt({ gitCwd: root, context, critic: collided, implementation, approvals: [], verdict: 'pass' }), /independence failed/, `${dimension} collision must fail before signing`);
+    assert.throws(() => issueTopologyCriticReceipt({ gitCwd: root, context, critic: collided, implementation, approvals: [], events, verdict: 'pass' }), /independence failed/, `${dimension} collision must fail before signing`);
   }
   assert.deepEqual(independenceMatrix(receipt.criticProvenance, implementation), { agent: true, session: true, dispatch: true, businessCommitAuthor: true });
   assert.throws(() => deriveRoleProvenance({ gitCwd: root, events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: 'lattice-review-topology-critic-spoof', sessionId: 'sess-critic', context, implementation }), /role eligibility failed/);
@@ -322,8 +343,39 @@ try {
   const criticActor = receipt.criticProvenance;
   const excludedContext = canonicalTopologyReceiptContext({ ...context, exclusions: [{ pathRef: 'scope:C2', decisionRef: 'decision:C2' }] });
   const approval = issueTopologyExclusionApproval({ gitCwd: root, context: excludedContext, exclusionRef: 'decision:C2', actor: scopeActor, implementation });
-  const excludedReceipt = issueTopologyCriticReceipt({ gitCwd: root, context: excludedContext, critic: criticActor, implementation, approvals: [approval], verdict: 'pass' });
+  const excludedReceipt = issueTopologyCriticReceipt({ gitCwd: root, context: excludedContext, critic: criticActor, implementation, approvals: [approval], events, verdict: 'pass' });
   assert.equal(verify(excludedReceipt, excludedContext, [approval]).ok, true, 'one-to-one independent exclusion passes');
+  assert.deepEqual(verifyTopologyExclusionApproval({ gitCwd: root, context: excludedContext, approval, implementation, critic: criticActor, events }), [], 'distinct scope-plan approver passes direct production verification');
+  const noEventsApproval = verifyTopologyExclusionApproval({ gitCwd: root, context: excludedContext, approval, implementation, critic: criticActor, events: undefined } as any);
+  for (const [dimension] of criticProvenanceDimensions) {
+    assert.ok(noEventsApproval.includes(`exclusion approver provenance missing or unverifiable: ${dimension}`), `no-events exclusion approval diagnostic covers ${dimension}`);
+  }
+  const scopePrivateKey = readFileSync(join(commonDir, `proofstory-${TOPOLOGY_EXCLUSION_APPROVER_ROLE}-v1.key`), 'utf8').trim();
+  for (const [dimension, field] of criticProvenanceDimensions) {
+    const implementationCollision = structuredClone(approval) as any;
+    implementationCollision.approverProvenance[field] = implementation[field];
+    const implementationCollisionDiagnostics = verifyTopologyExclusionApproval({
+      gitCwd: root,
+      context: excludedContext,
+      approval: resign(implementationCollision, scopePrivateKey),
+      implementation,
+      critic: criticActor,
+      events,
+    });
+    assert.ok(implementationCollisionDiagnostics.includes(`exclusion approver is not independent: ${dimension}`), `re-signed exclusion verifier rejects approver-vs-implementer ${dimension} collision`);
+
+    const criticCollision = structuredClone(approval) as any;
+    criticCollision.approverProvenance[field] = criticActor[field];
+    const criticCollisionDiagnostics = verifyTopologyExclusionApproval({
+      gitCwd: root,
+      context: excludedContext,
+      approval: resign(criticCollision, scopePrivateKey),
+      implementation,
+      critic: criticActor,
+      events,
+    });
+    assert.ok(criticCollisionDiagnostics.includes('exclusion approver is not independent from topology critic'), `re-signed exclusion verifier rejects approver-vs-critic ${dimension} collision`);
+  }
   assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:C2', json: true }, 'lattice-implementer', 'sess-impl'), 'implementer cannot exercise exclusion approval authority');
   assert.throws(() => cli(root, 'topology_exclusion_approval_set', { storyId, exclusionRef: 'decision:C2', json: true }, TOPOLOGY_CRITIC_ROLE, 'sess-critic'), 'ineligible critic role cannot exercise scope-plan exclusion authority');
   for (const [, field] of criticProvenanceDimensions) {
@@ -340,10 +392,10 @@ try {
     { pathRef: 'scope:C3', decisionRef: 'decision:C3' },
   ] });
   const approvals = multipleContext.exclusions.map(exclusion => issueTopologyExclusionApproval({ gitCwd: root, context: multipleContext, exclusionRef: exclusion.decisionRef, actor: scopeActor, implementation }));
-  const multipleReceipt = issueTopologyCriticReceipt({ gitCwd: root, context: multipleContext, critic: criticActor, implementation, approvals, verdict: 'pass' });
+  const multipleReceipt = issueTopologyCriticReceipt({ gitCwd: root, context: multipleContext, critic: criticActor, implementation, approvals, events, verdict: 'pass' });
   assert.equal(verify(multipleReceipt, multipleContext, approvals).ok, true, 'multiple exclusions require and accept exact one-to-one approvals');
-  assert.throws(() => issueTopologyCriticReceipt({ gitCwd: root, context: excludedContext, critic: criticActor, implementation, approvals: [], verdict: 'pass' }), /one-to-one/);
-  assert.throws(() => issueTopologyCriticReceipt({ gitCwd: root, context: excludedContext, critic: criticActor, implementation, approvals: [approval, approval], verdict: 'pass' }), /one-to-one/);
+  assert.throws(() => issueTopologyCriticReceipt({ gitCwd: root, context: excludedContext, critic: criticActor, implementation, approvals: [], events, verdict: 'pass' }), /one-to-one/);
+  assert.throws(() => issueTopologyCriticReceipt({ gitCwd: root, context: excludedContext, critic: criticActor, implementation, approvals: [approval, approval], events, verdict: 'pass' }), /one-to-one/);
   assert.equal(verify(excludedReceipt, excludedContext, []).ok, false, 'missing approval fails persisted verification');
   const forgedApproval = structuredClone(approval); forgedApproval.scopeRef = 'scope:forged';
   assert.equal(verify(excludedReceipt, excludedContext, [forgedApproval]).ok, false, 'forged approval fails');

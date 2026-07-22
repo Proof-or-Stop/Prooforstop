@@ -747,6 +747,9 @@ function assertProofStoryProgressiveBoundary() {
       && /export function verifyTopologyCriticReceipt\s*\(/.test(topologyCriticText)
       && topologyCriticText.includes("context.basisStatus !== 'complete'")
       && topologyCriticText.includes('independenceMatrix')
+      && topologyCriticText.includes('events: readonly ProcessEvent[];')
+      && topologyCriticText.includes('if (!Array.isArray(args.events) || args.events.length === 0)')
+      && topologyCriticText.includes('implementationProvenanceDiagnostics')
       && topologyCriticText.includes('exact one-to-one independent approvals')
       && processRegistryText.includes('runtime:topology_critic_authority_verification')
       && processLevelText.includes('runtime:topology_critic_authority_verification')
@@ -758,7 +761,7 @@ function assertProofStoryProgressiveBoundary() {
       && topologyCriticPolicy.gateEvidence !== true
       && activityPolicyText.includes("'topology_critic_receipt_check'")
       && topologyCriticPromptPaths.every(path => read(path).startsWith('---\n') && read(path).includes('- A pass is forbidden when the basis')),
-    'topology critic contract must bind role prompt, production producer/read-only verifier, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
+    'topology critic contract must bind role prompt, production producer/read-only verifier, required registered dispatch events, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');

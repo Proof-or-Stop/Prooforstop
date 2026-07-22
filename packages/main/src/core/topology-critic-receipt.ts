@@ -214,7 +214,7 @@ const PROVENANCE_DIMENSIONS = [
 ] as const;
 
 function actorDispatchDiagnostics(args: {
-  events: readonly ProcessEvent[] | undefined;
+  events: readonly ProcessEvent[];
   actor: unknown;
   expectedRole: typeof TOPOLOGY_CRITIC_ROLE | typeof TOPOLOGY_EXCLUSION_APPROVER_ROLE;
   context: ReceiptContext;
@@ -230,7 +230,14 @@ function actorDispatchDiagnostics(args: {
       diagnostics.push(`${args.label} provenance missing or unverifiable: ${dimension}`);
     }
   }
-  if (!args.events || diagnostics.length > 0) return diagnostics;
+  if (!Array.isArray(args.events) || args.events.length === 0) {
+    for (const [dimension] of PROVENANCE_DIMENSIONS) {
+      const message = `${args.label} provenance missing or unverifiable: ${dimension}`;
+      if (!diagnostics.includes(message)) diagnostics.push(message);
+    }
+    return diagnostics;
+  }
+  if (diagnostics.length > 0) return diagnostics;
   const dimensions = {
     agent: (event: ProcessEvent) => event.agentType,
     session: (event: ProcessEvent) => event.sessionId,
@@ -255,6 +262,15 @@ function actorDispatchDiagnostics(args: {
     diagnostics.push(`${args.label} provenance is missing or unverifiable against a current registered dispatch`);
   }
   return diagnostics;
+}
+
+function implementationProvenanceDiagnostics(value: unknown, expected: TopologyImplementationProvenanceV1): string[] {
+  const actual = value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
+  return PROVENANCE_DIMENSIONS.flatMap(([dimension, field]) => (
+    typeof actual[field] !== 'string' || !(actual[field] as string).trim() || actual[field] !== expected[field]
+      ? [`implementation provenance missing or unverifiable: ${dimension}`]
+      : []
+  ));
 }
 
 function requireIndependent(actor: TopologyActorProvenanceV1, implementation: TopologyImplementationProvenanceV1): void {
@@ -313,7 +329,7 @@ export function verifyTopologyExclusionApproval(args: {
   approval: TopologyExclusionApprovalV1;
   implementation: TopologyImplementationProvenanceV1;
   critic?: TopologyActorProvenanceV1;
-  events?: readonly ProcessEvent[];
+  events: readonly ProcessEvent[];
 }): string[] {
   const { approval, context } = args;
   const diagnostics: string[] = [];
@@ -344,7 +360,7 @@ export function verifyTopologyExclusionApproval(args: {
   if (args.critic && hasActorProvenance(approval.approverProvenance) && (approval.approverProvenance.agentId === args.critic.agentId
     || approval.approverProvenance.sessionId === args.critic.sessionId
     || approval.approverProvenance.dispatchId === args.critic.dispatchId
-    || approval.approverProvenance.businessIdentity === args.critic.businessIdentity)) diagnostics.push('exclusion approver is not independent from topology critic');
+    || approval.approverProvenance.businessCommitAuthor === args.critic.businessCommitAuthor)) diagnostics.push('exclusion approver is not independent from topology critic');
   return diagnostics;
 }
 
@@ -354,6 +370,7 @@ export function issueTopologyCriticReceipt(args: {
   critic: TopologyActorProvenanceV1;
   implementation: TopologyImplementationProvenanceV1;
   approvals: TopologyExclusionApprovalV1[];
+  events: readonly ProcessEvent[];
   verdict: 'pass' | 'request_changes';
   issuedAt?: string;
 }): TopologyCriticReceiptV1 {
@@ -395,7 +412,7 @@ export function verifyTopologyCriticReceipt(args: {
   receipt: TopologyCriticReceiptV1 | null;
   approvals: TopologyExclusionApprovalV1[];
   implementation: TopologyImplementationProvenanceV1;
-  events?: readonly ProcessEvent[];
+  events: readonly ProcessEvent[];
 }): TopologyCriticVerification {
   const empty = { agent: false, session: false, dispatch: false, businessCommitAuthor: false };
   if (!args.receipt) return { ok: false, code: 'AT_TOPOLOGY_CRITIC_RECEIPT_MISSING', diagnostics: ['topology critic receipt is missing'], independence: empty };
@@ -418,6 +435,7 @@ export function verifyTopologyCriticReceipt(args: {
   }));
   const independence = verifierIndependenceMatrix(receipt.criticProvenance, args.implementation);
   for (const [dimension, independent] of Object.entries(independence)) if (!independent) diagnostics.push(`topology critic independence failed: ${dimension}`);
+  diagnostics.push(...implementationProvenanceDiagnostics(receipt.implementationProvenance, args.implementation));
   if (JSON.stringify(receipt.implementationProvenance) !== JSON.stringify(args.implementation)) diagnostics.push('critic implementation provenance mismatch');
   if (context.basisStatus !== 'complete') diagnostics.push(`critic cannot override ${context.basisStatus} discovery`);
   if (receipt.verdict !== 'pass') diagnostics.push(`critic verdict is ${receipt.verdict}`);
