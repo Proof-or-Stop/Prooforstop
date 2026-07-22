@@ -3,50 +3,54 @@
     {
       "id": "CHK-001",
       "title": "Define topology critic role eligibility and independence policy",
-      "context": "Only an eligible non-implementer may issue a critic verdict; identity and role separation must be mechanically verified rather than inferred from prompt prose.",
+      "context": "Open Decision 10 is resolved under the operator's explicit instruction to execute every Story 6 wave through DONE using the conservative least-privilege policy: only lattice-review-topology-critic may sign critic receipts; only lattice-review-scope-plan may approve exclusions; both must be mechanically distinct from implementer agent, session, dispatch provenance, and business commit author. Prompt identity alone is never sufficient.",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
         "docs/requirements/decisions/role-separation.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Topology critic eligibility: PASS — role=lattice-review-topology-critic, independentFromImplementer=true, exclusionApprover=lattice-review-scope-plan."
     },
     {
       "id": "CHK-002",
       "title": "Produce and verify signed hash-bound topology critic receipts",
-      "context": "Bind critic receipts to current basis digest, topology digest, scope artifact digests, storyFilesHash, and closureFilesHash with deterministic freshness and tamper rejection.",
+      "context": "Expose production critic receipt producer and read-only verification surfaces. TopologyCriticReceiptV1 must bind Story ID, critic identity, eligible role, basis digest, topology digest, scopeCheckDigest, phase-applicable scopeContractDigest, storyFilesHash, closureFilesHash, finding refs, approved-exclusion refs, verdict, issuedAt, and signature; every field is recomputed or verified.",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
         "AGENTS.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Topology critic receipt: PASS — signature valid, eligible independent critic, current basis/topology/scope/story/closure bindings, and deterministic finding/exclusion refs."
     },
     {
       "id": "CHK-003",
       "title": "Require independent approval for topology exclusions",
-      "context": "Every exclusion approval must be independently attributable and cannot convert partial or unsupported discovery into a pass.",
+      "context": "Require separately attributable lattice-review-scope-plan approval for every exclusion. A critic can confirm only a mechanically complete basis and can never override missing, partial, unsupported, stale, or tampered discovery. Wave 3 executable pre-review evidence and planned-to-actual reconciliation remain separate.",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
         "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Topology critic receipt: REJECTED — basisStatus=partial cannot be overridden by critic verdict or exclusion approval."
     },
     {
       "id": "CHK-004",
       "title": "Prove critic and exclusion authority with adversarial production-path tests",
-      "context": "Exercise self-authored, ineligible, stale, digest-tampered, scope-drifted, exclusion-forged, partial, and unsupported cases; exact restoration must pass and process-fact mutations must bite.",
+      "context": "Exercise production CLI producer and verifier surfaces plus self-authored, ineligible, stale, digest-tampered, scope-drifted, exclusion-forged, partial, and unsupported cases; exact restoration must pass and process-fact mutations must bite. This Story delivers Wave 2A only: pre_review_check/executable evidence is Wave 3, selective applicability is optional Wave 3A, and measured rollout is Wave 4.",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Wave 2A critic smoke: PASS — eligible receipt accepted; self-authored, ineligible, stale, tampered, forged-exclusion, partial, and unsupported cases rejected; later-wave claims remain false."
     }
   ]
 }
