@@ -262,6 +262,37 @@
       },
       "readDiagnostics": [],
       "_hash": "19b78875f3c057e1382665e002fe170eaeb95e35f92c90e295fd2e85e7697fd1"
+    },
+    {
+      "id": "B-a32a:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 25/25 must intents have current admissible evidence, 0 semantic gaps, 0 waivers. Current-HEAD build, Wave 1A focused production-chain/mutation smoke, Wave 1 topology smoke, and process-fact contract all passed. The focused smoke now proves generic empty-planned-path derivation, a non-ProofStory registered handler alias, bounded external C2 static consumer inclusion/omission bite, unrelated registry-universe exclusion, deleted and ambiguous registerBatch failure, restored factory control, and all prior caller/receipt/freshness/exclusion/process-contract controls.",
+      "createdAt": "2026-07-22T08:41:54.860Z",
+      "reviewRound": "2026-07-22T08:37:39.733Z",
+      "reviewRunId": "B-a32a:RR-016",
+      "envelopeId": "40911c4e22e8143b81142ed9ed1aeb506eafb422e5b891f1f9a46e4cc2271078",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a9b88ff9b26af91c275290bc07006ddf5c28ee82a1a8d69a952ea844830e07a"
     }
   ]
 }
