@@ -172,10 +172,26 @@
       "phase": "DEV",
       "headHash": "9d67418014e4b889d3e919138a0def06019b8cf1",
       "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The focused Wave 2A smoke is already an allowedCreate and allowedTest path, but after expanding its real CLI and mutation matrix the semantic TypeScript anchor extractor returned typescript_source_unavailable_fail_closed/UNMATCHED_ANCHOR; re-attest this test-only diff without expanding business-code scope.",
+      "timestamp": "2026-07-22T18:55:59.013Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a6b73c761fa6c8c6056ea072a37e658195d9a801",
+      "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334"
     }
   ],
   "createdAt": "2026-07-22T17:59:20.813Z",
-  "updatedAt": "2026-07-22T18:32:47.370Z",
+  "updatedAt": "2026-07-22T18:55:59.013Z",
   "fileRules": [
     {
       "path": "packages/main/src/handlers/proofstory.ts",
