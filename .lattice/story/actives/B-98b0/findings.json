@@ -50,7 +50,7 @@
       "desc": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts:285-319 — B98B0-M3-E-MODE-LIFECYCLE and B98B0-M4-A-REAL-MUTATIONS are not actually proven. The mode loop exercises only a structurally passing report in observe/warn/enforce, and the sole real story_advance case is an enforce-mode clean pass. There is no same failing topology/basis report shown non-blocking in observe/warn and blocking in enforce through the real PLAN→DEV consumer, nor a mode-bypass mutation that makes that assertion fail. The focused smoke therefore remains PASS if enforce stops blocking failures, despite 25/25 evidence claiming this behavior.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T16:33:16.220Z",
@@ -58,7 +58,11 @@
       "reviewRunId": "B-98b0:RR-003",
       "_hash": "668d0cfe17f15724693a3509a0e5410c6a6e6a88a6a77decd503a5b77c39abde",
       "signatureTag": "missing|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "de9bd226 adds three real temp-repo PLAN-to-DEV polarity cases plus mutation bite; round-2 coverage RR-008 / RP-005 reran focused smoke PASS.",
+      "resolvedAt": "2026-07-22T17:00:13.979Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-98b0:F-004",
