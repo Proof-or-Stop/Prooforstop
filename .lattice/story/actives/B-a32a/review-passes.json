@@ -560,6 +560,55 @@
       },
       "readDiagnostics": [],
       "_hash": "482225d154e895856fc7c6830a8da5c0afe195b1d1b1df0e3f8a813a16883d34"
+    },
+    {
+      "id": "B-a32a:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Round 10 docs audit found no blocker. Commit 7202b72204 freezes acceptance discovery into one bounded no-follow immutable source snapshot shared by registered closure derivation, adapter provenance, closureFilesHash, and receipt verification; directory close/mutation races, oversized or disappearing files, symlink swaps, noncanonical spellings, and invalid namespace calls remain fail-closed as partial diagnostics. This strengthens the existing documented bounded verifier-derived behavior without changing the public command contract. docs/CLI.md and all three implementer prompt mirrors still accurately state acceptance_basis_generate is the sole signed PLAN writer, acceptance_basis is read-only diagnostic output, and Wave 1A remains L3 nongating/non-Authority with no Wave 2 completion claim. Process-fact policy/registry remain unchanged and consistent. Audited 45 changed exported TypeScript declarations and 11 bounded documentation/prompt groups.",
+      "createdAt": "2026-07-22T10:02:31.534Z",
+      "reviewRound": "2026-07-22T10:00:45.833Z",
+      "reviewRunId": "B-a32a:RR-036",
+      "envelopeId": "144cdc68e9fedd7f2a28081fe73a68e5b7129ebf1ad645e828af1dda1d43ad52",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "4ee135aeb127261d94499f2d42e7cb51497aa086a7d108f9f3c666cfc0df5133"
     }
   ]
 }
