@@ -359,14 +359,14 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-1995-003-MATRIX-USER-DEMO",
-          "kind": "manual_transcript",
+          "kind": "integration_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Focused smoke captures and asserts the real acceptance_matrix JSON CLI transcript while its L0 output is deliberately not submitted as evidence.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "note": "Focused smoke at 01d888403c proves supported global, project-wrapper, absolute/relative wrapper and bounded --root acceptance_matrix invocations are classified non-evidentiary.",
+          "headHash": "01d888403cd4e5f100149b41f3e39b2a3d5729e6",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:22.401Z"
         },
         {
           "intentRef": "VI-1995-003-LEGACY-AND-CONFLICT",
@@ -417,11 +417,11 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Focused smoke at 35de890d50 proves manual transcript fallback remains non-evidentiary while exact command provenance rejects every evidence kind.",
-          "headHash": "35de890d50b536bd4e7ad828bdaac5ab924b56eb",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:57:57.364Z"
+          "note": "Focused smoke at 01d888403c proves rg, printf and CLI-contract argument tokens remain admissible through checklist_update, verification_evidence_add and batch while real invocations fail closed.",
+          "headHash": "01d888403cd4e5f100149b41f3e39b2a3d5729e6",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:22.401Z"
         }
       ]
     },
@@ -520,11 +520,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Focused smoke at 35de890d50 covers logic/integration reserved-token compatibility plus manual legacy projection rejection.",
-          "headHash": "35de890d50b536bd4e7ad828bdaac5ab924b56eb",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:57:57.364Z"
+          "note": "Focused smoke at 01d888403c covers bounded command-form compatibility and false-positive controls in general verification, ProofStory and milestone consumers.",
+          "headHash": "01d888403cd4e5f100149b41f3e39b2a3d5729e6",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:22.401Z"
         },
         {
           "intentRef": "VI-1995-004-LIFECYCLE-EQUIVALENCE",
@@ -542,11 +542,11 @@
           "kind": "logic_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Expanded focused smoke at cef7fc56fe proves paraphrased and command-derived matrix rows remain uncovered in general, ProofStory, milestone requiredEvidence/subobjectives, and closeout.",
-          "headHash": "1d5989480f31739aa6df184c9e5913daf0b07a99",
-          "materialHash": "17c2105a08f990ee05bf5c7a71c4de484714543acd30211ad20113fb994880cf",
-          "storyFilesHash": "ff858e55b274a3c6e39a2b09a1f5adc9ec14e024260b9eb49682645a666dfbb5",
-          "timestamp": "2026-07-22T03:58:06.665Z"
+          "note": "Focused smoke at 01d888403c independently bites true producer commands while restored non-producer argument/search controls cover.",
+          "headHash": "01d888403cd4e5f100149b41f3e39b2a3d5729e6",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:22.401Z"
         },
         {
           "intentRef": "VI-1995-004-NO-GATE-OR-BASIS-SHIP",
