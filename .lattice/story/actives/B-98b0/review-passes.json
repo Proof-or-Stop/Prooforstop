@@ -314,6 +314,46 @@
       },
       "readDiagnostics": [],
       "_hash": "a3a9e998124016f02ccab313e753562a92687ac1930f8932406c9a3361073aa7"
+    },
+    {
+      "id": "B-98b0:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 incremental coverage rebind PASS. Compared the RR-008 reviewed baseline through commit 20ae286: no non-story/business/test path changed, checklist remains 4/4 with exactly 25 must intents, 25 passing evidence, 0 failures and 0 waivers. The only material checklist edit is the relatedDocs anchor normalization from the CJK section anchor to AGENTS.md; the trusted review prompt now assembles successfully under the English-only guard. Therefore RR-008 findings analysis and coverage proof remain applicable. Per dispatch instruction, focused smoke was not rerun.",
+      "createdAt": "2026-07-22T17:11:45.131Z",
+      "reviewRound": "2026-07-22T17:10:12.954Z",
+      "reviewRunId": "B-98b0:RR-013",
+      "envelopeId": "fdaf9bed4a462cb41eebae6b6f4e97936394418e463ba2465101cb98998c6b87",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "c78b7ca534626a3e7a0656b4b45008994b0a7c8097359a516be883138f6fbb41"
     }
   ]
 }
