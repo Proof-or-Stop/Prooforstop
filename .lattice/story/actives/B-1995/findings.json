@@ -218,7 +218,7 @@
       "desc": "packages/main/src/core/acceptance-topology.ts:94 acceptance_matrix_evidence_classifier_is_bypassable_and_overbroad: F-010 was closed with prose regexes rather than a typed source/provenance fact. A manual_transcript pass whose note is `Observed matrix projection was inconclusive_basis_unverified.` is classified false and buildVerificationCoverage reports status=covered, so feeding the matrix computed result label back still satisfies the general gate path. Conversely an unrelated legitimate note `Result: warning threshold test passed with expected fallback.` is classified true and rejected. Replace the content heuristic with an explicit normalized evidence-source/authority discriminator (or at minimum exhaustively reject the reserved result tokens without generic Result:warning false positives), apply it consistently at writer and legacy consumers, and add both bypass and false-positive controls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T03:43:31.492Z",
@@ -226,7 +226,11 @@
       "reviewRunId": "B-1995:RR-005",
       "_hash": "5ce3c644148d083ee6b88f689328d8cd809409562764319b19418b8a62647d17",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed across cef7fc56fe and 35de890d50: shared typed producer-command provenance rejects exact acceptance_matrix commands for every evidence kind; bounded legacy output fallback applies only to manual_transcript, catches paraphrased reserved results, preserves exact legacy compatibility, and does not misclassify unrelated warning prose or legitimate logic/integration notes.",
+      "resolvedAt": "2026-07-22T03:58:37.802Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1995:F-012",
