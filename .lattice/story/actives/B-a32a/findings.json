@@ -89,6 +89,26 @@
       "_hash": "3b9d18aba03728b7fa9e4a9724551562c1dc16d5827fef2140bcce291a9d0d60",
       "signatureTag": "missing|unknown|promise-undelivered-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-007",
+      "desc": "CHK-001 must coverage is overclaimed: packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:235 exercises only status/enumeratedPathRefs/issuer on the read command. VI-A32A-001-CALLER-FORGERY explicitly requires every public entry point and status, enumeratedPathRefs, blindSpots, excludedPathRefs, generatedBy, and digest fields, including the direct handler boundary. No assertions cover the remaining fields, acceptance_basis_generate, or direct-handler rejection/ignore semantics, so its recorded manual_transcript is not sufficient.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T07:03:12.416Z",
+      "reviewRound": "2026-07-22T07:00:04.992Z",
+      "reviewRunId": "B-a32a:RR-003",
+      "_hash": "258d95fb4818586884763bfd0cb78541ed84390b13b366575b86e48b3db2dca7",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/cli/command-schemas.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-overclaimed-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
