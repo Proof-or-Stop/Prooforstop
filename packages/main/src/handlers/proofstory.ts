@@ -192,7 +192,7 @@ function currentTopologyReceiptStateForContext(ctx: HandlerContext, storyId: str
   return { current, artifact, context, events, implementation };
 }
 
-/** Canonical signed critic consumer shared by the read-only CLI and lifecycle gate. */
+/** Canonical read-only CLI verifier; reusable by a future phase-appropriate gate without creating a Wave 2A lifecycle consumer. */
 export function evaluateTopologyCriticReceiptForContext(ctx: HandlerContext, storyId: string) {
   const state = currentTopologyReceiptStateForContext(ctx, storyId);
   const approvals = ctx.store.readTopologyExclusionApprovals(storyId).approvals;
