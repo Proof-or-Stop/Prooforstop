@@ -897,6 +897,35 @@
         "scanEscalationReason": null
       },
       "_hash": "3590e84c5a77bff4858db71c64c9245809d20f616ec32b8f250e20b1ec9f1634"
+    },
+    {
+      "id": "B-a32a:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Mechanical re-sign from prior quality pass RP-018: incremental basis reports no changed or impacted business files, storyFilesHash remains 637759865b103bd2eecf720eaa4fc06edb7d4954661b55f47bbeefc451044c64, and all findings F-001 through F-045 are resolved. No tests rerun and no review scope broadened.",
+      "createdAt": "2026-07-22T11:00:58.010Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-050",
+      "envelopeId": "189ce5f2440ff531e67509d654584ff9ae9ff57cce07ee4de29b052eb40eab28",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8ecd59c95967b72b3123b4dec4e3a8a9b33f689485897ddfc8144d59c93e3c7"
     }
   ]
 }
