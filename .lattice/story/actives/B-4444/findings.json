@@ -96,6 +96,24 @@
       ],
       "signatureTag": "edge|md|quality-example-mismatch",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4444:F-006",
+      "desc": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1275-1292,1443-1445 — The audit rubric requires negative tests for adapter-result omission, duplication, field tampering, and aggregate mismatch, but the mutation matrix explicitly covers omission and record/receipt tampering only. It has no case that duplicates a profile-required adapter result, and no case that holds signed per-adapter records constant while independently mutating the derived aggregate path/blind-spot projection. The deterministic code descriptions at lines 747-748/945-947 state desired behavior but are not bite-test scenarios. Add PLAN and pre-REVIEW negative matrix rows for duplicate required adapter records and aggregate projection mismatch, with expected AT_/PR_ failure codes; otherwise a future implementation can satisfy the stated test matrix without proving these two fail-closed invariants.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T01:45:02.167Z",
+      "reviewRound": "2026-07-22T01:42:32.404Z",
+      "reviewRunId": "B-4444:RR-006",
+      "_hash": "ea629a3bb336c70a00c82da10054afc38f39c79393178c92fae7d60741cea641",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
