@@ -135,12 +135,12 @@
       "q": "What bounded existing-source namespace must Wave 1 use to decide that an ExistingTopologySourceRefV1.canonicalSourceRef is known, given that handler/dispatch/static discovery adapters are explicitly deferred to Wave 1A?",
       "evidence": "CHK-002 promises deterministic AT_UNKNOWN_REF for unknown canonical refs, while the approved example uses both command review_run_start and non-command symbol verifyReviewRunPromptEnvelope. PROCESS_FACT_REGISTRY is a flat fact catalog and the decision doc explicitly says it is not a handler/dispatch graph.",
       "sourcePointers": [
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:215",
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:456",
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:467",
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:947",
-        "packages/main/src/core/process-fact-registry.ts:1"
-      ]
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#bounded-implementation-waves",
+        "CHK-002",
+        ".lattice/story/actives/B-1995/plan.md#CHK-002"
+      ],
+      "resolution": "Wave 1 resolves existing canonicalSourceRef only against persisted Story-owner IDs using the exact prefixes acceptance-binding, checklist, intent, milestone, and evidence with deterministic composite evidence refs. Unknown prefixes or unresolved IDs produce AT_UNKNOWN_REF in observe-only output. It does not infer command, handler, dispatch, process-fact, static graph, or runtime trace sources; those remain Wave 1A discovery work.",
+      "resolvedAt": "2026-07-22T02:55:51.265Z"
     }
   ]
 }
