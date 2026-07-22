@@ -152,7 +152,7 @@
           "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
         ]
       },
-      "userSees": "Pre-review reconciliation reports every planned and actual producer/consumer path mapped, or blocks with the exact unresolved/unmapped path."
+      "userSees": "User sees \"plannedActual=complete\" when every current path is reconciled, or \"FAIL code=PR_PLANNED_PATH_UNRESOLVED\" / \"AT_UNMAPPED_SCOPE_REF\" with the path."
     },
     {
       "id": "CHK-003",
