@@ -702,7 +702,7 @@
       "desc": "The 2 MiB lexical budget is enforced only after the complete file has already been allocated. readSourceSafely performs readFileSync(descriptor, utf8) at acceptance-discovery-adapters.ts:315-324 without checking opened.size against MAX_LEXICAL_SOURCE_BYTES; createBindingAnalysisContext checks Buffer.byteLength only afterward at lines 343-348. The analysis input also unions inventory with seedFiles and registryCandidates at lines 501-502, so planned/scope/registered files can bypass the inventory aggregate byte/file caps entirely; an oversized seed or a file grown after traversal can force an arbitrarily large read before becoming partial. The current oversized smoke proves post-read classification, not pre-allocation boundedness. Check fstat size before read, reject growth beyond a bounded descriptor read, and apply aggregate analysis file/byte budgets to every union source. Also define fail-closed behavior when O_NOFOLLOW is unavailable rather than reading a raced symlink target before later identity checks.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T09:38:06.741Z",
@@ -714,7 +714,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "edge|ts|lexical-budget-enforced",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 16f71aa5be and retained through current HEAD: inline require/static dynamic import and wrapper bindings are exact, all source ingress shares pre-allocation O_NOFOLLOW budgets, module paths are canonical, and directory mutations are detected. Current threat-table mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:31.846Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-034",
