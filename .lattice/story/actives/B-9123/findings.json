@@ -182,6 +182,26 @@
       ],
       "signatureTag": "doc-code-drift|md|code-drift-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9123:F-010",
+      "desc": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts:164-206,251-268,287-327 — F-004 is materially improved, but the remaining must coverage is not complete. The fixture directly assigns phase=DEV before issuing the receipt and calls evaluateTopologyCriticReceiptForContext directly; it never drives the registered story_advance PLAN→DEV lifecycle command with proofStory.acceptanceTopologyGateMode=enforce. Therefore VI-WAVE2A-PRODUCTION-CHAIN and VI-PROCESS-FACT-MUTATIONS do not prove the real lifecycle gate can pass a reachable PLAN state (deriveImplementationProvenance currently requires an implementer DEV dispatch/commit before PLAN admission, which the smoke sidesteps). The four-dimensional matrix still tests issueTopologyCriticReceipt rejection rather than re-signed production-verifier inputs with dimension-specific diagnostics; missing provenance covers one missing implementer dispatch plus only three critic event fields, not each signer/implementer comparison input; and the exclusion authority matrix covers a critic-role spoof and one critic-session collision but not implementer/ineligible/same-agent/same-dispatch/same-business-author cases required by VI-EXCLUSION-AUTHORITY-SPOOF. Add one real enforce-mode lifecycle transcript and table-driven verifier/approver matrices, then rerun fresh owner evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T19:12:40.647Z",
+      "reviewRound": "2026-07-22T19:09:28.703Z",
+      "reviewRunId": "B-9123:RR-007",
+      "_hash": "ff4b21863774b200a7e136dc3ebdfae57518e639fd414c11d48a33b858f37314",
+      "files": [
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
