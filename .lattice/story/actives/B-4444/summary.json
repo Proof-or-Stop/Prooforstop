@@ -1,0 +1,56 @@
+{
+  "storyId": "B-4444",
+  "changes": "Created and audited the ProofStory acceptance-topology execution plan. It preserves milestone ledger and existing evidence ownership, defines verificationIntent-owned planned paths, independently derived per-adapter coverage bases, phase-separated PLAN and pre-REVIEW gates, global closure freshness, negative controls, rollout waves, and a human audit rubric.",
+  "usage": "Use the execution plan as the approved source for creating separate Wave 1, 1A, 2, 2A, 3, 3A, and 4 implementation Stories; do not implement runtime gates inside B-4444 or create a writable acceptance matrix.",
+  "expectedOutcome": "The user can inspect one approved plan that explains canonical ownership, forbids a parallel acceptance-matrix truth source, specifies structural and executable gates, and provides bounded implementation waves with mechanical audit criteria.",
+  "actualTranscript": "The live-smoke command exited 0 and displayed the no-writable-matrix invariant, acceptance_topology_check, pre_review_check, Wave 1/1A sections, verification and mutation matrix, and human audit checklist from the committed document.",
+  "outcomeDiff": "No material difference: the committed plan and captured transcript expose all expected user-visible planning outcomes. Runtime gate implementation remains intentionally deferred to separate Wave Stories.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This Story is documentation-only and intentionally does not implement the proposed schemas, commands, adapters, or lifecycle gates. Open decisions are explicitly bound to later Wave entry criteria.",
+  "pitfalls": "Four REVIEW rounds found and fixed seven issues: PLAN new-path deadlock, per-adapter auditability, circular planned-path ownership, phase-basis example drift, file-ref mismatch, missing mutation bites, and PLAN actual-diff ambiguity. Future implementers must preserve verificationIntent ownership and PLAN/pre-REVIEW basis separation.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 94451
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 76451
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 377800
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 37485702
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1459652
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 225217
+    }
+  },
+  "totalDurationMs": 39719983,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-22T02:19:38.029Z",
+  "updatedAt": "2026-07-22T02:19:38.029Z"
+}
