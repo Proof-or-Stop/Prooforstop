@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#wave-1-schema-and-read-only-diagnostics"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-22T02:59:42.560Z",
-      "endTime": "2026-07-22T03:14:11.075Z",
+      "endTime": "2026-07-22T03:39:49.467Z",
       "verificationIntent": {
         "happy": [
           {
@@ -592,6 +592,15 @@
       "to": "in_progress",
       "reason": "REVIEW round 1 reopened declaration authority and adversarial coverage defects; implementation delegated to lattice-implementer.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-22T03:39:49.467Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "REVIEW round 1 authority, topology-totality, CLI-path, lifecycle-equivalence and non-evidentiary defects fixed and verified at 92d375b70a."
     }
   ]
 }
