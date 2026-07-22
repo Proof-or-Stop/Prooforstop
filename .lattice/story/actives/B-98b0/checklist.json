@@ -48,6 +48,18 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Acceptance topology check: PASS — mode=enforce, basisStatus=complete, structuralPass=true, diagnostics=none.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ]
       }
     },
     {
