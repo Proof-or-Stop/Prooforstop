@@ -771,7 +771,7 @@
       "desc": "Directory traversal still has a TOCTOU gap that can omit a new consumer or follow a swapped directory outside the canonical root. enumerateBoundedSourceTree queues child path strings from Dirent state, then later calls opendirSync(directory) at acceptance-discovery-adapters.ts:180-203 without re-lstat/realpath containment or before/after directory identity and mtime checks. A queued child replaced with a symlink can be followed by opendirSync and expose external names/sizes; a consumer added, removed, or renamed while the iterator runs can be absent from the admitted deterministic set without any blind spot. File-level readSourceSafely may later reject external content, but it does not detect an omitted concurrent entry, so completeness can be issued over a non-snapshot inventory. Revalidate each directory immediately before open without following symlinks, compare identity/change metadata after iteration, fail partial on mutation, and add directory swap plus add/remove-during-iteration mutations with handle-close assertions.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T09:38:53.434Z",
@@ -783,7 +783,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|directory-traversal-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 16f71aa5be and retained through current HEAD: inline require/static dynamic import and wrapper bindings are exact, all source ingress shares pre-allocation O_NOFOLLOW budgets, module paths are canonical, and directory mutations are detected. Current threat-table mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:34.613Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-037",
