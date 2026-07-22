@@ -184,6 +184,37 @@
       },
       "readDiagnostics": [],
       "_hash": "ec324774beea6863406e47df5aa0fbc0a4f41c64c90d837a35c871cf754fe77c"
+    },
+    {
+      "id": "B-98b0:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-review PASS on HEAD f2cdd3f. Mechanical diff from prior reviewed HEAD 22f9c71 excluding .lattice is empty; the only change is owner finding-resolution metadata. The de9bd226 conclusions therefore remain unchanged: independent acceptanceTopologyGateMode defaults observe, status/diagnostics are mode-invariant, enforce changes blocking only, old devGateMode remains the separate legacy gate, and no later-wave critic/pre_review/selective-applicability requirement leaked into Wave 2.",
+      "createdAt": "2026-07-22T17:01:14.776Z",
+      "reviewRound": "2026-07-22T16:55:09.966Z",
+      "reviewRunId": "B-98b0:RR-009",
+      "envelopeId": "9419788c0bae28da34a85a231298ed0c95910e7d9b63a1ae52841ff16e605b80",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/config.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7a8a678909abe56a60d7e6c5ced1ee616ba82011ce54bdafd46c962da8a67cca"
     }
   ]
 }
