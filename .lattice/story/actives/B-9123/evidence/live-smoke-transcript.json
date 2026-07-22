@@ -1,0 +1,21 @@
+{
+  "storyId": "B-9123",
+  "expected": "Topology critic eligibility: PASS — role=lattice-review-topology-critic, independentFromImplementer=true, exclusionApprover=lattice-review-scope-plan.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+    "exitCode": null,
+    "stdout": "",
+    "stderr": "[capture error] command exceeded 60000ms timeout; process group terminated"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-22T21:04:21.721Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "a09404031932fdfcf771360b7d5c7c38f6365c51",
+  "materialHash": "2a29d3e8474bce4b82d95bc169cd606621dc840a69c9e7cf4a01d9d6cfcd70e7"
+}
