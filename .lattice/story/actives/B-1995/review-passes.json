@@ -1,0 +1,32 @@
+{
+  "passes": [
+    {
+      "id": "B-1995:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-review passed. Replayed F-008 against the production checklist handler: ordinary PLAN removal is rejected with planned_path_writer_not_authorized and persisted checklist bytes remain unchanged. Replayed F-009 against the production matrix builder: swapped planned endpoint roles emit AT_PLANNED_PATH_DECLARATION_DRIFT and result=warning. Clean build and focused Wave 1 smoke pass. acceptance_matrix remains L0/readOnly/non-evidentiary with only legacy_missing, warning, or inconclusive_basis_unverified; no machine/phase-gate diff, signed basis, acceptance_topology_check, pre_review_check, or Wave 1A completeness behavior found.",
+      "createdAt": "2026-07-22T03:43:07.572Z",
+      "reviewRound": "2026-07-22T03:40:27.426Z",
+      "reviewRunId": "B-1995:RR-004",
+      "envelopeId": "29f9055ccb36e66158d1d98894a3fdda94448fa2e3b15ce2dfbf61e6f456d770",
+      "writerSessionId": "sess-1078f9ca1b8239bf4fae7e6ca717ca58",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/plan.md",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1995/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ce451a2b6fc5b28e11756c3218cd49e643caec07ab2cbc07208309d236beb31a"
+    }
+  ]
+}
