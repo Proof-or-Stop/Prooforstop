@@ -77,6 +77,25 @@
       ],
       "signatureTag": "edge|md|quality-schema-consistency",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4444:F-005",
+      "desc": "quality-example-ref-mismatch: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:626 and :635 bind planned endpoints in existing packages/main/src/handlers/review-run.ts and packages/main/src/core/review-run.ts to CHK-002:files:create refs, but the canonical ChecklistItem.files contract defines create as newly created files and modify as existing files being changed (packages/main/src/core/types.ts:318-325); both target files already exist. Use files:modify refs (or genuinely new paths) so the verifier-derived example is satisfiable under the canonical PLAN declaration semantics it claims to enforce.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T01:44:54.396Z",
+      "reviewRound": "2026-07-22T01:42:32.404Z",
+      "reviewRunId": "B-4444:RR-007",
+      "_hash": "587547fed71b663805c2c1aafc7562d0d14eb5d868e037301768009427e88f83",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "edge|md|quality-example-mismatch",
+      "signatureTagSource": "auto"
     }
   ]
 }
