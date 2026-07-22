@@ -261,7 +261,7 @@
       "desc": "packages/main/src/core/acceptance-topology.ts:97 command_token_is_not_producer_provenance: commandTokens(...).includes(acceptance_matrix) treats the token anywhere in a command as proof that acceptance_matrix produced the evidence. Current probes classify `rg acceptance_matrix packages/main/src/core/command-policy.ts`, `node cli-contract-test.mjs acceptance_matrix`, and `printf acceptance_matrix` as producer_command, so all three evidence writers reject legitimate registry/source/CLI-contract assertions across every evidence kind. This is the command-side false-positive counterpart to F-011 and contradicts the documented producer-command provenance semantics. Parse the actual invoked Proofbound subcommand or add an explicit typed source field; add negative controls where acceptance_matrix is only search text/test input plus a true invocation control.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T04:01:51.479Z",
@@ -269,7 +269,11 @@
       "reviewRunId": "B-1995:RR-008",
       "_hash": "ea12396033fe5ea00f98c8b0ded22caf3731a7140a75eff8cb8bf6a32346bee6",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 01d888403c: acceptance-matrix provenance now parses only supported Proofbound CLI entrypoints, bounded --root options, and the exact subcommand position. rg/printf/test-argument tokens persist and cover through all writers and general/ProofStory/milestone consumers; real global/project/absolute wrapper invocations remain rejected. Build, focused, milestone, process-fact, diff and scope checks pass.",
+      "resolvedAt": "2026-07-22T04:09:08.172Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
