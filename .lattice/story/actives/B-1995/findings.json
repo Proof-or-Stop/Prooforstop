@@ -193,7 +193,7 @@
       "desc": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts:212-214 and the process-fact contract only prove that acceptance_matrix is registered L0; they never perform VI-1995-003-NON-EVIDENTIARY’s required attempt to feed the renderer/result back as verification evidence. Current gate consumption in packages/main/src/core/proofstory.ts:768-777 accepts any non-deferred verificationEvidence row with result=pass without checking command/fact authority, so an acceptance_matrix manual transcript can presently cover a bound intent despite the claimed non-evidentiary guarantee. Add a production-path negative test and a mechanical rejection/non-covering rule for acceptance_matrix-derived evidence; L0 registry labeling alone is not a gate boundary.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T03:21:00.348Z",
@@ -207,7 +207,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "adversarial|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 92d375b70a: checklist_update, verification_evidence_add and batch reject acceptance_matrix-derived evidence atomically; general verification and ProofStory completeness ignore legacy/injected rows; real CLI tests and process-fact contract pass.",
+      "resolvedAt": "2026-07-22T03:41:03.236Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
