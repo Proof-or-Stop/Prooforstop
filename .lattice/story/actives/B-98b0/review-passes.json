@@ -282,6 +282,38 @@
         "scanEscalationReason": null
       },
       "_hash": "d1110142dd86500b580bed6809adbacf242b95b8f81c7f21560f7a427fd58ba9"
+    },
+    {
+      "id": "B-98b0:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 incremental rebind PASS at HEAD abf5e08. Commit 20ae286 changes only one CHK-002 relatedDocs reference from AGENTS.md#流程事实双层契约 to AGENTS.md. Zero new exported symbols and zero business/docs prose changes. Compared two relevant documentation sections: AGENTS.md Flow process fact double-layer contract and execution-plan section 13 Process-fact and authority obligations. The file-level AGENTS.md reference still resolves to the same tracked truth source, whose section explicitly requires prompt plus CLI/handler/gate enforcement and synchronized process-fact registry/levels/contract updates; no semantic drift or promised-but-undelivered change was introduced. The broader reference intentionally fixes English artifact path/anchor handling without weakening the obligation.",
+      "createdAt": "2026-07-22T17:11:43.272Z",
+      "reviewRound": "2026-07-22T17:10:12.954Z",
+      "reviewRunId": "B-98b0:RR-012",
+      "envelopeId": "8f7bb7512283c0f4250027314036857cc4b18720935910207e78016cc6fb219f",
+      "writerSessionId": "sess-57c822af9b82810b79be218940de592a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "a3a9e998124016f02ccab313e753562a92687ac1930f8932406c9a3361073aa7"
     }
   ]
 }
