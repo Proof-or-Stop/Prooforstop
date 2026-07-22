@@ -91,7 +91,7 @@
       "desc": "quality-example-ref-mismatch: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:626 and :635 bind planned endpoints in existing packages/main/src/handlers/review-run.ts and packages/main/src/core/review-run.ts to CHK-002:files:create refs, but the canonical ChecklistItem.files contract defines create as newly created files and modify as existing files being changed (packages/main/src/core/types.ts:318-325); both target files already exist. Use files:modify refs (or genuinely new paths) so the verifier-derived example is satisfiable under the canonical PLAN declaration semantics it claims to enforce.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T01:44:54.396Z",
@@ -103,7 +103,11 @@
         "packages/main/src/core/types.ts"
       ],
       "signatureTag": "edge|md|quality-example-mismatch",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 4c4ed0bfc8: planned-path example uses two genuinely absent new files with files:create refs, matching canonical ChecklistItem.files semantics. Original quality reviewer verified both paths do not exist and confirmed no residual blocker.",
+      "resolvedAt": "2026-07-22T01:56:15.867Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4444:F-006",
