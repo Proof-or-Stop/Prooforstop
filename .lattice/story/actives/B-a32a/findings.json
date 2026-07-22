@@ -518,7 +518,7 @@
       "desc": "AST discovery still does not prove that a direct-call identifier is bound to the imported producer. analyzeLocalImportCalls records imported local names at acceptance-discovery-adapters.ts:250-261, then collects every CallExpression identifier by text across all scopes at lines 263-269. Legal shadowing such as `import { emitReviewRunFact as consumeReviewRun } from ../handlers/review-run.js; export const c2 = (consumeReviewRun: () => boolean) => consumeReviewRun();` parses cleanly but the only call targets the parameter, not the import; the current calledNames/intersection nevertheless emits the producer->C2 edge, enters C2 into closure, and can satisfy consumerGate as complete. The added AST smoke covers regex/template/parse/size cases but no shadow-binding mutation (proofstory-acceptance-basis-smoke.ts:391-440). This violates the exact imported direct-call condition and reopens false completeness. Resolve the identifier binding with a TypeScript Program/type checker or a conservative lexical scope tracker, fail partial when binding cannot be proven, and add parameter/local/function/catch shadow mutations plus a restored imported-call control.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T09:18:58.874Z",
@@ -530,7 +530,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|discovery-still-prove",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 7ec60658bc and retained through current HEAD: TypeChecker symbol binding excludes shadowing, all supported JS/TS module forms resolve canonically or fail partial, streaming inventory is bounded, and source read failures fail closed. Current threat-table mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:25.649Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-026",
