@@ -85,7 +85,7 @@
       "desc": "packages/main/src/core/acceptance-coverage-basis.ts:149-156 and :201-207 do not bind the discovered global closure source contents promised by closureFilesHash. computeClosureFilesHash hashes only files named by plannedPathRecords; sourceInventory entries for PROCESS_FACT_REGISTRY producers/consumer gates are merely hashed as identifier strings and are never resolved to source files. A consumer outside Story scope can change without its file content entering closureFilesHash, violating the explicit Wave 1A requirement that every discovered producer and consumer source reference, including outside storyFilesHash, be content-bound and uninspectable consumers force partial.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T07:02:54.234Z",
@@ -94,7 +94,11 @@
       "_hash": "d54ac70e1a928ea2093102f6f008d50f490cd1ea03b5ab7be4e4d9193f385c9d",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto",
-      "clusterId": "CL-002"
+      "clusterId": "CL-002",
+      "resolvedReason": "Fixed by 53c949a2ec and 70e74b7b35: discovered global producer/consumer source contents are included in canonical closureFilesHash and uninspectable entries force partial. Current-HEAD source-content drift, missing-source and out-of-scope consumer omission mutations invalidate freshness/completeness; restored control passes.",
+      "resolvedAt": "2026-07-22T07:38:58.817Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-006",
