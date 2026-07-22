@@ -39,9 +39,32 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Minimal prompt-side process-fact contract correction: canonical lattice-implementer prompt mirrors may state only the Wave 1A sole-writer/read-only/non-authority boundary, with an explicit no-lifecycle-gate sentence; prompt-registry.ts synchronizes their tracked template hash. Scope-plan reviewer prompts remain excluded and must be restored because requiring complete basis there would implement Wave 2.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "A current approved lattice-implementer prompt hash requires refreshing the independent proof-or-stop verifier manifest and its mechanically generated baseline artifacts so the configured DONE-required root test can pass.",
+      "timestamp": "2026-07-22T14:18:39.149Z",
+      "paths": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "c5946fbbf12986d6f3c948f6646ef83df024d458",
+      "materialHash": "8e6b17541a228367b4b10b4d9065b1e2664680ef786ecc60756ef25290217f21"
+    }
+  ],
   "createdAt": "2026-07-22T06:38:10.757Z",
-  "updatedAt": "2026-07-22T08:06:03.362Z",
+  "updatedAt": "2026-07-22T14:18:39.149Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -75,6 +98,10 @@
     "packages/main/templates/agents/lattice-implementer.md": "packages/main/templates/agents/lattice-implementer.md",
     ".claude/agents/lattice-implementer.md": ".claude/agents/lattice-implementer.md",
     ".lattice-codex/agents/lattice-implementer.md": ".lattice-codex/agents/lattice-implementer.md",
-    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts"
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json"
   }
 }
