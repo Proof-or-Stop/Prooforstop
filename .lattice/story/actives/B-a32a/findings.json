@@ -515,6 +515,25 @@
       ],
       "signatureTag": "adversarial|ts|discovery-still-prove",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-026",
+      "desc": "The new global directory budget is deterministic but has an exact-boundary off-by-one that reports partial before consuming the last permitted directory. In enumerateBoundedSourceTree, after visiting the root stats.directories is 1; when it encounters the sole child with maxDirectories=2, line 154 tests `1 + 0 + 0 >= 2` and stops instead of enqueueing/visiting that second allowed directory. Thus a tree whose total directory count exactly equals maxDirectories is classified exhausted/partial although it is within the declared maximum. The smoke proves an exact maxFiles boundary but only proves directory exhaustion is <= cap; it has no exact maxDirectories complete control. Change the child scheduling guard so equality is allowed while the next directory beyond the cap stops globally, and add exact-boundary plus one-over directory cases.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T09:19:21.601Z",
+      "reviewRound": "2026-07-22T09:17:25.176Z",
+      "reviewRunId": "B-a32a:RR-025",
+      "_hash": "d9b91b1d5839d47f59c7d0dc73017005c2254dbc2a8d9dff1f2cb72956128356",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|global-directory-budget",
+      "signatureTagSource": "auto"
     }
   ]
 }
