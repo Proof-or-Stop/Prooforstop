@@ -1,8 +1,8 @@
 {
   "schemaVersion": "proofstory.milestone_ledger.v1",
   "storyId": "B-98b0",
-  "state": "candidate",
-  "ledgerHash": "sha256:cb2438f89e540ddda49dd9ce68c340a809fde093437ea06bd2c90139ff0a1135",
+  "state": "confirmed",
+  "ledgerHash": "sha256:e439b460e21be89a180d5e0fc8a368f3a070d4e2822d591fafff4d70cd5407a5",
   "milestones": [
     {
       "id": "M1",
@@ -16,7 +16,13 @@
       "checklistRefs": [
         "CHK-001"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "B98B0-M1-H-CANONICAL",
+        "B98B0-M1-E-NONPASS-BASIS",
+        "B98B0-M1-E-MODES",
+        "B98B0-M1-A-CALLER-FORGERY",
+        "B98B0-M1-A-OMISSION-INVENTION"
+      ],
       "status": "planned"
     },
     {
@@ -31,7 +37,13 @@
       "checklistRefs": [
         "CHK-002"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "B98B0-M2-H-PRODUCTION-PARITY",
+        "B98B0-M2-E-CLI-CONTRACT",
+        "B98B0-M2-E-REGISTRY-RATIONALE",
+        "B98B0-M2-A-PROCESS-FACT-MUTATION",
+        "B98B0-M2-A-PROMPT-ONLY"
+      ],
       "status": "planned"
     },
     {
@@ -46,7 +58,15 @@
       "checklistRefs": [
         "CHK-003"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "B98B0-M3-H-PLAN-DEV",
+        "B98B0-M3-H-TYPED-NEW-PATH",
+        "B98B0-M3-E-COMPATIBILITY",
+        "B98B0-M3-E-MODE-LIFECYCLE",
+        "B98B0-M3-A-BLOCKERS",
+        "B98B0-M3-A-PLANNED-PATH-TAMPER",
+        "B98B0-M3-A-NO-LATER-WAVE-LEAKAGE"
+      ],
       "status": "planned"
     },
     {
@@ -63,10 +83,24 @@
       "checklistRefs": [
         "CHK-004"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "B98B0-M4-H-FOCUSED-SMOKE",
+        "B98B0-M4-H-DOCS-TRANSCRIPT",
+        "B98B0-M4-E-COMPATIBILITY-MATRIX",
+        "B98B0-M4-E-STABLE-DIAGNOSTICS",
+        "B98B0-M4-A-REAL-MUTATIONS",
+        "B98B0-M4-A-POLARITY-RESTORE",
+        "B98B0-M4-A-PROCESS-FACT-BITE",
+        "B98B0-M4-A-SCOPE-BOUNDARY"
+      ],
       "status": "planned"
     }
   ],
   "createdAt": "2026-07-22T15:51:25.915Z",
-  "updatedAt": "2026-07-22T15:51:25.915Z"
+  "updatedAt": "2026-07-22T15:54:59.495Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260722155459",
+    "acceptedInterpretationHash": "sha256:09425cffc3d603fa818da52f9837e4971ff5fa05b3df4d6c5b14b446f009ca02",
+    "acceptedAt": "2026-07-22T15:54:59.495Z"
+  }
 }
