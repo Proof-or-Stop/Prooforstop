@@ -44,6 +44,25 @@
       "_hash": "6e524daf69c03394f5c5f28fdf2132ca3ce28db27c748db0975eeeaf0f1488ee",
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1995:F-004",
+      "desc": "packages/main/src/core/acceptance-topology.ts:191-203,258-317 accepts a planned consumer endpoint in producerRefs and a planned producer endpoint in consumerRefs, and treats commandRefs:[] as structurally clean. Repro against current dist returned result=inconclusive_basis_unverified with codes=[] for both mutations. This violates CHK-002 role-mismatch/missing-command structural diagnostics and leaves VI-1995-002-STABLE-INVALID-REFS / VI-1995-002-SEMANTIC-OVERRIDE-MUTATION / VI-1995-004-MUTATION-BITES falsely evidenced; the focused smoke only bites declaration deletion, duplicate ID, orphan producer, and top-level relation/result/basis fields. Add role-aware planned-ref validation, the missing command-group diagnostic, and independent mutations including swapped endpoint roles, unknown declaration/endpoint/canonical refs, orphan consumer, and command omission with restored controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T03:19:52.643Z",
+      "reviewRound": "2026-07-22T03:16:36.414Z",
+      "reviewRunId": "B-1995:RR-002",
+      "_hash": "c428ed2fc6fa0415311bc146a6978b195a64b37bf5d5200bace801169cd57829",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
