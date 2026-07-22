@@ -155,7 +155,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/handlers/checklist.ts:581-586 only authorizes based on declarations present in the incoming verificationIntent, so an ordinary PLAN caller can erase an already verification-intent-owned plannedPathDeclarations array by resubmitting the same intent without that field. Production-handler repro on current build persisted before=1, after=0 and returned `Checklist CHK-001: verificationIntent updated`; docs/CLI.md promises ordinary callers are rejected and CHK-001 requires unchanged declaration bytes. Add a reverse guard comparing existing versus proposed planned declarations (and their ChecklistItem.files bindings), reject non-dispatched mutation/removal atomically, and add the deletion/file-retarget mutation bite.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T03:20:30.819Z",
@@ -163,7 +163,11 @@
       "reviewRunId": "B-1995:RR-003",
       "_hash": "0e4448698d8d06ce7fc937d81f2801a5ce1cdbda565a428b29b71a2a76cb3d30",
       "signatureTag": "adversarial|unknown|promise-undelivered-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed at 92d375b70a: authorization compares persisted and incoming declaration snapshots, preventing ordinary callers from erasing frozen PLAN declarations even when incoming payload contains none.",
+      "resolvedAt": "2026-07-22T03:41:00.034Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1995:F-009",
