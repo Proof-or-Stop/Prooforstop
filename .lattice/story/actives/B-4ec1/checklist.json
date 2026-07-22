@@ -48,6 +48,21 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ]
       }
     },
     {
