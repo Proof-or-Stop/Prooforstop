@@ -113,7 +113,45 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Topology critic receipt: REJECTED — basisStatus=partial cannot be overridden by critic verdict or exclusion approval."
+      "userSees": "Topology critic receipt: REJECTED — basisStatus=partial cannot be overridden by critic verdict or exclusion approval.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-EXCLUSION-INDEPENDENT-APPROVAL",
+            "desc": "For every topology exclusion, require a separately attributable current lattice-review-scope-plan approval whose story, scope reference, exclusion reference, digest bindings, session, dispatch, and business-author provenance verify independently from implementer and topology critic; a complete basis plus valid approvals passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-EXCLUSION-ONE-TO-ONE-COVERAGE",
+            "desc": "Exercise zero, one, and multiple exclusions and require an exact one-to-one mapping between topology exclusion refs and verified scope-plan approvals; missing, duplicate, orphaned, stale, or cross-story approvals must fail with precise diagnostics.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "VI-NO-EXCLUSION-CONTROL",
+            "desc": "A complete topology with no exclusions must not fabricate an approval requirement, but any later added exclusion must immediately require a fresh independent scope-plan approval.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-EXCLUSION-AUTHORITY-SPOOF",
+            "desc": "Attempt approvals from implementer, topology critic, an ineligible reviewer role, the same agent/session/dispatch/business author, and a forged lattice-review-scope-plan label; every case must be rejected mechanically.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-CRITIC-CANNOT-OVERRIDE-DISCOVERY",
+            "desc": "Feed missing, partial, unsupported, stale, and tampered discovery/basis states together with an otherwise valid PASS critic receipt and valid exclusion approvals; the canonical gate must reject every case, proving neither critic verdict nor exclusion approval can override discovery status.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
