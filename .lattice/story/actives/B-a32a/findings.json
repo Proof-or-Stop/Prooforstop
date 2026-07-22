@@ -109,6 +109,26 @@
       ],
       "signatureTag": "missing|ts|coverage-overclaimed-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-008",
+      "desc": "CHK-002 must mutation coverage is incomplete: packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:139-169 covers missing/duplicate, one undigested path edit, disagreement, and aggregate removal only. VI-A32A-002-OMISSION-AND-AGGREGATE-TAMPER / VI-A32A-002-RESULT-AND-CLOSURE-TAMPER also require aggregate addition and blindSpot tamper, recomputed adapter digest retained under the old signed basis, and omission of the registered out-of-scope consumer from closure. Lines 133-135 only prove the positive closure, not the required omission mutation. Yet both intents are marked pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T07:03:15.377Z",
+      "reviewRound": "2026-07-22T07:00:04.992Z",
+      "reviewRunId": "B-a32a:RR-003",
+      "_hash": "7caa9dbd379ad2615b86d77ed32c90b6490b7097831ccbf4dfb38f07340f2a26",
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts"
+      ],
+      "signatureTag": "missing|ts|mutation-coverage-incomplete",
+      "signatureTagSource": "auto"
     }
   ]
 }
