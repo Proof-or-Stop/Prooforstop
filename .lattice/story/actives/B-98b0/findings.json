@@ -36,6 +36,36 @@
       ],
       "signatureTag": "doc-code-drift|md|code-drift-wave",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-98b0:F-003",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts:285-319 — B98B0-M3-E-MODE-LIFECYCLE and B98B0-M4-A-REAL-MUTATIONS are not actually proven. The mode loop exercises only a structurally passing report in observe/warn/enforce, and the sole real story_advance case is an enforce-mode clean pass. There is no same failing topology/basis report shown non-blocking in observe/warn and blocking in enforce through the real PLAN→DEV consumer, nor a mode-bypass mutation that makes that assertion fail. The focused smoke therefore remains PASS if enforce stops blocking failures, despite 25/25 evidence claiming this behavior.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T16:33:16.220Z",
+      "reviewRound": "2026-07-22T16:30:08.066Z",
+      "reviewRunId": "B-98b0:RR-003",
+      "_hash": "668d0cfe17f15724693a3509a0e5410c6a6e6a88a6a77decd503a5b77c39abde",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-98b0:F-004",
+      "desc": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts:257-304 — the 25/25 verificationEvidence overstates the focused smoke coverage. The source covers one command-ref omission, one invented ref, one partial/adapter-pop tamper, and rootDir freshness drift, but the must intents also enumerate missing/unsupported/closure-stale/signature or receipt tamper/aggregate tamper/required-adapter-missing basis states; unjustified exclusions, orphan endpoints, uncovered intents, missing mutation/transcript/command refs; planned-path unknown declaration/wrong role/missing file or scope/semantic drift; and stable diagnostics through core, CLI, and lifecycle including simultaneous failures. Those named cases are not asserted here, so the smoke can PASS while those gate-consumed branches regress. Add focused assertions (or bind truthful existing fresh tests per intent) and narrow any evidence notes to behavior actually exercised.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T16:33:16.230Z",
+      "reviewRound": "2026-07-22T16:30:08.066Z",
+      "reviewRunId": "B-98b0:RR-003",
+      "_hash": "c08093bc164471a666c96dd5f2a61862708949b4498ef9c04f3b9d40e59f8d8d",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
