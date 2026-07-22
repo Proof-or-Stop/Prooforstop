@@ -1,0 +1,54 @@
+{
+  "passes": [
+    {
+      "id": "B-9123:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept/authority re-review found no blocker. F-001/F-002/F-003 are materially fixed: real git-author provenance replaces the synthetic role identity, dispatch is bound to story/current implementer commit/storyFilesHash and replay fails, all three prompt mirrors have parser-valid exact frontmatter, and the enforced PLAN-to-DEV lifecycle consumer fails closed. Scope acknowledgements remain visible/nonblocking, partial/unsupported cannot be overridden, and Wave 3/3A/4 surfaces are absent. Focused topology smoke plus process-fact and 17-role prompt contracts passed at current HEAD.",
+      "createdAt": "2026-07-22T19:14:26.701Z",
+      "reviewRound": "2026-07-22T19:09:28.703Z",
+      "reviewRunId": "B-9123:RR-005",
+      "envelopeId": "0b752c8cc74449e01e84a74b92b7ddf2148807219444d4adfaa3a69f9d922849",
+      "writerSessionId": "sess-a656518734521fac402ce338487627a0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ce0c7dad7e9e281e244f7d8c5d1bef6e4accd2154ad1914e544487e231cc60f5"
+      },
+      "readDiagnostics": [],
+      "_hash": "62cd95523eba34d70362e59ed68eb49fb016cc3afa515195b44f7c5ea3bb6c60"
+    }
+  ]
+}
