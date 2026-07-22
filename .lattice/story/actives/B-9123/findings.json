@@ -24,7 +24,7 @@
       "desc": ".claude/agents/lattice-review-topology-critic.md:1 (mirrored in .lattice-codex and packages/main/templates) starts with literal +--- instead of YAML delimiter ---. packages/main/src/core/prompt-registry.ts:337-342 requires the first trimmed line to equal ---, so the promised topology-critic host asset cannot be parsed/bootstrapped even though the role is registered. This is an undelivered role entrypoint and must be corrected in all three mirrors with a parser/adapter verification that exercises this template.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T18:34:41.958Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-9123:RR-001",
       "_hash": "71884c0d6a928cd8bdc9ca11e9a7fca74e56173267e719d7eaa92b69b01c03b6",
       "signatureTag": "missing|unknown|claude-agents-lattice",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit ffbb3de37d: all three critic prompt mirrors use valid YAML frontmatter; parser-backed mirror assertions and fresh 17-role prompt baseline pass.",
+      "resolvedAt": "2026-07-22T19:10:03.915Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-9123:F-003",
