@@ -657,6 +657,32 @@
       },
       "readDiagnostics": [],
       "_hash": "aee4242a9c325616cbe71007fdec9fed305217b2cf761de659e1ff864745c657"
+    },
+    {
+      "id": "B-a32a:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Static quality audit of 2cd97942da found no blocking issue: structured snapshot seal schema/count/digests/issues are deterministically projected; basis and signed receipt bind sealDigest; current read-only derivation supplies expectedSealDigest; free-text trust and post-seal mutation hook were removed; receipt signature rejects coordinated basis/seal re-digesting.",
+      "createdAt": "2026-07-22T10:34:02.529Z",
+      "reviewRound": "2026-07-22T10:32:39.434Z",
+      "reviewRunId": "B-a32a:RR-041",
+      "envelopeId": "b12f2f9fa4fd7e0ab96e8f5475c1b9b676b5277ae9d7ad0086cdb0f24481df40",
+      "writerSessionId": "sess-b01b895fc61f1f104910bdcd61ca40ee",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5c2692d51adb3ce7570459a61b4c62131d3e6642f7914af899e4b7f92e8de0fb"
     }
   ]
 }
