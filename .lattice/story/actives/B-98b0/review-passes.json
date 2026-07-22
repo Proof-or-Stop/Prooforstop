@@ -101,6 +101,50 @@
         "scanEscalationReason": null
       },
       "_hash": "8f9b30bff14e3f5bb22463f9604d8fac52d9ebad4b3b6747fd9a44bb810388f5"
+    },
+    {
+      "id": "B-98b0:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "No docs blocker at HEAD 22f9c71. Reviewed the acceptanceTopologyGateMode/default-observe fix against config resolver, PLAN→DEV consumer, registered CLI surface, docs/CLI Wave 2 section, three implementer prompt surfaces, prompt registry/baseline deltas, and the execution-plan Wave 2/2A/3/3A/4 boundaries. The independent mode is documented and implemented consistently; legacy devGateMode=enforce does not activate the Wave 2 gate; later-wave critic, executable pre-review, selective applicability, and measured rollout are not claimed complete. Extracted exported-symbol set included AcceptanceTopologyCheckReport and AcceptanceTopologyGateMode; compared the matching CLI/config/rollout paragraphs and found no promised-but-undelivered blocker. Prompt baseline verifier passed.",
+      "createdAt": "2026-07-22T16:57:59.243Z",
+      "reviewRound": "2026-07-22T16:55:09.966Z",
+      "reviewRunId": "B-98b0:RR-006",
+      "envelopeId": "e6b194db199cadbc92f1a8fe26de8c0a97aed9fd196d746c861a0104ff6faa4c",
+      "writerSessionId": "sess-57c822af9b82810b79be218940de592a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "2aec71978c9480d900d1a4765350f095377d8f9ca5f2b3cacf36a9a7e2284472"
     }
   ]
 }
