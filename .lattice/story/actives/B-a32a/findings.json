@@ -881,6 +881,28 @@
       ],
       "signatureTag": "adversarial|ts|seal-blindspot-projection",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-a32a:F-045",
+      "desc": "doc-code-drift: docs/CLI.md:389-404 describes the signed acceptance-basis receipt bindings only through closureFilesHash and says the reader verifies current canonical bindings, but the public persisted schema now includes structured basis.snapshotSeal and receipt.sealDigest (packages/main/src/core/types.ts:312-393), the issuer signs that digest, and both acceptance_basis_generate/current read re-derive paths verify expectedSealDigest (packages/main/src/core/acceptance-basis-receipt.ts:89-146; packages/main/src/handlers/proofstory.ts:177-248). The process-fact registry was correctly updated to name this integrity fact, so the CLI reference must also document snapshotSeal/sealDigest and current re-derive verification; otherwise users cannot tell that the structured seal is a signed, verified part of Wave 1A output. This is documentation completeness only: retain L3, no lifecycle gate consumer, non-Authority, and no Wave 2 claim.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-22T10:33:57.852Z",
+      "reviewRound": "2026-07-22T10:32:39.434Z",
+      "reviewRunId": "B-a32a:RR-043",
+      "_hash": "0868cfc40ff6d46a0207417f7e156a690fa7481aedba4765fae1f146b969a617",
+      "files": [
+        "docs/CLI.md",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
