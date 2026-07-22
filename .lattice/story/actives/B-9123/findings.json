@@ -244,6 +244,27 @@
       "_hash": "1ee694a4d4536d22d1073dc76bbdd17241bf2ef3eb38a356a9315a582788dc3c",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9123:F-013",
+      "desc": "doc-code-drift: docs/CLI.md:470-500 describes the Wave 2A set/check commands and says pre_review_check remains Wave 3, but it still does not explicitly state the now-canonical boundary implemented in packages/main/src/core/process-fact-levels.ts:341-343 and the execution plan: topology critic receipts have no lifecycle admission consumer and their absence/failure cannot block PLAN→DEV. Because the prior implementation incorrectly attached this receipt to the existing Wave 2 enforce path, mentioning only that pre_review_check is absent does not remove the ambiguity. Add the same explicit no-lifecycle-admission statement to the CLI section.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-22T19:30:46.336Z",
+      "reviewRound": "2026-07-22T19:28:34.045Z",
+      "reviewRunId": "B-9123:RR-012",
+      "_hash": "12c558c13b3695075655766cad85a61a90281d115301c365a20b02cce568192d",
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
