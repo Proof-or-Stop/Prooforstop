@@ -200,7 +200,7 @@
       "desc": "CHK-004/005 strict coverage is incomplete: packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:174-186 tests deletion, one invented existing ref, free-form exclusion prose, and invalid file only. It does not retain declaration IDs while drifting endpoint role/artifact/file/symbol/relation/output fact, nor test valid vs malformed/stale/duplicate/unrelated/ineligible-kind decisionRefs as required by the frozen plan and VI-A32A-004-*. Lines 218-237 exercise JSON reads only and snapshot only artifact after invalid input, not text rendering plus full story/events/git/lifecycle atomicity; verify-process-fact-contract is only run green, with no one-sided registration mutation required by VI-A32A-005-PROCESS-FACT-CONTRACT. VI-A32A-005-MUTATION-CAMPAIGN and READONLY-DIAGNOSTIC-BOUNDARY consequently overstate coverage.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T07:03:20.364Z",
@@ -214,7 +214,11 @@
       ],
       "signatureTag": "missing|ts|strict-coverage-incomplete",
       "signatureTagSource": "auto",
-      "clusterId": "CL-004"
+      "clusterId": "CL-004",
+      "resolvedReason": "Fixed by 53c949a2ec: current-HEAD smoke covers retained-ID drift of endpoint role/artifact/file/symbol/relation/outputFact; full decisionRef validity matrix; text and JSON reads with Story/receipt/events/phase/git/lifecycle snapshots; production mutation campaign; and a one-sided process-fact contract mutation that fails before restored contract PASS.",
+      "resolvedAt": "2026-07-22T07:39:04.593Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
