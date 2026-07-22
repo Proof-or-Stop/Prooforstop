@@ -354,7 +354,7 @@ export interface AcceptanceCoverageBasisV1 {
   status: 'complete' | 'partial' | 'unsupported';
   generatedBy: {
     verifier: 'acceptance-coverage-basis-verifier';
-    command: 'lattice acceptance_basis_generate';
+    command: 'lattice acceptance_basis_generate' | 'lattice pre_review_check';
     algorithmVersion: 'v1';
   };
   discoveryProfileRef: string;
@@ -406,6 +406,59 @@ export interface AcceptanceBasisArtifactV1 {
   schemaVersion: 'proofstory.acceptance_basis_artifact.v1';
   basis: AcceptanceCoverageBasisV1;
   receipt: AcceptanceBasisReceiptV1;
+}
+
+export type PreReviewCheckCodeV1 =
+  | 'ok'
+  | 'PR_COVERAGE_BASIS_CHANGED'
+  | 'PR_COVERAGE_INCONCLUSIVE'
+  | 'PR_PLANNED_PATH_UNRESOLVED'
+  | 'PR_PLANNED_PATH_RECONCILIATION_TAMPERED'
+  | 'PR_POSITIVE_EVIDENCE_MISSING'
+  | 'PR_PRODUCTION_PATH_UNPROVEN'
+  | 'PR_MUTATION_EVIDENCE_MISSING'
+  | 'PR_MUTATION_DID_NOT_BITE'
+  | 'PR_CONTROL_NOT_RESTORED'
+  | 'PR_TRANSCRIPT_MISSING'
+  | 'PR_TRANSCRIPT_UNRELATED'
+  | 'PR_AUTHORITY_INADMISSIBLE'
+  | 'PR_EVIDENCE_STALE'
+  | 'PR_CUTOFF_UNBOUND'
+  | 'PR_NEW_PATH_UNMAPPED'
+  | 'PR_REQUIRED_ADAPTER_RESULT_MISSING'
+  | 'PR_ADAPTER_RESULT_DIGEST_MISMATCH'
+  | 'PR_ADAPTER_RESULT_INVALID'
+  | 'PR_CLOSURE_FILES_CHANGED'
+  | 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'
+  | 'PR_ARTIFACT_TAMPERED';
+
+export interface PreReviewEvidenceRefV1 {
+  intentRef: string;
+  itemId: string;
+  evidenceIndex: number;
+  kind: VerificationEvidenceKind;
+  evidenceDigest: string;
+}
+
+export interface PreReviewCheckArtifactV1 {
+  schemaVersion: 'proofstory.pre_review_check.v1';
+  storyId: string;
+  mode: 'observe' | 'warn' | 'enforce';
+  cutoffAt: string;
+  planBasisDigest: string;
+  preReviewBasisArtifact: AcceptanceBasisArtifactV1;
+  topologyDigest: string;
+  scopeCheckDigest: string;
+  scopeContractDigest?: string;
+  storyFilesHash: string;
+  closureFilesHash: string;
+  evidenceRefs: PreReviewEvidenceRefV1[];
+  criticReceiptDigest?: string;
+  codes: PreReviewCheckCodeV1[];
+  status: 'pass' | 'fail' | 'inconclusive';
+  issuedAt: string;
+  signerPublicKey: string;
+  signature: string;
 }
 
 export interface TopologyActorProvenanceV1 {

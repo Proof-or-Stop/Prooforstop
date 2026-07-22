@@ -108,7 +108,21 @@ import {
   readLifecycleMetadataOutputHashes,
   type LifecycleMetadataTransaction,
 } from '../core/auto-commit-metadata.js';
-import { evaluateAcceptanceTopologyForContext } from './proofstory.js';
+import { evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext } from './proofstory.js';
+
+export function runPreReviewCheckGate(ctx: HandlerContext, storyId: string): string {
+  const report = evaluatePreReviewCheckForContext(ctx, storyId);
+  const rendered = [
+    '\nPre-review check:',
+    `  mode=${report.mode}; status=${report.status}; blocking=${report.blocking}`,
+    `  plannedActual=${report.plannedActual}; executableEvidence=${report.executableEvidence}; mutations=${report.mutations}; transcript=${report.transcript}; authority=${report.authority}; criticReattestation=${report.criticReattestation}`,
+    `  codes=${report.codes.join(',') || 'none'}`,
+  ].join('\n');
+  if (report.blocking) {
+    throw new Error(`Cannot enter REVIEW: executable pre-review gate blocked DEV admission.${rendered}\n\n-> Run lattice pre_review_check after current evidence, then obtain the independent topology-critic re-attestation when enforce mode requires it.`);
+  }
+  return rendered;
+}
 
 /** Arguments for one story_advance transition. */
 export interface StoryTransitionArgs {
@@ -484,6 +498,10 @@ async function runStoryTransitionInner(
         );
       }
     }
+    let preReviewGateReport = '';
+    if (story.phase === 'DEV' && args.phase === 'REVIEW') {
+      preReviewGateReport = runPreReviewCheckGate(ctx, args.storyId);
+    }
 
     // Dependency completion check (soft warning, non-blocking)
     let depsWarning = '';
@@ -606,10 +624,10 @@ async function runStoryTransitionInner(
       throw resolveGuardFailure(actor, args.storyId, store, args.phase, ctx.root);
     }
 
-    let scopeGateReport = acceptanceTopologyGateReport;
+    let scopeGateReport = acceptanceTopologyGateReport + preReviewGateReport;
     let guardGateReport = runtimeGateReport;
     if (args.phase === 'REVIEW' || args.phase === 'TEST' || args.phase === 'DONE') {
-      scopeGateReport = runScopeTransitionGate(ctx, args.storyId, args.phase);
+      scopeGateReport = preReviewGateReport + runScopeTransitionGate(ctx, args.storyId, args.phase);
       // B-6bfd CHK-004: guard session projection gate — blocks on recorded
       // forbidden writes. Backward compatible: stories without a guard session
       // get '' and are unaffected.

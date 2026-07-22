@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type {
   AcceptanceCoverageBasisV1,
@@ -41,6 +41,8 @@ export interface AcceptanceBasisDerivationInput {
   storyFilesHash: string;
   supported?: boolean;
   foundationalDecision?: DecisionData | null;
+  phaseBasis?: 'plan' | 'pre_review';
+  priorPlanBasisDigest?: string;
   /** Test-only mutation point immediately before the end-of-assembly seal. */
   discoveryTestHooks?: {
     immediatelyBeforeFinalSeal?: () => void;
@@ -284,7 +286,26 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
   ];
   const preSealBlindSpots = reconciled.blindSpots;
   const topologyDigest = digest((input.contract?.acceptanceBindings ?? []).map(binding => ({ id: binding.id, topology: binding.verificationTopology ?? null })));
-  const receiptRef = `receipt:coverage-basis:${input.storyId}:plan:${digest({ storyId: input.storyId, topologyDigest, closureFilesHash }).slice(7, 23)}`;
+  const phaseBasis = input.phaseBasis ?? 'plan';
+  const receiptRef = `receipt:coverage-basis:${input.storyId}:${phaseBasis}:${digest({ storyId: input.storyId, phaseBasis, topologyDigest, closureFilesHash }).slice(7, 23)}`;
+  const plannedActualReconciliations = phaseBasis === 'pre_review'
+    ? planned.records.flatMap(record => {
+      const implemented = [record.producer, ...record.consumers].every(endpoint => {
+        const path = resolve(input.workspaceRoot, endpoint.expectedFileRef);
+        if (!existsSync(path)) return false;
+        try { return readFileSync(path, 'utf8').includes(endpoint.expectedSymbolOrFact); }
+        catch { return false; }
+      });
+      if (!implemented) return [];
+      const unsignedReconciliation = {
+        schemaVersion: 'proofstory.planned_actual_path_reconciliation.v1' as const,
+        plannedPathRef: record.plannedPathRef,
+        actualPathRefs: [record.plannedPathRef],
+        relation: 'exact' as const,
+      };
+      return [{ ...unsignedReconciliation, reconciliationDigest: digest(unsignedReconciliation) }];
+    })
+    : [];
   const placeholderSealUnsigned = {
     schemaVersion: 'proofstory.acceptance_snapshot_seal.v1' as const,
     inventoryDirectoryDigest: `sha256:${digestCanonicalJson([])}`,
@@ -299,11 +320,12 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
   let unsigned: Omit<AcceptanceCoverageBasisV1, 'basisDigest'> = {
     schemaVersion: 'proofstory.acceptance_coverage_basis.v1',
     storyId: input.storyId,
-    phaseBasis: 'plan',
+    phaseBasis,
+    ...(phaseBasis === 'pre_review' && input.priorPlanBasisDigest ? { priorPlanBasisDigest: input.priorPlanBasisDigest } : {}),
     status: classifyAcceptanceCoverageBasis(supported, diagnostics, reconciled.status, preSealBlindSpots),
     generatedBy: {
       verifier: 'acceptance-coverage-basis-verifier',
-      command: 'lattice acceptance_basis_generate',
+      command: phaseBasis === 'pre_review' ? 'lattice pre_review_check' : 'lattice acceptance_basis_generate',
       algorithmVersion: 'v1',
     },
     discoveryProfileRef: ACCEPTANCE_PLAN_DISCOVERY_PROFILE.ref,
@@ -313,7 +335,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     scopeRefs,
     sourceInventoryRefs: inventory,
     plannedPathRecords: planned.records,
-    plannedActualReconciliations: [],
+    plannedActualReconciliations,
     enumeratedPathRefs: reconciled.enumeratedPathRefs,
     excludedPathRefs: [],
     blindSpots: preSealBlindSpots,
@@ -356,8 +378,9 @@ export function verifyAcceptanceCoverageBasis(
   const diagnostics: AcceptanceBasisDiagnostic[] = [];
   if (basis.schemaVersion !== 'proofstory.acceptance_coverage_basis.v1'
     || basis.generatedBy.verifier !== 'acceptance-coverage-basis-verifier'
-    || basis.generatedBy.command !== 'lattice acceptance_basis_generate'
-    || basis.phaseBasis !== 'plan') {
+    || (basis.phaseBasis === 'plan' && basis.generatedBy.command !== 'lattice acceptance_basis_generate')
+    || (basis.phaseBasis === 'pre_review' && basis.generatedBy.command !== 'lattice pre_review_check')
+    || (basis.phaseBasis === 'pre_review' && !basis.priorPlanBasisDigest)) {
     diagnostics.push({ code: 'AT_ADAPTER_RESULT_INVALID', message: 'basis issuer, schema, command, or phase is invalid' });
   }
   if (digestAcceptanceCoverageBasis(unsignedBasis(basis)) !== basis.basisDigest) {
@@ -393,6 +416,18 @@ export function verifyAcceptanceCoverageBasis(
     if (digest(unsigned) !== plannedPathDigest) diagnostics.push({ code: 'AT_PLANNED_PATH_DECLARATION_DRIFT', message: `planned path digest mismatch: ${record.plannedPathRef}` });
     if (basis.status !== 'unsupported' && !basis.enumeratedPathRefs.includes(record.plannedPathRef)) diagnostics.push({ code: 'AT_PLANNED_PATH_OUTSIDE_BASIS', message: `planned path absent from basis union: ${record.plannedPathRef}` });
   }
+  if (basis.phaseBasis === 'pre_review') {
+    const byPlanned = new Map(basis.plannedActualReconciliations.map(row => [row.plannedPathRef, row]));
+    if (byPlanned.size !== basis.plannedActualReconciliations.length) diagnostics.push({ code: 'PR_PLANNED_PATH_RECONCILIATION_TAMPERED', message: 'duplicate planned-to-actual reconciliation' });
+    for (const record of basis.plannedPathRecords) {
+      const row = byPlanned.get(record.plannedPathRef);
+      if (!row) diagnostics.push({ code: 'PR_PLANNED_PATH_UNRESOLVED', message: `planned path is unresolved: ${record.plannedPathRef}` });
+      else {
+        const { reconciliationDigest, ...unsigned } = row;
+        if (digest(unsigned) !== reconciliationDigest) diagnostics.push({ code: 'PR_PLANNED_PATH_RECONCILIATION_TAMPERED', message: `reconciliation digest mismatch: ${record.plannedPathRef}` });
+      }
+    }
+  }
   const expectedStatus = reconciled.status === 'unsupported' ? 'unsupported'
     : diagnostics.length > 0 || reconciled.status === 'partial' || seal?.status === 'partial' ? 'partial' : 'complete';
   if (basis.status !== expectedStatus) diagnostics.push({ code: 'AT_COVERAGE_BASIS_PARTIAL', message: `basis status ${basis.status} does not equal verifier classification ${expectedStatus}` });
@@ -414,6 +449,12 @@ export function reconcileTopologyWithCoverageBasis(
     const value = binding.verificationTopology as AcceptanceVerificationTopologyV1 | undefined;
     return value ? [...value.producerRefs, ...value.consumerRefs].map(sourceRefValue).filter((ref): ref is string => typeof ref === 'string' && ref.startsWith('planned:')) : [];
   }));
+  const plannedEndpoints = new Set((contract?.acceptanceBindings ?? []).flatMap(binding => {
+    const value = binding.verificationTopology as AcceptanceVerificationTopologyV1 | undefined;
+    if (!value) return [];
+    return [...value.producerRefs, ...value.consumerRefs].flatMap(node => node.sourceRef.refKind === 'planned'
+      ? [`${node.sourceRef.plannedPathDeclarationRef}:${node.sourceRef.endpointRef}`] : []);
+  }));
   const diagnostics: AcceptanceBasisDiagnostic[] = [];
   for (const binding of contract?.acceptanceBindings ?? []) {
     const value = binding.verificationTopology as AcceptanceVerificationTopologyV1 | undefined;
@@ -427,12 +468,24 @@ export function reconcileTopologyWithCoverageBasis(
     if (topologySourceRefs.includes(`basis-path:${path}`)) return true;
     const processMatch = /^path:process-fact:(.+)->consumer:/.exec(path);
     if (processMatch && topologySourceRefs.includes(`process-fact:${processMatch[1]}`)) return true;
+    if (processMatch && ['pre_review_check_read', 'artifact:pre-review-check.json'].includes(processMatch[1])
+      && topologySourceRefs.includes('process-fact:pre_review_check')) return true;
     const runtimeMatch = /^path:runtime-fact:(.+)->checker:/.exec(path);
     if (runtimeMatch && topologySourceRefs.includes(`runtime-fact:${runtimeMatch[1]}`)) return true;
     return topology.has(path);
   };
   for (const path of planned) {
     if (!derivedPlanned.has(path)) diagnostics.push({ code: 'AT_PLANNED_PATH_OUTSIDE_BASIS', message: `topology planned path has no frozen verifier-derived declaration: ${path}`, pathRef: path });
+  }
+  for (const record of basis.plannedPathRecords) {
+    for (const endpoint of [record.producer, ...record.consumers]) {
+      const endpointRef = `${record.plannedPathDeclarationRef}:${endpoint.id}`;
+      if (!plannedEndpoints.has(endpointRef)) diagnostics.push({
+        code: 'AT_UNMAPPED_SCOPE_REF',
+        message: `basis planned endpoint is not mapped by topology: ${endpointRef}`,
+        pathRef: endpointRef,
+      });
+    }
   }
   for (const path of basis.enumeratedPathRefs) {
     if (path.startsWith('planned:')) {

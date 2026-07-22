@@ -148,6 +148,8 @@ const requiredProcessFactSemantics = {
   acceptance_topology_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
   acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
+  pre_review_check: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+  pre_review_check_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
   topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
@@ -642,6 +644,8 @@ function assertProofStoryProgressiveBoundary() {
     'acceptance_topology_check',
     'acceptance_basis_generate',
     'acceptance_basis',
+    'pre_review_check',
+    'pre_review_check_read',
     'intent_collision_set',
     'intent_collision_get',
     'scope_shrinkage_decision_set',
@@ -729,6 +733,25 @@ function assertProofStoryProgressiveBoundary() {
       && activityPolicyText.includes("'acceptance_topology_check'")
       && acceptancePromptPaths.every(path => read(path).includes('Acceptance-topology boundary:')),
     'acceptance topology contract must bind CLI schema, canonical evaluator, signed basis verification, independent default-observe rollout mode, PLAN gate, process fact, and prompt guidance',
+  );
+  const preReviewText = read('packages/main/src/core/pre-review-check.ts');
+  const preReviewPolicy = commandPolicyEntries.get('pre_review_check');
+  assert(
+    catalogText.includes("name: 'pre_review_check'")
+      && catalogText.includes("name: 'pre_review_check_read'")
+      && handlerText.includes('issuePreReviewCheckArtifact')
+      && handlerText.includes('evaluatePreReviewCheckForContext')
+      && preReviewText.includes('verifyPreReviewCheckArtifact')
+      && preReviewText.includes('PR_MUTATION_DID_NOT_BITE')
+      && preReviewText.includes('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED')
+      && transitionOrchestratorText.includes('runPreReviewCheckGate')
+      && transitionOrchestratorText.includes("story.phase === 'DEV' && args.phase === 'REVIEW'")
+      && processRegistryText.includes('artifact:pre-review-check.json')
+      && processLevelText.includes("name: 'pre_review_check', level: 'L4'")
+      && preReviewPolicy?.status === 'gateEvidence'
+      && preReviewPolicy.gateEvidence === true
+      && policyBlockHasOwnershipClass(preReviewPolicy, 'storyScopedMutating'),
+    'pre-review contract must keep one signed verifier writer, read-only verifier parity, stable PR_* semantics, process-fact registration, and the DEV to REVIEW lifecycle consumer',
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
   const topologyCriticPromptPaths = [

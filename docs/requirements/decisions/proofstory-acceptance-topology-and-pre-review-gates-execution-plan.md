@@ -1228,7 +1228,10 @@ lattice pre_review_check --storyId=B-xxxx [--json]
 lattice acceptance_matrix --storyId=B-xxxx [--json]   # read-only renderer
 ```
 
-Names remain subject to audit. No command above exists because of this plan.
+Implementation status through Wave 3: `acceptance_topology_check`,
+`pre_review_check`, and `acceptance_matrix` exist. The PLAN basis writer is
+named `acceptance_basis_generate`; `pre_review_check_read` is the explicit
+read-only pre-review verifier. Wave 3A and Wave 4 remain outside this status.
 
 ## 12. Rollout and rollback
 

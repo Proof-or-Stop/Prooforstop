@@ -2646,6 +2646,19 @@ Behavior:
     sourceInventoryRefs: z.never().optional(), plannedPathRecords: z.never().optional(), receipt: z.never().optional(), binding: z.never().optional(),
     evidence: z.never().optional(), verdict: z.never().optional(), authority: z.never().optional(),
   }},
+  { name: 'pre_review_check', description: 'Recompute the current-worktree basis and persist the canonical signed executable pre-review result', schema: {
+    storyId: z.string().min(1),
+    json: z.boolean().optional(),
+    status: z.never().optional(), codes: z.never().optional(), ok: z.never().optional(), mode: z.never().optional(),
+    artifact: z.never().optional(), basis: z.never().optional(), evidence: z.never().optional(), verdict: z.never().optional(), authority: z.never().optional(),
+    signature: z.never().optional(), signerPublicKey: z.never().optional(), issuedAt: z.never().optional(), cutoffAt: z.never().optional(),
+    storyFilesHash: z.never().optional(), closureFilesHash: z.never().optional(), topologyDigest: z.never().optional(),
+  }},
+  { name: 'pre_review_check_read', description: 'Read-only verification of the canonical signed executable pre-review result', schema: {
+    storyId: z.string().min(1), json: z.boolean().optional(),
+    status: z.never().optional(), codes: z.never().optional(), ok: z.never().optional(), mode: z.never().optional(),
+    artifact: z.never().optional(), evidence: z.never().optional(), verdict: z.never().optional(), authority: z.never().optional(), write: z.never().optional(),
+  }},
   { name: 'intent_collision_set', description: 'Persist a structured ProofStory intent-collision decision', schema: {
     storyId: z.string().describe('Story ID'),
     decision: proofStoryIntentCollisionDecisionSchema.describe('Collision decision. Only pass with acceptedInterpretation confirms a candidate ledger.'),

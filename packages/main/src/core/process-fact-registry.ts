@@ -110,6 +110,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   review_escalation_fallback_set: 'gate-evidence',
   story_create_from_repro: 'gate-evidence',
   acceptance_basis_generate: 'signed-artifact',
+  pre_review_check: 'signed-artifact',
 };
 
 export const PROCESS_FACT_REQUIRED_SEMANTICS = {
@@ -151,6 +152,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   acceptance_topology_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
   acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
+  pre_review_check: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+  pre_review_check_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
   topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
@@ -354,6 +357,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signature: 'Ed25519(canonical receipt binding basis/topology/scope/workspace/storyFilesHash/closureFilesHash)',
     producerCommand: 'acceptance_basis_generate',
     consumerGate: 'acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate',
+  },
+  pre_review_check: {
+    name: 'pre-review-check.json',
+    path: 'pre-review-check.json',
+    signed: true,
+    signature: 'Ed25519(canonical current basis/topology/scope/storyFilesHash/closureFilesHash/evidence/cutoff/critic binding)',
+    producerCommand: 'pre_review_check',
+    consumerGate: 'pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate',
   },
   topology_exclusion_approval_set: {
     name: 'topology-exclusion-approvals.json', path: 'topology-exclusion-approvals.json', signed: true,
@@ -879,11 +890,15 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
     gateEvidence,
     destructiveRisk: policy?.destructiveRisk,
     producer: entry.owner,
-    producerSourceRefs: ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
+    producerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
+      ? ['packages/main/src/core/pre-review-check.ts']
+      : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
       ? ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts']
       : undefined,
     consumerGate: entry.gateConsumer,
-    consumerSourceRefs: ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
+    consumerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
+      ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts']
+      : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
       ? ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs']
       : undefined,
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name],
@@ -1054,6 +1069,18 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerSourceRefs: ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/proofstory.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.acceptance_basis_generate,
     rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. The canonical topology evaluator verifies it before PLAN to DEV; no read-only caller can mint or rebind it.',
+  },
+  {
+    name: 'artifact:pre-review-check.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/proofstory.pre_review_check',
+    producerSourceRefs: ['packages/main/src/core/pre-review-check.ts'],
+    consumerGate: 'pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate',
+    consumerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.pre_review_check,
+    rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, planned-to-actual reconciliation, executable evidence refs, mutation/control/transcript/authority claims, strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation.',
   },
   {
     name: 'artifact:topology-exclusion-approvals.json',

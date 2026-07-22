@@ -15,6 +15,7 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'acceptance_matrix',
   'acceptance_topology_check',
   'acceptance_basis',
+  'pre_review_check_read',
   'topology_critic_receipt_check',
   'finding_list',
   'bug_list',

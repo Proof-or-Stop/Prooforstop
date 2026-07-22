@@ -13,6 +13,7 @@ import type {
   ProofStoryContractData, IntentCollisionData, ScopeShrinkageDecisionData,
   RedEvidenceData, ProofStorySpikeData, ProofStorySlicePlanData, ProofStoryParentLedgerRollupData,
   AcceptanceBasisArtifactV1,
+  PreReviewCheckArtifactV1,
   TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
 } from './types.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
@@ -789,6 +790,15 @@ export class StoryStore {
 
   writeAcceptanceBasis(storyId: string, data: AcceptanceBasisArtifactV1): void {
     this.writeJson(storyId, 'acceptance-basis.json', data);
+  }
+
+  readPreReviewCheck(storyId: string): PreReviewCheckArtifactV1 | null {
+    try { return this.readJson<PreReviewCheckArtifactV1>(storyId, 'pre-review-check.json'); }
+    catch (e) { if (e instanceof StoryArtifactMissingError) return null; throw e; }
+  }
+
+  writePreReviewCheck(storyId: string, data: PreReviewCheckArtifactV1): void {
+    this.writeJson(storyId, 'pre-review-check.json', data);
   }
 
   readTopologyCriticReceipt(storyId: string): TopologyCriticReceiptV1 | null {

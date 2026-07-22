@@ -501,6 +501,25 @@ The receipt has no lifecycle admission consumer in Wave 2A: its absence or
 failure cannot block PLAN → DEV. Wave 3 owns `pre_review_check` enforcement;
 selective applicability and rollout remain Wave 3A and Wave 4 responsibilities.
 
+### Executable pre-review check (Wave 3)
+
+`lattice pre_review_check --storyId=<id> [--json]` is the sole writer for the
+signed `pre-review-check.json`. It recomputes a `phaseBasis=pre_review` basis
+from the current worktree, binds the prior PLAN basis digest, reconciles every
+frozen planned path to current producer/consumer symbols, and derives ordered
+`PR_*` results from current hash-bound verification evidence. Passing evidence
+must predate the verifier cutoff; evidence at or after the cutoff is excluded.
+The artifact binds topology/scope/story/closure hashes, evidence digests, flat
+project mode, cutoff, and (in enforce mode) the current independent topology-
+critic re-attestation.
+
+`lattice pre_review_check_read --storyId=<id> [--json]` is read-only and calls
+the same production verifier used by DEV→REVIEW. `observe` and `warn` preserve
+diagnostics without blocking; `enforce` blocks DEV→REVIEW on the same result.
+Neither command accepts caller-authored verdict, authority, mode, hashes,
+evidence, timestamps, or signatures. Wave 3 does not add per-Story selective
+applicability (Wave 3A) or measured rollout/telemetry (Wave 4).
+
 ### Milestone Status
 
 `lattice milestone_status` is a read-only progress reporter over existing
