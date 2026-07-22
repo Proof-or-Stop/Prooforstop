@@ -286,9 +286,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#derived-acceptance-matrix"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-22T03:15:29.170Z",
-      "endTime": "2026-07-22T03:15:52.487Z",
+      "endTime": "2026-07-22T03:54:09.966Z",
       "verificationIntent": {
         "happy": [
           {
@@ -612,6 +612,15 @@
       "to": "in_progress",
       "reason": "REVIEW round 2 reopened typed evidence provenance and milestone-status non-evidentiary filtering defects F-011/F-012.",
       "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-22T03:54:09.966Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-011/F-012 typed provenance and milestone consumer fixes verified at cef7fc56fe."
     }
   ]
 }
