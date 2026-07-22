@@ -656,7 +656,7 @@
       "desc": "The expanded local-module matrix still silently omits valid direct CommonJS/dynamic local module calls that are not first assigned to a VariableDeclaration. visitRequires only creates bindings from variable declarations (acceptance-discovery-adapters.ts:424-445), while call discovery only accepts Identifier, Identifier.property, or Identifier[string] callees (lines 447-470). Therefore `exports.c2 = () => require(../handlers/review-run.js).emitReviewRunFact()` has an outer PropertyAccess whose base is a CallExpression and produces neither a binding, unresolved-module blind spot, nor an edge; similarly `const m = await import(...); m.emitReviewRunFact()` and direct `(await import(...)).emitReviewRunFact()` are silently invisible. If another registered consumer exists, these additional outside-scope consumers can be omitted while basis remains complete. The smoke proves destructured/identifier require and import-equals only. Either support inline require/dynamic-import property calls and binding flows, or emit deterministic unsupported-module-form blind spots so the basis is partial; add direct inline require, assigned dynamic import, and direct awaited dynamic import mutations.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T09:37:40.171Z",
@@ -668,7 +668,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "missing|ts|expanded-local-module",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 16f71aa5be and retained through current HEAD: inline require/static dynamic import and wrapper bindings are exact, all source ingress shares pre-allocation O_NOFOLLOW budgets, module paths are canonical, and directory mutations are detected. Current threat-table mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:30.310Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-032",
