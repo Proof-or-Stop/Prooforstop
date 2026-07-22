@@ -94,11 +94,48 @@ export type AcceptanceMatrixEvidenceProvenance =
   | { kind: 'producer_command'; producerCommand: 'acceptance_matrix' }
   | { kind: 'legacy_exact_projection'; marker: 'reserved_result' | 'text_line' | 'json_non_evidentiary' };
 
-function commandTokens(command: string): string[] {
+function recordedCommandTokens(command: string): string[] {
   return command
+    .trim()
     .split(/\s+/)
-    .map(token => token.replace(/^["']|["',;|&]$/g, ''))
+    .map(token => token.replace(/^["']|["']$/g, ''))
     .filter(Boolean);
+}
+
+function basename(token: string): string {
+  return token.replace(/\\/g, '/').split('/').pop() ?? token;
+}
+
+function isLatticeWrapper(token: string): boolean {
+  const normalized = token.replace(/\\/g, '/').replace(/^\.\//, '');
+  return basename(normalized) === 'lattice'
+    || normalized === 'bin/lattice.js'
+    || normalized.endsWith('/bin/lattice.js');
+}
+
+function skipsRootOption(tokens: string[], index: number): number {
+  if (tokens[index] === '--root' && tokens[index + 1]) return index + 2;
+  if (tokens[index]?.startsWith('--root=')) return index + 1;
+  return index;
+}
+
+function invokesAcceptanceMatrix(command: string): boolean {
+  const tokens = recordedCommandTokens(command);
+  if (tokens.length < 2) return false;
+  let subcommandIndex: number;
+  if (isLatticeWrapper(tokens[0])) {
+    subcommandIndex = 1;
+  } else if ((basename(tokens[0]) === 'node' || basename(tokens[0]) === 'nodejs') && isLatticeWrapper(tokens[1])) {
+    subcommandIndex = 2;
+  } else {
+    return false;
+  }
+  let nextIndex = skipsRootOption(tokens, subcommandIndex);
+  while (nextIndex !== subcommandIndex) {
+    subcommandIndex = nextIndex;
+    nextIndex = skipsRootOption(tokens, subcommandIndex);
+  }
+  return tokens[subcommandIndex] === 'acceptance_matrix';
 }
 
 /**
@@ -112,7 +149,7 @@ function commandTokens(command: string): string[] {
 export function acceptanceMatrixEvidenceProvenance(
   evidence: { kind?: string; command?: string; note?: string },
 ): AcceptanceMatrixEvidenceProvenance | null {
-  if (commandTokens(evidence.command ?? '').includes('acceptance_matrix')) {
+  if (invokesAcceptanceMatrix(evidence.command ?? '')) {
     return { kind: 'producer_command', producerCommand: 'acceptance_matrix' };
   }
   if (evidence.kind !== 'manual_transcript') return null;

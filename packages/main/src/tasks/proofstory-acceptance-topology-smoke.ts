@@ -22,6 +22,7 @@ import { buildVerificationCoverage } from '../core/verification.js';
 import type {
   AcceptanceVerificationTopologyV1,
   ChecklistData,
+  MilestoneLedgerData,
   ProofStoryContractData,
   StoryInfo,
   VerificationIntent,
@@ -154,6 +155,26 @@ assert.deepEqual(
   { kind: 'producer_command', producerCommand: 'acceptance_matrix' },
   'exact producer command token derives structured non-evidentiary provenance',
 );
+for (const command of [
+  `lattice acceptance_matrix --storyId=${storyId}`,
+  `/usr/local/bin/lattice --root /tmp/proofbound acceptance_matrix --storyId=${storyId}`,
+  `node bin/lattice.js acceptance_matrix --storyId=${storyId}`,
+  `/usr/bin/node ./bin/lattice.js --root=/tmp/proofbound acceptance_matrix --json`,
+  `node /Users/example/proofbound/bin/lattice.js --root /tmp/proofbound acceptance_matrix`,
+  `./bin/lattice.js acceptance_matrix --storyId=${storyId}`,
+]) {
+  assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'ordinary transcript' }), true, `supported Proofbound invocation is derived: ${command}`);
+}
+for (const command of [
+  'rg acceptance_matrix packages/main/src/core/command-policy.ts',
+  'printf acceptance_matrix',
+  'node cli-contract-test.mjs acceptance_matrix',
+  'echo lattice acceptance_matrix',
+  'lattice check acceptance_matrix',
+  'node bin/lattice.js help acceptance_matrix',
+]) {
+  assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', command, note: 'independent assertion passed' }), false, `data/argument token is not producer provenance: ${command}`);
+}
 assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'manual_transcript', note: 'Observed matrix projection was inconclusive_basis_unverified.' }), true, 'paraphrasing around a reserved manual matrix result cannot bypass legacy classification');
 assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'manual_transcript', note: 'Result: warning' }), true, 'exact legacy manual warning output line remains compatible');
 assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'manual_transcript', note: 'Result: warning threshold test passed with expected fallback.' }), false, 'unrelated warning prose is not a matrix projection false positive');
@@ -367,6 +388,41 @@ try {
     /Verification evidence recorded/,
   );
   assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.note, 'Result: warning threshold test passed with expected fallback.', 'false-positive control persists ordinary evidence through the real CLI');
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: 'INT-001', kind: 'logic_test', command: 'rg acceptance_matrix packages/main/src/core/command-policy.ts', result: 'pass', note: 'Registry source assertion passed.' }],
+    }, false, 'main-agent'),
+    /verificationEvidence updated/,
+  );
+  assert.match(
+    run(writerCliRoot, 'verification_evidence_add', {
+      storyId,
+      itemId: 'CHK-001',
+      intentRef: 'INT-001',
+      kind: 'logic_test',
+      command: 'printf acceptance_matrix',
+      result: 'pass',
+      note: 'Literal-output assertion passed independently.',
+    }, false, 'main-agent'),
+    /Verification evidence recorded/,
+  );
+  assert.match(
+    run(writerCliRoot, 'verification_evidence_batch_add', {
+      storyId,
+      evidences: [{
+        itemId: 'CHK-001',
+        intentRef: 'INT-001',
+        kind: 'integration_test',
+        command: 'node cli-contract-test.mjs acceptance_matrix',
+        result: 'pass',
+        note: 'CLI argument-contract assertion passed independently.',
+      }],
+    }, false, 'main-agent'),
+    /Verification evidence batch recorded/,
+  );
+  assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.command, 'node cli-contract-test.mjs acceptance_matrix', 'all three writer surfaces preserve a non-producer argument token');
 } finally {
   rmSync(writerCliRoot, { recursive: true, force: true });
 }
@@ -522,6 +578,44 @@ falsePositiveControl.items[0].verificationEvidence = [{
   note: 'Result: warning threshold test passed with expected fallback.',
 }];
 assert.equal(buildVerificationCoverage(falsePositiveControl).missingRequired, 0, 'ordinary warning prose remains covering');
+for (const command of [
+  'rg acceptance_matrix packages/main/src/core/command-policy.ts',
+  'printf acceptance_matrix',
+  'node cli-contract-test.mjs acceptance_matrix',
+]) {
+  const argumentTokenControl = checklist(false);
+  argumentTokenControl.items[0].verificationEvidence = [{
+    intentRef: 'INT-001',
+    kind: 'logic_test',
+    command,
+    result: 'pass',
+    note: 'Independent source or argument assertion passed.',
+  }];
+  assert.equal(buildVerificationCoverage(argumentTokenControl).missingRequired, 0, `general verification accepts non-producer token: ${command}`);
+}
+const proofStoryArgumentControl = checklist(false);
+proofStoryArgumentControl.items[0].verificationEvidence = [{
+  intentRef: 'INT-001',
+  kind: 'integration_test',
+  command: 'node cli-contract-test.mjs acceptance_matrix',
+  result: 'pass',
+  note: 'Independent CLI argument-contract assertion passed.',
+}];
+const argumentControlReview = evaluateReviewCompleteness({
+  story: story('REVIEW'),
+  checklist: proofStoryArgumentControl,
+  originalIntentSnapshot: null,
+  milestoneLedger: null,
+  slicePlan: null,
+  parentLedgerRollup: null,
+  proofStoryContract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [] }]),
+  intentCollision: null,
+  scopeContract: null,
+  scopeShrinkageDecision: null,
+  redEvidence: null,
+  spikeEvidence: null,
+}, 'observe');
+assert.ok(!argumentControlReview.gaps.some(gap => gap.code === 'review_completeness_missing_evidence'), 'ProofStory accepts acceptance_matrix used only as a test argument');
 const milestoneProjectionChecklist = checklist(false);
 milestoneProjectionChecklist.items[0].status = 'done';
 milestoneProjectionChecklist.items[0].verificationEvidence = [{
@@ -531,10 +625,7 @@ milestoneProjectionChecklist.items[0].verificationEvidence = [{
   result: 'pass',
   note: 'Caller marked the replayed legacy row as passing.',
 }];
-const milestoneReport = buildMilestoneStatusReport({
-  story: story('DEV'),
-  checklist: milestoneProjectionChecklist,
-  milestoneLedger: {
+const matrixReplayLedger: MilestoneLedgerData = {
     schemaVersion: 'proofstory.milestone_ledger.v1',
     storyId,
     state: 'confirmed',
@@ -551,13 +642,28 @@ const milestoneReport = buildMilestoneStatusReport({
       verificationIntentRefs: ['INT-001'],
       status: 'planned',
     }],
-  },
+};
+const milestoneReport = buildMilestoneStatusReport({
+  story: story('DEV'),
+  checklist: milestoneProjectionChecklist,
+  milestoneLedger: matrixReplayLedger,
 });
 const milestoneRow = milestoneReport.milestones[0];
 assert.match(milestoneRow.statusDetail, /evidence=not-passing; requiredEvidence=missing/, 'milestone evidence and requiredEvidence remain uncovered');
 assert.equal(milestoneRow.subObjectives.find(row => row.id === 'INT-001')?.status, 'not-passing', 'milestone intent subobjective remains uncovered');
 assert.equal(milestoneRow.subObjectives.find(row => row.id === 'logic_test')?.status, 'missing-evidence-kind', 'milestone required-evidence subobjective remains uncovered');
 assert.throws(() => buildMilestoneCloseoutSnapshot({ report: milestoneReport }), /incomplete|remaining/i, 'closeout cannot freeze matrix-derived coverage');
+const milestoneArgumentControl = checklist(false);
+milestoneArgumentControl.items[0].status = 'done';
+milestoneArgumentControl.items[0].verificationEvidence = [{
+  intentRef: 'INT-001',
+  kind: 'logic_test',
+  command: 'rg acceptance_matrix packages/main/src/core/command-policy.ts',
+  result: 'pass',
+  note: 'Independent registry assertion passed.',
+}];
+const milestoneArgumentReport = buildMilestoneStatusReport({ story: story('DEV'), checklist: milestoneArgumentControl, milestoneLedger: matrixReplayLedger });
+assert.match(milestoneArgumentReport.milestones[0].statusDetail, /evidence=covered; requiredEvidence=covered/, 'milestone consumer accepts a non-producer search token');
 
 const cliRoot = mkdtempSync(join(tmpdir(), 'lattice-topology-cli-'));
 try {

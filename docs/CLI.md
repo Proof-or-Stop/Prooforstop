@@ -375,7 +375,10 @@ require a command reference; omissions report stable diagnostics such as
 persistence, and legacy or injected rows are ignored by general verification,
 ProofStory completeness, and milestone status/closeout consumers. The shared
 classifier derives provenance from an exact `acceptance_matrix` producer-command
-token where possible. Legacy compatibility is bounded to reserved matrix result
+position where possible: the supported `lattice` or `bin/lattice.js` wrapper,
+optional bounded `--root`, then the exact subcommand. A token used only as `rg`
+search text, `printf` data, or a test-script argument is not producer provenance.
+Legacy compatibility is bounded to reserved matrix result
 tokens, exact output lines, or JSON `evidentiary: false` on legacy
 `manual_transcript` rows only. Paraphrased manual projection results cannot
 bypass it, while logic/integration test notes may discuss those labels and
