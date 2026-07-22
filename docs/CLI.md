@@ -376,9 +376,10 @@ persistence, and legacy or injected rows are ignored by general verification,
 ProofStory completeness, and milestone status/closeout consumers. The shared
 classifier derives provenance from an exact `acceptance_matrix` producer-command
 token where possible. Legacy compatibility is bounded to reserved matrix result
-tokens, exact output lines, or JSON `evidentiary: false`; paraphrased reserved
-results cannot bypass it, while unrelated `Result: warning ...` prose is not
-classified as matrix output.
+tokens, exact output lines, or JSON `evidentiary: false` on legacy
+`manual_transcript` rows only. Paraphrased manual projection results cannot
+bypass it, while logic/integration test notes may discuss those labels and
+unrelated `Result: warning ...` prose is not classified as matrix output.
 
 ### Milestone Status
 

@@ -110,11 +110,12 @@ function commandTokens(command: string): string[] {
  * paraphrased around the guard.
  */
 export function acceptanceMatrixEvidenceProvenance(
-  evidence: { command?: string; note?: string },
+  evidence: { kind?: string; command?: string; note?: string },
 ): AcceptanceMatrixEvidenceProvenance | null {
   if (commandTokens(evidence.command ?? '').includes('acceptance_matrix')) {
     return { kind: 'producer_command', producerCommand: 'acceptance_matrix' };
   }
+  if (evidence.kind !== 'manual_transcript') return null;
   const note = evidence.note ?? '';
   if (/(?:^|[^a-z0-9_])(?:inconclusive_basis_unverified|legacy_missing)(?:$|[^a-z0-9_])/i.test(note)) {
     return { kind: 'legacy_exact_projection', marker: 'reserved_result' };
@@ -129,7 +130,7 @@ export function acceptanceMatrixEvidenceProvenance(
 }
 
 /** L0 matrix output is never admissible verification or gate evidence. */
-export function isAcceptanceMatrixDerivedEvidence(evidence: { command?: string; note?: string }): boolean {
+export function isAcceptanceMatrixDerivedEvidence(evidence: { kind?: string; command?: string; note?: string }): boolean {
   return acceptanceMatrixEvidenceProvenance(evidence) !== null;
 }
 

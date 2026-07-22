@@ -287,7 +287,7 @@ function normalizeEvidence(gitCwd: string, metadataRoot: string, input: Verifica
   });
 }
 
-function assertEvidenceIsNotAcceptanceMatrixProjection(input: { command?: string; note?: string }): void {
+function assertEvidenceIsNotAcceptanceMatrixProjection(input: { kind?: string; command?: string; note?: string }): void {
   if (!isAcceptanceMatrixDerivedEvidence(input)) return;
   throw new Error(
     'verification evidence refused: acceptance_matrix output is an L0 read-only projection and cannot satisfy verification or gate authority [acceptance_matrix_non_evidentiary_projection]',

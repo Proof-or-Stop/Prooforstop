@@ -150,13 +150,15 @@ const schemaRoundTrip = verificationIntentSchema.parse(intent);
 assert.deepEqual(schemaRoundTrip, intent, 'valid planned declaration round-trips without changing stable IDs or semantics');
 assert.equal(verificationIntentSchema.parse({ happy: [{ id: 'LEGACY', desc: 'legacy', type: 'logic' }], edge: [], adversarial: [] }).happy[0].plannedPathDeclarations, undefined, 'legacy intent remains optional');
 assert.deepEqual(
-  acceptanceMatrixEvidenceProvenance({ command: `node bin/lattice.js acceptance_matrix --storyId=${storyId}`, note: 'ordinary transcript' }),
+  acceptanceMatrixEvidenceProvenance({ kind: 'logic_test', command: `node bin/lattice.js acceptance_matrix --storyId=${storyId}`, note: 'ordinary transcript' }),
   { kind: 'producer_command', producerCommand: 'acceptance_matrix' },
   'exact producer command token derives structured non-evidentiary provenance',
 );
-assert.equal(isAcceptanceMatrixDerivedEvidence({ note: 'Observed matrix projection was inconclusive_basis_unverified.' }), true, 'paraphrasing around a reserved matrix result cannot bypass legacy classification');
-assert.equal(isAcceptanceMatrixDerivedEvidence({ note: 'Result: warning' }), true, 'exact legacy warning output line remains compatible');
-assert.equal(isAcceptanceMatrixDerivedEvidence({ note: 'Result: warning threshold test passed with expected fallback.' }), false, 'unrelated warning prose is not a matrix projection false positive');
+assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'manual_transcript', note: 'Observed matrix projection was inconclusive_basis_unverified.' }), true, 'paraphrasing around a reserved manual matrix result cannot bypass legacy classification');
+assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'manual_transcript', note: 'Result: warning' }), true, 'exact legacy manual warning output line remains compatible');
+assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'manual_transcript', note: 'Result: warning threshold test passed with expected fallback.' }), false, 'unrelated warning prose is not a matrix projection false positive');
+assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'logic_test', note: 'Valid graph remains inconclusive_basis_unverified by design.' }), false, 'logic-test notes may discuss the reserved result without becoming projection evidence');
+assert.equal(isAcceptanceMatrixDerivedEvidence({ kind: 'integration_test', note: 'CLI stays inconclusive_basis_unverified by design.' }), false, 'integration-test notes may discuss the reserved result without becoming projection evidence');
 const schemaInvalidCases: Array<[string, unknown]> = [
   ['unknown schema version', { ...declaration, schemaVersion: 'v2' }],
   ['empty declaration id', { ...declaration, id: '' }],
@@ -479,7 +481,7 @@ const paraphrasedProjectionChecklist = checklist(false);
 paraphrasedProjectionChecklist.items[0].status = 'done';
 paraphrasedProjectionChecklist.items[0].verificationEvidence = [{
   intentRef: 'INT-001',
-  kind: 'logic_test',
+  kind: 'manual_transcript',
   command: 'node replay.mjs',
   result: 'pass',
   note: 'Observed matrix projection was inconclusive_basis_unverified.',
@@ -500,6 +502,17 @@ const paraphrasedProjectionReview = evaluateReviewCompleteness({
   spikeEvidence: null,
 }, 'observe');
 assert.ok(paraphrasedProjectionReview.gaps.some(gap => gap.code === 'review_completeness_missing_evidence'), 'paraphrased reserved result remains non-covering in ProofStory completeness');
+for (const kind of ['logic_test', 'integration_test'] as const) {
+  const reservedTokenControl = checklist(false);
+  reservedTokenControl.items[0].verificationEvidence = [{
+    intentRef: 'INT-001',
+    kind,
+    command: 'node independent-verification.test.mjs',
+    result: 'pass',
+    note: 'Valid graph remains inconclusive_basis_unverified because Wave 1 is observe-only.',
+  }];
+  assert.equal(buildVerificationCoverage(reservedTokenControl).missingRequired, 0, `${kind} notes may mention reserved output while independent evidence remains covering`);
+}
 const falsePositiveControl = checklist(false);
 falsePositiveControl.items[0].verificationEvidence = [{
   intentRef: 'INT-001',
