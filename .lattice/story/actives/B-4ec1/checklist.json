@@ -17,7 +17,33 @@
             "id": "VI-W3-M1-PRE-REVIEW-ROUNDTRIP",
             "desc": "M1: Through the registered production CLI/handler, create a canonical pre_review_check artifact from a complete current basis/topology/scope/story/closure/evidence state, then consume that same artifact through the lifecycle verifier and read-only diagnostic command; require one verifier-owned deterministic PASS, valid signature, canonical IDs, and matching basisDigest, topologyDigest, scopeCheckDigest, applicable scopeContractDigest, storyFilesHash, closureFilesHash, evidence refs, mode and issued-at/freshness bindings.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "W3-PRE-REVIEW-GATE-PATH",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "W3-PRE-REVIEW-PRODUCER",
+                  "role": "producer",
+                  "expectedArtifactKind": "handler",
+                  "expectedFileRef": "packages/main/src/handlers/proofstory.ts",
+                  "expectedSymbolOrFact": "pre_review_check",
+                  "fileDeclarationRef": "CHK-001:files:modify:2"
+                },
+                "consumers": [
+                  {
+                    "id": "W3-PRE-REVIEW-LIFECYCLE-CONSUMER",
+                    "role": "consumer",
+                    "expectedArtifactKind": "handler",
+                    "expectedFileRef": "packages/main/src/handlers/transition-orchestrator.ts",
+                    "expectedSymbolOrFact": "runPreReviewCheckGate",
+                    "fileDeclarationRef": "CHK-001:files:modify:3"
+                  }
+                ],
+                "outputFactRef": "process-fact:pre_review_check"
+              }
+            ]
           }
         ],
         "edge": [
