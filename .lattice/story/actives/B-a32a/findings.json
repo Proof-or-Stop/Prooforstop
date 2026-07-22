@@ -743,6 +743,25 @@
       ],
       "signatureTag": "adversarial|ts|dynamic-import-namespace",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-038",
+      "desc": "Inline CommonJS support handles `require(./module).property()` but still silently omits the callable-module form `require(./producer)()`. In the call visitor, propertyModuleCall only recognizes PropertyAccess/ElementAccess over a module call (acceptance-discovery-adapters.ts:553-565, 587-594); for the outer call in `require(./producer)()`, node.expression is itself a CallExpression, so no target or directProperty is produced. The inner require call is not a VariableDeclaration binding and there is no unsupported-require blind spot, allowing a valid CommonJS `module.exports = function producer(){}` consumer to disappear while another consumer keeps basis complete. The implementation already treats `const producer = require(...); producer()` as direct/default-callable, so inline equivalence is an internal semantic inconsistency. Recognize a moduleCall as the outer callee and emit its default/export= edge, or conservatively mark that require shape partial; add inline callable-module and shadowed-require controls.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T09:51:13.126Z",
+      "reviewRound": "2026-07-22T09:49:17.027Z",
+      "reviewRunId": "B-a32a:RR-032",
+      "_hash": "ab5062435cc5695cbcb867082e65fbb63b01eedb303ca06426d4b00153c04af4",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|inline-commonjs-support",
+      "signatureTagSource": "auto"
     }
   ]
 }
