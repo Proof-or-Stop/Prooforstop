@@ -359,14 +359,14 @@
       "verificationEvidence": [
         {
           "intentRef": "VI-1995-003-MATRIX-USER-DEMO",
-          "kind": "integration_test",
+          "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
           "result": "pass",
-          "note": "Focused smoke at 01d888403c proves supported global, project-wrapper, absolute/relative wrapper and bounded --root acceptance_matrix invocations are classified non-evidentiary.",
-          "headHash": "01d888403cd4e5f100149b41f3e39b2a3d5729e6",
+          "note": "Focused smoke captures the real supported acceptance_matrix CLI transcript and verifies its canonical read-only output without submitting the L0 producer command itself as evidence.",
+          "headHash": "01f0284f6df7136db80f97e72ccbcb7cc3594508",
           "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
           "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
-          "timestamp": "2026-07-22T04:08:22.401Z"
+          "timestamp": "2026-07-22T04:08:43.938Z"
         },
         {
           "intentRef": "VI-1995-003-LEGACY-AND-CONFLICT",
