@@ -1,5 +1,5 @@
-import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
-import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
+import { closeSync, constants as fsConstants, existsSync, fstatSync, lstatSync, opendirSync, openSync, readFileSync, realpathSync, type Dirent } from 'node:fs';
+import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import ts from 'typescript';
 import type { CoverageAdapterResultV1, CoverageDiscoveryMethodV1, PlannedCoveragePathV1 } from './types.js';
 import { digestCanonicalJson } from './digest.js';
@@ -48,6 +48,11 @@ function stable(values: readonly string[]): string[] {
   return [...new Set(values.filter(value => typeof value === 'string' && value.trim().length > 0))].sort();
 }
 
+function stableRows<T extends { imported: string; local: string; sourceFile: string }>(rows: readonly T[]): T[] {
+  return [...new Map(rows.map(row => [`${row.sourceFile}\0${row.imported}\0${row.local}`, row])).values()]
+    .sort((left, right) => `${left.sourceFile}:${left.imported}:${left.local}`.localeCompare(`${right.sourceFile}:${right.imported}:${right.local}`));
+}
+
 function sourceFiles(entry: ProcessFactRegistryEntry): string[] {
   return stable([...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]);
 }
@@ -80,7 +85,15 @@ interface LocalImportCallScan {
   unresolvedImports: string[];
 }
 
-const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.mjs', '.cjs']);
+interface BindingAnalysisContext {
+  root: string;
+  physicalRoot: string;
+  sourceFiles: Map<string, ts.SourceFile>;
+  readBlindSpots: Map<string, string[]>;
+  checker: ts.TypeChecker;
+}
+
+const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
 const SOURCE_INVENTORY_EXCLUDED_DIRECTORIES = new Set(['.git', '.lattice', '.worktrees', 'dist', 'node_modules']);
 const DEFAULT_SOURCE_INVENTORY_BUDGET = {
   maxDirectories: 10_000,
@@ -101,7 +114,7 @@ export interface SourceInventoryTraversalResult {
   files: string[];
   blindSpots: string[];
   stopped: boolean;
-  stats: { directories: number; entries: number; files: number; bytes: number };
+  stats: { directories: number; entries: number; files: number; bytes: number; iteratorReads: number; peakBufferedEntries: number };
 }
 
 function relativeFile(root: string, absolute: string): string | null {
@@ -109,16 +122,44 @@ function relativeFile(root: string, absolute: string): string | null {
   return value.startsWith('../') || value === '..' ? null : value;
 }
 
-function resolveLocalImport(root: string, importer: string, specifier: string): string | null {
-  if (!specifier.startsWith('.')) return null;
+interface LocalModuleResolution { sourceFile: string | null; blindSpot?: string }
+
+function physicallyContainedRegularFile(root: string, file: string): boolean {
+  try {
+    const physicalRoot = realpathSync(root);
+    let absolute = physicalRoot;
+    for (const component of file.split('/').filter(Boolean)) {
+      absolute = resolve(absolute, component);
+      const stat = lstatSync(absolute);
+      if (stat.isSymbolicLink()) return false;
+    }
+    const physical = realpathSync(absolute);
+    const rel = relative(physicalRoot, physical);
+    return !rel.startsWith('..') && !isAbsolute(rel) && lstatSync(physical).isFile();
+  } catch { return false; }
+}
+
+function resolveLocalModule(root: string, importer: string, specifier: string): LocalModuleResolution {
+  if (!specifier.startsWith('.')) return { sourceFile: null };
   const base = resolve(root, dirname(importer), specifier);
-  const candidates = [base, base.replace(/\.js$/, '.ts'), `${base}.ts`, resolve(base, 'index.ts')];
-  for (const candidate of candidates) {
-    if (!existsSync(candidate)) continue;
-    const rel = relativeFile(root, candidate);
-    if (rel) return rel;
-  }
-  return null;
+  const extension = extname(base);
+  const variants = extension.length > 0
+    ? extension === '.js' ? [base.replace(/\.js$/, '.ts'), base.replace(/\.js$/, '.tsx'), base, base.replace(/\.js$/, '.jsx')]
+      : extension === '.mjs' ? [base.replace(/\.mjs$/, '.mts'), base]
+        : extension === '.cjs' ? [base.replace(/\.cjs$/, '.cts'), base]
+          : extension === '.jsx' ? [base.replace(/\.jsx$/, '.tsx'), base]
+            : [base]
+    : [...SOURCE_EXTENSIONS].map(candidateExtension => `${base}${candidateExtension}`)
+      .concat([...SOURCE_EXTENSIONS].map(candidateExtension => resolve(base, `index${candidateExtension}`)));
+  const viable = stable(variants.flatMap(candidate => {
+    try {
+      const rel = relativeFile(root, candidate);
+      return rel && physicallyContainedRegularFile(root, rel) ? [rel] : [];
+    } catch { return []; }
+  }));
+  if (viable.length === 1) return { sourceFile: viable[0] };
+  if (viable.length === 0) return { sourceFile: null, blindSpot: `unresolved local module ${specifier} from ${importer}` };
+  return { sourceFile: null, blindSpot: `ambiguous local module ${specifier} from ${importer}: ${viable.join(', ')}` };
 }
 
 /** Deterministic, globally budgeted source-tree walk. Exported for bounded mutation tests. */
@@ -129,7 +170,7 @@ export function enumerateBoundedSourceTree(
 ): SourceInventoryTraversalResult {
   const files: string[] = [];
   const blindSpots: string[] = [];
-  const stats = { directories: 0, entries: 0, files: 0, bytes: 0 };
+  const stats = { directories: 0, entries: 0, files: 0, bytes: 0, iteratorReads: 0, peakBufferedEntries: 0 };
   const directories = [physicalSourceRoot];
   let stopped = false;
   const stop = (dimension: keyof SourceInventoryTraversalBudget): void => {
@@ -140,9 +181,26 @@ export function enumerateBoundedSourceTree(
     if (stats.directories >= budget.maxDirectories) { stop('maxDirectories'); break; }
     const directory = directories.pop()!;
     stats.directories += 1;
-    let rows;
-    try { rows = readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name)); }
-    catch { blindSpots.push(`configured source directory is unreadable: ${relativeFile(physicalWorkspace, directory) ?? directory}`); continue; }
+    const remainingEntries = budget.maxEntries - stats.entries;
+    const rows: Dirent[] = [];
+    let handle;
+    try {
+      handle = opendirSync(directory);
+      while (rows.length <= remainingEntries) {
+        const row = handle.readSync();
+        stats.iteratorReads += 1;
+        if (!row) break;
+        rows.push(row);
+        stats.peakBufferedEntries = Math.max(stats.peakBufferedEntries, rows.length);
+      }
+      handle.closeSync();
+    } catch {
+      try { handle?.closeSync(); } catch { /* already fail-closed below */ }
+      blindSpots.push(`configured source directory is unreadable: ${relativeFile(physicalWorkspace, directory) ?? directory}`);
+      continue;
+    }
+    if (rows.length > remainingEntries) { stop('maxEntries'); break; }
+    rows.sort((a, b) => a.name.localeCompare(b.name));
     const childDirectories: string[] = [];
     for (const row of rows) {
       if (stats.entries >= budget.maxEntries) { stop('maxEntries'); break; }
@@ -151,7 +209,7 @@ export function enumerateBoundedSourceTree(
       const absolute = resolve(directory, row.name);
       if (row.isSymbolicLink()) { blindSpots.push(`ambiguous source-root symlink excluded: ${relativeFile(physicalWorkspace, absolute) ?? absolute}`); continue; }
       if (row.isDirectory()) {
-        if (stats.directories + directories.length + childDirectories.length >= budget.maxDirectories) { stop('maxDirectories'); break; }
+        if (stats.directories + directories.length + childDirectories.length + 1 > budget.maxDirectories) { stop('maxDirectories'); break; }
         childDirectories.push(absolute);
         continue;
       }
@@ -231,48 +289,192 @@ function configuredSourceInventory(workspaceRoot: string): { files: string[]; bl
 function scriptKindFor(file: string): ts.ScriptKind {
   if (file.endsWith('.tsx')) return ts.ScriptKind.TSX;
   if (file.endsWith('.jsx')) return ts.ScriptKind.JSX;
+  if (file.endsWith('.mts')) return ts.ScriptKind.TS;
+  if (file.endsWith('.cts')) return ts.ScriptKind.TS;
   if (file.endsWith('.js') || file.endsWith('.mjs') || file.endsWith('.cjs')) return ts.ScriptKind.JS;
   return ts.ScriptKind.TS;
 }
 
-function analyzeLocalImportCalls(root: string, file: string): LocalImportCallScan {
-  const absolute = resolve(root, file);
-  if (!existsSync(absolute)) return { imports: [], calledImports: [], blindSpots: [`uninspectable source file ${file}`], unresolvedImports: [] };
-  const text = readFileSync(absolute, 'utf8');
+function readSourceSafely(root: string, physicalRoot: string, file: string): { text?: string; blindSpot?: string } {
+  const relativePath = file.replace(/\\/g, '/');
+  if (isAbsolute(relativePath) || relativePath.split('/').includes('..')) return { blindSpot: `source file path escapes workspace: ${file}` };
+  let absolute = physicalRoot;
+  let before;
+  try {
+    for (const component of relativePath.split('/').filter(Boolean)) {
+      absolute = resolve(absolute, component);
+      const stat = lstatSync(absolute);
+      if (stat.isSymbolicLink()) return { blindSpot: `source file traverses symlink during read: ${file}` };
+      before = stat;
+    }
+    if (!before?.isFile() || (before.mode & 0o444) === 0) return { blindSpot: `source file is unreadable: ${file}` };
+    const physicalFile = realpathSync(absolute);
+    const rel = relative(physicalRoot, physicalFile);
+    if (rel.startsWith('..') || isAbsolute(rel)) return { blindSpot: `source file physically escapes workspace: ${file}` };
+    const noFollow = typeof fsConstants.O_NOFOLLOW === 'number' ? fsConstants.O_NOFOLLOW : 0;
+    const descriptor = openSync(physicalFile, fsConstants.O_RDONLY | noFollow);
+    let text: string;
+    let after;
+    try {
+      const opened = fstatSync(descriptor);
+      if (before.dev !== opened.dev || before.ino !== opened.ino) return { blindSpot: `source file changed before read: ${file}` };
+      text = readFileSync(descriptor, 'utf8');
+      after = fstatSync(descriptor);
+    } finally {
+      closeSync(descriptor);
+    }
+    const currentPhysical = realpathSync(absolute);
+    if (currentPhysical !== physicalFile || before.dev !== after.dev || before.ino !== after.ino || before.size !== after.size || before.mtimeMs !== after.mtimeMs) {
+      return { blindSpot: `source file changed during read: ${file}` };
+    }
+    return { text };
+  } catch {
+    return { blindSpot: `source file is unreadable or disappeared: ${file}` };
+  }
+}
+
+function createBindingAnalysisContext(root: string, files: readonly string[]): BindingAnalysisContext {
+  let physicalRoot: string;
+  try { physicalRoot = realpathSync(root); }
+  catch { physicalRoot = resolve(root); }
+  const sourceFiles = new Map<string, ts.SourceFile>();
+  const readBlindSpots = new Map<string, string[]>();
+  const absoluteSources = new Map<string, ts.SourceFile>();
+  for (const file of stable(files)) {
+    const read = readSourceSafely(root, physicalRoot, file);
+    if (read.blindSpot || read.text === undefined) { readBlindSpots.set(file, [read.blindSpot ?? `source file is unreadable: ${file}`]); continue; }
+    if (Buffer.byteLength(read.text, 'utf8') > MAX_LEXICAL_SOURCE_BYTES) {
+      readBlindSpots.set(file, [`source file exceeds lexical scan budget: ${file}`]);
+      continue;
+    }
+    try {
+      const absolute = resolve(physicalRoot, file);
+      const source = ts.createSourceFile(absolute, read.text, ts.ScriptTarget.Latest, true, scriptKindFor(file));
+      sourceFiles.set(file, source);
+      absoluteSources.set(absolute, source);
+    } catch {
+      readBlindSpots.set(file, [`typescript parser failed for ${file}`]);
+    }
+  }
+  const options: ts.CompilerOptions = { allowJs: true, checkJs: false, noResolve: true, noLib: true, target: ts.ScriptTarget.Latest, module: ts.ModuleKind.ESNext, jsx: ts.JsxEmit.Preserve };
+  const fallback = ts.createCompilerHost(options, true);
+  const host: ts.CompilerHost = {
+    ...fallback,
+    fileExists: fileName => absoluteSources.has(resolve(fileName)),
+    readFile: fileName => absoluteSources.get(resolve(fileName))?.text,
+    getSourceFile: fileName => absoluteSources.get(resolve(fileName)),
+    writeFile: () => undefined,
+  };
+  const program = ts.createProgram({ rootNames: [...absoluteSources.keys()], options, host });
+  return { root, physicalRoot, sourceFiles, readBlindSpots, checker: program.getTypeChecker() };
+}
+
+function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string): LocalImportCallScan {
+  const source = context.sourceFiles.get(file);
+  if (!source) return { imports: [], calledImports: [], blindSpots: context.readBlindSpots.get(file) ?? [`uninspectable source file ${file}`], unresolvedImports: [] };
+  const text = source.text;
   if (Buffer.byteLength(text, 'utf8') > MAX_LEXICAL_SOURCE_BYTES) {
     return { imports: [], calledImports: [], blindSpots: [`source file exceeds lexical scan budget: ${file}`], unresolvedImports: [] };
   }
-  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, scriptKindFor(file));
   const parseDiagnostics = (source as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? [];
   if (parseDiagnostics.length > 0) {
     return { imports: [], calledImports: [], blindSpots: [`typescript parse ambiguity in ${file}`], unresolvedImports: [] };
   }
   const imports: Array<{ imported: string; local: string; sourceFile: string }> = [];
   const unresolved: string[] = [];
+  const bindingBlindSpots: string[] = [];
+  const bindings: Array<{ imported: string; local: string; sourceFile: string; node: ts.Identifier; direct: boolean; property: boolean; symbol?: ts.Symbol }> = [];
+  const addBinding = (imported: string, node: ts.Identifier, sourceFile: string, direct: boolean, property: boolean): void => {
+    const row = { imported, local: node.text, sourceFile, node, direct, property, symbol: context.checker.getSymbolAtLocation(node) };
+    imports.push({ imported, local: node.text, sourceFile });
+    bindings.push(row);
+    if (!row.symbol) bindingBlindSpots.push(`unresolved import binding ${node.text} in ${file}`);
+  };
+  const resolveSpecifier = (specifier: string): string | null => {
+    const resolution = resolveLocalModule(context.root, file, specifier);
+    if (resolution.blindSpot) unresolved.push(resolution.blindSpot);
+    return resolution.sourceFile;
+  };
   for (const statement of source.statements) {
-    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier) || !statement.moduleSpecifier.text.startsWith('.')) continue;
-    const sourceFile = resolveLocalImport(root, file, statement.moduleSpecifier.text);
-    if (!sourceFile) { unresolved.push(`unresolved local import ${statement.moduleSpecifier.text} from ${file}`); continue; }
-    const clause = statement.importClause;
-    if (clause?.isTypeOnly) continue;
-    if (clause?.name) imports.push({ imported: 'default', local: clause.name.text, sourceFile });
-    if (clause?.namedBindings && ts.isNamedImports(clause.namedBindings)) {
-      for (const element of clause.namedBindings.elements) if (!element.isTypeOnly) imports.push({ imported: element.propertyName?.text ?? element.name.text, local: element.name.text, sourceFile });
+    if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier) && statement.moduleSpecifier.text.startsWith('.')) {
+      const sourceFile = resolveSpecifier(statement.moduleSpecifier.text);
+      if (!sourceFile) continue;
+      const clause = statement.importClause;
+      if (clause?.isTypeOnly) continue;
+      if (clause?.name) addBinding('default', clause.name, sourceFile, true, true);
+      if (clause?.namedBindings && ts.isNamedImports(clause.namedBindings)) {
+        for (const element of clause.namedBindings.elements) if (!element.isTypeOnly) addBinding(element.propertyName?.text ?? element.name.text, element.name, sourceFile, true, false);
+      } else if (clause?.namedBindings && ts.isNamespaceImport(clause.namedBindings)) {
+        addBinding('*', clause.namedBindings.name, sourceFile, false, true);
+      }
+      continue;
+    }
+    if (ts.isImportEqualsDeclaration(statement) && ts.isExternalModuleReference(statement.moduleReference)
+      && statement.moduleReference.expression && ts.isStringLiteral(statement.moduleReference.expression)
+      && statement.moduleReference.expression.text.startsWith('.')) {
+      const sourceFile = resolveSpecifier(statement.moduleReference.expression.text);
+      if (sourceFile) addBinding('*', statement.name, sourceFile, true, true);
     }
   }
-  const calledNames = new Set<string>();
+  const requireSpecifier = (expression: ts.Expression | undefined): string | null => {
+    if (!expression || !ts.isCallExpression(expression) || !ts.isIdentifier(expression.expression) || expression.expression.text !== 'require'
+      || expression.arguments.length !== 1 || !ts.isStringLiteral(expression.arguments[0])) return null;
+    return expression.arguments[0].text.startsWith('.') ? expression.arguments[0].text : null;
+  };
+  const visitRequires = (node: ts.Node): void => {
+    if (ts.isVariableDeclaration(node)) {
+      let required = requireSpecifier(node.initializer);
+      let importedProperty: string | null = null;
+      if (!required && node.initializer && ts.isPropertyAccessExpression(node.initializer)) {
+        required = requireSpecifier(node.initializer.expression);
+        importedProperty = required ? node.initializer.name.text : null;
+      }
+      if (required) {
+        const sourceFile = resolveSpecifier(required);
+        if (sourceFile && ts.isIdentifier(node.name)) addBinding(importedProperty ?? 'default', node.name, sourceFile, true, importedProperty === null);
+        if (sourceFile && ts.isObjectBindingPattern(node.name)) {
+          for (const element of node.name.elements) if (ts.isIdentifier(element.name)) {
+            const imported = element.propertyName && (ts.isIdentifier(element.propertyName) || ts.isStringLiteral(element.propertyName)) ? element.propertyName.text : element.name.text;
+            addBinding(imported, element.name, sourceFile, true, false);
+          }
+        }
+      }
+    }
+    ts.forEachChild(node, visitRequires);
+  };
+  visitRequires(source);
+  const called: Array<{ imported: string; local: string; sourceFile: string }> = [];
   const visit = (node: ts.Node): void => {
-    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) calledNames.add(node.expression.text);
+    if (ts.isCallExpression(node)) {
+      let target: ts.Identifier | null = null;
+      let property: string | null = null;
+      if (ts.isIdentifier(node.expression)) target = node.expression;
+      else if (ts.isPropertyAccessExpression(node.expression) && ts.isIdentifier(node.expression.expression)) {
+        target = node.expression.expression;
+        property = node.expression.name.text;
+      } else if (ts.isElementAccessExpression(node.expression) && ts.isIdentifier(node.expression.expression)
+        && node.expression.argumentExpression && ts.isStringLiteral(node.expression.argumentExpression)) {
+        target = node.expression.expression;
+        property = node.expression.argumentExpression.text;
+      }
+      if (target) {
+        const targetSymbol = context.checker.getSymbolAtLocation(target);
+        for (const binding of bindings.filter(candidate => candidate.local === target!.text)) {
+          if (!targetSymbol) { bindingBlindSpots.push(`unresolved call binding ${target.text} in ${file}`); continue; }
+          if (!binding.symbol || targetSymbol !== binding.symbol) continue;
+          if (property === null && binding.direct) called.push({ imported: binding.imported, local: binding.local, sourceFile: binding.sourceFile });
+          if (property !== null && binding.property) called.push({ imported: property, local: binding.local, sourceFile: binding.sourceFile });
+        }
+      }
+    }
     ts.forEachChild(node, visit);
   };
   visit(source);
-  return { imports, calledImports: imports.filter(item => calledNames.has(item.local)), blindSpots: [], unresolvedImports: stable(unresolved) };
+  return { imports: stableRows(imports), calledImports: stableRows(called), blindSpots: stable(bindingBlindSpots), unresolvedImports: stable(unresolved) };
 }
 
-function returnedHandlerKeys(root: string, file: string): string[] {
-  const absolute = resolve(root, file);
-  if (!existsSync(absolute)) return [];
-  const text = executableText(readFileSync(absolute, 'utf8'));
+function returnedHandlerKeysFromText(sourceText: string): string[] {
+  const text = executableText(sourceText);
   const returnIndex = text.indexOf('return {');
   if (returnIndex < 0) return [];
   const body = text.slice(returnIndex + 'return {'.length);
@@ -296,21 +498,23 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const seedFiles = sourceSeedFiles(input);
   const sourceInventory = configuredSourceInventory(root);
   const blindSpots: string[] = [...sourceInventory.blindSpots];
-  const registryFiles = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)
-    .filter(file => existsSync(resolve(root, file)) && executableText(readFileSync(resolve(root, file), 'utf8')).includes('registerBatch('))]);
+  const registryCandidates = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)]);
+  const analysisContext = createBindingAnalysisContext(root, stable([...sourceInventory.files, ...seedFiles, ...registryCandidates]));
+  const registryFiles = registryCandidates.filter(file => file === 'packages/main/src/registry.ts'
+    || executableText(analysisContext.sourceFiles.get(file)?.text ?? '').includes('registerBatch('));
   const factories: FactoryInventory[] = [];
   for (const registryFile of registryFiles) {
-    const absolute = resolve(root, registryFile);
-    if (!existsSync(absolute)) continue;
-    const text = executableText(readFileSync(absolute, 'utf8'));
-    const registryScan = analyzeLocalImportCalls(root, registryFile);
+    const source = analysisContext.sourceFiles.get(registryFile);
+    if (!source) { blindSpots.push(...(analysisContext.readBlindSpots.get(registryFile) ?? [`uninspectable registry source ${registryFile}`])); continue; }
+    const text = executableText(source.text);
+    const registryScan = analyzeLocalImportCalls(analysisContext, registryFile);
     blindSpots.push(...registryScan.blindSpots, ...registryScan.unresolvedImports);
     const imports = registryScan.imports;
     const registrations = new Set([...text.matchAll(/registry\.registerBatch\(\s*([A-Za-z_$][\w$]*)\s*\(\s*ctx\s*\)\s*\)/g)].map(match => match[1]));
     for (const imported of imports.filter(item => /Handlers$/.test(item.imported) || /Handlers$/.test(item.local))) {
       if (!seedFiles.includes(imported.sourceFile)) continue;
       const registered = registrations.has(imported.local);
-      const commandKeys = returnedHandlerKeys(root, imported.sourceFile);
+      const commandKeys = returnedHandlerKeysFromText(analysisContext.sourceFiles.get(imported.sourceFile)?.text ?? '');
       factories.push({ factory: imported.local, sourceFile: imported.sourceFile, registered, commandKeys });
       if (!registered) blindSpots.push(`handler factory ${imported.local} from ${imported.sourceFile} lacks exact registerBatch(factory(ctx))`);
       if (commandKeys.length === 0) blindSpots.push(`handler factory ${imported.local} from ${imported.sourceFile} has ambiguous or empty returned command object`);
@@ -327,7 +531,7 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const reached = new Set<ProcessFactRegistryEntry>();
   const hubs = new Set(registryFiles);
   const boundedUniverse = sourceInventory.files;
-  const sourceScans = new Map(boundedUniverse.map(file => [file, analyzeLocalImportCalls(root, file)]));
+  const sourceScans = new Map(boundedUniverse.map(file => [file, analyzeLocalImportCalls(analysisContext, file)]));
   blindSpots.push(...[...sourceScans.values()].flatMap(scan => scan.blindSpots));
   let changed = true;
   while (changed) {
@@ -356,6 +560,7 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
       if (!explicitConsumer && !discoveredConsumer) blindSpots.push(`process fact ${entry.name} has consumerGate but no resolvable consumer source`);
     }
   }
+  for (const file of closure) if (!sourceScans.has(file)) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
   return { seedFiles, sourceInventoryFiles: sourceInventory.files, closureFiles: stable([...closure]), entries: [...reached], factories, sourceScans, blindSpots: stable(blindSpots) };
 }
 
@@ -391,10 +596,11 @@ function adapterId(method: CoverageDiscoveryMethodV1): string {
 }
 
 function sourceProvenance(root: string, file: string): string {
-  const absolute = resolve(root, file);
-  return existsSync(absolute)
-    ? `source-file:${file}:sha256:${digestCanonicalJson(readFileSync(absolute, 'utf8'))}`
-    : `source-file:${file}:uninspectable`;
+  try {
+    const physicalRoot = realpathSync(root);
+    const read = readSourceSafely(root, physicalRoot, file);
+    return read.text !== undefined ? `source-file:${file}:sha256:${digestCanonicalJson(read.text)}` : `source-file:${file}:uninspectable`;
+  } catch { return `source-file:${file}:uninspectable`; }
 }
 
 function executableText(text: string): string {
@@ -405,9 +611,13 @@ function executableText(text: string): string {
 }
 
 function catalogCommands(root: string): Set<string> {
-  const file = resolve(root, 'packages/main/src/cli/command-catalog.ts');
-  if (!existsSync(file)) return new Set();
-  return new Set([...executableText(readFileSync(file, 'utf8')).matchAll(/^\s*\{?\s*name:\s*['"]([a-z][a-z0-9_]*)['"]/gm)].map(match => match[1]));
+  try {
+    const physicalRoot = realpathSync(root);
+    const read = readSourceSafely(root, physicalRoot, 'packages/main/src/cli/command-catalog.ts');
+    if (read.text === undefined) return new Set();
+    return new Set([...executableText(read.text).matchAll(/^\s*\{?\s*name:\s*['"]([a-z][a-z0-9_]*)['"]/gm)].map(match => match[1]));
+  }
+  catch { return new Set(); }
 }
 
 function staticCallPaths(root: string, graph: BoundedSourceGraph): { paths: string[]; blindSpots: string[] } {
@@ -416,7 +626,8 @@ function staticCallPaths(root: string, graph: BoundedSourceGraph): { paths: stri
   for (const file of graph.closureFiles.filter(value => !value.endsWith('/registry.ts'))) {
     const absolute = resolve(root, file);
     if (!existsSync(absolute)) continue;
-    const scan = graph.sourceScans.get(file) ?? analyzeLocalImportCalls(root, file);
+    const scan = graph.sourceScans.get(file);
+    if (!scan) { blindSpots.push(`source file lacks binding analysis context: ${file}`); continue; }
     blindSpots.push(...scan.blindSpots, ...scan.unresolvedImports);
     for (const imported of scan.calledImports) {
       if (!graph.closureFiles.includes(imported.sourceFile) || /Handlers$/.test(imported.imported)) continue;
