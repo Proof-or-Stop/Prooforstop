@@ -194,7 +194,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A successful verifier run writes a signed receipt bound to the exact workspace, scope, topology, Story and closure hashes; a stale or tampered receipt is rejected rather than rebound.",
+      "userSees": "`lattice acceptance_basis_generate --storyId=<id>` is the sole receipt writer and produces a signed receipt bound to the exact workspace, scope, topology, Story and closure hashes; `lattice acceptance_basis` remains read-only and rejects stale or tampered receipts.",
       "files": {
         "modify": [
           "packages/main/src/core/types.ts",
