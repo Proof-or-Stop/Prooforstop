@@ -1,0 +1,33 @@
+{
+  "storyId": "B-98b0",
+  "name": "proofstory-acceptance-topology-wave2-plan-structural-gate",
+  "title": "Implement ProofStory acceptance topology Wave 2 PLAN structural gate",
+  "description": "Integrate acceptance_topology_check at PLAN to DEV behind flat project observe/warn/enforce configuration, consuming the verifier-derived Wave 1A basis and Wave 1 topology without duplicating verificationIntent or requiring executed DEV evidence.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-22T15:46:29.316Z",
+  "startedAt": "2026-07-22T15:46:29.316Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-22T15:46:29.871Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-da20c7f8979c9756768738c51324dc67",
+      "agent": "main"
+    }
+  ]
+}
