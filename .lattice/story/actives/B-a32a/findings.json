@@ -426,7 +426,7 @@
       "desc": "Canonical source-root inventory does not fail closed when an intermediate scanRoot/rootDir component is a symlink that escapes the workspace. configuredSourceInventory validates only the lexical resolve/relative result (lines 117-120) and lstatSync(absoluteRoot) on the final path (lines 121-128). lstat on /workspace/link/src follows the intermediate link, so with scanRoot=link, rootDir=src, and link -> /outside, the external /outside/src directory is accepted and enumerated as if canonical workspace source. No realpath containment or component-by-component symlink check exists. The added smoke covers only a missing root (lines 431-433), not malformed/escaping/root-symlink/unreadable roots. This violates the targeted F-020 repair requirement that escaping and symlinked canonical roots yield partial. Bind workspace and source-root realpaths, reject any root whose physical path escapes the physical workspace or traverses a symlink/ambiguous component, and add adversarial controls for parent-component symlink escape plus malformed, lexical escape, and unreadable roots.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-22T08:53:36.213Z",
@@ -438,7 +438,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|canonical-source-root",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 39a348ddcf and retained through current HEAD: canonical roots use physical per-component containment with symlink/escape failures, and TypeScript-aware executable call discovery excludes literal/comment/template-static decoys. Current mutation smoke and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:22.266Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-022",
