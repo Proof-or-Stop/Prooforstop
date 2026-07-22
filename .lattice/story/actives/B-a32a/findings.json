@@ -610,7 +610,7 @@
       "desc": "F-024 global counters now stop queued traversal, but maxEntries still does not bound the expensive operation it is meant to protect. enumerateBoundedSourceTree calls readdirSync(...withFileTypes).sort(...) at acceptance-discovery-adapters.ts:143-145 before inspecting maxEntries at lines 147-149. A single adversarial directory with millions of entries is therefore fully materialized and sorted in memory before the 100,000-entry stop can fire; pending work and CPU/memory remain proportional to the unbounded directory, not the configured budget. The new budget smoke uses only small directories and asserts counters after enumeration, so it cannot detect this pre-budget allocation (proofstory-acceptance-basis-smoke.ts:526-557). Use bounded incremental directory iteration with an explicit per-directory/entry stop before retaining or sorting beyond the remaining budget, or fail closed through a separately bounded inventory primitive, and add a high-fanout mutation proving the iterator never materializes or visits beyond remainingEntries+1.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T09:20:15.465Z",
@@ -622,7 +622,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "edge|ts|global-counters-stop",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 7ec60658bc and retained through current HEAD: TypeChecker symbol binding excludes shadowing, all supported JS/TS module forms resolve canonically or fail partial, streaming inventory is bounded, and source read failures fail closed. Current threat-table mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:28.791Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-030",
