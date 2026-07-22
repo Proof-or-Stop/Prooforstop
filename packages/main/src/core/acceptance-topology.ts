@@ -90,13 +90,47 @@ export function plannedPathDeclarationSnapshot(intent: VerificationIntent | unde
   return JSON.stringify(rows);
 }
 
-/** L0 matrix output is never admissible verification or gate evidence. */
-export function isAcceptanceMatrixDerivedEvidence(
+export type AcceptanceMatrixEvidenceProvenance =
+  | { kind: 'producer_command'; producerCommand: 'acceptance_matrix' }
+  | { kind: 'legacy_exact_projection'; marker: 'reserved_result' | 'text_line' | 'json_non_evidentiary' };
+
+function commandTokens(command: string): string[] {
+  return command
+    .split(/\s+/)
+    .map(token => token.replace(/^["']|["',;|&]$/g, ''))
+    .filter(Boolean);
+}
+
+/**
+ * Derive non-evidentiary provenance from the recorded producer command whenever
+ * possible. Legacy rows have no typed producer field, so compatibility is
+ * deliberately bounded to exact matrix-only markers. Human prose is not parsed
+ * as a protocol: a generic sentence beginning `Result: warning ...` remains
+ * ordinary evidence, while the reserved matrix result token cannot be
+ * paraphrased around the guard.
+ */
+export function acceptanceMatrixEvidenceProvenance(
   evidence: { command?: string; note?: string },
-): boolean {
-  if (/\bacceptance_matrix\b/.test(evidence.command ?? '')) return true;
-  return /(?:^|\n)\s*(?:Acceptance matrix for\b|Mode:\s*observe\b|Topology state:\s*(?:configured|legacy_missing|mixed)\b|Result:\s*(?:legacy_missing|warning|inconclusive_basis_unverified)\b)/m.test(evidence.note ?? '')
-    || /"(?:evidentiary|result)"\s*:\s*(?:false|"(?:legacy_missing|warning|inconclusive_basis_unverified)")/.test(evidence.note ?? '');
+): AcceptanceMatrixEvidenceProvenance | null {
+  if (commandTokens(evidence.command ?? '').includes('acceptance_matrix')) {
+    return { kind: 'producer_command', producerCommand: 'acceptance_matrix' };
+  }
+  const note = evidence.note ?? '';
+  if (/(?:^|[^a-z0-9_])(?:inconclusive_basis_unverified|legacy_missing)(?:$|[^a-z0-9_])/i.test(note)) {
+    return { kind: 'legacy_exact_projection', marker: 'reserved_result' };
+  }
+  if (/(?:^|\n)\s*(?:Acceptance matrix for\b.*|Mode:\s*observe(?:\s*\([^\n]*\))?|Topology state:\s*(?:configured|mixed)|Result:\s*warning)\s*(?:\n|$)/m.test(note)) {
+    return { kind: 'legacy_exact_projection', marker: 'text_line' };
+  }
+  if (/"evidentiary"\s*:\s*false(?:\s*[,}])/.test(note)) {
+    return { kind: 'legacy_exact_projection', marker: 'json_non_evidentiary' };
+  }
+  return null;
+}
+
+/** L0 matrix output is never admissible verification or gate evidence. */
+export function isAcceptanceMatrixDerivedEvidence(evidence: { command?: string; note?: string }): boolean {
+  return acceptanceMatrixEvidenceProvenance(evidence) !== null;
 }
 
 export function validatePlannedPathDeclarationsForChecklistItem(item: ChecklistItem, intent: VerificationIntent): void {

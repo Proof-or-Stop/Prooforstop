@@ -372,8 +372,13 @@ require a command reference; omissions report stable diagnostics such as
 
 `acceptance_matrix` output also cannot be submitted back through
 `verificationEvidence`. New matrix-derived rows are rejected before
-persistence, and legacy or injected rows are ignored by both general
-verification coverage and ProofStory completeness consumers.
+persistence, and legacy or injected rows are ignored by general verification,
+ProofStory completeness, and milestone status/closeout consumers. The shared
+classifier derives provenance from an exact `acceptance_matrix` producer-command
+token where possible. Legacy compatibility is bounded to reserved matrix result
+tokens, exact output lines, or JSON `evidentiary: false`; paraphrased reserved
+results cannot bypass it, while unrelated `Result: warning ...` prose is not
+classified as matrix output.
 
 ### Milestone Status
 

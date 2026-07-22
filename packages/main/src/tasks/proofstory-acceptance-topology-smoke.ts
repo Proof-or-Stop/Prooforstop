@@ -7,9 +7,15 @@ import { mkdtempSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, wr
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildAcceptanceMatrixReport, plannedPathDeclarationSnapshot } from '../core/acceptance-topology.js';
+import {
+  acceptanceMatrixEvidenceProvenance,
+  buildAcceptanceMatrixReport,
+  isAcceptanceMatrixDerivedEvidence,
+  plannedPathDeclarationSnapshot,
+} from '../core/acceptance-topology.js';
 import { resetConfigCache } from '../core/config.js';
 import { canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
+import { buildMilestoneCloseoutSnapshot, buildMilestoneStatusReport } from '../core/milestone-status.js';
 import { evaluateReviewCompleteness } from '../core/proofstory.js';
 import { StoryStore } from '../core/store.js';
 import { buildVerificationCoverage } from '../core/verification.js';
@@ -143,6 +149,14 @@ function contract(bindings: ProofStoryContractData['acceptanceBindings']): Proof
 const schemaRoundTrip = verificationIntentSchema.parse(intent);
 assert.deepEqual(schemaRoundTrip, intent, 'valid planned declaration round-trips without changing stable IDs or semantics');
 assert.equal(verificationIntentSchema.parse({ happy: [{ id: 'LEGACY', desc: 'legacy', type: 'logic' }], edge: [], adversarial: [] }).happy[0].plannedPathDeclarations, undefined, 'legacy intent remains optional');
+assert.deepEqual(
+  acceptanceMatrixEvidenceProvenance({ command: `node bin/lattice.js acceptance_matrix --storyId=${storyId}`, note: 'ordinary transcript' }),
+  { kind: 'producer_command', producerCommand: 'acceptance_matrix' },
+  'exact producer command token derives structured non-evidentiary provenance',
+);
+assert.equal(isAcceptanceMatrixDerivedEvidence({ note: 'Observed matrix projection was inconclusive_basis_unverified.' }), true, 'paraphrasing around a reserved matrix result cannot bypass legacy classification');
+assert.equal(isAcceptanceMatrixDerivedEvidence({ note: 'Result: warning' }), true, 'exact legacy warning output line remains compatible');
+assert.equal(isAcceptanceMatrixDerivedEvidence({ note: 'Result: warning threshold test passed with expected fallback.' }), false, 'unrelated warning prose is not a matrix projection false positive');
 const schemaInvalidCases: Array<[string, unknown]> = [
   ['unknown schema version', { ...declaration, schemaVersion: 'v2' }],
   ['empty declaration id', { ...declaration, id: '' }],
@@ -304,7 +318,7 @@ try {
     run(writerCliRoot, 'checklist_update', {
       storyId,
       itemId: 'CHK-001',
-      verificationEvidence: [{ intentRef: 'INT-001', kind: 'manual_transcript', command: `lattice acceptance_matrix --storyId=${storyId}`, result: 'pass', note: 'Result: inconclusive_basis_unverified' }],
+      verificationEvidence: [{ intentRef: 'INT-001', kind: 'manual_transcript', command: 'node replay.mjs', result: 'pass', note: 'Observed matrix projection was inconclusive_basis_unverified.' }],
     }, true, 'main-agent'),
     /acceptance_matrix_non_evidentiary_projection/,
   );
@@ -316,9 +330,9 @@ try {
       itemId: 'CHK-001',
       intentRef: 'INT-001',
       kind: 'manual_transcript',
-      command: `lattice acceptance_matrix --storyId=${storyId}`,
+      command: 'node replay.mjs',
       result: 'pass',
-      note: 'Result: inconclusive_basis_unverified',
+      note: 'Observed matrix projection was inconclusive_basis_unverified.',
     }, true, 'main-agent'),
     /acceptance_matrix_non_evidentiary_projection/,
   );
@@ -338,6 +352,19 @@ try {
   );
   assert.equal(JSON.stringify(store.readChecklist(storyId)), checklistAfterEligible, 'all real evidence writer surfaces reject matrix projections atomically');
   assert.equal(JSON.stringify(store.readProcessEvents(storyId)), eventsAfterEligible, 'alternate matrix evidence writers append no process event');
+  assert.match(
+    run(writerCliRoot, 'verification_evidence_add', {
+      storyId,
+      itemId: 'CHK-001',
+      intentRef: 'INT-001',
+      kind: 'integration_test',
+      command: 'node warning-threshold.test.mjs',
+      result: 'pass',
+      note: 'Result: warning threshold test passed with expected fallback.',
+    }, false, 'main-agent'),
+    /Verification evidence recorded/,
+  );
+  assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.note, 'Result: warning threshold test passed with expected fallback.', 'false-positive control persists ordinary evidence through the real CLI');
 } finally {
   rmSync(writerCliRoot, { recursive: true, force: true });
 }
@@ -447,6 +474,77 @@ const projectionReview = evaluateReviewCompleteness({
   spikeEvidence: null,
 }, 'observe');
 assert.ok(projectionReview.gaps.some(gap => gap.code === 'review_completeness_missing_evidence'), 'legacy/injected matrix transcript cannot cover ProofStory REVIEW completeness');
+
+const paraphrasedProjectionChecklist = checklist(false);
+paraphrasedProjectionChecklist.items[0].status = 'done';
+paraphrasedProjectionChecklist.items[0].verificationEvidence = [{
+  intentRef: 'INT-001',
+  kind: 'logic_test',
+  command: 'node replay.mjs',
+  result: 'pass',
+  note: 'Observed matrix projection was inconclusive_basis_unverified.',
+}];
+assert.equal(buildVerificationCoverage(paraphrasedProjectionChecklist).missingRequired, 1, 'paraphrased reserved result remains non-covering in general verification');
+const paraphrasedProjectionReview = evaluateReviewCompleteness({
+  story: story('REVIEW'),
+  checklist: paraphrasedProjectionChecklist,
+  originalIntentSnapshot: null,
+  milestoneLedger: null,
+  slicePlan: null,
+  parentLedgerRollup: null,
+  proofStoryContract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [] }]),
+  intentCollision: null,
+  scopeContract: null,
+  scopeShrinkageDecision: null,
+  redEvidence: null,
+  spikeEvidence: null,
+}, 'observe');
+assert.ok(paraphrasedProjectionReview.gaps.some(gap => gap.code === 'review_completeness_missing_evidence'), 'paraphrased reserved result remains non-covering in ProofStory completeness');
+const falsePositiveControl = checklist(false);
+falsePositiveControl.items[0].verificationEvidence = [{
+  intentRef: 'INT-001',
+  kind: 'logic_test',
+  command: 'node warning-threshold.test.mjs',
+  result: 'pass',
+  note: 'Result: warning threshold test passed with expected fallback.',
+}];
+assert.equal(buildVerificationCoverage(falsePositiveControl).missingRequired, 0, 'ordinary warning prose remains covering');
+const milestoneProjectionChecklist = checklist(false);
+milestoneProjectionChecklist.items[0].status = 'done';
+milestoneProjectionChecklist.items[0].verificationEvidence = [{
+  intentRef: 'INT-001',
+  kind: 'logic_test',
+  command: `lattice acceptance_matrix --storyId=${storyId}`,
+  result: 'pass',
+  note: 'Caller marked the replayed legacy row as passing.',
+}];
+const milestoneReport = buildMilestoneStatusReport({
+  story: story('DEV'),
+  checklist: milestoneProjectionChecklist,
+  milestoneLedger: {
+    schemaVersion: 'proofstory.milestone_ledger.v1',
+    storyId,
+    state: 'confirmed',
+    ledgerHash: 'matrix-replay',
+    createdAt: now,
+    updatedAt: now,
+    milestones: [{
+      id: 'M-MATRIX-REPLAY',
+      sourceRequirementId: 'REQ-MATRIX-REPLAY',
+      claim: 'Matrix projection cannot close milestone evidence',
+      doneMeans: 'Only independent verification covers this milestone',
+      requiredEvidence: ['logic_test'],
+      checklistRefs: ['CHK-001'],
+      verificationIntentRefs: ['INT-001'],
+      status: 'planned',
+    }],
+  },
+});
+const milestoneRow = milestoneReport.milestones[0];
+assert.match(milestoneRow.statusDetail, /evidence=not-passing; requiredEvidence=missing/, 'milestone evidence and requiredEvidence remain uncovered');
+assert.equal(milestoneRow.subObjectives.find(row => row.id === 'INT-001')?.status, 'not-passing', 'milestone intent subobjective remains uncovered');
+assert.equal(milestoneRow.subObjectives.find(row => row.id === 'logic_test')?.status, 'missing-evidence-kind', 'milestone required-evidence subobjective remains uncovered');
+assert.throws(() => buildMilestoneCloseoutSnapshot({ report: milestoneReport }), /incomplete|remaining/i, 'closeout cannot freeze matrix-derived coverage');
 
 const cliRoot = mkdtempSync(join(tmpdir(), 'lattice-topology-cli-'));
 try {
