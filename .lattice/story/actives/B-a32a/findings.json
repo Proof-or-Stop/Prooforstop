@@ -553,6 +553,25 @@
       ],
       "signatureTag": "adversarial|ts|parsing-fixes-regex",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-a32a:F-028",
+      "desc": "Canonical inventory and module resolution silently omit source kinds that the scanner claims or TypeScript supports. SOURCE_EXTENSIONS at acceptance-discovery-adapters.ts:83 excludes .jsx, .mts, and .cts even though scriptKindFor at lines 231-235 has an otherwise unreachable JSX branch and the profile is TypeScript-based. resolveLocalImport at lines 112-121 only maps .js to .ts plus bare .ts/index.ts, so imports resolving to .tsx/.jsx/.mts/.cts are also missed. Conversely .cjs is inventoried and parsed as JS, but analyzeLocalImportCalls at lines 252-261 recognizes only ES ImportDeclaration and neither CommonJS require nor TypeScript import-equals; those consumers are silently ignored without an unsupported-source blind spot. If another valid consumer already satisfies consumerGate, an additional outside-scope C2 in any omitted form disappears while the basis can remain complete. The smoke contains only a .ts named ES import and has no source-extension/module-form matrix. Either fully support the declared canonical source kinds and Node/TS resolution or emit deterministic partial blind spots for unsupported extensions/forms; add outside-scope .jsx/.mts/.cts and .cjs require mutations proving omission cannot remain complete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T09:19:57.765Z",
+      "reviewRound": "2026-07-22T09:17:25.176Z",
+      "reviewRunId": "B-a32a:RR-026",
+      "_hash": "b5ee7abb1601f1380968fbf43ac793225bf38df781517da37ad801794ebe6974",
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|canonical-inventory-module",
+      "signatureTagSource": "auto"
     }
   ]
 }
