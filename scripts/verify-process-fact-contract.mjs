@@ -584,6 +584,7 @@ function assertProofStoryProgressiveBoundary() {
     'parent_ledger_rollup_get',
     'proofstory_contract_set',
     'proofstory_contract_get',
+    'acceptance_matrix',
     'intent_collision_set',
     'intent_collision_get',
     'scope_shrinkage_decision_set',

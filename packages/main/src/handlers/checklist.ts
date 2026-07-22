@@ -13,6 +13,10 @@ import { withMkdirLock } from '../core/mkdir-lock.js';
 import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
 import type { ScopeFreezeTextSource } from '../core/types.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import {
+  validatePlannedPathDeclarationsForChecklistItem,
+  verificationIntentHasPlannedPathDeclarations,
+} from '../core/acceptance-topology.js';
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
   'lattice-review-story-init',
@@ -385,6 +389,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       agent?: string;
       actor?: string;
     }): string {
+      if (verificationIntentHasPlannedPathDeclarations(args.verificationIntent)) {
+        throw new Error(
+          'checklist_add refused: plannedPathDeclarations may only be authored by the dispatched verification-intent role through checklist_update during PLAN [planned_path_writer_not_authorized]',
+        );
+      }
       const story = assertChecklistAddAllowed(store, args);
 
       return withChecklistLock(ctx, args.storyId, () => {
@@ -569,6 +578,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       });
       const checklistActor = authority.actor || process.env.USER?.trim() || 'main-agent';
       const dispatchedRole = authority.entry;
+      const hasPlannedDeclarations = verificationIntentHasPlannedPathDeclarations(args.verificationIntent);
+      if (hasPlannedDeclarations && !(dispatchedRole?.roleClass === 'verification-intent' && authority.source === 'dispatched-env')) {
+        throw new Error(
+          'checklist_update refused: plannedPathDeclarations require the dispatched verification-intent role during PLAN [planned_path_writer_not_authorized]',
+        );
+      }
       if (dispatchedRole?.roleClass === 'verification-intent') {
         const disallowed = [
           args.status !== undefined && 'status',
@@ -633,6 +648,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const cl = store.readChecklist(args.storyId);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+      if (hasPlannedDeclarations) validatePlannedPathDeclarationsForChecklistItem(item, args.verificationIntent!);
       assertChecklistScopeChangeAllowed(store, args.storyId, {
         title: args.title ?? (args.excludes !== undefined ? item.title : undefined),
         context: args.context ?? (args.excludes !== undefined ? item.context : undefined),

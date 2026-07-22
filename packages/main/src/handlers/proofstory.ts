@@ -33,6 +33,7 @@ import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import { buildAcceptanceMatrixReport } from '../core/acceptance-topology.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -395,6 +396,34 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         return args.json ? stringify(result) : `ProofStory contract: not configured\nStory: ${args.storyId}`;
       }
       return renderStored('ProofStory contract', contract, args);
+    },
+
+    acceptance_matrix(args: { storyId: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const report = buildAcceptanceMatrixReport({
+        storyId: args.storyId,
+        checklist: readChecklistSafe(args.storyId),
+        contract: store.readProofStoryContract(args.storyId),
+        ledger: store.readMilestoneLedger(args.storyId),
+      });
+      if (args.json) return stringify(report);
+      const lines = [
+        `Acceptance matrix for ${report.storyId}`,
+        'Mode: observe (read-only, non-evidentiary)',
+        `Topology state: ${report.topologyState}`,
+        `Result: ${report.result}`,
+        'Rows:',
+      ];
+      for (const row of report.rows) {
+        lines.push(
+          `  ${row.acceptanceBindingRef} | result=${row.result} | checklist=[${row.checklistRefs.join(',')}] | intents=[${row.verificationIntentRefs.join(',')}] | milestones=[${row.milestoneRefs.join(',')}] | declarations=[${row.plannedPathDeclarationRefs.join(',')}] | endpoints=[${row.endpointRefs.join(',')}] | evidence=[${row.evidenceRefs.join(',')}] | diagnostics=[${row.diagnosticCodes.join(',')}]`,
+        );
+      }
+      lines.push('Diagnostics:');
+      if (report.diagnostics.length === 0) lines.push('  none');
+      else report.diagnostics.forEach(diagnostic => lines.push(`  ${diagnostic.code} ${diagnostic.bindingId} ${diagnostic.path}: ${diagnostic.message}`));
+      return lines.join('\n');
     },
 
     scope_shrinkage_decision_set(args: {

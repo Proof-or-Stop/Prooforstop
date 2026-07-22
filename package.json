@@ -1,6 +1,6 @@
 {
   "name": "lattice",
-  "version": "0.3.224",
+  "version": "0.3.225",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -28,6 +28,7 @@
     "test:flow-stability-smoke": "npm --prefix packages/main run test:flow-stability-smoke",
     "test:review-assurance-floor-smoke": "npm --prefix packages/main run test:review-assurance-floor-smoke",
     "test:proofstory-intent-hardening-smoke": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
+    "test:proofstory-acceptance-topology-smoke": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
     "test:milestone-status": "npm --prefix packages/main run test:milestone-status",
     "test:global-core-realpath": "npm --prefix packages/main run test:global-core-realpath",
     "test:review-incremental-context-smoke": "node packages/main/dist/tasks/review-incremental-context-smoke.js",

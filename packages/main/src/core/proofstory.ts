@@ -587,6 +587,12 @@ function normalizeAcceptanceBinding(raw: unknown, index: number): ProofStoryAcce
     binding.acceptanceClaim = requireNonEmptyString(obj.acceptanceClaim, `acceptanceBindings[${index}].acceptanceClaim`);
   }
   if (obj.note !== undefined) binding.note = requireNonEmptyString(obj.note, `acceptanceBindings[${index}].note`);
+  // Wave 1 deliberately preserves the caller's optional topology payload so
+  // the read-only structural diagnostic can classify legacy/unsupported and
+  // malformed shapes without turning contract reads into a lifecycle gate.
+  if (obj.verificationTopology !== undefined) {
+    binding.verificationTopology = obj.verificationTopology as ProofStoryAcceptanceBinding['verificationTopology'];
+  }
   return binding;
 }
 

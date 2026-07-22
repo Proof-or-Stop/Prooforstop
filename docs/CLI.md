@@ -328,6 +328,41 @@ The Mac App is no longer required for release or provider/config status. It is
 an optional dashboard/archive surface unless a future, explicitly reviewed
 receipt-backed runner path lands.
 
+### Acceptance Matrix (Wave 1)
+
+`lattice acceptance_matrix --storyId=<id> [--json]` renders a deterministic
+projection of ProofStory acceptance bindings, milestone refs, checklist and
+verification-intent refs, verification-intent-owned planned-path declarations,
+and existing evidence refs.
+
+The command is observe-only, read-only, and non-evidentiary. Text output states
+those boundaries explicitly; JSON contains `mode: "observe"`,
+`readOnly: true`, and `evidentiary: false`. Each row exposes canonical source
+IDs and stable `AT_*` structural diagnostics. A legacy binding without
+`verificationTopology` reports `legacy_missing`. A configured Wave 1 graph can
+report only `warning` or `inconclusive_basis_unverified`; it never reports
+`complete`, `pass`, `ready-for-review`, or another authority-bearing result.
+
+Wave 1 accepts only reference-only `proofstory.acceptance_topology.v1` data.
+Existing source references are bounded to `acceptance-binding:`, `checklist:`,
+`intent:`, `milestone:`, and `evidence:` owners. Planned source references name
+a frozen `proofstory.verification_planned_path_declaration.v1` and endpoint ID
+owned by checklist `verificationIntent`; topology cannot copy or override the
+declared relation, endpoint role, file, symbol/fact, or output fact.
+
+Only a dispatched registered verification-intent role may add a planned-path
+declaration through `checklist_update` during PLAN. `story_create`,
+`checklist_add`, ordinary callers, and post-PLAN mutations are rejected before
+persistence. Existing verificationIntent items without declarations remain
+compatible.
+
+The renderer accepts only `storyId` and `json`. Write-shaped arguments such as
+`mode`, `write`, `output`, `apply`, `result`, `verdict`, `evidence`, or `rows`
+are rejected. It writes no matrix artifact, process event, evidence, phase, or
+other lifecycle fact. Coverage-basis discovery, signed basis receipts,
+`acceptance_topology_check`, `pre_review_check`, and lifecycle enforcement are
+not part of Wave 1.
+
 ### Milestone Status
 
 `lattice milestone_status` is a read-only progress reporter over existing

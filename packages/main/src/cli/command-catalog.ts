@@ -127,6 +127,7 @@ const proofStoryAcceptanceBindingSchema = z.object({
   verificationIntentRefs: z.array(z.string()).optional().describe('Verification intent refs bound to this acceptance claim.'),
   milestoneIds: z.array(z.string()).optional().describe('Milestone ids bound to this acceptance claim.'),
   note: z.string().optional().describe('Reviewer-visible note.'),
+  verificationTopology: z.record(z.string(), z.unknown()).optional().describe('Optional reference-only proofstory.acceptance_topology.v1 payload. Structural diagnostics are observe-only in Wave 1.'),
 });
 
 const proofStoryContractEnvelopeSchema = z.object({
@@ -2564,6 +2565,18 @@ Behavior:
   { name: 'proofstory_contract_get', description: 'Read the ProofStory contract envelope', schema: {
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'acceptance_matrix', description: 'Render the deterministic read-only, non-evidentiary ProofStory acceptance matrix', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output deterministic structured JSON.'),
+    mode: z.never().optional().describe('Not supported: Wave 1 is observe-only.'),
+    write: z.never().optional().describe('Not supported: acceptance_matrix is read-only.'),
+    output: z.never().optional().describe('Not supported: acceptance_matrix writes no artifact.'),
+    apply: z.never().optional().describe('Not supported: acceptance_matrix applies no change.'),
+    result: z.never().optional().describe('Not supported: callers cannot submit a result.'),
+    verdict: z.never().optional().describe('Not supported: callers cannot submit a verdict.'),
+    evidence: z.never().optional().describe('Not supported: matrix output is not evidence.'),
+    rows: z.never().optional().describe('Not supported: rows are derived from canonical inputs.'),
   }},
   { name: 'intent_collision_set', description: 'Persist a structured ProofStory intent-collision decision', schema: {
     storyId: z.string().describe('Story ID'),
