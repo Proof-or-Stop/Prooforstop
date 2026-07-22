@@ -188,10 +188,26 @@
       "phase": "DEV",
       "headHash": "a6b73c761fa6c8c6056ea072a37e658195d9a801",
       "materialHash": "ef3bcd11f94081a08d82194b9ed076b5d821034aec8028ed65b9ee0da7e05334"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This command-generated signed receipt is the expected production artifact introduced and verified by Wave 2A; it must remain reviewer-visible in the story scope.",
+      "timestamp": "2026-07-22T21:28:43.840Z",
+      "paths": [
+        ".lattice/story/actives/B-9123/topology-critic-receipt.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-9123/topology-critic-receipt.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "911d20df26b2b895b405740257545245c48421ab",
+      "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b"
     }
   ],
   "createdAt": "2026-07-22T17:59:20.813Z",
-  "updatedAt": "2026-07-22T18:55:59.013Z",
+  "updatedAt": "2026-07-22T21:28:43.840Z",
   "fileRules": [
     {
       "path": "packages/main/src/handlers/proofstory.ts",
@@ -294,7 +310,8 @@
     "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
     "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
     "packages/main/src/core/prompt-measurement.ts": "packages/main/src/core/prompt-measurement.ts",
-    ".lattice/story/actives/B-9123/acceptance-basis.json": ".lattice/story/actives/B-9123/acceptance-basis.json"
+    ".lattice/story/actives/B-9123/acceptance-basis.json": ".lattice/story/actives/B-9123/acceptance-basis.json",
+    ".lattice/story/actives/B-9123/topology-critic-receipt.json": ".lattice/story/actives/B-9123/topology-critic-receipt.json"
   },
   "anchorParserVersion": "typescript-5.9-ast-v1",
   "anchorArtifactVersion": "lattice.scope-anchor.v1",
