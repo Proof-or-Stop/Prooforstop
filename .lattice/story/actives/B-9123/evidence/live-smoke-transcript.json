@@ -2,20 +2,20 @@
   "storyId": "B-9123",
   "expected": "Topology critic eligibility: PASS — role=lattice-review-topology-critic, independentFromImplementer=true, exclusionApprover=lattice-review-scope-plan.",
   "actual": {
-    "command": "node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
-    "exitCode": null,
-    "stdout": "",
-    "stderr": "[capture error] command exceeded 60000ms timeout; process group terminated"
+    "command": "node bin/lattice.js topology_critic_receipt_check '{\"storyId\":\"B-9123\",\"json\":true}'",
+    "exitCode": 0,
+    "stdout": "{\n  \"storyId\": \"B-9123\",\n  \"verification\": {\n    \"ok\": false,\n    \"code\": \"AT_TOPOLOGY_CRITIC_CONTEXT_INVALID\",\n    \"diagnostics\": [\n      \"topology critic basis verification failed: AT_SCOPE_BINDING_MISSING: basis semantic discovery digest mismatch; topology digest mismatch; scope-check digest mismatch; scope-contract digest mismatch; freshness mismatch: evidence materialHash does not match current entity file state\"\n    ]\n  }\n}\n",
+    "stderr": "[0.1s] running topology_critic_receipt_check...\n[1.1s] topology_critic_receipt_check done\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-22T21:04:21.721Z",
+  "capturedAtIso": "2026-07-22T21:05:08.155Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "a09404031932fdfcf771360b7d5c7c38f6365c51",
+  "headHash": "bd190f9956e3147f93032a5b5c209deb2f376b0f",
   "materialHash": "2a29d3e8474bce4b82d95bc169cd606621dc840a69c9e7cf4a01d9d6cfcd70e7"
 }
