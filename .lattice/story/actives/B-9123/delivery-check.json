@@ -1,0 +1,85 @@
+{
+  "storyId": "B-9123",
+  "checkedAt": "2026-07-22T22:08:46.271Z",
+  "headHash": "687fd661779820602661be1db9dadc888b0a6841",
+  "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+  "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+  "reviewRound": "2026-07-22T21:28:54.878Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/CLI.md#independent-topology-critic-wave-2a",
+      "promise": "topology_critic_receipt_set is the signed receipt producer and topology_critic_receipt_check is the read-only canonical verifier restricted to registered critic authority.",
+      "status": "verified",
+      "verifiedBy": "source diff plus CLI build and live production-chain smoke",
+      "evidence": "command-catalog schemas, command policy, agent-dispatch registry and handlers/proofstory implement the registered set/check path; --live-happy reports check=ok semanticOk=true"
+    },
+    {
+      "docPath": "docs/CLI.md#independent-topology-critic-wave-2a",
+      "promise": "critic receipt binds current basis, topology, scope, story and closure facts and requires independence from implementation on agent, session, dispatch and business-commit-author dimensions.",
+      "status": "verified",
+      "verifiedBy": "core verifier inspection plus independent live/full smoke",
+      "evidence": "TopologyCriticReceiptV1 and verifyTopologyCriticReceipt bind every documented field; live output reports all four independence dimensions true; full smoke rejects per-dimension collisions and field tampering"
+    },
+    {
+      "docPath": "docs/CLI.md#independent-topology-critic-wave-2a",
+      "promise": "every exclusion requires an independent lattice-review-scope-plan approval with exact one-to-one current mapping.",
+      "status": "verified",
+      "verifiedBy": "core verifier inspection plus adversarial smoke",
+      "evidence": "verifyTopologyExclusionApproval checks role, signature, dispatch, freshness and independence; full smoke passes zero/one/multiple controls and rejects missing, duplicate, forged, stale, orphaned and cross-story approvals"
+    },
+    {
+      "docPath": "docs/CLI.md#independent-topology-critic-wave-2a",
+      "promise": "partial or unsupported discovery cannot be overridden, and Wave 2A adds no lifecycle admission gate or Wave 3, 3A or 4 behavior.",
+      "status": "verified",
+      "verifiedBy": "handler/policy scan plus full smoke",
+      "evidence": "producer and verifier reject non-complete basis; no topology critic consumer exists in lifecycle gates; real PLAN to DEV control succeeds without a receipt and leakage scan is absent"
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#independent-topology-critic",
+      "promise": "TopologyCriticReceiptV1 inventory includes schema, actor and implementation provenance, all digest/hash/ref bindings, verdict, signer key, issue time and signature.",
+      "status": "verified",
+      "verifiedBy": "type/source inventory and table-driven mutation test",
+      "evidence": "packages/main/src/core/types.ts matches the documented inventory; smoke asserts exact top-level fields and alter/delete failure for each"
+    },
+    {
+      "docPath": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+      "promise": "the prompt registry contains 17 roles including lattice-review-topology-critic.",
+      "status": "verified",
+      "verifiedBy": "prompt registry/baseline source inspection and verifier run",
+      "evidence": "verify-proof-or-stop-prompt-baseline passes exact 17-role manifest, hashes, role matrix and host render checks"
+    },
+    {
+      "docPath": ".lattice-codex/agents/lattice-review-topology-critic.md",
+      "promise": "the topology critic uses only registered dispatch, cannot pass incomplete discovery, requires independent exclusion approval and verifies through the read-only check.",
+      "status": "verified",
+      "verifiedBy": "three prompt mirror comparison plus registry and production handler inspection",
+      "evidence": "template, Claude and Codex prompt files are byte-identical; registered role permissions expose only topology_critic_receipt_set and the check remains read-only"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent current-build `--live-happy` run invoked real bin/lattice.js dispatch and producer/verifier; output: eligibility PASS, all four independence dimensions true, receipt check=ok semanticOk=true. Full smoke also rejected each individual collision, missing provenance, role spoof and dispatch replay."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independent full production-path smoke passed exact receipt inventory, canonical round-trip, basis/topology/scope/story/closure freshness drift, every-field alter/delete, untrusted re-signing and cross-story/critic/time signature replay."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independent full smoke passed zero/one/multiple exclusion controls and exact independent approval mapping, while rejecting implementer/critic/ineligible authority, same actor/session/dispatch/business author, forged, missing, duplicate, orphaned, stale and cross-story approvals plus partial/unsupported discovery."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Independent full smoke passed an isolated real repository through production bin/lattice.js PLAN basis, registered critic dispatch, signed producer and read-only verifier; mutation/restoration, process-fact boundaries, clean worktree/no residue, real PLAN-to-DEV no-receipt control and Wave 3/3A/4 no-leak assertions all passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All seven changed documentation promises and all four checklist outcomes are verified. Current-build live producer-to-verifier semantics pass, the full adversarial suite passes, no unresolved implementation TODOs were found, and Wave 2A remains bounded from later waves."
+  },
+  "_hash": "7ef3c5a65c5170079d975ee98f2d1170bd2462cd4d964f41552e508f4c0b5418"
+}

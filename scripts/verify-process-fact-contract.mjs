@@ -148,6 +148,9 @@ const requiredProcessFactSemantics = {
   acceptance_topology_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
   acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
+  topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
+  topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
+  topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -165,6 +168,7 @@ const requiredProcessFactSemantics = {
 };
 const requiredRuntimeFactSemantics = {
   'runtime:acceptance_topology_plan_dev_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
+  'runtime:topology_critic_authority_verification': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'verification-policy'],
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
   'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
@@ -177,6 +181,7 @@ const requiredReviewerLanes = [
   'lattice-review-story-init',
   'product-reviewer',
   'lattice-review-scope-plan',
+  'lattice-review-topology-critic',
   'lattice-review-concept',
   'lattice-review-quality',
   'lattice-review-test-coverage',
@@ -216,6 +221,8 @@ const requiredArtifactFacts = [
   { name: 'artifact:parent-ledger-rollup.json', path: 'parent-ledger-rollup.json', signed: false },
   { name: 'artifact:closeout-write-receipts.jsonl', path: 'closeout-write-receipts.jsonl', signed: false },
   { name: 'artifact:proofstory.json', path: 'proofstory.json', signed: false },
+  { name: 'artifact:topology-exclusion-approvals.json', path: 'topology-exclusion-approvals.json', signed: true, signaturePattern: /Ed25519\(canonical scope-plan approval binding exclusion\/basis\/topology\/scope\/story\/closure\/provenance\)/ },
+  { name: 'artifact:topology-critic-receipt.json', path: 'topology-critic-receipt.json', signed: true, signaturePattern: /Ed25519\(canonical critic receipt binding role\/provenance\/basis\/topology\/scope\/story\/closure\/findings\/exclusions\/verdict\/time\)/ },
   { name: 'artifact:intent-collision.json', path: 'intent-collision.json', signed: false },
   { name: 'artifact:scope-shrinkage-decision.json', path: 'scope-shrinkage-decision.json', signed: false },
   { name: 'artifact:red-evidence.json', path: 'red-evidence.json', signed: false },
@@ -568,6 +575,24 @@ function read(relPath) {
   if (mutation === 'invert-acceptance-topology-polarity' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
     text = text.replace('if (topology.blocking)', 'if (!topology.blocking)');
   }
+  if (mutation === 'drop-topology-critic-prompt' && relPath.endsWith('lattice-review-topology-critic.md')) {
+    text = text.replace(/^- A pass is forbidden when the basis.*$/m, '');
+  }
+  if (mutation === 'drop-topology-critic-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
+    text = text.replace(/topology_critic_receipt_set/g, 'topology_critic_receipt_removed');
+  }
+  if (mutation === 'drop-topology-critic-cli-schema' && relPath === 'packages/main/src/cli/command-catalog.ts') {
+    text = text.replace(/topology_critic_receipt_set/g, 'topology_critic_receipt_schema_removed');
+  }
+  if (mutation === 'add-topology-critic-lifecycle-consumer' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
+    text += '\n// forbidden Wave 2A lifecycle consumer: evaluateTopologyCriticReceiptForContext; if (!critic.ok) {}\n';
+  }
+  if (mutation === 'drop-topology-critic-verifier' && relPath === 'packages/main/src/core/topology-critic-receipt.ts') {
+    text = text.replace(/verifyTopologyCriticReceipt/g, 'verifyTopologyCriticReceiptRemoved');
+  }
+  if (mutation === 'weaken-topology-critic-incomplete-basis' && relPath === 'packages/main/src/core/topology-critic-receipt.ts') {
+    text = text.replaceAll("context.basisStatus !== 'complete'", "context.basisStatus === 'complete'");
+  }
   return text;
 }
 
@@ -704,6 +729,39 @@ function assertProofStoryProgressiveBoundary() {
       && activityPolicyText.includes("'acceptance_topology_check'")
       && acceptancePromptPaths.every(path => read(path).includes('Acceptance-topology boundary:')),
     'acceptance topology contract must bind CLI schema, canonical evaluator, signed basis verification, independent default-observe rollout mode, PLAN gate, process fact, and prompt guidance',
+  );
+  const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
+  const topologyCriticPromptPaths = [
+    'packages/main/templates/agents/lattice-review-topology-critic.md',
+    '.claude/agents/lattice-review-topology-critic.md',
+    '.lattice-codex/agents/lattice-review-topology-critic.md',
+  ];
+  const topologyCriticPolicy = commandPolicyEntries.get('topology_critic_receipt_set');
+  assert(
+    catalogText.includes("name: 'topology_exclusion_approval_set'")
+      && catalogText.includes("name: 'topology_critic_receipt_set'")
+      && catalogText.includes("name: 'topology_critic_receipt_check'")
+      && handlerText.includes('topology_critic_receipt_set(args')
+      && handlerText.includes('topology_critic_receipt_check(args')
+      && handlerText.includes('verifyTopologyCriticReceipt')
+      && /export function verifyTopologyCriticReceipt\s*\(/.test(topologyCriticText)
+      && topologyCriticText.includes("context.basisStatus !== 'complete'")
+      && topologyCriticText.includes('independenceMatrix')
+      && topologyCriticText.includes('events: readonly ProcessEvent[];')
+      && topologyCriticText.includes('if (!Array.isArray(args.events) || args.events.length === 0)')
+      && topologyCriticText.includes('implementationProvenanceDiagnostics')
+      && topologyCriticText.includes('exact one-to-one independent approvals')
+      && processRegistryText.includes('runtime:topology_critic_authority_verification')
+      && processLevelText.includes('runtime:topology_critic_authority_verification')
+      && processRegistryText.includes('artifact:topology-critic-receipt.json')
+      && processRegistryText.includes('artifact:topology-exclusion-approvals.json')
+      && !transitionOrchestratorText.includes('evaluateTopologyCriticReceiptForContext')
+      && !transitionOrchestratorText.includes('independent topology critic gate rejected PLAN admission')
+      && topologyCriticPolicy?.status === 'supported'
+      && topologyCriticPolicy.gateEvidence !== true
+      && activityPolicyText.includes("'topology_critic_receipt_check'")
+      && topologyCriticPromptPaths.every(path => read(path).startsWith('---\n') && read(path).includes('- A pass is forbidden when the basis')),
+    'topology critic contract must bind role prompt, production producer/read-only verifier, required registered dispatch events, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');

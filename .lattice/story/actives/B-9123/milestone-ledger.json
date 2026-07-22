@@ -1,0 +1,104 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-9123",
+  "state": "confirmed",
+  "ledgerHash": "sha256:3054d18d7172f3f288fdbd886d556c6d4ef32c359ae225adc0763167798b5e2e",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-W2A-ELIGIBILITY",
+      "claim": "Only an eligible independent topology critic can authorize a current topology review.",
+      "doneMeans": "The production verifier accepts the registered topology-critic role only when agent, session, dispatch, and business-author provenance are all distinct, and rejects spoofed, missing, collided, or replayed provenance.",
+      "requiredEvidence": [
+        "production_cli",
+        "logic_test",
+        "adversarial_mutation"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "VI-CRITIC-ELIGIBLE",
+        "VI-CRITIC-FOUR-DIMENSION-MATRIX",
+        "VI-CRITIC-MISSING-PROVENANCE",
+        "VI-CRITIC-ROLE-SPOOF",
+        "VI-CRITIC-SESSION-DISPATCH-REPLAY"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-W2A-RECEIPT",
+      "claim": "Topology critic approval is a signed current receipt bound to the complete authoritative proof context.",
+      "doneMeans": "The production producer and verifier round-trip every required receipt field, reject all field/signature/freshness mutations, and deterministically bind canonical finding and exclusion references.",
+      "requiredEvidence": [
+        "production_cli",
+        "freshness_matrix",
+        "signature_mutation"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "VI-RECEIPT-PRODUCTION-ROUNDTRIP",
+        "VI-RECEIPT-FRESHNESS-MATRIX",
+        "VI-RECEIPT-CANONICAL-COLLECTIONS",
+        "VI-RECEIPT-EVERY-FIELD-TAMPER",
+        "VI-RECEIPT-SIGNATURE-FORGERY"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-W2A-EXCLUSION",
+      "claim": "Every topology exclusion requires separately attributable independent scope-plan approval and cannot override incomplete discovery.",
+      "doneMeans": "The gate enforces exact one-to-one current approvals from lattice-review-scope-plan, rejects spoofed, orphaned, stale, duplicate, or conflicted approvals, and rejects partial or unsupported discovery despite a PASS critic receipt.",
+      "requiredEvidence": [
+        "production_cli",
+        "mapping_test",
+        "authority_mutation"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "VI-EXCLUSION-INDEPENDENT-APPROVAL",
+        "VI-EXCLUSION-ONE-TO-ONE-COVERAGE",
+        "VI-NO-EXCLUSION-CONTROL",
+        "VI-EXCLUSION-AUTHORITY-SPOOF",
+        "VI-CRITIC-CANNOT-OVERRIDE-DISCOVERY"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-W2A-PROOF",
+      "claim": "Wave 2A authority is proven through the real producer-verifier-consumer chain without leaking later-wave behavior.",
+      "doneMeans": "An isolated production-path transcript passes cleanly, every authoritative input and process-fact mutation bites and restores cleanly, no forged artifact remains reusable, and Wave 3/3A/4 capabilities remain absent.",
+      "requiredEvidence": [
+        "isolated_production_transcript",
+        "clean_mutate_restore",
+        "process_fact_contract"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "VI-WAVE2A-PRODUCTION-CHAIN",
+        "VI-WAVE2A-CLEAN-MUTATE-RESTORE",
+        "VI-WAVE-BOUNDARY-NO-LEAK",
+        "VI-PROCESS-FACT-MUTATIONS",
+        "VI-PRODUCTION-BYPASS-ATTEMPTS",
+        "VI-RESTORATION-AND-NO-RESIDUE"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-07-22T17:58:09.466Z",
+  "updatedAt": "2026-07-22T18:01:14.243Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-W2A-ROLE-AUTHORITY",
+    "acceptedInterpretationHash": "sha256:63b46e0818c531e7a82f278bf841440a223db937fa5ebd5846693fb5f4f09f88",
+    "acceptedAt": "2026-07-22T18:01:14.243Z"
+  }
+}

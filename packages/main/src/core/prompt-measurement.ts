@@ -141,8 +141,8 @@ export function generatePromptMeasurementReport(): PromptMeasurementReport {
     return record;
   });
 
-  if (new Set(records.map(record => record.roleId)).size !== 16 || records.length !== 16) {
-    throw new Error(`prompt measurement requires exactly 16 unique roles, got ${records.length}`);
+  if (new Set(records.map(record => record.roleId)).size !== 17 || records.length !== 17) {
+    throw new Error(`prompt measurement requires exactly 17 unique roles, got ${records.length}`);
   }
 
   const aggregateEstimatedTokens = records.reduce((sum, record) => sum + record.estimatedTokens, 0);
@@ -192,7 +192,7 @@ export function verifyPromptMeasurementReport(value: unknown): asserts value is 
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('prompt measurement report must be an object');
   const report = value as PromptMeasurementReport;
   if (report.schemaVersion !== PROMPT_MEASUREMENT_REPORT_SCHEMA_VERSION) throw new Error('unsupported prompt measurement report schema');
-  if (!Array.isArray(report.records) || report.records.length !== 16) throw new Error('prompt measurement report must contain 16 records');
+  if (!Array.isArray(report.records) || report.records.length !== 17) throw new Error('prompt measurement report must contain 17 records');
   for (const record of report.records) validatePromptMeasurementRecord(record);
   const recomputed = generatePromptMeasurementReport();
   if (canonicalJsonStringify(report) !== canonicalJsonStringify(recomputed)) {

@@ -320,6 +320,8 @@ interface TopologyCriticReceiptV1 {
   storyId: string;
   criticIdentity: string;
   criticRole: string;
+  criticProvenance: TopologyActorProvenanceV1;
+  implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;
   topologyDigest: string;
   scopeCheckDigest: string;
@@ -330,6 +332,7 @@ interface TopologyCriticReceiptV1 {
   approvedExclusionRefs: string[];
   verdict: 'pass' | 'request_changes';
   issuedAt: string;
+  signerPublicKey: string;
   signature: string;
 }
 ```
@@ -1121,13 +1124,28 @@ weak assertions, design problems, or unmodeled interactions.
 
 ### 8.2 Independent topology critic
 
-Before DEV admission on enforced high-assurance paths, an independent topology
-critic challenges scope, discovery methods, exclusions, and closure. Before
-REVIEW, it re-attests the recomputed DEV basis. Its result must be a signed,
-hash-bound `TopologyCriticReceiptV1` containing Story ID, critic identity and
-eligible role, basis digest, topology digest, `scopeCheckDigest`, the
-phase-applicable `scopeContractDigest`, `storyFilesHash`, `closureFilesHash`,
-finding refs, approved-exclusion refs, verdict, issuance time, and signature.
+In the target state, after the phase-appropriate Wave 3 and Wave 4 gate work is
+implemented and enabled, enforced high-assurance paths consume an independent
+topology critic before DEV admission and consume its re-attestation of the
+recomputed DEV basis before REVIEW. The critic challenges scope, discovery
+methods, exclusions, and closure. Its result must be a signed, hash-bound
+`TopologyCriticReceiptV1` containing `schemaVersion`, `storyId`,
+`criticIdentity`, `criticRole`, `criticProvenance`,
+`implementationProvenance`, `basisDigest`, `topologyDigest`,
+`scopeCheckDigest`, the phase-applicable `scopeContractDigest`,
+`storyFilesHash`, `closureFilesHash`, `findingRefs`,
+`approvedExclusionRefs`, `verdict`, `issuedAt`, `signerPublicKey`, and
+`signature`. This inventory mirrors every field in the actual
+`TopologyCriticReceiptV1` type; adding a signed field requires updating both
+the verifier binding and this inventory.
+
+Wave 2A is deliberately narrower than that target state. It only produces and
+verifies the signed receipt and exclusion approvals through explicit CLI
+commands. It has no lifecycle admission consumer: absence or failure of a
+Wave 2A receipt cannot block PLAN → DEV or DEV → REVIEW. Binding pre-DEV and
+pre-REVIEW consumption begins only in the later Wave 3/Wave 4 work at the
+phase-appropriate gate; this section does not authorize implementing those
+later waves early.
 
 The CLI independently verifies those bindings and the critic's eligible role.
 Prompt text, natural-language approval, or a self-authored reviewer ID is not
@@ -1385,6 +1403,21 @@ approval is independently attributable; any basis that is `partial` or
 Stop: independence is inferred from prompt text or self-report, critic evidence
 is not mechanically verified, or critic/exclusion approval can override
 discovery incompleteness.
+
+Implementation contract: the registered critic role is
+`lattice-review-topology-critic`; the independently registered exclusion
+approver is `lattice-review-scope-plan`. The production writer commands are
+`topology_critic_receipt_set` and `topology_exclusion_approval_set`, while
+`topology_critic_receipt_check` is read-only. Their signed artifacts bind the
+current basis/topology/scope/workspace hashes and exact actor, session,
+dispatch, and business-commit-author provenance. Exclusions require a current
+one-to-one signed approval mapping. A `partial` or `unsupported` basis is an
+unconditional non-pass. Wave 2A adds no lifecycle admission gate: PLAN → DEV
+continues to consume only Wave 2 `acceptance_topology_check` structural
+semantics under its existing observe/warn/enforce rollout. A critic receipt is
+produced and verified through the explicit CLI set/check path; its absence or
+failure cannot independently block PLAN → DEV. These mechanics do not imply
+Wave 3 executable evidence, Wave 3A applicability selection, or Wave 4 rollout.
 
 ### Wave 3 — Executable pre-review evidence
 

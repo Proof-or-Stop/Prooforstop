@@ -1,0 +1,56 @@
+{
+  "storyId": "B-9123",
+  "changes": "Added an independently authorized topology critic role, signed hash-bound critic receipts, separately authorized exclusion approvals, production read-only verification, exhaustive fail-closed mutation coverage, and a fast real producer-to-verifier live acceptance transcript.",
+  "usage": "Run `node bin/lattice.js topology_critic_receipt_set ...` from an eligible independent critic, then `node bin/lattice.js topology_critic_receipt_check --storyId=B-9123`; use `node packages/main/dist/tasks/proofstory-topology-critic-smoke.js --live-happy` for the bounded live acceptance chain.",
+  "expectedOutcome": "Topology critic eligibility: PASS with all four independence dimensions true; Topology critic receipt: PASS with check=ok and semanticOk=true.",
+  "actualTranscript": "Topology critic eligibility: PASS role=lattice-review-topology-critic independence=agent:true,session:true,dispatch:true,businessCommitAuthor:true; Topology critic receipt: PASS check=ok semanticOk=true.",
+  "outcomeDiff": "No material difference between the expected user-visible result and the recorded live transcript.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Wave 2A only: critic receipts are signed CLI-verifiable artifacts and do not yet create the Wave 3 pre_review_check lifecycle admission gate. A real story with unsupported discovery correctly produces request_changes rather than a false PASS.",
+  "pitfalls": "The first real transcript correctly exposed an unsupported acceptance basis and refused false-green delivery. A production-chain synthetic fixture also failed task binding, so the fix used a real isolated repository and a bounded --live-happy path. The default 900-second aggregate timeout aborted the 46-command validation while tests were still progressing; rerunning the single instance with supported LATTICE_MAX_TIMEOUT_MS=3600000 completed 46/46 PASS.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 246619
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 62694
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 840347
+    },
+    "DEV": {
+      "count": 7,
+      "durationMs": 6768382
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 6942631
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 569259
+    }
+  },
+  "totalDurationMs": 15430313,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-22T22:06:17.884Z",
+  "updatedAt": "2026-07-22T22:06:17.884Z"
+}

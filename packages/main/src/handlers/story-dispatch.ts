@@ -54,6 +54,7 @@ import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 import { getSessionIdentity } from '../core/owner-session.js';
 import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js';
 import type { PromptHost } from '../core/prompt-registry.js';
+import { currentImplementationBusinessCommit, topologyDispatchBusinessAuthor } from '../core/topology-critic-receipt.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
@@ -61,6 +62,7 @@ type BackgroundPolicy = 'required' | 'advisory' | 'none';
 const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
   'lattice-implementer': 'required',
   'lattice-review-scope-plan': 'required',
+  'lattice-review-topology-critic': 'required',
   'lattice-review-behavior': 'required',
   'lattice-review-concept': 'required',
   'lattice-review-quality': 'advisory',
@@ -168,7 +170,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   function appendDispatchEvent(args: {
     storyId: string;
     agentType?: string;
-    targetKind: 'init-review' | 'scope-plan-review' | 'story-review' | 'delivery-review' | 'checklist' | 'finding' | 'cluster';
+    targetKind: 'init-review' | 'scope-plan-review' | 'topology-critic-review' | 'story-review' | 'delivery-review' | 'checklist' | 'finding' | 'cluster';
     itemId?: string;
     findingId?: string;
     clusterId?: string;
@@ -182,6 +184,11 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     promptEnvelopeDigest?: string;
     assembledPromptDigest?: string;
     promptEnvelope?: ReturnType<typeof assembleFullPromptEnvelope>['envelope'];
+    headHash?: string;
+    storyFilesHash?: string;
+    businessCommit?: string;
+    businessCommitAuthor?: string;
+    businessCommitAuthorSource?: 'git-var:GIT_AUTHOR_IDENT';
     budgetViolation?: 'incremental' | 'full';
     promptBudget?: PromptBudgetObservation;
   }): void {
@@ -197,6 +204,12 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         source: 'lattice dispatch',
         targetKind: args.targetKind,
         agentType,
+        sessionId: getSessionIdentity().sessionId,
+        ...(args.headHash ? { headHash: args.headHash } : {}),
+        ...(args.storyFilesHash ? { storyFilesHash: args.storyFilesHash } : {}),
+        ...(args.businessCommit ? { businessCommit: args.businessCommit } : {}),
+        ...(args.businessCommitAuthor ? { businessCommitAuthor: args.businessCommitAuthor } : {}),
+        ...(args.businessCommitAuthorSource ? { businessCommitAuthorSource: args.businessCommitAuthorSource } : {}),
         ...(args.itemId ? { itemId: args.itemId, checklistId: args.itemId } : {}),
         ...(args.findingId ? { findingId: args.findingId } : {}),
         ...(args.clusterId ? { clusterId: args.clusterId } : {}),
@@ -269,6 +282,24 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         clusterId: args.clusterId,
       });
       ctx.log?.(`[process-events] dispatch append failed for ${args.storyId}: ${e?.message || e}`);
+    }
+  }
+
+  function topologyAuthorityDispatchBinding(story: ReturnType<StoryStore['readStory']>, required: boolean) {
+    try {
+      const snapshot = captureReviewRunSnapshot(root, { storyId: story.storyId, storyPhase: story.phase }, root);
+      if (!snapshot.storyFilesHash) throw new Error('topology authority dispatch requires a current storyFilesHash');
+      const implementation = currentImplementationBusinessCommit(root);
+      return {
+        headHash: snapshot.headHash,
+        storyFilesHash: snapshot.storyFilesHash,
+        businessCommit: implementation.businessCommit,
+        businessCommitAuthor: topologyDispatchBusinessAuthor(root),
+        businessCommitAuthorSource: 'git-var:GIT_AUTHOR_IDENT' as const,
+      };
+    } catch (error) {
+      if (required) throw error;
+      return {};
     }
   }
 
@@ -470,6 +501,23 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     lines.push('- If there are no gaps, still call scope_check_save with the complete feature list and accurate summary counts.');
 
     return { prompt: lines.join('\n') };
+  }
+
+  function buildTopologyCriticReviewPrompt(args: { storyId: string }): { prompt: string } {
+    const story = store.readStory(args.storyId);
+    if (!['PLAN', 'DEV', 'REVIEW'].includes(story.phase)) {
+      throw new Error(`topology critic dispatch is unsupported during ${story.phase}`);
+    }
+    return { prompt: [
+      `Independently review the current ProofStory acceptance topology for ${args.storyId}.`,
+      `Working directory: ${root}`,
+      'Use the canonical lattice-review-topology-critic role. Do not edit implementation or story files.',
+      `Run lattice acceptance_basis '{"storyId":"${args.storyId}","json":true}' and inspect topology, scope, exclusions, discovery status, and closure.`,
+      'A missing, partial, unsupported, stale, or tampered basis cannot receive pass.',
+      'Every exclusion must already have a separately attributable lattice-review-scope-plan approval.',
+      `Finish with lattice topology_critic_receipt_set '{"storyId":"${args.storyId}","verdict":"pass"}' or verdict=request_changes.`,
+      `Then run lattice topology_critic_receipt_check '{"storyId":"${args.storyId}"}' to verify the persisted signed receipt.`,
+    ].join('\n') };
   }
 
   function buildStoryReviewPrompt(args: {
@@ -892,10 +940,26 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           agentType: canonicalType,
         });
         const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
+        const authorityBinding = topologyAuthorityDispatchBinding(story, false);
         appendDispatchEvent({
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'scope-plan-review',
+          ...authorityBinding,
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
+        });
+        return wrapped;
+      }
+      if (promptBuilder === 'topology-critic-review') {
+        const result = buildTopologyCriticReviewPrompt({ storyId: args.storyId });
+        const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
+        const authorityBinding = topologyAuthorityDispatchBinding(story, true);
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: canonicalType,
+          targetKind: 'topology-critic-review',
+          ...authorityBinding,
           ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });

@@ -45,6 +45,18 @@ import { resolveStoryCommandWorkspace } from './context.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { verifyScopeCheckSignature } from './scope-check.js';
 import { loadConfig, resolveAcceptanceTopologyGateMode } from '../core/config.js';
+import { getSessionId } from '../core/owner-session.js';
+import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import {
+  canonicalTopologyReceiptContext,
+  deriveImplementationProvenance,
+  deriveRoleProvenance,
+  issueTopologyCriticReceipt,
+  issueTopologyExclusionApproval,
+  TOPOLOGY_CRITIC_ROLE,
+  TOPOLOGY_EXCLUSION_APPROVER_ROLE,
+  verifyTopologyCriticReceipt,
+} from '../core/topology-critic-receipt.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -145,6 +157,55 @@ export function evaluateAcceptanceTopologyForContext(ctx: HandlerContext, storyI
   });
 }
 
+function currentTopologyReceiptStateForContext(ctx: HandlerContext, storyId: string) {
+  const { store } = ctx;
+  const current = currentBasisDerivationForContext(ctx, storyId);
+  const artifact = store.readAcceptanceBasis(storyId);
+  if (!artifact) throw new Error('topology critic requires the verifier-owned acceptance-basis.json artifact');
+  const basisVerification = verifyAcceptanceBasisReceipt({
+    artifact,
+    gitCwd: current.workspace.signedWorkspaceRoot,
+    metadataRoot: current.workspace.metadataRoot,
+    expectedStoryId: storyId,
+    expectedTopologyDigest: current.derivation.topologyDigest,
+    expectedScopeCheckDigest: current.derivation.basis.binding.scopeCheckDigest,
+    ...(current.derivation.basis.binding.scopeContractDigest ? { expectedScopeContractDigest: current.derivation.basis.binding.scopeContractDigest } : {}),
+    expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+    expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
+    expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
+  });
+  if (!basisVerification.ok) throw new Error(`topology critic basis verification failed: ${basisVerification.code}: ${basisVerification.diagnostics.join('; ')}`);
+  const context = canonicalTopologyReceiptContext({
+    storyId,
+    basisStatus: artifact.basis.status,
+    basisDigest: artifact.basis.basisDigest,
+    topologyDigest: current.derivation.topologyDigest,
+    scopeCheckDigest: current.derivation.basis.binding.scopeCheckDigest,
+    ...(current.derivation.basis.binding.scopeContractDigest ? { scopeContractDigest: current.derivation.basis.binding.scopeContractDigest } : {}),
+    storyFilesHash: current.derivation.basis.binding.storyFilesHash,
+    closureFilesHash: current.derivation.basis.binding.closureFilesHash,
+    exclusions: artifact.basis.excludedPathRefs,
+    findingRefs: store.readFindings(storyId).findings.filter(finding => finding.status === 'open').map(finding => finding.id),
+  });
+  const events = store.readProcessEvents(storyId);
+  const implementation = deriveImplementationProvenance(current.workspace.signedWorkspaceRoot, events, context);
+  return { current, artifact, context, events, implementation };
+}
+
+/** Canonical read-only CLI verifier; reusable by a future phase-appropriate gate without creating a Wave 2A lifecycle consumer. */
+export function evaluateTopologyCriticReceiptForContext(ctx: HandlerContext, storyId: string) {
+  const state = currentTopologyReceiptStateForContext(ctx, storyId);
+  const approvals = ctx.store.readTopologyExclusionApprovals(storyId).approvals;
+  return verifyTopologyCriticReceipt({
+    gitCwd: state.current.workspace.signedWorkspaceRoot,
+    context: state.context,
+    receipt: ctx.store.readTopologyCriticReceipt(storyId),
+    approvals,
+    implementation: state.implementation,
+    events: ctx.store.readProcessEvents(storyId),
+  });
+}
+
 export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store } = ctx;
 
@@ -212,6 +273,10 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
     return currentBasisDerivationForContext(ctx, storyId);
   }
 
+  function currentTopologyReceiptState(storyId: string) {
+    return currentTopologyReceiptStateForContext(ctx, storyId);
+  }
+
   function basisReport(storyId: string) {
     const artifact = store.readAcceptanceBasis(storyId);
     if (!artifact) {
@@ -275,6 +340,52 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
   }
 
   return {
+    topology_exclusion_approval_set(args: { storyId: string; exclusionRef: string; json?: boolean }): string {
+      if (!args.storyId || !args.exclusionRef) throw new Error('storyId and exclusionRef are required');
+      const authority = resolveAgentMutationAuthority({ command: 'topology_exclusion_approval_set', payloadActors: [], envActor: process.env.LATTICE_AGENT });
+      if (authority.entry?.canonicalName !== TOPOLOGY_EXCLUSION_APPROVER_ROLE) throw new Error('topology exclusion approval requires registered lattice-review-scope-plan authority');
+      const state = currentTopologyReceiptState(args.storyId);
+      const actor = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: authority.actor, sessionId: getSessionId(), context: state.context, implementation: state.implementation });
+      const approval = issueTopologyExclusionApproval({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, exclusionRef: args.exclusionRef, actor, implementation: state.implementation });
+      const approvals = store.readTopologyExclusionApprovals(args.storyId);
+      approvals.approvals = [...approvals.approvals.filter(item => item.exclusionRef !== approval.exclusionRef), approval];
+      store.writeTopologyExclusionApprovals(args.storyId, approvals);
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'topology_exclusion_approval_set');
+      if (args.json) return stringify({ approval, verification: 'PASS' });
+      return `Topology exclusion approval: PASS\nStory: ${args.storyId}\nExclusion: ${approval.exclusionRef}\nApproval: ${approval.approvalRef}${commitHint}`;
+    },
+
+    topology_critic_receipt_set(args: { storyId: string; verdict: 'pass' | 'request_changes'; json?: boolean }): string {
+      if (!args.storyId || !args.verdict) throw new Error('storyId and verdict are required');
+      const authority = resolveAgentMutationAuthority({ command: 'topology_critic_receipt_set', payloadActors: [], envActor: process.env.LATTICE_AGENT });
+      if (authority.entry?.canonicalName !== TOPOLOGY_CRITIC_ROLE) throw new Error('topology critic receipt requires registered lattice-review-topology-critic authority');
+      const state = currentTopologyReceiptState(args.storyId);
+      const critic = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: authority.actor, sessionId: getSessionId(), context: state.context, implementation: state.implementation });
+      const approvals = store.readTopologyExclusionApprovals(args.storyId).approvals;
+      const receipt = issueTopologyCriticReceipt({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, critic, implementation: state.implementation, approvals, events: state.events, verdict: args.verdict });
+      store.writeTopologyCriticReceipt(args.storyId, receipt);
+      const verification = verifyTopologyCriticReceipt({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, receipt, approvals, implementation: state.implementation, events: store.readProcessEvents(args.storyId) });
+      if (args.verdict === 'pass' && !verification.ok) throw new Error(`topology critic receipt self-verification failed: ${verification.code}: ${verification.diagnostics.join('; ')}`);
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'topology_critic_receipt_set');
+      if (args.json) return stringify({ receipt, verification });
+      return `Topology critic receipt: ${verification.ok ? 'PASS' : 'REJECTED'}\nStory: ${args.storyId}\nVerdict: ${receipt.verdict}\nIndependence: agent=${verification.independence.agent} session=${verification.independence.session} dispatch=${verification.independence.dispatch} businessCommitAuthor=${verification.independence.businessCommitAuthor}${commitHint}`;
+    },
+
+    topology_critic_receipt_check(args: { storyId: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      try {
+        const state = currentTopologyReceiptState(args.storyId);
+        const verification = evaluateTopologyCriticReceiptForContext(ctx, args.storyId);
+        if (args.json) return stringify({ storyId: args.storyId, basisStatus: state.context.basisStatus, verification });
+        return [`Topology critic receipt: ${verification.ok ? 'PASS' : 'REJECTED'}`, `Story: ${args.storyId}`, `Code: ${verification.code}`, `Independence: agent=${verification.independence.agent} session=${verification.independence.session} dispatch=${verification.independence.dispatch} businessCommitAuthor=${verification.independence.businessCommitAuthor}`, ...verification.diagnostics.map(item => `  - ${item}`)].join('\n');
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const report = { storyId: args.storyId, verification: { ok: false, code: 'AT_TOPOLOGY_CRITIC_CONTEXT_INVALID', diagnostics: [message] } };
+        if (args.json) return stringify(report);
+        return `Topology critic receipt: REJECTED\nStory: ${args.storyId}\nCode: AT_TOPOLOGY_CRITIC_CONTEXT_INVALID\n  - ${message}`;
+      }
+    },
+
     acceptance_basis_generate(args: { storyId: string; json?: boolean }): string {
       rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
       if (!args.storyId) throw new Error('storyId is required');

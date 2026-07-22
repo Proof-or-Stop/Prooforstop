@@ -2591,6 +2591,27 @@ Behavior:
     write: z.never().optional().describe('Not supported: the command is read-only.'),
     apply: z.never().optional().describe('Not supported: the command applies no change.'),
   }},
+  { name: 'topology_exclusion_approval_set', description: 'Persist one signed independent scope-plan approval for a current topology exclusion', schema: {
+    storyId: z.string().min(1),
+    exclusionRef: z.string().min(1),
+    json: z.boolean().optional(),
+    approverIdentity: z.never().optional(), approverRole: z.never().optional(), signature: z.never().optional(),
+    basisDigest: z.never().optional(), topologyDigest: z.never().optional(), scopeCheckDigest: z.never().optional(), scopeContractDigest: z.never().optional(),
+    storyFilesHash: z.never().optional(), closureFilesHash: z.never().optional(), issuedAt: z.never().optional(),
+  }},
+  { name: 'topology_critic_receipt_set', description: 'Persist a signed current receipt from the registered independent topology critic', schema: {
+    storyId: z.string().min(1),
+    verdict: z.enum(['pass', 'request_changes']),
+    json: z.boolean().optional(),
+    criticIdentity: z.never().optional(), criticRole: z.never().optional(), signature: z.never().optional(),
+    basisDigest: z.never().optional(), topologyDigest: z.never().optional(), scopeCheckDigest: z.never().optional(), scopeContractDigest: z.never().optional(),
+    storyFilesHash: z.never().optional(), closureFilesHash: z.never().optional(), findingRefs: z.never().optional(), approvedExclusionRefs: z.never().optional(), issuedAt: z.never().optional(),
+  }},
+  { name: 'topology_critic_receipt_check', description: 'Read-only verification of topology critic authority, signatures, bindings, and exclusion approvals', schema: {
+    storyId: z.string().min(1),
+    json: z.boolean().optional(),
+    verdict: z.never().optional(), receipt: z.never().optional(), evidence: z.never().optional(), write: z.never().optional(),
+  }},
   { name: 'acceptance_basis_generate', description: 'Run the registered PLAN verifier and atomically persist its signed coverage-basis receipt', schema: {
     storyId: z.string().min(1),
     json: z.boolean().optional(),

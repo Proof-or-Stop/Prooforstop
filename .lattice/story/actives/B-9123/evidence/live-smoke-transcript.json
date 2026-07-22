@@ -1,0 +1,20 @@
+{
+  "storyId": "B-9123",
+  "expected": "Topology critic eligibility: PASS — role=lattice-review-topology-critic, independentFromImplementer=true, exclusionApprover=lattice-review-scope-plan.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/proofstory-topology-critic-smoke.js --live-happy",
+    "exitCode": 0,
+    "stdout": "Topology critic eligibility: PASS role=lattice-review-topology-critic independence=agent:true,session:true,dispatch:true,businessCommitAuthor:true\nTopology critic receipt: PASS check=ok semanticOk=true\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-22T21:24:40.520Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "7c043f13937414d1d5f620484c143552ea80b84e",
+  "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b"
+}

@@ -467,6 +467,40 @@ require an implementation transcript, persist a result, or claim executable or
 production readiness. Independent critic, current-worktree executable checks,
 selective per-Story policy, and measured rollout remain later bounded waves.
 
+### Independent topology critic (Wave 2A)
+
+Wave 2A adds a mechanically attributable review layer over the structural
+topology result. `lattice topology_critic_receipt_set --storyId=<id>
+--verdict=pass|request_changes` is the sole producer for the signed
+`topology-critic-receipt.json`; `lattice topology_critic_receipt_check
+--storyId=<id> [--json]` is its read-only verifier. The producer is restricted
+to a dispatched `lattice-review-topology-critic` identity and the verifier
+recomputes all current bindings instead of trusting caller-supplied hashes or
+status fields.
+
+The receipt binds the current basis and topology digests, scope-check and
+optional scope-contract digests, `storyFilesHash`, `closureFilesHash`, finding
+refs, exclusion-approval refs, critic provenance, implementation provenance,
+verdict, signer key, and issuance time. It passes only when the critic differs
+from the implementation provenance in all four dimensions: agent identity,
+session identity, dispatch identity, and business-commit author identity.
+Role labels in prose are not evidence.
+
+When the basis contains an exclusion, `lattice
+topology_exclusion_approval_set --storyId=<id> --exclusionRef=<decision-ref>`
+creates an independently signed approval from the registered
+`lattice-review-scope-plan` role. Approvals must form an exact one-to-one map
+to the current exclusions and remain independent of both implementation and
+critic provenance. Missing, duplicate, forged, stale, orphaned, or cross-Story
+approvals fail verification.
+
+Neither a critic verdict nor an exclusion approval can convert a `partial` or
+`unsupported` discovery basis into a pass. Wave 2A does not add executable
+`pre_review_check`, selective applicability, enforcement rollout, or telemetry.
+The receipt has no lifecycle admission consumer in Wave 2A: its absence or
+failure cannot block PLAN → DEV. Wave 3 owns `pre_review_check` enforcement;
+selective applicability and rollout remain Wave 3A and Wave 4 responsibilities.
+
 ### Milestone Status
 
 `lattice milestone_status` is a read-only progress reporter over existing

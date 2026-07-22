@@ -287,8 +287,16 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review PLAN scope and checklist coverage.',
-    allowedCommandIds: ['scope_check_save'],
+    allowedCommandIds: ['scope_check_save', 'topology_exclusion_approval_set'],
     requiredOutputIds: ['scope-check'],
+  },
+  'lattice-review-topology-critic': {
+    ...commonPolicy,
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Independently challenge acceptance topology, discovery, closure, and exclusions.',
+    allowedCommandIds: ['topology_critic_receipt_set', 'topology_critic_receipt_check'],
+    requiredOutputIds: ['topology-critic-receipt'],
   },
   'lattice-review-story-init': {
     ...commonPolicy,
@@ -432,7 +440,7 @@ export function validatePromptRoleContracts(contracts: readonly unknown[], expec
   const active = contracts.filter(contract => (contract as RoleContract).status === 'active').length;
   const compatibility = contracts.filter(contract => (contract as RoleContract).status === 'compatibility').length;
   const retired = contracts.filter(contract => (contract as RoleContract).status === 'retired').length;
-  if (active !== 12 || compatibility !== 3 || retired !== 1) {
+  if (active !== 13 || compatibility !== 3 || retired !== 1) {
     throw new PromptRoleContractRegistryError(`invalid role partition active=${active} compatibility=${compatibility} retired=${retired}`);
   }
   const byId = new Map(contracts.map(contract => [(contract as RoleContract).roleId, contract as RoleContract]));

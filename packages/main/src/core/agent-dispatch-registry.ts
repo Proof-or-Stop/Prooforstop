@@ -82,10 +82,24 @@ export const AGENT_DISPATCH_REGISTRY = [
     identifierKinds: [],
     promptBuilder: 'scope-plan-review',
     promptBuilderByIdentifier: {},
-    permittedMutations: ['scope_check_save'],
+    permittedMutations: ['scope_check_save', 'topology_exclusion_approval_set'],
     commitAllowed: false,
     reviewerLane: 'lattice-review-scope-plan',
-    evidenceOwnership: ['scope-check'],
+    evidenceOwnership: ['scope-check', 'topology-exclusion-approval'],
+  },
+  {
+    canonicalName: 'lattice-review-topology-critic',
+    aliases: [],
+    roleClass: 'scope-reviewer',
+    allowedPhases: ['PLAN', 'DEV', 'REVIEW'],
+    targetCardinality: 'story-only',
+    identifierKinds: [],
+    promptBuilder: 'topology-critic-review',
+    promptBuilderByIdentifier: {},
+    permittedMutations: ['topology_critic_receipt_set'],
+    commitAllowed: false,
+    reviewerLane: 'lattice-review-topology-critic',
+    evidenceOwnership: ['topology-critic-receipt'],
   },
   ...([
     'lattice-review-concept',
@@ -178,9 +192,9 @@ const VALID_ROLE_CLASSES = new Set(['implementer', 'verification-intent', 'init-
 const VALID_PHASES = new Set(['IDEA', 'INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE', 'DISCARDED', 'TEST_CASE', 'TEST_CASE_REVIEW', 'META']);
 const VALID_CARDINALITIES = new Set(['story-only', 'exactly-one']);
 const VALID_IDENTIFIERS = new Set(['itemId', 'findingId', 'clusterId']);
-const VALID_PROMPT_BUILDERS = new Set(['implementer-dispatch', 'verification-intent-item', 'init-review', 'product-init-review', 'scope-plan-review', 'story-review', 'item-review', 'coverage-review', 'delivery-review', 'finding-repair', 'cluster-repair']);
-const VALID_MUTATIONS = new Set(['checklist_update', 'init_check_set', 'scope_check_save', 'review_run_start', 'finding_add', 'review_pass_set', 'delivery_check_set', 'finding_resolve']);
-const VALID_EVIDENCE_OWNERSHIP = new Set(['checklist-status', 'verification-intent', 'init-check', 'scope-check', 'review-run', 'finding', 'review-pass', 'delivery-check', 'finding-resolution', 'cluster-resolution']);
+const VALID_PROMPT_BUILDERS = new Set(['implementer-dispatch', 'verification-intent-item', 'init-review', 'product-init-review', 'scope-plan-review', 'topology-critic-review', 'story-review', 'item-review', 'coverage-review', 'delivery-review', 'finding-repair', 'cluster-repair']);
+const VALID_MUTATIONS = new Set(['checklist_update', 'init_check_set', 'scope_check_save', 'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'review_run_start', 'finding_add', 'review_pass_set', 'delivery_check_set', 'finding_resolve']);
+const VALID_EVIDENCE_OWNERSHIP = new Set(['checklist-status', 'verification-intent', 'init-check', 'scope-check', 'topology-exclusion-approval', 'topology-critic-receipt', 'review-run', 'finding', 'review-pass', 'delivery-check', 'finding-resolution', 'cluster-resolution']);
 
 function requireString(value: unknown, label: string): asserts value is string {
   if (typeof value !== 'string' || value.trim().length === 0) {
