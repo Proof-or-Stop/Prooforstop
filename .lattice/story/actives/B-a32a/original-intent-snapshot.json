@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-a32a",
+  "sourceText": "继续开发 ProofStory acceptance topology 执行计划的全部剩余 Wave，直到每个所需 Story 进入 DONE；当前 Story 实现 Wave 1A 独立派生 coverage basis。",
+  "normalizedOutcome": "用户运行 acceptance_basis 只读命令时能看到由注册 verifier 独立派生、签名并绑定当前 workspace/scope/story/closure 的 complete/partial/unsupported 报告，任何遗漏、分歧、陈旧或篡改均明确失败关闭。",
+  "acceptanceClaim": "Wave 1A verifier independently derives and signs a replayable coverage basis; callers cannot author completeness, and omission/tampering/disagreement/stale mutations bite deterministically.",
+  "keyRequirementIds": [
+    "REQ-W1A-ADAPTERS",
+    "REQ-W1A-BASIS",
+    "REQ-W1A-DIAGNOSTICS",
+    "REQ-W1A-RECEIPT",
+    "REQ-W1A-RECONCILIATION"
+  ],
+  "requestHash": "sha256:3ca8f4097ff52320dc32cfccf68b7b1a03032835280e01851808d5901294bb97",
+  "createdAt": "2026-07-22T06:21:12.314Z",
+  "updatedAt": "2026-07-22T06:21:12.314Z"
+}
