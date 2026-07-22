@@ -417,6 +417,54 @@
         "scanEscalationReason": null
       },
       "_hash": "0dd61699b2d23ecdc4ea3bb8ec1d97fbf93654e4a7bd91d10dc6511e3576e84a"
+    },
+    {
+      "id": "B-a32a:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Round-7 docs review found no blocker after extracting 37 exported TypeScript symbols and comparing 11 bounded documentation/prompt paragraph groups. F-023/F-024 replace lexical call detection with TypeScript AST import/call analysis and add deterministic global directory/entry/file/byte inventory budgets; parse ambiguity, oversized files, or exhausted traversal now emit blind spots and remain non-complete. This strengthens the documented bounded registered discovery and fail-closed semantics without adding or changing user commands. acceptance_basis_generate remains the sole L3 durable signed non-gate writer, acceptance_basis remains L0 read-only non-Authority diagnostics, prompt mirrors remain accurate, and no Wave 2 gate is claimed active.",
+      "createdAt": "2026-07-22T09:18:49.034Z",
+      "reviewRound": "2026-07-22T09:17:25.176Z",
+      "reviewRunId": "B-a32a:RR-027",
+      "envelopeId": "f1fbb507932391d425e40975dfe9079f9e85f4573f7e7d0a69dd199f8f6ad3f9",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "cf7f1241467e672b018e30e1feffce5899e1a3383598259e2cab584e0244690b"
     }
   ]
 }
