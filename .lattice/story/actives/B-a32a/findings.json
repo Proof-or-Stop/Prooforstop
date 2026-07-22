@@ -864,7 +864,7 @@
       "desc": "The directory hardening still has resource and snapshot gaps. At acceptance-discovery-adapters.ts:228-230, closeSync failure is swallowed without the promised blind spot, handlesClosed remains short, and the collected rows can still be admitted, so an actual close error can leak a descriptor yet yield complete. At lines 231-243 a changed directory discards rows and continues without charging rows.length to stats.entries or stopping; up to maxDirectories mutated directories can each consume remainingEntries+1 reads, bypassing the global entry-work budget by orders of magnitude. Finally, directories are checked only immediately around their own read, so a previously accepted directory can change later while other directories are scanned and produce a mixed-time inventory with no final revalidation. Treat close failure and any directory mutation as a global stop, charge iterator work independently of admitted entries, retain and revalidate every accepted directory snapshot before returning, and add injected close failure plus mutation-after-earlier-directory tests.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T09:52:02.520Z",
@@ -876,7 +876,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|directory-hardening-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 7202b72204 and retained through current HEAD: module direct/property semantics are explicit, graph/provenance/closure hash share one immutable snapshot, and provisional directory rows require close/post/global validation. Current mutations and round-13 formal coverage PASS.",
+      "resolvedAt": "2026-07-22T10:41:37.863Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-a32a:F-041",
