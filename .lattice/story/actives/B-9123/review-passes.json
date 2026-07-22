@@ -342,6 +342,41 @@
       },
       "readDiagnostics": [],
       "_hash": "d4a6da4b93603344c3c710be955a8c48f7dd3f7d42afc7c69a7d4d6d7f26bbf1"
+    },
+    {
+      "id": "B-9123:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Compared 20 newly exported symbols across 7 focused doc/code blocks (1 direct decision-schema section plus CLI, Wave 2A, prompt-mirror, and module fallbacks). No blocker: command schemas and handlers match the documented set/check authority model; all three prompt mirrors are byte-identical; --live-happy exercises only the real producer/read-only verifier chain and does not claim or add Wave 3 lifecycle admission.",
+      "createdAt": "2026-07-22T21:32:33.293Z",
+      "reviewRound": "2026-07-22T21:28:54.878Z",
+      "reviewRunId": "B-9123:RR-026",
+      "envelopeId": "a95d4b5499e8ae5bb6b428a850a515f4810841f4f40a977d200223bdf7301f42",
+      "writerSessionId": "sess-33997f4d4e4980fa9409de434f7b7e2b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-review-topology-critic.md",
+          ".lattice-codex/agents/lattice-review-topology-critic.md",
+          "packages/main/templates/agents/lattice-review-topology-critic.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5a4e996b0705f35ec9173b78e4964c1adda509369a3d1af773c19ac2694f4e48"
     }
   ]
 }
