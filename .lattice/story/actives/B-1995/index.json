@@ -4,7 +4,7 @@
   "title": "Implement ProofStory acceptance topology Wave 1 schema and read-only diagnostics",
   "description": "Implement only Wave 1 from the approved ProofStory acceptance-topology execution plan: add/freeze verificationIntent-owned planned-path declarations, normalize reference-only topology v1, validate structural references/totality, and expose a derived read-only observe-mode matrix. Do not implement the Wave 1A coverage-basis verifier, pre-review executable evidence, or lifecycle blocking.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -137,6 +137,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-22T05:44:24.060Z",
+      "branch": "story/B-1995",
+      "user": "Harmonygo",
+      "sessionId": "sess-448e15f89766db25f842d9fc9bd93e8e",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-22T05:51:05.519Z",
       "branch": "story/B-1995",
       "user": "Harmonygo",
       "sessionId": "sess-448e15f89766db25f842d9fc9bd93e8e",
