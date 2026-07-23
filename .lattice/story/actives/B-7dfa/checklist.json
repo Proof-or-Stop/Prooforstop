@@ -27,7 +27,7 @@
     {
       "id": "CHK-004",
       "title": "Spec section: quarantine/recover operations and corrected retention claims",
-      "context": "Program plan W2 area 5: owner-gated registered operations creating NEW record IDs linked by recoversRecordId; retention corrected per transition-orchestrator.ts:663 (rounds are per-entry).",
+      "context": "Program plan W2 area 5: owner-gated registered operations creating NEW record IDs linked by recoversRecordId; retention corrected per the per-entry review-round assignment (story.currentReviewRound = now) in packages/main/src/handlers/transition-orchestrator.ts, ~line 773-774 at v0.3.230 (the plan's original :663 citation drifted across the S1/W1 merges).",
       "status": "pending",
       "startTime": null,
       "endTime": null

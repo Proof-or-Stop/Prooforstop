@@ -1,37 +1,27 @@
 {
   "storyId": "B-7dfa",
-  "checkedAt": "2026-07-23T19:25:38.432Z",
+  "checkedAt": "2026-07-23T19:28:27.351Z",
   "reviewRound": "",
   "agentId": "lattice-review-story-init",
   "issues": [
     {
-      "id": "INIT-001",
-      "severity": "medium",
-      "desc": "STILL UNRESOLVED. The coordinator reported this was fixed to read approximately line 773 at v0.3.230, but the current background.md Key Insights sentence is byte-for-byte unchanged from the prior review round and still reads: review rounds are per-entry, transition-orchestrator.ts:663. Commit 19ac9267b2 (lattice: B-7dfa background fixes) only edited the Solution Tradeoffs sentence about Tier-C; it did not touch the Key Insights paragraph containing this citation, verified via git show 19ac9267b2 -- background.md. Re-verified against src again: packages/main/src/handlers/transition-orchestrator.ts line 663 is still inside the unrelated DONE pre-merge-gate comment block; the actual per-entry review-round assignment (story.currentReviewRound = now, inside the REVIEW-advance branch) is at lines 773-775. The citation in background.md has not been corrected."
-    },
-    {
-      "id": "INIT-002",
+      "id": "INIT-004",
       "severity": "low",
-      "desc": "STILL UNRESOLVED. The coordinator reported ProofStory was defined inline as Proof-or-Stops intent-hardening gate family, but a search of background.md, index.json, checklist.json, and root CLAUDE.md at current HEAD finds zero such definition anywhere. The only occurrence remains the undefined ProofStory red_evidence gate phrase in index.json description, unchanged since the prior round. Commit 19ac9267b2 did not modify index.json and did not add any ProofStory definition to background.md."
+      "desc": "Residual from INIT-001: checklist.json CHK-004 context still reads verbatim retention corrected per transition-orchestrator.ts:663 (rounds are per-entry). Commit 73a69c1e58 corrected the same citation in background.md Key Insights (now explains the drift and points to approximately line 773 at v0.3.230) but did not update checklist.json, so the two required-reading artifacts now disagree with each other on the same fact. Verified checklist.json was not touched by either fix commit (19ac9267b2 or 73a69c1e58, both diffs only touch background.md/index.json). Re-verified against src again: story.currentReviewRound = now is at line 774 in packages/main/src/handlers/transition-orchestrator.ts, not line 663."
     }
   ],
   "agentResults": [
     {
       "agentId": "lattice-review-story-init",
-      "checkedAt": "2026-07-23T19:25:38.432Z",
+      "checkedAt": "2026-07-23T19:28:27.351Z",
       "issues": [
         {
-          "id": "INIT-001",
-          "severity": "medium",
-          "desc": "STILL UNRESOLVED. The coordinator reported this was fixed to read approximately line 773 at v0.3.230, but the current background.md Key Insights sentence is byte-for-byte unchanged from the prior review round and still reads: review rounds are per-entry, transition-orchestrator.ts:663. Commit 19ac9267b2 (lattice: B-7dfa background fixes) only edited the Solution Tradeoffs sentence about Tier-C; it did not touch the Key Insights paragraph containing this citation, verified via git show 19ac9267b2 -- background.md. Re-verified against src again: packages/main/src/handlers/transition-orchestrator.ts line 663 is still inside the unrelated DONE pre-merge-gate comment block; the actual per-entry review-round assignment (story.currentReviewRound = now, inside the REVIEW-advance branch) is at lines 773-775. The citation in background.md has not been corrected."
-        },
-        {
-          "id": "INIT-002",
+          "id": "INIT-004",
           "severity": "low",
-          "desc": "STILL UNRESOLVED. The coordinator reported ProofStory was defined inline as Proof-or-Stops intent-hardening gate family, but a search of background.md, index.json, checklist.json, and root CLAUDE.md at current HEAD finds zero such definition anywhere. The only occurrence remains the undefined ProofStory red_evidence gate phrase in index.json description, unchanged since the prior round. Commit 19ac9267b2 did not modify index.json and did not add any ProofStory definition to background.md."
+          "desc": "Residual from INIT-001: checklist.json CHK-004 context still reads verbatim retention corrected per transition-orchestrator.ts:663 (rounds are per-entry). Commit 73a69c1e58 corrected the same citation in background.md Key Insights (now explains the drift and points to approximately line 773 at v0.3.230) but did not update checklist.json, so the two required-reading artifacts now disagree with each other on the same fact. Verified checklist.json was not touched by either fix commit (19ac9267b2 or 73a69c1e58, both diffs only touch background.md/index.json). Re-verified against src again: story.currentReviewRound = now is at line 774 in packages/main/src/handlers/transition-orchestrator.ts, not line 663."
         }
       ]
     }
   ],
-  "_hash": "673fd7309de306e4cb17c3acd3688fd4b11c48c75e76270905d8d7b2c27efdca"
+  "_hash": "e6e816088ab7a56ed1f24b9a7e379eb87e0bfd58c6d7ae2cde2f4ee03954d0eb"
 }
