@@ -72,7 +72,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1090-1124 omits PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED from its deterministic code table even though packages/main/src/core/pre-review-check.ts:153 emits it whenever enforce mode lacks a current independent critic and the lifecycle remediation explicitly promises that stable blocking reason. Add this separate enforce-only condition so §8.1, §8.2 and the actual gate vocabulary agree.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-22T23:31:58.976Z",
@@ -86,7 +86,11 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed docs/code drift: execution plan and CLI document PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED and enforce-only fresh independent critic semantics; critic smoke passes.",
+      "resolvedAt": "2026-07-23T02:18:05.881Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-005",
