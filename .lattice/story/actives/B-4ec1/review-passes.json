@@ -614,6 +614,38 @@
       },
       "readDiagnostics": [],
       "_hash": "024032034931edc02787c6dfe8543322a0e08545472716758f179f77e8199dc5"
+    },
+    {
+      "id": "B-4ec1:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 9 coverage PASS after 88dbd1801d: 21/21 must intents are current on material cf67aa81/storyFiles 55c19605, gaps=0, waivers=0; pre_review_check_read is ok=true with codes=[] and complete/current/biting/related/admissible results. The canonical transport table has exactly 26 sorted unique keys and its declared sha256:159db7bb... digest exactly matches recomputation. The focused regression iterates every key on POSIX and Windows, proves POSIX case sensitivity, Windows case-insensitive filtering, and overlay-last semantics for explicit command.env. Both CI and NODE_OPTIONS mutations fail receipt [0] and [1]. Fresh done-required-validation smoke and process-fact contract passed, including canonical list/digest drift checks.",
+      "createdAt": "2026-07-23T14:41:19.029Z",
+      "reviewRound": "2026-07-23T14:38:33.494Z",
+      "reviewRunId": "B-4ec1:RR-033",
+      "envelopeId": "d6b456269b86578c47eadf3784a92be2c9324d44cd013ecbd0d3e1214e557e19",
+      "writerSessionId": "sess-ce45edc08011c552d33b7221e72a5e30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "AGENTS.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f21862cf67821274186a08f4cc03d90bdfb570935ff21f59f696ae23dc711b57"
     }
   ]
 }
