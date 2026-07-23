@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -3602,17 +3603,54 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     assert(routineReuseText.includes(token), `shared routine validation reuse contract missing ${token}`);
   }
   const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');
+  const expectedValidationTransportKeys = [
+    'AGY_SESSION_ID',
+    'ANTIGRAVITY_SESSION_ID',
+    'CLAUDE_CODE_SESSION_ID',
+    'CLAUDE_SESSION_ID',
+    'CODEX_SESSION_ID',
+    'CODEX_THREAD_ID',
+    'GEMINI_SESSION_ID',
+    'LATTICE_ACTIVITY_RECORD_READONLY',
+    'LATTICE_ACTIVITY_ROLE',
+    'LATTICE_ACTIVITY_SESSION',
+    'LATTICE_ACTIVITY_SOURCE',
+    'LATTICE_AGENT',
+    'LATTICE_CODEX_ENTRYPOINT',
+    'LATTICE_OWNER_SESSION_ADAPTER_AGENT',
+    'LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY',
+    'LATTICE_OWNER_SESSION_ADAPTER_GENERATED',
+    'LATTICE_OWNER_SESSION_ADAPTER_PROVIDER',
+    'LATTICE_OWNER_SESSION_ADAPTER_ROLE',
+    'LATTICE_OWNER_SESSION_ADAPTER_SESSION',
+    'LATTICE_OWNER_SESSION_ADAPTER_TASK',
+    'LATTICE_SESSION_ID',
+    'OLDPWD',
+    'OPENAI_SESSION_ID',
+    'SHLVL',
+    'TERM_SESSION_ID',
+    '_',
+  ];
+  const transportListMatch = validationEnvironmentText.match(
+    /export const VALIDATION_TRANSPORT_ENV_KEY_LIST = \[([\s\S]*?)\] as const;/,
+  );
+  assert(transportListMatch, 'shared validation command environment must export the canonical transport key list');
+  const actualValidationTransportKeys = transportListMatch
+    ? [...transportListMatch[1].matchAll(/'([A-Z0-9_]+)'/g)].map((match) => match[1])
+    : [];
+  assert(
+    JSON.stringify(actualValidationTransportKeys) === JSON.stringify(expectedValidationTransportKeys),
+    `shared validation command environment canonical transport set mismatch: expected ${JSON.stringify(expectedValidationTransportKeys)}, got ${JSON.stringify(actualValidationTransportKeys)}`,
+  );
+  const expectedTransportDigest = `sha256:${createHash('sha256')
+    .update(JSON.stringify(expectedValidationTransportKeys))
+    .digest('hex')}`;
+  assert(
+    validationEnvironmentText.includes(`'${expectedTransportDigest}'`),
+    `shared validation command environment transport digest mismatch: ${expectedTransportDigest}`,
+  );
   for (const token of [
-    'const VALIDATION_TRANSPORT_ENV_KEYS = new Set([',
-    "'_'",
-    "'OLDPWD'",
-    "'SHLVL'",
-    "'LATTICE_SESSION_ID'",
-    "'LATTICE_AGENT'",
-    "'LATTICE_OWNER_SESSION_ADAPTER_ROLE'",
-    "'CLAUDE_CODE_SESSION_ID'",
-    "'CODEX_THREAD_ID'",
-    "'AGY_SESSION_ID'",
+    'new Set<string>(VALIDATION_TRANSPORT_ENV_KEY_LIST)',
     "platform === 'win32'",
     "effective[canonicalKey('PWD')] = cwd",
     'effective[canonicalKey(key)] = value',

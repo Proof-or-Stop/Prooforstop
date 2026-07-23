@@ -26,6 +26,10 @@ import {
 } from '../core/validation-executor.js';
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
+import {
+  effectiveValidationCommandEnvironment,
+  VALIDATION_TRANSPORT_ENV_KEY_LIST,
+} from '../core/validation-command-environment.js';
 
 const STORY_ID = 'B-ac25';
 
@@ -305,7 +309,7 @@ function assertDoneRequiredBlocked(
   ];
   const { root, store } = fixture(commands);
   try {
-    const common = { PATH: process.env.PATH ?? '', CI: 'true', LANG: 'en_US.UTF-8' };
+    const common = { PATH: process.env.PATH ?? '', CI: 'true', LANG: 'en_US.UTF-8', NODE_OPTIONS: '' };
     const ownerEnvironment = {
       ...common,
       LATTICE_SESSION_ID: 'owner-session',
@@ -337,6 +341,82 @@ function assertDoneRequiredBlocked(
       producer.commands.map(command => command.effectiveEnvironmentDigest),
       consumer.commands.map(command => command.effectiveEnvironmentDigest),
       'owner and independent delivery-review sessions share DONE-required command identity',
+    );
+    for (const key of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
+      const owner = { ...common, [key]: 'owner-identity' };
+      const reviewer = { ...common, [key]: 'reviewer-identity' };
+      const posixOwner = buildDoneRequiredExecutionIdentity({
+        projectRoot: root, policy, processEnvironment: owner, platform: 'linux',
+      });
+      const posixReviewer = buildDoneRequiredExecutionIdentity({
+        projectRoot: root, policy, processEnvironment: reviewer, platform: 'linux',
+      });
+      assert.deepEqual(
+        posixOwner.commands.map(command => command.effectiveEnvironmentDigest),
+        posixReviewer.commands.map(command => command.effectiveEnvironmentDigest),
+        `POSIX ambient transport key is session-neutral: ${key}`,
+      );
+
+      const mixedCase = key.split('').map((character, index) =>
+        index % 2 === 0 ? character.toLowerCase() : character.toUpperCase()).join('');
+      const windowsOwner = buildDoneRequiredExecutionIdentity({
+        projectRoot: root,
+        policy,
+        processEnvironment: { ...common, [key.toLowerCase()]: 'owner-identity' },
+        platform: 'win32',
+      });
+      const windowsReviewer = buildDoneRequiredExecutionIdentity({
+        projectRoot: root,
+        policy,
+        processEnvironment: { ...common, [mixedCase]: 'reviewer-identity' },
+        platform: 'win32',
+      });
+      assert.deepEqual(
+        windowsOwner.commands.map(command => command.effectiveEnvironmentDigest),
+        windowsReviewer.commands.map(command => command.effectiveEnvironmentDigest),
+        `Windows ambient transport key is case-insensitively session-neutral: ${key}`,
+      );
+
+      const lower = key.toLowerCase();
+      if (lower !== key) {
+        const lowerOwner = buildDoneRequiredExecutionIdentity({
+          projectRoot: root,
+          policy,
+          processEnvironment: { ...common, [lower]: 'owner-semantic-value' },
+          platform: 'linux',
+        });
+        const lowerReviewer = buildDoneRequiredExecutionIdentity({
+          projectRoot: root,
+          policy,
+          processEnvironment: { ...common, [lower]: 'reviewer-semantic-value' },
+          platform: 'linux',
+        });
+        assert.notDeepEqual(
+          lowerOwner.commands.map(command => command.effectiveEnvironmentDigest),
+          lowerReviewer.commands.map(command => command.effectiveEnvironmentDigest),
+          `POSIX differently-cased noncanonical key remains semantic: ${lower}`,
+        );
+      }
+    }
+
+    const overlayOwner = effectiveValidationCommandEnvironment(
+      ownerEnvironment,
+      { LATTICE_ACTIVITY_ROLE: 'explicit-owner-role' },
+      root,
+      'linux',
+    );
+    const overlayReviewer = effectiveValidationCommandEnvironment(
+      deliveryEnvironment,
+      { LATTICE_ACTIVITY_ROLE: 'explicit-reviewer-role' },
+      root,
+      'linux',
+    );
+    assert.equal(overlayOwner.LATTICE_ACTIVITY_ROLE, 'explicit-owner-role');
+    assert.equal(overlayReviewer.LATTICE_ACTIVITY_ROLE, 'explicit-reviewer-role');
+    assert.notDeepEqual(
+      overlayOwner,
+      overlayReviewer,
+      'explicit command.env overlay remains semantic after ambient transport filtering',
     );
 
     const h = hashes(root);
@@ -374,16 +454,21 @@ function assertDoneRequiredBlocked(
     });
     assert.equal(crossSession.ok, true, crossSession.reasons.join(', '));
 
-    const changedBehavior = evaluateDoneRequiredEvidence({
-      projectRoot: root,
-      storyId: STORY_ID,
-      store,
-      gitCwd: root,
-      executionIdentityContext: { processEnvironment: { ...deliveryEnvironment, CI: 'false' } },
-    });
-    assert.equal(changedBehavior.ok, false);
-    assert.match(changedBehavior.reasons.join('\n'), /effective-environment-digest-mismatch\[0\]/);
-    assert.match(changedBehavior.reasons.join('\n'), /effective-environment-digest-mismatch\[1\]/);
+    for (const mutation of [
+      { name: 'CI', environment: { ...deliveryEnvironment, CI: 'false' } },
+      { name: 'NODE_OPTIONS', environment: { ...deliveryEnvironment, NODE_OPTIONS: '--trace-warnings' } },
+    ]) {
+      const changedBehavior = evaluateDoneRequiredEvidence({
+        projectRoot: root,
+        storyId: STORY_ID,
+        store,
+        gitCwd: root,
+        executionIdentityContext: { processEnvironment: mutation.environment },
+      });
+      assert.equal(changedBehavior.ok, false, `${mutation.name} mutation remains behavior-affecting`);
+      assert.match(changedBehavior.reasons.join('\n'), /effective-environment-digest-mismatch\[0\]/);
+      assert.match(changedBehavior.reasons.join('\n'), /effective-environment-digest-mismatch\[1\]/);
+    }
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
