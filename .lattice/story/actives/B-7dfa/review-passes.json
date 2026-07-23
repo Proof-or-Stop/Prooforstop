@@ -1,0 +1,34 @@
+{
+  "passes": [
+    {
+      "id": "B-7dfa:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: validate --story=B-7dfa --json PASS with 21/21 verificationIntent lanes covered by fresh docs_check evidence (headHash/materialHash bound to current HEAD). Independently re-verified all 21 CHK-001..006 happy/edge/adversarial lane descriptions against the actual 1598-line red-evidence-subsystem-spec.md text (not just the evidence notes): each lanes claimed section/subsection, quoted rule, or table was located and confirmed true (GREEN predicate verbatim in §1.5, R1-1/R1-2 rejection rules in §1.6, four-tuple + INVARIANCE in §2.1-2.2, disposable-workspace protocol in §2.3, dirty-index/timeout edges in §2.4, R2-1/R2-2 in §2.5, chain-head + 3-check integrity in §3.2-3.3, idempotency key tuple in §3.4, fork/replay edges in §3.6, R3 in §3.7, owner-gated quarantine/recover + recoversRecordId + corrected retention in §4.1/§4.3, legacy-posture link in §4.4, recover-of-recover/quarantine-of-head edges in §4.5, R4 in §4.6, query contract request/response + zero-design-decisions in §5.1-5.2, 4-row edge-state table in §5.4, boxed MUST-NOT boundary in §5.5, verbatim POSTURE block in §6.1, in-flight rule in §6.3, downgrade-loophole closure in §6.4). Spot-checked source anchors cited by the spec (transition-orchestrator.ts:775, proofstory.ts handler:948, proofstory.ts core:1312/:78, types.ts:2617, ownership-gate.ts:235, agent-dispatch-registry.ts:504) all resolve correctly against current source. No blocker found.",
+      "createdAt": "2026-07-23T21:27:36.284Z",
+      "reviewRound": "2026-07-23T21:23:04.577Z",
+      "reviewRunId": "B-7dfa:RR-001",
+      "envelopeId": "f194519d6868f9bb7c65a0a7e6f66556d3af604b20b8f57a2f34b554887b9a6a",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8dce5ef7c149d8e063b082f53f8b908d80ef194a6aad7f1749a485d2f49406c2"
+    }
+  ]
+}

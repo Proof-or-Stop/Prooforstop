@@ -1,0 +1,53 @@
+{
+  "envelopes": [
+    {
+      "schemaVersion": "proofbound.prompt-envelope.v1",
+      "roleId": "lattice-review-test-coverage",
+      "storyId": "B-7dfa",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-7dfa:RR-001",
+      "reviewRound": "2026-07-23T21:23:04.577Z",
+      "lane": "lattice-review-test-coverage",
+      "dispatchPromptDigest": "3955f69ae2cdda4579310c3b3ac209780f5534ef474aaef9f361e87fd6eda807",
+      "hostRenderIdentityDigest": "63e8b472178bc7cce4092684a92ee60ff8053825bbb0c42e585030f0dc173bab",
+      "createdAt": "2026-07-23T21:27:07.562Z",
+      "headHash": "3da68eaebe4bcbe67955ade4ee0598633a5cc8cb",
+      "runtimeContractVersion": "proofbound.agent-runtime.v1",
+      "runtimeSemanticDigest": "b62d11379b513f77a921a18a93c00e1a620e636c978441a0d1301ff875f5063a",
+      "runtimeRenderDigest": "2ed90580d07e50b86852b451625a813960d49ba33bab0a5ad90e504d75c59b1b",
+      "roleContractVersion": "proofbound.role-contract.v1",
+      "roleSemanticDigest": "9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7",
+      "roleRenderDigest": "c916bc0a53f4c1465a605def7d6cde3601c5843e8b61475d73fa1a9b0a4d8742",
+      "contextMode": "full",
+      "contextDigest": "3b0d94b2e23f3642ac4b8931958b789e3028f55ee481e7852e80000818851837",
+      "materialHash": "7ef1e694eb50bbc45fca95e70efcff1e97a6396d6f1be86586db64de3b572343",
+      "storyFilesHash": "48e670deff9ff230cf379005440165e93bbd82c4e85fea101cadf8562d076ba1",
+      "policyHash": "d35c4ab73c05b52f0abd6b2c4657ff5e2adc7cbd5c4dd6b605d50a6473df6c27",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "8317348cd4bb295ff08db98b9c0b3834e8b2c817937171eee7912cd5cb5221fb",
+      "knownExecutionEnvironmentDigest": "bb9691c62c92b4e9572b27756071a21f3c9b002a54084b0fe2dac83d0c50e616",
+      "assemblerVersion": "proofbound.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proofbound.prompt-dispatch.v1",
+      "launcherSpecDigest": "c6cffd49e90f44b3a47d91df5ea7e18a8c914586616f351784b9d5d9dc64e5c9",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "73ab7b3bf7cd4d36521151138c04612e91f8ea3cf893167ca0fa5fcf7f0cb2b8",
+      "bytes": 18484,
+      "lines": 90,
+      "estimatedTokens": 4621,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "f194519d6868f9bb7c65a0a7e6f66556d3af604b20b8f57a2f34b554887b9a6a",
+      "freshnessClassification": "NOT_EVALUATED",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_DOCS_V1",
+        "FULL_MISSING_TRUSTED_PRIOR_PASS"
+      ],
+      "changedFilesDigest": "bd864b3181e5248f410477fdb84a4203aaba42511d159a11dbb6d8ce3f933fcc",
+      "impactedFilesDigest": "70967311dab1243e06a539465f60ae0171b6cb30426bbc90babddb7f9b97b077",
+      "taskSemanticDigest": "54a9b39f976da35658f0de3e55f57097217c1a4cc27803eef4bed1d4abc2f50b",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 18484,
+      "escalatedToFull": false
+    }
+  ]
+}
