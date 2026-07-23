@@ -354,7 +354,37 @@ choices):** the resolved policy object contains EXACTLY these keys, no more, no 
 `invarianceExcludePaths`, `pinnedPath`, `matcherClassRegistry`, `runnerAdapterRegistry`,
 `runnerProfileRegistry` (profiles embed their optional `toolchain`). An UNKNOWN key in the `materialCode`
 red-evidence policy block REJECTS at config load (fail closed, consistent with the W1 resolver contract).
-Defaults are the table values above. `policyDigest = CANON` over exactly this object.
+`policyDigest = CANON` over exactly this object.
+
+**Per-key default status (audit round 6: exhaustive — every key is either given a complete canonical
+default or marked required-no-default; two conforming implementations MUST resolve identical default
+snapshots and digests):**
+
+- **Defaulted scalars/sets** (values from the table above): `maxMatchers: 8`, `maxMatcherLen: 512`,
+  `minMatcherLen: 8`, `minMatcherEntropyBits: 24`, `runTimeoutMs: 600000`, `prepTimeoutMs: 900000`,
+  `killGraceMs: 5000`, `forbiddenCatchAlls` = the §1.2 table set, `invarianceExcludePaths` = the §1.2 table
+  set, `forbiddenEnvKeysExtensions: []`.
+- **`pinnedPath`: REQUIRED, NO DEFAULT** (host filesystem layouts differ; a silent default would be wrong
+  somewhere). A resolved policy missing `pinnedPath` fails CLOSED at config load with diagnostic
+  `red_evidence_policy_missing: pinnedPath`; no red-evidence operation can run until it is set.
+- **`matcherClassRegistry` default (complete canonical objects):**
+  `[ { "name": "nonzero-exit", "predicateKind": "exit-code-in", "param": [1..255] }`
+  `, { "name": "stderr-nonempty", "predicateKind": "stream-nonempty" } ]`
+  — where `[1..255]` denotes the fully enumerated integer array 1 through 255 (canonicalized enumerated,
+  not as a range expression).
+- **`runnerProfileRegistry` default (complete canonical object):**
+  `[ { "runnerProfileId": "node-npm@1", "prepCommands": [["npm","ci"]],`
+  `"allowedEnvKeys": ["HOME","TMPDIR","CI"], "cwd": ".", "submodules": false } ]` (no `toolchain` pinned by
+  default).
+- **`runnerAdapterRegistry` default (complete canonical objects):**
+  `[ { "adapterId": "npm-script@1", "runnerProfileId": "node-npm@1",`
+  `"testCaseRefPattern": "^npm-script:(?<script>[A-Za-z0-9:_-]+)$",`
+  `"argvTemplate": ["npm", "run", "${script}"], "allowedEnvKeys": [], "cwd": ".",`
+  `"linkageKind": "script-exit" }`
+  `, { "adapterId": "node-test@1", "runnerProfileId": "node-npm@1",`
+  `"testCaseRefPattern": "^node-test:(?<file>[A-Za-z0-9/._-]+)#(?<test>[^#]+)$",`
+  `"argvTemplate": ["node", "--test", "--test-reporter", "tap", "--test-name-pattern", "${test}", "${file}"],`
+  `"allowedEnvKeys": [], "cwd": ".", "linkageKind": "reporter-event" } ]`
 
 Policy and registry contents live in project config (`lattice.config.json`), which is in the W1 immutable
 runtime/build-config manifest set (`language-neutral-gates-execution-plan.md` Change B precedence 1): every
@@ -597,6 +627,10 @@ receipts (audit: rev 1 never unified these; implementers had to guess):
     "timedOut": false,
     "stdoutDigest": "sha256:...",
     "stderrDigest": "sha256:...",
+    "streamFrames": [
+      { "seq": 1, "stream": "stdout", "digest": "sha256:..." },
+      { "seq": 2, "stream": "stderr", "digest": "sha256:..." }
+    ],
     "resolvedExecutable": "/usr/local/bin/npm",
     "tokenValue": "EXERCISED:AB-001:<nonce hex>",
     "tokenObserved": true,
@@ -636,6 +670,15 @@ STRUCTURAL — shape, matcher coverage, boolean/conjunct consistency, digest rec
 from stream bytes; this is the §0.6 threat model applied (handler-enforced append consistency; offline
 transcript forgery is countered only by the Tier-C program, and implementation stories MUST NOT claim
 query-time re-verification of stream content).
+
+**`streamFrames` is MANDATORY on every run receipt (audit round 6: §1.11.3's chunk framing must be
+persisted, not implied):** an ordered array of `{ seq, stream, digest }` frames — `seq` the runner-assigned
+monotonic chunk sequence (§1.11.3), `stream` ∈ `{ "stdout", "stderr" }`, `digest` = SHA-256 of the chunk's
+raw bytes. The frames are the complete canonical representation of the capture: `stdout` is the
+concatenation of `stream=="stdout"` frames by `seq`, `stderr` likewise, and `combined` is ALL frames by
+`seq` — so all three views (and `stdoutDigest`/`stderrDigest` consistency) are reconstructible from the
+framing, with each chunk's bytes bound by its digest under the §1.10 trust scope (content truth is
+handler-verified at write time).
 
 **Exit/termination representation (audit: a SIGKILLed process has no exit code):** `exitCode` is an integer
 OR `null`; optional `terminationSignal` ∈ `{ "SIGTERM", "SIGKILL" }`. Permitted combinations — normal exit:
@@ -688,8 +731,8 @@ those keys, that nesting, nothing else.
    coexist with separate per-stream capture, so the one-pipe claim is dropped):** stdout and stderr are
    captured on SEPARATE pipes; the runner assigns every read chunk a single monotonically increasing
    sequence number at read time, tagged with its source stream. `combined` is DEFINED as the concatenation
-   of all chunks ordered by that sequence number (runner-observed arrival order, fixed once in the receipt);
-   per-stream captures are the same chunks filtered by source. Streams are split into lines on `\n`; a
+   of all chunks ordered by that sequence number (runner-observed arrival order, fixed once in the receipt
+   as `runReceipt.streamFrames`, §1.10); per-stream captures are the same chunks filtered by source. Streams are split into lines on `\n`; a
    trailing `\r` is stripped (CRLF tolerance). `class` matchers: exit-code classes consult `exitCode`;
    stream classes consult the whole captured declared stream.
 4. **Entropy formula (exact)**: `entropyBits(value) = len(value) × H`, where `len` is byte length and
@@ -714,7 +757,7 @@ the subsystem refuses to run, it does not silently clamp.
 | `forbiddenCatchAlls` | ⊇ the §1.2 default set | policy may extend, never remove a default entry |
 | `matcherClassRegistry` | `predicateKind` ∈ closed §1.2 enum only | no free-form predicates, ever |
 | `invarianceExcludePaths` | MUST NOT match any tracked material path (checked against the live classification at config load) and MUST NOT contain a bare `**`/`*` catch-all | violating globs fail closed |
-| §1.3 rule 4 | always in force | no policy key can exempt class-only `present-in-red` |
+| §1.3 rule 3 | always in force | no policy key can exempt class-only `present-in-red` |
 | Forbidden environment keys (§1.2) | ⊇ the §1.2 hard set (`PATH`, `LD_PRELOAD`, `DYLD_*`, `NODE_OPTIONS`, ...) | policy may extend, never shrink; allowlist naming one fails closed |
 | `policy.pinnedPath` | absolute directories only | relative entry fails config load; child `PATH` is always runner-set |
 | Adapter/profile registration | only via `policy.runnerAdapterRegistry`/`runnerProfileRegistry` entries in `lattice.config.json` (material, W1-immutable manifest set) | no runtime/env registration path exists |
@@ -832,7 +875,8 @@ is mandated (audit: rev 1's "worktree OR recursive copy" produced divergent PRE 
    said profile cwd here, contradicting §1.2 — adapter cwd governs the exercised command; profile cwd
    governs prep only). The adapter cwd MUST be slash-normalized and relative with no `..`/empty segments,
    and its realpath MUST remain inside the disposable workspace, else config-load reject; the receipt `cwd`
-   MUST equal this normalized adapter cwd. Capture stdout/stderr (merged pipe for `combined`). Wall-clock ceiling
+   MUST equal this normalized adapter cwd. Capture stdout and stderr on SEPARATE pipes as sequenced chunk
+   frames per §1.11.3, persisted in the receipt as `runReceipt.streamFrames` (§1.10). Wall-clock ceiling
    `policy.runTimeoutMs`. **On timeout:** SIGTERM the process GROUP, wait `policy.killGraceMs`, SIGKILL the
    group, reap all descendants — THEN CONTINUE to step 4 (audit: rev 1 made every timeout unrecordable, which
    contradicted `timeout-is-failure`; the POST snapshot is taken after group termination).
@@ -1390,7 +1434,10 @@ redEvidenceGateQuery(storyId, acceptanceTargetRef):
          assertionDigest recompute over their pinned subobjects (for the run
          records carrying them — control records omit them, §1.10); operationKey
          recomputes over its §3.4 preimage and recordId matches its derivation;
-         run records: CLEAN snapshot present (R2-4), receipt pre==post (R2-1),
+         run records: CLEAN snapshot present AND the three §2.3.3(i)
+         prep-invariance equalities hold — pre.headHash == clean.headHash,
+         pre.indexState == clean.indexState, pre.gitStatus == clean.gitStatus
+         (violation detail "R2-4"); receipt pre==post (R2-1),
          red-assert baseline==receipt PRE (R2-3), transcript STRUCTURALLY valid
          (§1.10 trust scope: shape, full matcher coverage, boolean/conjunct
          consistency — not stream re-derivation); binding-digest resolution is
