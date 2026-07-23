@@ -345,7 +345,7 @@
       "desc": "packages/main/src/core/pre-review-check.ts:140-166 and packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:147-160,221-229 — executable authority is not bound to the executable that produced it and the advertised aggregate root is not verified. The sole accepted argv executes packages/main/dist/tasks/proofstory-pre-review-check-smoke.js, which is gitignored/unbound; the smoke itself overwrites that dist file with a proof emitter and demonstrates loadVerifiedPreReviewExecutableProof accepts it. The loader checks candidate.commandDigests only for sha256 syntax, never recomputes it from bindingProofs/case records, then wraps the caller value, stdout and receipt hash in a new digest. An owner can therefore replace the ignored dist runner, emit arbitrary matching bindingProofs plus any 64-hex aggregate, run the exact argv through live_smoke_transcript, and obtain the causal receipt that upgrades the claims to authority without changing storyFilesHash. Bind the executed module/build provenance to current tracked source and recompute the canonical case aggregate from a complete emitted case-record schema before accepting the receipt; add a malicious exact-argv dist replacement test that must fail rather than being the positive bounded-capture fixture.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-23T03:02:03.998Z",
@@ -353,7 +353,11 @@
       "reviewRunId": "B-4ec1:RR-009",
       "_hash": "e77b58b50794e67d9cf2c04e199c1aad16bf2bca6788ca364acbc7002e79378b",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed executable provenance: tracked runner performs a fresh build, binds runner and dist target digests, rejects overwritten dist, proves recovery, and current signed live transcript exited 0 with current provenance.",
+      "resolvedAt": "2026-07-23T04:12:19.120Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-018",
