@@ -709,6 +709,54 @@
         "scanEscalationReason": null
       },
       "_hash": "ee3c2be7bddd7babb41c00d21c68bedcadd4724b8b39f7aa3017819228a1d705"
+    },
+    {
+      "id": "B-956f:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "R11 merged-state verification. No concept deletion/replacement this round (purely additive: material-code-policy service, MaterialClassificationSnapshot type, diagnosticOnly trigger flag) -- concept residue grep not applicable. Verified: (1) the two merge-conflict files (core/proofstory.ts, core/scope-diff-pack.ts) contain a clean IMPORT-UNION resolution -- W1 MaterialClassificationSnapshot import/materialClassificationHasMaterialCode usage AND the topology story isAcceptanceMatrixDerivedEvidence/GIT_TREE_OUTPUT_MAX_BUFFER imports/usages both present, zero conflict markers repo-wide (grep -rl for the three marker forms across packages/main/src, scripts, .lattice/story/actives/B-956f: no matches), diff since R10 head (b769c2f3) limited to exactly the additive topology-story hunks in both files. (2) All other W1-touched core/handler files (review-assurance-floor.ts, repro-evidence-binding-gate.ts, material-code-policy.ts, validate-concept.ts, language-neutral-gates-smoke.ts, concept-gate-scope-smoke.ts, repro-evidence-binding-dev-gate-smoke.ts, machine.ts, phase-gates.ts, scope-contract.ts, story-review.ts) are byte-identical blobs R10-head vs HEAD (git rev-parse blob compare). Files that DID differ (config.ts, process-fact-levels.ts, types.ts, handlers/proofstory.ts, handlers/story-create.ts, scripts/verify-process-fact-contract.mjs, lattice.config.json) were verified via local git merge-file 3-way simulation (base=690e85dad1, ours=R10-head, theirs=main-tip 401143115b): merge-file output byte-matches actual HEAD content exactly (rc=0, no conflicts) for all of them -- confirming standard clean non-overlapping auto-merge, nothing lost, no manual edits beyond git's own algorithm. Also confirmed the same base/ours/theirs triple genuinely conflicts (rc=1) for proofstory.ts/scope-diff-pack.ts, matching the merge commit's stated conflict list. (3) Rebuilt dist (tsc clean) and ran node packages/main/dist/tasks/language-neutral-gates-smoke.js on the merged tree: 39/39 passed exactly as claimed. Also ran concept-gate-scope-smoke.js and repro-evidence-binding-dev-gate-smoke.js (both pass), and the full root npm test suite (doneRequiredCommands root full test suite) to completion: exit code 0, no failures. Also confirmed the merged-in acceptance-basis gate is a real CLI-verifier receipt (schemaVersion proofstory.acceptance_coverage_basis.v1, status partial/no gaps, PLAN-phase basis) with a genuine human_confirmation ack (receipt 39b3c010f5454b70) in process-events.jsonl -- unrelated to W1, out of this reviewer's scope, not a blocker. No findings; clean merged state.",
+      "createdAt": "2026-07-23T18:34:41.195Z",
+      "reviewRound": "2026-07-23T18:10:20.313Z",
+      "reviewRunId": "B-956f:RR-036",
+      "envelopeId": "2af400ebdad7405ce4254470afd30f3bf2ea42f0d40bfd1282d7ec74066a9d77",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/acceptance-basis.json",
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/process-events.jsonl",
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/done-required-evidence.json",
+          ".lattice/story/actives/B-956f/review-runs.json",
+          ".lattice/story/actives/B-956f/test-evidence.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "dfd76fd80d521873677f9b66420d68843750ad9450af963e7e99af7e02bb52b7"
     }
   ]
 }
