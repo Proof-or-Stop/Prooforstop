@@ -2,7 +2,7 @@
 
 ## Outcome
 
-A complete current worktree prints `Pre-review check: PASS plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible`. Removing a topology mapping that remains in the recomputed basis prints `Pre-review check: FAIL code=AT_UNMAPPED_SCOPE_REF` and enforce mode blocks DEV-to-REVIEW.
+A complete current worktree prints `Pre-review check: PASS plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible`. Removing a topology mapping that remains in the recomputed basis yields the canonical pre-review code `PR_NEW_PATH_UNMAPPED` (with any companion coverage diagnostics preserved) and enforce mode blocks DEV-to-REVIEW.
 
 ## CHK-001
 

@@ -1,6 +1,6 @@
 {
   "storyId": "B-4ec1",
-  "checkedAt": "2026-07-22T22:44:37.183Z",
+  "checkedAt": "2026-07-23T00:17:18.104Z",
   "features": [
     {
       "feature": "Canonical verifier-owned signed/hash-bound pre_review_check artifact and deterministic read-only verifier results",
@@ -36,6 +36,20 @@
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M2-PLANNED-ACTUAL-MATRIX"
+    },
+    {
+      "feature": "Pre-review topology-only omission reports canonical first code PR_NEW_PATH_UNMAPPED with supporting coverage diagnostics preserved",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4ec1/plan.md#Outcome"
+    },
+    {
+      "feature": "PLAN structural omission remains AT_UNMAPPED_SCOPE_REF while executable pre-review omission maps to PR_NEW_PATH_UNMAPPED",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#16-verification-and-mutation-matrix"
     },
     {
       "feature": "Missing, partial, unsupported, stale, omitted, duplicate, conflicting or tampered adapter/basis/reconciliation inputs fail closed",
@@ -80,14 +94,7 @@
       "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M4-LIFECYCLE-MODE-MATRIX"
     },
     {
-      "feature": "Enforced high-assurance DEV-to-REVIEW requires a fresh independent lattice-review-topology-critic re-attestation bound to recomputed pre-review basis, topology, scope, storyFilesHash and closureFilesHash",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M4-CRITIC-REATTESTATION"
-    },
-    {
-      "feature": "Old PLAN/Wave2A, implementer/self-authored, stale/replayed or different-basis critic receipts fail while observe/warn remain non-blocking diagnostics",
+      "feature": "Enforced high-assurance DEV-to-REVIEW requires fresh independent critic re-attestation bound to current pre-review basis/topology/scope/story/closure",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
@@ -101,24 +108,24 @@
       "source": ".lattice/story/actives/B-4ec1/checklist.json#CHK-004"
     },
     {
-      "feature": "Machine-readable enforce scope admits every canonical artifact generated or consumed by this PLAN, including acceptance-basis.json",
-      "covered_by": "CHK-002",
+      "feature": "Machine-readable enforce scope covers planned paths and all later acknowledged DEV expansions remain reviewer-visible and non-blocking",
+      "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4ec1/scope-contract.json; scope_contract_check PASS 0 violations"
+      "source": "scope_contract_check:B-4ec1 warn 7 acknowledged warnings 0 unacknowledged violations"
     },
     {
       "feature": "Wave 3A selective per-Story/per-policy applicability resolver",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicitly separate optional Wave 3A; current Story retains flat project mode and rejects selective resolver behavior.",
+      "excluded_by": "Explicitly separate optional Wave 3A; current Story retains flat project mode and contains no selective applicability machinery.",
       "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M4-NO-LATER-WAVE-LEAKAGE"
     },
     {
       "feature": "Wave 4 prompt rollout, telemetry thresholds and measured enforcement activation",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicitly separate Wave 4; this Story implements verifier/gate semantics but no rollout activation or thresholds.",
+      "excluded_by": "Explicitly separate Wave 4; current diff contains no rollout telemetry or threshold activation.",
       "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M4-NO-LATER-WAVE-LEAKAGE"
     }
   ],
@@ -144,14 +151,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 17,
-    "covered": 15,
+    "total": 18,
+    "covered": 16,
     "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "4cbcb5615b9971de7c4ce720777ab6cec3aa687b8eabdb28ab36077ce052e5d7",
+  "reviewRound": "2026-07-22T23:29:25.093Z",
+  "_hash": "3da769609ebcb6e81fcda8919cb8b4e65d71e896b4a2a26b81f797f02c4bfe22",
   "openQuestions": []
 }
