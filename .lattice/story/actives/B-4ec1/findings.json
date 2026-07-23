@@ -535,6 +535,21 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4ec1:F-026",
+      "desc": "concept-cleanup: implementation-status migration incomplete in docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:3,36,1715: the document still declares PROPOSED/AUDIT REQUIRED/NOT IMPLEMENTED, says this is future work and B-4444 does not ship either command, and requires the audit checklist to preserve NOT IMPLEMENTED, while line 1308 now truthfully states Wave 3 commands exist and the registered catalog/handlers/process facts confirm they do. This leaves contradictory canonical status guidance after replacing the prior no-command statement; update the historical B-4444 boundary without claiming the overall plan is unimplemented. severity=critical",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-23T05:34:28.523Z",
+      "reviewRound": "2026-07-23T05:31:34.988Z",
+      "reviewRunId": "B-4ec1:RR-021",
+      "_hash": "c21784c7d250e3431e3d78d750f35927688039787ea16e16cf7ca8ba68c283fc",
+      "signatureTag": "missing|unknown|concept-cleanup-implementation",
+      "signatureTagSource": "auto"
     }
   ]
 }
