@@ -1,6 +1,6 @@
 {
   "storyId": "B-4043",
-  "checkedAt": "2026-07-23T16:56:09.170Z",
+  "checkedAt": "2026-07-23T16:58:58.890Z",
   "features": [
     {
       "feature": "All in-scope Codex/Claude role prompts carry lane-appropriate canonical rollout guidance without becoming gate authority",
@@ -40,9 +40,9 @@
     {
       "feature": "Every created runner/evaluator/smoke producer-consumer path is artifact-kind-correct and mapped into the canonical verification topology",
       "covered_by": "CHK-002",
-      "status": "gap",
+      "status": "covered",
       "excluded_by": null,
-      "source": "checklist CHK-002 plannedPathDeclarations; acceptance_basis/acceptance_topology_check current diagnostics"
+      "source": "CHK-002 plannedPathDeclarations; acceptance_basis verified complete paths=13; acceptance_topology_check pass diagnostics=[]"
     },
     {
       "feature": "Docs-only, legacy and single-outcome controls prove zero supported false blocks",
@@ -131,26 +131,13 @@
   },
   "summary": {
     "total": 16,
-    "covered": 14,
+    "covered": 15,
     "excluded": 1,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "1d9753a6f66a354762af4bd746103d7445474313494d80d33ef855f3da0f6224",
-  "openQuestions": [
-    {
-      "id": "OQ-B4043-PLANNED-PATH-CLOSURE",
-      "q": "Will the owner map both new planned declarations and all four endpoints into the canonical topology, then use artifact-kind-correct executable symbols (a registered process fact only when actually registry-backed; source_file endpoints as real exported callables) before regenerating the basis?",
-      "evidence": "Current acceptance_basis reports both new planned paths and their four endpoints as AT_UNMAPPED_SCOPE_REF; acceptance_topology_check is inconclusive/structuralPass=false. The canonical plan requires process_fact endpoints to resolve through the registry and source_file endpoints to be exported callables. Current declarations name deriveAcceptanceRolloutReport as process_fact and a hyphenated proofstory-acceptance-rollout-smoke source symbol.",
-      "sourcePointers": [
-        "commit:199481d951",
-        "proofstory.json#AB-WAVE4-MEASURED-ROLLOUT",
-        "CHK-002:happy:real-cohort-receipt"
-      ],
-      "resolution": "The verification-intent writer corrected all runner/evaluator/smoke endpoints to exported source_file callables, and the ProofStory topology now maps both added declarations, their four endpoints, positive assertion, mutation and transcript refs. No exclusion is used.",
-      "resolvedAt": "2026-07-23T16:58:03.076Z"
-    }
-  ]
+  "_hash": "84a671ca81e0017db2d387bd4b532d9144370f26e30e664614ccf320f057ba77",
+  "openQuestions": []
 }
