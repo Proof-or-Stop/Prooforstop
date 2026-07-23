@@ -467,7 +467,22 @@ export function readGateFailureCounts(storyDir: string): GateFailureCounts {
  * only in incidental detail collapse to the same key.
  */
 export function gateFailureDigest(command: string, reason: string): string {
+  // B-bf52 CHK-001: hashing is length-agnostic, so truncating buys the digest
+  // nothing. The former 200-character cut landed INSIDE the fixed header of a
+  // real DEV-gate rejection (machine.ts's preamble plus
+  // renderProofStoryDiagnosticReport, whose header alone is 244 normalized
+  // characters), so every rejection for one story collapsed to one key no matter
+  // which gaps were outstanding — reading incremental progress as one gate
+  // failing repeatedly. What remains is a pure SANITY bound, applied to the raw
+  // input so a pathological reason (an embedded transcript or stack trace)
+  // cannot make the normalization below pathological either. A generous
+  // worst-case real rejection — 20 gap rows, 15 trigger rows, 10 parent-rollup
+  // rows plus the header — measures 7,448 characters, so 16,384 sits roughly
+  // 2.2x above the worst realistic message. Accepted residual: two reasons
+  // identical up to the bound and differing only past it still collapse.
+  const MAX_REASON_CHARS = 16_384;
   const normalized = String(reason ?? '')
+    .slice(0, MAX_REASON_CHARS)
     .toLowerCase()
     .replace(/0x[0-9a-f]+/g, '#')
     .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
@@ -475,8 +490,7 @@ export function gateFailureDigest(command: string, reason: string): string {
     .replace(/\/[^\s"']+/g, '#')                 // absolute paths
     .replace(/\d+/g, '#')                        // bare numbers
     .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 200);
+    .trim();
   const h = createHash('sha1').update(`${command}\n${normalized}`).digest('hex').slice(0, 12);
   return `${command}/${h}`;
 }
