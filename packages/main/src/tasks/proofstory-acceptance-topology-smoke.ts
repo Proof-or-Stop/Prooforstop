@@ -432,6 +432,41 @@ assert.equal(enabledReport.result, 'inconclusive_basis_unverified', 'a coherent 
 assert.deepEqual(enabledReport.diagnostics, [], 'valid reference-only graph has no intrinsic structural warning');
 assert.deepEqual(enabledReport.rows[0].plannedPathDeclarationRefs, ['INT-001:VPP-1']);
 assert.deepEqual(enabledReport.rows[0].endpointRefs, ['ENDPOINT-CONSUMER', 'ENDPOINT-PRODUCER']);
+const staticBasisPathRefs = [
+  'basis-path:path:static-call:packages/main/src/a.ts#produceA->consumer:packages/main/src/b.ts#consumeA',
+  'basis-path:path:static-call:packages/main/src/c.ts#produceB->consumer:packages/main/src/d.ts#consumeB',
+  'basis-path:path:static-call:packages/main/src/e.ts#produceC->consumer:packages/main/src/f.ts#consumeC',
+  'basis-path:path:static-call:packages/main/src/g.ts#produceD->consumer:packages/main/src/h.ts#consumeD',
+];
+const basisPathStructuralTopology: AcceptanceVerificationTopologyV1 = {
+  ...topology,
+  commandRefs: [
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+    ...staticBasisPathRefs.map(canonicalSourceRef => ({ refKind: 'existing' as const, canonicalSourceRef })),
+  ],
+};
+const basisPathStructuralReport = buildAcceptanceMatrixReport({
+  storyId,
+  checklist: checklist(),
+  contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: basisPathStructuralTopology }]),
+  ledger: null,
+});
+assert.ok(!basisPathStructuralReport.rows[0].diagnosticCodes.includes('AT_UNKNOWN_REF'), 'canonical process-fact object and four strict basis-path static edges pass structural reference validation');
+for (const malformed of [
+  'basis-path:static-call:a#produce->consumer:b#consume',
+  'basis-path:path:not-an-edge',
+  'basis-path:path:static-call:a#produce->consumer:b#consume\nforged',
+]) {
+  const malformedTopology = { ...topology, commandRefs: [{ refKind: 'existing' as const, canonicalSourceRef: malformed }] };
+  const malformedReport = buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: malformedTopology }]), ledger: null });
+  assert.ok(malformedReport.rows[0].diagnosticCodes.includes('AT_UNKNOWN_REF'), `malformed basis-path reference remains unknown: ${JSON.stringify(malformed)}`);
+}
+const unreconciledBasisPathTopology = {
+  ...topology,
+  positiveAssertionRefs: [{ ...topology.positiveAssertionRefs[0], sourceRef: { refKind: 'existing' as const, canonicalSourceRef: staticBasisPathRefs[0] } }],
+};
+assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: unreconciledBasisPathTopology }]), ledger: null })
+  .rows[0].diagnosticCodes.includes('AT_UNKNOWN_REF'), 'basis-path cannot bypass validation in assertion groups that basis reconciliation does not consume');
 const permutedTopology: AcceptanceVerificationTopologyV1 = {
   ...topology,
   producerRefs: [...topology.producerRefs].reverse(),

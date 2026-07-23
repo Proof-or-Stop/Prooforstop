@@ -290,6 +290,19 @@ function pushDiagnostic(
   diagnostics.push({ code, bindingId, path, message });
 }
 
+function isBasisPathSourceRef(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length > 8_192 || value !== value.trim()) return false;
+  if (/[ -]/.test(value)) return false;
+  const path = value.slice('basis-path:'.length);
+  return value.startsWith('basis-path:path:') && /^path:.+->.+$/.test(path);
+}
+
+function isBasisReconciledSourcePosition(path: string): boolean {
+  return path.startsWith('verificationTopology.producerRefs[')
+    || path.startsWith('verificationTopology.consumerRefs[')
+    || path.startsWith('verificationTopology.commandRefs[');
+}
+
 function validateSourceRef(
   ref: unknown,
   path: string,
@@ -309,7 +322,9 @@ function validateSourceRef(
     pushDiagnostic(diagnostics, bindingId, 'AT_PLANNED_PATH_DECLARATION_DRIFT', path, `sourceRef restates declaration-owned semantics: ${forbidden.sort().join(', ')}`);
   }
   if (obj.refKind === 'existing') {
-    if (!nonEmpty(obj.canonicalSourceRef) || !canonicalRefs.has(obj.canonicalSourceRef)) {
+    if (!nonEmpty(obj.canonicalSourceRef)
+      || (!canonicalRefs.has(obj.canonicalSourceRef)
+        && !(isBasisReconciledSourcePosition(path) && isBasisPathSourceRef(obj.canonicalSourceRef)))) {
       pushDiagnostic(diagnostics, bindingId, 'AT_UNKNOWN_REF', path, `unknown canonical source ref: ${String(obj.canonicalSourceRef ?? '')}`);
       return [];
     }

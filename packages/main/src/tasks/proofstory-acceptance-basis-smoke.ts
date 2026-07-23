@@ -847,6 +847,31 @@ try {
     };
     const genericTopologyDiagnostics = reconcileTopologyWithCoverageBasis(contract(c2Topology), genericBasis);
     assert.equal(genericTopologyDiagnostics.length, 0, `restored generic C2 topology control passes: ${JSON.stringify(genericTopologyDiagnostics)}`);
+    const focusedStaticPaths = [
+      'path:static-call:packages/main/src/a.ts#produceA->consumer:packages/main/src/b.ts#consumeA',
+      'path:static-call:packages/main/src/c.ts#produceB->consumer:packages/main/src/d.ts#consumeB',
+      'path:static-call:packages/main/src/e.ts#produceC->consumer:packages/main/src/f.ts#consumeC',
+      'path:static-call:packages/main/src/g.ts#produceD->consumer:packages/main/src/h.ts#consumeD',
+    ];
+    const focusedProcessPath = 'path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check';
+    const focusedBasis = structuredClone(genericBasis);
+    focusedBasis.enumeratedPathRefs = [focusedProcessPath, ...focusedStaticPaths];
+    focusedBasis.plannedPathRecords = [];
+    focusedBasis.plannedActualReconciliations = [];
+    focusedBasis.excludedPathRefs = [];
+    const focusedTopology: AcceptanceVerificationTopologyV1 = {
+      schemaVersion: 'proofstory.acceptance_topology.v1',
+      producerRefs: [], consumerRefs: [], positiveAssertionRefs: [], mutationCaseRefs: [], transcriptAssertionRefs: [],
+      commandRefs: [
+        { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+        ...focusedStaticPaths.map(path => ({ refKind: 'existing' as const, canonicalSourceRef: `basis-path:${path}` })),
+      ],
+    };
+    assert.deepEqual(reconcileTopologyWithCoverageBasis(contract(focusedTopology), focusedBasis), [], 'canonical process-fact mapping plus four exact basis-path static edges reconcile against the current basis');
+    const nonexistentTopology = structuredClone(focusedTopology);
+    nonexistentTopology.commandRefs.push({ refKind: 'existing', canonicalSourceRef: 'basis-path:path:static-call:packages/main/src/missing.ts#produce->consumer:packages/main/src/absent.ts#consume' });
+    assert.ok(reconcileTopologyWithCoverageBasis(contract(nonexistentTopology), focusedBasis)
+      .some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'), 'well-formed but nonexistent basis-path remains fail-closed at reconciliation');
     write(genericRoot, 'packages/main/src/consumers/c2.ts', 'export const c2 = () => true;\n');
     const omittedC2 = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
     assert.equal(omittedC2.status, 'partial', 'consumerGate without a resolvable outside-scope consumer fails closed');
