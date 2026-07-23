@@ -1,0 +1,21 @@
+{
+  "storyId": "B-4ec1",
+  "expected": "User sees \"Pre-review check: PASS\" for a signed current verifier-owned artifact, or \"Pre-review check: FAIL code=PR_*\" naming the invalid binding.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+    "exitCode": null,
+    "stdout": "",
+    "stderr": "[capture error] command exceeded 60000ms timeout; process group terminated"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-23T00:29:21.872Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "ba048b63c00ab9fdf2a681eaf1f5532c902d4176",
+  "materialHash": "536d1c243c6dfc936d96f6b10379423447cdb925d751d22fb30c9406ec148615"
+}
