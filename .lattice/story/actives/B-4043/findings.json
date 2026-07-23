@@ -80,6 +80,26 @@
       "_hash": "61c86ed08b88dbd10c74d96f36fa7646fe4548ef1362be5a8977fd680c81ffa0",
       "signatureTag": "missing|unknown|rollout-production-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4043:F-005",
+      "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:753-754 still says the AcceptanceCoverageBasis/pre_review example is only a target shape and is not a claim that the schema or command exists. The same document now marks Waves 1-4 implemented, and the current code exports the coverage-basis schema/types and registers pre_review_check; this stale disclaimer contradicts the implemented status. Replace it with wording that identifies the JSON as an illustrative/abridged shape while acknowledging the implemented canonical schema and command.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-23T19:32:27.346Z",
+      "reviewRound": "2026-07-23T19:28:11.179Z",
+      "reviewRunId": "B-4043:RR-010",
+      "_hash": "ebd1022765b52586f20f291a20a24cc415c9a0f0dfa8cc2ef80d7e42a88dc585",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
