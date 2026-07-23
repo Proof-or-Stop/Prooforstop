@@ -255,9 +255,13 @@
       "q": "Task instructions asserted that docs/requirements/decisions/closeout-convergence-and-burn-alert-root-cause.md is 'the one document that mentions the breaker', but this file does not exist in the worktree's docs/requirements/decisions/ directory, anywhere else in the repo, or in git history (checked via full directory enumeration, repo-wide find, and git log --all --diff-filter=A/D). No decisions/*.md file specifies gateFailureDigest or convergence-breaker.ts behavior; every keyword hit for 'breaker'/'convergence'/'gate-failure' in decisions/ refers to an unrelated concept (whole-project `convergence_check`, or done_prepare closeout-phase convergence from B-c163), not this story's gate-failure circuit breaker. Cannot confirm or refute a spec contradiction against a document that is not present -- needs resolution on whether the citation is stale/mis-titled or the file was never committed.",
       "evidence": "ls docs/requirements/decisions/*.md (124 files, no closeout-convergence-and-burn-alert-root-cause.md); rg -il 'gate-failure|assessBreaker|maxGateFailureCount|convergence breaker' docs/requirements/decisions/*.md returns only generic 'gate failure' false positives unrelated to this mechanism",
       "sourcePointers": [
-        "docs/requirements/decisions/ (full directory listing)",
-        "task dispatch instructions citing closeout-convergence-and-burn-alert-root-cause.md"
-      ]
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "resolution": "The reviewer is correct and the citation was mine, not the story artifacts. closeout-convergence-and-burn-alert-root-cause.md is an UNTRACKED stray file sitting in the main checkout only (git status reports it as ?? and git ls-files returns nothing), written by a different local session and never committed, so it is not a repository document and correctly does not appear in the worktree, the decisions/ enumeration, or git history. The reviewer independently established the substantive point that matters: no committed decisions/*.md specifies gateFailureDigest or convergence-breaker.ts behavior, so this plan contradicts no existing spec. No story artifact cites that filename — background.md, plan.md, decision.json and understanding.json ground every claim in source line references (convergence-breaker.ts:463-500, machine.ts:179, proofstory.ts:1890-1918 and :1002/:1129/:1137, convergence-breaker-smoke.ts:180-182, package.json:15/:116) plus the reproducible RED harness, not in any decisions/ document. The spec-contradiction question is therefore resolved as: nothing to contradict, and nothing to cite.",
+      "resolvedAt": "2026-07-23T23:06:08.307Z"
     }
   ]
 }
