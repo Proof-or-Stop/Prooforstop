@@ -380,6 +380,21 @@
       "_hash": "ae95079362a10c3fe3b7f50ee33fb481e8449f8a61f44513a2d47eb0c085e210",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4ec1:F-020",
+      "desc": "packages/main/src/core/acceptance-topology.ts:296 F-014 remains partially open: the closed static-call regex restricts the path kind but does not enforce canonical repo-relative paths; the shipped validator returns true for basis-path:path:static-call:../../evil.ts#p->consumer:/tmp/x.ts#c. PLAN forward admission therefore still accepts traversal/absolute nonexistent source refs before PRE_REVIEW rejects them. Reuse canonical path classification to reject absolute paths, dot segments, duplicate separators and non-normalized forms, and add these PLAN mutations.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-23T03:02:22.666Z",
+      "reviewRound": "2026-07-23T02:59:34.345Z",
+      "reviewRunId": "B-4ec1:RR-010",
+      "_hash": "7fc21911c8e9dd91b32561ccb9a6812020a71efddf4acbeb51a67eb0a7ad8344",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
