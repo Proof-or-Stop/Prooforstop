@@ -523,7 +523,7 @@
       "desc": "packages/main/src/tasks/flow-stability-smoke.ts:1784 (assertStoryAdvanceReviewEchoOmitsRetiredChannel): root full suite is red after the Wave 3 gate integration. done-required evidence at current story material records `npm test` exit 1 because this DEV→REVIEW fixture reaches runPreReviewCheckGate without first creating the verifier-owned PLAN acceptance basis (`pre_review_check requires the verifier-owned PLAN acceptance basis`). Focused/live proof passing does not cover this integrated legacy flow. Update the affected flow-stability fixture(s) to generate the canonical PLAN basis/topology prerequisites through the production path, then rerun the isolated flow-stability smoke and the root full suite; both must pass before coverage approval.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-23T05:34:10.339Z",
@@ -534,7 +534,11 @@
         "packages/main/src/tasks/flow-stability-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded stale failure evidence: after fixture commit 662f0c5ed0 the owner ran one complete root npm test instance to exit 0; independent quality RR-022 also reran build, proofstory acceptance-basis smoke, and flow-stability smoke PASS. Current pre_review_check is PASS with codes none. Fresh structured DONE-required validation remains intentionally deferred to TEST.",
+      "resolvedAt": "2026-07-23T13:03:44.870Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-026",
