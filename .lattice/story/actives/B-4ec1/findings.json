@@ -517,6 +517,24 @@
       "resolvedAt": "2026-07-23T04:33:23.623Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4ec1:F-025",
+      "desc": "packages/main/src/tasks/flow-stability-smoke.ts:1784 (assertStoryAdvanceReviewEchoOmitsRetiredChannel): root full suite is red after the Wave 3 gate integration. done-required evidence at current story material records `npm test` exit 1 because this DEV→REVIEW fixture reaches runPreReviewCheckGate without first creating the verifier-owned PLAN acceptance basis (`pre_review_check requires the verifier-owned PLAN acceptance basis`). Focused/live proof passing does not cover this integrated legacy flow. Update the affected flow-stability fixture(s) to generate the canonical PLAN basis/topology prerequisites through the production path, then rerun the isolated flow-stability smoke and the root full suite; both must pass before coverage approval.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-23T05:34:10.339Z",
+      "reviewRound": "2026-07-23T05:31:34.988Z",
+      "reviewRunId": "B-4ec1:RR-023",
+      "_hash": "cea92dfe952fc1375d3e4e1f6726d897a0fb3b32c27d960ae89e9e5f420c6b94",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
