@@ -168,10 +168,28 @@
       "phase": "DEV",
       "headHash": "02f8e8245f16edd234417fb3ecd45e72e3c76330",
       "materialHash": "0dfcf0bd664b9b2939769edc9912cef2fb8585b8d7be55c5b94900256d0348b9"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Independent delivery review proved DONE-required receipts were bound to owner session identity; these two paths are required to make validation identity cross-session stable and to add the biting regression.",
+      "timestamp": "2026-07-23T14:19:51.103Z",
+      "paths": [
+        "packages/main/src/core/validation-command-environment.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/validation-command-environment.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "b11ef96bb9270614ead3e8f29916c01abc0552bc",
+      "materialHash": "2e2a681513b223d5ad861d0072e506951226bdcc8e213c720468847f841a682c"
     }
   ],
   "createdAt": "2026-07-22T22:41:51.162Z",
-  "updatedAt": "2026-07-23T12:58:00.472Z",
+  "updatedAt": "2026-07-23T14:19:51.103Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -209,6 +227,8 @@
     "scripts/run-proofstory-pre-review-live-proof.mjs": "scripts/run-proofstory-pre-review-live-proof.mjs",
     "packages/main/src/tasks/live-smoke-transcript-smoke.ts": "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
-    "packages/main/src/core/done-required-timeout-budget.ts": "packages/main/src/core/done-required-timeout-budget.ts"
+    "packages/main/src/core/done-required-timeout-budget.ts": "packages/main/src/core/done-required-timeout-budget.ts",
+    "packages/main/src/core/validation-command-environment.ts": "packages/main/src/core/validation-command-environment.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts"
   }
 }
