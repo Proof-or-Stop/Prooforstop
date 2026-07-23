@@ -151,6 +151,114 @@
         "create": [],
         "test": []
       }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Spec section: gate-consumption query contract defining the W2/W3 boundary",
+      "context": "Product-review I-1: the exact read-only query ProofStory gates ask of the RED-evidence subsystem (inputs, answer shape, freshness rules) and the explicit boundary — W2 defines/answers the query, W3 wires gates to consume it.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-7dfa/background.md"
+      ],
+      "userSees": "The spec contains a 'Gate-consumption query contract' section specifying the query name, request fields, response schema, and a boxed W2/W3 boundary statement.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The spec's query-contract section defines the read-only query (inputs: storyId + acceptance target ref; output: latest chain-head record status + GREEN/RED verdict + freshness binding) precisely enough that a W3 implementer needs no design decisions.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The section specifies the answer for edge states: no records, quarantined head, superseded-but-unreplaced head, and a head whose freshness binding no longer matches the live tree.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The section states the boundary rule that W2 exposes ONLY the read-only query (no gate may write through it) and that any enforcement decision from the answer belongs to W3 — with a MUST NOT list preventing scope creep.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Spec section: legacy red-evidence record posture (grandfather, migrate, or invalidate)",
+      "context": "Product-review I-2: existing .lattice/story/actives/<id>/red-evidence.json records predate the subsystem; the spec must state their status and the compatibility rule so in-flight stories are not stranded.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-7dfa/background.md"
+      ],
+      "userSees": "The spec contains a 'Legacy record posture' section with a single normative decision (grandfathered/migrated/invalidated), its rationale, and the transition rule for in-flight stories.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The section states ONE normative posture for legacy records with the compatibility rule an implementation story can cite verbatim.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The section covers the in-flight story case: a story mid-lifecycle with a legacy record at the enforce flip — what the gate answers for it and what (if anything) the owner must do.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The section closes the downgrade loophole: a new record may not be deleted and replaced by a 'legacy' record to escape the envelope rules — legacy status is bound to record creation time relative to the subsystem's adoption point.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-23T19:53:37.088Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope review gap: the gate-consumption query contract is a distinct deliverable feature whose coverage must be title-visible, not buried in CHK-001 intents.",
+      "addedTitle": "Spec section: gate-consumption query contract defining the W2/W3 boundary",
+      "addedContext": "Product-review I-1: the exact read-only query ProofStory gates ask of the RED-evidence subsystem (inputs, answer shape, freshness rules) and the explicit boundary — W2 defines/answers the query, W3 wires gates to consume it."
+    },
+    {
+      "timestamp": "2026-07-23T19:53:37.595Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "PLAN scope review gap: the legacy-record posture is a distinct deliverable feature whose coverage must be title-visible, not buried in CHK-004 intents.",
+      "addedTitle": "Spec section: legacy red-evidence record posture (grandfather, migrate, or invalidate)",
+      "addedContext": "Product-review I-2: existing .lattice/story/actives/<id>/red-evidence.json records predate the subsystem; the spec must state their status and the compatibility rule so in-flight stories are not stranded."
     }
   ]
 }

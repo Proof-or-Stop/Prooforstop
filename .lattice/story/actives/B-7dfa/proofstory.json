@@ -81,20 +81,36 @@
       ],
       "milestoneIds": [],
       "note": "Spec section 4: quarantine/recover owner-gated operations, corrected retention claims, and the legacy-record posture."
-    }
-  ],
-  "diagnosticGaps": [
+    },
     {
-      "code": "scope_ambiguity",
-      "severity": "warn",
-      "artifact": "scope-contract.json",
-      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
-      "triggeredBy": [
-        "scope_ambiguity"
-      ]
+      "id": "AB-005",
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "Gate-consumption query contract section: precise read-only query + edge-state answers + W2/W3 boundary MUST NOT list."
+    },
+    {
+      "id": "AB-006",
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "Legacy record posture section: one normative decision + in-flight transition rule + downgrade-loophole closure."
     }
   ],
-  "note": "Acceptance bindings for the red-evidence-subsystem-spec deliverable; each binding covers one spec section against its CHK verificationIntent lanes. Acceptance claim defaults to the original intent snapshot claim.",
+  "diagnosticGaps": [],
+  "note": "Acceptance bindings for the red-evidence-subsystem-spec deliverable; each binding covers one spec section against its CHK verificationIntent lanes. Acceptance claim defaults to the original intent snapshot claim. AB-005/006 added for the scope-review gaps.",
   "createdAt": "2026-07-23T19:42:32.165Z",
-  "updatedAt": "2026-07-23T19:42:32.165Z"
+  "updatedAt": "2026-07-23T19:53:54.154Z"
 }
