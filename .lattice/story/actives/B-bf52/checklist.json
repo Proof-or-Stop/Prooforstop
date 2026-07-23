@@ -138,8 +138,8 @@
       "id": "CHK-004",
       "title": "Extend the convergence-breaker smoke with a substantive-versus-incidental digest matrix",
       "context": "packages/main/src/tasks/convergence-breaker-smoke.ts:180-182 asserts distinct reasons do not accumulate but uses fixtures too short and too plain to reach any collapse rule. Add the four must-differ cases (long-preamble ProofStory gaps, phase pair, checklist ids, in-repo file paths) and the three must-still-collapse cases (timestamps and attempt counters, machine-specific absolute paths, hex digests), each driving the real bumpGateFailureCount and maxGateFailureCount path so the counter consequence is proven, not just the hash.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-23T23:12:12.460Z",
       "endTime": null,
       "userSees": "npm run test:convergence-breaker exits zero and its output lists the must-differ and must-still-collapse digest cases by name, each reporting the resulting gate-failure counter value rather than only the hash.",
       "files": {
