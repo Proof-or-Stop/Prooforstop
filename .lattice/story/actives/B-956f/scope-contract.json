@@ -194,10 +194,26 @@
       "phase": "DEV",
       "headHash": "080e44e3dad1f946af2a2ea2995ba18255f79df5",
       "materialHash": "b7bb20e30617867decb1d451b31de355b20ec0abe5673750dcfd54d0d3a79954"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CLI-generated lifecycle artifact of the NEW acceptance-basis gate (merged from main mid-flight): acceptance_basis_generate persisted its signed verifier receipt here as the gate requires; command-generated metadata, not hand-authored story material.",
+      "timestamp": "2026-07-23T18:10:14.453Z",
+      "paths": [
+        ".lattice/story/actives/B-956f/acceptance-basis.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-956f/acceptance-basis.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8aa6df97e427ec8aca940c024926e20e01836e9c",
+      "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373"
     }
   ],
   "createdAt": "2026-07-19T15:24:53.100Z",
-  "updatedAt": "2026-07-19T18:58:04.195Z",
+  "updatedAt": "2026-07-23T18:10:14.453Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -219,6 +235,7 @@
     "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
     "packages/main/src/handlers/story-review.ts": "packages/main/src/handlers/story-review.ts",
     "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
-    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts"
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    ".lattice/story/actives/B-956f/acceptance-basis.json": ".lattice/story/actives/B-956f/acceptance-basis.json"
   }
 }
