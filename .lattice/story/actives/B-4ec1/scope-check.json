@@ -1,131 +1,138 @@
 {
   "storyId": "B-4ec1",
-  "checkedAt": "2026-07-23T00:17:18.104Z",
+  "checkedAt": "2026-07-23T02:47:51.870Z",
   "features": [
     {
-      "feature": "Canonical verifier-owned signed/hash-bound pre_review_check artifact and deterministic read-only verifier results",
+      "feature": "Canonical signed pre_review_check artifact and shared CLI/read/lifecycle verifier",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4ec1/plan.md#CHK-001"
+      "source": ".lattice/story/actives/B-4ec1/checklist.json#CHK-001"
     },
     {
-      "feature": "Artifact binds story, PLAN/pre-review basis, topology, scope, story/closure hashes, executable refs, mode, issuance and signature without caller-written verdicts",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M1-PRE-REVIEW-ROUNDTRIP"
-    },
-    {
-      "feature": "CLI, read-only diagnostic and DEV-to-REVIEW lifecycle consumer share one production verifier",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M1-PRODUCER-CONSUMER-PARITY"
-    },
-    {
-      "feature": "Current-worktree phaseBasis=pre_review recomputation linked through priorPlanBasisDigest",
+      "feature": "Current-worktree pre_review basis recomputation and planned-to-actual closure reconciliation",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION"
+      "source": ".lattice/story/actives/B-4ec1/checklist.json#CHK-002"
     },
     {
-      "feature": "Every planned path reconciles to actual discovery as exact, expanded, or independently approved replaced",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M2-PLANNED-ACTUAL-MATRIX"
-    },
-    {
-      "feature": "Pre-review topology-only omission reports canonical first code PR_NEW_PATH_UNMAPPED with supporting coverage diagnostics preserved",
+      "feature": "Canonical pre-review omission first code is PR_NEW_PATH_UNMAPPED while PLAN structural omission remains AT_UNMAPPED_SCOPE_REF",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4ec1/plan.md#Outcome"
     },
     {
-      "feature": "PLAN structural omission remains AT_UNMAPPED_SCOPE_REF while executable pre-review omission maps to PR_NEW_PATH_UNMAPPED",
+      "feature": "Required adapters, AST/path discovery and aggregate projections fail closed for missing, duplicate, stale, conflicting or tampered paths",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#16-verification-and-mutation-matrix"
+      "source": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts; packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
     },
     {
-      "feature": "Missing, partial, unsupported, stale, omitted, duplicate, conflicting or tampered adapter/basis/reconciliation inputs fail closed",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M2-DISCOVERY-STATE-CLOSURE"
-    },
-    {
-      "feature": "Topology-only omission mutation retains C2 in independently derived basis and requires the real consumer to fail",
+      "feature": "Topology-only omission retains the independent basis path and bites with exact restoration",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M2-TOPOLOGY-ONLY-OMISSION"
     },
     {
-      "feature": "Positive evidence exercises the real producer-to-consumer route and every adverse mutation bites for the intended semantic reason",
+      "feature": "Active-story executable proof is derived from canonical checklist, ProofStory contract, milestone ledger and topology instead of caller claims",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M3-REAL-PROOF-CHAIN"
+      "source": "packages/main/src/core/pre-review-live-proof.ts"
     },
     {
-      "feature": "Clean control passes after exact restoration and transcript evidence is causally related with correct cardinality",
+      "feature": "Live proof binds positive assertions, biting mutations, restored controls, transcript producer-before-consumer ordering and command digests",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY"
+      "source": "packages/main/src/core/pre-review-live-proof.ts; packages/main/src/core/pre-review-check.ts"
     },
     {
-      "feature": "Authority, temporal cutoff and freshness are mechanically admissible; caller/self-report/replay/silent rebind paths fail",
+      "feature": "Production live-smoke transcript handler carries the registered proof output into the canonical transcript/receipt consumer path",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/handlers/live-smoke-transcript.ts; packages/main/src/core/pre-review-check.ts"
+    },
+    {
+      "feature": "Authority, cutoff and freshness reject synthetic, stale, replayed, cross-story or silently rebound proof",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M3-BYPASS-CAMPAIGN"
     },
     {
-      "feature": "DEV-to-REVIEW consumes the shared evaluator before actor.send under flat observe/warn/enforce modes",
+      "feature": "DEV-to-REVIEW consumes the shared evaluator under flat observe/warn/enforce modes",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M4-LIFECYCLE-MODE-MATRIX"
     },
     {
-      "feature": "Enforced high-assurance DEV-to-REVIEW requires fresh independent critic re-attestation bound to current pre-review basis/topology/scope/story/closure",
+      "feature": "Enforced high-assurance path requires fresh independent critic re-attestation bound to current pre-review closure",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M4-CRITIC-REATTESTATION"
     },
     {
-      "feature": "Legacy/docs-only compatibility, rollback, stable codes, process-fact four-layer enforcement and exact clean retry",
+      "feature": "Pre-review live proof producer/consumer/gate facts are registered with required semantics and four-layer contract tests",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/core/process-fact-registry.ts; packages/main/src/core/process-fact-levels.ts; scripts/verify-process-fact-contract.mjs"
+    },
+    {
+      "feature": "CLI and decision documentation describe canonical live proof, stable codes, remediation and Wave boundaries",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/CLI.md; docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    },
+    {
+      "feature": "Legacy/docs-only compatibility, rollback, exact clean retry and no partial writes remain covered",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4ec1/checklist.json#CHK-004"
     },
     {
-      "feature": "Machine-readable enforce scope covers planned paths and all later acknowledged DEV expansions remain reviewer-visible and non-blocking",
+      "feature": "Existing scope expansions for command policy, discovery adapters, compatibility smokes and generated pre-review artifact are reviewer-visible and acknowledged",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "scope_contract_check:B-4ec1 warn 7 acknowledged warnings 0 unacknowledged violations"
+      "source": "scope_contract_check:B-4ec1 acknowledged warnings"
+    },
+    {
+      "feature": "Scope contract admits packages/main/src/core/pre-review-live-proof.ts as the canonical active-story executable-proof producer",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "scope_contract_check:B-4ec1 OUT_OF_SCOPE packages/main/src/core/pre-review-live-proof.ts blocking=true"
+    },
+    {
+      "feature": "Scope contract admits packages/main/src/handlers/live-smoke-transcript.ts as the production transcript/proof consumer integration",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "scope_contract_check:B-4ec1 OUT_OF_SCOPE packages/main/src/handlers/live-smoke-transcript.ts blocking=true"
     },
     {
       "feature": "Wave 3A selective per-Story/per-policy applicability resolver",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicitly separate optional Wave 3A; current Story retains flat project mode and contains no selective applicability machinery.",
+      "excluded_by": "Separate optional Wave 3A; current implementation contains no selective_applicability_check or equivalent resolver.",
       "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M4-NO-LATER-WAVE-LEAKAGE"
     },
     {
       "feature": "Wave 4 prompt rollout, telemetry thresholds and measured enforcement activation",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicitly separate Wave 4; current diff contains no rollout telemetry or threshold activation.",
+      "excluded_by": "Separate Wave 4; current implementation contains no rollout_telemetry or threshold activation.",
       "source": ".lattice/story/actives/B-4ec1/checklist.json#VI-W3-M4-NO-LATER-WAVE-LEAKAGE"
     }
   ],
@@ -137,28 +144,36 @@
       ".lattice/story/actives/B-4ec1/milestone-ledger.json",
       ".lattice/story/actives/B-4ec1/original-intent-snapshot.json",
       ".lattice/story/actives/B-4ec1/plan.md",
-      ".lattice/story/actives/B-4ec1/scope-check.json",
       ".lattice/story/actives/B-4ec1/scope-contract.json",
       ".lattice/story/actives/B-4ec1/understanding.json",
       "AGENTS.md",
+      "docs/CLI.md",
       "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
       "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
       "docs/requirements/decisions/story-lifecycle.md",
       "docs/requirements/decisions/testing-completeness.md",
-      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "packages/main/src/core/pre-review-check.ts",
+      "packages/main/src/core/pre-review-live-proof.ts",
+      "packages/main/src/core/process-fact-levels.ts",
+      "packages/main/src/core/process-fact-registry.ts",
+      "packages/main/src/handlers/live-smoke-transcript.ts",
+      "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+      "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+      "scripts/verify-process-fact-contract.mjs"
     ],
     "filesTriagedByName": [],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 18,
-    "covered": 16,
+    "total": 19,
+    "covered": 15,
     "excluded": 2,
-    "gaps": 0,
+    "gaps": 2,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-07-22T23:29:25.093Z",
-  "_hash": "3da769609ebcb6e81fcda8919cb8b4e65d71e896b4a2a26b81f797f02c4bfe22",
+  "reviewRound": "2026-07-23T02:17:50.645Z",
+  "_hash": "250abcbda6b29f596ee132fa768f740bf4c957ed2c2b94e7f84835159c293f0a",
   "openQuestions": []
 }

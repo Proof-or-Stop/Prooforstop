@@ -453,6 +453,10 @@
           {
             "refKind": "existing",
             "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-check.ts#verifyPreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyPreReviewCheckArtifact"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/core/pre-review-live-proof.ts#buildAcceptanceMatrixReport"
           }
         ]
       }
@@ -461,5 +465,5 @@
   "diagnosticGaps": [],
   "note": "Wave 3 canonical acceptance contract; no duplicate writable matrix and no later-wave rollout semantics.",
   "createdAt": "2026-07-22T22:40:14.304Z",
-  "updatedAt": "2026-07-23T02:13:20.107Z"
+  "updatedAt": "2026-07-23T02:46:35.173Z"
 }
