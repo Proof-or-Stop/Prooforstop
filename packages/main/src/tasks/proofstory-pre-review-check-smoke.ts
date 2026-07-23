@@ -469,6 +469,10 @@ try {
   write(root, 'packages/main/src/consumer.ts', consumerControlSource);
   write(root, 'emit-proof.mjs', `console.log(${JSON.stringify(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}`)});\n`);
   writeActiveLiveProofRunner(root);
+  execFileSync('npm', ['--prefix', 'packages/main', 'run', 'build'], {
+    cwd: root,
+    stdio: ['ignore', 'ignore', 'pipe'],
+  });
   git(root, ['init', '-b', 'main']); git(root, ['config', 'user.name', 'Pre Review Smoke']); git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['add', '.']); git(root, ['commit', '-m', 'seed']); git(root, ['switch', '-c', `story/${storyId}`]);
   process.chdir(root); resetConfigCache();
@@ -527,20 +531,17 @@ try {
   assert.equal(parsed.mutations, 'biting');
   assert.equal(parsed.transcript, 'related');
   if (cohortCaseMode) {
-    const topologyControl = JSON.parse(cli(root, 'acceptance_topology_check', { storyId, json: true }));
-    let topologyReport = topologyControl;
-    let preReviewReport = parsed;
+    const cleanContract = structuredClone(store.readProofStoryContract(storyId)!);
+    const cleanPreReviewArtifact = structuredClone(store.readPreReviewCheck(storyId)!);
+    const cleanProducerSource = readFileSync(join(root, 'packages/main/src/producer.ts'), 'utf8');
     if (cohortArm === 'candidate' && cohortScenario === 'omission') {
-      const omittedContract = structuredClone(store.readProofStoryContract(storyId)!);
+      const omittedContract = structuredClone(cleanContract);
       omittedContract.acceptanceBindings[0].verificationTopology!.consumerRefs = [];
       store.writeProofStoryContract(storyId, omittedContract);
-      topologyReport = JSON.parse(cli(root, 'acceptance_topology_check', { storyId, json: true }));
-      preReviewReport = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
     } else if (cohortArm === 'candidate' && cohortScenario === 'forgery') {
-      const forged = structuredClone(store.readPreReviewCheck(storyId)!);
+      const forged = structuredClone(cleanPreReviewArtifact);
       forged.signature = 'forged';
       store.writePreReviewCheck(storyId, forged);
-      preReviewReport = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
     } else if (cohortArm === 'candidate' && cohortScenario === 'freshness') {
       // Drift a declared, story-owned production file after the valid signed
       // evidence was issued. Adding an unrelated file only moves HEAD/material
@@ -553,9 +554,24 @@ try {
       // read-only verifier must then reproduce PR_EVIDENCE_STALE without
       // treating this canonical artifact as caller-authored tampering.
       cli(root, 'pre_review_check', { storyId, json: true });
-      topologyReport = JSON.parse(cli(root, 'acceptance_topology_check', { storyId, json: true }));
-      preReviewReport = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
     }
+    git(root, ['add', '.']);
+    git(root, ['commit', '--allow-empty', '-m', `seal registered ${cohortArm}/${cohortScenario} mutation state`]);
+    const mutationCommitSha = git(root, ['rev-parse', 'HEAD']);
+    const topologyReport = JSON.parse(cli(root, 'acceptance_topology_check', { storyId, json: true }));
+    const preReviewReport = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+
+    store.writeProofStoryContract(storyId, cleanContract);
+    store.writePreReviewCheck(storyId, cleanPreReviewArtifact);
+    write(root, 'packages/main/src/producer.ts', cleanProducerSource);
+    git(root, ['add', '.']);
+    git(root, ['commit', '--allow-empty', '-m', `restore registered ${cohortArm}/${cohortScenario} clean control`]);
+    const restorationCommitSha = git(root, ['rev-parse', 'HEAD']);
+    const restoredTopologyReport = JSON.parse(cli(root, 'acceptance_topology_check', { storyId, json: true }));
+    const restoredPreReviewReport = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+    assert.equal(restoredTopologyReport.status, 'pass', `restored topology control failed: ${JSON.stringify(restoredTopologyReport)}`);
+    assert.equal(restoredPreReviewReport.ok, true, `restored pre-review control failed: ${JSON.stringify(restoredPreReviewReport)}`);
+
     const reviewStory = store.readStory(storyId);
     const reviewRound = '2026-07-23T13:00:00.000Z';
     reviewStory.phase = 'REVIEW';
@@ -605,8 +621,12 @@ try {
       storyId,
       arm: cohortArm,
       scenario: cohortScenario,
+      mutationCommitSha,
+      restorationCommitSha,
       topologyReport,
       preReviewReport,
+      restoredTopologyReport,
+      restoredPreReviewReport,
       quorumResult,
       hostVerdicts,
       reviewRuns,

@@ -589,7 +589,14 @@ export interface AcceptanceRolloutObservationReceiptV1 {
   waiverRefs: string[];
   usageEvents: Array<{ eventId: string; costUnits: number }>;
   transcriptRefs: string[];
-  mutationResults: Array<{ mutationId: string; expectedCode: string; observedCode: string; controlRestored: boolean }>;
+  mutationResults: Array<{
+    mutationId: string;
+    expectedCode: string;
+    observedCode: string;
+    mutationCommitSha: string;
+    restorationCommitSha: string;
+    controlRestored: boolean;
+  }>;
   checkInventory: string[];
   issuedAt: string;
   issuerKeyId: string;

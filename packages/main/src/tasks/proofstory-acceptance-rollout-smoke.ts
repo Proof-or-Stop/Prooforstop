@@ -9,9 +9,11 @@ import {
   acceptanceRolloutSourceRecordDigest,
   currentAcceptanceRolloutBinding,
   deriveAcceptanceRolloutReport,
+  issueAcceptanceRolloutObservationFromProduction,
   issueAcceptanceRolloutArtifact,
   verifyAcceptanceRolloutArtifact,
 } from '../core/acceptance-rollout.js';
+import type { ProductionRolloutCaseEvidence } from '../core/acceptance-rollout.js';
 import { digestCanonicalJson } from '../core/digest.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
@@ -27,6 +29,7 @@ import { runAcceptanceRolloutGate } from '../handlers/transition-orchestrator.js
 
 const projectRoot = resolve(process.cwd());
 const runnerPath = join(projectRoot, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs');
+const issuerMutationMode = process.argv.includes('--issuer-mutations');
 let assertions = 0;
 
 function ok(value: unknown, message: string): asserts value {
@@ -94,6 +97,62 @@ function git(root: string, args: string[]): string {
 function write(path: string, content: string): void {
   mkdirSync(dirname(path), { recursive: true });
   writeFileSync(path, content);
+}
+
+function runIssuerMutationSmoke(): void {
+  const storyId = 'B-issuer-mutation';
+  const output = execFileSync(process.execPath, [
+    join(projectRoot, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js'),
+    '--rollout-cohort-case',
+  ], {
+    cwd: projectRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LATTICE_ROLLOUT_COHORT_STORY_ID: storyId,
+      LATTICE_ROLLOUT_COHORT_ARM: 'candidate',
+      LATTICE_ROLLOUT_COHORT_SCENARIO: 'omission',
+    },
+    maxBuffer: 32 * 1024 * 1024,
+  });
+  const line = output.split(/\r?\n/).find(row => row.startsWith('PROOFSTORY_ROLLOUT_CASE='));
+  if (!line) throw new Error('issuer mutation smoke did not emit production evidence');
+  const evidence = JSON.parse(line.slice('PROOFSTORY_ROLLOUT_CASE='.length)) as ProductionRolloutCaseEvidence & { evidenceGitCwd: string };
+  const issue = (candidate: ProductionRolloutCaseEvidence) => issueAcceptanceRolloutObservationFromProduction({
+    gitCwd: projectRoot,
+    evidenceGitCwd: evidence.evidenceGitCwd,
+    storyId,
+    pairId: 'PAIR-ISSUER-MUTATION',
+    arm: 'candidate',
+    scenario: 'omission',
+    issuedAt: '2026-07-23T12:00:00.000Z',
+    evidence: candidate,
+  });
+  try {
+    const receipt = issue(evidence);
+    equal(receipt.mutationResults[0]?.observedCode, 'PR_NEW_PATH_UNMAPPED', 'issuer derives mutation code from production replay');
+    equal(receipt.mutationResults[0]?.controlRestored, true, 'issuer derives clean restored control PASS');
+    ok(receipt.mutationResults[0]?.mutationCommitSha !== receipt.mutationResults[0]?.restorationCommitSha,
+      'receipt binds distinct ordered mutation and restoration commits');
+
+    const substituted = clone(evidence);
+    substituted.preReviewReport = { storyId, status: 'pass', ok: true, codes: [] };
+    assert.throws(() => issue(substituted), /caller mutation pre-review report does not match production command replay/);
+    assertions += 1;
+
+    const omittedRestoration = clone(evidence) as unknown as Record<string, unknown>;
+    delete omittedRestoration.restorationCommitSha;
+    assert.throws(() => issue(omittedRestoration as unknown as ProductionRolloutCaseEvidence), /restoration commit is missing or malformed/);
+    assertions += 1;
+
+    const forgedRestoration = clone(evidence);
+    forgedRestoration.restorationCommitSha = forgedRestoration.mutationCommitSha;
+    assert.throws(() => issue(forgedRestoration), /restoration commit must be later than mutation commit/);
+    assertions += 1;
+  } finally {
+    rmSync(evidence.evidenceGitCwd, { recursive: true, force: true });
+  }
+  process.stdout.write(`ProofStory acceptance rollout issuer mutation smoke: PASS (${assertions} assertions)\n`);
 }
 
 export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
@@ -354,8 +413,16 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  runProofStoryAcceptanceRolloutSmoke().catch(error => {
-    console.error(error);
-    process.exitCode = 1;
-  });
+  if (issuerMutationMode) {
+    try { runIssuerMutationSmoke(); }
+    catch (error) {
+      console.error(error);
+      process.exitCode = 1;
+    }
+  } else {
+    runProofStoryAcceptanceRolloutSmoke().catch(error => {
+      console.error(error);
+      process.exitCode = 1;
+    });
+  }
 }

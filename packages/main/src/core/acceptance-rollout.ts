@@ -128,12 +128,16 @@ function unsignedObservation(
 
 export type RegisteredAcceptanceRolloutScenario = 'control' | 'omission' | 'forgery' | 'freshness';
 
-type ProductionRolloutCaseEvidence = {
+export type ProductionRolloutCaseEvidence = {
   storyId: string;
   arm: 'baseline' | 'candidate';
   scenario: RegisteredAcceptanceRolloutScenario;
+  mutationCommitSha: string;
+  restorationCommitSha: string;
   topologyReport: Record<string, unknown>;
   preReviewReport: Record<string, unknown>;
+  restoredTopologyReport: Record<string, unknown>;
+  restoredPreReviewReport: Record<string, unknown>;
   quorumResult: {
     schemaVersion: string;
     storyId: string;
@@ -158,10 +162,90 @@ type ProductionRolloutCaseEvidence = {
   reviewPasses: Array<Record<string, unknown>>;
 };
 
+function gitOutput(cwd: string, args: string[]): string {
+  return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+}
+
+function assertCommitExists(cwd: string, commitSha: string, label: string): void {
+  if (!/^[a-f0-9]{40}$/.test(commitSha)) {
+    throw new Error(`acceptance rollout observation: ${label} commit is missing or malformed`);
+  }
+  execFileSync('git', ['cat-file', '-e', `${commitSha}^{commit}`], {
+    cwd,
+    stdio: ['ignore', 'ignore', 'pipe'],
+  });
+}
+
+function assertAncestor(cwd: string, ancestor: string, descendant: string, label: string): void {
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', ancestor, descendant], {
+      cwd,
+      stdio: ['ignore', 'ignore', 'pipe'],
+    });
+  } catch {
+    throw new Error(`acceptance rollout observation: ${label} history is not ordered`);
+  }
+}
+
+function replayProductionGateState(args: {
+  cliRoot: string;
+  evidenceGitCwd: string;
+  storyId: string;
+  commitSha: string;
+}): { topologyReport: Record<string, unknown>; preReviewReport: Record<string, unknown> } {
+  execFileSync('git', ['checkout', '--quiet', '--force', '-B', `story/${args.storyId}`, args.commitSha], {
+    cwd: args.evidenceGitCwd,
+    stdio: ['ignore', 'ignore', 'pipe'],
+  });
+  const run = (command: 'acceptance_topology_check' | 'pre_review_check_read'): Record<string, unknown> => {
+    const output = execFileSync(process.execPath, [
+      join(args.cliRoot, 'bin/lattice.js'),
+      '--root',
+      args.evidenceGitCwd,
+      command,
+      JSON.stringify({ storyId: args.storyId, json: true }),
+    ], {
+      cwd: args.evidenceGitCwd,
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        LATTICE_SESSION_ID: `rollout-replay-${args.storyId}-${command}`,
+        LATTICE_AGENT: 'acceptance-rollout-verifier',
+      },
+      maxBuffer: 16 * 1024 * 1024,
+    });
+    return JSON.parse(output) as Record<string, unknown>;
+  };
+  return {
+    topologyReport: run('acceptance_topology_check'),
+    preReviewReport: run('pre_review_check_read'),
+  };
+}
+
+function productionGatePassed(state: {
+  topologyReport: Record<string, unknown>;
+  preReviewReport: Record<string, unknown>;
+}): boolean {
+  return state.topologyReport.status === 'pass'
+    && state.preReviewReport.status === 'pass'
+    && state.preReviewReport.ok === true;
+}
+
+function assertCallerReportMatches(
+  caller: Record<string, unknown>,
+  replayed: Record<string, unknown>,
+  label: string,
+): void {
+  if (digest(caller) !== digest(replayed)) {
+    throw new Error(`acceptance rollout observation: caller ${label} does not match production command replay`);
+  }
+}
+
 /**
  * Seal only production command output. This writer refuses invented gate or
- * quorum summaries: the quorum metadata commit must exist in the preserved
- * temp repository and contain the exact six host_verdict rows supplied here.
+ * quorum summaries. Gate reports are independently replayed at immutable
+ * mutation/restoration commits; the quorum commit must contain the exact six
+ * host_verdict rows and descend from the proven restored control.
  */
 export function issueAcceptanceRolloutObservationFromProduction(args: {
   gitCwd: string;
@@ -177,9 +261,6 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
   if (evidence.storyId !== args.storyId || evidence.arm !== args.arm || evidence.scenario !== args.scenario) {
     throw new Error('acceptance rollout observation: production evidence story/arm/scenario mismatch');
   }
-  if (evidence.topologyReport.storyId !== args.storyId || evidence.preReviewReport.storyId !== args.storyId) {
-    throw new Error('acceptance rollout observation: gate report story mismatch');
-  }
   const quorum = evidence.quorumResult;
   if (quorum.schemaVersion !== 'lattice.quorum_submit.v1'
     || quorum.storyId !== args.storyId
@@ -194,10 +275,51 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
     || quorum.reviewEscalationStatus.voluntaryLocalRounds.complete !== true) {
     throw new Error('acceptance rollout observation: production quorum receipt is not full-3x2');
   }
-  execFileSync('git', ['cat-file', '-e', `${quorum.metadataCommitSha}^{commit}`], {
-    cwd: args.evidenceGitCwd,
-    stdio: ['ignore', 'ignore', 'pipe'],
-  });
+  assertCommitExists(args.evidenceGitCwd, evidence.mutationCommitSha, 'mutation');
+  assertCommitExists(args.evidenceGitCwd, evidence.restorationCommitSha, 'restoration');
+  assertCommitExists(args.evidenceGitCwd, quorum.metadataCommitSha, 'quorum');
+  if (evidence.mutationCommitSha === evidence.restorationCommitSha) {
+    throw new Error('acceptance rollout observation: restoration commit must be later than mutation commit');
+  }
+  assertAncestor(args.evidenceGitCwd, evidence.mutationCommitSha, evidence.restorationCommitSha, 'mutation-to-restoration');
+  assertAncestor(args.evidenceGitCwd, evidence.restorationCommitSha, quorum.metadataCommitSha, 'restoration-to-quorum');
+  const trackedDirty = gitOutput(args.evidenceGitCwd, ['status', '--porcelain', '--untracked-files=no']);
+  if (trackedDirty) {
+    throw new Error('acceptance rollout observation: preserved production repository has tracked changes');
+  }
+  const originalHead = gitOutput(args.evidenceGitCwd, ['rev-parse', 'HEAD']);
+  const originalBranch = gitOutput(args.evidenceGitCwd, ['symbolic-ref', '--quiet', '--short', 'HEAD']);
+  if (originalBranch !== `story/${args.storyId}`) {
+    throw new Error('acceptance rollout observation: preserved production repository is not on the story branch');
+  }
+  let mutationState: { topologyReport: Record<string, unknown>; preReviewReport: Record<string, unknown> };
+  let restoredState: { topologyReport: Record<string, unknown>; preReviewReport: Record<string, unknown> };
+  try {
+    mutationState = replayProductionGateState({
+      cliRoot: args.gitCwd,
+      evidenceGitCwd: args.evidenceGitCwd,
+      storyId: args.storyId,
+      commitSha: evidence.mutationCommitSha,
+    });
+    restoredState = replayProductionGateState({
+      cliRoot: args.gitCwd,
+      evidenceGitCwd: args.evidenceGitCwd,
+      storyId: args.storyId,
+      commitSha: evidence.restorationCommitSha,
+    });
+  } finally {
+    execFileSync('git', ['checkout', '--quiet', '--force', '-B', originalBranch, originalHead], {
+      cwd: args.evidenceGitCwd,
+      stdio: ['ignore', 'ignore', 'pipe'],
+    });
+  }
+  assertCallerReportMatches(evidence.topologyReport, mutationState.topologyReport, 'mutation topology report');
+  assertCallerReportMatches(evidence.preReviewReport, mutationState.preReviewReport, 'mutation pre-review report');
+  assertCallerReportMatches(evidence.restoredTopologyReport, restoredState.topologyReport, 'restored topology report');
+  assertCallerReportMatches(evidence.restoredPreReviewReport, restoredState.preReviewReport, 'restored pre-review report');
+  if (!productionGatePassed(restoredState)) {
+    throw new Error('acceptance rollout observation: restored control did not rerun PASS');
+  }
   const storyPath = `.lattice/story/actives/${args.storyId}/process-events.jsonl`;
   const committedEvents = execFileSync('git', ['show', `${quorum.metadataCommitSha}:${storyPath}`], {
     cwd: args.evidenceGitCwd,
@@ -210,6 +332,8 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
     || evidence.hostVerdicts.some(row => digest(row) !== digest(committedById.get(row.verdictId)))) {
     throw new Error('acceptance rollout observation: host verdict rows do not match the immutable quorum commit');
   }
+  const canonicalHostVerdicts = quorum.verdictIds.map(id =>
+    committedById.get(id) as unknown as AcceptanceRolloutHostVerdictReceiptV1);
   const actualPassIds = new Set(evidence.reviewPasses.map(row => String(row.id ?? '')));
   if (quorum.reviewerPasses.some(pass => !actualPassIds.has(pass.passId))) {
     throw new Error('acceptance rollout observation: quorum reviewer-pass refs are missing from actual production passes');
@@ -221,8 +345,8 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
       storyId: args.storyId,
       pairId: args.pairId,
       arm: args.arm,
-      report: evidence.topologyReport,
-      artifactDigest: digest(evidence.topologyReport),
+      report: mutationState.topologyReport,
+      artifactDigest: digest(mutationState.topologyReport),
     },
     {
       schemaVersion: 'proofstory.acceptance_rollout_gate_artifact.v1',
@@ -230,14 +354,14 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
       storyId: args.storyId,
       pairId: args.pairId,
       arm: args.arm,
-      report: evidence.preReviewReport,
-      artifactDigest: digest(evidence.preReviewReport),
+      report: mutationState.preReviewReport,
+      artifactDigest: digest(mutationState.preReviewReport),
     },
   ];
   const privateKey = readOrCreatePrivateKey(args.gitCwd);
   const signerPublicKey = publicKeyForPrivate(privateKey);
-  const topologyStatus = String(evidence.topologyReport.status ?? '');
-  const preReviewStatus = String(evidence.preReviewReport.status ?? '');
+  const topologyStatus = String(mutationState.topologyReport.status ?? '');
+  const preReviewStatus = String(mutationState.preReviewReport.status ?? '');
   const expectedCode = args.scenario === 'omission'
     ? 'PR_NEW_PATH_UNMAPPED'
     : args.scenario === 'forgery'
@@ -245,12 +369,12 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
       : args.scenario === 'freshness'
         ? 'PR_EVIDENCE_STALE'
         : 'CONTROL_PASS';
-  const preReviewCodes = Array.isArray(evidence.preReviewReport.codes)
-    ? evidence.preReviewReport.codes.map(String)
+  const preReviewCodes = Array.isArray(mutationState.preReviewReport.codes)
+    ? mutationState.preReviewReport.codes.map(String)
     : [];
   const mutationObserved = args.arm === 'candidate' && args.scenario !== 'control'
     ? (preReviewCodes.includes(expectedCode) ? expectedCode : preReviewCodes[0] ?? 'MISSING')
-    : (topologyStatus === 'pass' && (preReviewStatus === 'pass' || evidence.preReviewReport.ok === true)
+    : (topologyStatus === 'pass' && (preReviewStatus === 'pass' || mutationState.preReviewReport.ok === true)
       ? 'CONTROL_PASS'
       : 'CONTROL_FAILED');
   const reviewRoundIds = uniqueSorted(evidence.reviewRuns
@@ -262,7 +386,7 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
     pairId: args.pairId,
     arm: args.arm,
     gateArtifacts,
-    hostVerdicts: evidence.hostVerdicts,
+    hostVerdicts: canonicalHostVerdicts,
     quorumReceipt: {
       schemaVersion: 'lattice.quorum_submit.v1',
       storyId: quorum.storyId,
@@ -277,14 +401,16 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
     reviewRoundIds,
     waiverRefs: [],
     usageEvents: [],
-    transcriptRefs: evidence.preReviewReport.transcript === 'related'
+    transcriptRefs: mutationState.preReviewReport.transcript === 'related'
       ? [`${args.storyId}:pre-review:related-transcript`]
       : [],
     mutationResults: [{
       mutationId: `${args.storyId}:${args.scenario}`,
       expectedCode,
       observedCode: mutationObserved,
-      controlRestored: true,
+      mutationCommitSha: evidence.mutationCommitSha,
+      restorationCommitSha: evidence.restorationCommitSha,
+      controlRestored: productionGatePassed(restoredState),
     }],
     checkInventory: ['acceptance_topology_check', 'pre_review_check', 'acceptance_rollout_check'],
     issuedAt: args.issuedAt,
@@ -431,7 +557,12 @@ function verifyObservation(
   });
   const mutationBites = receipt.mutationResults.length > 0
     && receipt.mutationResults.every(item =>
-      item.expectedCode.length > 0 && item.expectedCode === item.observedCode && item.controlRestored === true);
+      item.expectedCode.length > 0
+      && item.expectedCode === item.observedCode
+      && /^[a-f0-9]{40}$/.test(item.mutationCommitSha)
+      && /^[a-f0-9]{40}$/.test(item.restorationCommitSha)
+      && item.mutationCommitSha !== item.restorationCommitSha
+      && item.controlRestored === true);
   const costUnits = receipt.usageEvents.reduce((sum, event) =>
     sum + (Number.isFinite(event.costUnits) && event.costUnits >= 0 ? event.costUnits : Number.NaN), 0);
   if (!Number.isFinite(costUnits)

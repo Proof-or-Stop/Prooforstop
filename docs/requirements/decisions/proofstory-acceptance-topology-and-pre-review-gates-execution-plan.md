@@ -750,8 +750,9 @@ above:
 ```
 
 The PLAN and pre-REVIEW refs, receipts, and digests are deliberately different.
-The example illustrates the target shape only. It is not a claim that this
-schema or command exists.
+The example is an illustrative, abridged shape of the implemented canonical
+schema and command; omitted fields and values remain governed by the runtime
+schema and verifier.
 
 ### 5.4 PLAN-safe new-path example
 
