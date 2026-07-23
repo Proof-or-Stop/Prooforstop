@@ -82,6 +82,35 @@
           "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:real-cohort-receipt",
+            "desc": "A reproducible runner executes comparable real baseline and candidate high-assurance Story cohorts and the verifier deterministically derives aggregates and PASS/FAIL from source case records, binding sample identities, project/threshold version, story/material hashes, cost, review rounds, waivers, adapter results, and full-3x2 provider/quorum evidence into a signed/hash-verified receipt; caller-supplied verdicts or aggregates are rejected.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:false-block-controls",
+            "desc": "The same cohort includes docs-only, legacy, and ordinary single-outcome controls plus honest partial/unsupported adapter cases, reports a zero false-block rate for supported controls, and exposes identical computed metrics and diagnostics through write/read/check surfaces without mode-dependent relabeling.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:seeded-defects",
+            "desc": "Real-consumer seeded omission and forgery mutations—including removing C2 only from topology while its independently derived basis retains C2—must be detected 100% on supported adapters; tampering source rows, hashes, signature, freshness, provider identity, or relabeling degraded 3x1 as full 3x2 must fail with deterministic codes, then restoration must reproduce the clean PASS transcript.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
