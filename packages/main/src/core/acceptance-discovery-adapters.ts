@@ -12,6 +12,7 @@ import type {
 import { digestCanonicalJson, digestText } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
 import { RUNTIME_FACT_REGISTRY } from './runtime-fact-registry.js';
+import { LATTICE_STORY_DIR } from './lattice-paths.js';
 
 export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
   ref: 'profile:typescript-proof-gate:plan:v1',
@@ -147,6 +148,12 @@ interface BindingAnalysisContext {
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
 const SOURCE_INVENTORY_EXCLUDED_DIRECTORIES = new Set(['.git', '.lattice', '.worktrees', 'dist', 'node_modules']);
+const GENERATED_PROOF_ARTIFACT_BASENAMES = new Set([
+  'acceptance-basis.json',
+  'pre-review-check.json',
+  'topology-critic-receipt.json',
+  'topology-exclusion-approvals.json',
+]);
 const DEFAULT_SOURCE_INVENTORY_BUDGET = {
   maxDirectories: 10_000,
   maxEntries: 100_000,
@@ -1049,17 +1056,36 @@ function topologyFactNames(input: AcceptanceDiscoveryInput): Set<string> {
     .filter(Boolean));
 }
 
-function sourceSeedFiles(input: AcceptanceDiscoveryInput): string[] {
+function generatedStoryArtifactDirectory(context: SourceReadContext, storyId: string): string | null {
+  try {
+    const read = readSourceSafely(context, 'lattice.config.json', MAX_LATTICE_CONFIG_BYTES);
+    if (read.text === undefined) return null;
+    const parsed = JSON.parse(read.text) as Record<string, unknown>;
+    const configured = parsed.storyDir ?? LATTICE_STORY_DIR;
+    if (typeof configured !== 'string' || configured.trim().length === 0
+      || isAbsolute(configured) || configured.split(/[\\/]/).includes('..')) return null;
+    return `${configured.replace(/\\/g, '/').replace(/\/+$/, '')}/${storyId}/`;
+  } catch { return null; }
+}
+
+function sourceSeedFiles(input: AcceptanceDiscoveryInput, storyArtifactDirectory: string | null): string[] {
+  // These files remain scope/process-fact evidence, but their generated
+  // bytes cannot define the source closure that signs the next generation.
   return stable([
     ...input.scopeRefs.filter(ref => ref.startsWith('scope:file:')).map(ref => ref.slice('scope:file:'.length)),
     ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
-  ]);
+  ]).filter(file => {
+    const canonical = file.replace(/\\/g, '/');
+    return !(storyArtifactDirectory
+      && canonical.startsWith(storyArtifactDirectory)
+      && GENERATED_PROOF_ARTIFACT_BASENAMES.has(canonical.split('/').at(-1) ?? ''));
+  });
 }
 
 function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSourceGraph {
   const root = input.workspaceRoot;
   const readContext = createSourceReadContext(root);
-  const seedFiles = sourceSeedFiles(input);
+  const seedFiles = sourceSeedFiles(input, generatedStoryArtifactDirectory(readContext, input.storyId));
   const sourceInventory = configuredSourceInventory(root, readContext);
   const blindSpots: string[] = [...sourceInventory.blindSpots];
   const registryCandidates = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)]);

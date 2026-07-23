@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  acceptanceCoverageBasisSemanticDigest,
   deriveAcceptanceCoverageBasis,
   derivePlannedCoveragePaths,
   computeClosureFilesHash,
@@ -1189,6 +1190,7 @@ try {
   git(root, ['config', 'user.name', 'Basis Smoke']);
   write(root, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures' }, null, 2));
   write(root, 'packages/main/tsconfig.json', '{}\n');
+  write(root, 'packages/main/src/acceptance-basis.json', '{"staticSource":true}\n');
   write(root, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
   write(root, 'packages/main/src/consumer.ts', "import { produceBasis } from './producer.js'; export const verifyBasis = () => produceBasis(); export const invokeBasis=()=>verifyBasis();\n");
   writeCanonicalAcceptanceRegistration(root);
@@ -1199,7 +1201,10 @@ try {
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist());
   store.writeProofStoryContract(storyId, contract());
-  store.writeScopeContract(storyId, scopeContract());
+  const cliScopeContract = scopeContract();
+  cliScopeContract.allowedModify.push(`.lattice/story/actives/${storyId}/acceptance-basis.json`);
+  cliScopeContract.allowedModify.push('packages/main/src/acceptance-basis.json');
+  store.writeScopeContract(storyId, cliScopeContract);
   store.writeScopeCheck(storyId, scopeCheck(root));
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'seed real basis repo']);
@@ -1212,6 +1217,44 @@ try {
   assert.equal(artifact.basis.status, 'complete', `${generated}\nCLI CHECKLIST:\n${cliChecklist}`);
   const control = verifyAcceptanceBasisReceipt({ artifact, gitCwd: root, metadataRoot: root, expectedStoryId: storyId });
   assert.equal(control.ok, true, control.diagnostics.join('; '));
+  assert.ok(
+    artifact.basis.enumeratedPathRefs.some(ref => ref.includes('path:process-fact:artifact:acceptance-basis.json->consumer:')),
+    'generated acceptance-basis artifact retains its canonical process-fact consumer path',
+  );
+  assert.equal(
+    artifact.basis.sourceInventoryRefs.some(ref => ref === `source-file:closure:.lattice/story/actives/${storyId}/acceptance-basis.json`),
+    false,
+    'generated acceptance-basis bytes are not source closure content',
+  );
+  assert.ok(
+    artifact.basis.sourceInventoryRefs.includes('source-file:closure:packages/main/src/acceptance-basis.json'),
+    'a same-basename static source outside the configured story artifact directory remains in closure',
+  );
+  const firstSemanticDigest = acceptanceCoverageBasisSemanticDigest(artifact.basis);
+  const firstClosureFilesHash = artifact.basis.binding.closureFilesHash;
+  writeFileSync(
+    join(root, `.lattice/story/actives/${storyId}/acceptance-basis.json`),
+    `${readFileSync(join(root, `.lattice/story/actives/${storyId}/acceptance-basis.json`), 'utf8')}\n`,
+  );
+  const regenerated = run(root, 'acceptance_basis_generate', { storyId, json: true });
+  assert.match(regenerated, /proofstory\.acceptance_basis_artifact\.v1/);
+  artifact = store.readAcceptanceBasis(storyId)!;
+  assert.equal(artifact.basis.status, 'complete', 'consecutive generation remains complete after generated-artifact content mutation');
+  assert.equal(artifact.basis.binding.closureFilesHash, firstClosureFilesHash, 'generated-artifact mutation does not stale source closure');
+  assert.equal(acceptanceCoverageBasisSemanticDigest(artifact.basis), firstSemanticDigest, 'generated-artifact mutation does not alter basis semantics');
+  const stableRead = run(root, 'acceptance_basis', { storyId, json: true });
+  const stableTopology = run(root, 'acceptance_topology_check', { storyId, json: true });
+  assert.doesNotMatch(stableRead, /AT_ADAPTER_RESULT_DIGEST_MISMATCH|AT_CLOSURE_FILES_STALE/);
+  assert.doesNotMatch(stableTopology, /AT_ADAPTER_RESULT_DIGEST_MISMATCH|AT_CLOSURE_FILES_STALE/);
+  write(root, 'packages/main/src/acceptance-basis.json', '{"staticSource":false}\n');
+  assert.match(
+    run(root, 'acceptance_basis', { storyId, json: true }),
+    /basis semantic discovery digest mismatch|snapshot seal digest mismatch|"status": "invalid"/,
+    'same-basename static source mutation still bites',
+  );
+  write(root, 'packages/main/src/acceptance-basis.json', '{"staticSource":true}\n');
+  run(root, 'acceptance_basis_generate', { storyId, json: true });
+  artifact = store.readAcceptanceBasis(storyId)!;
 
   rmSync(join(root, 'packages/main/tsconfig.json'));
   git(root, ['add', '-A']);
