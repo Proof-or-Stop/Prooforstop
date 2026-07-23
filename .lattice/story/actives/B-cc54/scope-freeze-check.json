@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-cc54",
+  "checkedAt": "2026-07-23T23:31:40.694Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "6f05c6c21f812aa76f891ff83a42fd5cce9f9c5079be1f3f0147dc47f1d12c07",
+  "executionBoundaryHash": "ad3c64c7bd67371d771d9f77edd59ef27997b31dc0b8d3a54da6676dbc03a0a4",
+  "freshnessHash": "824f3403fd6edb5a51d35637aaa19c41adf331d743ecc79dd11e15ee0a6538c1",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Codex orchestrator busy-wait polling (item 2; lives outside this repo)",
+    "context compaction behaviour (item 3; outside this repo)",
+    "customerKeyRef",
+    "global cap on review rounds (would cut off genuinely converging reviews)",
+    "Layer4",
+    "packages/main/src/handlers/finding.ts (must NOT auto-rewrite finding agent attribution; that would forge review provenance)",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Codex orchestrator busy-wait polling (item 2; lives outside this repo)",
+      "source": "scopeBoundary.excluded",
+      "text": "Codex orchestrator busy-wait polling (item 2; lives outside this repo)",
+      "excluded": true
+    },
+    {
+      "keyword": "context compaction behaviour (item 3; outside this repo)",
+      "source": "scopeBoundary.excluded",
+      "text": "context compaction behaviour (item 3; outside this repo)",
+      "excluded": true
+    },
+    {
+      "keyword": "global cap on review rounds (would cut off genuinely converging reviews)",
+      "source": "scopeBoundary.excluded",
+      "text": "global cap on review rounds (would cut off genuinely converging reviews)",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/src/handlers/finding.ts (must NOT auto-rewrite finding agent attribution; that would forge review provenance)",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/handlers/finding.ts (must NOT auto-rewrite finding agent attribution; that would forge review provenance)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "4771c7c042fd57eb4c193dd91e4df6150abc8136240e5996fb3e594432ab8726"
+}
