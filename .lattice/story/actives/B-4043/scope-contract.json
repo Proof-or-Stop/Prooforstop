@@ -89,10 +89,33 @@
         "acceptance_rollout_report",
         "pre_review_check"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required by verified REVIEW finding F-002: bind executable proof records to canonical assertion semantics and reject same-ID/sourceRef cases whose target or mutation semantics are unrelated; implemented through the existing decoder path to avoid an unplanned topology edge.",
+      "timestamp": "2026-07-23T19:26:47.071Z",
+      "paths": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "d8e3b3a8149392c4d55f7ad0daf0368d0e277f6c",
+      "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+      "anchors": [
+        "B4043_F002",
+        "REGISTERED_PRE_REVIEW_SCENARIO_SEMANTICS",
+        "decodePreReviewCaseRecords"
+      ]
     }
   ],
   "createdAt": "2026-07-23T16:52:35.523Z",
-  "updatedAt": "2026-07-23T18:03:30.739Z",
+  "updatedAt": "2026-07-23T19:26:47.071Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -134,6 +157,8 @@
     "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     ".lattice/story/actives/B-4043/acceptance-rollout-report.json": ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
-    ".lattice/story/actives/B-4043/pre-review-check.json": ".lattice/story/actives/B-4043/pre-review-check.json"
+    ".lattice/story/actives/B-4043/pre-review-check.json": ".lattice/story/actives/B-4043/pre-review-check.json",
+    "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts"
   }
 }
