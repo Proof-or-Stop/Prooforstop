@@ -163,3 +163,19 @@ DoneWhen is satisfied by traceable text, plus the two folded-in product-review a
 gate-consumption query contract (§1, drawing the W2/W3 boundary) and the legacy-record posture (§4). The
 document is the citable acceptance contract for the W2 implementation stories; no implementation code is in
 scope here.
+
+## CHK-005 Gate-consumption query contract defining the W2/W3 boundary
+
+Problem: nothing today specifies WHAT a ProofStory gate may ask of the RED-evidence subsystem or what shape the answer takes; without a pinned read-only query contract, W3's enforcement wiring would invent its own access pattern and the W2/W3 boundary would blur into implementation-time decisions.
+
+Approach: the spec adds a "Gate-consumption query contract" section: the single read-only query (inputs: storyId + acceptance target ref; output: latest chain-head record status, GREEN/RED verdict, freshness binding), the answers for edge states (no records; quarantined head; superseded-unreplaced head; freshness-mismatched head), and a boxed boundary statement with a MUST NOT list (W2 exposes only the read-only query; no gate writes through it; every enforcement decision derived from the answer belongs to W3).
+
+Acceptance: a W3 implementer can wire the gate from this section alone with zero design decisions; each edge state has exactly one specified answer; the MUST NOT list forecloses write-through and enforcement creep.
+
+## CHK-006 Legacy red-evidence record posture
+
+Problem: existing .lattice/story/actives/<id>/red-evidence.json records predate the subsystem; without a normative posture, the enforce flip would either strand in-flight stories or silently accept unverifiable records — and a downgrade loophole (recreating a record "as legacy") could bypass the envelope rules.
+
+Approach: the spec adds a "Legacy record posture" section: ONE normative decision (grandfathered / migrated / invalidated) with rationale, the transition rule for a story mid-lifecycle at the enforce flip (what the gate answers and what, if anything, the owner must do), and the loophole closure binding legacy status to record creation time relative to the subsystem's adoption point.
+
+Acceptance: implementation stories can cite the posture verbatim; the in-flight case has a deterministic outcome; a post-adoption record can never claim legacy treatment.
