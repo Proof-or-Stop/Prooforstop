@@ -490,6 +490,21 @@
       ],
       "signatureTag": "adversarial|ts|live-proof-case",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4ec1:F-024",
+      "desc": "F-021 remains stale on the current tracked runner. `pre_review_check_read` reports PASS, but its signed executableProof provenance contains runnerDigest sha256:e45f900... and targetDigest sha256:4a64c924..., while the current files hash to f67d6d99... (`scripts/run-proofstory-pre-review-live-proof.mjs`) and cfa0f352... (`packages/main/dist/tasks/proofstory-pre-review-check-smoke.js`). The decoded 22 accepted case records also do not match the current assertion sites: the artifact records A-MUT-7 (topology-only omission) as `enable enforce mode without a current independent critic receipt` and A-MUT-15 (critic re-attestation) as topology omission, whereas current tracked source at packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:357-368 and :475-480 assigns A-MUT-7 to the omission and A-MUT-15 to critic re-attestation. Thus exact-ID completeness/17 mutations can remain green while a stale or semantically different compiled runner proof is accepted as current. Make the read/gate verifier compare runner+target provenance to the current tracked source/build, reject mismatch, regenerate the live transcript/pre_review_check from the current runner, and assert decoded case assertionSite/command semantics match the topology intent refs before resolving F-021.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-23T04:15:49.099Z",
+      "reviewRound": "2026-07-23T04:11:56.497Z",
+      "reviewRunId": "B-4ec1:RR-014",
+      "_hash": "e30baca1afc90721042d98146ecd78525f7b91c98a239acd26e09cb0337c0bbb",
+      "signatureTag": "adversarial|unknown|remains-stale-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
