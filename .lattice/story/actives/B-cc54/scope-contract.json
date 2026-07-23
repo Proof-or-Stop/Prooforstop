@@ -1,0 +1,38 @@
+{
+  "storyId": "B-cc54",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/convergence-breaker.ts",
+    "packages/main/src/core/machine.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/gate-repeat-block.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/handlers/finding.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/review-convergence.ts",
+    "packages/main/src/handlers/transition-effects.ts"
+  ],
+  "scopeChangeReason": "Scope extension after the spike and an empirical self-reproduction: a repeat-block breaker already exists in core/convergence-breaker.ts (B-bbaf), so the defect is not a missing mechanism but a too-coarse dedup key — gateFailureDigest hashes only the first 200 normalized characters, which for ProofStory gate failures is an invariant header, collapsing distinct blockers onto one key and freezing legitimate progress. The fix therefore lands in convergence-breaker.ts rather than in a brand-new module.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-23T23:43:37.515Z",
+  "updatedAt": "2026-07-23T23:55:33.220Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/src/core/gate-repeat-block.ts": "packages/main/src/core/gate-repeat-block.ts",
+    "packages/main/src/tasks/gate-repeat-block-smoke.ts": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/review-convergence.ts": "packages/main/src/core/review-convergence.ts",
+    "packages/main/src/handlers/transition-effects.ts": "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/core/convergence-breaker.ts": "packages/main/src/core/convergence-breaker.ts"
+  }
+}

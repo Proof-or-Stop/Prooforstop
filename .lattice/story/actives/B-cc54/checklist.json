@@ -6,7 +6,17 @@
       "context": "Write a failing test that drives the same gate to refuse N times with an identical block reason (findings attributed to main agent, artifact=test-evidence.json) and asserts that some breaker stops it. It must fail today, proving no repeat-block detection exists. Model the reason on the B-4043 transcript evidence: 61 identical refusals against 54 re-review rounds.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "test",
+            "type": "cli"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      }
     },
     {
       "id": "CHK-002",
