@@ -52,7 +52,45 @@
       "context": "packages/main/src/core/convergence-breaker.ts:475 rewrites any slash-bearing token, collapsing DEV/REVIEW with DEV/TEST and src/core/alpha.ts with src/core/beta.ts. Restrict it to absolute paths anchored at machine-specific roots so relative repo paths and slash-bearing identifiers stay distinct while host-varying paths still collapse.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The convergence-breaker smoke prints passing checks stating that DEV/REVIEW and DEV/TEST digest differently, that two files under a shared first path segment digest differently, and that the same lock path under /Users and under /private/var still digests identically.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two rejection reasons differing only in a slash-bearing identifier (the phase pair DEV/REVIEW versus DEV/TEST) produce different digest keys.",
+            "type": "logic"
+          },
+          {
+            "desc": "Two rejection reasons naming different repo-relative files under a shared first segment (src/core/alpha.ts versus src/core/beta.ts) produce different digest keys.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The same logical lock path rendered under a machine-specific root (/Users/... versus /private/var/...) still produces one digest key, so host-varying paths keep collapsing.",
+            "type": "logic"
+          },
+          {
+            "desc": "A path that begins at a machine-specific root but continues into repo-relative segments is normalized once, without leaving a partially-rewritten remainder that could differ per host.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Restoring the greedy slash-anchored regex makes the new distinctness checks fail while the machine-path collapse check keeps passing, proving both directions are independently bound to this change.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
