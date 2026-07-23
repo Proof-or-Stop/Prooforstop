@@ -4,7 +4,7 @@
   "title": "Implement ProofStory acceptance topology Wave 3 executable pre-review gate",
   "description": "Implement Wave 3 from the approved ProofStory acceptance-topology plan: pre_review_check recomputes current-worktree coverage basis, reconciles planned-to-actual paths, verifies executable producer-consumer evidence, omission mutation polarity, transcript relations, admissible authority and freshness, and fails closed before REVIEW. This wave must not implement optional selective applicability (Wave 3A) or measured rollout (Wave 4).",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-07-22T22:28:15.623Z",
   "startedAt": "2026-07-22T22:28:15.623Z",
-  "endedAt": null,
+  "endedAt": "2026-07-23T16:27:45.666Z",
   "events": [
     {
       "phase": "INIT",
@@ -555,12 +555,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-4621f4021dd954cef7dd0723a9836c5c",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-23T16:27:45.666Z",
+      "branch": "story/B-4ec1",
+      "user": "Harmonygo",
+      "sessionId": "sess-4621f4021dd954cef7dd0723a9836c5c",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-4ec1",
-    "branch": "story/B-4ec1",
-    "createdAt": "2026-07-22T22:30:28.448Z"
-  },
   "currentReviewRound": "2026-07-23T15:50:51.194Z"
 }
