@@ -383,7 +383,7 @@
       "desc": "packages/main/src/core/acceptance-discovery-adapters.ts:1329-1344 — F-013 producer-to-consumer relation is still file-wide for cross-file imports. importedCall succeeds when any callable in the declared consumer file calls the producer import; it is not scoped to consumer.expectedSymbolOrFact. A file can export a reachable consumeFact that returns an unrelated value, while a separate decoy function calls produceFact, and actualEndpointPathRefs will certify the planned producer→consumeFact relation. The current tests cover missing/type/dead/unreachable names but not this wrong-relation decoy. Resolve the imported binding within the AST body of the exact declared consumer callable (or a typed registered process-fact relation), and add a same-file decoy-caller mutation that must yield PR_PLANNED_PATH_UNRESOLVED before the direct consumeFact→produceFact control is restored.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-23T03:02:18.704Z",
@@ -391,7 +391,11 @@
       "reviewRunId": "B-4ec1:RR-009",
       "_hash": "ae95079362a10c3fe3b7f50ee33fb481e8449f8a61f44513a2d47eb0c085e210",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed decoy-caller bypass: imported relation is constrained to the declared consumer symbol body; decoy mutation fails. Final planned process_fact producer to runPreReviewCheckGate consumer reconciles exactly 1/1.",
+      "resolvedAt": "2026-07-23T04:12:20.750Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-020",
