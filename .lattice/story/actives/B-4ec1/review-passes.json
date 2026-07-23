@@ -184,6 +184,64 @@
         "scanEscalationReason": null
       },
       "_hash": "82738c5c72bcb66af19686c31ebfce79463b9f49185b3a02b05b36ae9f15bf2d"
+    },
+    {
+      "id": "B-4ec1:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Round 6 docs/code review found no blocker. Step 1 extracted 452 unique diff declarations with the prescribed broad regex; exact exported-symbol doc search produced 0 paragraphs, so fallback comparison covered 6 relevant CLI/decision-plan sections plus the changed command schemas, shared verifier/lifecycle consumer, process-fact registry/contract, and the bounded self-reference fix. The fix excludes only canonical generated proof artifacts at the configured Story root from defining their next source-closure signature; same-basename static and nested files remain closure-bound, consistent with docs defining closureFilesHash over discovered producer/consumer source files. Process-fact contract passed.",
+      "createdAt": "2026-07-23T05:34:44.216Z",
+      "reviewRound": "2026-07-23T05:31:34.988Z",
+      "reviewRunId": "B-4ec1:RR-024",
+      "envelopeId": "42f319b015597f832f1c7bd5eed4cf2346996d2009259ea2212094c599702678",
+      "writerSessionId": "sess-872bc58e0ad1f469e0a43618268af570",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "fe40fca0be7ee293ecadce19f71c69ffca1d9617c1f397c1e28a201cb5aa37cc"
     }
   ]
 }
