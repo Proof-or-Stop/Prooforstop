@@ -1,6 +1,6 @@
 {
   "storyId": "B-4ec1",
-  "checkedAt": "2026-07-23T12:59:17.985Z",
+  "checkedAt": "2026-07-23T13:02:03.834Z",
   "features": [
     {
       "feature": "Canonical signed pre_review_check artifact, verifier-owned result codes, persistence, CLI producer and read-only diagnostics",
@@ -45,11 +45,11 @@
       "source": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts; packages/main/src/core/acceptance-discovery-adapters.ts; packages/main/src/core/pre-review-live-proof.ts"
     },
     {
-      "feature": "The live_smoke_transcript producer proves related producer-before-consumer execution and receives the exact canonical pre-review proof budget; near-miss/composed/injected commands retain the arbitrary ceiling",
+      "feature": "The live_smoke_transcript producer proves related producer-before-consumer execution and receives the exact canonical pre-review proof budget; the registered process fact is basis-enumerated and timeout-budget source bytes are closure-bound while near-miss commands retain the arbitrary ceiling",
       "covered_by": "CHK-003 / VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY, VI-W3-M3-BYPASS-CAMPAIGN and VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX",
       "status": "covered",
       "excluded_by": null,
-      "source": "process-fact:live_smoke_transcript; packages/main/src/core/done-required-timeout-budget.ts#liveSmokeCaptureBudget -> packages/main/src/handlers/live-smoke-transcript.ts#liveSmokeCaptureBudget; packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      "source": "process-fact:live_smoke_transcript; scope:file:packages/main/src/core/done-required-timeout-budget.ts; source-file:packages/main/src/core/done-required-timeout-budget.ts; packages/main/src/tasks/live-smoke-transcript-smoke.ts"
     },
     {
       "feature": "Evidence authority, cutoff, executable provenance, hashes, signatures and temporal freshness fail closed under tamper, replay and drift",
@@ -121,6 +121,6 @@
     "drift": 0
   },
   "reviewRound": "2026-07-23T05:31:34.988Z",
-  "_hash": "83071509dc8f0b015478216725ae549902252b323384822d94b03c3265ddb242",
+  "_hash": "3dbfb5ea8fafd93513fee6a93dace449b46667d54b99725e97400e2eeb6e31ea",
   "openQuestions": []
 }
