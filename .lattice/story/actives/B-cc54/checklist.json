@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "RED: reproduce an unbounded repeat-block loop against a phase gate",
+      "context": "Write a failing test that drives the same gate to refuse N times with an identical block reason (findings attributed to main agent, artifact=test-evidence.json) and asserts that some breaker stops it. It must fail today, proving no repeat-block detection exists. Model the reason on the B-4043 transcript evidence: 61 identical refusals against 54 re-review rounds.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Record consecutive identical gate blocks per story",
+      "context": "Add a repeat-block ledger keyed on (storyId, gate, digest of the block reason). Increment on an identical consecutive block; reset when the gate passes or the block reason changes, so a genuinely progressing review is never penalised.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Hard-stop after the threshold and name the unmet precondition",
+      "context": "When the counter reaches the threshold (default 3), stop the loop and emit a diagnostic that states the actual unmet precondition rather than a generic refusal, e.g. that findings lack agent attribution and that re-review cannot clear it because attribution is fixed at finding_add time.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Keep the breaker fail-closed and non-forging",
+      "context": "Prove by test that tripping the breaker never marks the gate satisfied, never rewrites finding attribution, and never advances the phase. The breaker only stops and reports; review independence must remain intact.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Smoke coverage for fire, no-fire and reset",
+      "context": "Cover three cases: breaker fires at the threshold on identical repeated blocks; breaker does NOT fire when the block reason changes between attempts; counter resets after the gate passes. Register the smoke in the validate command set.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

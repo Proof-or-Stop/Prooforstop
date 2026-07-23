@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-07-23, token-burn forensics on story B-4043 (ProofStory acceptance topology) traced a 3.4-day, 50MB autonomous Codex session (rollout-2026-07-20T11-09-32, frozen at 53,548,175 bytes). In that transcript the strings 'refuse to advance', 'marked as main agent' and 'must pass the agent parameter' each occur exactly 61 times, and 'informed targeted re-review' occurs 54 times. Review rounds reached 26 on B-235e, and round 15 on B-407c is referenced 353 times. The rounds were byte-identical apart from the incrementing round number.
+
+## Key Insights
+The loop was not whack-a-mole findings and not new information per round. The blocking condition was a provenance rule: a finding recorded without an explicit agent parameter is attributed to the main agent, so the DONE gate (test gate=storyMachine.canFinish, artifact=test-evidence.json) refuses to advance. The orchestrator's standing remedy for a refused gate is to run another targeted re-review round, but another review round never changes the attribution of findings that were already recorded. The remedy is structurally incapable of clearing that block, and no component detects the repetition, so the loop is unbounded.
+
+## Solution Tradeoffs
+Prefer a narrow repeat-block detector in the gate layer, keyed on (storyId, gate, blockReason digest), that hard-stops after N identical consecutive blocks and reports the unmet precondition. Rejected alternatives: auto-fixing finding attribution, which would forge review provenance and defeat the independence the gate exists to protect; and a global cap on review rounds, which would also cut off reviews that are genuinely converging. The breaker must stay fail-closed: it stops work and reports, it must never auto-satisfy a gate.
+
+## Conversational Texture
+The user explicitly rejected 'stop and hand to human adjudication' as a design, asking for remediation that does not require a person in the loop. The breaker therefore has to emit a precise, machine-actionable diagnostic naming the unmet precondition, so an unattended agent can correct course by itself instead of paging a human. The user also wants problems handled when found rather than queued behind confirmation.
