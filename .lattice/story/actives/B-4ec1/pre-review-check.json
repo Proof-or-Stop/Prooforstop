@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-4ec1",
   "mode": "observe",
-  "cutoffAt": "2026-07-23T14:26:02.063Z",
+  "cutoffAt": "2026-07-23T14:27:14.741Z",
   "planBasisDigest": "sha256:aabb928e75bab8b7537aece291fc10cb55ab6b43903c50bbe9cc603e98f3f4f1",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -590,7 +590,155 @@
   "scopeContractDigest": "sha256:58f3927931f1234aa3aacd91e0d6237632d6eff74bb609cac3d272e0216a4162",
   "storyFilesHash": "8a0fea4ce0beea335b08ebf7ded9e4611648ff789b374f0251435b66cfb4983a",
   "closureFilesHash": "sha256:59ba3e6830ecf2306d3af66a240c40a1a7da002b97075886100c8700dbf205af",
-  "evidenceRefs": [],
+  "evidenceRefs": [
+    {
+      "intentRef": "VI-W3-M1-CALLER-AUTHORITY-REPLAY",
+      "itemId": "CHK-001",
+      "evidenceIndex": 4,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:240a1961ed07ff1700cd09c2442a98aa12fcb5f56e89e5e53d8435d99bc91362"
+    },
+    {
+      "intentRef": "VI-W3-M1-DETERMINISTIC-CODES",
+      "itemId": "CHK-001",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:fbc3027be5e4573313c8c3694988850b0a30cb445bdc37ced6e2b707e299985e"
+    },
+    {
+      "intentRef": "VI-W3-M1-EVERY-BINDING-TAMPER",
+      "itemId": "CHK-001",
+      "evidenceIndex": 3,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:5abe307aedb680851e56cacd160b093726247da309c03036f69b1e54da7de633"
+    },
+    {
+      "intentRef": "VI-W3-M1-PRE-REVIEW-ROUNDTRIP",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:7ca0a3470fcc338f5707297c001645b48f4bf1954fd7041366e1719a2ac7cb32"
+    },
+    {
+      "intentRef": "VI-W3-M1-PRODUCER-CONSUMER-PARITY",
+      "itemId": "CHK-001",
+      "evidenceIndex": 2,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:30d6bb25f5cc765e7478e2d13bc6f95db30825e811db71383bfce1ef526c421a"
+    },
+    {
+      "intentRef": "VI-W3-M2-ADAPTER-RECORD-TAMPER",
+      "itemId": "CHK-002",
+      "evidenceIndex": 4,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:3e425281559dd7d01f3a58b5d5024c6ac4be2dbc12a8af365d746fa790594c12"
+    },
+    {
+      "intentRef": "VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION",
+      "itemId": "CHK-002",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:677f882394e179831f526a3a1792579bafc6985fd3bce39b00b6278d6be8d899"
+    },
+    {
+      "intentRef": "VI-W3-M2-DISCOVERY-STATE-CLOSURE",
+      "itemId": "CHK-002",
+      "evidenceIndex": 2,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:40de584bfea5c31c70290d93a29ee9eadac64064ac793370dcc9b39f96756d5f"
+    },
+    {
+      "intentRef": "VI-W3-M2-PLANNED-ACTUAL-MATRIX",
+      "itemId": "CHK-002",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:4c53ea9967586ff5d49b7e23459e2b401ff42c164e60f51e0f6b352a9e4b5447"
+    },
+    {
+      "intentRef": "VI-W3-M2-TOPOLOGY-ONLY-OMISSION",
+      "itemId": "CHK-002",
+      "evidenceIndex": 3,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:676af4f6b70fa45374befe3602ba8c9561917cb407685e2e918db39bddbd8160"
+    },
+    {
+      "intentRef": "VI-W3-M3-BYPASS-CAMPAIGN",
+      "itemId": "CHK-003",
+      "evidenceIndex": 3,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:fa61da31a6ad98392798e56e0197fc840caa441f2746a80cc3cda8ceecc5c8db"
+    },
+    {
+      "intentRef": "VI-W3-M3-MUTATION-POLARITY-RESTORE",
+      "itemId": "CHK-003",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:6f993cdb068152d454e4a5fc3e2afb6cbb2ec7eeef2fc382f908f53798720b50"
+    },
+    {
+      "intentRef": "VI-W3-M3-REAL-PROOF-CHAIN",
+      "itemId": "CHK-003",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:7c29433a3ab4bb6d30be657be2b47829d2275ca195347a797c44ad3840128ea9"
+    },
+    {
+      "intentRef": "VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX",
+      "itemId": "CHK-003",
+      "evidenceIndex": 4,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:1d1184d80bafdb530a9f819d4bd369bd51d77458223841136444a0f5ea46ad82"
+    },
+    {
+      "intentRef": "VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY",
+      "itemId": "CHK-003",
+      "evidenceIndex": 2,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:7c3d9c37f94db6d29e645909e147b7681d18b6fcefd298b63b639eef77b89a70"
+    },
+    {
+      "intentRef": "VI-W3-M4-CRITIC-REATTESTATION",
+      "itemId": "CHK-004",
+      "evidenceIndex": 3,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:7b9d94e768baaf2ca5ca549ce7fc9c9b43642ded8e8600f7f8f889cd905368e5"
+    },
+    {
+      "intentRef": "VI-W3-M4-LEGACY-DOCS-ROLLBACK",
+      "itemId": "CHK-004",
+      "evidenceIndex": 1,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:46d416c54503f41c793bdfc001fe68f8dad2113909ecdee7ced216369bcb95c0"
+    },
+    {
+      "intentRef": "VI-W3-M4-LIFECYCLE-MODE-MATRIX",
+      "itemId": "CHK-004",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:be706ed240ea051636e78250c50c64dc785ef45abebe48eb9412a5c96e683f0e"
+    },
+    {
+      "intentRef": "VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
+      "itemId": "CHK-004",
+      "evidenceIndex": 5,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:9e082f3d51051455653492c20f72833cdc4db95888410defde2c1a29cd9fa147"
+    },
+    {
+      "intentRef": "VI-W3-M4-PROCESS-FACT-FOUR-LAYER",
+      "itemId": "CHK-004",
+      "evidenceIndex": 4,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:ebc6bdc76d1723512116d0039ef34d617e32085b16b225a81abd2eb8f5ee3ee8"
+    },
+    {
+      "intentRef": "VI-W3-M4-STABLE-GATE-CODES",
+      "itemId": "CHK-004",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a8a095a77a176122604a8790e6cb74221be198df6dd2b017e73687a1c6028cf7"
+    }
+  ],
   "executableProof": {
     "schemaVersion": "proofstory.pre_review_executable_proof.v1",
     "storyId": "B-4ec1",
@@ -737,12 +885,9 @@
       }
     ]
   },
-  "codes": [
-    "PR_POSITIVE_EVIDENCE_MISSING",
-    "PR_EVIDENCE_STALE"
-  ],
-  "status": "fail",
-  "issuedAt": "2026-07-23T14:26:02.063Z",
+  "codes": [],
+  "status": "pass",
+  "issuedAt": "2026-07-23T14:27:14.741Z",
   "signerPublicKey": "00gcM7H5Amw/DnKQu6nfdIUKn5PpXXjYXeTQE79mpv0=",
-  "signature": "DxI21UT0MeAbMLd8uVPECYmvhiW0EIfJyv3aJm/TgW1Iz/Fszs66BeuyDb4CVT1pvB3gy5WHyOO22DdYB4ibDg=="
+  "signature": "k6+wrOeW874qlDKhhAAXzoxa96TWJ1ZGdR+f2ioMLHab5HQlqS+iRknZ06xVxDSouAgUyWngLb96bgANZz9GBA=="
 }
