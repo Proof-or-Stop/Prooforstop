@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-407c",
+  "state": "confirmed",
+  "ledgerHash": "sha256:33284689e0ac4df03fba622c896fbb95f921481410370405a1bc809d9b5b8f45",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "S6-ROLE-MIGRATION",
+      "claim": "Five complex roles use persisted trusted modular story-dispatch Prompt Envelopes",
+      "doneMeans": "All five production entrypoints emit current-bound content-addressed modular envelope receipts and preserve exact legacy rollback",
+      "requiredEvidence": [
+        "integration_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "S6-BUDGET-OBSERVE-WARN",
+      "claim": "Story 6 temporary complex-role budgets record nonblocking violations without Story 7 rollout",
+      "doneMeans": "Over-budget dispatch records full violation, completes full correctness path, and reports baselineAccepted=false; no warn-promotion or enforce path exists",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "S6-AB-EVIDENCE",
+      "claim": "Every migrated role has real production-entrypoint legacy versus modular A/B evidence",
+      "doneMeans": "Five current-bound receipt pairs include output and provider dimensions or explicit INCONCLUSIVE values; forged/duplicate/wrong-role receipts reject",
+      "requiredEvidence": [
+        "integration_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "S6-INVARIANTS",
+      "claim": "Delivery, scope, authorship, evaluator, authority, signature and Task Context invariants remain enforced",
+      "doneMeans": "Valid paths pass and every single invariant mutation yields its stable rejection reason without cross-credit",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "S6-INVARIANTS",
+      "claim": "Story 7 promotion and enforce remain absent",
+      "doneMeans": "No legacy isolation, observe-to-warn promotion, compatibility cleanup, or budget enforce branch is introduced",
+      "requiredEvidence": [
+        "docs_check",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:adversarial:0",
+        "CHK-004:edge:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-20T21:35:21.969Z",
+  "updatedAt": "2026-07-21T00:25:52.732Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-STORY6-EVIDENCE-MAP-20260721",
+    "acceptedInterpretationHash": "sha256:7b31bd0694b7b74ead11d38317891b379216975613b97620ee92c4a740a3e020",
+    "acceptedAt": "2026-07-21T00:25:52.732Z"
+  }
+}

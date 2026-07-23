@@ -23,6 +23,7 @@ import {
   materialPathExtension,
   resolveMaterialCodePolicy,
 } from './material-code-policy.js';
+import { GIT_TREE_OUTPUT_MAX_BUFFER } from './evidence-freshness.js';
 
 export const SCOPE_ANCHOR_PARSER_VERSION = `typescript-${ts.versionMajorMinor}-ast-v1` as const;
 export const SCOPE_ANCHOR_ARTIFACT_VERSION = 'lattice.scope-anchor.v1' as const;
@@ -492,7 +493,12 @@ function readUnifiedDiff(gitCwd: string): string {
     ['diff', '--find-renames', '--find-copies', '--unified=20', '--cached'],
   ]) {
     try {
-      const output = execFileSync('git', args, { cwd: gitCwd, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
+      const output = execFileSync('git', args, {
+        cwd: gitCwd,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        maxBuffer: GIT_TREE_OUTPUT_MAX_BUFFER,
+      }).trim();
       if (output) parts.push(output);
     } catch { /* ignore non-git contexts */ }
   }

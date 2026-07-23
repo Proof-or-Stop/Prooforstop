@@ -14,12 +14,15 @@ import {
   validateRuntimeContract,
 } from './prompt-contracts.js';
 import {
+  ACTIVE_MODULAR_REVIEWER_ROLE_IDS,
+  PROMPT_ENVELOPE_ROLLOUT_VERSION,
   PROMPT_ROLE_CONTRACTS,
   PROMPT_ROLE_CONTRACT_REGISTRY_VERSION,
   promptRoleContractRegistryDigest,
+  resolvePromptRoleBody,
   validatePromptRoleContracts,
 } from './prompt-role-contract-registry.js';
-import { readPromptRegistry, readPromptTemplate } from './prompt-registry.js';
+import { readPromptRegistry } from './prompt-registry.js';
 
 export const PROMPT_MEASUREMENT_REPORT_SCHEMA_VERSION = 'proofbound.prompt-measurement-report.v1';
 export const PROMPT_MEASUREMENT_BASELINE_PATH = 'docs/requirements/baselines/role-prompt-measurement-baseline.json';
@@ -28,6 +31,13 @@ const KNOWN_DISPATCH_UNAVAILABLE_REASON =
   'No Story dispatch was performed; launcher/tool/context input is not observable in the no-Story baseline.';
 const PROVIDER_INPUT_UNAVAILABLE_REASON =
   'No provider call was performed; provider system wrappers, cache accounting, and processed input are unobservable.';
+
+const BASELINE_PROMPT_ENVELOPE_ROLLOUT = Object.freeze({
+  version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+  roles: Object.freeze(Object.fromEntries(
+    ACTIVE_MODULAR_REVIEWER_ROLE_IDS.map(roleId => [roleId, 'full-envelope']),
+  )),
+});
 
 const runtimeSemanticValue = {
   schemaVersion: 'proofbound.agent-runtime.v1' as const,
@@ -97,7 +107,11 @@ export function generatePromptMeasurementReport(): PromptMeasurementReport {
   const records = snapshot.agents.map(entry => {
     const roleContract = contractById.get(entry.agentId);
     if (!roleContract) throw new Error(`missing role contract for ${entry.agentId}`);
-    const text = readPromptTemplate(entry);
+    const text = resolvePromptRoleBody(
+      entry.agentId,
+      BASELINE_PROMPT_ENVELOPE_ROLLOUT,
+      snapshot,
+    ).body;
     combinedPrompts.push(text);
     const estimatedTokens = estimatePromptTokens(text);
     const record: PromptMeasurementRecord = {
@@ -118,7 +132,7 @@ export function generatePromptMeasurementReport(): PromptMeasurementReport {
       assembledPromptTokens: {
         availability: 'available',
         tokens: estimatedTokens,
-        source: 'local package prompt registry body',
+        source: 'selected local package role body',
       },
       knownDispatchInputTokens: unavailable(KNOWN_DISPATCH_UNAVAILABLE_REASON),
       providerProcessedInputTokens: unavailable(PROVIDER_INPUT_UNAVAILABLE_REASON),
@@ -127,8 +141,8 @@ export function generatePromptMeasurementReport(): PromptMeasurementReport {
     return record;
   });
 
-  if (new Set(records.map(record => record.roleId)).size !== 16 || records.length !== 16) {
-    throw new Error(`prompt measurement requires exactly 16 unique roles, got ${records.length}`);
+  if (new Set(records.map(record => record.roleId)).size !== 17 || records.length !== 17) {
+    throw new Error(`prompt measurement requires exactly 17 unique roles, got ${records.length}`);
   }
 
   const aggregateEstimatedTokens = records.reduce((sum, record) => sum + record.estimatedTokens, 0);
@@ -144,7 +158,7 @@ export function generatePromptMeasurementReport(): PromptMeasurementReport {
     assembledPromptTokens: {
       availability: 'available',
       tokens: aggregateEstimatedTokens,
-      source: 'sum of locally measured package prompt registry bodies',
+      source: 'sum of selected local package role bodies',
     },
     knownDispatchInputTokens: unavailable(KNOWN_DISPATCH_UNAVAILABLE_REASON),
     providerProcessedInputTokens: unavailable(PROVIDER_INPUT_UNAVAILABLE_REASON),
@@ -157,7 +171,7 @@ export function generatePromptMeasurementReport(): PromptMeasurementReport {
     roleContractRegistryDigest: promptRoleContractRegistryDigest(PROMPT_ROLE_CONTRACTS),
     runtimeContract: BASELINE_RUNTIME_CONTRACT,
     inputLayerMeanings: {
-      assembledPromptTokens: 'Tokens estimated from the exact locally observable package prompt body.',
+      assembledPromptTokens: 'Tokens estimated from the exact locally observable role body selected by the approved rollout.',
       knownDispatchInputTokens: 'Tokens in locally observable launcher, tool, and task-context input when an actual dispatch records them.',
       providerProcessedInputTokens: 'Tokens reported by the provider after hidden wrappers and cache behavior, when available.',
     },
@@ -178,7 +192,7 @@ export function verifyPromptMeasurementReport(value: unknown): asserts value is 
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('prompt measurement report must be an object');
   const report = value as PromptMeasurementReport;
   if (report.schemaVersion !== PROMPT_MEASUREMENT_REPORT_SCHEMA_VERSION) throw new Error('unsupported prompt measurement report schema');
-  if (!Array.isArray(report.records) || report.records.length !== 16) throw new Error('prompt measurement report must contain 16 records');
+  if (!Array.isArray(report.records) || report.records.length !== 17) throw new Error('prompt measurement report must contain 17 records');
   for (const record of report.records) validatePromptMeasurementRecord(record);
   const recomputed = generatePromptMeasurementReport();
   if (canonicalJsonStringify(report) !== canonicalJsonStringify(recomputed)) {

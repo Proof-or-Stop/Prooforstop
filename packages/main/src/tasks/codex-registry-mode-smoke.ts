@@ -27,7 +27,12 @@ import {
 } from '../init-assets.js';
 import { runCodexAdapterChecks, renderCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { reviewerHostRenderIdentity } from '../core/prompt-role-contract-registry.js';
-import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
+import {
+  readPromptRegistry,
+  readPromptTemplate,
+  renderPromptEntryForHost,
+} from '../core/prompt-registry.js';
+import { renderReviewerRunBootstrapForTemplate } from '../core/global-agents.js';
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const repoRoot = join(packageRoot, '..', '..');
@@ -55,9 +60,8 @@ function seedCodexNativeHooks(root: string): void {
 function seedLegacyPrompts(root: string): void {
   const registry = readPromptRegistry();
   for (const entry of registry.agents) {
-    const source = readFileSync(entry.sourcePath, 'utf8');
-    writeText(root, `.claude/agents/${entry.file}`, source);
-    writeText(root, `.lattice-codex/agents/${entry.file}`, renderCodexAgentContent(source));
+    writeText(root, `.claude/agents/${entry.file}`, renderPromptEntryForHost(entry, 'claude'));
+    writeText(root, `.lattice-codex/agents/${entry.file}`, renderPromptEntryForHost(entry, 'codex'));
   }
 }
 
@@ -125,10 +129,16 @@ try {
   assert.equal(checkById(thin, 'manifest').status, 'pass');
   assert.equal(checkById(thin, 'prompt-registry').status, 'pass');
   assert.equal(thin.checks.some(check => check.id === 'agents-mirror'), false);
+  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
+  const actualCodexRegistryPrompt = renderPromptEntryForHost(entry, 'codex');
+  assert.match(actualCodexRegistryPrompt, /review_run_start/, 'registry mode returns the reviewer bootstrap');
+  assert.doesNotMatch(actualCodexRegistryPrompt, /proofbound:modular-role-body:v1/, 'registry mode never preloads the role body');
   const identity = reviewerHostRenderIdentity(thinRoot, 'lattice-review-quality', 'codex');
   assert.equal(identity.host, 'codex');
   assert.equal(identity.source, 'package-registry');
   assert.equal(identity.hostRenderDigest.length, 64);
+  assert.equal(identity.bootstrapDigest?.length, 64, 'registry mode binds the same body-free review bootstrap');
+  assert.notEqual(identity.bootstrapDigest, identity.selectedRoleBodyDigest);
 } finally {
   rmSync(thinRoot, { recursive: true, force: true });
 }
@@ -138,8 +148,13 @@ try {
   writeText(globalThinRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'global-thin' }, null, 2)}\n`);
   const codexIdentity = reviewerHostRenderIdentity(globalThinRoot, 'lattice-review-quality', 'codex');
   const claudeIdentity = reviewerHostRenderIdentity(globalThinRoot, 'lattice-review-quality', 'claude');
+  const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
+  assert.match(renderPromptEntryForHost(entry, 'codex'), /review_run_start/);
+  assert.match(renderPromptEntryForHost(entry, 'claude'), /review_run_start/);
   assert.equal(codexIdentity.source, 'package-registry');
   assert.equal(claudeIdentity.source, 'package-registry');
+  assert.equal(codexIdentity.bootstrapDigest?.length, 64);
+  assert.equal(claudeIdentity.bootstrapDigest?.length, 64);
   assert.notEqual(codexIdentity.identityDigest, claudeIdentity.identityDigest, 'host is part of the render identity');
 } finally {
   rmSync(globalThinRoot, { recursive: true, force: true });
@@ -150,9 +165,25 @@ try {
   writeText(fullCodexOnlyRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'full' }, null, 2)}\n`);
   const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
   const packagePrompt = readPromptTemplate(entry);
-  writeText(fullCodexOnlyRoot, `.lattice-codex/agents/${entry.file}`, renderCodexAgentContent(packagePrompt));
+  const codexBootstrap = renderReviewerRunBootstrapForTemplate(renderCodexAgentContent(packagePrompt), entry.file);
+  writeText(fullCodexOnlyRoot, `.lattice-codex/agents/${entry.file}`, codexBootstrap);
   const identity = reviewerHostRenderIdentity(fullCodexOnlyRoot, entry.agentId, 'codex');
   assert.equal(identity.source, 'full-asset');
+  assert.equal(identity.bootstrapDigest?.length, 64);
+  assert.equal(identity.selectedRoleBodyDigest.length, 64);
+  assert.notEqual(identity.bootstrapDigest, identity.selectedRoleBodyDigest);
+  const legacyIdentity = reviewerHostRenderIdentity(
+    fullCodexOnlyRoot,
+    entry.agentId,
+    'codex',
+    'legacy-full-context',
+  );
+  assert.equal(legacyIdentity.bootstrapDigest, identity.bootstrapDigest, 'rollout mode does not change the host bootstrap');
+  assert.notEqual(
+    legacyIdentity.selectedRoleBodyDigest,
+    identity.selectedRoleBodyDigest,
+    'rollout mode selects exactly one independently bound role body',
+  );
   assert.throws(
     () => reviewerHostRenderIdentity(fullCodexOnlyRoot, entry.agentId, 'claude'),
     /missing claude reviewer prompt asset/,
@@ -161,7 +192,7 @@ try {
   writeText(
     fullCodexOnlyRoot,
     `.lattice-codex/agents/${entry.file}`,
-    `${renderCodexAgentContent(packagePrompt)}\n<!-- codex-only drift -->\n`,
+    `${codexBootstrap}\n<!-- codex-only drift -->\n`,
   );
   assert.throws(
     () => reviewerHostRenderIdentity(fullCodexOnlyRoot, entry.agentId, 'codex'),
@@ -176,9 +207,15 @@ try {
   writeText(fullClaudeOnlyRoot, '.lattice/lattice.json', `${JSON.stringify({ assetMode: 'full' }, null, 2)}\n`);
   const entry = readPromptRegistry().agents.find(candidate => candidate.agentId === 'lattice-review-quality')!;
   const packagePrompt = readPromptTemplate(entry);
-  writeText(fullClaudeOnlyRoot, `.claude/agents/${entry.file}`, packagePrompt);
+  writeText(
+    fullClaudeOnlyRoot,
+    `.claude/agents/${entry.file}`,
+    renderReviewerRunBootstrapForTemplate(packagePrompt, entry.file),
+  );
   const identity = reviewerHostRenderIdentity(fullClaudeOnlyRoot, entry.agentId, 'claude');
   assert.equal(identity.source, 'full-asset');
+  assert.equal(identity.bootstrapDigest?.length, 64);
+  assert.equal(identity.selectedRoleBodyDigest.length, 64);
   assert.throws(
     () => reviewerHostRenderIdentity(fullClaudeOnlyRoot, entry.agentId, 'codex'),
     /missing codex reviewer prompt asset/,

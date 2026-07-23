@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9123",
+  "allowedCommands": [
+    "git diff *",
+    "git status --short",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/verify-process-fact-contract.mjs",
+    "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Claude CLI",
+    "Codex CLI",
+    "exec_command",
+    "Lattice CLI"
+  ],
+  "allowedPaths": [
+    ".claude/agents/",
+    ".lattice-codex/agents/",
+    "AGENTS.md",
+    "docs/CLI.md",
+    "docs/requirements/baselines/",
+    "packages/main/src/cli/",
+    "packages/main/src/core/",
+    "packages/main/src/handlers/",
+    "packages/main/src/tasks/",
+    "packages/main/templates/agents/",
+    "scripts/"
+  ],
+  "excludedCommands": [
+    "concurrent full validation",
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard",
+    "omx *"
+  ],
+  "excludedTools": [
+    ".omx",
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/",
+    "docs/story/",
+    "tests/fixtures/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Single-instance long commands only. Story metadata and fixtures must be mutated only through Lattice CLI. Do not touch unrelated dirty or untracked main-worktree files.",
+  "createdAt": "2026-07-22T17:52:53.849Z",
+  "updatedAt": "2026-07-22T17:52:53.849Z",
+  "_hash": "da7e1b854285a62bdf7f3b9f2ef3e894b196f2eb601d71bda6b6887a770b5f7d"
+}

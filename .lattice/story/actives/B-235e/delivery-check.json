@@ -1,0 +1,103 @@
+{
+  "storyId": "B-235e",
+  "checkedAt": "2026-07-20T17:30:50.072Z",
+  "headHash": "87cc4bc76a2623c905cefddcec3a2022cbc7401a",
+  "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+  "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+  "reviewRound": "2026-07-20T16:37:55.531Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "promise": "Five active reviewer roles use independently rollbackable modular/full prompt assembly, trusted conditional incremental envelopes, and lifecycle-safe REVIEW evidence reuse without weakening authority.",
+      "status": "verified",
+      "verifiedBy": "final delivery reverse-scan on current binding",
+      "evidence": "Current implementation covers five-role rollout, exact legacy rollback, A/B/C cutoff binding, and only maps TEST to REVIEW for model-relevant task semantics; DEV, DONE, DISCARDED, and unknown phases fail closed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/role-separation.md",
+      "promise": "Reviewer and delivery authority remain separated; only the delivery reviewer writes delivery evidence and reviewers cannot take owner lifecycle actions.",
+      "status": "verified",
+      "verifiedBy": "current legal dispatch provenance",
+      "evidence": "This check uses lattice-review-delivery provenance; final reviewer and host verdict evidence were independently produced."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-run-binding-race.md",
+      "promise": "Review evidence remains bound to valid signed runs while material/scope/task freshness and finding semantics fail closed.",
+      "status": "verified",
+      "verifiedBy": "current review-run, task-semantic, cutoff, and quorum evidence",
+      "evidence": "Production A/B/C cutoff verifier and phase-mutation negatives pass; final current-material assurance is full-3x2."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "DONE-required, review-assurance, and delivery claims consume current digest-bound admissible evidence.",
+      "status": "verified",
+      "verifiedBy": "fresh DONE-required receipts and canonical assurance status",
+      "evidence": "Current binding has packages/main build plus complete root npm test PASS and full-3x2 host verdict evidence."
+    },
+    {
+      "docPath": "docs/host-run-usage.md",
+      "promise": "Host-facing reviewer prompt assembly is trusted and replay limitations are reported honestly rather than overstating savings.",
+      "status": "verified",
+      "verifiedBy": "fresh live production transcript and replay checks",
+      "evidence": "Cutoff-verifier live transcript exits zero; replay stays INCONCLUSIVE wherever exact historical evidence is unavailable."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "promise": "High-risk material satisfies the configured review assurance floor with current-material independent host evidence.",
+      "status": "verified",
+      "verifiedBy": "review_escalation_status plus final4 per-run diagnostics",
+      "evidence": "material beeaded9/storyFiles e09d9ef0 report full-3x2; final4 r1, r2, and r3 each have 2/2 PASS from Codex CLI and Claude Code CLI with zero stale, duplicate, or failing verdicts."
+    },
+    {
+      "docPath": "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "promise": "Three-round two-host evidence is explicit, independently written, and current-material bound.",
+      "status": "verified",
+      "verifiedBy": "B-235e-final4-r1/r2/r3 diagnostics",
+      "evidence": "Each final4 round contains independent codex-cli provider=codex and claude-code-cli provider=claude PASS verdicts bound to the final material/storyFiles and validation digest."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "DONE convergence counts reviewer re-attestations accurately and fails closed on at-or-after-TEST rework.",
+      "status": "verified",
+      "verifiedBy": "current done-prepare implementation and validation evidence",
+      "evidence": "Completion-order baseline, TEST-entry boundary, interleaving/tie, invalid signature, wrong binding, and missing-pass negatives remain covered."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "promise": "Prompt-envelope/review metadata persistence remains bounded and review-retained only under valid current bindings.",
+      "status": "verified",
+      "verifiedBy": "process-fact and closeout evidence",
+      "evidence": "Only legal process-events host-verdict metadata was dirty before delivery signing; no source or unexpected worktree changes were present."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Fresh routine validation and verification coverage passed 48/48 on material beeaded9/storyFiles e09d9ef0; final reviewer lanes passed the corrected task-semantic contract."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Fresh live command node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only exited 0, proving production B remains bound to A after later C, REVIEW evidence survives TEST, and inadmissible phase mutations fail closed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Fresh validation exercised replay/selfcheck and preserves honest per-role INCONCLUSIVE outcomes without unsupported savings claims."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Fresh DONE-required execution passed packages/main build and the complete root npm test suite."
+    },
+    {
+      "featureId": "CHK-004:final4-3x2",
+      "transcript": "B-235e-final4-r1, r2, and r3 each report PASS 2/2 from codex-cli@JekdeMacBook-Pro.local provider codex and claude-code-cli@JekdeMacBook-Pro.local provider claude, current-bound with zero stale, duplicate, or failing verdicts."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Final delivery review passes on materialHash beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819 and storyFilesHash e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741. Routine validation/coverage is 48/48 PASS, DONE-required build plus complete root npm test PASS, live cutoff transcript exit 0, final4 assurance is full-3x2 from real Codex CLI and Claude Code CLI hosts, all findings through F-028 are resolved, docs promises match implementation, user value is accepted, and only expected legal process-events metadata was dirty before this reviewer write."
+  },
+  "_hash": "4c6103f0cc73d439a8252c7181b651a58f9fa11a1532ec641f570510dcaca421"
+}

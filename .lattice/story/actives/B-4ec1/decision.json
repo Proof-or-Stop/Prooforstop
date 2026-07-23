@@ -1,0 +1,84 @@
+{
+  "principles": [
+    "One canonical acceptance truth source; topology references verificationIntent declarations and verifier-derived basis only.",
+    "Fail closed on missing, partial, unsupported, stale, tampered or caller-authored authority.",
+    "Recompute against the current worktree at DEV-to-REVIEW and bind every consumed fact to signed hashes.",
+    "Preserve explicit observe, warn and enforce rollback while keeping Wave 3A and Wave 4 out of scope."
+  ],
+  "drivers": [
+    "Prevent omissions from being discovered only after expensive reviewer rounds.",
+    "Reuse existing phaseBasis=pre_review, canonical evidence refs and freshness readers without parallel truth stores.",
+    "Maintain backward compatibility and deterministic process-fact contracts across CLI and lifecycle consumers."
+  ],
+  "options": [
+    {
+      "name": "A: Read-only recomputation only",
+      "pros": [
+        "Fewer persisted artifacts",
+        "Always reads current state"
+      ],
+      "cons": [
+        "No durable signed receipt for reviewer/audit consumption",
+        "Harder to prove exact producer-verifier-lifecycle parity and replay/tamper behavior"
+      ]
+    },
+    {
+      "name": "B: Verifier-owned signed pre-review artifact plus read-only evaluator",
+      "pros": [
+        "Durable hash-bound audit evidence",
+        "Lifecycle and CLI can share one canonical verifier",
+        "Supports precise stale/tamper/mutation diagnostics without caller authority"
+      ],
+      "cons": [
+        "Adds one lifecycle artifact and signing/freshness surface",
+        "Requires careful metadata classification and restoration tests"
+      ]
+    },
+    {
+      "name": "C: Extend acceptance-basis receipt to carry final verdict",
+      "pros": [
+        "No new artifact filename",
+        "Reuses existing signature code"
+      ],
+      "cons": [
+        "Conflates coverage discovery with executable evidence verdict",
+        "Risks weakening canonical ownership and complicates PLAN compatibility"
+      ]
+    }
+  ],
+  "chosen": "B: Verifier-owned signed pre-review artifact plus read-only evaluator",
+  "rationale": "Option B cleanly separates coverage-basis discovery from executable pre-review proof while giving the DEV-to-REVIEW gate a durable signed artifact whose inputs can be independently recomputed. It provides the auditability and mutation bite required by Wave 3 without duplicating topology or allowing callers to write authority.",
+  "preMortem": [
+    {
+      "scenario": "A stale pre-review receipt passes after implementation or evidence changes.",
+      "trigger": "Verifier checks signature but omits storyFilesHash, evidence digest, basis digest or current freshness recomputation.",
+      "consequence": "Reviewer rounds consume proof for a different worktree and omissions reach REVIEW.",
+      "mitigation": "Bind and recompute plan/pre-review basis, topology, scope, story/closure hashes, evidence set and freshness; mutation-test each field and replay."
+    },
+    {
+      "scenario": "The new gate deadlocks all legacy or observe-mode Stories.",
+      "trigger": "DEV-to-REVIEW always requires a Wave 3 artifact regardless of configured mode or applicability contract.",
+      "consequence": "Unrelated Stories cannot enter REVIEW and operators bypass the gate.",
+      "mitigation": "Reuse existing observe/warn/enforce mode, keep observe non-blocking diagnostics, add legacy compatibility controls and rollback tests."
+    },
+    {
+      "scenario": "Caller-controlled evidence or prose can manufacture PASS.",
+      "trigger": "Command accepts inventory, verdict, authority, transcript relation or mutation status from CLI arguments or notes.",
+      "consequence": "A self-authored false-green receipt satisfies the lifecycle gate.",
+      "mitigation": "Accept only storyId; derive all facts from store, git, signed artifacts and registered provenance; reject prompt labels and unverified notes."
+    },
+    {
+      "scenario": "Omission test passes because topology and basis are mutated together.",
+      "trigger": "Test deletes the same path from both truth inputs before evaluation.",
+      "consequence": "The exact omission class that caused repeated REVIEW gaps remains invisible.",
+      "mitigation": "Hold current recomputed basis fixed, delete only the topology mapping, require AT_UNMAPPED_SCOPE_REF, then byte-restore and prove PASS."
+    },
+    {
+      "scenario": "The implementation accidentally claims Wave 3A or Wave 4 rollout.",
+      "trigger": "Gate mode selection is inferred from risk keywords or prompts are changed to enforce globally.",
+      "consequence": "Existing Stories change behavior without approved applicability or measured thresholds.",
+      "mitigation": "Keep flat project mode only, explicitly assert no selective resolver/telemetry rollout assets, and mutation-test later-wave leakage."
+    }
+  ],
+  "timestamp": "2026-07-22T22:32:48.051Z"
+}

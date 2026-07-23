@@ -1,0 +1,67 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Integrate role guidance with canonical acceptance topology and pre-review commands",
+      "context": "Prompt guidance must direct roles to verifier-owned acceptance_topology_check and pre_review_check facts while CLI/handler gates remain authoritative; no prompt-only process fact.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "AGENTS.md#流程事实双层契约"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics",
+      "context": "Execute a reproducible baseline and candidate cohort on comparable high-assurance Stories, including seeded omission/forgery defects plus docs-only, legacy, and single-outcome false-block controls. Persist a signed/hash-bound rollout report; telemetry plumbing or synthetic-only unit coverage cannot satisfy this item.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#17-success-metrics"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "The rollout report shows the baseline and candidate cohort, sample size, seeded-defect detection, false-block rate, waiver count, review-round shift, total cost, and quorum classification."
+    },
+    {
+      "id": "CHK-003",
+      "title": "Define bounded project-level warn-to-enforce admission thresholds",
+      "context": "Resolve Wave 4 policy questions with explicit claim taxonomies, supported adapter sufficiency, minimum sample size, zero mislabeled 3x1, 100% supported omission detection, and fail-closed threshold evaluation. Keep flat project scope; Wave 3A selective applicability remains excluded.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#19-decision-record-and-remaining-wave-4-questions"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement opt-in enforcement and tested rollback without weakening checks",
+      "context": "Promotion must mechanically consume a current verifier-owned PASS rollout-report receipt whose cohort meets the configured thresholds, plus existing full 3x2 high-risk review/quorum. Missing/stale/failing reports, degraded 3x1, increased waivers, or weaker checks fail closed. Rollback removes blocking without rewriting report/evidence history.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#15-implementation-plan"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "An opt-in enforce attempt passes only with a current qualifying rollout receipt and full 3x2; rollback restores non-blocking mode while preserving the audit trail."
+    },
+    {
+      "id": "CHK-005",
+      "title": "Update the canonical execution plan with measured Wave 4 status and operator guidance",
+      "context": "After implementation and real cohort evidence pass, replace the canonical Wave 4 NOT IMPLEMENTED marker with the exact implemented boundary, chosen thresholds, measured results, rollback procedure, and explicit Wave 3A exclusion. Do not overstate selective applicability or authority.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/CLI.md"
+      ],
+      "userSees": "The canonical Story 6 plan accurately reports Wave 4 implementation, measured evidence, enforcement and rollback commands, and the still-excluded Wave 3A boundary.",
+      "excludes": [
+        "Selective per-Story or per-policy enforcement without Wave 3A"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

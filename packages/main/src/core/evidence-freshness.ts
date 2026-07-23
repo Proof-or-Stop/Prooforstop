@@ -85,6 +85,27 @@ export interface EvidenceHashSnapshotCaptureArgs {
   ref?: string;
 }
 
+/**
+ * Wave 1A coverage-basis receipts use the same canonical freshness reader as
+ * other story evidence. This named adapter prevents basis consumers from
+ * reinterpreting raw hashes or silently rebinding an old inventory.
+ */
+export function checkAcceptanceBasisBindingFreshness(args: {
+  gitCwd: string;
+  metadataRoot: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+}): EvidenceFreshness {
+  return checkEvidenceFreshnessForGit(
+    args.gitCwd,
+    args.headHash,
+    args.materialHash,
+    args.metadataRoot,
+    args.storyFilesHash,
+  );
+}
+
 export interface EvidenceHashSnapshotReuseCheck {
   reusable: boolean;
   materialDirty: boolean;

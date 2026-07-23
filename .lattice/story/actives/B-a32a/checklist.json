@@ -1,0 +1,782 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement the canonical verifier-derived coverage basis and bounded classification",
+      "context": "Add complete/partial/unsupported basis semantics without any caller-writable path inventory or optimistic completeness. Reuse Wave 1 ownership and existing process-fact interfaces.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#wave-1a-independently-derived-coverage-basis",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#coverage-basis"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T06:41:30.362Z",
+      "endTime": "2026-07-22T06:56:20.783Z",
+      "userSees": "`lattice acceptance_basis --storyId=<id> --json` reports a verifier-derived `basisStatus` of `complete`, `partial`, or `unsupported`; no request field can force `complete`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [
+          "packages/main/src/core/acceptance-coverage-basis.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-A32A-001-VERIFIER-DERIVATION",
+            "desc": "The registered PLAN verifier derives an AcceptanceCoverageBasisV1 only from the frozen Story, scope, repository and adapter inputs, emits exactly one of complete, partial or unsupported, and canonical replay of unchanged inputs yields the same ordered paths, blind spots and basis digest.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-A32A-BASIS-DERIVE-CLASSIFY",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-A32A-DERIVE-BASIS",
+                  "role": "producer",
+                  "expectedArtifactKind": "process_fact",
+                  "expectedFileRef": "packages/main/src/core/acceptance-coverage-basis.ts",
+                  "expectedSymbolOrFact": "deriveAcceptanceCoverageBasis",
+                  "fileDeclarationRef": "CHK-001:files:create:0"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-A32A-CLASSIFY-BASIS",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/core/acceptance-coverage-basis.ts",
+                    "expectedSymbolOrFact": "classifyAcceptanceCoverageBasis",
+                    "fileDeclarationRef": "CHK-001:files:create:0"
+                  }
+                ],
+                "outputFactRef": "process-fact:acceptance-coverage-basis"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-A32A-001-BOUNDED-NONCOMPLETE",
+            "desc": "Incomplete inspectability, any nonempty unresolved blind spot, or conflicting completeness claims deterministically returns partial; an unsupported registered language or discovery profile returns unsupported. Neither state is rendered or consumed as complete.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-001-CANONICAL-TOTALITY",
+            "desc": "Equivalent basis inputs presented in different insertion order produce byte-equivalent canonical projections and digests, while a meaningful path, profile, provenance, binding or blind-spot change changes the digest without creating an unbounded fourth status.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-A32A-001-CALLER-FORGERY",
+            "desc": "Invoke every public basis entry point with caller-supplied status complete, enumeratedPathRefs, blindSpots, excludedPathRefs, generatedBy or digest fields; the request surface rejects or ignores them before derivation, and the persisted or returned basis is unchanged from verifier-derived inputs.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-001-OPTIMISM-MUTATION",
+            "desc": "Mutate classification so partial or unsupported adapter input, unresolved source, or missing provenance falls through to complete; the focused mutation test must fail for the intended completeness assertion, then the restored control must pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-A32A-001-VERIFIER-DERIVATION",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-001-VERIFIER-DERIVATION, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        },
+        {
+          "intentRef": "VI-A32A-001-BOUNDED-NONCOMPLETE",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-001-BOUNDED-NONCOMPLETE, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        },
+        {
+          "intentRef": "VI-A32A-001-CANONICAL-TOTALITY",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-001-CANONICAL-TOTALITY, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        },
+        {
+          "intentRef": "VI-A32A-001-CALLER-FORGERY",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-001-CALLER-FORGERY, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        },
+        {
+          "intentRef": "VI-A32A-001-OPTIMISM-MUTATION",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-001-OPTIMISM-MUTATION, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement registered discovery adapters and deterministic union reconciliation",
+      "context": "Discover producer-consumer plus handler/dispatch/static/runtime paths through typed adapters; disagreement, omitted required adapters, and unsupported profiles fail to partial or unsupported.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#discovery-adapter-interface",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#adapter-reconciliation"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T06:56:31.993Z",
+      "endTime": "2026-07-22T06:56:34.499Z",
+      "userSees": "The basis report lists every required discovery adapter and its digest; omitted adapters or unexplained static/runtime and handler/dispatch disagreement return `partial` with stable diagnostics.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-A32A-002-REGISTERED-UNION-CLOSURE",
+            "desc": "The registered PLAN discovery profile invokes every required adapter exactly once and reconciles admissible results by deterministic union, retaining producer-consumer, handler-dispatch, static and runtime paths including registered consumers outside Story-owned files; the closure and every adapter result carry replayable canonical digests.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-A32A-ADAPTER-RECONCILIATION",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-A32A-RUN-ADAPTERS",
+                  "role": "producer",
+                  "expectedArtifactKind": "process_fact",
+                  "expectedFileRef": "packages/main/src/core/acceptance-discovery-adapters.ts",
+                  "expectedSymbolOrFact": "runAcceptanceDiscoveryAdapters",
+                  "fileDeclarationRef": "CHK-002:files:create:0"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-A32A-RECONCILE-ADAPTERS",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/core/acceptance-discovery-adapters.ts",
+                    "expectedSymbolOrFact": "reconcileAcceptanceDiscoveryResults",
+                    "fileDeclarationRef": "CHK-002:files:create:0"
+                  }
+                ],
+                "outputFactRef": "process-fact:acceptance-coverage-adapter-results"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-A32A-002-TYPED-ASYMMETRY",
+            "desc": "When static discovery finds C2 and bounded non-exhaustive runtime trace does not, a registered typed asymmetry policy retains C2 without an omission; the same unexplained or semantically conflicting disagreement retains the union but emits AT_DISCOVERY_DISAGREEMENT and makes the basis partial.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-002-PROFILE-TOTALITY",
+            "desc": "An unsupported profile returns unsupported, while a supported profile with a missing or duplicate required adapter result, invalid provenance, invalid claim, blind spot or asymmetry policy returns deterministic non-complete diagnostics; caller-provided discoveryMethods cannot narrow registered requirements.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-A32A-002-OMISSION-AND-AGGREGATE-TAMPER",
+            "desc": "Delete or duplicate one profile-required adapter result while leaving its paths in the aggregate, then independently add or remove C2 or alter aggregate blindSpots while all result records remain unchanged; the mutations must fail with AT_REQUIRED_ADAPTER_RESULT_MISSING or AT_ADAPTER_RESULT_DIGEST_MISMATCH, and the restored control must pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-002-RESULT-AND-CLOSURE-TAMPER",
+            "desc": "Change one adapter path set, claim, provenance, blind spot or policy without recomputing its digest, then recompute that digest while retaining the signed basis and finally omit an out-of-scope registered consumer from closure; each mutation must fail closed with digest, disagreement or registered-consumer diagnostics and cannot produce complete.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-A32A-002-REGISTERED-UNION-CLOSURE",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-002-REGISTERED-UNION-CLOSURE, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        },
+        {
+          "intentRef": "VI-A32A-002-TYPED-ASYMMETRY",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-002-TYPED-ASYMMETRY, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        },
+        {
+          "intentRef": "VI-A32A-002-PROFILE-TOTALITY",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-002-PROFILE-TOTALITY, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        },
+        {
+          "intentRef": "VI-A32A-002-OMISSION-AND-AGGREGATE-TAMPER",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-002-OMISSION-AND-AGGREGATE-TAMPER, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        },
+        {
+          "intentRef": "VI-A32A-002-RESULT-AND-CLOSURE-TAMPER",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-002-RESULT-AND-CLOSURE-TAMPER, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Bind signed basis receipts to workspace, scope, topology and closure identities",
+      "context": "Persist only verifier-issued hash-bound receipts with basis/topology/scope/storyFilesHash/closureFilesHash bindings and canonical freshness checks; prohibit hash-only rebinds.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#coverage-basis",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T06:56:44.855Z",
+      "endTime": "2026-07-22T06:56:47.734Z",
+      "userSees": "`lattice acceptance_basis_generate --storyId=<id>` is the sole receipt writer and produces a signed receipt bound to the exact workspace, scope, topology, Story and closure hashes; `lattice acceptance_basis` remains read-only and rejects stale or tampered receipts.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/context.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [
+          "packages/main/src/core/acceptance-basis-receipt.ts"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-A32A-003-SIGNED-BOUND-RECEIPT",
+            "desc": "A successful registered verifier invocation through the sole writer command acceptance_basis_generate issues one signed receipt whose verified payload binds Story ID, phase basis, basis and topology digests, workspace identity, scope-check and applicable scope-contract digests, storyFilesHash and closureFilesHash; verification resolves the same canonical basis and registered issuer, while acceptance_basis remains read-only.",
+            "type": "cli",
+            "requiredIn": "light",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-A32A-BASIS-RECEIPT",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-A32A-GENERATE-BASIS-HANDLER",
+                  "role": "producer",
+                  "expectedArtifactKind": "handler",
+                  "expectedFileRef": "packages/main/src/handlers/proofstory.ts",
+                  "expectedSymbolOrFact": "acceptance_basis_generate",
+                  "fileDeclarationRef": "CHK-003:files:modify:4"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-A32A-VERIFY-BASIS-RECEIPT",
+                    "role": "consumer",
+                    "expectedArtifactKind": "process_fact",
+                    "expectedFileRef": "packages/main/src/core/acceptance-basis-receipt.ts",
+                    "expectedSymbolOrFact": "verifyAcceptanceBasisReceipt",
+                    "fileDeclarationRef": "CHK-003:files:create:0"
+                  }
+                ],
+                "outputFactRef": "process-fact:acceptance-coverage-basis-receipt"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-A32A-003-FRESHNESS-CLASSIFICATION",
+            "desc": "Canonical freshness checks reject changes to frozen scope, topology, discovery inputs, storyFilesHash or closureFilesHash; headHash-only and unrelated material movement are classified only by the existing freshness reader and never silently rebound by the writer or renderer.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-003-LEGACY-AND-ATOMICITY",
+            "desc": "A legacy Story without a Wave 1A receipt remains readable and is reported missing or inconclusive rather than upgraded; failed generation or verification leaves no partial receipt, process fact, evidence record or lifecycle mutation.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-A32A-003-CALLER-ISSUER-FORGERY",
+            "desc": "Submit caller-chosen status, path inventory, receiptRef, basisDigest, issuer identity, signature or binding hashes through command schema and direct handler calls; schema and runtime independently reject the request before persistence, and an implementer or forged registered-verifier label cannot issue an admissible receipt.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-003-TAMPER-AND-HASH-REBIND",
+            "desc": "Alter each signed binding or basis field, swap the Story or workspace, tamper signature bytes, or copy an old inventory and receipt onto freshly recomputed hashes without rerunning discovery; every mutation must fail signature, digest or freshness verification and the original restored receipt must verify.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-A32A-003-SIGNED-BOUND-RECEIPT",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-003-SIGNED-BOUND-RECEIPT, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        },
+        {
+          "intentRef": "VI-A32A-003-FRESHNESS-CLASSIFICATION",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-003-FRESHNESS-CLASSIFICATION, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.636Z"
+        },
+        {
+          "intentRef": "VI-A32A-003-LEGACY-AND-ATOMICITY",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-003-LEGACY-AND-ATOMICITY, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        },
+        {
+          "intentRef": "VI-A32A-003-CALLER-ISSUER-FORGERY",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-003-CALLER-ISSUER-FORGERY, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        },
+        {
+          "intentRef": "VI-A32A-003-TAMPER-AND-HASH-REBIND",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-003-TAMPER-AND-HASH-REBIND, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Reconcile frozen planned declarations and independently approved exclusions",
+      "context": "Derive typed planned paths from verificationIntent declarations and scope, allow genuinely new PLAN endpoints, require eligible decision refs for exclusions, and fail unexplained planned-to-actual drift.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#target-schema",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#structural-integrity-and-totality-rules"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T06:58:02.509Z",
+      "endTime": "2026-07-22T06:58:04.800Z",
+      "userSees": "Frozen verification-intent planned paths appear in the independently derived PLAN basis, while invented topology paths and exclusions without an eligible decision reference produce deterministic diagnostics.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-A32A-004-PLANNED-DERIVATION-RECONCILIATION",
+            "desc": "The PLAN verifier derives PlannedCoveragePathV1 records from frozen verificationIntent declarations plus ChecklistItem.files and signed scope, preserving declaration, endpoint and output-fact semantics and mapping the derived path bidirectionally to topology without trusting topology-owned copies.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-A32A-PLANNED-BASIS-MAP",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-A32A-DERIVE-PLANNED-PATHS",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/acceptance-topology.ts",
+                  "expectedSymbolOrFact": "derivePlannedCoveragePaths",
+                  "fileDeclarationRef": "CHK-004:files:modify:0"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-A32A-RECONCILE-TOPOLOGY-BASIS",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/core/acceptance-topology.ts",
+                    "expectedSymbolOrFact": "reconcileTopologyWithCoverageBasis",
+                    "fileDeclarationRef": "CHK-004:files:modify:0"
+                  }
+                ],
+                "outputFactRef": "process-fact:planned-coverage-path"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-A32A-004-GENUINELY-NEW-ENDPOINTS",
+            "desc": "A versioned declaration for genuinely new producer and consumer endpoints whose fileDeclarationRefs resolve to this checklist's frozen files and signed scope is accepted at PLAN and appears in the independently derived basis even though symbols do not yet exist; free-form or unresolved files, endpoints or relations are rejected deterministically.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-004-ELIGIBLE-EXCLUSION",
+            "desc": "A discovered path may be excluded only when an independently auditable decisionRef resolves under the current foundational decision schema and eligible decision kind and is included in the canonical basis digest; missing, stale, malformed, duplicate or unrelated decisionRefs yield AT_UNJUSTIFIED_EXCLUSION and cannot remove the path obligation. This does not require or imply Wave 2A critic identity or approval policy.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-A32A-004-TOPOLOGY-INVENTION-AND-DRIFT",
+            "desc": "Invent a topology planned edge absent from frozen intents, or retain declaration IDs while changing endpoint role, expected artifact, file, symbol, relation or output fact; the mutations must fail with AT_PLANNED_PATH_DECLARATION_MISSING or AT_PLANNED_PATH_DECLARATION_DRIFT and cannot be normalized into the basis.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-004-BIDIRECTIONAL-OMISSION",
+            "desc": "Remove a basis path from topology, add a topology path outside basis, or delete a planned declaration after deriving the basis; each mutation must fail with AT_UNMAPPED_SCOPE_REF, AT_TOPOLOGY_OUTSIDE_BASIS, AT_PLANNED_PATH_OUTSIDE_BASIS or a stale digest, then the restored control must pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-A32A-004-PLANNED-DERIVATION-RECONCILIATION",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-004-PLANNED-DERIVATION-RECONCILIATION, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        },
+        {
+          "intentRef": "VI-A32A-004-GENUINELY-NEW-ENDPOINTS",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-004-GENUINELY-NEW-ENDPOINTS, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        },
+        {
+          "intentRef": "VI-A32A-004-ELIGIBLE-EXCLUSION",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-004-ELIGIBLE-EXCLUSION, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        },
+        {
+          "intentRef": "VI-A32A-004-TOPOLOGY-INVENTION-AND-DRIFT",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-004-TOPOLOGY-INVENTION-AND-DRIFT, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        },
+        {
+          "intentRef": "VI-A32A-004-BIDIRECTIONAL-OMISSION",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-004-BIDIRECTIONAL-OMISSION, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Expose read-only basis diagnostics and prove omission and tamper resistance",
+      "context": "Add deterministic read-only rendering, process-fact registration/contract coverage, legacy behavior, replayable adapter results, and positive/negative mutation tests covering omission, disagreement, stale binding and tampering.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#verification-and-mutation-matrix",
+        "docs/CLI.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T06:58:20.617Z",
+      "endTime": "2026-07-22T06:58:22.815Z",
+      "userSees": "The focused Wave 1A smoke prints `ProofStory acceptance coverage basis Wave 1A smoke passed`; omission, disagreement, stale-binding and tamper mutations fail before the restored control passes.",
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/CLI.md",
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/package-lock.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-A32A-005-REAL-CLI-TRANSCRIPT",
+            "desc": "From a temporary real Proofbound repository, invoke node bin/lattice.js acceptance_basis --storyId=<id> and --json through the production registry: text and JSON deterministically identify the Story, registered profile and verifier, bounded basisStatus, adapter digests, paths, blind spots, binding hashes and receipt verification, while the user transcript contains no fabricated completion or lifecycle claim.",
+            "type": "cli",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-A32A-005-LEGACY-UNSUPPORTED-DETERMINISM",
+            "desc": "The real CLI renders legacy-missing, partial and unsupported cases with stable explicit diagnostics and exit behavior; shuffled equivalent adapter inputs and two unchanged invocations are byte-equivalent after excluding no volatile fields from the canonical JSON projection.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-005-PROCESS-FACT-CONTRACT",
+            "desc": "Process-fact registry and verify-process-fact-contract agree on the acceptance-basis command, issuer, artifact, signature, binding and non-lifecycle semantics; omission or one-sided prompt, handler, registry or contract registration causes the contract verifier to fail.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-A32A-005-MUTATION-CAMPAIGN",
+            "desc": "The focused Wave 1A smoke independently bites omission of a required adapter, duplicate adapter, static-runtime disagreement, aggregate/result/basis digest tampering, stale scope/story/closure binding, unsupported discovery and caller-forged complete, issuer or exclusion; each fails for its intended stable AT code and every destructive mutation is followed by a passing restored control.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-A32A-005-READONLY-DIAGNOSTIC-BOUNDARY",
+            "desc": "Snapshot Story bytes, receipt store, process-event count, phase, git status and lifecycle decision around diagnostic-only text and JSON reads and invalid write-shaped options: supported reads change none, write-shaped status/path/signature payloads are rejected atomically, and rendered output cannot be replayed as gate evidence or authority.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-A32A-005-REAL-CLI-TRANSCRIPT",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-005-REAL-CLI-TRANSCRIPT, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        },
+        {
+          "intentRef": "VI-A32A-005-LEGACY-UNSUPPORTED-DETERMINISM",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-005-LEGACY-UNSUPPORTED-DETERMINISM, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        },
+        {
+          "intentRef": "VI-A32A-005-PROCESS-FACT-CONTRACT",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 process-fact contract passed; one-sided acceptance_basis_generate registry mutation fails the ordinary verifier.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        },
+        {
+          "intentRef": "VI-A32A-005-MUTATION-CAMPAIGN",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-005-MUTATION-CAMPAIGN, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        },
+        {
+          "intentRef": "VI-A32A-005-READONLY-DIAGNOSTIC-BOUNDARY",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD 70e74b7b35 focused production-chain smoke passed all declared cases and restored controls for VI-A32A-005-READONLY-DIAGNOSTIC-BOUNDARY, including registered runtime-fact discovery.",
+          "headHash": "7d714f0c82307cbddf19fffc68c8913f6880bcbe",
+          "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e",
+          "storyFilesHash": "96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f",
+          "timestamp": "2026-07-22T14:42:03.637Z"
+        }
+      ]
+    }
+  ]
+}

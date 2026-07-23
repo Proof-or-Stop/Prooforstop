@@ -74,10 +74,20 @@ export interface MaterialCodeConfig {
 export interface ProofStoryConfig {
   /** PLAN/INIT_CHECK/REVIEW rollback DEV admission ProofStory gate. Defaults to observe. */
   devGateMode?: 'observe' | 'warn' | 'enforce';
+  /** Wave 2 PLAN acceptance-topology structural gate rollout. Defaults to observe. */
+  acceptanceTopologyGateMode?: 'observe' | 'warn' | 'enforce';
   /** REVIEW completeness diagnostic mode. Defaults to observe. */
   reviewGateMode?: 'observe' | 'warn' | 'enforce';
   /** DONE intent-equivalence diagnostic mode. Defaults to observe. */
   doneGateMode?: 'observe' | 'warn' | 'enforce';
+}
+
+export type AcceptanceTopologyGateMode = NonNullable<ProofStoryConfig['acceptanceTopologyGateMode']>;
+
+/** Flat project policy only; Story prose/risk/milestone text never selects it. */
+export function resolveAcceptanceTopologyGateMode(config: Pick<LatticeConfig, 'proofStory'>): AcceptanceTopologyGateMode {
+  const mode = config.proofStory?.acceptanceTopologyGateMode;
+  return mode === 'warn' || mode === 'enforce' ? mode : 'observe';
 }
 
 export interface LifecycleControlConfig {
@@ -102,10 +112,22 @@ export interface LatticeConfig {
   fixturesDir: string;
   storyDir: string;
   requirementsDir: string;
-  /** Per-role trusted full-context rollout. Missing roles remain byte-exact legacy-full-context. */
+  /** Approved reviewer and Story-6 complex-role rollouts. Missing roles remain byte-exact legacy-full-context. */
   promptEnvelope?: {
     version?: 'proofbound.prompt-envelope-rollout.v1';
-    roles?: Record<string, 'legacy-full-context' | 'full-envelope'>;
+    roles?: Partial<Record<
+      | 'lattice-review-behavior'
+      | 'lattice-review-concept'
+      | 'lattice-review-docs'
+      | 'lattice-review-quality'
+      | 'lattice-review-test-coverage'
+      | 'lattice-review-story-init'
+      | 'lattice-review-scope-plan'
+      | 'lattice-implementer'
+      | 'lattice-review-delivery'
+      | 'lattice-evaluator',
+      'legacy-full-context' | 'full-envelope'
+    >>;
   };
   candidateSpecRouting?: {
     mode?: 'shadow' | 'warn' | 'enforce';
@@ -289,7 +311,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
     'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase
-    'original_intent_snapshot_get', 'milestone_ledger_get', 'slice_plan_get', 'parent_ledger_rollup_get', 'proofstory_contract_get',
+    'original_intent_snapshot_get', 'milestone_ledger_get', 'slice_plan_get', 'parent_ledger_rollup_get', 'proofstory_contract_get', 'acceptance_matrix', 'acceptance_topology_check', 'acceptance_basis', 'pre_review_check_read', 'topology_critic_receipt_check',
     'intent_collision_get', 'scope_shrinkage_decision_get', 'red_evidence_get', 'spike_get',
     'intent_coverage_check', 'proofstory_gate_check', 'done_intent_equivalence_check', 'proofstory_review_completeness_check', // ProofStory read-only diagnostics; enforce mode exits nonzero but writes no evidence
     'parent_roadmap_status', 'parent_roadmap_evaluate', // Parent-roadmap totality diagnostics; read-only and no server-backed completion semantics
@@ -388,6 +410,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'milestone_ledger_set', 'milestone_ledger_add',
     'slice_plan_set', 'parent_ledger_rollup_set',
     'proofstory_contract_set',
+    'acceptance_basis_generate',
+    'topology_exclusion_approval_set', 'topology_critic_receipt_set',
     'intent_collision_set',
     'scope_shrinkage_decision_set',
     'red_evidence_create',
@@ -412,6 +436,9 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_shrinkage_decision_set',
     'parent_ledger_rollup_set',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
+    'acceptance_basis_generate', // Wave 1A registered verifier writer; DEV is allowed for implementation-time regeneration, without lifecycle consumption
+    'pre_review_check',
+    'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   REVIEW: [
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
@@ -432,6 +459,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'parent_ledger_rollup_set',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during review
+    'topology_exclusion_approval_set', 'topology_critic_receipt_set',
   ],
   TEST: [
     'candidate_spec_route', // B-8038: end-to-end routing verification
@@ -597,6 +625,103 @@ function resolveProjectRoot(): string {
   return findProjectRootByMarker(process.cwd()) ?? process.cwd();
 }
 
+/**
+ * JSON.parse silently keeps the last duplicate object key. That is unsafe for
+ * per-role rollout flags because two visually contradictory entries could
+ * select a different prompt body than the reviewer approved.
+ */
+export function assertNoDuplicatePromptEnvelopeRoleKeys(source: string): void {
+  let index = 0;
+  const skipWhitespace = () => {
+    while (/\s/.test(source[index] ?? '')) index += 1;
+  };
+  const parseString = (): string => {
+    const start = index;
+    index += 1;
+    while (index < source.length) {
+      if (source[index] === '\\') {
+        index += 2;
+        continue;
+      }
+      if (source[index] === '"') {
+        index += 1;
+        return JSON.parse(source.slice(start, index));
+      }
+      index += 1;
+    }
+    throw new Error('unterminated JSON string');
+  };
+  const parseValue = (path: readonly string[]): void => {
+    skipWhitespace();
+    if (source[index] === '{') {
+      index += 1;
+      skipWhitespace();
+      const keys = new Set<string>();
+      while (source[index] !== '}') {
+        if (source[index] !== '"') throw new Error('invalid JSON object key');
+        const key = parseString();
+        skipWhitespace();
+        if (source[index] !== ':') throw new Error('invalid JSON object separator');
+        index += 1;
+        const duplicatePromptEnvelopeKey = keys.has(key) && (
+          (path.length === 0 && key === 'promptEnvelope')
+          || (path.length === 1 && path[0] === 'promptEnvelope' && key === 'roles')
+          || (path.length === 2 && path[0] === 'promptEnvelope' && path[1] === 'roles')
+        );
+        if (duplicatePromptEnvelopeKey) {
+          const qualifiedKey = [...path, key].join('.');
+          throw new Error(`lattice.config.json duplicate ${qualifiedKey} key`);
+        }
+        keys.add(key);
+        parseValue([...path, key]);
+        skipWhitespace();
+        if (source[index] === ',') {
+          index += 1;
+          skipWhitespace();
+          continue;
+        }
+        if (source[index] !== '}') throw new Error('invalid JSON object terminator');
+      }
+      index += 1;
+      return;
+    }
+    if (source[index] === '[') {
+      index += 1;
+      skipWhitespace();
+      let item = 0;
+      while (source[index] !== ']') {
+        parseValue([...path, String(item)]);
+        item += 1;
+        skipWhitespace();
+        if (source[index] === ',') {
+          index += 1;
+          skipWhitespace();
+          continue;
+        }
+        if (source[index] !== ']') throw new Error('invalid JSON array terminator');
+      }
+      index += 1;
+      return;
+    }
+    if (source[index] === '"') {
+      parseString();
+      return;
+    }
+    const match = source.slice(index).match(/^(?:true|false|null|-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)/);
+    if (!match) throw new Error('invalid JSON value');
+    index += match[0].length;
+  };
+  try {
+    parseValue([]);
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith('lattice.config.json duplicate promptEnvelope')) {
+      throw error;
+    }
+    // Preserve the existing malformed-config fallback. JSON.parse below owns
+    // ordinary syntax handling; this scanner owns only duplicate role flags.
+  }
+}
+
 export function loadConfig(projectRoot?: string): LatticeConfig {
   // 有参数用参数，没参数从 cwd 向上查找
   const root = projectRoot || resolveProjectRoot();
@@ -609,8 +734,10 @@ export function loadConfig(projectRoot?: string): LatticeConfig {
   let chosenPath: string | null = null;
   if (latticeExists) {
     chosenPath = latticePath;
+    const rawConfig = readFileSync(latticePath, 'utf-8');
+    assertNoDuplicatePromptEnvelopeRoleKeys(rawConfig);
     try {
-      userConfig = JSON.parse(readFileSync(latticePath, 'utf-8'));
+      userConfig = JSON.parse(rawConfig);
     } catch { /* ignore parse errors */ }
   }
   void chosenPath; // retained for future diagnostics; suppress unused warning

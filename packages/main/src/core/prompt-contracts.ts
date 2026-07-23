@@ -650,7 +650,9 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
     requireDigest(record.hostRenderIdentityDigest, 'PromptEnvelope.hostRenderIdentityDigest');
   } else if (record.reviewRunId !== undefined || record.reviewRound !== undefined || record.lane !== undefined) {
     throw new PromptContractValidationError('story-dispatch PromptEnvelope cannot carry review authority');
-  } else if (record.dispatchPromptDigest !== undefined || record.hostRenderIdentityDigest !== undefined) {
+  } else if (record.hostRenderIdentityDigest !== undefined) {
+    // Story 6 complex-role dispatches bind their task-specific dispatch text
+    // with dispatchPromptDigest, but never carry reviewer host identity.
     throw new PromptContractValidationError('story-dispatch PromptEnvelope cannot carry reviewer host dispatch authority');
   }
   const optionalDigests = [

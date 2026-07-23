@@ -8,9 +8,276 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
         "docs/requirements/decisions/role-separation.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-19T07:24:56.995Z",
+      "endTime": "2026-07-19T10:28:48.105Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "active-five-role-migration",
+            "desc": "Exactly concept, quality, test-coverage, behavior, and docs resolve to versioned modular Role Contracts and trusted prompt assembly when each role flag is enabled; each role keeps its existing reviewer lane identity, commands, stop conditions, and finding/pass authority.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "independent-role-flags",
+            "desc": "Each of the five active reviewer roles has an independent rollback flag whose enabled and disabled states select modular and legacy assembled prompts only for that role, with no cross-role flag coupling.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "active-roster-retired-exclusion",
+            "desc": "Registry and default dispatch report the five migrated roles as active while lattice-review-channel remains retired, defaultDispatch=false, absent from active counts, wave budgets, assurance floor, receipt, and quorum collection.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "legacy-full-readable",
+            "desc": "With a role flag disabled, the role can still execute through the legacy assembled prompt and existing envelope-less historical reviewer artifacts remain readable only as legacy-full-context in their recorded round.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "mixed-rollout-states",
+            "desc": "All mixed flag combinations are supported: any subset of the five roles may use modular prompts while the rest use legacy prompts, and every lane retains its own contract and evidence identity.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "missing-or-invalid-flag-fails-safe",
+            "desc": "Missing, malformed, duplicated, or unknown per-role flag configuration fails to the documented legacy-safe state or an explicit error; it never silently enables another role or retired channel.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "compatibility-not-active",
+            "desc": "Compatibility roles remain explicitly callable only under their compatibility contract and are excluded from active role counts and default reviewer waves without being incorrectly retired.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "role-contract-semantics-preserved",
+            "desc": "A role-by-role baseline diff proves required sections, forbidden actions, allowed commands, stop conditions, lane identity, and current authority are preserved; any semantic deletion blocks approval even when rendered text is shorter.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "retired-channel-dispatch-rejected",
+            "desc": "Direct, aliased, mixed-case, or flag-assisted attempts to dispatch lattice-review-channel for a new review are explicitly rejected and cannot fall through to an active role.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "flag-bleed-and-role-substitution-rejected",
+            "desc": "Changing one role flag, agentType, registry index, or cached prompt cannot cause another role contract or prompt to be served; role, contract, and envelope digests must agree.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "retired-evidence-cannot-count",
+            "desc": "A valid-looking pass or finding from retired or compatibility roles cannot satisfy any active lane, current-round receipt, assurance floor, delivery check, or quorum requirement.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "concurrent-flag-baseline-writes-serialized",
+            "desc": "Concurrent role migration and rollback reads cannot observe a hybrid baseline: legacy and modular bodies plus approvals are immutable content-addressed repository artifacts bound to committed digests; any future mutable shared writer must use the canonical main write lock, while lane evidence remains signed and lane scoped.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees \"role=lattice-review-concept rollout=full-envelope\" for an enabled role and \"role=lattice-review-quality rollout=legacy-full-context legacyBytesRestored=true\" after independently rolling back only quality; \"lattice-review-channel\" is absent from active roles.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/config.ts",
+          "lattice.config.json",
+          "packages/main/templates/agents/lattice-review-concept.md",
+          "packages/main/templates/agents/lattice-review-quality.md",
+          "packages/main/templates/agents/lattice-review-test-coverage.md",
+          "packages/main/templates/agents/lattice-review-behavior.md",
+          "packages/main/templates/agents/lattice-review-docs.md",
+          ".claude/agents/lattice-review-concept.md",
+          ".claude/agents/lattice-review-quality.md",
+          ".claude/agents/lattice-review-test-coverage.md",
+          ".claude/agents/lattice-review-behavior.md",
+          ".claude/agents/lattice-review-docs.md",
+          ".lattice-codex/agents/lattice-review-concept.md",
+          ".lattice-codex/agents/lattice-review-quality.md",
+          ".lattice-codex/agents/lattice-review-test-coverage.md",
+          ".lattice-codex/agents/lattice-review-behavior.md",
+          ".lattice-codex/agents/lattice-review-docs.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "active-five-role-migration",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Prompt registry smoke passed and exercises the exact five active reviewer modular role bodies, preserving each lane identity and authority contract.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.851Z"
+        },
+        {
+          "intentRef": "independent-role-flags",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Prompt registry smoke passed the five independent rollout flags and proves one role can change mode without cross-role coupling.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "active-roster-retired-exclusion",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Registry smoke passed active roster assertions and proves retired channel remains defaultDispatch=false and excluded from migrated roles.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "legacy-full-readable",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Content-addressed legacy resolver tests passed and restore exact pre-migration bytes when a role is legacy-full-context.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "mixed-rollout-states",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "All 32 five-role mixed rollout combinations passed with lane-specific body resolution.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "missing-or-invalid-flag-fails-safe",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Malformed and unknown rollout configuration rejection or legacy-safe behavior passed without enabling another role.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "compatibility-not-active",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Compatibility roles remain non-active and excluded from the five-role rollout matrix.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "role-contract-semantics-preserved",
+          "kind": "docs_check",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Role contract and modular prompt checks passed for required role-specific semantics after shared runtime boilerplate extraction.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "retired-channel-dispatch-rejected",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Retired channel enablement and modular-body resolution attempts are rejected by registry policy.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "flag-bleed-and-role-substitution-rejected",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "Runtime-owned asset smoke and identity checks passed for package, Claude, and Codex mirrors with no cross-role substitution.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "retired-evidence-cannot-count",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Registry eligibility assertions passed and retired or compatibility roles cannot enter migrated reviewer evidence identity paths.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "concurrent-flag-baseline-writes-serialized",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Immutable content-addressed legacy/modular artifact digest checks passed; no mutable runtime baseline writer or hybrid state was introduced.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,9 +288,263 @@
         "docs/requirements/decisions/review-run-binding-race.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-19T07:32:27.466Z",
+      "endTime": "2026-07-19T10:28:58.297Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "five-role-trusted-full-envelope",
+            "desc": "For each of concept, quality, test-coverage, behavior, and docs, full mode is assembled in the trusted launch process and binds the exact Runtime Contract, role-specific Role Contract, current task context, known environment, assembler and launcher digests, current HEAD/material/storyFiles hashes, and signed ReviewRun.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "eligible-role-incremental-envelope",
+            "desc": "For each active reviewer role, only Story 4 mechanically eligible metadata-only or fully bound pure-fixture deltas produce an incremental Prompt Envelope with exact lane, prior-pass, freshness, reviewBasis, changed/impacted file, intent, contract, and context digests.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "drift-selects-full-per-role",
+            "desc": "Contract, policy, scope, required-lane, authority, permission, source, docs, public schema/API/protocol, dependency/build, unknown-impact, or stale material drift deterministically selects full for the affected role with stable reason codes.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "incremental-read-through-and-escalation",
+            "desc": "An incremental reviewer can read current authoritative references and request a new full-context ReviewRun with a recorded reason; the original incremental run is not silently mutated or accepted as full.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "prior-pass-lane-signature-freshness",
+            "desc": "Incremental baseline requires the latest valid PASS from the same role lane, same review round, signed ReviewRun, intact Prompt Envelope, and canonical freshness classification; wrong-lane, older, stale, unsigned, or envelope-less evidence selects full.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "semantic-render-vs-metadata-drift",
+            "desc": "Role or Runtime semanticDigest and agent-facing renderDigest changes invalidate incremental reuse, while only metadata proven absent from model input may retain eligibility under the canonical freshness reader.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "correctness-before-budget-selection",
+            "desc": "Safety eligibility is decided before size: eligible incremental wins only when under its budget and smaller than full; equal/larger uses FULL_CHEAPER_OR_EQUAL, oversize incremental selects full, and correctness-required oversize full remains full with budgetViolation=full.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "legacy-pass-never-upgraded",
+            "desc": "A pre-migration pass without the new Prompt Envelope remains legacy-full-context, readable only in its original round, and can never become an incremental baseline through defaults, backfill, or a newly enabled role flag.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "caller-cannot-force-role-incremental",
+            "desc": "Main, implementer, reviewer, config, or CLI arguments such as contextMode, forceIncremental, fabricated impacted files, or claimed reason codes cannot override authoritative full selection for any role.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "envelope-signature-digest-tamper-rejected",
+            "desc": "Mutating role ID, contract/context/reviewBasis digest, eligibility decision, freshness class, changed files, selection reason, ReviewRun binding, signature, or assembled prompt after launch invalidates pass, finding admission, collector credit, receipt, floor, and quorum.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "mixed-mode-role-substitution-rejected",
+            "desc": "During mixed rollback, an incremental or full envelope for one active role cannot be replayed as another role, and a legacy prompt cannot be paired with a modular envelope or vice versa.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "concurrent-run-snapshot-race-fails-closed",
+            "desc": "Concurrent reviewers, flag changes, baseline writes, or material changes cannot combine eligibility from one snapshot with contracts or task context from another; stale or hybrid runs are rejected and require fresh full assembly.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees \"context incremental reason=ELIGIBLE_PURE_FIXTURE_DELTA\" only for proven bounded input, or \"context full reason=CONTRACT_DRIFT\" for unsafe input; requesting full creates a new run and prints \"reason=REVIEWER_REQUESTED_FULL\".",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/core/review-run.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/review-incremental-context-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "five-role-trusted-full-envelope",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Real five-role mask 31 dispatch and signed ReviewRun flow passed with each active lane minting a current full-envelope run and concurrent collection preserving unique gate evidence.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "eligible-role-incremental-envelope",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Five-role full/incremental assembler matrix passed mechanically eligible bounded delta assembly and exact reviewBasis, freshness, role, and digest binding.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "drift-selects-full-per-role",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Drift matrix passed deterministic full selection and stable reason codes for unsafe categories and stale evidence.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "incremental-read-through-and-escalation",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-smoke.js",
+          "result": "pass",
+          "note": "Review-run smoke transcript exposes selected rollout/body/context/reason/budget and verifies explicit reviewer-requested-full creates a distinct trusted selection.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "prior-pass-lane-signature-freshness",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-smoke.js",
+          "result": "pass",
+          "note": "Review-run baseline checks passed same-lane signed current-round and freshness requirements while respecting binding-race PASS semantics.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "semantic-render-vs-metadata-drift",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Envelope smoke passed semantic/render digest invalidation and integrity reconstruction against the selected mode-aware role body.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "correctness-before-budget-selection",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Safety-before-cost, FULL_CHEAPER_OR_EQUAL, incremental oversize, and full budget-violation separation checks passed.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "legacy-pass-never-upgraded",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-smoke.js",
+          "result": "pass",
+          "note": "Legacy envelope-less pass remains legacy-full-context and is not upgraded into an incremental baseline.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "caller-cannot-force-role-incremental",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Caller-controlled force/context fields remain unavailable and unsafe inputs mechanically select full.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "envelope-signature-digest-tamper-rejected",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Prompt Envelope body, contract, context, run, hash, and signature tamper cases are rejected by integrity consumers.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "mixed-mode-role-substitution-rejected",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-smoke.js",
+          "result": "pass",
+          "note": "Mode-aware role-body identity prevents modular/legacy and cross-role substitution in start and gate reconstruction.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "concurrent-run-snapshot-race-fails-closed",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Eight concurrent real CLI calls passed read-only neutrality and snapshot-safe deterministic selection without hybrid evidence.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -33,9 +554,257 @@
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
         "docs/host-run-usage.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-19T07:35:27.519Z",
+      "endTime": "2026-07-19T10:29:08.334Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "preregistered-per-role-replay-matrix",
+            "desc": "Before execution, freeze at least two historical Stories from each required class, the five reviewer roles, legacy-full/modular-full/modular-incremental arms, model/tool/material envelope, run order or seed support, at least three repetitions per applicable cell, and an independent adjudicated finding oracle.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "seeded-critical-high-quality-gate",
+            "desc": "Per role and applicable Story, every critical seeded finding is detected and no independently confirmed systematic high-severity miss occurs; findings match by stable semantic category plus source/claim binding rather than wording.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "incremental-context-reduction-50",
+            "desc": "For every eligible role/sample cell with valid comparable measurements, modular incremental context input tokens are reported against modular full context and demonstrate at least 50 percent reduction; non-eligible cells are not used in the denominator.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "assembled-prompt-per-role-40-target",
+            "desc": "Actual dispatched assembled-prompt tokens are reported separately for all five roles and compared with each role baseline; the initial target is at least 40 percent reduction, with target misses reported honestly rather than averaged away.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "inconclusive-on-insufficient-quality-evidence",
+            "desc": "Missing historical material, invalid or empty seeded denominator, arm asymmetry, fewer than required samples/repetitions, version drift, ambiguous high miss, or unavailable independent adjudication yields INCONCLUSIVE and no claim that recall is preserved.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "honest-provider-usage-availability",
+            "desc": "Input, output, cache-read, cache-creation, uncached, latency, and provider-processed usage are reported per host and role when observed; unsupported or zero-but-unobserved fields are unavailable(reason), not fabricated zero or inferred from assembled size.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "seed-and-order-limitations-recorded",
+            "desc": "Provider seed support, controllable sampling parameters, run order, retries, failures, and model/contract versions are recorded; lack of deterministic seed does not invalidate the protocol but prevents deterministic claims beyond repeated adjudicated evidence.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "false-positive-and-command-misuse-guard",
+            "desc": "Per-role replay reports independently adjudicated false positives and reviewer command misuse; prompt reduction is not accepted as quality-equivalent when either materially increases even if seeded recall and token targets pass.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "denominator-seed-erasure-detected",
+            "desc": "Deleting, relabeling, downgrading, duplicating, or excluding a seeded critical/high finding or an applicable failed cell after results are known invalidates the replay result and produces INCONCLUSIVE.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "cache-and-gross-token-gaming-rejected",
+            "desc": "Gross tokens, cache hits, estimator output, or aggregated wave totals cannot substitute for actual per-role assembled input and provider usage; cache categories remain separated so savings cannot be overstated.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "experiment-production-evidence-isolated",
+            "desc": "Replay runs are read-only or sandboxed and their findings, passes, receipts, usage, and ReviewRun IDs cannot satisfy production Story review gates, floor, quorum, delivery, or DONE evidence.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "cherry-pick-reconstruction-tamper-inconclusive",
+            "desc": "Selecting only successful repetitions, changing historical material, mixing model/contract versions, reordering arms after observation, or using unequal task/tool envelopes is detected from the manifest and forces INCONCLUSIVE for affected savings and recall claims.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees one report row per role such as \"role=lattice-review-docs verdict=INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED incrementalContextReduction=62% assembledReduction=41% providerUsage=unavailable(...)\" without fabricated PASS values.",
+      "files": {
+        "modify": [
+          "experiments/role-prompt-ab-replay"
+        ],
+        "create": [],
+        "test": [
+          "experiments/role-prompt-ab-replay/selfcheck.mjs"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "preregistered-per-role-replay-matrix",
+          "kind": "docs_check",
+          "file": "experiments/role-prompt-ab-replay/README.md",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Story 5 campaign protocol is versioned and content-addressed for five roles, three arms, three repetitions, pinned ordering and exact body digests; selfcheck passed.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "seeded-critical-high-quality-gate",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Quality evaluator requires verified seeded critical/high adjudication and returns INCONCLUSIVE for every role when those inputs are absent.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "incremental-context-reduction-50",
+          "kind": "manual_transcript",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Campaign output does not fabricate a 50 percent context reduction because exact historical per-role envelopes are unavailable; affected role rows explicitly report INCONCLUSIVE.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "assembled-prompt-per-role-40-target",
+          "kind": "manual_transcript",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Campaign reports exact legacy/modular role-body token observations but refuses to claim the 40 percent assembled target without exact assembled dispatch snapshots.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "inconclusive-on-insufficient-quality-evidence",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Missing envelopes, reviewer outputs, independent adjudication, or provider receipts deterministically yields per-role INCONCLUSIVE reason codes.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "honest-provider-usage-availability",
+          "kind": "manual_transcript",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Provider usage and cache fields render unavailable with a reason instead of fabricated zero.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "seed-and-order-limitations-recorded",
+          "kind": "docs_check",
+          "file": "experiments/role-prompt-ab-replay/README.md",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Campaign manifest and README record repetition, order, seed support limitations, pinned versions, and evidence gaps.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "false-positive-and-command-misuse-guard",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Quality-equivalence acceptance remains unavailable without adjudicated false-positive and command-misuse observations.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "denominator-seed-erasure-detected",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Manifest and oracle denominator mutation checks reject erased, relabeled, duplicated, or downgraded applicable evidence.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "cache-and-gross-token-gaming-rejected",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Role-aware report separates body, context, assembled, provider, and cache measures and rejects aggregate substitution.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "experiment-production-evidence-isolated",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Production evidence isolation checks prove campaign findings, passes, usage, and run identifiers cannot satisfy Story gates.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "cherry-pick-reconstruction-tamper-inconclusive",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck rejects body substitution, repetition cherry-picking, arm/order mutation, cross-role mismatch, and digest reconstruction tamper.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -46,9 +815,387 @@
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-19T07:39:07.035Z",
+      "endTime": "2026-07-19T10:29:21.675Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "reviewer-owner-permission-boundaries",
+            "desc": "For all five migrated roles, main and implementer cannot write reviewer pass, reviewers can write only their authorized lane pass/findings after review_run_start, reviewers cannot run owner-gated lifecycle mutations, and delivery-check remains delivery-reviewer only.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "signed-current-run-admission",
+            "desc": "Pass and finding admission, evidence collection, receipt, assurance floor, and quorum accept only a valid same-lane signed ReviewRun whose Prompt Envelope, review round, HEAD/material/storyFiles, role contract, context, and assembled prompt digests verify; fresh non-latest same-round PASS remains admissible under the governing binding-race decision, while findings retain kind-aware stale-run handling.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "role-baseline-diff-approval-rollback",
+            "desc": "Each role has a separately reviewable legacy-versus-modular baseline diff, explicit reviewer approval bound to the exact digests, and a tested flag rollback that restores the legacy prompt for that role without weakening gates or changing other roles.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "process-contract-docs-synchronized",
+            "desc": "Role registry, flags, Prompt Envelope schema, permissions, incremental/full selection, legacy-pass rules, metrics, process-fact registry/verifier, CLI help, and canonical decision/usage docs agree and executable contract checks pass.",
+            "type": "docs",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "old-pass-original-round-only",
+            "desc": "A valid pre-migration pass without a Prompt Envelope remains readable as legacy-full-context only in its recorded review round, cannot establish a new incremental baseline, and cannot be replayed after material or role-contract drift.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "mixed-role-rollback-gate-equivalence",
+            "desc": "Every mixed modular/legacy role combination preserves the same required active lanes, finding severity semantics, pass admission, floor, receipt, quorum, and DONE behavior; rolling back one role neither rolls back nor bypasses another.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "budget-violation-does-not-weaken-authority",
+            "desc": "Incremental or full budget violations are recorded separately; they cannot truncate required sections, accept stale evidence, skip a required lane, force incremental, or grant baseline approval, while correctness-required full review remains executable.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "compatibility-retired-artifact-audit-only",
+            "desc": "Historical compatibility or retired artifacts remain readable according to their recorded status for audit, but never count toward current active lane pass, receipt, floor, quorum, delivery, or DONE.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "unauthorized-pass-and-lifecycle-writes-rejected",
+            "desc": "Main, implementer, compatibility/retired roles, wrong active lanes, and forged actor labels cannot write or inherit an active reviewer pass; reviewer attempts at validate, story_advance, or other owner mutations are rejected without state change.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "replay-tamper-wrong-lane-signature-rejected",
+            "desc": "Replayed old signatures, wrong-lane ReviewRuns, altered envelope/contract/baseline digests, stale hashes, changed rounds, malformed receipts, or post-signature prompt mutation receive no gate credit and yield explicit stable rejection reasons.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "rollback-cannot-relax-contract-or-retire-role",
+            "desc": "A rollback flag changes prompt assembly only: it cannot remove forbidden actions, expand commands, alter signature domains, mark an active role compatibility/retired, enable retired channel, or substitute legacy evidence as current proof.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "concurrent-lane-write-and-collector-determinism",
+            "desc": "Concurrent five-role pass and finding writes remain signed and lane scoped; immutable content-addressed baseline artifacts prevent hybrid approvals, any future mutable shared writer uses the main write lock, and repeated collectors deterministically aggregate without overwrite, lost update, or duplicate credit.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "User sees \"process contract: PASS\", \"host mirror identity: PASS\", \"legacy pass compatibility: PASS\", and \"retired or compatibility gate credit: 0\" after permission, signature, rollback, baseline, and documentation checks.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/host-run-usage.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "reviewer-owner-permission-boundaries",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Dispatch permission probes passed reviewerWrite authority and rejected main, implementer, wrong-lane, owner-gated lifecycle, and delivery-only mutation paths.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "signed-current-run-admission",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Quorum smoke passed 42 checks for signed same-lane ReviewRun, Prompt Envelope, round/hash freshness, binding-race PASS compatibility, and kind-aware finding admission.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "role-baseline-diff-approval-rollback",
+          "kind": "docs_check",
+          "file": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "All three immutable digest-bound baselines verify selected modular bodies, exact legacy rollback, role-by-role diffs, and approval identity.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "process-contract-docs-synchronized",
+          "kind": "docs_check",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact registry/verifier passed; canonical Story 5 and host usage docs describe selected-body measurement, rollout, rollback, and evidence limits. Owner verify_codex also passed relevant adapter checks.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "old-pass-original-round-only",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-run-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-run-smoke.js",
+          "result": "pass",
+          "note": "Legacy envelope-less pass remains original-round legacy-full-context and cannot establish a modular incremental baseline.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "mixed-role-rollback-gate-equivalence",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Real mixed masks 10 and 21 plus full mask 31 passed dispatch, ReviewRun admission, legacy/full envelope distinction, concurrent collection, lane uniqueness, and canPassReviewGuard.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "budget-violation-does-not-weaken-authority",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Budget violation and FULL_CHEAPER_OR_EQUAL remain observation/selection facts and do not weaken authority or correctness-required full review.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "compatibility-retired-artifact-audit-only",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Compatibility and retired artifacts remain audit-readable but receive zero current receipt, assurance-floor, or quorum credit.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "unauthorized-pass-and-lifecycle-writes-rejected",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js",
+          "result": "pass",
+          "note": "Dispatch permission probes passed reviewerWrite authority and rejected main, implementer, wrong-lane, owner-gated lifecycle, and delivery-only mutation paths.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "replay-tamper-wrong-lane-signature-rejected",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Wrong-lane, stale, altered envelope/contract/body/baseline digest, and malformed signature/receipt cases receive no quorum credit.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "rollback-cannot-relax-contract-or-retire-role",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Rollback changes only selected prompt body and cannot alter Role Contract permissions, lifecycle status, signature domain, or retired channel policy.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        },
+        {
+          "intentRef": "concurrent-lane-write-and-collector-determinism",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js",
+          "result": "pass",
+          "note": "Five-lane concurrent review_run_start plus pass/finding writers passed masks 31 and 10 once and mask 21 for 20/20 stress iterations with zero lost runs, zero overwritten findings, zero invalid collector records, and stable canPassReviewGuard evidence.",
+          "headHash": "8bc11368cd7fa9627eaef4ba8c290a5d07738e05",
+          "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819",
+          "storyFilesHash": "e09d9ef0e6c22f39c796dffd97f86da834f8f4d4152201a93cd579550e10b741",
+          "timestamp": "2026-07-20T16:39:02.852Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-19T07:24:56.995Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation delegated to the normal-channel lattice-implementer after PLAN gates passed.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T07:32:24.089Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Accepted business commit 4e201106aa after build and focused role-registry/host-asset smokes passed.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T07:32:27.466Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "CHK-001 commit accepted; implementer dispatched for trusted full/incremental assembly.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T07:35:24.181Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Accepted business commit 8885f1ef78 after build and review-run/full-envelope/incremental-context smokes passed.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T07:35:27.519Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "CHK-002 commit accepted; implementer started the role-aware preregistered replay campaign.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T07:39:03.673Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Accepted business commit 72e436914f; Story 3 corpus stayed frozen and role-aware campaign selfcheck passed 50 checks with honest per-role INCONCLUSIVE outcomes.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T07:39:07.035Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "CHK-003 commit accepted; implementer started authority, baseline, process-contract, docs, and rollback closure.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T07:50:19.199Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Accepted business commit ebd778fa4b after all focused smokes, baseline/process verifiers, replay selfcheck, and owner verify_codex passed.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T08:05:19.345Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened after round-1 reviewer findings: real host prompt path, legacy gate binding, REVIEW retention, and verification coverage require repair.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T08:05:20.931Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened after round-1 reviewer findings: real host prompt path, legacy gate binding, REVIEW retention, and verification coverage require repair.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T08:05:22.363Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened after round-1 reviewer findings: real host prompt path, legacy gate binding, REVIEW retention, and verification coverage require repair.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-19T08:05:23.839Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopened after round-1 reviewer findings: real host prompt path, legacy gate binding, REVIEW retention, and verification coverage require repair.",
+      "agent": "lattice-implementer"
     }
   ]
 }

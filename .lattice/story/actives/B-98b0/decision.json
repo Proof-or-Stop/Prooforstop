@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "One canonical structural evaluator feeds both CLI diagnostics and lifecycle admission.",
+    "PLAN evidence is declarative and verifier-derived, never executable or caller-authored.",
+    "Flat project mode is explicit and reversible; later selective applicability is not inferred."
+  ],
+  "drivers": [
+    "Prevent omitted producer-consumer paths before DEV starts.",
+    "Avoid false blocks for new typed endpoints, docs-only, single-outcome and legacy stories.",
+    "Make every blocking fact mechanically registered, fresh and mutation-tested."
+  ],
+  "options": [
+    {
+      "name": "A: Reuse proofStory.devGateMode and integrate a canonical acceptance-topology evaluator",
+      "pros": [
+        "Uses the existing flat observe/warn/enforce ownership",
+        "Keeps CLI and transition results identical",
+        "Avoids adding selective applicability before Wave 3A"
+      ],
+      "cons": [
+        "The existing dev gate now aggregates another structural check",
+        "Requires careful compatibility classification"
+      ]
+    },
+    {
+      "name": "B: Add a separate acceptanceTopologyMode configuration",
+      "pros": [
+        "Independent rollout switch",
+        "Smaller apparent coupling to existing ProofStory DEV checks"
+      ],
+      "cons": [
+        "Creates overlapping mode precedence",
+        "Contradicts the approved flat-mode boundary unless precedence is newly designed"
+      ]
+    },
+    {
+      "name": "C: Inline topology checks only in story_advance",
+      "pros": [
+        "Fewest new public surfaces"
+      ],
+      "cons": [
+        "No independently inspectable diagnostics",
+        "Duplicates or hides evaluator semantics",
+        "Makes mutation and process-fact verification weaker"
+      ]
+    }
+  ],
+  "chosen": "A: Reuse proofStory.devGateMode and integrate a canonical acceptance-topology evaluator",
+  "rationale": "Wave 2 explicitly requires a flat project observe/warn/enforce structural gate. Reusing devGateMode preserves current configuration ownership, while a shared pure evaluator keeps the public command, transition gate and tests on the same semantics. Separate selective policy remains deferred to Wave 3A.",
+  "preMortem": [
+    {
+      "scenario": "A typed new producer-consumer declaration is rejected because symbols do not exist yet.",
+      "trigger": "Evaluator accidentally consumes current executable discovery as a PLAN requirement.",
+      "consequence": "Valid work cannot enter DEV and teams encode fake existing symbols.",
+      "mitigation": "Test planned declaration acceptance using frozen file/scope refs and assert no executable evidence is consulted."
+    },
+    {
+      "scenario": "A partial or stale basis is presented as structurally complete.",
+      "trigger": "CLI trusts topology rows or caller status instead of verified receipt state.",
+      "consequence": "Missing paths pass the PLAN gate.",
+      "mitigation": "Derive status only from Wave 1A verification, reject caller fields, and add partial/stale/tamper mutations with stable AT codes."
+    },
+    {
+      "scenario": "CLI diagnostics and PLAN to DEV gate disagree.",
+      "trigger": "Handler and transition orchestrator implement separate predicates.",
+      "consequence": "Operator sees PASS but story_advance blocks, or the reverse.",
+      "mitigation": "Use one canonical evaluator/result model and production-chain tests exercising both consumers."
+    },
+    {
+      "scenario": "Legacy or docs-only work is blocked by missing topology artifacts.",
+      "trigger": "Applicability is treated as universal without compatibility classification.",
+      "consequence": "Existing Stories regress when mode is enforce.",
+      "mitigation": "Encode deterministic legacy/docs-only/single-outcome classifications and test observe, warn and enforce behavior separately."
+    }
+  ],
+  "timestamp": "2026-07-22T15:51:00.194Z"
+}

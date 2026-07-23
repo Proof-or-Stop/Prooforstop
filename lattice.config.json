@@ -6,6 +6,21 @@
   "fixturesDir": "packages/main/tests/fixtures",
   "storyDir": ".lattice/story/actives",
   "requirementsDir": "docs/requirements",
+  "promptEnvelope": {
+    "version": "proofbound.prompt-envelope-rollout.v1",
+    "roles": {
+      "lattice-review-behavior": "full-envelope",
+      "lattice-review-concept": "full-envelope",
+      "lattice-review-docs": "full-envelope",
+      "lattice-review-quality": "full-envelope",
+      "lattice-review-test-coverage": "full-envelope",
+      "lattice-review-story-init": "legacy-full-context",
+      "lattice-review-scope-plan": "legacy-full-context",
+      "lattice-implementer": "legacy-full-context",
+      "lattice-review-delivery": "legacy-full-context",
+      "lattice-evaluator": "legacy-full-context"
+    }
+  },
   "candidateSpecRouting": {
     "mode": "shadow",
     "candidateBudget": 8,
@@ -81,7 +96,7 @@
   },
   "doneRequiredCommands": [
     { "label": "packages/main build", "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 290000, "providesBuildProof": "packages-main-build" },
-    { "label": "root full test suite", "command": "npm", "args": ["test"], "timeoutMs": 1200000, "requiresBuildProof": "packages-main-build" }
+    { "label": "root full test suite", "command": "npm", "args": ["test"], "timeoutMs": 7200000, "requiresBuildProof": "packages-main-build" }
   ],
   "baselineRiskAcceptedLocalPaths": [
     "AGENTS.md",

@@ -12,6 +12,9 @@ import type {
   DecisionDocProposalFile, OriginalIntentSnapshotData, MilestoneLedgerData,
   ProofStoryContractData, IntentCollisionData, ScopeShrinkageDecisionData,
   RedEvidenceData, ProofStorySpikeData, ProofStorySlicePlanData, ProofStoryParentLedgerRollupData,
+  AcceptanceBasisArtifactV1,
+  PreReviewCheckArtifactV1,
+  TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
 } from './types.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
@@ -775,6 +778,48 @@ export class StoryStore {
 
   writeProofStoryContract(storyId: string, data: ProofStoryContractData): void {
     this.writeJson(storyId, 'proofstory.json', data);
+  }
+
+  readAcceptanceBasis(storyId: string): AcceptanceBasisArtifactV1 | null {
+    try {
+      return this.readJson<AcceptanceBasisArtifactV1>(storyId, 'acceptance-basis.json');
+    } catch {
+      return null;
+    }
+  }
+
+  writeAcceptanceBasis(storyId: string, data: AcceptanceBasisArtifactV1): void {
+    this.writeJson(storyId, 'acceptance-basis.json', data);
+  }
+
+  readPreReviewCheck(storyId: string): PreReviewCheckArtifactV1 | null {
+    try { return this.readJson<PreReviewCheckArtifactV1>(storyId, 'pre-review-check.json'); }
+    catch (e) { if (e instanceof StoryArtifactMissingError) return null; throw e; }
+  }
+
+  writePreReviewCheck(storyId: string, data: PreReviewCheckArtifactV1): void {
+    this.writeJson(storyId, 'pre-review-check.json', data);
+  }
+
+  readTopologyCriticReceipt(storyId: string): TopologyCriticReceiptV1 | null {
+    try { return this.readJson<TopologyCriticReceiptV1>(storyId, 'topology-critic-receipt.json'); }
+    catch (e) { if (e instanceof StoryArtifactMissingError) return null; throw e; }
+  }
+
+  writeTopologyCriticReceipt(storyId: string, data: TopologyCriticReceiptV1): void {
+    this.writeJson(storyId, 'topology-critic-receipt.json', data);
+  }
+
+  readTopologyExclusionApprovals(storyId: string): TopologyExclusionApprovalsDataV1 {
+    try { return this.readJson<TopologyExclusionApprovalsDataV1>(storyId, 'topology-exclusion-approvals.json'); }
+    catch (e) {
+      if (e instanceof StoryArtifactMissingError) return { schemaVersion: 'proofstory.topology_exclusion_approvals.v1', storyId, approvals: [] };
+      throw e;
+    }
+  }
+
+  writeTopologyExclusionApprovals(storyId: string, data: TopologyExclusionApprovalsDataV1): void {
+    this.writeJson(storyId, 'topology-exclusion-approvals.json', data);
   }
 
   readIntentCollision(storyId: string): IntentCollisionData | null {

@@ -1,9 +1,13 @@
-# Role-prompt A/B replay (Story 3)
+# Role-prompt A/B replay (Story 3 + B-235e campaign)
 
-This directory is an experiment-only, read-only replay harness. It measures a
-frozen six-sample historical observation corpus; it does not dispatch a model,
-execute historical code, call `agent_prompt --storyId`, call `host_run`, write a
-review pass/finding/ReviewRun, or participate in any lifecycle gate.
+The ordinary Story 3/B-235e replay commands in this directory are
+experiment-only and read-only. They measure a frozen six-sample historical
+observation corpus; they do not dispatch a model, execute historical code, call
+`agent_prompt --storyId`, call `host_run`, write a review
+pass/finding/ReviewRun, or participate in any lifecycle gate. The separately
+documented Story 6 live campaign is the deliberate exception: it produces
+audit-only prompts through `agent_prompt` and invokes pinned Codex CLI / Claude
+CLI provider cells, while remaining ineligible for lifecycle-gate evidence.
 
 ## Commands
 
@@ -17,6 +21,74 @@ node experiments/role-prompt-ab-replay/analyze.mjs \
   --ledger=runtime/operator-run.jsonl
 ```
 
+## Story 6 live complex-role campaign
+
+`story6-live.mjs` extends the frozen corpus into a real provider matrix: three
+historical Story classes, two samples per class, legacy/modular arms, three
+repetitions, all five migrated complex roles, and both Codex CLI and Claude
+CLI. Both arms are now produced through the production `agent_prompt` handler
+in an explicitly audit-only experiment: legacy uses the configured rollback
+body, while modular uses the handler's experiment-only override and persists a
+Prompt Envelope plus its bound dispatch event. A receipt is inadmissible unless
+it proves that producer/mode/envelope/event chain. This short command validates
+the 72-cell preregistration and production producer binding without spending
+provider tokens:
+
+```bash
+npm --prefix packages/main run build
+node experiments/role-prompt-ab-replay/story6-live.mjs --selfcheck
+```
+
+Execution is deliberately one cell per invocation so the host can serialize
+the long campaign and avoid duplicate processes. Exact model IDs are mandatory
+pinned inputs. For example:
+
+```bash
+node experiments/role-prompt-ab-replay/story6-live.mjs --execute \
+  --campaign-id=story6-YYYYMMDD-v1 \
+  --cell=clean-pass-01.lattice-review-story-init.codex-cli.legacy.r1 \
+  --codex-model=<exact-model-id> --claude-model=<exact-model-id>
+```
+
+Receipts stay under ignored `runtime/story6/`, are `gateEvidence=false`, and
+report provider/cache/latency/output dimensions separately. A successful call
+remains `PENDING_INDEPENDENT_ADJUDICATION`; missing provider metrics or an
+independent adjudication remains `INCONCLUSIVE`, never a bytes-only success.
+Receipts created before the `agent_prompt` producer/event binding are archival
+only and the current analyzer rejects them. In particular, the tracked
+`story6-20260720-v2` summary records the adverse, non-qualifying result that
+keeps all five complex roles on `legacy-full-context`; it cannot qualify a new
+campaign or activate modular defaults. Regenerate all 72 serialized cells and
+obtain fresh independent adjudication before making a new migration claim.
+After the serialized campaign, analyze it with:
+
+```bash
+node experiments/role-prompt-ab-replay/story6-analyze.mjs \
+  --campaign-id=story6-YYYYMMDD-v1 \
+  --adjudication=/absolute/path/to/independent-adjudication.json
+```
+
+The audit receipts are deliberately not reviewer evidence. The production
+REVIEW evidence collector gives them zero credit unless a separately valid,
+signed ReviewRun and reviewer pass/finding exist. Existing runtime guards and
+their dedicated smokes provide stable rejection codes for run/evidence
+signature failures, wrong lanes, Prompt Envelope mismatch/tampering, missing
+scope binding, mutation/scope authority denial, missing delivery check, and
+missing evaluator evidence. There is currently no standalone wrong-author
+reason-code API. The Story 6 invariant smoke now invokes the real
+`checkCommitAuthor` negative behavior, and the acceptance audit transcript
+reports `wrongAuthorStatus=fail`, `wrongAuthorDispatchEvidence=missing`, and
+`wrongAuthorSource=checkCommitAuthor`. These are consumer-derived behavioral
+facts, not an invented wrong-author reason code.
+
+Because runtime receipts and adjudication are intentionally ignored, preserve a
+reviewable result with `story6-report.mjs --output=<tracked-summary.json>`. The
+summary contains only bindings, content digests, coverage, numeric aggregates,
+adjudication distributions, limitations, and conservative claims—never raw
+prompts, provider outputs, transcripts, tool arguments, or credentials. Re-run
+the same command with `--verify=<tracked-summary.json>` to bind the tracked
+summary back to all 72 receipt files and the independent adjudication.
+
 The ordinary replay is read-only. Ledger output is opt-in and is confined to
 `experiments/role-prompt-ab-replay/runtime/*.jsonl`; that directory is runtime
 output. Its committed `.gitignore` excludes generated rows and lock files, so
@@ -28,6 +100,24 @@ unrelated five-arm lifecycle ablation. It is design inspiration for
 pre-registration discipline only; it is not this experiment's governing
 protocol or acceptance source. `protocol.json`, `corpus.json`, and the canonical
 role-prompt decision are the Story 3 contract.
+
+`lib/replay.mjs` also contains the separately versioned, content-addressed
+`B-235e-active-reviewers-v1` campaign. It does not alter `protocol.json`,
+`corpus.json`, their digests, sample semantics, or the Story 3 result. The
+campaign pins the five active reviewer roles, three arms
+(`legacy-full`, `modular-full`, `modular-incremental`), exact legacy/modular
+role-body bytes and SHA-256 digests, the six frozen Story 3 sample IDs, model,
+tools, three symmetric repetitions, order, thresholds, and an independent
+adjudication-plan digest.
+
+The committed corpus still lacks exact per-role historical Prompt Envelope
+bytes, reviewer outputs, independent adjudication evidence, and provider
+receipts. Consequently the B-235e report is deliberately `INCONCLUSIVE` for
+every role. It reports exact role-body token estimates, but reports incremental
+context reduction, assembled-prompt reduction, seeded recall, false positives,
+command misuse, and provider/cache usage as unavailable—not zero. No role enters
+the savings denominator, and neither the 50% incremental threshold nor the 40%
+assembled target is claimed as met.
 
 ## Claim boundary
 

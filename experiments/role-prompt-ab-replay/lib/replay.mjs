@@ -5,7 +5,112 @@ import path from 'node:path';
 
 export const SUPPORTED_PROTOCOL = 'proofbound.role-prompt-ab.protocol.v1';
 export const SUPPORTED_CORPUS = 'proofbound.role-prompt-ab.corpus.v1';
+export const STORY5_ROLE_CAMPAIGN_SCHEMA = 'proofbound.role-prompt-ab.role-campaign.v1';
 export const EXPERIMENT_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+function unavailableProviderDimensions(provider) {
+  const reason = `No content-addressed ${provider} provider receipt is bound to the frozen B-235e campaign.`;
+  return {
+    inputTokens: { availability: 'unavailable', reason },
+    outputTokens: { availability: 'unavailable', reason },
+    cacheReadInputTokens: { availability: 'unavailable', reason },
+    cacheCreationInputTokens: { availability: 'unavailable', reason },
+    uncachedInputTokens: { availability: 'unavailable', reason },
+    latencyMs: { availability: 'unavailable', reason },
+    providerProcessedInputTokens: { availability: 'unavailable', reason },
+  };
+}
+
+export const STORY5_ROLE_CAMPAIGN = Object.freeze({
+  schemaVersion: STORY5_ROLE_CAMPAIGN_SCHEMA,
+  campaignId: 'B-235e-active-reviewers-v1',
+  status: 'frozen',
+  namespace: 'experiment-only',
+  gateEvidence: false,
+  sourceExperiment: {
+    protocolDigest: '2e0abcbd2b8e5b7ce3cd0d314b02c7f3c4af9bab874d2c3aa9ff5ae0ce960756',
+    corpusDigest: 'ff401b19d1fba4238da6c48b82cab486981b496ca0139a70ed142bfbd2053e45',
+    sampleIds: [
+      'clean-pass-01',
+      'clean-pass-02',
+      'critical-01',
+      'critical-02',
+      'closeout-01',
+      'closeout-02',
+    ],
+  },
+  roles: [
+    {
+      roleId: 'lattice-review-behavior',
+      artifactPath: 'packages/main/templates/agents/lattice-review-behavior.md',
+      legacy: { bytes: 14269, sha256: 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2' },
+      modular: { bytes: 9296, sha256: 'd485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4' },
+    },
+    {
+      roleId: 'lattice-review-concept',
+      artifactPath: 'packages/main/templates/agents/lattice-review-concept.md',
+      legacy: { bytes: 9594, sha256: 'cbb397fa7ad831fdfa3f305e19ce8c0c99f52909d26eb44634f685ba9eafdd8a' },
+      modular: { bytes: 4621, sha256: '8448a26c4189ac1bb84b93f8e8f875869886816269b41da118dcde7d1c000e95' },
+    },
+    {
+      roleId: 'lattice-review-docs',
+      artifactPath: 'packages/main/templates/agents/lattice-review-docs.md',
+      legacy: { bytes: 12100, sha256: '9f86f7a379b27783887c17ee579201f6abfc9812d0e7c5689f98b26a02290f59' },
+      modular: { bytes: 7127, sha256: 'da2c9653cb15766a5937a417eb8b4c86e293485cb5e622dd08b144b5d0ac4681' },
+    },
+    {
+      roleId: 'lattice-review-quality',
+      artifactPath: 'packages/main/templates/agents/lattice-review-quality.md',
+      legacy: { bytes: 10104, sha256: 'f7ec0664bb245e2608145959821f8b45d8f0dd67da07035d034e68dcc2b73280' },
+      modular: { bytes: 5131, sha256: '2ddcabec412f69ce951b4c779013e0350bf70c184bb6c5cc6935a5f01c17eaee' },
+    },
+    {
+      roleId: 'lattice-review-test-coverage',
+      artifactPath: 'packages/main/templates/agents/lattice-review-test-coverage.md',
+      legacy: { bytes: 4403, sha256: '145ce07871027bd935e5f928423406d8a31b58a5aabd3e72e89cafe5fa3002a0' },
+      modular: { bytes: 2386, sha256: 'd0b67884622aaf5c99959639328709005223df5686e2f0efce32303321a47f31' },
+    },
+  ],
+  arms: [
+    { id: 'legacy-full', roleBody: 'legacy', contextMode: 'full', contractVersion: 'legacy-full-context.v1' },
+    { id: 'modular-full', roleBody: 'modular', contextMode: 'full', contractVersion: 'proofbound.prompt-envelope.v1' },
+    { id: 'modular-incremental', roleBody: 'modular', contextMode: 'incremental', contractVersion: 'proofbound.prompt-envelope.v1' },
+  ],
+  executionEnvelope: {
+    model: 'historical-observation-only.v1',
+    tools: ['Read', 'Glob', 'Grep', 'Bash'],
+    repetitions: 3,
+    orderByRepetition: [
+      ['legacy-full', 'modular-full', 'modular-incremental'],
+      ['modular-incremental', 'legacy-full', 'modular-full'],
+      ['modular-full', 'modular-incremental', 'legacy-full'],
+    ],
+    providerSeed: {
+      availability: 'unavailable',
+      reason: 'The frozen historical observation does not expose a provider seed.',
+    },
+  },
+  thresholds: {
+    criticalSeededDetection: 1,
+    systematicHighMissesAllowed: 0,
+    minimumIncrementalContextReduction: 0.5,
+    targetAssembledPromptReduction: 0.4,
+  },
+  adjudication: {
+    status: 'unavailable',
+    reasonCode: 'ADJUDICATION_EVIDENCE_UNVERIFIED',
+    planDigest: 'e0e6f7d901984da7241b3ee570539941c714ada0a92f3f61cb74c32cafddea77',
+  },
+  assembledPromptEvidence: {
+    availability: 'unavailable',
+    reason: 'The frozen Story 3 corpus has no exact per-role full/incremental Prompt Envelope bytes or reviewer outputs.',
+  },
+  providerUsage: {
+    claude: unavailableProviderDimensions('claude'),
+    codex: unavailableProviderDimensions('codex'),
+  },
+});
+export const STORY5_ROLE_CAMPAIGN_DIGEST = '0572a6c2a740fbb4e9eca2c516a3ae1c832ddd775f0b40c50b373ca99f00b57b';
 
 export class ReplayContractError extends Error {
   constructor(code, message) {
@@ -62,6 +167,136 @@ export function digest(domain, value) {
     .update(`proofbound.digest.v1\0${domain}\0`, 'utf8')
     .update(typeof value === 'string' ? value : canonicalJson(value), 'utf8')
     .digest('hex');
+}
+
+function rawSha256(value) {
+  return createHash('sha256').update(value, 'utf8').digest('hex');
+}
+
+export function evaluateStory5RoleCampaign(campaign, protocol, corpus, roleBodies) {
+  assertObject(campaign, 'ROLE_CAMPAIGN_INVALID', 'role campaign must be an object');
+  if (campaign.schemaVersion !== STORY5_ROLE_CAMPAIGN_SCHEMA
+      || campaign.status !== 'frozen'
+      || campaign.namespace !== 'experiment-only'
+      || campaign.gateEvidence !== false) {
+    throw new ReplayContractError('ROLE_CAMPAIGN_INVALID', 'campaign version/status/evidence boundary is invalid');
+  }
+  if (digest('role-prompt-ab.role-campaign.v1', campaign) !== STORY5_ROLE_CAMPAIGN_DIGEST) {
+    throw new ReplayContractError('ROLE_CAMPAIGN_DIGEST_MISMATCH', 'frozen campaign manifest was changed');
+  }
+  const sourceIdentity = validateExperiment(protocol, corpus);
+  if (campaign.sourceExperiment.protocolDigest !== sourceIdentity.protocolDigest
+      || campaign.sourceExperiment.corpusDigest !== sourceIdentity.corpusDigest
+      || canonicalJson(campaign.sourceExperiment.sampleIds) !== canonicalJson(corpus.samples.map(sample => sample.id))) {
+    throw new ReplayContractError('STORY3_CORPUS_DRIFT', 'B-235e must reuse the exact frozen Story 3 protocol/corpus');
+  }
+  const expectedRoles = [
+    'lattice-review-behavior',
+    'lattice-review-concept',
+    'lattice-review-docs',
+    'lattice-review-quality',
+    'lattice-review-test-coverage',
+  ];
+  if (!Array.isArray(campaign.roles)
+      || canonicalJson(campaign.roles.map(role => role.roleId)) !== canonicalJson(expectedRoles)
+      || new Set(campaign.roles.map(role => role.roleId)).size !== expectedRoles.length) {
+    throw new ReplayContractError('ROLE_CAMPAIGN_ROLE_SET_INVALID', 'campaign must contain each active reviewer role exactly once');
+  }
+  const expectedArms = ['legacy-full', 'modular-full', 'modular-incremental'];
+  if (!Array.isArray(campaign.arms)
+      || canonicalJson(campaign.arms.map(arm => arm.id)) !== canonicalJson(expectedArms)) {
+    throw new ReplayContractError('ROLE_CAMPAIGN_ARM_SET_INVALID', 'campaign arms must be frozen and symmetric');
+  }
+  if (campaign.executionEnvelope?.repetitions < 3
+      || campaign.executionEnvelope.orderByRepetition?.length !== campaign.executionEnvelope.repetitions) {
+    throw new ReplayContractError('REPEAT_FLOOR_INCOMPLETE', 'role campaign requires at least three complete repetitions');
+  }
+  for (const order of campaign.executionEnvelope.orderByRepetition) {
+    if (canonicalJson([...order].sort(compareCodePoints)) !== canonicalJson([...expectedArms].sort(compareCodePoints))) {
+      throw new ReplayContractError('INVALID_RUN_ORDER', 'every role campaign repetition must include all arms once');
+    }
+  }
+  const adjudicationPlan = {
+    matcher: 'semantic-category-source-claim.v1',
+    independentRequired: true,
+    falsePositiveReview: true,
+    commandMisuseReview: true,
+  };
+  if (campaign.adjudication?.planDigest
+      !== digest('role-prompt-ab.role-campaign-adjudication-plan.v1', adjudicationPlan)) {
+    throw new ReplayContractError('ADJUDICATION_EVIDENCE_UNVERIFIED', 'independent adjudication plan digest is invalid');
+  }
+  if (campaign.adjudication.status !== 'unavailable'
+      || campaign.adjudication.reasonCode !== 'ADJUDICATION_EVIDENCE_UNVERIFIED') {
+    throw new ReplayContractError('ADJUDICATION_EVIDENCE_UNVERIFIED', 'unverified historical quality cannot be promoted');
+  }
+  for (const [provider, dimensions] of Object.entries(campaign.providerUsage ?? {})) {
+    for (const dimension of [
+      'inputTokens',
+      'outputTokens',
+      'cacheReadInputTokens',
+      'cacheCreationInputTokens',
+      'uncachedInputTokens',
+      'latencyMs',
+      'providerProcessedInputTokens',
+    ]) {
+      const observation = dimensions?.[dimension];
+      if (observation?.availability !== 'unavailable'
+          || typeof observation.reason !== 'string'
+          || !observation.reason.trim()
+          || Object.hasOwn(observation, 'tokens')
+          || Object.hasOwn(observation, 'value')) {
+        throw new ReplayContractError(
+          'PROVIDER_USAGE_EVIDENCE_UNAVAILABLE',
+          `${provider}.${dimension} must remain unavailable with a stable reason`,
+        );
+      }
+    }
+  }
+  assertObject(roleBodies, 'PROMPT_SNAPSHOT_UNAVAILABLE', 'exact role body snapshots are required');
+  const results = campaign.roles.map(role => {
+    const bodies = roleBodies[role.roleId];
+    if (!bodies || typeof bodies.legacy !== 'string' || typeof bodies.modular !== 'string') {
+      throw new ReplayContractError('PROMPT_SNAPSHOT_UNAVAILABLE', `${role.roleId} exact role bodies are unavailable`);
+    }
+    for (const mode of ['legacy', 'modular']) {
+      if (Buffer.byteLength(bodies[mode], 'utf8') !== role[mode].bytes
+          || rawSha256(bodies[mode]) !== role[mode].sha256) {
+        throw new ReplayContractError('PROMPT_SNAPSHOT_DIGEST_MISMATCH', `${role.roleId}/${mode} snapshot drift`);
+      }
+    }
+    const roleBodyReduction = 1 - (role.modular.bytes / role.legacy.bytes);
+    return {
+      roleId: role.roleId,
+      verdict: 'INCONCLUSIVE',
+      reasonCode: campaign.adjudication.reasonCode,
+      seededCriticalDetection: null,
+      systematicHighMisses: null,
+      falsePositiveCount: null,
+      commandMisuseCount: null,
+      legacyRoleBodyTokens: Math.ceil(role.legacy.bytes / 4),
+      modularRoleBodyTokens: Math.ceil(role.modular.bytes / 4),
+      roleBodyReduction,
+      incrementalContextReduction: null,
+      assembledPromptReduction: null,
+      assembledTargetMet: null,
+      providerUsage: campaign.providerUsage,
+      gateEvidence: false,
+    };
+  });
+  return {
+    schemaVersion: 'proofbound.role-prompt-ab.role-campaign-result.v1',
+    campaignId: campaign.campaignId,
+    campaignDigest: STORY5_ROLE_CAMPAIGN_DIGEST,
+    status: 'INCONCLUSIVE',
+    reasonCode: 'ADJUDICATION_EVIDENCE_UNVERIFIED',
+    eligibleIncrementalDenominator: 0,
+    savingsClaim: null,
+    recallClaim: null,
+    gateEvidence: false,
+    results,
+    resultDigest: digest('role-prompt-ab.role-campaign-result.v1', results),
+  };
 }
 
 function assertObject(value, code, message) {

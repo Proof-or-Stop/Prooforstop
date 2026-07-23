@@ -343,6 +343,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createScopeContractHandlers(ctx));
 
   // B-7287 M0-M2: ProofStory progressive intent hardening diagnostics only.
+  // ProofStory handlers also own the registered acceptance-basis verifier
+  // writer, its read-only verifier projection, and acceptance_topology_check.
+  // The latter shares the canonical evaluator with PLAN→DEV; discovery adapter
+  // selection remains fixed in core/acceptance-discovery-adapters, never caller supplied.
   registry.registerBatch(createProofStoryHandlers(ctx));
   registry.registerBatch(createParentRoadmapHandlers(ctx));
 
@@ -366,9 +370,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // Host-neutral capability discovery for Proofbound adapters.
   registry.registerBatch(createCapabilityListHandlers());
 
-  // B-097f CHK-002: agent_prompt — host-neutral shared content endpoint. Returns
-  // the canonical role body straight from the package prompt registry (the same
-  // registry the Codex manifest resolves). Claude thin-shims fetch from here.
+  // B-097f/B-235e: agent_prompt returns the canonical package-registry host
+  // render. The five migrated reviewers receive a body-free review_run_start
+  // bootstrap; ordinary roles receive their role body. review_run_start alone
+  // supplies one selected legacy/modular reviewer body.
   registry.registerBatch(createAgentPromptHandlers(ctx));
   registry.registerBatch(createPromptMeasurementHandlers());
 

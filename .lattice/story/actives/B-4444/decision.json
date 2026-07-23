@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "One canonical owner per fact; matrices are derived views.",
+    "Structure is checked before implementation and executable evidence before REVIEW.",
+    "Hard gates consume typed, fresh, mechanically verifiable facts rather than prose.",
+    "Rollout must preserve legacy compatibility and provide actionable diagnostics."
+  ],
+  "drivers": [
+    "Reduce REVIEW rounds caused by late discovery of missing proof obligations.",
+    "Reuse existing milestone ledger and ProofStory acceptance bindings.",
+    "Make the proposal precise enough for independent audit and later implementation.",
+    "Avoid claiming assurance that transcript or mutation evidence cannot support."
+  ],
+  "options": [
+    {
+      "name": "A: Extend ProofStory acceptanceBindings with nested verification topology",
+      "pros": [
+        "Keeps claim ownership in the existing acceptance contract.",
+        "Allows milestone and verificationIntent totality checks to reuse current references.",
+        "Avoids synchronization between separate artifacts."
+      ],
+      "cons": [
+        "Expands a currently compact schema.",
+        "Requires careful versioning and legacy normalization."
+      ]
+    },
+    {
+      "name": "B: Add a standalone acceptance_matrix artifact",
+      "pros": [
+        "Easy to render and inspect independently.",
+        "Can be introduced without changing the acceptanceBindings shape immediately."
+      ],
+      "cons": [
+        "Duplicates claim and reference ownership.",
+        "Creates drift and precedence questions.",
+        "Risks becoming an unaudited second gate truth source."
+      ]
+    },
+    {
+      "name": "C: Keep schema unchanged and rely on reviewer prompts",
+      "pros": [
+        "No schema migration or new commands.",
+        "Lowest immediate implementation cost."
+      ],
+      "cons": [
+        "Cannot mechanically prove topology completeness.",
+        "Repeats the B-407c late-discovery failure mode.",
+        "Prompt compliance cannot serve as gate evidence."
+      ]
+    }
+  ],
+  "chosen": "A: Extend ProofStory acceptanceBindings with nested verification topology",
+  "rationale": "Option A places detailed verification obligations next to the acceptance claim they justify, while milestones continue to own intent totality and verificationIntent/evidence continue to own executable coverage. A rendered acceptance matrix remains useful but is computed from the canonical graph rather than persisted separately.",
+  "preMortem": [
+    {
+      "scenario": "The proposed topology duplicates milestone or verificationIntent semantics and creates conflicting owners.",
+      "trigger": "The schema repeats claims, doneMeans, or evidence status instead of referencing canonical IDs.",
+      "consequence": "Hosts cannot know which artifact controls lifecycle decisions, and updates drift.",
+      "mitigation": "Define a field-ownership table, reference-only topology edges, and reject duplicate inline claims in normalization."
+    },
+    {
+      "scenario": "The pre-review gate accepts prose or command strings without proof that mutations bite.",
+      "trigger": "A populated topology is treated as sufficient even when no fresh receipt or expected failing mutation exists.",
+      "consequence": "REVIEW rounds fall but false assurance rises.",
+      "mitigation": "Separate PLAN structural admission from DEV executable evidence; require typed receipts, expected outcomes, authority, freshness, and mutation polarity."
+    },
+    {
+      "scenario": "Enforcement blocks legacy or docs-only stories unexpectedly.",
+      "trigger": "New required fields are applied globally with no schema/version or risk-path distinction.",
+      "consequence": "Lifecycle adoption stalls and operators bypass the system.",
+      "mitigation": "Specify derived applicability, legacy normalization, docs-only exemptions, observe-warn-enforce rollout, and bite tests for each mode."
+    },
+    {
+      "scenario": "The plan is mistaken for shipped behavior.",
+      "trigger": "Status language or examples omit Proposed labels and current-state boundaries.",
+      "consequence": "Auditors and hosts rely on gates that do not exist.",
+      "mitigation": "Add an explicit status banner, current-vs-target table, implementation waves, and a no-runtime-change acceptance criterion."
+    }
+  ],
+  "timestamp": "2026-07-21T15:21:07.167Z"
+}

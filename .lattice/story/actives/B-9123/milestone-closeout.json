@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-9123",
+  "phase": "TEST",
+  "generatedAt": "2026-07-22T22:26:31.587Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "40e799068cfaef0d75f6f00d39241f118e104ad1164db02394a299dffe7a04ea",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:3054d18d7172f3f288fdbd886d556c6d4ef32c359ae225adc0763167798b5e2e"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "d98bb90ee13e3ac9f5eb6c0de18136ac430876ef",
+    "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+    "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Only an eligible independent topology critic can authorize a current topology review.",
+      "acceptance": "The production verifier accepts the registered topology-critic role only when agent, session, dispatch, and business-author provenance are all distinct, and rejects spoofed, missing, collided, or replayed provenance.",
+      "evidence": [
+        "VI-CRITIC-ELIGIBLE [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+        "VI-CRITIC-FOUR-DIMENSION-MATRIX [pass/logic_test] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.",
+        "VI-CRITIC-MISSING-PROVENANCE [pass/logic_test] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.",
+        "VI-CRITIC-ROLE-SPOOF [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+        "VI-CRITIC-SESSION-DISPATCH-REPLAY [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Topology critic approval is a signed current receipt bound to the complete authoritative proof context.",
+      "acceptance": "The production producer and verifier round-trip every required receipt field, reject all field/signature/freshness mutations, and deterministically bind canonical finding and exclusion references.",
+      "evidence": [
+        "VI-RECEIPT-PRODUCTION-ROUNDTRIP [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+        "VI-RECEIPT-FRESHNESS-MATRIX [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+        "VI-RECEIPT-CANONICAL-COLLECTIONS [pass/logic_test] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.",
+        "VI-RECEIPT-EVERY-FIELD-TAMPER [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+        "VI-RECEIPT-SIGNATURE-FORGERY [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Every topology exclusion requires separately attributable independent scope-plan approval and cannot override incomplete discovery.",
+      "acceptance": "The gate enforces exact one-to-one current approvals from lattice-review-scope-plan, rejects spoofed, orphaned, stale, duplicate, or conflicted approvals, and rejects partial or unsupported discovery despite a PASS critic receipt.",
+      "evidence": [
+        "VI-EXCLUSION-INDEPENDENT-APPROVAL [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+        "VI-EXCLUSION-ONE-TO-ONE-COVERAGE [pass/logic_test] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.",
+        "VI-NO-EXCLUSION-CONTROL [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+        "VI-EXCLUSION-AUTHORITY-SPOOF [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+        "VI-CRITIC-CANNOT-OVERRIDE-DISCOVERY [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Wave 2A authority is proven through the real producer-verifier-consumer chain without leaking later-wave behavior.",
+      "acceptance": "An isolated production-path transcript passes cleanly, every authoritative input and process-fact mutation bites and restores cleanly, no forged artifact remains reusable, and Wave 3/3A/4 capabilities remain absent.",
+      "evidence": [
+        "VI-WAVE2A-PRODUCTION-CHAIN [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+        "VI-WAVE2A-CLEAN-MUTATE-RESTORE [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+        "VI-WAVE-BOUNDARY-NO-LEAK [pass/logic_test] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.",
+        "VI-PROCESS-FACT-MUTATIONS [pass/integration_test] node scripts/verify-process-fact-contract.mjs && node scripts/verify-proof-or-stop-prompt-baseline.mjs note=Owner reran both current-HEAD process-fact and 17-role prompt mutation contracts; both passed.",
+        "VI-PRODUCTION-BYPASS-ATTEMPTS [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+        "VI-RESTORATION-AND-NO-RESIDUE [pass/manual_transcript] npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js note=Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

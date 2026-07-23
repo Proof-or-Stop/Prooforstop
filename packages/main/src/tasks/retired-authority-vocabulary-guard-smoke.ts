@@ -355,7 +355,10 @@ const PINNED_EXECUTABLE_SOURCE_FINGERPRINTS = new Map<string, string>([
   // B-f458: repinned after an internal transcript-path constant rename; the
   // legacy compatibility symbols, approved call shapes, and occurrence counts above are unchanged.
   ['packages/main/src/handlers/delivery-context-pack.ts', '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844'],
-  ['packages/main/src/tasks/closeout-trust-smoke.ts', 'd6ca0a50fd24368b13817065278e2ca4d59d38983dc21a79322f9997de497e9e'],
+  // B-235e: repinned after closeout fixtures began hashing the frozen legacy
+  // role body instead of an empty prompt. Approved compatibility calls and
+  // occurrence counts remain mechanically checked by the manifest above.
+  ['packages/main/src/tasks/closeout-trust-smoke.ts', '235d6921b553cf992430f8e36324aca0bb7eefaa745195a1a67fb3d953032ca1'],
   ['packages/main/src/cli-engine.ts', '48ca6562b11dda8996163ad992cdb2a9f6e19e6073beaf171290d064f1d106e2'],
   ['packages/main/src/verifier/serve.ts', '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91'],
   ['packages/main/src/tasks/parent-roadmap-totality-smoke.ts', '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45'],

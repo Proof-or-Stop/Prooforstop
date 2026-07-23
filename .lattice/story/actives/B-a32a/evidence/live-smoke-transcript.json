@@ -1,0 +1,21 @@
+{
+  "storyId": "B-a32a",
+  "expected": "`lattice acceptance_basis --storyId=<id> --json` reports a verifier-derived `basisStatus` of `complete`, `partial`, or `unsupported`; no request field can force `complete`.",
+  "actual": {
+    "command": "node bin/lattice.js acceptance_basis --storyId=B-a32a",
+    "exitCode": 0,
+    "stdout": "Acceptance coverage basis: unsupported\nStory: B-a32a\nReceipt verification: AT_COVERAGE_BASIS_MISSING\nMode: read-only; evidentiary: false\n  - acceptance basis receipt is missing\n",
+    "stderr": "[0.1s] running acceptance_basis...\n[0.1s] acceptance_basis done\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-22T15:32:04.190Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "97bb22c47ffd34e869c9127061eb50f27564f876",
+  "materialHash": "8f41684db4f141fd3f0750fba71c8c932967b64c4e6a034833a3cb5b4c591d9e"
+}

@@ -1,0 +1,126 @@
+{
+  "storyId": "B-4ec1",
+  "checkedAt": "2026-07-23T13:02:03.834Z",
+  "features": [
+    {
+      "feature": "Canonical signed pre_review_check artifact, verifier-owned result codes, persistence, CLI producer and read-only diagnostics",
+      "covered_by": "CHK-001 / VI-W3-M1-PRE-REVIEW-ROUNDTRIP",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/core/pre-review-check.ts; packages/main/src/handlers/proofstory.ts; packages/main/src/core/store.ts; packages/main/src/cli/command-catalog.ts"
+    },
+    {
+      "feature": "DEV-to-REVIEW lifecycle gate consumes the same production verifier and refuses missing or blocking artifacts",
+      "covered_by": "CHK-001 / VI-W3-M1-PRODUCER-CONSUMER-PARITY",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/handlers/transition-orchestrator.ts#runPreReviewCheckGate; packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext"
+    },
+    {
+      "feature": "Current-worktree pre_review basis is independently recomputed; generated root proof artifacts cannot self-define closure while nested or source same-name files remain closure material",
+      "covered_by": "CHK-002 / VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION and VI-W3-M2-DISCOVERY-STATE-CLOSURE",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/core/acceptance-discovery-adapters.ts#generatedStoryArtifactDirectory and #sourceSeedFiles; packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+    },
+    {
+      "feature": "All declared, discovered and changed-scope paths are topology-mapped or explicitly excluded; fixture-only basis setup does not add production edges",
+      "covered_by": "CHK-002 / VI-W3-M2-PLANNED-ACTUAL-MATRIX and VI-W3-M2-TOPOLOGY-ONLY-OMISSION",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/core/acceptance-topology.ts; packages/main/src/core/acceptance-discovery-adapters.ts; packages/main/src/tasks/flow-stability-smoke.ts"
+    },
+    {
+      "feature": "Exact positive assertion IDs, kinds and canonical source refs are executed and verified, including missing, extra, duplicate and permutation cases",
+      "covered_by": "CHK-003 / VI-W3-M3-REAL-PROOF-CHAIN",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/core/pre-review-live-proof.ts; packages/main/src/core/pre-review-check.ts; packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+    },
+    {
+      "feature": "Every declared mutation bites with the expected code and clean control restoration, including nested/source same-name closure mutations",
+      "covered_by": "CHK-002 and CHK-003 / VI-W3-M2-ADAPTER-RECORD-TAMPER and VI-W3-M3-MUTATION-POLARITY-RESTORE",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts; packages/main/src/core/acceptance-discovery-adapters.ts; packages/main/src/core/pre-review-live-proof.ts"
+    },
+    {
+      "feature": "The live_smoke_transcript producer proves related producer-before-consumer execution and receives the exact canonical pre-review proof budget; the registered process fact is basis-enumerated and timeout-budget source bytes are closure-bound while near-miss commands retain the arbitrary ceiling",
+      "covered_by": "CHK-003 / VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY, VI-W3-M3-BYPASS-CAMPAIGN and VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "process-fact:live_smoke_transcript; scope:file:packages/main/src/core/done-required-timeout-budget.ts; source-file:packages/main/src/core/done-required-timeout-budget.ts; packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+    },
+    {
+      "feature": "Evidence authority, cutoff, executable provenance, hashes, signatures and temporal freshness fail closed under tamper, replay and drift",
+      "covered_by": "CHK-001 and CHK-003 / VI-W3-M1-CALLER-AUTHORITY-REPLAY and VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/core/pre-review-check.ts; packages/main/src/core/pre-review-live-proof.ts; scripts/run-proofstory-pre-review-live-proof.mjs"
+    },
+    {
+      "feature": "Observe/enforce, legacy and docs-only applicability semantics remain deterministic and rollback-safe for Wave 3",
+      "covered_by": "CHK-004 / VI-W3-M4-LIFECYCLE-MODE-MATRIX and VI-W3-M4-LEGACY-DOCS-ROLLBACK",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/core/config.ts; packages/main/src/handlers/transition-orchestrator.ts; packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+    },
+    {
+      "feature": "Process-fact registry, level/rationale, command policy, CLI docs and execution-plan status agree; no writable acceptance-matrix truth source is introduced",
+      "covered_by": "CHK-004 / VI-W3-M4-PROCESS-FACT-FOUR-LAYER and VI-W3-M4-STABLE-GATE-CODES",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/core/process-fact-registry.ts; packages/main/src/core/process-fact-levels.ts; packages/main/src/core/command-policy.ts; scripts/verify-process-fact-contract.mjs; docs/CLI.md; docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    },
+    {
+      "feature": "Wave 3A selective applicability profile or migration automation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Intentionally skipped for the current flat project-wide rollout; VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    },
+    {
+      "feature": "Wave 4 enforcement rollout, telemetry, causal metrics and default-policy promotion",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit future-wave boundary; Wave 4 remains not implemented; VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "packages/main/src/core/pre-review-live-proof.ts"
+    ],
+    "filesTriagedByName": [
+      "docs/CLI.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "packages/main/src/core/acceptance-coverage-basis.ts",
+      "packages/main/src/core/acceptance-discovery-adapters.ts",
+      "packages/main/src/core/acceptance-topology.ts",
+      "packages/main/src/core/done-required-timeout-budget.ts",
+      "packages/main/src/core/pre-review-check.ts",
+      "packages/main/src/core/process-fact-levels.ts",
+      "packages/main/src/handlers/live-smoke-transcript.ts",
+      "packages/main/src/handlers/proofstory.ts",
+      "packages/main/src/handlers/transition-orchestrator.ts",
+      "packages/main/src/tasks/flow-stability-smoke.ts",
+      "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+      "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+      "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+      "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 12,
+    "covered": 10,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-07-23T05:31:34.988Z",
+  "_hash": "3dbfb5ea8fafd93513fee6a93dace449b46667d54b99725e97400e2eeb6e31ea",
+  "openQuestions": []
+}

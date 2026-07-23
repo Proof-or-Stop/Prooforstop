@@ -1,0 +1,46 @@
+{
+  "task": "Implement Wave 1A verifier-derived, signed and replayable coverage-basis evidence for ProofStory acceptance topology.",
+  "outcome": "Running `lattice acceptance_basis --storyId=B-a32a --json` prints a deterministic verifier-issued report with `basisStatus` equal to `complete`, `partial`, or `unsupported`, adapter/result digests, workspace/scope/story/closure bindings, and explicit fail-closed diagnostics; caller-supplied inventory, omitted adapters, disagreement, stale bindings, or tampering are rejected.",
+  "facts": [
+    "B-1995 already owns versioned planned-path declarations and reference-only acceptance topology in packages/main/src/core/acceptance-topology.ts.",
+    "The execution plan requires a registered verifier, typed discovery adapters, union reconciliation, signed receipt, replayable adapter results, and omission/tamper mutations.",
+    "PROCESS_FACT_REGISTRY is an input catalog only; it is not itself a producer-consumer or handler-dispatch graph.",
+    "Current Proofbound implementation language/profile is TypeScript/Node and other unsupported profiles must never receive optimistic completeness.",
+    "Wave 2 lifecycle enforcement and later critic/pre-review/rollout work are separate Stories."
+  ],
+  "constraints": [
+    "Path inventory and completeness must never be caller-, implementer-, or reviewer-writable.",
+    "Basis status is exactly complete, partial, or unsupported; only complete can later satisfy topology completeness.",
+    "Bind workspace, scope-check, scope-contract, topology, storyFilesHash, closureFilesHash, adapter results and verifier identity using canonical hashes/signatures.",
+    "Use deterministic union reconciliation; unexplained disagreement, missing required adapters, stale state and tampering fail closed.",
+    "Do not add PLAN or DEV-to-REVIEW lifecycle enforcement in Wave 1A.",
+    "Update process-fact registry and contract verifier for any signed or gate-relevant artifact semantics."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/core/acceptance-basis-receipt.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/context.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/CLI.md",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/package-lock.json"
+  ],
+  "timestamp": "2026-07-22T06:26:14.036Z"
+}

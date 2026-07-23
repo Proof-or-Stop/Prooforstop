@@ -1,0 +1,989 @@
+{
+  "passes": [
+    {
+      "id": "B-4ec1:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 19 changed exported symbols and compared 7 bounded documentation paragraphs covering the Wave 3 CLI surface, structural phase rules, deterministic PR codes, critic re-attestation, omission-code ordering, rollout boundaries, and PLAN outcome. F-010/F-011 are resolved: the docs now match the closed three-fact pre-review allowlist, strict three-grammar basis-path syntax, producer/consumer/command-only positions, PLAN deferral and exact pre-review fail-closed resolution. F-001/F-004/F-008 remain aligned; current pre_review_check_read is PASS with no codes. No blocker found.",
+      "createdAt": "2026-07-23T03:01:53.164Z",
+      "reviewRound": "2026-07-23T02:59:34.345Z",
+      "reviewRunId": "B-4ec1:RR-012",
+      "envelopeId": "669012bad43a66b8bf11d11e1c1cf60c52499916c586bba0ae92511fcd3f4ece",
+      "writerSessionId": "sess-2ba46045c62c3f21846eca9fa94eaeb1",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "385c080ba5bfd1deac3864f467cf40e6ea3c3e7c45291e043380e0285e162230"
+    },
+    {
+      "id": "B-4ec1:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 24 changed exported symbols and compared 8 bounded documentation paragraphs covering process-fact planned producer classification, artifact-kind/runtime-aware exact reconciliation, strict basis-path grammar and positions, real executable case-proof provenance, deterministic PR codes, critic re-attestation, and Wave 3A/Wave 4 exclusions. The final code matches those promises. live_smoke_transcript now refreshes the canonical readiness snapshot after an optional durable write, correcting same-invocation reporting without adding a new command, field, authority claim, or rollout behavior; no docs change is required. Current pre_review_check_read is PASS with codes=[] and complete/current/biting/related/admissible results. No blocker found.",
+      "createdAt": "2026-07-23T04:14:04.998Z",
+      "reviewRound": "2026-07-23T04:11:56.497Z",
+      "reviewRunId": "B-4ec1:RR-015",
+      "envelopeId": "15a5e364252f159ac93c6905fc208927cbd9e99119bfa66a1a9c935716d93af7",
+      "writerSessionId": "sess-2ba46045c62c3f21846eca9fa94eaeb1",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "028a751636e347a7e7e75613e07cc3531253ed60408fafbfbe249e2acfefae1b"
+    },
+    {
+      "id": "B-4ec1:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 27 changed exported symbols and compared 8 bounded documentation paragraphs covering strict path grammar, artifact-kind process-fact producer/consumer reconciliation, exact assertion ID/kind/canonical-source binding, runner and built-target provenance freshness at both live load and signed-artifact readback, deterministic PR codes, and Wave 3A/Wave 4 exclusions. The final decision prose and artifact process-fact rationale match the implementation and the two current topology static-call refs fit the documented grammar. Current pre_review_check_read is PASS with codes=[] and complete/current/biting/related/admissible results. No blocker found.",
+      "createdAt": "2026-07-23T04:34:32.171Z",
+      "reviewRound": "2026-07-23T04:33:12.403Z",
+      "reviewRunId": "B-4ec1:RR-020",
+      "envelopeId": "35ad4ee7d407af8e4b60bf8c160aa1435e0dcfda0f603936046ff22f4caa9d2e",
+      "writerSessionId": "sess-2ba46045c62c3f21846eca9fa94eaeb1",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3d14bb6afd411766b96b99ea5551dd8bb56364c57156d3d1813baa49bad9441"
+    },
+    {
+      "id": "B-4ec1:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Current exact-assertion proof closes F-022/F-024: production assembly binds by exact ID, kind and canonical sourceRef; missing/extra/duplicate/source-swap fail closed; record permutation preserves canonical attribution; current signed artifact has 22 correctly mapped records, current runner/target provenance, codes=[], plannedActual complete, mutations biting, transcript related and authority admissible. Full diff/residue and promised-but-undelivered checks found no remaining concept blocker.",
+      "createdAt": "2026-07-23T04:35:33.511Z",
+      "reviewRound": "2026-07-23T04:33:12.403Z",
+      "reviewRunId": "B-4ec1:RR-017",
+      "envelopeId": "375dc9f4f984fec667c9c7359d48b24c6d9fee4c67fd45cf8035e0d56c0b9e40",
+      "writerSessionId": "sess-ede8a8408bfe86da4687e36d886f4cf2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ccc632f0c1304470eb7d5f836aa4a8e32dc008bec9ee13a2b66451c6e3b11875"
+    },
+    {
+      "id": "B-4ec1:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no remaining blocker. F-023 now exact-maps executed cases by assertion ID, kind, and canonical sourceRef; reorder/source-swap/duplicate/extra/missing mutations fail closed. Focused pre-review smoke passed, stale runner/target and malformed provenance are rejected, strict repository-relative path probes reject absolute/dot/dotdot/noncanonical paths, readiness is computed after durable transcript write, and current pre_review_check is PASS with empty codes and admissible current provenance.",
+      "createdAt": "2026-07-23T04:36:35.768Z",
+      "reviewRound": "2026-07-23T04:33:12.403Z",
+      "reviewRunId": "B-4ec1:RR-018",
+      "envelopeId": "b86d06188cdd56dcf7953f6885be59b406439f2940831c07d24fb8d777ea042c",
+      "writerSessionId": "sess-93544b687c5626149c489f697e527223",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "48cfdb795d02d333646fecfc6ae4633fd3b1755c2e3e8d3fed73f5ffe8bde234"
+    },
+    {
+      "id": "B-4ec1:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed on current REVIEW round: 21/21 must intents have unique passing evidence and no waivers; canonical pre_review_check is PASS with plannedActual complete, 4 positive + 17 mutation + 1 transcript records, current runner/target provenance, biting controls, related transcript and admissible authority. A-MUT-7 maps topology omission to VI-W3-M2-TOPOLOGY-ONLY-OMISSION and A-MUT-15 maps critic re-attestation to VI-W3-M4-CRITIC-REATTESTATION. Focused production smoke passed missing/extra/duplicate/source-swap/permutation and stale runner/target provenance negatives.",
+      "createdAt": "2026-07-23T04:36:38.200Z",
+      "reviewRound": "2026-07-23T04:33:12.403Z",
+      "reviewRunId": "B-4ec1:RR-019",
+      "envelopeId": "66b426ea73ec6355c53b23f7c750e745829bd487ea434253561a3b52573b24e8",
+      "writerSessionId": "sess-6c22471feaa88441d8066e7952bb1f09",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          ".lattice/story/actives/B-4ec1/proofstory.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "82738c5c72bcb66af19686c31ebfce79463b9f49185b3a02b05b36ae9f15bf2d"
+    },
+    {
+      "id": "B-4ec1:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Round 6 docs/code review found no blocker. Step 1 extracted 452 unique diff declarations with the prescribed broad regex; exact exported-symbol doc search produced 0 paragraphs, so fallback comparison covered 6 relevant CLI/decision-plan sections plus the changed command schemas, shared verifier/lifecycle consumer, process-fact registry/contract, and the bounded self-reference fix. The fix excludes only canonical generated proof artifacts at the configured Story root from defining their next source-closure signature; same-basename static and nested files remain closure-bound, consistent with docs defining closureFilesHash over discovered producer/consumer source files. Process-fact contract passed.",
+      "createdAt": "2026-07-23T05:34:44.216Z",
+      "reviewRound": "2026-07-23T05:31:34.988Z",
+      "reviewRunId": "B-4ec1:RR-024",
+      "envelopeId": "42f319b015597f832f1c7bd5eed4cf2346996d2009259ea2212094c599702678",
+      "writerSessionId": "sess-872bc58e0ad1f469e0a43618268af570",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "fe40fca0be7ee293ecadce19f71c69ffca1d9617c1f397c1e28a201cb5aa37cc"
+    },
+    {
+      "id": "B-4ec1:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed current Wave 3 diff for quality and the Round 6 regressions. Canonical generated-artifact exclusion is exact-story-root only, retains the registered process-fact edge, and same-basename static/nested mutations remain closure-bound. Flow fixture now obtains a verifier-owned PLAN basis through the production proofstory handler. Current HEAD build, acceptance-basis smoke, and flow-stability smoke pass. No code-quality blocker found; prior full-suite evidence is not claimed fresh and must be rerun by the owner in TEST.",
+      "createdAt": "2026-07-23T05:35:57.463Z",
+      "reviewRound": "2026-07-23T05:31:34.988Z",
+      "reviewRunId": "B-4ec1:RR-022",
+      "envelopeId": "76ce0f8f0aa124154fb7c1d6c0f133c584344da6c0652765af06ab023989de0e",
+      "writerSessionId": "sess-bf6d702b458fac0d62752686faf3f126",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "AGENTS.md",
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "8fc8ffa593e4bbf5dc6002152a0b3c368df960e8bb19e86db82bad575035e331"
+    },
+    {
+      "id": "B-4ec1:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round 7 docs/code consistency: exact Step 1 extraction yielded 455 unique changed declarations (including test-local declarations); seven relevant documentation sections were compared after eliminating incidental common-identifier hits. Wave status consistently marks 1/1A/2/2A/3 implemented, 3A skipped for flat rollout, and Wave 4 not implemented. The exact pre-review live-proof command receives the 120000ms scenario/build budget plus 3000ms cleanup grace while near-miss/composed variants retain the 60000ms arbitrary ceiling, matching the process-fact rationale. Command catalog, handlers, DEV-to-REVIEW consumer, registry and contract verifier match documented surfaces; no promised-but-undelivered blocker found.",
+      "createdAt": "2026-07-23T13:07:37.972Z",
+      "reviewRound": "2026-07-23T13:03:31.092Z",
+      "reviewRunId": "B-4ec1:RR-027",
+      "envelopeId": "f2e20367deae437ae789c5263ef16162ec4e3caec199c793d61372fa6190ec50",
+      "writerSessionId": "sess-4d1c4e3f8b3564df9bcae6e0b05c4890",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "66200b2ddf6e6a1e5066fbb4297c2cc269a309f15eb86c6115035b02d992adc7"
+    },
+    {
+      "id": "B-4ec1:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 concept review found no blocker: F026 status migration is internally consistent and repository-wide old-status grep is clean; F025 is strongly superseded; exact canonical pre-review timeout widening remains fail-closed for near-miss commands, and current pre-review PASS binds topology, process facts, source closure, current executable evidence, biting mutations, related transcript, and admissible authority.",
+      "createdAt": "2026-07-23T13:08:03.185Z",
+      "reviewRound": "2026-07-23T13:03:31.092Z",
+      "reviewRunId": "B-4ec1:RR-025",
+      "envelopeId": "987b2eb07de5d624331501452308cc1882019b93b98278d04bc5833195cd4dd4",
+      "writerSessionId": "sess-6fc343ccc81d24fd320d41f1aaf797c9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "1512490e8a8d16eb2ca344fb00ab1dfcf4e10e26d221efcfdad8a89c55f3f6dc"
+    },
+    {
+      "id": "B-4ec1:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 coverage PASS: 21/21 must intents have distinct current evidence; must gaps=0, waivers=0. pre_review_check_read returns ok=true, codes=[], plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, authority=admissible. Canonical proof binds 4 positive + 17 mutation + 1 transcript records with exact ID/kind/source/provenance; live-smoke budget tests accept only exact canonical argv and reject whitespace/extra/env/shell/injection near-misses. F-025 old DONE-required FAIL is superseded by fixture commit 662f0c5ed0, owner root npm test exit 0, and independent RR-022 focused build/acceptance-basis/flow-stability PASS. This pass does not claim fresh DONE-required evidence; that must be generated in TEST.",
+      "createdAt": "2026-07-23T13:08:18.050Z",
+      "reviewRound": "2026-07-23T13:03:31.092Z",
+      "reviewRunId": "B-4ec1:RR-026",
+      "envelopeId": "f3c582f12ed2ea36e7db8f24cd0ded0129b7fd30278c84b386fd95ed4c285414",
+      "writerSessionId": "sess-ce45edc08011c552d33b7221e72a5e30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "AGENTS.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d8b014ec0897f4f2a450faed7c248c05de24f5acc55ae76e1e0582e4ec077cdc"
+    },
+    {
+      "id": "B-4ec1:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 quality review found no blocker: exact canonical live-proof command alone receives 120s business/123s capture/153s outer budget; six near-misses remain unrecognized at 60s. Current exit-0 transcript is byte-matched and receipt/storyFilesHash-bound; pre_review_check_read is PASS with plannedActual complete, executable current, mutations biting, transcript related, authority admissible, complete source closure, zero blind spots, and matching closure/topology bindings. Diff has no whitespace errors or undelivered CLI promise.",
+      "createdAt": "2026-07-23T13:08:53.818Z",
+      "reviewRound": "2026-07-23T13:03:31.092Z",
+      "reviewRunId": "B-4ec1:RR-028",
+      "envelopeId": "cc14aa29518655a1d9a24ffe3435d48a5581381e23bbce0a1c6fd651a994cdf5",
+      "writerSessionId": "sess-fd86910eff9401fc0fd317fda1a4e604",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/evidence/live-smoke-transcript.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          ".lattice/story/actives/B-4ec1/pre-review-check.json",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "c7365276cb0fddcc231c3a03eb3034bc7d346901300331093f6ba8458748a2c4"
+    },
+    {
+      "id": "B-4ec1:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Round 8 concept review found no blocker. b11ef96 removes only ambient shell/Proofbound host-session-role transport identity from both validation identity and the spawned child environment; explicit command.env overlays are applied last and remain semantic even for those key names. PATH, NODE_OPTIONS, CI, locale, PWD/cwd and other behavior inputs stay bound, and focused cross-session receipts pass while CI drift fails both command identities. Process-fact rationale is synchronized and the repository has no old three-key-only transport contract residue. Current pre-review artifact remains PASS with complete/current/biting/related/admissible bindings.",
+      "createdAt": "2026-07-23T14:30:28.833Z",
+      "reviewRound": "2026-07-23T14:27:52.079Z",
+      "reviewRunId": "B-4ec1:RR-029",
+      "envelopeId": "e18383771782374f03c0a49a8158e24df3c2b7c527c2c9598b956afac41ad75d",
+      "writerSessionId": "sess-6fc343ccc81d24fd320d41f1aaf797c9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/owner-session-adapters.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "853be1f87fe9044808db5c43c0bf16622653841fad6777124febbe6ca9074b64"
+    },
+    {
+      "id": "B-4ec1:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 8 coverage PASS: 21/21 must intents have distinct current evidence at material 2e2a6815/storyFiles 8a0fea4c; must gaps=0, waivers=0. Current pre_review_check_read is ok=true with codes=[], complete pre-review basis, plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, authority=admissible. Commit b11ef96 makes only ambient owner/session/host role keys transport-neutral while retaining PATH/NODE_OPTIONS/CI/locale and explicit command.env overlays as semantic. The focused regression builds two receipts: owner and delivery identities agree, then CI true-to-false is rejected with effective-environment-digest-mismatch[0] and [1], proving both receipts bite. Fresh focused done-required-validation smoke and process-fact contract both passed.",
+      "createdAt": "2026-07-23T14:30:33.773Z",
+      "reviewRound": "2026-07-23T14:27:52.079Z",
+      "reviewRunId": "B-4ec1:RR-031",
+      "envelopeId": "f54770dfa06731c17404db1522aedea0161d1c963eddedfc697c63132cfec0c9",
+      "writerSessionId": "sess-ce45edc08011c552d33b7221e72a5e30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "AGENTS.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b8fcce0f2255d263a0592e076d1f1d360d8418c15a0089591deaab70ace40655"
+    },
+    {
+      "id": "B-4ec1:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Round 9 concept review found no blocker. 88dbd1801d exports one ordered 26-key runtime transport inventory (26 unique), whose independently recomputed JSON digest exactly matches sha256:159db7bb6593c703d112dab8973b5d650c9b43b0c02246cf18a553f7b1aa3c0c. The process-fact verifier keeps an independent exact ordered oracle and recomputes the digest, so production/test inventory shrinkage cannot self-authorize. Table tests cover every ambient key on POSIX and case-insensitive Windows, preserve noncanonical POSIX casing and explicit overlay semantics, and CI/NODE_OPTIONS mutations still invalidate both receipts. F027/F028 are strongly resolved, old 25-key/omitted-role contract residue is absent, and current pre-review remains complete/current/biting/related/admissible PASS.",
+      "createdAt": "2026-07-23T14:40:42.705Z",
+      "reviewRound": "2026-07-23T14:38:33.494Z",
+      "reviewRunId": "B-4ec1:RR-035",
+      "envelopeId": "144f33f9128033ce46e1837825582513a1882ea3efc93e5fb3418463b6dc5d20",
+      "writerSessionId": "sess-6fc343ccc81d24fd320d41f1aaf797c9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "024032034931edc02787c6dfe8543322a0e08545472716758f179f77e8199dc5"
+    },
+    {
+      "id": "B-4ec1:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 9 coverage PASS after 88dbd1801d: 21/21 must intents are current on material cf67aa81/storyFiles 55c19605, gaps=0, waivers=0; pre_review_check_read is ok=true with codes=[] and complete/current/biting/related/admissible results. The canonical transport table has exactly 26 sorted unique keys and its declared sha256:159db7bb... digest exactly matches recomputation. The focused regression iterates every key on POSIX and Windows, proves POSIX case sensitivity, Windows case-insensitive filtering, and overlay-last semantics for explicit command.env. Both CI and NODE_OPTIONS mutations fail receipt [0] and [1]. Fresh done-required-validation smoke and process-fact contract passed, including canonical list/digest drift checks.",
+      "createdAt": "2026-07-23T14:41:19.029Z",
+      "reviewRound": "2026-07-23T14:38:33.494Z",
+      "reviewRunId": "B-4ec1:RR-033",
+      "envelopeId": "d6b456269b86578c47eadf3784a92be2c9324d44cd013ecbd0d3e1214e557e19",
+      "writerSessionId": "sess-ce45edc08011c552d33b7221e72a5e30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "AGENTS.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f21862cf67821274186a08f4cc03d90bdfb570935ff21f59f696ae23dc711b57"
+    },
+    {
+      "id": "B-4ec1:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 quality/security re-review confirms F-028 closure with no quality blocker: LATTICE_ACTIVITY_ROLE is in the exact canonical transport list; the list digest recomputes to the declared sha256; POSIX canonical roles and Windows mixed-case roles are session-neutral; differently-cased POSIX keys remain semantic; overlay-last preserves explicit role values; CI and NODE_OPTIONS mutations change digest and fail receipt reuse. Current pre_review_check_read PASS. Independent coverage run RR-033/RP-016 reports build-backed done-required smoke and process-fact contract PASS. Docs lane F-029 is separate and does not invalidate this F-028 quality conclusion.",
+      "createdAt": "2026-07-23T14:42:17.427Z",
+      "reviewRound": "2026-07-23T14:38:33.494Z",
+      "reviewRunId": "B-4ec1:RR-036",
+      "envelopeId": "6e3f67a5c84d4f041439c65d7a1ad20fe2e5670e0bcd9f79a170836683d62330",
+      "writerSessionId": "sess-fd86910eff9401fc0fd317fda1a4e604",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "51aaef496c2115a41b00da52403420dcec9f4e25070bf57605747897f156e97e"
+    },
+    {
+      "id": "B-4ec1:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 concept review found no blocker. 77b0595259 changes only focused evidence and process-fact protection: production effective-environment semantics are unchanged, LANG and LC_ALL remain ambient business inputs, and real DONE-required evaluation now requires each locale mutation to invalidate receipts [0] and [1] alongside CI and NODE_OPTIONS. The verifier mechanically requires both locale mutations, the loop, and both mismatch assertions. F029 is strongly resolved without changing the canonical 26-key transport inventory/digest, session-neutrality, POSIX/Windows casing, or explicit overlay-last behavior. Current pre-review remains complete/current/biting/related/admissible PASS.",
+      "createdAt": "2026-07-23T14:51:14.974Z",
+      "reviewRound": "2026-07-23T14:49:16.218Z",
+      "reviewRunId": "B-4ec1:RR-037",
+      "envelopeId": "447e1dc56d646449cedc404b08f8ce23196536b5f1dd13f96ef12bb76c8140fb",
+      "writerSessionId": "sess-6fc343ccc81d24fd320d41f1aaf797c9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "0b5b3977802f6fbaa4b703dce9f36f65bf0d6e337d4f9fcd32d919b2b449299b"
+    },
+    {
+      "id": "B-4ec1:RP-019",
+      "agent": "lattice-review-docs",
+      "note": "Round 10 fresh docs/process-fact review: exact Step 1 extraction yielded 486 unique changed declarations across the full story diff; three relevant Wave/status documentation sections plus the L4 process-fact rationale were compared. F-029 is closed: LANG and LC_ALL are distinct real DONE-required evaluator mutations, both command receipts must report effective-environment-digest-mismatch, and verify-process-fact-contract mechanically binds the mutation array, both locale variants, loop, and mismatch tokens. Current compiled focused smoke exited 0. Wave status remains 1/1A/2/2A/3 implemented, 3A skipped for flat rollout, Wave 4 not implemented; no documentation blocker remains.",
+      "createdAt": "2026-07-23T14:51:41.652Z",
+      "reviewRound": "2026-07-23T14:49:16.218Z",
+      "reviewRunId": "B-4ec1:RR-038",
+      "envelopeId": "5f12424ead4728b2fe35377eca21ed182a3764328ff277abbd1b3bad2c9f387e",
+      "writerSessionId": "sess-4d1c4e3f8b3564df9bcae6e0b05c4890",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "577c584d70d6f1ff781cb5d3d0e4432fe23cd80c4de362fb67b377df0afc3d0d"
+    },
+    {
+      "id": "B-4ec1:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Round 10 fresh quality/security review at HEAD 89dbb2f: commit 77b0595259 closes F-029 with real evaluator-level LANG and LC_ALL mutations, requiring effective-environment-digest-mismatch for both configured DONE-required commands. Independent direct runtime assertions confirm each locale change alters the canonical effective-environment digest. The compiled focused done-required smoke completed exit 0 in the docs lane; no duplicate smoke was started by this lane. Existing transport filtering, POSIX/Windows key semantics, explicit command overlay precedence, CI/NODE_OPTIONS mutations, and process-fact contract bindings remain intact. Current pre_review_check is PASS with current executable evidence, biting mutations, related transcript, and admissible authority. No quality or security blocker remains.",
+      "createdAt": "2026-07-23T14:51:56.897Z",
+      "reviewRound": "2026-07-23T14:49:16.218Z",
+      "reviewRunId": "B-4ec1:RR-040",
+      "envelopeId": "27a0a0b2ccc0dc5bb7e78314a824187cd2eb80acc7907ac3f051af30a737d334",
+      "writerSessionId": "sess-fd86910eff9401fc0fd317fda1a4e604",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "f0e65eb3b8bf6e9935b70c9b85ebe2d8cafa55c57dcd74f71f1cfb9b1e6f551f"
+      },
+      "readDiagnostics": [],
+      "_hash": "267c99fa949a89bb82d6093c4f11a21897eb7beb4f008af50d2f8bd82271dd7f"
+    },
+    {
+      "id": "B-4ec1:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 coverage PASS at current storyFilesHash: LANG and LC_ALL now join CI and NODE_OPTIONS in the real evaluateDoneRequiredEvidence mutation loop; each mutation fails closed and asserts effective-environment-digest-mismatch for receipts [0] and [1]. Focused done-required-validation smoke and process-fact contract both pass. Canonical transport set remains exactly 26 unique sorted keys with declared SHA-256 digest; POSIX exact-case filtering, POSIX lowercase semantic behavior, Windows case-insensitive filtering, explicit overlay-last semantics, and all 21/21 verification intents remain current, passing, and waiver-free. Pre-review check reports PASS with codes none.",
+      "createdAt": "2026-07-23T14:53:17.906Z",
+      "reviewRound": "2026-07-23T14:49:16.218Z",
+      "reviewRunId": "B-4ec1:RR-039",
+      "envelopeId": "c8d3bf17d9dae3039e1e00a3604f5f718885ef858e6d81f48ae5a28209bd16d2",
+      "writerSessionId": "sess-ce45edc08011c552d33b7221e72a5e30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8abb2cd0f3cfadaff18a98d133429b8a6e0bb38295927a2d758d91323acd81c8"
+    },
+    {
+      "id": "B-4ec1:RP-022",
+      "agent": "lattice-review-docs",
+      "note": "Fresh docs review after b8f78335f0: exact Step 1 extraction yielded 497 unique changed declarations across the full story diff; three relevant Wave/status documentation sections were compared. The F-030 fix is test-fixture-only: it clears ambient host/session variables, installs explicit provider identity inside fixture boundaries, and preserves production APIs, command schemas, and user-visible semantics, so no product-doc update is required. The previously out-of-scope quorum-submit-smoke.ts path is explicitly covered by scope-ack:9 with DEV-phase reason and b8f78335f081 binding. Wave documentation remains semantically unchanged: Waves 1/1A/2/2A/3 implemented, 3A skipped for flat rollout, Wave 4 not implemented. No promised-but-undelivered blocker found.",
+      "createdAt": "2026-07-23T15:52:33.601Z",
+      "reviewRound": "2026-07-23T15:50:51.194Z",
+      "reviewRunId": "B-4ec1:RR-042",
+      "envelopeId": "471d309fdeee0c0eed950d6f2036c7433294818f775be5977ded61d25cf46d86",
+      "writerSessionId": "sess-4d1c4e3f8b3564df9bcae6e0b05c4890",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "0e480ba8f50a7c159a6d8b5026ca70b9b1aa12a04a7f4716e3dba1a53e0186f9"
+    },
+    {
+      "id": "B-4ec1:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS on current HEAD 972c0e9. F-030 fix b8f78335f0 is confined to packages/main/src/tasks/quorum-submit-smoke.ts: withFreshFixture supplies a supported Codex provider across the full callback while nested withSessionProvider still clears all transport/session identity and proves unsupported/absent providers fail closed. Production quorum, reviewer host mapping, Prompt Envelope, and gate code are unchanged; story-dispatch still maps codex/codex-cli to Codex and claude-code/claude-cli to Claude. No concept deletion/replacement residue or promised-but-undelivered behavior found. Current pre_review_check_read reports status=pass, plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, authority=admissible. Registered findings: 0.",
+      "createdAt": "2026-07-23T15:52:58.908Z",
+      "reviewRound": "2026-07-23T15:50:51.194Z",
+      "reviewRunId": "B-4ec1:RR-045",
+      "envelopeId": "a5c43ba7a04bd842a3c9d2b39a391984177482368a4dc25ee6c814972705fb77",
+      "writerSessionId": "sess-6fc343ccc81d24fd320d41f1aaf797c9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fae9b6918a5a432c9f3448739fef7d65bb27766d6b0a4caf1cf7d77c7da1e755"
+    },
+    {
+      "id": "B-4ec1:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "F-030 re-review at current HEAD: b8f78335f0 wraps the entire withFreshFixture callback in a supported Codex provider, while withClearedSessionEnvironment removes the expanded transport/session inference set and restores it exactly. The real story-owned fixture regression now explicitly clears all outer identity before entering withFreshFixture; nested unsupported and absent provider cases still temporarily override the fixture provider and retain fail-closed assertions. Independent compiled focused run under `env -i` passed all 43 checks, including the host-independent real fixture delta path and unsupported-provider chain. No remaining quality blocker for F-030.",
+      "createdAt": "2026-07-23T15:57:29.216Z",
+      "reviewRound": "2026-07-23T15:50:51.194Z",
+      "reviewRunId": "B-4ec1:RR-044",
+      "envelopeId": "533b2b83d490dd655c5fa4cabc81996984161f5bd508b9b33173abcf174ceec7",
+      "writerSessionId": "sess-fd86910eff9401fc0fd317fda1a4e604",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "da2f7be7327ccd7621255de944fd717b23402e22afde6c04cb593edc8d5df554"
+    },
+    {
+      "id": "B-4ec1:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh-round coverage PASS after F030. The retained single compiled quorum-submit-smoke instance ran under env -i with only PATH/HOME/TMPDIR and no outer Codex, Claude, or Lattice identity, exited 0, and reported quorum_submit smoke passed (43 checks). Static review confirms all 43 checks execute through controlled fixture identity; nested unsupported/absent provider cases re-clear inherited identity, then fail closed at dispatch, cannot create a trusted review run or satisfy REVIEW, and persist zero dispatch provenance, review runs, or prompt envelopes. Current checklist has 21/21 passing evidence, zero failures and zero waivers, all bound to current storyFilesHash/materialHash. pre_review_check_read reports PASS, codes none.",
+      "createdAt": "2026-07-23T15:58:01.337Z",
+      "reviewRound": "2026-07-23T15:50:51.194Z",
+      "reviewRunId": "B-4ec1:RR-043",
+      "envelopeId": "adcb1fe5ebd64479aa5f04d37606759a6e5695b3219ad7fc73c7dcdd3e2fea55",
+      "writerSessionId": "sess-ce45edc08011c552d33b7221e72a5e30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a9ce88ce8cd106748ff14f84bb7e05b61229c8dbb6cb25ee933daac8d0dc6eff"
+    }
+  ]
+}

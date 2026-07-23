@@ -1,0 +1,406 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Migrate story-init, scope-plan, implementer, delivery, and evaluator role assets",
+      "context": "Use the frozen Story 1 registry and Story 2 trusted full-context assembly; do not redefine role status or Task Context schema.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-20T21:43:02.211Z",
+      "endTime": "2026-07-21T01:48:41.173Z",
+      "userSees": "用户看到五行类似 \"role=lattice-implementer rollout=full-envelope dispatchKind=story-dispatch envelope=<digest> persisted=true\"，且每个角色 legacy rollback 保持原语义。",
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          ".claude/agents/",
+          ".lattice-codex/agents/",
+          "packages/main/templates/agents/"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "五个复杂角色分别经真实生产入口生成并持久化 role-bound modular story-dispatch Prompt Envelope receipt",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "逐角色 legacy rollback 保留原 prompt/authority/Task Context 语义且不会串改其他角色",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "篡改 role、dispatchKind、Task Context 或 envelope digest 时消费方拒绝，story-dispatch artifact 不能获得 REVIEW credit",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
+          "result": "pass",
+          "note": "Fresh post-fix production handler smoke passes for all five roles; legacy default and explicit audit-only modular Envelope/event persistence remain separated.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
+          "result": "pass",
+          "note": "Fresh role migration smoke confirms all five package/Claude/Codex mirrors and exact legacy rollback semantics remain intact.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+          "result": "pass",
+          "note": "Fresh envelope smoke rejects role/head/context/digest tampering and preserves zero REVIEW credit for audit story-dispatch artifacts.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        }
+      ],
+      "excludes": [
+        "Story 7 legacy asset isolation",
+        "role status or Task Context schema changes"
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Apply complex-role prompt budgets with nonblocking violation recording",
+      "context": "Use observe/warn semantics for complex roles; correctness-critical full review must remain available when a budget is exceeded.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-20T21:43:17.964Z",
+      "endTime": "2026-07-21T01:48:43.293Z",
+      "userSees": "用户看到预算内为 \"budgetViolation=none\"；超限为 \"budgetViolation=full fullExecuted=true baselineAccepted=false\"，不会出现 blocking/enforce 或 Story 7 rollout。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-budget.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/evaluate.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story6-role-migration-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "预算内复杂角色 dispatch 记录 bytes/tokens/limit 且正常完成",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "超预算记录 full violation、继续完整 correctness dispatch，并明确 baselineAccepted=false",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "把 violation 改为 blocking、enforce、Story 7 warn-promotion 或 baselineAccepted=true 时回归测试失败",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/story6-acceptance-transcript.ts",
+          "command": "node packages/main/dist/tasks/story6-acceptance-transcript.js",
+          "result": "pass",
+          "note": "Fresh acceptance transcript on the git-cwd-fixed HEAD prints response/event/recomputed bytes, estimatedTokens, and limits for production-bound audit dispatches.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story6-role-migration-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-role-migration-smoke.js",
+          "result": "pass",
+          "note": "Fresh over-budget mutation records full violation, continues complete execution, and keeps baselineAccepted=false.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "command": "node experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "result": "pass",
+          "note": "Fresh report mutations reject false baseline, Story7, enforce, receipt, adjudication, cell, and claim assertions.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        }
+      ],
+      "excludes": [
+        "Story 7 legacy asset isolation",
+        "Story 7 observe-to-warn rollout promotion",
+        "any budget enforce gate"
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Run real dispatch A/B for every migrated complex role",
+      "context": "Compare legacy/full or modular paths with provider usage, cache, latency, and output evidence; unavailable provider dimensions remain INCONCLUSIVE rather than zero.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-20T21:49:13.827Z",
+      "endTime": "2026-07-21T01:48:45.315Z",
+      "userSees": "用户看到五行 \"role=<role> legacy=<digest> modular=<digest> providerUsage=<value|INCONCLUSIVE> cache=<value|INCONCLUSIVE> latency=<value|INCONCLUSIVE> receipt=valid\"。",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/story6-ab-dispatch.ts",
+          "experiments/role-prompt-ab-replay/README.md",
+          "experiments/role-prompt-ab-replay/story6-live.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze.mjs"
+        ],
+        "create": [
+          "experiments/role-prompt-ab-replay/lib/story6-schema-compat.mjs",
+          "experiments/role-prompt-ab-replay/story6-output.schema.json",
+          "experiments/role-prompt-ab-replay/story6-schema-compat-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-report.mjs",
+          "experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "experiments/role-prompt-ab-replay/story6-20260720-v2-summary.json"
+        ],
+        "test": [
+          "packages/main/src/tasks/story6-ab-dispatch-smoke.ts",
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "五个角色都通过真实生产 dispatch 入口生成一对 legacy/modular receipt 并记录输出、usage/cache/latency",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "provider 不可用的每个维度使用 INCONCLUSIVE 且不参与零值或等价结论",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "重复、伪造、stale、wrong-role 或非生产入口 receipt 被 A/B 汇总拒绝",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "excludes": [
+        "synthetic-only envelope loops counted as real dispatch A/B",
+        "zero-filled unavailable provider dimensions"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "verdict": "audit_only",
+          "file": "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "command": "node experiments/role-prompt-ab-replay/story6-report.mjs --campaign-id=story6-20260721-v3 --adjudication=experiments/role-prompt-ab-replay/runtime/story6/story6-20260721-v3.independent-adjudication.json --verify=experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "result": "pass",
+          "note": "Fresh verification accepts the existing 72/72 serialized real Codex/Claude receipt set and content-bound summary digest without rerunning providers.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "audit_only",
+          "file": "experiments/role-prompt-ab-replay/story6-20260721-v3-summary.json",
+          "command": "node experiments/role-prompt-ab-replay/story6-analyze.mjs --campaign-id=story6-20260721-v3 --adjudication=experiments/role-prompt-ab-replay/runtime/story6/story6-20260721-v3.independent-adjudication.json; expect exit 2 INCONCLUSIVE",
+          "result": "pass",
+          "note": "Fresh analyzer returns expected exit 2 INCONCLUSIVE solely for 36 unavailable Codex cache-creation metrics; adverse recall/false-positive results remain explicit.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs",
+          "command": "node experiments/role-prompt-ab-replay/story6-analyze-selfcheck.mjs && node experiments/role-prompt-ab-replay/story6-report-selfcheck.mjs",
+          "result": "pass",
+          "note": "Fresh analyzer and report selfchecks reject 25 receipt provenance mutations plus receipt/adjudication/cell/claim tampering.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify delivery, scope, authorship, evaluator, permission, and signature invariants",
+      "context": "Acceptance requires no regression in delivery promises, scope gaps, implementer author, evaluator evidence, role-gated mutations, signed runs, and Task Context binding.",
+      "relatedDocs": [
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-20T21:49:48.450Z",
+      "endTime": "2026-07-21T01:48:47.431Z",
+      "userSees": "用户看到 \"complex-role invariants: PASS\"；任何错误签名、越权、错误作者、缺失 evaluator/delivery/scope 证据或 Task Context 漂移都显示稳定 reason code。",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/agent-prompt.ts",
+          "packages/main/src/handlers/evaluate.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/story6-invariants-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "合法五角色 dispatch 的 delivery、scope、author、evaluator、authority、signature 与 Task Context 检查全部通过",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "单项证据缺失只产生对应稳定缺口且不得误报整体 PASS",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "无效签名、错误作者、越权 mutation、错误 Task Context 或以 story-dispatch 冒充 REVIEW evidence 均被拒绝",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "excludes": [
+        "Story 7 compatibility cleanup",
+        "new role authority or Task Context schema"
+      ],
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/story6-invariants-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-invariants-smoke.js",
+          "result": "pass",
+          "note": "Fresh invariant smoke passes real signed-evidence, scope, delivery, evaluator, authority, REVIEW-credit, and authorship consumers.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/story6-production-dispatch-smoke.ts",
+          "command": "node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
+          "result": "pass",
+          "note": "Fresh production smoke proves injected append failure fails closed and valid controls persist both Envelope and event.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js && node packages/main/dist/tasks/story6-production-dispatch-smoke.js",
+          "result": "pass",
+          "note": "Fresh envelope and production smokes reject wrong role/head/context/digest and event failures; audit receipts still earn zero REVIEW credit.",
+          "headHash": "14c1babba53d2cf3e2abcf2d5f87f45661976c42",
+          "materialHash": "bace3d90ec3ba13bf252d17af1bd63818fbfd11f8ce65b59781704fc66460ccc",
+          "storyFilesHash": "1f6b0eba988d477e0833b60e4e6c9c1a427b219594f2f0526fcfd4559fbe16cb",
+          "timestamp": "2026-07-21T03:47:52.448Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-20T21:46:09.774Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "pending",
+      "reason": "Human clarified strict /tmp Story 6 scope; observe/warn wording means nonblocking observation only and does not authorize Story 7 promotion."
+    },
+    {
+      "timestamp": "2026-07-20T21:46:28.990Z",
+      "phase": "PLAN",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "pending",
+      "reason": "Human clarified strict /tmp Story 6 scope."
+    }
+  ]
+}

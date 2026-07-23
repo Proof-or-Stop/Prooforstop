@@ -1,0 +1,44 @@
+{
+  "task": "Migrate the five active reviewer roles to modular full or fail-closed incremental Prompt Envelopes with measurable budget savings and no authority regression.",
+  "outcome": "Running reviewer dispatch for concept, quality, test-coverage, behavior, or docs prints the selected full or incremental envelope mode and stable reason; preregistered replay reports each role PASS or INCONCLUSIVE with token deltas, while rollback restores exact legacy prompt bytes and retired channel is never selected.",
+  "facts": [
+    "B-dd81 provides trusted full Prompt Envelope assembly and integrity binding; B-03ac provides conditional selection in review_run_start.",
+    "Four large reviewer prompts repeat the same 5013-byte runtime guide; test-coverage has a smaller equivalent process-contract duplication.",
+    "Current rollout modes share one role-body resolver, so rewriting canonical templates alone would make rollback unable to restore exact legacy bytes.",
+    "A mode-aware content-addressed legacy/modular body resolver and host-render identity binding are required for real per-role rollback.",
+    "The root config has no promptEnvelope rollout entries, so all five roles currently remain legacy-full-context.",
+    "B-8d4b selfcheck passes 49 checks, but its frozen corpus lacks role/lane, exact A/B snapshots, outputs, and independently verified seeds; Story 5 therefore needs a separate role-aware campaign and must retain INCONCLUSIVE where evidence is insufficient.",
+    "The existing trusted path is review_run_start to reviewIncrementalContext to assembleConditionalReviewPromptEnvelope; no new authority or assembly chain is needed."
+  ],
+  "constraints": [
+    "Do not reactivate or migrate retired channel.",
+    "Preserve reviewer authority, permissions, signed review-run and pass gates mechanically.",
+    "Unknown or drifted contract/policy/scope/freshness/authority must escalate full.",
+    "Incremental context must reduce at least 50%; assembled prompt 40% is an initial target, never grounds for weakening correctness.",
+    "A/B lacking preregistered seeded critical/high evidence must say INCONCLUSIVE.",
+    "Each role needs independent rollback restoring exact legacy bytes and legacy pass compatibility.",
+    "Package templates remain canonical and Claude/Codex mirrors must be deterministic renders."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/templates/agents/lattice-review-concept.md",
+    ".claude/agents/lattice-review-concept.md",
+    ".lattice-codex/agents/lattice-review-concept.md",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/review-run-smoke.ts",
+    "experiments/role-prompt-ab-replay",
+    "lattice.config.json",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/host-run-usage.md"
+  ],
+  "timestamp": "2026-07-19T07:24:07.026Z"
+}

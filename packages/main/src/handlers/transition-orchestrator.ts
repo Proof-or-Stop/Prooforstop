@@ -108,6 +108,22 @@ import {
   readLifecycleMetadataOutputHashes,
   type LifecycleMetadataTransaction,
 } from '../core/auto-commit-metadata.js';
+import { evaluateAcceptanceTopologyForContext, evaluatePreReviewCheckForContext } from './proofstory.js';
+
+export function runPreReviewCheckGate(ctx: HandlerContext, storyId: string): string {
+  const report = evaluatePreReviewCheckForContext(ctx, storyId);
+  const rendered = [
+    '\nPre-review check:',
+    `  mode=${report.mode}; status=${report.status}; blocking=${report.blocking}`,
+    `  plannedActual=${report.plannedActual}; executableEvidence=${report.executableEvidence}; mutations=${report.mutations}; transcript=${report.transcript}; authority=${report.authority}; criticReattestation=${report.criticReattestation}`,
+    `  codes=${report.codes.join(',') || 'none'}`,
+    ...report.remediation.map(item => `  remediation=${item}`),
+  ].join('\n');
+  if (report.blocking) {
+    throw new Error(`Cannot enter REVIEW: executable pre-review gate blocked DEV admission.${rendered}\n\n-> Run lattice pre_review_check after current evidence, then obtain the independent topology-critic re-attestation when enforce mode requires it.`);
+  }
+  return rendered;
+}
 
 /** Arguments for one story_advance transition. */
 export interface StoryTransitionArgs {
@@ -464,6 +480,30 @@ async function runStoryTransitionInner(
       assertCwdInWorktree(store, args.storyId);
     }
 
+    // Wave 2 PLAN→DEV structural gate. Both the CLI and lifecycle route use
+    // the same production adapter and canonical evaluator. Observe/warn retain
+    // identical diagnostics; enforce alone changes admission behavior.
+    let acceptanceTopologyGateReport = '';
+    if (story.phase === 'PLAN' && args.phase === 'DEV') {
+      const topology = evaluateAcceptanceTopologyForContext(ctx, args.storyId);
+      acceptanceTopologyGateReport = [
+        '\nAcceptance topology check:',
+        `  mode=${topology.mode}; status=${topology.status}; structuralPass=${topology.structuralPass}; blocking=${topology.blocking}`,
+        `  diagnostics=${topology.diagnostics.map(item => item.code).join(',') || 'none'}`,
+      ].join('\n');
+      if (topology.blocking) {
+        throw new Error(
+          `Cannot enter DEV: acceptance topology structural gate blocked PLAN admission.\n` +
+          topology.diagnostics.map(item => `  - ${item.code}: ${item.message}`).join('\n') +
+          `\n\n-> ${topology.nextAction}`,
+        );
+      }
+    }
+    let preReviewGateReport = '';
+    if (story.phase === 'DEV' && args.phase === 'REVIEW') {
+      preReviewGateReport = runPreReviewCheckGate(ctx, args.storyId);
+    }
+
     // Dependency completion check (soft warning, non-blocking)
     let depsWarning = '';
     if (story.depends && story.depends.length > 0) {
@@ -585,10 +625,10 @@ async function runStoryTransitionInner(
       throw resolveGuardFailure(actor, args.storyId, store, args.phase, ctx.root);
     }
 
-    let scopeGateReport = '';
+    let scopeGateReport = acceptanceTopologyGateReport + preReviewGateReport;
     let guardGateReport = runtimeGateReport;
     if (args.phase === 'REVIEW' || args.phase === 'TEST' || args.phase === 'DONE') {
-      scopeGateReport = runScopeTransitionGate(ctx, args.storyId, args.phase);
+      scopeGateReport = preReviewGateReport + runScopeTransitionGate(ctx, args.storyId, args.phase);
       // B-6bfd CHK-004: guard session projection gate — blocks on recorded
       // forbidden writes. Backward compatible: stories without a guard session
       // get '' and are unaffected.
@@ -597,7 +637,7 @@ async function runStoryTransitionInner(
     // PLAN→DEV: soft advisory when a new-scope story has no scope contract yet.
     // Does not block — advisory only; REVIEW will hard-block if still missing.
     if (args.phase === 'DEV') {
-      scopeGateReport = runPlanToDevScopeAdvice(ctx, args.storyId);
+      scopeGateReport += runPlanToDevScopeAdvice(ctx, args.storyId);
     }
 
     // B-56d3: REVIEW→TEST CLI preflight gate (runReviewToTestPreflightGate).

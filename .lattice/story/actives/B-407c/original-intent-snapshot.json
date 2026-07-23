@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-407c",
+  "sourceText": "依据 role-prompt-modularization-and-budget-execution-plan.md 执行 Story 6：迁移 story-init、scope-plan、implementer、delivery、evaluator，并采用复杂角色预算 observe/warn；完成真实 A/B 与完整不回归验证；不执行 Story 7 enforce。",
+  "normalizedOutcome": "五个复杂角色真实 dispatch 使用模块化 Prompt Envelope，预算超限只记录 violation 不阻塞 full review，所有交付、权限、签名与 Task Context 门禁保持通过。",
+  "acceptanceClaim": "在真实 dispatch A/B 与 adversarial gate 验证中，五个角色均有可审计证据且预算 warn 不会降低 correctness coverage。",
+  "keyRequirementIds": [
+    "S6-AB-EVIDENCE",
+    "S6-BUDGET-OBSERVE-WARN",
+    "S6-INVARIANTS",
+    "S6-ROLE-MIGRATION"
+  ],
+  "requestHash": "sha256:2a084552d4fc3789ed113031bfb5bca65081dd898bed16284f1fffc91cc77f46",
+  "createdAt": "2026-07-20T21:35:13.799Z",
+  "updatedAt": "2026-07-20T21:35:13.799Z"
+}

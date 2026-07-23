@@ -7,7 +7,7 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { ChecklistData, MilestoneNotApplicableDecision, ProofStoryGateMode } from '../core/types.js';
+import type { AcceptanceBasisArtifactV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryGateMode } from '../core/types.js';
 import {
   addMilestoneToLedger,
   appendRedEvidence,
@@ -34,6 +34,31 @@ import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/ma
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
+import {
+  buildAcceptanceMatrixReport,
+  evaluateAcceptanceTopologyCheck,
+  type AcceptanceTopologyCheckReport,
+} from '../core/acceptance-topology.js';
+import { acceptanceCoverageBasisSemanticDigest, deriveAcceptanceCoverageBasis, reconcileTopologyWithCoverageBasis } from '../core/acceptance-coverage-basis.js';
+import { issueAcceptanceBasisReceipt, verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
+import { currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { resolveStoryCommandWorkspace } from './context.js';
+import { digestCanonicalJson } from '../core/digest.js';
+import { verifyScopeCheckSignature } from './scope-check.js';
+import { loadConfig, resolveAcceptanceTopologyGateMode } from '../core/config.js';
+import { getSessionId } from '../core/owner-session.js';
+import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import {
+  canonicalTopologyReceiptContext,
+  deriveImplementationProvenance,
+  deriveRoleProvenance,
+  issueTopologyCriticReceipt,
+  issueTopologyExclusionApproval,
+  TOPOLOGY_CRITIC_ROLE,
+  TOPOLOGY_EXCLUSION_APPROVER_ROLE,
+  verifyTopologyCriticReceipt,
+} from '../core/topology-critic-receipt.js';
+import { issuePreReviewCheckArtifact, loadVerifiedPreReviewExecutableProof, verifyPreReviewCheckArtifact, type PreReviewCheckInput, type PreReviewCheckReport } from '../core/pre-review-check.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -60,6 +85,208 @@ function enforceOrRender(report: { blocking: boolean; mode: ProofStoryGateMode }
     throw new Error(text);
   }
   return text;
+}
+
+function readChecklistForTopology(ctx: HandlerContext, storyId: string): ChecklistData {
+  try { return ctx.store.readChecklist(storyId); }
+  catch { return emptyChecklist(); }
+}
+
+function currentBasisDerivationForContext(ctx: HandlerContext, storyId: string, phaseBasis: 'plan' | 'pre_review' = 'plan', priorPlanBasisDigest?: string) {
+  const { store } = ctx;
+  const workspace = resolveStoryCommandWorkspace(store, storyId, ctx.root);
+  const headHash = currentGitHead(workspace.signedWorkspaceRoot);
+  const materialHash = currentMaterialHash(workspace.signedWorkspaceRoot, 'HEAD', workspace.metadataRoot);
+  const storyFilesHash = currentStoryFilesHash(workspace.signedWorkspaceRoot, 'HEAD', workspace.metadataRoot);
+  if (!headHash || !materialHash || !storyFilesHash) throw new Error('acceptance basis: current workspace hashes are unavailable');
+  const storedScopeCheck = store.readScopeCheck(storyId);
+  const scopeCheck = storedScopeCheck && verifyScopeCheckSignature(storyId, storedScopeCheck) ? storedScopeCheck : null;
+  const scopeContract = store.readScopeContract(storyId);
+  const derivation = deriveAcceptanceCoverageBasis({
+    storyId,
+    workspaceRoot: workspace.signedWorkspaceRoot,
+    checklist: readChecklistForTopology(ctx, storyId),
+    contract: store.readProofStoryContract(storyId),
+    scopeCheck,
+    scopeContract,
+    foundationalDecision: store.readDecision(storyId),
+    headHash,
+    materialHash,
+    storyFilesHash,
+    phaseBasis,
+    ...(priorPlanBasisDigest ? { priorPlanBasisDigest } : {}),
+  });
+  return { workspace, scopeCheck, scopeContract, derivation };
+}
+
+function currentPreReviewInputForContext(ctx: HandlerContext, storyId: string): PreReviewCheckInput {
+  const planArtifact = ctx.store.readAcceptanceBasis(storyId);
+  if (!planArtifact) throw new Error('pre_review_check requires the verifier-owned PLAN acceptance basis');
+  const current = currentBasisDerivationForContext(ctx, storyId, 'pre_review', planArtifact.basis.basisDigest);
+  const receipt = issueAcceptanceBasisReceipt({
+    gitCwd: current.workspace.signedWorkspaceRoot,
+    basis: current.derivation.basis,
+    topologyDigest: current.derivation.topologyDigest,
+  });
+  let currentArtifact: AcceptanceBasisArtifactV1 = { schemaVersion: 'proofstory.acceptance_basis_artifact.v1', basis: current.derivation.basis, receipt };
+  const priorPreReviewArtifact = ctx.store.readPreReviewCheck(storyId)?.preReviewBasisArtifact;
+  if (priorPreReviewArtifact) {
+    const priorVerification = verifyAcceptanceBasisReceipt({
+      artifact: priorPreReviewArtifact,
+      gitCwd: current.workspace.signedWorkspaceRoot,
+      metadataRoot: current.workspace.metadataRoot,
+      expectedStoryId: storyId,
+      expectedTopologyDigest: current.derivation.topologyDigest,
+      expectedScopeCheckDigest: current.derivation.basis.binding.scopeCheckDigest,
+      ...(current.derivation.basis.binding.scopeContractDigest ? { expectedScopeContractDigest: current.derivation.basis.binding.scopeContractDigest } : {}),
+      expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+      expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
+      expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
+    });
+    if (priorVerification.ok) currentArtifact = priorPreReviewArtifact;
+  }
+  const topologyDiagnosticCodes = reconcileTopologyWithCoverageBasis(
+    ctx.store.readProofStoryContract(storyId), current.derivation.basis, ctx.store.readDecision(storyId),
+  ).map(item => item.code);
+  let criticVerification: { ok: boolean; code: string } | undefined;
+  try {
+    const result = evaluateTopologyCriticReceiptForContext(ctx, storyId);
+    criticVerification = { ok: result.ok, code: result.code };
+  } catch { criticVerification = { ok: false, code: 'AT_TOPOLOGY_CRITIC_CONTEXT_INVALID' }; }
+  const criticReceipt = ctx.store.readTopologyCriticReceipt(storyId);
+  const cutoffAt = new Date().toISOString();
+  const contract = ctx.store.readProofStoryContract(storyId);
+  const executableProof = loadVerifiedPreReviewExecutableProof({
+    gitCwd: current.workspace.signedWorkspaceRoot,
+    metadataRoot: current.workspace.metadataRoot,
+    storyDir: ctx.store.storyDirPath(storyId),
+    storyId,
+    contract,
+    cutoffAt,
+    storyFilesHash: current.derivation.basis.binding.storyFilesHash,
+  });
+  return {
+    gitCwd: current.workspace.signedWorkspaceRoot,
+    metadataRoot: current.workspace.metadataRoot,
+    storyId,
+    mode: resolveAcceptanceTopologyGateMode(loadConfig(ctx.root)),
+    cutoffAt,
+    planArtifact,
+    currentArtifact,
+    checklist: readChecklistForTopology(ctx, storyId),
+    contract,
+    executableProof,
+    topologyDigest: current.derivation.topologyDigest,
+    topologyDiagnosticCodes,
+    criticVerification,
+    ...(criticReceipt ? { criticReceiptDigest: `sha256:${digestCanonicalJson(criticReceipt)}` } : {}),
+  };
+}
+
+/** Shared production verifier for the CLI and DEV→REVIEW lifecycle consumer. */
+export function evaluatePreReviewCheckForContext(ctx: HandlerContext, storyId: string): PreReviewCheckReport {
+  const stored = ctx.store.readPreReviewCheck(storyId);
+  if (!stored) {
+    const input = currentPreReviewInputForContext(ctx, storyId);
+    return verifyPreReviewCheckArtifact({ ...input, cutoffAt: input.cutoffAt, artifact: null });
+  }
+  const input = currentPreReviewInputForContext(ctx, storyId);
+  return verifyPreReviewCheckArtifact({ ...input, cutoffAt: stored.cutoffAt, artifact: stored });
+}
+
+/** Shared production adapter for the CLI and PLAN→DEV lifecycle consumer. */
+export function evaluateAcceptanceTopologyForContext(ctx: HandlerContext, storyId: string): AcceptanceTopologyCheckReport {
+  const { store } = ctx;
+  store.readStory(storyId);
+  const current = currentBasisDerivationForContext(ctx, storyId);
+  const artifact = store.readAcceptanceBasis(storyId);
+  const receiptVerification = verifyAcceptanceBasisReceipt({
+    artifact,
+    gitCwd: current.workspace.signedWorkspaceRoot,
+    metadataRoot: current.workspace.metadataRoot,
+    expectedStoryId: storyId,
+    expectedTopologyDigest: current.derivation.topologyDigest,
+    expectedScopeCheckDigest: `sha256:${digestCanonicalJson(current.scopeCheck)}`,
+    ...(current.scopeContract ? { expectedScopeContractDigest: `sha256:${digestCanonicalJson(current.scopeContract)}` } : {}),
+    expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+    expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
+    expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
+  });
+  const topologyBasisDiagnostics = artifact
+    ? reconcileTopologyWithCoverageBasis(store.readProofStoryContract(storyId), artifact.basis, store.readDecision(storyId))
+    : [];
+  const currentBasisDiagnostics = [...current.derivation.diagnostics];
+  if (artifact && artifact.basis.binding.closureFilesHash !== current.derivation.basis.binding.closureFilesHash) {
+    currentBasisDiagnostics.push({
+      code: 'AT_CLOSURE_FILES_STALE',
+      pathRef: 'acceptance-basis.json.basis.binding.closureFilesHash',
+      message: 'registered producer/consumer closure changed after the PLAN basis was issued',
+    });
+  }
+  return evaluateAcceptanceTopologyCheck({
+    storyId,
+    mode: resolveAcceptanceTopologyGateMode(loadConfig(ctx.root)),
+    checklist: readChecklistForTopology(ctx, storyId),
+    contract: store.readProofStoryContract(storyId),
+    ledger: readTrustedProofStoryScopeArtifacts(store, storyId).ledger,
+    artifact,
+    receiptVerification,
+    currentBasisDiagnostics,
+    topologyBasisDiagnostics,
+  });
+}
+
+function currentTopologyReceiptStateForContext(ctx: HandlerContext, storyId: string) {
+  const { store } = ctx;
+  const preReview = store.readPreReviewCheck(storyId);
+  const planArtifact = store.readAcceptanceBasis(storyId);
+  const current = preReview && planArtifact
+    ? currentBasisDerivationForContext(ctx, storyId, 'pre_review', planArtifact.basis.basisDigest)
+    : currentBasisDerivationForContext(ctx, storyId);
+  const artifact = preReview?.preReviewBasisArtifact ?? planArtifact;
+  if (!artifact) throw new Error('topology critic requires the verifier-owned acceptance-basis.json artifact');
+  const basisVerification = verifyAcceptanceBasisReceipt({
+    artifact,
+    gitCwd: current.workspace.signedWorkspaceRoot,
+    metadataRoot: current.workspace.metadataRoot,
+    expectedStoryId: storyId,
+    expectedTopologyDigest: current.derivation.topologyDigest,
+    expectedScopeCheckDigest: current.derivation.basis.binding.scopeCheckDigest,
+    ...(current.derivation.basis.binding.scopeContractDigest ? { expectedScopeContractDigest: current.derivation.basis.binding.scopeContractDigest } : {}),
+    expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+    expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
+    expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
+  });
+  if (!basisVerification.ok) throw new Error(`topology critic basis verification failed: ${basisVerification.code}: ${basisVerification.diagnostics.join('; ')}`);
+  const context = canonicalTopologyReceiptContext({
+    storyId,
+    basisStatus: artifact.basis.status,
+    basisDigest: artifact.basis.basisDigest,
+    topologyDigest: current.derivation.topologyDigest,
+    scopeCheckDigest: current.derivation.basis.binding.scopeCheckDigest,
+    ...(current.derivation.basis.binding.scopeContractDigest ? { scopeContractDigest: current.derivation.basis.binding.scopeContractDigest } : {}),
+    storyFilesHash: current.derivation.basis.binding.storyFilesHash,
+    closureFilesHash: current.derivation.basis.binding.closureFilesHash,
+    exclusions: artifact.basis.excludedPathRefs,
+    findingRefs: store.readFindings(storyId).findings.filter(finding => finding.status === 'open').map(finding => finding.id),
+  });
+  const events = store.readProcessEvents(storyId);
+  const implementation = deriveImplementationProvenance(current.workspace.signedWorkspaceRoot, events, context);
+  return { current, artifact, context, events, implementation };
+}
+
+/** Canonical read-only CLI verifier; reusable by a future phase-appropriate gate without creating a Wave 2A lifecycle consumer. */
+export function evaluateTopologyCriticReceiptForContext(ctx: HandlerContext, storyId: string) {
+  const state = currentTopologyReceiptStateForContext(ctx, storyId);
+  const approvals = ctx.store.readTopologyExclusionApprovals(storyId).approvals;
+  return verifyTopologyCriticReceipt({
+    gitCwd: state.current.workspace.signedWorkspaceRoot,
+    context: state.context,
+    receipt: ctx.store.readTopologyCriticReceipt(storyId),
+    approvals,
+    implementation: state.implementation,
+    events: ctx.store.readProcessEvents(storyId),
+  });
 }
 
 export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -139,7 +366,225 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
     return enforceOrRender(report, renderProofStoryDiagnosticReport(report));
   }
 
+  function rejectBasisWriteShape(args: Record<string, unknown>, allowed: readonly string[]): void {
+    const unexpected = Object.keys(args).filter(key => !allowed.includes(key));
+    if (unexpected.length > 0) {
+      throw new Error(`acceptance basis requests are verifier-derived; unsupported caller fields: ${unexpected.sort().join(', ')}`);
+    }
+  }
+
+  function currentBasisDerivation(storyId: string) {
+    return currentBasisDerivationForContext(ctx, storyId);
+  }
+
+  function currentTopologyReceiptState(storyId: string) {
+    return currentTopologyReceiptStateForContext(ctx, storyId);
+  }
+
+  function basisReport(storyId: string) {
+    const artifact = store.readAcceptanceBasis(storyId);
+    if (!artifact) {
+      return {
+        storyId,
+        mode: 'read_only',
+        evidentiary: false,
+        status: 'legacy_missing',
+        basisStatus: 'unsupported',
+        receiptVerification: { ok: false, code: 'AT_COVERAGE_BASIS_MISSING', diagnostics: ['acceptance basis receipt is missing'] },
+        diagnostics: [{ code: 'AT_COVERAGE_BASIS_MISSING', message: 'Run acceptance_basis_generate from the registered verifier.' }],
+      };
+    }
+    const current = currentBasisDerivation(storyId);
+    const verification = verifyAcceptanceBasisReceipt({
+      artifact,
+      gitCwd: current.workspace.signedWorkspaceRoot,
+      metadataRoot: current.workspace.metadataRoot,
+      expectedStoryId: storyId,
+      expectedTopologyDigest: current.derivation.topologyDigest,
+      expectedScopeCheckDigest: `sha256:${digestCanonicalJson(current.scopeCheck)}`,
+      ...(current.scopeContract ? { expectedScopeContractDigest: `sha256:${digestCanonicalJson(current.scopeContract)}` } : {}),
+      expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+      expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
+      expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
+    });
+    const topologyDiagnostics = reconcileTopologyWithCoverageBasis(
+      store.readProofStoryContract(storyId),
+      artifact.basis,
+      store.readDecision(storyId),
+    );
+    const effectiveVerification = artifact.basis.status === 'complete' && (current.derivation.diagnostics.length > 0 || topologyDiagnostics.length > 0)
+      ? {
+        ok: false as const,
+        code: 'AT_ADAPTER_RESULT_DIGEST_MISMATCH' as const,
+        diagnostics: [
+          ...verification.diagnostics,
+          ...current.derivation.diagnostics.map(item => `${item.code}: ${item.message}`),
+          ...topologyDiagnostics.map(item => `${item.code}: ${item.message}`),
+        ],
+      }
+      : verification;
+    return {
+      storyId,
+      mode: 'read_only',
+      evidentiary: false,
+      status: effectiveVerification.ok ? 'verified' : 'invalid',
+      basisStatus: artifact.basis.status,
+      discoveryProfileRef: artifact.basis.discoveryProfileRef,
+      discoveryProfileDigest: artifact.basis.discoveryProfileDigest,
+      adapterResults: artifact.basis.adapterResults,
+      enumeratedPathRefs: artifact.basis.enumeratedPathRefs,
+      plannedPathRecords: artifact.basis.plannedPathRecords,
+      excludedPathRefs: artifact.basis.excludedPathRefs,
+      blindSpots: artifact.basis.blindSpots,
+      binding: artifact.basis.binding,
+      receipt: artifact.receipt,
+      receiptVerification: effectiveVerification,
+      diagnostics: current.derivation.diagnostics,
+    };
+  }
+
   return {
+    topology_exclusion_approval_set(args: { storyId: string; exclusionRef: string; json?: boolean }): string {
+      if (!args.storyId || !args.exclusionRef) throw new Error('storyId and exclusionRef are required');
+      const authority = resolveAgentMutationAuthority({ command: 'topology_exclusion_approval_set', payloadActors: [], envActor: process.env.LATTICE_AGENT });
+      if (authority.entry?.canonicalName !== TOPOLOGY_EXCLUSION_APPROVER_ROLE) throw new Error('topology exclusion approval requires registered lattice-review-scope-plan authority');
+      const state = currentTopologyReceiptState(args.storyId);
+      const actor = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_EXCLUSION_APPROVER_ROLE, actor: authority.actor, sessionId: getSessionId(), context: state.context, implementation: state.implementation });
+      const approval = issueTopologyExclusionApproval({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, exclusionRef: args.exclusionRef, actor, implementation: state.implementation });
+      const approvals = store.readTopologyExclusionApprovals(args.storyId);
+      approvals.approvals = [...approvals.approvals.filter(item => item.exclusionRef !== approval.exclusionRef), approval];
+      store.writeTopologyExclusionApprovals(args.storyId, approvals);
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'topology_exclusion_approval_set');
+      if (args.json) return stringify({ approval, verification: 'PASS' });
+      return `Topology exclusion approval: PASS\nStory: ${args.storyId}\nExclusion: ${approval.exclusionRef}\nApproval: ${approval.approvalRef}${commitHint}`;
+    },
+
+    topology_critic_receipt_set(args: { storyId: string; verdict: 'pass' | 'request_changes'; json?: boolean }): string {
+      if (!args.storyId || !args.verdict) throw new Error('storyId and verdict are required');
+      const authority = resolveAgentMutationAuthority({ command: 'topology_critic_receipt_set', payloadActors: [], envActor: process.env.LATTICE_AGENT });
+      if (authority.entry?.canonicalName !== TOPOLOGY_CRITIC_ROLE) throw new Error('topology critic receipt requires registered lattice-review-topology-critic authority');
+      const state = currentTopologyReceiptState(args.storyId);
+      const critic = deriveRoleProvenance({ gitCwd: state.current.workspace.signedWorkspaceRoot, events: state.events, expectedRole: TOPOLOGY_CRITIC_ROLE, actor: authority.actor, sessionId: getSessionId(), context: state.context, implementation: state.implementation });
+      const approvals = store.readTopologyExclusionApprovals(args.storyId).approvals;
+      const receipt = issueTopologyCriticReceipt({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, critic, implementation: state.implementation, approvals, events: state.events, verdict: args.verdict });
+      store.writeTopologyCriticReceipt(args.storyId, receipt);
+      const verification = verifyTopologyCriticReceipt({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, receipt, approvals, implementation: state.implementation, events: store.readProcessEvents(args.storyId) });
+      if (args.verdict === 'pass' && !verification.ok) throw new Error(`topology critic receipt self-verification failed: ${verification.code}: ${verification.diagnostics.join('; ')}`);
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'topology_critic_receipt_set');
+      if (args.json) return stringify({ receipt, verification });
+      return `Topology critic receipt: ${verification.ok ? 'PASS' : 'REJECTED'}\nStory: ${args.storyId}\nVerdict: ${receipt.verdict}\nIndependence: agent=${verification.independence.agent} session=${verification.independence.session} dispatch=${verification.independence.dispatch} businessCommitAuthor=${verification.independence.businessCommitAuthor}${commitHint}`;
+    },
+
+    topology_critic_receipt_check(args: { storyId: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      try {
+        const state = currentTopologyReceiptState(args.storyId);
+        const verification = evaluateTopologyCriticReceiptForContext(ctx, args.storyId);
+        if (args.json) return stringify({ storyId: args.storyId, basisStatus: state.context.basisStatus, verification });
+        return [`Topology critic receipt: ${verification.ok ? 'PASS' : 'REJECTED'}`, `Story: ${args.storyId}`, `Code: ${verification.code}`, `Independence: agent=${verification.independence.agent} session=${verification.independence.session} dispatch=${verification.independence.dispatch} businessCommitAuthor=${verification.independence.businessCommitAuthor}`, ...verification.diagnostics.map(item => `  - ${item}`)].join('\n');
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        const report = { storyId: args.storyId, verification: { ok: false, code: 'AT_TOPOLOGY_CRITIC_CONTEXT_INVALID', diagnostics: [message] } };
+        if (args.json) return stringify(report);
+        return `Topology critic receipt: REJECTED\nStory: ${args.storyId}\nCode: AT_TOPOLOGY_CRITIC_CONTEXT_INVALID\n  - ${message}`;
+      }
+    },
+
+    acceptance_basis_generate(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const current = currentBasisDerivation(args.storyId);
+      if (current.derivation.basis.status === 'complete' && current.derivation.diagnostics.length > 0) {
+        throw new Error(`acceptance_basis_generate refused unreconciled complete basis: ${current.derivation.diagnostics.map(item => item.code).join(', ')}`);
+      }
+      const receipt = issueAcceptanceBasisReceipt({
+        gitCwd: current.workspace.signedWorkspaceRoot,
+        basis: current.derivation.basis,
+        topologyDigest: current.derivation.topologyDigest,
+      });
+      const artifact = {
+        schemaVersion: 'proofstory.acceptance_basis_artifact.v1' as const,
+        basis: current.derivation.basis,
+        receipt,
+      };
+      const verification = verifyAcceptanceBasisReceipt({
+        artifact,
+        gitCwd: current.workspace.signedWorkspaceRoot,
+        metadataRoot: current.workspace.metadataRoot,
+        expectedStoryId: args.storyId,
+        expectedTopologyDigest: current.derivation.topologyDigest,
+        expectedScopeCheckDigest: current.derivation.basis.binding.scopeCheckDigest,
+        ...(current.derivation.basis.binding.scopeContractDigest ? { expectedScopeContractDigest: current.derivation.basis.binding.scopeContractDigest } : {}),
+        expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+        expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
+        expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
+      });
+      if (!verification.ok) throw new Error(`acceptance_basis_generate refused invalid receipt: ${verification.code}: ${verification.diagnostics.join('; ')}`);
+      store.writeAcceptanceBasis(args.storyId, artifact);
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'acceptance_basis_generate');
+      if (args.json) return stringify({ artifact, diagnostics: current.derivation.diagnostics, verification });
+      return [
+        `Acceptance coverage basis: ${artifact.basis.status}`,
+        `Story: ${args.storyId}`,
+        `Profile: ${artifact.basis.discoveryProfileRef}`,
+        `Adapters: ${artifact.basis.adapterResults.length}`,
+        `Paths: ${artifact.basis.enumeratedPathRefs.length}`,
+        `Basis digest: ${artifact.basis.basisDigest}`,
+        `Receipt: ${artifact.receipt.receiptRef} (verified)`,
+        ...current.derivation.diagnostics.map(item => `${item.code}: ${item.message}`),
+      ].join('\n') + commitHint;
+    },
+
+    acceptance_basis(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const report = basisReport(args.storyId);
+      if (args.json) return stringify(report);
+      return [
+        `Acceptance coverage basis: ${report.basisStatus}`,
+        `Story: ${report.storyId}`,
+        `Receipt verification: ${report.receiptVerification.ok ? 'PASS' : report.receiptVerification.code}`,
+        `Mode: read-only; evidentiary: false`,
+        ...report.receiptVerification.diagnostics.map(message => `  - ${message}`),
+      ].join('\n');
+    },
+
+    pre_review_check(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const input = currentPreReviewInputForContext(ctx, args.storyId);
+      const artifact = issuePreReviewCheckArtifact(input);
+      store.writePreReviewCheck(args.storyId, artifact);
+      const report = verifyPreReviewCheckArtifact({ ...input, artifact });
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'pre_review_check');
+      if (args.json) return stringify({ ...report, artifact });
+      return [
+        `Pre-review check: ${report.ok ? 'PASS' : 'FAIL'}${report.codes[0] ? ` code=${report.codes[0]}` : ''}`,
+        `Story: ${args.storyId}`,
+        `Mode: ${report.mode}; blocking=${report.blocking}`,
+        `plannedActual=${report.plannedActual} executableEvidence=${report.executableEvidence} mutations=${report.mutations} transcript=${report.transcript} authority=${report.authority} criticReattestation=${report.criticReattestation}`,
+        `Codes: ${report.codes.join(',') || 'none'}`,
+        ...report.remediation.map(item => `Remediation: ${item}`),
+      ].join('\n') + commitHint;
+    },
+
+    pre_review_check_read(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      const report = evaluatePreReviewCheckForContext(ctx, args.storyId);
+      if (args.json) return stringify(report);
+      return [
+        `Pre-review check: ${report.ok ? 'PASS' : 'FAIL'}${report.codes[0] ? ` code=${report.codes[0]}` : ''}`,
+        `Story: ${args.storyId}`,
+        `Mode: ${report.mode}; readOnly=true; blocking=${report.blocking}`,
+        `plannedActual=${report.plannedActual} executableEvidence=${report.executableEvidence} mutations=${report.mutations} transcript=${report.transcript} authority=${report.authority} criticReattestation=${report.criticReattestation}`,
+        `Codes: ${report.codes.join(',') || 'none'}`,
+        ...report.remediation.map(item => `Remediation: ${item}`),
+      ].join('\n');
+    },
     original_intent_snapshot_set(args: {
       storyId: string;
       sourceText: string;
@@ -417,6 +862,56 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         return args.json ? stringify(result) : `ProofStory contract: not configured\nStory: ${args.storyId}`;
       }
       return renderStored('ProofStory contract', contract, args);
+    },
+
+    acceptance_topology_check(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      const report = evaluateAcceptanceTopologyForContext(ctx, args.storyId);
+      if (args.json) return enforceOrRender(report, stringify(report));
+      const text = [
+        `Acceptance topology check for ${report.storyId}`,
+        `Mode: ${report.mode} (flat project policy)`,
+        `Status: ${report.status}`,
+        `Basis status: ${report.basisStatus}`,
+        `Structural pass: ${report.structuralPass ? 'yes' : 'no'}`,
+        `Blocking: ${report.blocking ? 'yes' : 'no'}`,
+        'Authority: diagnostic_only (read-only, non-evidentiary, PLAN structural semantics only)',
+        'Diagnostics:',
+        ...(report.diagnostics.length === 0
+          ? ['  none']
+          : report.diagnostics.map(item => `  ${item.code} ${item.bindingId} ${item.path}: ${item.message}`)),
+        `Next action: ${report.nextAction}`,
+      ].join('\n');
+      return enforceOrRender(report, text);
+    },
+
+    acceptance_matrix(args: { storyId: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const report = buildAcceptanceMatrixReport({
+        storyId: args.storyId,
+        checklist: readChecklistSafe(args.storyId),
+        contract: store.readProofStoryContract(args.storyId),
+        ledger: store.readMilestoneLedger(args.storyId),
+      });
+      if (args.json) return stringify(report);
+      const lines = [
+        `Acceptance matrix for ${report.storyId}`,
+        'Mode: observe (read-only, non-evidentiary)',
+        `Topology state: ${report.topologyState}`,
+        `Result: ${report.result}`,
+        'Rows:',
+      ];
+      for (const row of report.rows) {
+        lines.push(
+          `  ${row.acceptanceBindingRef} | result=${row.result} | checklist=[${row.checklistRefs.join(',')}] | intents=[${row.verificationIntentRefs.join(',')}] | milestones=[${row.milestoneRefs.join(',')}] | declarations=[${row.plannedPathDeclarationRefs.join(',')}] | endpoints=[${row.endpointRefs.join(',')}] | evidence=[${row.evidenceRefs.join(',')}] | diagnostics=[${row.diagnosticCodes.join(',')}]`,
+        );
+      }
+      lines.push('Diagnostics:');
+      if (report.diagnostics.length === 0) lines.push('  none');
+      else report.diagnostics.forEach(diagnostic => lines.push(`  ${diagnostic.code} ${diagnostic.bindingId} ${diagnostic.path}: ${diagnostic.message}`));
+      return lines.join('\n');
     },
 
     scope_shrinkage_decision_set(args: {

@@ -6,7 +6,6 @@ import {
   LATTICE_CODEX_ADAPTER_MANIFEST,
   CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
   listAgentPromptFiles,
-  renderCodexAgentContent,
   renderLatticeCodexAdapterManifest,
   type CodexPromptMode,
 } from '../init-assets.js';
@@ -343,9 +342,9 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
       issues.push(`unregistered .claude/agents/${file}`);
       continue;
     }
-    const packagePrompt = readText(registryEntry.sourcePath);
     const claudePrompt = readText(join(claudeDir, file));
-    if (packagePrompt !== claudePrompt) {
+    const expectedClaude = renderPromptEntryForHost(registryEntry, 'claude');
+    if (expectedClaude !== claudePrompt) {
       issues.push(`package/Claude drift ${file}`);
       continue;
     }
@@ -354,7 +353,7 @@ function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
       issues.push(`missing .lattice-codex/agents/${file}`);
       continue;
     }
-    const expected = renderCodexAgentContent(packagePrompt);
+    const expected = renderPromptEntryForHost(registryEntry, 'codex');
     const actual = readText(targetPath);
     if (expected !== actual) issues.push(`drift .lattice-codex/agents/${file}`);
   }

@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-4ec1",
+  "phase": "TEST",
+  "generatedAt": "2026-07-23T16:27:45.665Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "1f4ba18bd04acfe22caa855e07367760045a61f07e7eb033c6eabe67fce51654",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:2130da0da34f7403dc267e0f1edd73b25cfa5d50301a8ea047ac2a93805aa900"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "d2de1491d95b9f947874efe7b387389ca7de952a",
+    "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+    "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "The canonical pre_review_check result is verifier-owned, signed, hash-bound and deterministic.",
+      "acceptance": "Production CLI, read-only diagnostics and lifecycle share one verifier; a complete current artifact passes and every field tamper, replay, stale binding or caller-authored verdict fails with stable codes.",
+      "evidence": [
+        "VI-W3-M1-PRE-REVIEW-ROUNDTRIP [pass/integration_test] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M1-PRE-REVIEW-ROUNDTRIP; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M1-DETERMINISTIC-CODES [pass/logic_test] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M1-DETERMINISTIC-CODES; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M1-PRODUCER-CONSUMER-PARITY [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M1-PRODUCER-CONSUMER-PARITY; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M1-EVERY-BINDING-TAMPER [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M1-EVERY-BINDING-TAMPER; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M1-CALLER-AUTHORITY-REPLAY [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M1-CALLER-AUTHORITY-REPLAY; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "DEV-to-REVIEW recomputes the current-worktree basis and reconciles every planned path to actual discovery.",
+      "acceptance": "Complete exact, expanded or approved-replaced paths pass; missing, partial, unsupported, stale, adapter-omitted, record-tampered or basis-backed topology omission cases fail closed.",
+      "evidence": [
+        "VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION [pass/integration_test] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M2-PLANNED-ACTUAL-MATRIX [pass/logic_test] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M2-PLANNED-ACTUAL-MATRIX; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M2-DISCOVERY-STATE-CLOSURE [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M2-DISCOVERY-STATE-CLOSURE; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M2-TOPOLOGY-ONLY-OMISSION [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M2-TOPOLOGY-ONLY-OMISSION; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M2-ADAPTER-RECORD-TAMPER [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M2-ADAPTER-RECORD-TAMPER; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Executable producer-consumer evidence, mutation polarity, transcripts, authority and freshness are mechanically admissible.",
+      "acceptance": "Real chain and clean controls pass; every adverse mutation bites; exact restoration passes; weak authority, unrelated transcript, stale evidence, after-cutoff evidence or silent rebind fails.",
+      "evidence": [
+        "VI-W3-M3-REAL-PROOF-CHAIN [pass/integration_test] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M3-REAL-PROOF-CHAIN; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M3-MUTATION-POLARITY-RESTORE [pass/logic_test] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M3-MUTATION-POLARITY-RESTORE; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M3-BYPASS-CAMPAIGN [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M3-BYPASS-CAMPAIGN; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "DEV-to-REVIEW consumes the canonical pre-review result and fresh independent critic re-attestation under flat project observe/warn/enforce modes without later-wave leakage.",
+      "acceptance": "Enforce blocks failing checks or stale/self-authored critic re-attestation, observe/warn preserve diagnostics and rollback, process-fact contract bites at all layers, and no Wave 3A or Wave 4 behavior is present.",
+      "evidence": [
+        "VI-W3-M4-LIFECYCLE-MODE-MATRIX [pass/integration_test] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-LIFECYCLE-MODE-MATRIX; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M4-LEGACY-DOCS-ROLLBACK [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-LEGACY-DOCS-ROLLBACK; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M4-STABLE-GATE-CODES [pass/logic_test] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-STABLE-GATE-CODES; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M4-CRITIC-REATTESTATION [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-CRITIC-REATTESTATION; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M4-PROCESS-FACT-FOUR-LAYER [pass/manual_transcript] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-PROCESS-FACT-FOUR-LAYER; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+        "VI-W3-M4-NO-LATER-WAVE-LEAKAGE [pass/docs_check] node scripts/run-proofstory-pre-review-live-proof.mjs note=Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-NO-LATER-WAVE-LEAKAGE; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

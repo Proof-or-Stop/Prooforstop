@@ -1,0 +1,20 @@
+{
+  "storyId": "B-235e",
+  "expected": "User sees \"role=lattice-review-concept rollout=full-envelope\" for an enabled role and \"role=lattice-review-quality rollout=legacy-full-context legacyBytesRestored=true\" after independently rolling back only quality; \"lattice-review-channel\" is absent from active roles.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only",
+    "exitCode": 0,
+    "stdout": "review-incremental-context-smoke: REVIEW-TO-TEST TASK SNAPSHOT: only REVIEW/TEST are equivalent; DEV/DONE/DISCARDED/unknown and title/checklist mutations fail closed; DONE oracle agrees\nreview-incremental-context-smoke: PRODUCTION VERIFIER CUTOFF: real B envelope remains valid and bound to A after later C; no-cutoff verifier mutation fails\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-20T17:06:57.254Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "456ab8663cabae1030d711738a29f454f019dfa5",
+  "materialHash": "beeaded9abef909b2fc119aa5587006d2031d6bee697115f9e9d03d8b5d1f819"
+}

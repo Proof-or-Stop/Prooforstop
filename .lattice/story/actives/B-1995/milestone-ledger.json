@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-1995",
+  "state": "confirmed",
+  "ledgerHash": "sha256:ef20fa6fe6ecdd47b52846a2f2ddbdad957108c8c0511d9097553ff14b5a6134",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-W1-PLANNED-PATH",
+      "claim": "Planned producer-consumer paths are canonically declared and frozen inside verificationIntent.",
+      "doneMeans": "A valid versioned declaration round-trips through the real PLAN authoring flow, invalid references fail deterministically, and post-PLAN mutation is rejected.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "VI-1995-001-ROUNDTRIP",
+        "VI-1995-001-WRITER-FREEZE"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-W1-TOPOLOGY",
+      "claim": "ProofStory acceptance topology is optional, versioned, reference-only, and structurally diagnosed in observe mode.",
+      "doneMeans": "Valid references resolve, legacy contracts report legacy_missing, and self-authored or unresolved path mutations produce stable diagnostics without becoming evidence.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "VI-1995-002-VALID-REFERENCE-GRAPH",
+        "VI-1995-002-SELF-AUTHORSHIP-MUTATION"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-W1-MATRIX",
+      "claim": "Users can inspect a deterministic derived acceptance matrix through a dedicated read-only CLI.",
+      "doneMeans": "acceptance_matrix text and JSON output expose canonical IDs and diagnostics byte-deterministically while creating no story, evidence, process-event, or matrix writes.",
+      "requiredEvidence": [
+        "integration_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "VI-1995-003-MATRIX-USER-DEMO",
+        "VI-1995-003-NO-WRITES"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-W1-COMPAT",
+      "claim": "Wave 1 remains backward-compatible and non-gating.",
+      "doneMeans": "Focused mutation and compatibility tests prove legacy/docs-only readability, unchanged lifecycle transition results, and absence of Wave 1A basis/discovery/enforcement behavior.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "VI-1995-004-FOCUSED-SUITE",
+        "VI-1995-004-LIFECYCLE-EQUIVALENCE",
+        "VI-1995-004-NO-GATE-OR-BASIS-SHIP"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-22T02:46:49.659Z",
+  "updatedAt": "2026-07-22T02:47:06.719Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-B-1995-W1",
+    "acceptedInterpretationHash": "sha256:0d85b0f4c98a90a4cfe9d290889d41f5f6b3e0795b74e8286b00f9837f8c4cdd",
+    "acceptedAt": "2026-07-22T02:47:06.719Z"
+  }
+}

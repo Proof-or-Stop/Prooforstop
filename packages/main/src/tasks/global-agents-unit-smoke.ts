@@ -8,7 +8,8 @@
  * Covers (B-097f CHK-002, thin-shim pivot):
  *   - happy: sync writes a thin-shim regular file for every *.md template —
  *     verbatim frontmatter (tools sandbox preserved) + a CLI-fetch body that
- *     references `lattice agent_prompt --role=<name>` and contains NO role body
+ *     references `lattice agent_prompt --role=<name>` for ordinary roles or
+ *     `review_run_start` for the five modular reviewers, and contains NO role body
  *   - edge: idempotent re-run reports "shim ok"; broken link / stale full copy /
  *     old symlink / drifted shim → unlink + rewrite ("replaced")
  *   - adversarial: non-writable global dir (mkdir throws) → clear actionable
@@ -21,6 +22,7 @@ import {
   extractTemplateFrontmatter,
   listManagedAgentBasenames,
   renderAgentShim,
+  renderReviewerRunBootstrap,
   resolveAgentTemplateDir,
   resolveGlobalAgentsDir,
   syncGlobalAgents,
@@ -120,7 +122,9 @@ function makeMemFs(seed: Record<string, Node>, opts: { mkdirThrows?: boolean } =
 function expectedShim(file: string): string {
   const role = ROLE_BY_FILE[file];
   const { frontmatter } = extractTemplateFrontmatter(TEMPLATES[file], file);
-  return renderAgentShim(frontmatter, role);
+  return role === 'lattice-review-concept'
+    ? renderReviewerRunBootstrap(frontmatter, role)
+    : renderAgentShim(frontmatter, role);
 }
 
 // --- resolveGlobalAgentsDir: injectable home ---
@@ -172,7 +176,12 @@ assert.match(resolveAgentTemplateDir(), /templates[\\/]agents$/, 'template dir m
     assert.equal(content, expectedShim(file), `${file} content should be the deterministic shim`);
     // tools sandbox preserved, role body absent, CLI fetch present.
     assert.match(content, /tools:/, 'shim keeps tools frontmatter');
-    assert.match(content, new RegExp(`lattice agent_prompt --role=${role}`), 'shim body references CLI fetch');
+    if (role === 'lattice-review-concept') {
+      assert.match(content, /review_run_start/, 'migrated reviewer shim selects one runtime review prompt');
+      assert.doesNotMatch(content, /agent_prompt --role/, 'migrated reviewer shim never preloads a role body');
+    } else {
+      assert.match(content, new RegExp(`lattice agent_prompt --role=${role}`), 'ordinary shim body references CLI fetch');
+    }
     assert.doesNotMatch(content, /that must never leak into the shim/, 'role body must NOT appear in shim');
   }
   assert.ok(nodes.get(GLOBAL_DIR), 'global dir should be mkdir-ed');

@@ -1,0 +1,55 @@
+{
+  "storyId": "B-4ec1",
+  "changes": "Implemented the Story 6 Wave 3 executable pre-review gate, binding coverage basis and acceptance topology to producer, consumer, mutation, transcript, authority, source-closure, and cross-session validation identity evidence.",
+  "usage": "Before advancing DEV to REVIEW, run acceptance_topology_check and pre_review_check. Progress is allowed only when current structural and executable evidence, biting mutations, and a related transcript all pass.",
+  "expectedOutcome": "Missing, stale, or session-bound acceptance evidence is mechanically blocked before REVIEW, while a complete current proof chain passes without weakening legacy or rollout boundaries.",
+  "actualTranscript": "The current pre_review_check reports PASS with no codes; 21 of 21 required intents are current; four Round 10 reviewer lanes passed; Claude CLI and Codex CLI recorded three rounds each; focused build and mutation tests passed.",
+  "outcomeDiff": "Expected and observed outcomes match: complete evidence passes, while omission, forgery, stale bindings, transport-session drift, near-miss commands, and semantic environment mutations fail closed.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Wave 3A remains intentionally skipped under the flat rollout, and Wave 4 enforcement is outside this story.",
+  "pitfalls": "Only the exact canonical live-proof command receives the extended timeout. Extra arguments, whitespace variants, environment injection, and shell composition retain the shorter default budget.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 136177
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 60118
+    },
+    "PLAN": {
+      "count": 17,
+      "durationMs": 27641890
+    },
+    "DEV": {
+      "count": 26,
+      "durationMs": 23932745
+    },
+    "REVIEW": {
+      "count": 10,
+      "durationMs": 5614605
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1900625
+    }
+  },
+  "totalDurationMs": 59286818,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-23T14:05:34.450Z",
+  "updatedAt": "2026-07-23T14:56:22.442Z"
+}

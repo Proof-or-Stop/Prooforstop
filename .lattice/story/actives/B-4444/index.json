@@ -1,0 +1,138 @@
+{
+  "storyId": "B-4444",
+  "name": "proofstory-acceptance-topology-pre-review-gates-plan",
+  "title": "Plan ProofStory acceptance topology and pre-review gates",
+  "description": "Write an auditable execution plan that reuses the confirmed milestone ledger and proofstory acceptanceBindings, adds explicit producer-consumer-positive-mutation-transcript verification topology, defines a PLAN-to-DEV structural acceptance_topology_check and a DEV-to-REVIEW executable pre_review_check, and specifies migration, rollout, process-fact, testing, and audit boundaries without implementing runtime behavior.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-07-21T15:17:38.046Z",
+  "startedAt": "2026-07-21T15:17:38.046Z",
+  "endedAt": "2026-07-22T02:36:13.700Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-21T15:17:38.756Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-da20c7f8979c9756768738c51324dc67",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-21T15:19:13.207Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-da20c7f8979c9756768738c51324dc67",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-21T15:20:29.658Z",
+      "branch": "story/B-4444",
+      "user": "Harmonygo",
+      "sessionId": "sess-17f392fc0101eabfb60a48672fd56ae8",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-21T15:26:47.458Z",
+      "branch": "story/B-4444",
+      "user": "Harmonygo",
+      "sessionId": "sess-17f392fc0101eabfb60a48672fd56ae8",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-22T01:29:55.357Z",
+      "branch": "story/B-4444",
+      "user": "Harmonygo",
+      "sessionId": "sess-17f392fc0101eabfb60a48672fd56ae8",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-22T01:33:45.308Z",
+      "branch": "story/B-4444",
+      "user": "Harmonygo",
+      "sessionId": "sess-17f392fc0101eabfb60a48672fd56ae8",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-22T01:42:32.404Z",
+      "branch": "story/B-4444",
+      "user": "Harmonygo",
+      "sessionId": "sess-17f392fc0101eabfb60a48672fd56ae8",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-22T01:45:56.398Z",
+      "branch": "story/B-4444",
+      "user": "Harmonygo",
+      "sessionId": "sess-17f392fc0101eabfb60a48672fd56ae8",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-22T01:55:58.204Z",
+      "branch": "story/B-4444",
+      "user": "Harmonygo",
+      "sessionId": "sess-17f392fc0101eabfb60a48672fd56ae8",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-22T01:59:59.687Z",
+      "branch": "story/B-4444",
+      "user": "Harmonygo",
+      "sessionId": "sess-17f392fc0101eabfb60a48672fd56ae8",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-22T02:02:48.588Z",
+      "branch": "story/B-4444",
+      "user": "Harmonygo",
+      "sessionId": "sess-17f392fc0101eabfb60a48672fd56ae8",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-22T02:15:52.812Z",
+      "branch": "story/B-4444",
+      "user": "Harmonygo",
+      "sessionId": "sess-17f392fc0101eabfb60a48672fd56ae8",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-22T02:36:13.700Z",
+      "branch": "story/B-4444",
+      "user": "Harmonygo",
+      "sessionId": "sess-17f392fc0101eabfb60a48672fd56ae8",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-22T02:02:48.588Z"
+}

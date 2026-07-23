@@ -104,6 +104,9 @@ reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
 <!-- lattice:end -->
+Acceptance-basis boundary: only `lattice acceptance_basis_generate` may write the signed PLAN coverage-basis receipt. `lattice acceptance_basis` is read-only diagnostic output; never submit or replay it as gate evidence or authority.
+Acceptance-topology boundary: before PLAN→DEV, use `lattice acceptance_topology_check --storyId=<id>` to inspect the canonical structural report. The independent default-observe project `proofStory.acceptanceTopologyGateMode` changes admission blocking only, never status or diagnostics; never submit caller status/mode/authority, substitute executable evidence, or treat this PLAN check as production readiness.
+
 # lattice-implementer agent
 
 ## 0. Project Context

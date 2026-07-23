@@ -328,6 +328,198 @@ The Mac App is no longer required for release or provider/config status. It is
 an optional dashboard/archive surface unless a future, explicitly reviewed
 receipt-backed runner path lands.
 
+### Acceptance Matrix (Wave 1)
+
+`lattice acceptance_matrix --storyId=<id> [--json]` renders a deterministic
+projection of ProofStory acceptance bindings, milestone refs, checklist and
+verification-intent refs, verification-intent-owned planned-path declarations,
+and existing evidence refs.
+
+The command is observe-only, read-only, and non-evidentiary. Text output states
+those boundaries explicitly; JSON contains `mode: "observe"`,
+`readOnly: true`, and `evidentiary: false`. Each row exposes canonical source
+IDs and stable `AT_*` structural diagnostics. A legacy binding without
+`verificationTopology` reports `legacy_missing`. A configured Wave 1 graph can
+report only `warning` or `inconclusive_basis_unverified`; it never reports
+`complete`, `pass`, `ready-for-review`, or another authority-bearing result.
+
+Wave 1 accepts only reference-only `proofstory.acceptance_topology.v1` data.
+Existing source references are bounded to `acceptance-binding:`, `checklist:`,
+`intent:`, `milestone:`, and `evidence:` owners. Planned source references name
+a frozen `proofstory.verification_planned_path_declaration.v1` and endpoint ID
+owned by checklist `verificationIntent`; topology cannot copy or override the
+declared relation, endpoint role, file, symbol/fact, or output fact.
+
+Only a dispatched registered verification-intent role may add a planned-path
+declaration through `checklist_update` during PLAN. `story_create`,
+`checklist_add`, ordinary callers, and post-PLAN mutations are rejected before
+persistence. Existing verificationIntent items without declarations remain
+compatible.
+
+The renderer accepts only `storyId` and `json`. Write-shaped arguments such as
+`mode`, `write`, `output`, `apply`, `result`, `verdict`, `evidence`, or `rows`
+are rejected. It writes no matrix artifact, process event, evidence, phase, or
+other lifecycle fact. Coverage-basis discovery, signed basis receipts, and
+lifecycle enforcement are not part of the Wave 1 renderer.
+
+Topology producer and consumer positions must resolve to declaration endpoints
+with the matching canonical role. Every bound must-priority intent must be
+mapped by an appropriate positive or mutation assertion, and non-docs graphs
+require a command reference; omissions report stable diagnostics such as
+`AT_PLANNED_PATH_DECLARATION_DRIFT`, `AT_INTENT_UNCOVERED`, and
+`AT_COMMAND_MISSING`.
+
+`acceptance_matrix` output also cannot be submitted back through
+`verificationEvidence`. New matrix-derived rows are rejected before
+persistence, and legacy or injected rows are ignored by general verification,
+ProofStory completeness, and milestone status/closeout consumers. The shared
+classifier derives provenance from an exact `acceptance_matrix` producer-command
+position where possible: the supported `lattice` or `bin/lattice.js` wrapper,
+optional bounded `--root`, then the exact subcommand. A token used only as `rg`
+search text, `printf` data, or a test-script argument is not producer provenance.
+Legacy compatibility is bounded to reserved matrix result
+tokens, exact output lines, or JSON `evidentiary: false` on legacy
+`manual_transcript` rows only. Paraphrased manual projection results cannot
+bypass it, while logic/integration test notes may discuss those labels and
+unrelated `Result: warning ...` prose is not classified as matrix output.
+
+### Acceptance coverage basis (Wave 1A)
+
+`lattice acceptance_basis_generate --storyId=<id> [--json]` is the sole writer
+for `acceptance-basis.json`. It runs the registered PLAN discovery profile,
+derives the path union and `complete | partial | unsupported` classification,
+derives planned paths from frozen `verificationIntent` declarations, and signs
+a receipt bound to the topology, scope artifacts, workspace identity,
+`storyFilesHash`, discovered `closureFilesHash`, and the basis's structured
+`snapshotSeal.sealDigest`. `snapshotSeal` records:
+
+- `inventoryDirectoryDigest` / `inventoryDirectoryCount` for the canonical,
+  bounded source-directory inventory;
+- `sourceSnapshotDigest` / `sourceSnapshotCount` for safely read source files;
+- `configSnapshotDigest` for the single bounded, no-follow
+  `lattice.config.json` snapshot used to choose the source root;
+- `status` (`complete | partial`), closed machine-coded `issues`, and the
+  canonical `sealDigest` over those fields.
+
+The signed receipt repeats `sealDigest`, so the receipt signature binds both
+the complete basis (`basisDigest`) and its snapshot integrity result. The
+command accepts no caller-written status, path inventory, exclusions, seal,
+issuer, signature, or hash bindings. Missing/duplicate adapter results, digest
+tampering, unresolved blind spots, unsupported discovery, unexplained
+disagreement, an unsealable inventory, or any directory/file/config identity
+or content change before the final seal cannot produce a complete basis. Such
+conditions fail closed as deterministic `partial` output with structured seal
+issues; arbitrary free-text blind spots are not accepted as seal evidence.
+
+`lattice acceptance_basis --storyId=<id> [--json]` is read-only. It recomputes
+the current canonical discovery and physical snapshot seal, then verifies the
+stored structured seal, `sealDigest`, `basisDigest`, signed receipt binding,
+and expected current seal/semantic digest. A source/config change or a newly
+added consumer after receipt issuance therefore makes the read invalid rather
+than reusing the old complete claim. A legacy Story without the artifact
+reports `legacy_missing`; an authentic partial basis remains explicitly
+`partial`, while stale or tampered artifacts report deterministic `AT_*`
+diagnostics.
+
+Wave 2 promotes the verifier-produced basis to an L4 gate-consumed process fact
+for PLAN→DEV structural evaluation. The basis commands themselves remain
+non-Authority: they do not advance lifecycle state, accept caller verdicts, or
+prove executable readiness.
+
+### Acceptance topology structural check (Wave 2)
+
+`lattice acceptance_topology_check --storyId=<id> [--json]` is the canonical
+read-only PLAN structural evaluator. It loads the stored verifier-signed basis,
+re-derives current discovery and workspace/scope/topology bindings, verifies the
+receipt, and compares the complete basis union with the normalized reference-
+only topology. Text and JSON both report `mode`, `status`, `basisStatus`,
+`structuralPass`, `blocking`, ordered `diagnostics`, and an exact `nextAction`.
+JSON additionally states `readOnly: true`, `evidentiary: false`, and
+`authority: "diagnostic_only"`.
+
+Mode comes only from the independent flat project
+`proofStory.acceptanceTopologyGateMode` setting. It defaults to `observe` even
+when the older ProofStory `devGateMode` is `enforce`, so shipping Wave 2 does
+not silently enable its project-wide rollout:
+
+- all three modes return the same `status`, `structuralPass`, and ordered
+  `AT_*` diagnostics;
+- `observe` and `warn` do not block PLAN→DEV;
+- `enforce` blocks PLAN→DEV when that same canonical result is non-pass;
+- rollback from `enforce` to `warn` changes admission only and does not rewrite
+  the basis, topology, diagnostics, evidence, or prior history.
+
+The command accepts only `storyId` and `json`. Caller fields such as `mode`,
+`status`, `structuralPass`, `blocking`, `authority`, `basis`, `evidence`,
+`write`, or `apply` are rejected. Missing basis/topology, partial or unsupported
+basis, stale/tampered receipt or adapter projection, an unmapped basis path,
+topology invention outside the basis, invalid typed planned paths, orphan refs,
+and uncovered required intents produce stable ordered `AT_*` diagnostics.
+Partial/unsupported/missing basis is explicitly inconclusive, never a pass.
+
+PLAN compatibility is structural: documentation-only and ordinary single-
+outcome bindings do not fabricate runtime mutation/transcript requirements;
+legacy missing topology remains readable and visible as `AT_MISSING_TOPOLOGY`.
+A new producer→consumer path may enter DEV only through a frozen typed planned-
+path declaration owned by `verificationIntent` and independently derived into
+the PLAN basis. The check does not run commands, consume `verificationEvidence`,
+require an implementation transcript, persist a result, or claim executable or
+production readiness. Independent critic, current-worktree executable checks,
+selective per-Story policy, and measured rollout remain later bounded waves.
+
+### Independent topology critic (Wave 2A)
+
+Wave 2A adds a mechanically attributable review layer over the structural
+topology result. `lattice topology_critic_receipt_set --storyId=<id>
+--verdict=pass|request_changes` is the sole producer for the signed
+`topology-critic-receipt.json`; `lattice topology_critic_receipt_check
+--storyId=<id> [--json]` is its read-only verifier. The producer is restricted
+to a dispatched `lattice-review-topology-critic` identity and the verifier
+recomputes all current bindings instead of trusting caller-supplied hashes or
+status fields.
+
+The receipt binds the current basis and topology digests, scope-check and
+optional scope-contract digests, `storyFilesHash`, `closureFilesHash`, finding
+refs, exclusion-approval refs, critic provenance, implementation provenance,
+verdict, signer key, and issuance time. It passes only when the critic differs
+from the implementation provenance in all four dimensions: agent identity,
+session identity, dispatch identity, and business-commit author identity.
+Role labels in prose are not evidence.
+
+When the basis contains an exclusion, `lattice
+topology_exclusion_approval_set --storyId=<id> --exclusionRef=<decision-ref>`
+creates an independently signed approval from the registered
+`lattice-review-scope-plan` role. Approvals must form an exact one-to-one map
+to the current exclusions and remain independent of both implementation and
+critic provenance. Missing, duplicate, forged, stale, orphaned, or cross-Story
+approvals fail verification.
+
+Neither a critic verdict nor an exclusion approval can convert a `partial` or
+`unsupported` discovery basis into a pass. Wave 2A does not add executable
+`pre_review_check`, selective applicability, enforcement rollout, or telemetry.
+The receipt has no lifecycle admission consumer in Wave 2A: its absence or
+failure cannot block PLAN → DEV. Wave 3 owns `pre_review_check` enforcement;
+selective applicability and rollout remain Wave 3A and Wave 4 responsibilities.
+
+### Executable pre-review check (Wave 3)
+
+`lattice pre_review_check --storyId=<id> [--json]` is the sole writer for the
+signed `pre-review-check.json`. It recomputes a `phaseBasis=pre_review` basis
+from the current worktree, binds the prior PLAN basis digest, reconciles every
+frozen planned path to current producer/consumer symbols, and derives ordered
+`PR_*` results from current hash-bound verification evidence. Passing evidence
+must predate the verifier cutoff; evidence at or after the cutoff is excluded.
+The artifact binds topology/scope/story/closure hashes, evidence digests, flat
+project mode, cutoff, and (in enforce mode) the current independent topology-
+critic re-attestation.
+
+`lattice pre_review_check_read --storyId=<id> [--json]` is read-only and calls
+the same production verifier used by DEV→REVIEW. `observe` and `warn` preserve
+diagnostics without blocking; `enforce` blocks DEV→REVIEW on the same result.
+Neither command accepts caller-authored verdict, authority, mode, hashes,
+evidence, timestamps, or signatures. Wave 3 does not add per-Story selective
+applicability (Wave 3A) or measured rollout/telemetry (Wave 4).
+
 ### Milestone Status
 
 `lattice milestone_status` is a read-only progress reporter over existing

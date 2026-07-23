@@ -1,0 +1,124 @@
+{
+  "storyId": "B-98b0",
+  "name": "proofstory-acceptance-topology-wave2-plan-structural-gate",
+  "title": "Implement ProofStory acceptance topology Wave 2 PLAN structural gate",
+  "description": "Integrate acceptance_topology_check at PLAN to DEV behind flat project observe/warn/enforce configuration, consuming the verifier-derived Wave 1A basis and Wave 1 topology without duplicating verificationIntent or requiring executed DEV evidence.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-07-22T15:46:29.316Z",
+  "startedAt": "2026-07-22T15:46:29.316Z",
+  "endedAt": "2026-07-22T17:47:38.801Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-07-22T15:46:29.871Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-da20c7f8979c9756768738c51324dc67",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-07-22T15:48:56.812Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-da20c7f8979c9756768738c51324dc67",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-07-22T15:49:51.000Z",
+      "branch": "story/B-98b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-22T16:02:40.459Z",
+      "branch": "story/B-98b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-22T16:30:08.066Z",
+      "branch": "story/B-98b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-22T16:34:29.792Z",
+      "branch": "story/B-98b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-22T16:55:09.966Z",
+      "branch": "story/B-98b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-07-22T17:09:47.645Z",
+      "branch": "story/B-98b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-07-22T17:10:12.954Z",
+      "branch": "story/B-98b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-22T17:22:15.446Z",
+      "branch": "story/B-98b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-07-22T17:47:38.801Z",
+      "branch": "story/B-98b0",
+      "user": "Harmonygo",
+      "sessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-07-22T17:10:12.954Z"
+}

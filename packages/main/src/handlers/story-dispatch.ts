@@ -39,10 +39,22 @@ import {
 import {
   reviewerHostRenderIdentity,
   resolvePromptEnvelopeRolloutMode,
+  promptRoleContract,
+  resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
+import {
+  assembleFullPromptEnvelope,
+  buildFullTaskContext,
+  verifyPromptEnvelopeIntegrity,
+} from '../core/prompt-envelope.js';
+import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
+import { captureReviewRunSnapshot } from '../core/review-run.js';
+import { isBudgetedComplexRole, observeComplexRolePromptBudget, type PromptBudgetObservation } from '../core/prompt-budget.js';
+import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 import { getSessionIdentity } from '../core/owner-session.js';
 import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js';
 import type { PromptHost } from '../core/prompt-registry.js';
+import { currentImplementationBusinessCommit, topologyDispatchBusinessAuthor } from '../core/topology-critic-receipt.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
@@ -50,6 +62,7 @@ type BackgroundPolicy = 'required' | 'advisory' | 'none';
 const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
   'lattice-implementer': 'required',
   'lattice-review-scope-plan': 'required',
+  'lattice-review-topology-critic': 'required',
   'lattice-review-behavior': 'required',
   'lattice-review-concept': 'required',
   'lattice-review-quality': 'advisory',
@@ -58,6 +71,24 @@ const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
 };
 
 const IMPLEMENTER_COMMIT_AUTHOR = 'lattice-implementer <lattice-implementer@noreply.local>';
+
+// A nested dispatch can be triggered synchronously by an instrumented event
+// sink. Ticket locks are process-safe but intentionally non-reentrant, so keep
+// same-stack re-entry inside the already-held transaction instead of waiting
+// on our own ticket. Independent processes still serialize on the filesystem.
+const activeStoryDispatchEnvelopeTransactions = new Set<string>();
+
+function withStoryDispatchEnvelopeTransaction<T>(lockDir: string, operation: string, fn: () => T): T {
+  if (activeStoryDispatchEnvelopeTransactions.has(lockDir)) return fn();
+  return withReviewMetadataTicketLock(lockDir, operation, () => {
+    activeStoryDispatchEnvelopeTransactions.add(lockDir);
+    try {
+      return fn();
+    } finally {
+      activeStoryDispatchEnvelopeTransactions.delete(lockDir);
+    }
+  });
+}
 
 type ReviewerPromptProvider = OwnerSessionHostProvider | 'claude-cli' | 'codex-cli';
 
@@ -139,7 +170,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   function appendDispatchEvent(args: {
     storyId: string;
     agentType?: string;
-    targetKind: 'init-review' | 'scope-plan-review' | 'story-review' | 'delivery-review' | 'checklist' | 'finding' | 'cluster';
+    targetKind: 'init-review' | 'scope-plan-review' | 'topology-critic-review' | 'story-review' | 'delivery-review' | 'checklist' | 'finding' | 'cluster';
     itemId?: string;
     findingId?: string;
     clusterId?: string;
@@ -149,10 +180,23 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     hostRenderIdentityDigest?: string;
     dispatchBindingDigest?: string;
     reviewRound?: string;
+    promptEnvelopeId?: string;
+    promptEnvelopeDigest?: string;
+    assembledPromptDigest?: string;
+    promptEnvelope?: ReturnType<typeof assembleFullPromptEnvelope>['envelope'];
+    headHash?: string;
+    storyFilesHash?: string;
+    businessCommit?: string;
+    businessCommitAuthor?: string;
+    businessCommitAuthorSource?: 'git-var:GIT_AUTHOR_IDENT';
+    budgetViolation?: 'incremental' | 'full';
+    promptBudget?: PromptBudgetObservation;
   }): void {
-    try {
+    const persistEvent = (): void => {
       const story = store.readStory(args.storyId);
       const agentType = args.agentType || 'lattice-implementer';
+      const budgetViolation = args.budgetViolation
+        ?? (args.promptBudget && !args.promptBudget.withinBudget ? args.promptBudget.contextMode : undefined);
       store.appendProcessEvent(args.storyId, {
         type: 'dispatch',
         storyId: args.storyId,
@@ -160,6 +204,12 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         source: 'lattice dispatch',
         targetKind: args.targetKind,
         agentType,
+        sessionId: getSessionIdentity().sessionId,
+        ...(args.headHash ? { headHash: args.headHash } : {}),
+        ...(args.storyFilesHash ? { storyFilesHash: args.storyFilesHash } : {}),
+        ...(args.businessCommit ? { businessCommit: args.businessCommit } : {}),
+        ...(args.businessCommitAuthor ? { businessCommitAuthor: args.businessCommitAuthor } : {}),
+        ...(args.businessCommitAuthorSource ? { businessCommitAuthorSource: args.businessCommitAuthorSource } : {}),
         ...(args.itemId ? { itemId: args.itemId, checklistId: args.itemId } : {}),
         ...(args.findingId ? { findingId: args.findingId } : {}),
         ...(args.clusterId ? { clusterId: args.clusterId } : {}),
@@ -169,7 +219,59 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         ...(args.hostRenderIdentityDigest ? { hostRenderIdentityDigest: args.hostRenderIdentityDigest } : {}),
         ...(args.dispatchBindingDigest ? { dispatchBindingDigest: args.dispatchBindingDigest } : {}),
         ...(args.reviewRound ? { reviewRound: args.reviewRound } : {}),
+        ...(args.promptEnvelopeId ? { promptEnvelopeId: args.promptEnvelopeId } : {}),
+        ...(args.promptEnvelopeDigest ? { promptEnvelopeDigest: args.promptEnvelopeDigest } : {}),
+        ...(args.assembledPromptDigest ? { assembledPromptDigest: args.assembledPromptDigest } : {}),
+        ...(budgetViolation ? { budgetViolation } : {}),
+        ...(args.promptBudget ? { promptBudget: args.promptBudget } : {}),
       });
+    };
+    if (args.promptEnvelope) {
+      const envelope = args.promptEnvelope;
+      const lockDir = store.runtimeLockDirPath(args.storyId, 'review-run', 'review-runs');
+      withStoryDispatchEnvelopeTransaction(lockDir, `story_dispatch envelope+event for ${args.storyId}/${args.agentType ?? 'unknown'}`, () => {
+        const data = store.readPromptEnvelopes(args.storyId);
+        const existing = data.envelopes.find(candidate => candidate.envelopeId === envelope.envelopeId);
+        if (existing && !verifyPromptEnvelopeIntegrity(existing)) {
+          throw new Error(`story_dispatch: persisted envelope ${existing.envelopeId} failed integrity verification`);
+        }
+        const created = !existing;
+        if (created) {
+          data.envelopes.push(envelope);
+          store.writePromptEnvelopes(args.storyId, data);
+        }
+        try {
+          const persisted = store.readPromptEnvelopes(args.storyId).envelopes.find(candidate => candidate.envelopeId === envelope.envelopeId);
+          if (!persisted || !verifyPromptEnvelopeIntegrity(persisted)) {
+            throw new Error(`story_dispatch: envelope ${envelope.envelopeId} was not durably persisted`);
+          }
+          persistEvent();
+        } catch (e: any) {
+          let hasValidEventBinding = false;
+          try {
+            hasValidEventBinding = store.readProcessEvents(args.storyId).some(event =>
+              event.type === 'dispatch'
+              && event.storyId === args.storyId
+              && event.promptEnvelopeId === envelope.envelopeId
+              && event.promptEnvelopeDigest === envelope.contextDigest
+              && event.assembledPromptDigest === envelope.assembledPromptDigest,
+            );
+          } catch {
+            // If the event ledger itself is unreadable, it cannot prove a
+            // successful binding and a newly-created envelope must roll back.
+          }
+          if (created && !hasValidEventBinding) {
+            const rollback = store.readPromptEnvelopes(args.storyId);
+            const remaining = rollback.envelopes.filter(candidate => candidate.envelopeId !== envelope.envelopeId);
+            if (remaining.length !== rollback.envelopes.length) store.writePromptEnvelopes(args.storyId, { envelopes: remaining });
+          }
+          throw new Error(`story_dispatch: dispatch event persistence failed; prompt envelope was not accepted: ${e?.message || e}`);
+        }
+      });
+      return;
+    }
+    try {
+      persistEvent();
     } catch (e: any) {
       reportHealthIssue('persist:dispatchProcessEvent', e as Error, {
         storyId: args.storyId,
@@ -181,6 +283,69 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       });
       ctx.log?.(`[process-events] dispatch append failed for ${args.storyId}: ${e?.message || e}`);
     }
+  }
+
+  function topologyAuthorityDispatchBinding(story: ReturnType<StoryStore['readStory']>, required: boolean) {
+    try {
+      const snapshot = captureReviewRunSnapshot(root, { storyId: story.storyId, storyPhase: story.phase }, root);
+      if (!snapshot.storyFilesHash) throw new Error('topology authority dispatch requires a current storyFilesHash');
+      const implementation = currentImplementationBusinessCommit(root);
+      return {
+        headHash: snapshot.headHash,
+        storyFilesHash: snapshot.storyFilesHash,
+        businessCommit: implementation.businessCommit,
+        businessCommitAuthor: topologyDispatchBusinessAuthor(root),
+        businessCommitAuthorSource: 'git-var:GIT_AUTHOR_IDENT' as const,
+      };
+    } catch (error) {
+      if (required) throw error;
+      return {};
+    }
+  }
+
+  /**
+   * Story 6 trusted dispatch wrapper. The legacy dispatch text remains the
+   * exact Task-specific input; the CLI adds the same canonical Runtime/Role /
+   * Task Context envelope used by Story 2. Rollout is config-controlled and
+   * defaults to the legacy path, so a disabled flag cannot silently change a
+   * host's prompt bytes.
+   */
+  function assembleComplexStoryDispatch(
+    story: ReturnType<StoryStore['readStory']>,
+    agentType: string,
+    dispatchPrompt: string,
+  ): { prompt: string; envelope?: ReturnType<typeof assembleFullPromptEnvelope>['envelope']; promptBudget?: PromptBudgetObservation } {
+    const mode = resolvePromptEnvelopeRolloutMode(agentType, loadConfig(root).promptEnvelope);
+    if (mode !== 'full-envelope') return { prompt: dispatchPrompt };
+    const snapshot = captureReviewRunSnapshot(root, { storyId: story.storyId, storyPhase: story.phase }, root);
+    const taskContext = buildFullTaskContext({
+      story,
+      checklist: store.readChecklist(story.storyId),
+      ...snapshot,
+      scopeContract: store.readScopeContract(story.storyId),
+    });
+    const assembly = assembleFullPromptEnvelope({
+      roleContract: promptRoleContract(agentType),
+      runtimeContract: BASELINE_RUNTIME_CONTRACT,
+      rolePrompt: resolvePromptRoleBody(agentType, loadConfig(root).promptEnvelope).body,
+      taskContext,
+      dispatchKind: 'story-dispatch',
+      dispatchPrompt,
+      createdAt: new Date().toISOString(),
+    });
+    const promptBudget = isBudgetedComplexRole(agentType)
+      ? observeComplexRolePromptBudget({
+          roleId: agentType,
+          contextMode: 'full',
+          bytes: assembly.envelope.bytes,
+          estimatedTokens: assembly.envelope.estimatedTokens,
+        })
+      : undefined;
+    return {
+      prompt: assembly.prompt,
+      envelope: assembly.envelope,
+      ...(promptBudget ? { promptBudget } : {}),
+    };
   }
 
   function appendDispatchLivenessGuidance(lines: string[], label: string): void {
@@ -338,6 +503,23 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     return { prompt: lines.join('\n') };
   }
 
+  function buildTopologyCriticReviewPrompt(args: { storyId: string }): { prompt: string } {
+    const story = store.readStory(args.storyId);
+    if (!['PLAN', 'DEV', 'REVIEW'].includes(story.phase)) {
+      throw new Error(`topology critic dispatch is unsupported during ${story.phase}`);
+    }
+    return { prompt: [
+      `Independently review the current ProofStory acceptance topology for ${args.storyId}.`,
+      `Working directory: ${root}`,
+      'Use the canonical lattice-review-topology-critic role. Do not edit implementation or story files.',
+      `Run lattice acceptance_basis '{"storyId":"${args.storyId}","json":true}' and inspect topology, scope, exclusions, discovery status, and closure.`,
+      'A missing, partial, unsupported, stale, or tampered basis cannot receive pass.',
+      'Every exclusion must already have a separately attributable lattice-review-scope-plan approval.',
+      `Finish with lattice topology_critic_receipt_set '{"storyId":"${args.storyId}","verdict":"pass"}' or verdict=request_changes.`,
+      `Then run lattice topology_critic_receipt_check '{"storyId":"${args.storyId}"}' to verify the persisted signed receipt.`,
+    ].join('\n') };
+  }
+
   function buildStoryReviewPrompt(args: {
     storyId: string;
     resolved: ResolvedAgentDispatchType;
@@ -349,7 +531,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     const storyDir = `${store.storyDirRel()}/${args.storyId}`;
     const routed = store.readCandidateSpecSet(args.storyId);
     const lines: string[] = [
-      `As ${entry.canonicalName}, review story ${args.storyId} in full.`,
+      `As ${entry.canonicalName}, review story ${args.storyId} using the trusted context selected by review_run_start.`,
       '',
       `Working directory (subagent must cd here): ${root}`,
       '',
@@ -727,36 +909,61 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           storyId: args.storyId,
           agentType: canonicalType,
         });
+        const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
         appendDispatchEvent({
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'init-review',
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
-        return result;
+        return wrapped;
       }
       if (promptBuilder === 'product-init-review') {
         const result = buildProductInitReviewPrompt({
           storyId: args.storyId,
           agentType: canonicalType,
         });
+        const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
         appendDispatchEvent({
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'init-review',
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
-        return result;
+        return wrapped;
       }
       if (promptBuilder === 'scope-plan-review') {
         const result = buildScopePlanReviewPrompt({
           storyId: args.storyId,
           agentType: canonicalType,
         });
+        const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
+        const authorityBinding = topologyAuthorityDispatchBinding(story, false);
         appendDispatchEvent({
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'scope-plan-review',
+          ...authorityBinding,
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
-        return result;
+        return wrapped;
+      }
+      if (promptBuilder === 'topology-critic-review') {
+        const result = buildTopologyCriticReviewPrompt({ storyId: args.storyId });
+        const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
+        const authorityBinding = topologyAuthorityDispatchBinding(story, true);
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: canonicalType,
+          targetKind: 'topology-critic-review',
+          ...authorityBinding,
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
+        });
+        return wrapped;
       }
       if (promptBuilder === 'story-review' || promptBuilder === 'coverage-review') {
         const result = buildStoryReviewPrompt({ storyId: args.storyId, resolved });
@@ -764,12 +971,12 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           canonicalType,
           loadConfig(root).promptEnvelope,
         );
-        if (envelopeMode === 'full-envelope') {
-          if (!story.currentReviewRound) {
-            throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
-          }
+        if (!story.currentReviewRound && envelopeMode === 'full-envelope') {
+          throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
+        }
+        if (story.currentReviewRound) {
           const hostRenderHost = currentReviewerPromptHost();
-          const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost);
+          const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost, envelopeMode);
           const dispatchPromptDigest = reviewerDispatchPromptDigest(result.prompt);
           const dispatchBindingDigest = reviewerDispatchBindingDigest({
             storyId: args.storyId,
@@ -800,8 +1007,15 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       }
       if (promptBuilder === 'delivery-review') {
         const result = buildDeliveryReviewPrompt({ storyId: args.storyId, resolved });
-        appendDispatchEvent({ storyId: args.storyId, agentType: canonicalType, targetKind: 'delivery-review' });
-        return result;
+        const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: canonicalType,
+          targetKind: 'delivery-review',
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
+        });
+        return wrapped;
       }
       if (promptBuilder === 'verification-intent-item') {
         const result = buildVerificationIntentPrompt({
@@ -824,13 +1038,18 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           itemId: args.itemId,
           agentType: canonicalType,
         });
+        const wrapped = canonicalType === 'lattice-implementer'
+          ? assembleComplexStoryDispatch(story, canonicalType, result.prompt)
+          : { prompt: result.prompt };
         appendDispatchEvent({
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'checklist',
           itemId: args.itemId,
+          ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+          ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
-        return result;
+        return wrapped;
       }
       if (args.findingId) {
         const result = buildFindingPrompt({

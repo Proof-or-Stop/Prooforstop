@@ -1,0 +1,40 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-001",
+      "title": "done_prepare convergence invariant rejects legitimate pre-TEST reviewer re-attestations and makes DONE unreachable",
+      "status": "fixed",
+      "foundAt": "2026-07-20T13:52:13.760Z",
+      "fixedAt": "2026-07-20T13:56:53.993Z",
+      "evidence": {
+        "symptom": "done_prepare reached all PASS closure rows then threw done_prepare convergence invariant failed with reviewerReattestations=4",
+        "reproSteps": [
+          "Run node bin/lattice.js done_prepare --storyId=B-235e --mergeMain --refreshStale --validate",
+          "Observe successfulCloseout=1 but hard failure solely because reviewerReattestations=4"
+        ],
+        "rootCause": "assertDonePreparePassConvergence treated legitimate historical reviewer re-attestation telemetry as a zero-only closeout invariant, making any re-reviewed story permanently unable to reach DONE",
+        "fixEvidence": "Commit edf2d243ac keeps reviewerReattestations observable but removes it from hard-fail predicate; build, flow-stability smoke, and process-fact contract pass while metadata rollback, human confirmation, duplicate suite, and failed closeout remain blocking",
+        "reproTest": "node packages/main/dist/tasks/flow-stability-smoke.js"
+      }
+    },
+    {
+      "id": "BUG-002",
+      "title": "REVIEW Prompt Envelopes become unverifiable after mandatory REVIEW-to-TEST transition while done_prepare incorrectly reports DONE ready",
+      "status": "fixed",
+      "foundAt": "2026-07-20T16:05:56.902Z",
+      "fixedAt": "2026-07-20T16:19:13.814Z",
+      "checklistId": "CHK-004",
+      "evidence": {
+        "symptom": "Both round-23 and round-24 reviewer Prompt Envelopes verified in REVIEW but story_advance DONE rejected all four after mandatory REVIEW-to-TEST transition while done_prepare reported PASS.",
+        "reproSteps": [
+          "Create signed reviewer runs and passes in REVIEW and verify envelopes",
+          "Advance to TEST without unrelated story semantic changes",
+          "Run done_prepare then story_advance DONE and observe stale_closeout_review on every lane"
+        ],
+        "rootCause": "fullTaskSemanticDigest included mutable Story.phase, so REVIEW-to-TEST changed taskSemanticDigest and derived eligibility fields despite unchanged model-relevant task semantics.",
+        "fixEvidence": "Commit 98173017e5 canonicalizes digest phase to REVIEW while actual phase remains in prompt rendering and title, description, priority, checklist, verification intent, and scope remain fail-closed inputs. Registry, docs, and verifier synchronized.",
+        "reproTest": "node packages/main/dist/tasks/review-incremental-context-smoke.js --cutoff-verifier-only PASS: REVIEW-to-TEST snapshot and DONE oracle agree, old phase-sensitive mutation differs, title/checklist mutations fail closed; node scripts/verify-process-fact-contract.mjs PASS"
+      }
+    }
+  ]
+}

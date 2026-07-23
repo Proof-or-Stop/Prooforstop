@@ -1,0 +1,149 @@
+{
+  "storyId": "B-4444",
+  "checkedAt": "2026-07-21T15:23:35.522Z",
+  "features": [
+    {
+      "feature": "Produce one auditable Markdown execution plan at the sole allowed content path, organized so the user can audit the current boundary, target design, rollout, tests, and follow-up implementation.",
+      "covered_by": "CHK-001,CHK-002,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/understanding.json"
+    },
+    {
+      "feature": "Document current ownership across milestone ledger, ProofStory acceptanceBindings, verificationIntent, verificationEvidence, REVIEW completeness, and lifecycle gates.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/checklist.json"
+    },
+    {
+      "feature": "Keep the milestone ledger as the intent-totality owner and extend existing ProofStory-owned acceptance structures rather than duplicating claims or completion state.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/background.md"
+    },
+    {
+      "feature": "Define explicit producer, consumer, positive-path, mutation, and transcript verification topology for each acceptance claim.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/index.json"
+    },
+    {
+      "feature": "Specify auditable topology schema fields, reference-only ownership, authority, freshness, totality, failure codes, and derived rendering.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/checklist.json"
+    },
+    {
+      "feature": "Specify an early PLAN-to-DEV structural acceptance_topology_check that detects missing or invalid topology before implementation.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/index.json"
+    },
+    {
+      "feature": "Specify a DEV-to-REVIEW executable pre_review_check that requires typed, fresh evidence and mutation polarity before REVIEW.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/decision.json"
+    },
+    {
+      "feature": "Specify process-fact registration and mechanical CLI/handler/gate enforcement for every future gate-consumed artifact or semantic.",
+      "covered_by": "CHK-002,CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/understanding.json"
+    },
+    {
+      "feature": "Specify legacy-safe observe, warn, and enforce rollout plus migration and applicability behavior, including docs-only compatibility.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/checklist.json"
+    },
+    {
+      "feature": "Specify bounded implementation waves/stories and exact likely code touchpoints without performing those changes.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/checklist.json"
+    },
+    {
+      "feature": "Specify positive and negative controls, mutation/bite tests, success metrics, risks, open decisions, and an independent reviewer audit rubric.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/checklist.json"
+    },
+    {
+      "feature": "Clearly distinguish current implemented behavior from proposed behavior so the plan cannot be mistaken for shipped runtime assurance.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4444/decision.json"
+    },
+    {
+      "feature": "Render any acceptance matrix only as a derived view; do not create a parallel acceptance_matrix truth source.",
+      "covered_by": "CHK-001,CHK-002",
+      "status": "excluded",
+      "excluded_by": "A standalone persisted acceptance_matrix is explicitly rejected; only a derived rendering of canonical ProofStory and milestone references is in scope.",
+      "source": ".lattice/story/actives/B-4444/scope-boundary.json"
+    },
+    {
+      "feature": "Do not implement runtime code, CLI behavior, schemas, handlers, prompts, configuration, tests, package versions, or generated runtime artifacts in this story.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The user requested an auditable execution document before authorizing implementation; this is a documentation-only maintenance story.",
+      "source": ".lattice/story/actives/B-4444/execution-boundary.json"
+    },
+    {
+      "feature": "Use B-407c only as motivating evidence and do not modify it or claim its late-discovered obligations are already fixed by this story.",
+      "covered_by": "CHK-001,CHK-002",
+      "status": "excluded",
+      "excluded_by": "B-407c is evidence for the failure mode, not a modification target or completion claim.",
+      "source": ".lattice/story/actives/B-4444/scope-boundary.json"
+    },
+    {
+      "feature": "Do not modify unrelated documents, unrelated untracked work, docs/story, packages, tests, package manifests, or OMX artifacts.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The execution boundary allows one decision-document content path and Lattice-mediated story metadata only.",
+      "source": ".lattice/story/actives/B-4444/execution-boundary.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-4444/background.md",
+      ".lattice/story/actives/B-4444/checklist.json",
+      ".lattice/story/actives/B-4444/decision.json",
+      ".lattice/story/actives/B-4444/execution-boundary.json",
+      ".lattice/story/actives/B-4444/scope-boundary.json",
+      ".lattice/story/actives/B-4444/understanding.json",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/testing-completeness.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 16,
+    "covered": 12,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "011a2ee690ecd35fc3d2d0a9a6a5b3f4743fe3a811418def266acd6b3c69f41c",
+  "openQuestions": []
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-4444",
+  "id": "IC-20260721152623",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Produce one audit-ready Markdown execution plan, and no runtime implementation in this story. The plan must explain that the confirmed milestone ledger remains the canonical intent-totality and milestone-completion source, while existing ProofStory acceptanceBindings are extended by reference with a nested verification topology for producer, consumer, positive proof, mutation proof, transcript or receipt, authority, temporal role, and freshness. Any acceptance matrix is only a deterministic read-only projection of those canonical artifacts, never an independently writable truth source. Specify a structural PLAN-to-DEV acceptance_topology_check for reference validity and graph totality without requiring executed evidence, plus an executable DEV-to-REVIEW pre_review_check that requires current admissible positive, mutation, transcript, authority, and freshness evidence. Include deterministic diagnostics, legacy and documentation-only applicability, observe-warn-enforce rollout, bounded implementation waves, negative controls, process-fact obligations, success measures, risks, open decisions, and an auditor pass-or-request-changes rubric; clearly label all gate behavior as proposed rather than shipped.",
+  "acceptedInterpretationHash": "sha256:3620ce33c9652281e70cc0aad913f565df920159f6cacb80abe947e2357ba21a",
+  "notes": "Independent audit found the chosen extend-existing-acceptanceBindings design equivalent to the user request and non-duplicative. The milestone ledger answers what intent and completion obligations exist; the derived acceptance topology answers how each accepted claim will be proved; PLAN structural checking and pre-REVIEW executable checking are intentionally distinct. No runtime implementation is authorized by B-4444.",
+  "createdAt": "2026-07-21T15:26:23.694Z",
+  "updatedAt": "2026-07-21T15:26:23.694Z"
+}

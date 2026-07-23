@@ -1,0 +1,64 @@
+{
+  "storyId": "B-1995",
+  "checkedAt": "2026-07-22T05:06:06.170Z",
+  "headHash": "c8e4f8f32dd88db8726e3b966b3afcc5f424f805",
+  "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+  "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+  "reviewRound": "2026-07-22T04:08:53.232Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "story:B-1995#CHK-001.userSees",
+      "promise": "A verification-intent author can save a valid planned producer→consumer declaration during PLAN; invalid, ordinary-caller, and post-PLAN writes are rejected without changing the saved declaration.",
+      "status": "verified",
+      "verifiedBy": "independent focused Wave 1 smoke plus handler/source review",
+      "evidence": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke exited 0 and covers registered PLAN authoring, ordinary writer rejection, post-PLAN freeze, and byte-preserving failure."
+    },
+    {
+      "docPath": "story:B-1995#CHK-002.userSees",
+      "promise": "The terminal reports legacy_missing or bounded warning/inconclusive_basis_unverified diagnostics and never authority-bearing complete/ready results.",
+      "status": "verified",
+      "verifiedBy": "real CLI transcript, focused smoke, and bounded result type/source review",
+      "evidence": "acceptance_matrix text/JSON emitted legacy_missing with stable canonical rows; AcceptanceTopologyResult is bounded to legacy_missing|warning|inconclusive_basis_unverified."
+    },
+    {
+      "docPath": "docs/CLI.md#acceptance-matrix-wave-1",
+      "promise": "lattice acceptance_matrix renders deterministic canonical rows and observe/read-only/non-evidentiary diagnostics.",
+      "status": "verified",
+      "verifiedBy": "two consecutive real JSON invocations, text invocation, and write-shaped mutation",
+      "evidence": "Two unchanged JSON reads were byte-equivalent; text states Mode: observe (read-only, non-evidentiary); --write=true exited 1; git status remained clean."
+    },
+    {
+      "docPath": "story:B-1995#CHK-004.userSees",
+      "promise": "The focused suite exits 0, prints the Wave 1 smoke pass line, and includes lifecycle-equivalence, mutation, compatibility, and no-Wave-1A boundaries.",
+      "status": "verified",
+      "verifiedBy": "independent rerun plus fresh routine validation",
+      "evidence": "Focused smoke exited 0 with the Wave 1 pass line; fresh lattice validate recorded 46 commands complete, zero failures, and 23/23 must intents covered."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent focused smoke exited 0 and exercised eligible PLAN writer, unauthorized writers, post-PLAN freeze, invalid shapes, and atomic persistence."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independent focused smoke exited 0; source/result audit confirmed only legacy_missing, warning, and inconclusive_basis_unverified are representable and topology cannot own planned semantics."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Real CLI: two JSON reads were byte-equivalent; text stated observe/read-only/non-evidentiary; --write=true exited 1; git remained clean."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Fresh TEST validation records complete 46-command execution with 0 failures and 23/23 must intents covered; independent focused smoke also passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All four user-visible Wave 1 promises are delivered. Independent real-machine checks confirm the PLAN writer/freeze contract, bounded diagnostics, deterministic read-only CLI, write-payload rejection, lifecycle equivalence, mutation bites, legacy compatibility, and absence of Wave 1A gate authority."
+  },
+  "_hash": "203b8c1530de7fa918e46314c96a73f884ef282cf86f0079e1d46492b7959a93"
+}

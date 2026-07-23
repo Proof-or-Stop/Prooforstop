@@ -45,7 +45,12 @@ import {
   LATTICE_RUNTIME_IGNORE_BLOCK_START,
   listRuntimeArtifactIgnorePatterns,
 } from './runtime-artifact-registry.js';
-import { listManagedAgentBasenames, resolveAgentTemplateDir } from './global-agents.js';
+import {
+  listManagedAgentBasenames,
+  renderReviewerRunBootstrapForTemplate,
+  resolveAgentTemplateDir,
+} from './global-agents.js';
+import { isModularReviewerRoleId } from './prompt-registry.js';
 import { loadConfig } from './config.js';
 import { resolveProjectGitRoot } from './story-signed-workspace-resolution.js';
 
@@ -767,10 +772,14 @@ export function listManagedAssetDefinitions(
       const files = listAgentPromptFiles(templates);
       for (const file of files) {
         const content = readFileSync(join(templates, file), 'utf-8');
+        const codexContent = renderCodexAgentContent(content);
+        const roleId = file.replace(/\.md$/, '');
         defs.push(wholeFile(
           `.lattice-codex/agents:${file}`,
           `.lattice-codex/agents/${file}`,
-          renderCodexAgentContent(content),
+          isModularReviewerRoleId(roleId)
+            ? renderReviewerRunBootstrapForTemplate(codexContent, file)
+            : codexContent,
           actual => isManagedPrompt(actual, file),
         ));
       }
@@ -792,10 +801,13 @@ export function listManagedAssetDefinitions(
       const expected = new Set(listAgentPromptFiles(templates));
       for (const file of expected) {
         const content = readFileSync(join(templates, file), 'utf-8');
+        const roleId = file.replace(/\.md$/, '');
         defs.push(wholeFile(
           `.claude/agents:${file}`,
           `.claude/agents/${file}`,
-          content,
+          isModularReviewerRoleId(roleId)
+            ? renderReviewerRunBootstrapForTemplate(content, file)
+            : content,
           actual => isManagedPrompt(actual, file),
         ));
       }

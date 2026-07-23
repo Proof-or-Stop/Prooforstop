@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-235e",
+  "records": [
+    {
+      "id": "RED-STORY5-ROLLOUT-MISSING",
+      "trigger": "Current baseline has no five-role modular rollout and therefore cannot produce the promised per-role full or incremental reviewer mode.",
+      "acceptanceTargetRef": "ACCEPT-STORY5-COMPLETE",
+      "baselineHeadHash": "220a998e0ef275a9adbaee3d7554a9fba1e57099",
+      "baselineMaterialHash": "ab7744b1f2020db3cdbf2508e32ab5c83e07ca73be44e97b7a7ab1ab9fa0459a",
+      "observedFailure": "The baseline command exits 1 with Story5 RED because lattice.config.json lacks enabled full-envelope rollout entries for the five active reviewer roles; all remain legacy-full-context.",
+      "failingCommand": "node -e \"const c=require(\\\"./lattice.config.json\\\"); const roles=[\\\"lattice-review-concept\\\",\\\"lattice-review-quality\\\",\\\"lattice-review-test-coverage\\\",\\\"lattice-review-behavior\\\",\\\"lattice-review-docs\\\"]; if(!c.promptEnvelope?.roles || roles.some(r=>c.promptEnvelope.roles[r]!==\\\"full-envelope\\\")) throw new Error(\\\"Story5 RED: five active reviewer rollout entries are not enabled\\\");\"",
+      "expectedGreenCommand": "node experiments/role-prompt-ab-replay/story5-active-reviewers/selfcheck.mjs",
+      "greenRelation": {
+        "targetRef": "ACCEPT-STORY5-COMPLETE",
+        "relation": "regression_to_green",
+        "command": "node experiments/role-prompt-ab-replay/story5-active-reviewers/selfcheck.mjs"
+      },
+      "note": "Real pre-implementation RED observed in the Story worktree at the baseline HEAD. Green must additionally prove exact legacy rollback, fail-closed selection, role-aware replay, and authority preservation.",
+      "createdAt": "2026-07-19T07:20:25.106Z"
+    }
+  ],
+  "createdAt": "2026-07-19T07:20:25.106Z",
+  "updatedAt": "2026-07-19T07:20:25.106Z"
+}

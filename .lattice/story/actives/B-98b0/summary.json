@@ -1,0 +1,55 @@
+{
+  "storyId": "B-98b0",
+  "changes": "Added a canonical Wave 2 acceptance-topology structural evaluator, production acceptance_topology_check CLI route, and PLAN-to-DEV gate with an independent default-observe rollout mode.",
+  "usage": "Run lattice acceptance_topology_check --storyId=<id>; configure proofStory.acceptanceTopologyGateMode as observe, warn, or enforce when the project is ready.",
+  "expectedOutcome": "A complete verifier-issued basis and basis-closed topology pass; stable structural diagnostics remain identical across modes, while only enforce blocks a failing PLAN-to-DEV transition.",
+  "actualTranscript": "Fresh 46-command lattice validation passed, and the captured real-machine command node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js exited 0 with proofstory acceptance topology gate smoke: PASS.",
+  "outcomeDiff": "The focused production-chain outcome matched the expected Wave 2 behavior. In this repository's own Story context the direct check remains truthfully observe/unsupported/inconclusive because its workspace basis is unsupported; complete/enforce success is proven in isolated real temp repositories.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Wave 2A independent critic, Wave 3 executable pre-review evidence, optional Wave 3A selective applicability, and Wave 4 measured rollout are intentionally not included.",
+  "pitfalls": "Do not reuse the legacy proofStory.devGateMode for this topology gate, do not treat observe as a pass override, and do not claim Authority or production readiness from local structural evidence.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 146941
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 54188
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 769459
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 2913090
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1861897
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 342353
+    }
+  },
+  "totalDurationMs": 6088483,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-22T17:27:57.800Z",
+  "updatedAt": "2026-07-22T17:27:57.800Z"
+}

@@ -10,9 +10,11 @@ import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 import {
   EXPERIMENT_ROOT,
+  STORY5_ROLE_CAMPAIGN,
   canonicalJson,
   digest,
   evaluateBoundFixture,
+  evaluateStory5RoleCampaign,
   findingSetDigest,
   historicalFindingSnapshotDigest,
   loadPinnedExperiment,
@@ -340,6 +342,7 @@ try {
   let baseline;
   let hermeticResult;
   let isolationProof;
+  let roleCampaignResult;
 
   await check('pinned protocol has 3 classes, 6 samples, >=3 repeats and signed historical findings', () => {
     identity = validateExperiment(protocol, corpus);
@@ -361,6 +364,49 @@ try {
       assert.equal(sample.materialDigest, materialDigest(sample));
       assert.equal(sample.findingSetDigest, findingSetDigest(sample));
     }
+  });
+
+  await check('B-235e campaign pins five roles and reports insufficient quality evidence per role', async () => {
+    const roleRegistry = await import(pathToFileURL(
+      path.join(repoRoot, 'packages', 'main', 'dist', 'core', 'prompt-role-contract-registry.js'),
+    ).href);
+    const roleBodies = Object.fromEntries(STORY5_ROLE_CAMPAIGN.roles.map(role => [
+      role.roleId,
+      {
+        legacy: roleRegistry.resolvePromptRoleBody(role.roleId, {
+          version: roleRegistry.PROMPT_ENVELOPE_ROLLOUT_VERSION,
+          roles: { [role.roleId]: 'legacy-full-context' },
+        }).body,
+        modular: roleRegistry.resolvePromptRoleBody(role.roleId, {
+          version: roleRegistry.PROMPT_ENVELOPE_ROLLOUT_VERSION,
+          roles: { [role.roleId]: 'full-envelope' },
+        }).body,
+      },
+    ]));
+    roleCampaignResult = evaluateStory5RoleCampaign(STORY5_ROLE_CAMPAIGN, protocol, corpus, roleBodies);
+    assert.equal(roleCampaignResult.results.length, 5);
+    assert.equal(roleCampaignResult.status, 'INCONCLUSIVE');
+    assert.equal(roleCampaignResult.eligibleIncrementalDenominator, 0);
+    assert.equal(roleCampaignResult.savingsClaim, null);
+    assert.equal(roleCampaignResult.recallClaim, null);
+    for (const row of roleCampaignResult.results) {
+      assert.equal(row.verdict, 'INCONCLUSIVE');
+      assert.equal(row.reasonCode, 'ADJUDICATION_EVIDENCE_UNVERIFIED');
+      assert.equal(row.incrementalContextReduction, null);
+      assert.equal(row.assembledPromptReduction, null);
+      assert.equal(row.providerUsage.claude.providerProcessedInputTokens.availability, 'unavailable');
+      assert.equal(row.providerUsage.codex.providerProcessedInputTokens.availability, 'unavailable');
+      assert.ok(row.roleBodyReduction > 0);
+    }
+    const tampered = clone(STORY5_ROLE_CAMPAIGN);
+    tampered.roles.reverse();
+    await expectCode('ROLE_CAMPAIGN_DIGEST_MISMATCH', async () =>
+      evaluateStory5RoleCampaign(tampered, protocol, corpus, roleBodies));
+    const substitutedBodies = clone(roleBodies);
+    substitutedBodies['lattice-review-concept'].modular =
+      substitutedBodies['lattice-review-quality'].modular;
+    await expectCode('PROMPT_SNAPSHOT_DIGEST_MISMATCH', async () =>
+      evaluateStory5RoleCampaign(STORY5_ROLE_CAMPAIGN, protocol, corpus, substitutedBodies));
   });
 
   await check('same frozen contract and corpus yield the same experiment identity', () => {
@@ -929,6 +975,20 @@ try {
     assert.equal(cell.findingComparison.recall, null);
   });
 
+  await check('B-235e provider/cache dimensions preserve unavailable reasons through CLI output', () => {
+    for (const row of roleCampaignResult.results) {
+      for (const [provider, dimensions] of Object.entries(row.providerUsage)) {
+        for (const [dimension, observation] of Object.entries(dimensions)) {
+          assert.equal(observation.availability, 'unavailable', `${provider}.${dimension}`);
+          assert.equal(typeof observation.reason, 'string', `${provider}.${dimension} reason`);
+          assert.ok(observation.reason.length > 0, `${provider}.${dimension} nonblank reason`);
+          assert.equal(Object.hasOwn(observation, 'tokens'), false);
+          assert.equal(Object.hasOwn(observation, 'value'), false);
+        }
+      }
+    }
+  });
+
   await check('isolated copied entrypoints cannot write sentinel production evidence or process events', async () => {
     isolationProof = await proveIsolatedProductionEvidenceNoWrite();
     assert.equal(isolationProof.sentinelArtifacts, 8);
@@ -940,6 +1000,14 @@ try {
   process.stdout.write('Replay: PASS sameInput=true deterministic=true\n');
   process.stdout.write('Prompt cost: INCONCLUSIVE reason=PROMPT_SNAPSHOT_UNAVAILABLE\n');
   process.stdout.write('Recall: INCONCLUSIVE reason=ADJUDICATION_EVIDENCE_UNVERIFIED\n');
+  for (const row of roleCampaignResult.results) {
+    process.stdout.write(
+      `B-235e role=${row.roleId} verdict=${row.verdict} reason=${row.reasonCode} ` +
+      `legacyRoleBodyTokens=${row.legacyRoleBodyTokens} modularRoleBodyTokens=${row.modularRoleBodyTokens} ` +
+      `incrementalContextReduction=unavailable assembledReduction=unavailable ` +
+      `providerUsage=${JSON.stringify(row.providerUsage)}\n`,
+    );
+  }
   process.stdout.write(`Hermetic fixture: EVALUABLE scope=${hermeticResult.evidenceScope} historicalEvidence=${hermeticResult.historicalEvidence} cells=${hermeticResult.cells.length}\n`);
   process.stdout.write('Experiment ledger: PASS gateEvidence=false attempts=3\n');
   process.stdout.write(`Isolated production evidence drift: NONE sentinelArtifacts=${isolationProof.sentinelArtifacts} copiedEntrypoints=${isolationProof.entrypoints} mutationBites=${isolationProof.mutationBites}\n`);

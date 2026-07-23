@@ -1,0 +1,1113 @@
+{
+  "passes": [
+    {
+      "id": "B-a32a:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "No documentation blocker after extracting 31 exported TypeScript symbols and comparing 8 bounded documentation sections/paragraph groups. docs/CLI.md matches the registered generate/read command schemas and handler behavior: generate is the sole story-artifact writer, basis status is bounded, receipt verification is separate from completeness, reads are diagnostic/non-evidentiary, and Wave 2+ lifecycle gates remain explicitly excluded. The signed receipt/freshness wording is consistent with the receipt verifier and existing admissibility policy.",
+      "createdAt": "2026-07-22T07:03:15.834Z",
+      "reviewRound": "2026-07-22T07:00:04.992Z",
+      "reviewRunId": "B-a32a:RR-004",
+      "envelopeId": "a1632f6571277e54da0231727a39df528000e6fc6bf5a92a4790de41e43f0db4",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "07354d6eff3951445b175f1009e757891cc01c336ea018a040931f85cf1fbb7d"
+    },
+    {
+      "id": "B-a32a:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 docs review found no blocker after extracting 34 exported TypeScript symbols and comparing 8 bounded documentation section/paragraph groups. The repair leaves docs/CLI.md and the Wave 1A plan text unchanged while making implementation match them more closely: adapters now derive from registered repository/runtime facts, reads compare the current semantic discovery projection, closure hashing includes registered source files, and both CLI surfaces explicitly reject more write-shaped fields. Writer/read-only, bounded status, receipt/freshness, diagnostic non-authority, and Wave 2+ exclusion claims remain accurate.",
+      "createdAt": "2026-07-22T07:41:02.912Z",
+      "reviewRound": "2026-07-22T07:36:41.806Z",
+      "reviewRunId": "B-a32a:RR-007",
+      "envelopeId": "4549382146b13580b3887b55ede539c1c3b0f10cde191598cfa40db37b44eb23",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "2fc707fc4ceca9c0c9176509f19b7d4eb52e82474ae990c1f25d9e883c543a2a"
+    },
+    {
+      "id": "B-a32a:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Round-3 docs review found no blocker after extracting 34 exported TypeScript symbols and comparing 11 bounded documentation/prompt paragraph groups. The package template, Claude mirror, and Codex mirror contain the same single acceptance-basis boundary; command policy, process-fact levels and registry consistently classify acceptance_basis_generate as an L3 durable signed non-gate artifact, acceptance_basis as L0 read-only diagnostics, and the artifact consumer boundary as read-only verification rather than Wave 2 lifecycle enforcement. docs/CLI sole-writer, non-evidentiary and non-Authority claims remain accurate.",
+      "createdAt": "2026-07-22T08:22:43.642Z",
+      "reviewRound": "2026-07-22T08:20:21.801Z",
+      "reviewRunId": "B-a32a:RR-012",
+      "envelopeId": "d53ec14da07d9735e1fced2d3f3a64bb1b44e77491f70704875c0d5ff4e2b514",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "cda64dd070069e1b9130fd6dc0a726864a488c0b0be6dc1a94b4d74474d425d3"
+    },
+    {
+      "id": "B-a32a:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 25/25 must intents have current admissible evidence, 0 semantic gaps, 0 waivers. Independently ran current-HEAD build, Wave 1A focused production-chain/mutation smoke, Wave 1 topology smoke, and process-fact contract; all passed. Verified F-015..F-017 controls including invalid claim/provenance/blind-spot/asymmetry and discoveryMethods narrowing, complete caller-forgery/freshness cases, real unsupported/shuffled/replay rejection, four prompt-handler-registry-contract bites with restored controls, and acceptance_basis_generate/artifact remain L3 signed diagnostics with no gate-evidence semantic or lifecycle consumer.",
+      "createdAt": "2026-07-22T08:25:20.647Z",
+      "reviewRound": "2026-07-22T08:20:21.801Z",
+      "reviewRunId": "B-a32a:RR-011",
+      "envelopeId": "97e7e5cd8e92258859ca286cda5e8eaf3e7e42addf62d36df5c640ddb6cda75a",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "81df6d158e59ca75c1b1a0b855f144891d6b05891a8e1b59a919f16e0e1d2fad"
+    },
+    {
+      "id": "B-a32a:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 current-HEAD concept review passed: bounded discovery seeds come only from signed scope/checklist files; generic handler factory alias/import, exact registerBatch/catalog/handler dispatch and static import-call relations are independently enumerated; empty-planned, unregistered C2, deleted/dynamic dispatch and unrelated-universe cases fail or remain bounded as specified. F-018/F-019 and prior concept roots are repaired. Acceptance basis remains L3 diagnostic/non-gate with no Wave 2 lifecycle enforcement or concept residue.",
+      "createdAt": "2026-07-22T08:39:30.342Z",
+      "reviewRound": "2026-07-22T08:37:39.733Z",
+      "reviewRunId": "B-a32a:RR-013",
+      "envelopeId": "24069f73e5cac7b41c51488d04d90b494eab88d78d790741f82275a74b18d4bd",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e2a4541485c8bb6e5d7abe7091cfa94a669063e83d02670ebb1b2aee04c3625d"
+    },
+    {
+      "id": "B-a32a:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Round-4 docs review found no blocker after extracting 34 exported TypeScript symbols and comparing 11 bounded documentation/prompt paragraph groups. Commit d5f03a920e replaces name-specific discovery with a scope-seeded bounded source graph that recognizes generic aliased handler factories, registered process facts and external static consumers; this strengthens the documented registered adapter/union/closure behavior without changing the public commands. The generate command remains the sole L3 durable signed non-gate writer, acceptance_basis remains L0 read-only non-Authority diagnostics, all three implementer prompt mirrors retain the same boundary, and no Wave 2 lifecycle gate is claimed active.",
+      "createdAt": "2026-07-22T08:39:33.720Z",
+      "reviewRound": "2026-07-22T08:37:39.733Z",
+      "reviewRunId": "B-a32a:RR-015",
+      "envelopeId": "f738d37a458bfd7613bc226b8bb0ffadbab9ac672f057b1db10a0e8391c18fe6",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "19b78875f3c057e1382665e002fe170eaeb95e35f92c90e295fd2e85e7697fd1"
+    },
+    {
+      "id": "B-a32a:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 25/25 must intents have current admissible evidence, 0 semantic gaps, 0 waivers. Current-HEAD build, Wave 1A focused production-chain/mutation smoke, Wave 1 topology smoke, and process-fact contract all passed. The focused smoke now proves generic empty-planned-path derivation, a non-ProofStory registered handler alias, bounded external C2 static consumer inclusion/omission bite, unrelated registry-universe exclusion, deleted and ambiguous registerBatch failure, restored factory control, and all prior caller/receipt/freshness/exclusion/process-contract controls.",
+      "createdAt": "2026-07-22T08:41:54.860Z",
+      "reviewRound": "2026-07-22T08:37:39.733Z",
+      "reviewRunId": "B-a32a:RR-016",
+      "envelopeId": "40911c4e22e8143b81142ed9ed1aeb506eafb422e5b891f1f9a46e4cc2271078",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0a9b88ff9b26af91c275290bc07006ddf5c28ee82a1a8d69a952ea844830e07a"
+    },
+    {
+      "id": "B-a32a:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Round-5 docs review found no blocker after extracting 34 exported TypeScript symbols and comparing 11 bounded documentation/prompt paragraph groups. F-020 repair 7cbf0be312 derives a bounded source inventory from canonical lattice.config.json roots, discovers reverse import/call consumers outside Story scope, binds those closure files, and fails partial on missing/ambiguous roots or unresolved consumers. This directly satisfies the documented outside-scope closure claim without changing public command semantics. acceptance_basis_generate remains the sole L3 durable signed non-gate writer, acceptance_basis remains L0 read-only non-Authority diagnostics, the implementer mirrors remain truthful, and no Wave 2 gate is claimed active.",
+      "createdAt": "2026-07-22T08:52:54.653Z",
+      "reviewRound": "2026-07-22T08:51:29.961Z",
+      "reviewRunId": "B-a32a:RR-019",
+      "envelopeId": "0952a15dac19351dbb12529720e339878a7c82894fd0e15e949782036f63aefa",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "a70e591a2d51eea8df67dec466bc6ec1e9fbc0c4b17c1c18c4a848d17b6a5c7b"
+    },
+    {
+      "id": "B-a32a:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round-6 docs review found no blocker after extracting 34 exported TypeScript symbols and comparing 11 bounded documentation/prompt paragraph groups. F-021/F-022 repair masks comments and literal text while preserving executable template interpolation, and rejects unreadable, escaping, or symlink-traversing canonical source roots. These changes strengthen the documented fail-closed discovery and closure semantics without changing command or prompt promises. acceptance_basis_generate remains the sole L3 durable signed non-gate writer, acceptance_basis remains L0 read-only non-Authority diagnostics, and no Wave 2 lifecycle gate is claimed active.",
+      "createdAt": "2026-07-22T09:04:51.729Z",
+      "reviewRound": "2026-07-22T09:03:23.999Z",
+      "reviewRunId": "B-a32a:RR-022",
+      "envelopeId": "c449a5a4b42c6867695c1e78e530c3c1469d74fbfdb6fab3eb54665329956158",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "cddd1c7868522d8c0f3f921b62291638d1b7dc7aa635743ebfc2478351043d80"
+    },
+    {
+      "id": "B-a32a:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Targeted round-6 review passed. F-021 is closed by physical workspace/root realpath binding, component-by-component symlink rejection, physical containment, and deterministic partial outcomes for malformed, lexical escape, missing, symlinked, and unreadable roots; resolving the workspace first preserves macOS /var-to-/private/var aliases. F-022 is closed by lexical masking of comments and literal text while retaining executable template interpolation; false consumer strings/comments/templates cannot enter closure or satisfy consumerGate. The repair adds no concept deletion and no new promised-but-undelivered surface.",
+      "createdAt": "2026-07-22T09:05:36.671Z",
+      "reviewRound": "2026-07-22T09:03:23.999Z",
+      "reviewRunId": "B-a32a:RR-021",
+      "envelopeId": "43da2e3edab875de5a30723bdb49f309ffe5ec113314875976398b2ef6fe4fec",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0dd61699b2d23ecdc4ea3bb8ec1d97fbf93654e4a7bd91d10dc6511e3576e84a"
+    },
+    {
+      "id": "B-a32a:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Round-7 docs review found no blocker after extracting 37 exported TypeScript symbols and comparing 11 bounded documentation/prompt paragraph groups. F-023/F-024 replace lexical call detection with TypeScript AST import/call analysis and add deterministic global directory/entry/file/byte inventory budgets; parse ambiguity, oversized files, or exhausted traversal now emit blind spots and remain non-complete. This strengthens the documented bounded registered discovery and fail-closed semantics without adding or changing user commands. acceptance_basis_generate remains the sole L3 durable signed non-gate writer, acceptance_basis remains L0 read-only non-Authority diagnostics, prompt mirrors remain accurate, and no Wave 2 gate is claimed active.",
+      "createdAt": "2026-07-22T09:18:49.034Z",
+      "reviewRound": "2026-07-22T09:17:25.176Z",
+      "reviewRunId": "B-a32a:RR-027",
+      "envelopeId": "f1fbb507932391d425e40975dfe9079f9e85f4573f7e7d0a69dd199f8f6ad3f9",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "cf7f1241467e672b018e30e1feffce5899e1a3383598259e2cab584e0244690b"
+    },
+    {
+      "id": "B-a32a:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Round-8 docs static review found no blocker after extracting 37 exported TypeScript symbols and comparing 11 bounded documentation/prompt paragraph groups. The comprehensive discovery-contract refactor supports TS/TSX/MTS/CTS/JS/JSX/MJS/CJS, ESM and CommonJS import forms, alias/default/namespace bindings and extensionless index chains, while TypeChecker binding identity excludes shadowed calls. Ambiguous modules, parse/read races and exhausted bounded inventory remain explicit blind spots yielding partial, consistent with the documented TypeScript/Node registered discovery contract. Public commands and prompts are unchanged: generate is the sole L3 durable signed non-gate writer, acceptance_basis is L0 read-only non-Authority diagnostics, and no Wave 2 gate is claimed active.",
+      "createdAt": "2026-07-22T09:37:08.324Z",
+      "reviewRound": "2026-07-22T09:35:50.677Z",
+      "reviewRunId": "B-a32a:RR-031",
+      "envelopeId": "5c086388f958fa34c3d33579b946c737e8ef0e6f8091d30bda79a35fa54e233b",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "945c327f33728a03b8810aab6229daf4d62f71b422a55ef079096e8aa54ef18e"
+    },
+    {
+      "id": "B-a32a:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Round 9 docs audit found no blocker. F031-F036 hardening is confined to acceptance discovery implementation and smoke coverage: canonical code-unit ordering, canonical physical-path/spelling drift rejection, directory mutation/handle accounting, shared bounded no-follow source reads, supported wrapped/dynamic import shapes, and fail-closed unknown dynamic imports/shadowed require. docs/CLI.md and all three implementer prompt mirrors still accurately state acceptance_basis_generate is the sole signed PLAN writer, acceptance_basis is read-only diagnostic output, and Wave 1A remains L3 nongating/non-Authority with no Wave 2 completion claim. Process-fact policy/registry remain consistent. Audited 40 changed exported TypeScript symbols and 11 bounded documentation/prompt groups.",
+      "createdAt": "2026-07-22T09:51:34.838Z",
+      "reviewRound": "2026-07-22T09:49:17.027Z",
+      "reviewRunId": "B-a32a:RR-034",
+      "envelopeId": "a0a29be622ad106de6bb62aca4b73874e713d14dc4ac92dae218897d15273d81",
+      "writerSessionId": "sess-acd97d39a6a7158b6d937e23c7607f32",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "482225d154e895856fc7c6830a8da5c0afe195b1d1b1df0e3f8a813a16883d34"
+    },
+    {
+      "id": "B-a32a:RP-014",
+      "agent": "lattice-review-docs",
+      "note": "Round 10 docs audit found no blocker. Commit 7202b72204 freezes acceptance discovery into one bounded no-follow immutable source snapshot shared by registered closure derivation, adapter provenance, closureFilesHash, and receipt verification; directory close/mutation races, oversized or disappearing files, symlink swaps, noncanonical spellings, and invalid namespace calls remain fail-closed as partial diagnostics. This strengthens the existing documented bounded verifier-derived behavior without changing the public command contract. docs/CLI.md and all three implementer prompt mirrors still accurately state acceptance_basis_generate is the sole signed PLAN writer, acceptance_basis is read-only diagnostic output, and Wave 1A remains L3 nongating/non-Authority with no Wave 2 completion claim. Process-fact policy/registry remain unchanged and consistent. Audited 45 changed exported TypeScript declarations and 11 bounded documentation/prompt groups.",
+      "createdAt": "2026-07-22T10:02:31.534Z",
+      "reviewRound": "2026-07-22T10:00:45.833Z",
+      "reviewRunId": "B-a32a:RR-036",
+      "envelopeId": "144cdc68e9fedd7f2a28081fe73a68e5b7129ebf1ad645e828af1dda1d43ad52",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "4ee135aeb127261d94499f2d42e7cb51497aa086a7d108f9f3c666cfc0df5133"
+    },
+    {
+      "id": "B-a32a:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Round 11 docs audit found no blocker. Commit 44d531f2e0 adds an end-of-assembly seal over bounded directory/file fingerprints and snapshots canonical lattice.config.json with a strict size/no-follow policy, binding config provenance into closure inventory and causing late directory, source, config, symlink, close, or content drift to fail closed as partial. This implements the existing documented verifier-derived, bounded, hash-bound behavior and does not change public CLI parameters or lifecycle semantics. docs/CLI.md and all three implementer prompt mirrors remain accurate: acceptance_basis_generate is the sole signed PLAN writer, acceptance_basis is read-only diagnostic output, and Wave 1A stays L3 nongating/non-Authority with no Wave 2 completion claim. Process-fact policy/registry remain unchanged and consistent. Audited 46 changed exported TypeScript declarations and 11 bounded documentation/prompt groups.",
+      "createdAt": "2026-07-22T10:15:25.111Z",
+      "reviewRound": "2026-07-22T10:14:19.922Z",
+      "reviewRunId": "B-a32a:RR-040",
+      "envelopeId": "fe5b5165e5ac5857028efde2bb71ed8d1a2853ed0e3626de7516d270f2098e2d",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "aee4242a9c325616cbe71007fdec9fed305217b2cf761de659e1ff864745c657"
+    },
+    {
+      "id": "B-a32a:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Static quality audit of 2cd97942da found no blocking issue: structured snapshot seal schema/count/digests/issues are deterministically projected; basis and signed receipt bind sealDigest; current read-only derivation supplies expectedSealDigest; free-text trust and post-seal mutation hook were removed; receipt signature rejects coordinated basis/seal re-digesting.",
+      "createdAt": "2026-07-22T10:34:02.529Z",
+      "reviewRound": "2026-07-22T10:32:39.434Z",
+      "reviewRunId": "B-a32a:RR-041",
+      "envelopeId": "b12f2f9fa4fd7e0ab96e8f5475c1b9b676b5277ae9d7ad0086cdb0f24481df40",
+      "writerSessionId": "sess-b01b895fc61f1f104910bdcd61ca40ee",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5c2692d51adb3ce7570459a61b4c62131d3e6642f7914af899e4b7f92e8de0fb"
+    },
+    {
+      "id": "B-a32a:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Static concept audit of 2cd97942da found no blocker: snapshotSeal canonically binds directory/source/config projections and structured issues; basis verification enforces seal digest, exact blind-spot/status projection, receipt binding, and current-workspace semantic re-derivation. The mutation seam exists only immediately before the final seal; old afterSeal/afterAssemblyBeforeSeal references are absent.",
+      "createdAt": "2026-07-22T10:34:42.986Z",
+      "reviewRound": "2026-07-22T10:32:39.434Z",
+      "reviewRunId": "B-a32a:RR-042",
+      "envelopeId": "2d9f3b6411884502e7cca949d716d46187699320a72352e48bc255ff31506fe6",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "38e4827cd516dfc8ff186b54acd31171efd488bf0140ee31cf964f429e58d469"
+    },
+    {
+      "id": "B-a32a:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Final quality signoff: implementation and tests are byte-unchanged from the round-12 quality-pass commit 2cd97942da; 948c8ea854 changes only docs/CLI.md. The documented snapshot seal fields, signed receipt/current rederivation behavior, partial semantics, and L3 non-gate boundary match the reviewed implementation with no undelivered promise.",
+      "createdAt": "2026-07-22T10:38:01.832Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-046",
+      "envelopeId": "d93352bfd4ebb094386c11159f92b46dd779f3bc5c41f5e6e8570ecf074824bc",
+      "writerSessionId": "sess-b01b895fc61f1f104910bdcd61ca40ee",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e142ed1aa3d0a7b1ae141163183fc1a0eadbc4517ce4f43f3a5c9ed8e3639038"
+    },
+    {
+      "id": "B-a32a:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Final static concept signoff: 948c8ea854 changes only docs/CLI.md and accurately documents the already-reviewed Wave 1A snapshotSeal, signed sealDigest, current-workspace re-derivation, partial/unsupported behavior, and explicit L3 non-gate/non-Authority boundary. No code semantic drift, concept residue, or promised-but-undelivered behavior found.",
+      "createdAt": "2026-07-22T10:38:04.498Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-044",
+      "envelopeId": "d70788778731b53ce339b32ad3234d883ddf6821b8ebb23be96bd8e52980bf04",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "docs/CLI.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ff1963c9b796ceb8df50db00ea17f65e6b49282042377b6280e165b37cf91465"
+    },
+    {
+      "id": "B-a32a:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "Round 13 docs audit found no blocker. Commit 948c8ea854 fully addresses F-045: docs/CLI.md now documents the persisted structured snapshotSeal fields, canonical sealDigest, receipt signature binding, current canonical discovery/physical seal re-derivation, stale source/config/new-consumer invalidation, structured partial issues, and caller-forgery boundary. It also explicitly preserves the Wave 1A boundary as an L3 signed diagnostic artifact with no lifecycle-gate consumer, no Authority claim, and no Wave 2 pre-review enforcement claim. These statements match AcceptanceCoverageBasisV1/AcceptanceBasisReceiptV1, receipt issuer/verifier and handler expectedSealDigest checks, process-fact registry rationale, process-level classification, and all three implementer mirrors. Audited 50 changed exported TypeScript declarations and 11 bounded documentation/prompt groups.",
+      "createdAt": "2026-07-22T10:38:10.973Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-045",
+      "envelopeId": "7f78524b523e176d5403a2e17aca5f50e1e7c521d9f06b1fb303a0ea756cb1b2",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "docs/CLI.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "e259433c61911ed59f065f6e7f91a89da4501fdb3daf4bd3ee7ef86826092f71"
+    },
+    {
+      "id": "B-a32a:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS: fresh RR-048 binds the unchanged story-owned material after finding-resolution metadata commits. The current REVIEW-round formal sequence was previously executed exactly once and all five commands passed; no command was rerun. All 25/25 must verification intents have passing evidence, with 0 semantic gaps and 0 waivers. F-020 through F-045 regressions and mutations are covered, including physical source-root containment, parser and resolution controls, bounded inventory resources, structured snapshot seal tampering, redigest attacks, and current physical rederivation. Live finding audit reports no open verified findings. Evidence remains bound to storyFilesHash 637759865b103bd2eecf720eaa4fc06edb7d4954661b55f47bbeefc451044c64.",
+      "createdAt": "2026-07-22T10:42:45.941Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-048",
+      "envelopeId": "d317476e0489d7cdbbbb8b8021543d1473941bd0482f5067d7b120148cf6ab16",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/acceptance-topology.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "packages/main/src/tasks/scope-contract-plan-scope-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b1b523fc07406c82b8b0eac689b365ba268b087d6720177e13fe58452a885eee"
+    },
+    {
+      "id": "B-a32a:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Fresh incremental signoff only: RR-049 reports ELIGIBLE_NO_MATERIAL_CHANGE/ELIGIBLE_TRUSTED_PRIOR_BINDINGS with storyFilesHash 637759865b103bd2eecf720eaa4fc06edb7d4954661b55f47bbeefc451044c64, matching prior concept PASS. Git comparison shows no non-.lattice business diff after 948c8ea854, and all findings are resolved. Prior Wave 1A concept review remains valid; no tests rerun or scope broadened.",
+      "createdAt": "2026-07-22T10:59:43.638Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-049",
+      "envelopeId": "f14985892382513695249d420351ecdb09384f5597b03b502a40bb6b3d2cbd85",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "docs/CLI.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3590e84c5a77bff4858db71c64c9245809d20f616ec32b8f250e20b1ec9f1634"
+    },
+    {
+      "id": "B-a32a:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Mechanical re-sign from prior quality pass RP-018: incremental basis reports no changed or impacted business files, storyFilesHash remains 637759865b103bd2eecf720eaa4fc06edb7d4954661b55f47bbeefc451044c64, and all findings F-001 through F-045 are resolved. No tests rerun and no review scope broadened.",
+      "createdAt": "2026-07-22T11:00:58.010Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-050",
+      "envelopeId": "189ce5f2440ff531e67509d654584ff9ae9ff57cce07ee4de29b052eb40eab28",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/CLI.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8ecd59c95967b72b3123b4dec4e3a8a9b33f689485897ddfc8144d59c93e3c7"
+    },
+    {
+      "id": "B-a32a:RP-024",
+      "agent": "lattice-review-docs",
+      "note": "Mechanical docs re-sign after host-only metadata. The authoritative incremental basis reports changedFiles=[], impactedFiles=[], unresolvedFindings=[], priorPassRef=B-a32a:RP-020, and ELIGIBLE_NO_MATERIAL_CHANGE/ELIGIBLE_TRUSTED_PRIOR_BINDINGS. Independent git comparison confirms no business or docs diff since RP-020, storyFilesHash remains 637759865b103bd2eecf720eaa4fc06edb7d4954661b55f47bbeefc451044c64, and F-001 through F-045 are resolved. Reusing the existing truthful manifest: 50 changed exported TypeScript declarations and 11 bounded documentation/prompt groups remain covered; no blocker.",
+      "createdAt": "2026-07-22T11:02:43.963Z",
+      "reviewRound": "2026-07-22T10:37:02.658Z",
+      "reviewRunId": "B-a32a:RR-051",
+      "envelopeId": "1be0892f55dea1d1f82e5fceb9f8a7f9ed610dcd89c667c70a23c22a0b6ca76c",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "docs/CLI.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "b7f7c284d763b8d0ea3a553a0f50305a7b6c5cb37bc788829ddda0298a4604a2"
+      },
+      "readDiagnostics": [],
+      "_hash": "3fee288470aa378acc7574fbae37eaa2be442cde9cd0c65737ff20e9416b26ba"
+    },
+    {
+      "id": "B-a32a:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed 7d714f0c82 and acknowledged scope expansion. The only authored policy-manifest change is lattice-implementer templateHash 98aa71b... required by the two-line Wave 1A acceptance-basis boundary added identically to the implementer prompt surfaces. The three regenerated baselines differ only in that role's hashes/render/size/line/repetition metrics, aggregate digests, registry material hash, and the mechanically shifted direct-story-reference line. `node scripts/verify-proof-or-stop-prompt-baseline.mjs` passed all registry, approval-manifest, snapshot, role-matrix, mutation, and measurement checks. No hidden business-policy change or blocker.",
+      "createdAt": "2026-07-22T14:44:48.595Z",
+      "reviewRound": "2026-07-22T14:42:15.395Z",
+      "reviewRunId": "B-a32a:RR-054",
+      "envelopeId": "1d8cdbe16875944ae3e38612ea379a1d903d97310ea3dff512944f7c09fb30de",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "docs/CLI.md",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f8b283a48bba219fc5ccb6c373a640d1eceed230d5eac302c7d6c445c4c16c94"
+    },
+    {
+      "id": "B-a32a:RP-026",
+      "agent": "lattice-review-docs",
+      "note": "Round 14 targeted docs/baseline review found no blocker. Commit 7d714f0c82 changes only the three mechanically generated baseline artifacts and the verifier approval manifest. The lattice-implementer template hash moves consistently to 98aa71b9cde97e5571ff9d61aa0091163660eaa8cd8013ab6da4c7eedba9f45e; bytes/lines, registry material hash, direct-story-reference line/id, overlap-matrix header, measurement totals/digests, and verifier manifest all move together while all other role rows and human-authored semantics remain unchanged. The targeted verifier passed all 16-role manifest, registry, snapshot, agent_prompt, mutation, matrix parity, vocabulary/reference, and measurement checks; working tree remained clean. Target commit contains 0 exported-symbol changes and 4 bounded generated-artifact/manifest comparison groups.",
+      "createdAt": "2026-07-22T14:45:18.027Z",
+      "reviewRound": "2026-07-22T14:42:15.395Z",
+      "reviewRunId": "B-a32a:RR-053",
+      "envelopeId": "6fbfca85a93c0acd1b7ce6bf4dbeafe37e9099e61a2ddcc181cc9a5cb74cec9a",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6bd134591c9c00e2f4ae95466d83a3b794b88440b25b150e16ed035a387ad87c"
+    },
+    {
+      "id": "B-a32a:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS, round 14 targeted review: 25/25 must intents have refreshed passing evidence at storyFilesHash 96446230e3c98a2fcf4b3639264c09ec83b83084951dfa00578b19db4a1f4b1f, with 0 gaps and 0 waivers. Evidence records the actual Wave 1A focused production-chain smoke PASS and process-fact contract PASS. The implementer additionally reported full root npm test exit 0 after baseline repair; I did not rerun that full suite. Static audit confirms root npm test wires both proof-or-stop baseline and process-fact verifiers. The acknowledged four-path expansion is covered: the verifier reads and compares the prompt baseline JSON, overlap matrix Markdown, measurement baseline JSON, and approved manifest hash in the verifier; its ordinary path executes 10 snapshot mutations, isolated real source/output mutation-fail-restore-pass, role-matrix JSON/Markdown/count/removal bites, and measurement-sidecar verification. No open findings remain.",
+      "createdAt": "2026-07-22T14:45:44.065Z",
+      "reviewRound": "2026-07-22T14:42:15.395Z",
+      "reviewRunId": "B-a32a:RR-055",
+      "envelopeId": "78825caf5a12e413f3c3d31eef13565b9c1a951478a4db5fd71354aa11b3c672",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-a32a/background.md",
+          ".lattice/story/actives/B-a32a/checklist.json",
+          ".lattice/story/actives/B-a32a/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-a32a/scope-contract.json",
+          ".lattice/story/actives/B-a32a/test-evidence.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "package.json",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "000cbfe092f3fa1fe2522c327f640789dbb711ae8ae30f92fc1172f91638933e"
+    },
+    {
+      "id": "B-a32a:RP-028",
+      "agent": "lattice-review-quality",
+      "note": "Targeted quality review of 7d714f0c82 PASS: exact four-file acknowledged expansion only; approved implementer manifest hash 98aa71b9…f45e matches prompt-registry and generated baseline; registry material hash 8ef5bf69…fb72 matches overlap matrix; measurement baseline changes are confined to implementer-derived record, aggregate, registry/report digests; standalone verify-proof-or-stop-prompt-baseline exits 0. Root full npm suite was not treated as review evidence and is deferred to canonical TEST/DONE-required validation.",
+      "createdAt": "2026-07-22T14:47:01.977Z",
+      "reviewRound": "2026-07-22T14:42:15.395Z",
+      "reviewRunId": "B-a32a:RR-052",
+      "envelopeId": "2b0f1c1518665bd532745f1918a9ea5ae08609658099498672535c9ed59a221a",
+      "writerSessionId": "sess-82bd8aa2c5a56477cc196b37e176eea4",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/templates/agents/lattice-implementer.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f183c3d579c2745e176f3962365f074b6bc5176fd6f86516ec6db67a3855878c"
+    }
+  ]
+}

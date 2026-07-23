@@ -1,0 +1,64 @@
+{
+  "storyId": "B-4ec1",
+  "checkedAt": "2026-07-23T16:24:41.469Z",
+  "headHash": "d6866bd302ccf5c1b66f69e90e00d811c40eca09",
+  "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+  "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+  "reviewRound": "2026-07-23T15:50:51.194Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "promise": "A signed current verifier-owned pre-review artifact yields PASS, while invalid bindings fail with deterministic PR_* codes.",
+      "status": "verified",
+      "verifiedBy": "node bin/lattice.js pre_review_check_read --storyId=B-4ec1",
+      "evidence": "Current independent reader reports Pre-review check: PASS with Codes: none; lifecycle DONE reader accepts the current proof chain."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "promise": "Current-worktree planned and actual paths are reconciled against the canonical acceptance topology without unmapped scope omissions.",
+      "status": "verified",
+      "verifiedBy": "node bin/lattice.js acceptance_topology_check --storyId=B-4ec1 --json",
+      "evidence": "Structural topology status=pass, basisStatus=complete, structuralPass=true, diagnostics=[]; 21 topology evidence refs cover M1-M4."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "promise": "Executable evidence must be current, mutations must bite, transcripts must be related, and authority must be admissible before REVIEW.",
+      "status": "verified",
+      "verifiedBy": "node bin/lattice.js pre_review_check_read --storyId=B-4ec1",
+      "evidence": "plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "promise": "Wave 3 integrates the canonical pre-review lifecycle gate with stable behavior and without later-wave leakage.",
+      "status": "verified",
+      "verifiedBy": "node bin/lattice.js lifecycle_check --storyId=B-4ec1 --target=DONE",
+      "evidence": "Independent TEST-to-DONE reader accepts validation, 21/21 coverage, DONE-required validation, live transcript, full 3x2 assurance, and current story summary; no code/test blocker remains."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent pre_review_check_read on current HEAD returned Pre-review check: PASS and Codes: none; focused mutation suite and process-fact contract are included in fresh DONE-required PASS d6866bd302."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independent acceptance_topology_check returned status=pass, structuralPass=true, basisStatus=complete, configured topology, and diagnostics=[]; current checklist evidence is 5/5 PASS."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independent pre-review reader returned executableEvidence=current mutations=biting transcript=related authority=admissible; DONE lifecycle reader accepted cross-session effective-environment digest and DONE-required PASS."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Independent DONE lifecycle reader accepted Round 11 four-lane review evidence, fresh 46/46 validation, live smoke transcript, full 3 rounds x 2 hosts assurance, clean worktree, and branch synced with main."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All four user-visible outcomes are backed by current real-machine transcripts, 21/21 must evidence with no waivers, biting mutations including cross-session locale/environment identity, fresh validation, and full 3x2 review assurance. No unresolved delivery blocker remains; done_prepare is the owner-controlled final convergence step."
+  },
+  "_hash": "505553b83f4340990ac3e14c90f3c081470052aa3860a4cd8fc45770d2fdfbfe"
+}

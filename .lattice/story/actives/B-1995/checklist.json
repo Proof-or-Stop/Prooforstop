@@ -1,0 +1,664 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement verificationIntent-owned planned-path declaration schema",
+      "context": "Add versioned VerificationPlannedPathDeclarationV1 under existing verificationIntent ownership with round-trip normalization, stable IDs, endpoint/file/fact validation, and write/freeze enforcement by the verification-intent flow. Do not create a new artifact or allow verificationTopology to own planned-edge semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#wave-1-schema-and-read-only-diagnostics"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T02:59:42.560Z",
+      "endTime": "2026-07-22T03:39:49.467Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-1995-001-ROUNDTRIP",
+            "desc": "A valid proofstory.verification_planned_path_declaration.v1 nested in one verificationIntent item round-trips through checklist persistence and normalization without changing its declaration ID, producer and consumer endpoint IDs, relation, artifact kinds, file declaration refs, expected symbols or output fact ref; custom verification-intent IDs remain the canonical evidence refs.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-1995-001-LEGACY-OPTIONAL",
+            "desc": "An existing verificationIntent item with no plannedPathDeclarations remains readable and normalizes without synthesizing a declaration or changing its legacy intent ref.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-001-INVALID-SHAPE",
+            "desc": "Unknown schema versions, empty or duplicate declaration or endpoint IDs, zero consumers, incorrect endpoint roles, unsupported artifact kinds, malformed file refs, and unresolved ChecklistItem.files declaration refs are rejected with stable field-specific diagnostics and are not partially persisted.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-1995-001-WRITER-FREEZE",
+            "desc": "Attempt to persist plannedPathDeclarations through every shared-schema write surface: an ordinary story_create checklist payload during INIT, an ordinary checklist_add verificationIntent payload, and an ordinary checklist_update payload must each be rejected before any declaration or partial Story or checklist write unless the command is the eligible verification-intent authoring flow in PLAN. After an eligible PLAN write is frozen, checklist_update attempts in DEV, REVIEW or later phases must also be rejected and the previously persisted declaration bytes must remain unchanged.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-001-SEMANTIC-TAMPER",
+            "desc": "Mutating a persisted declaration relation, endpoint role, file, symbol or output fact while retaining stable IDs must change canonical normalization or fail validation; identity alone cannot hide semantic drift.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "A verification-intent author can save a valid planned producer→consumer declaration during PLAN; invalid, ordinary-caller, and post-PLAN writes are rejected without changing the saved declaration.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/story-create.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-1995-001-ROUNDTRIP",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke directly asserts pure planned-path normalization preserves stable declaration and endpoint IDs; handler integration remains covered by VI-1995-001-WRITER-FREEZE.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-001-ROUNDTRIP",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "The same focused suite directly asserts pure planned-path normalization preserves stable declaration and endpoint IDs.",
+          "headHash": "2bd8aca87db95bb384ab0f44c1231bb1127d16fd",
+          "materialHash": "d0c8c4f4f3d13901c9d1f3ba9188949b15548fb89be1ebb9b6dc463a99031d55",
+          "storyFilesHash": "1ba1cbbbcc250ee5ea512cdfa11b03de712466cba1be03181daa5278548a1d87",
+          "timestamp": "2026-07-22T03:16:25.988Z"
+        },
+        {
+          "intentRef": "VI-1995-001-LEGACY-OPTIONAL",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Legacy verificationIntent without planned declarations remains unchanged and readable.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-001-INVALID-SHAPE",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Focused schema and handler cases reject version, duplicate endpoint, and mismatched file declaration mutations atomically.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-001-WRITER-FREEZE",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "story_create, checklist_add, ordinary checklist_update, and DEV mutation bites preserve pre-call bytes; registered PLAN role succeeds.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-001-SEMANTIC-TAMPER",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Declaration semantic and file-reference changes fail validation or change canonical diagnostic output despite stable IDs.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement reference-only acceptance topology v1 normalization and structural diagnostics",
+      "context": "Add optional topology on ProofStory acceptance bindings, resolve existing and planned declaration/endpoint refs, validate IDs and structural totality in observe-only diagnostics, preserve legacy readability, and keep lifecycle behavior unchanged.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#target-schema",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#structural-integrity-and-totality-rules"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T03:15:18.009Z",
+      "endTime": "2026-07-22T03:58:10.191Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-1995-002-VALID-REFERENCE-GRAPH",
+            "desc": "A proofstory.acceptance_topology.v1 binding that references existing canonical sources and frozen planned declaration and endpoint IDs normalizes into a reference-only graph; every producer has a consumer, every consumer has a producer, canonical source IDs remain visible, and observe-only diagnostics report the structurally valid result without treating it as evidence.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-1995-002-LEGACY-MISSING",
+            "desc": "A legacy ProofStory acceptance binding with no verificationTopology remains readable, normalizes to topologyState legacy_missing, and receives only an observe-mode diagnostic rather than an exception or implicit full-proof status.",
+            "type": "logic",
+            "requiredIn": "light",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-002-STABLE-INVALID-REFS",
+            "desc": "Unknown declaration or endpoint refs, unknown canonical refs, duplicate topology-local IDs, orphan producers and orphan consumers yield deterministic ordered diagnostics with stable codes such as AT_UNKNOWN_REF, AT_DUPLICATE_ID, AT_ORPHAN_PRODUCER and AT_ORPHAN_CONSUMER.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-1995-002-SELF-AUTHORSHIP-MUTATION",
+            "desc": "Delete the verificationIntent-owned planned declaration while leaving topology IDs and an invented producer-to-consumer relation in place: normalization must not accept topology self-authorship and must report AT_PLANNED_PATH_DECLARATION_MISSING; restoring the declaration restores the valid structural result.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-002-SEMANTIC-OVERRIDE-MUTATION",
+            "desc": "Keep a valid declaration but mutate topology to restate or override its endpoint role, expected file, symbol, relation or output fact: the reference-only verifier rejects the override with AT_PLANNED_PATH_DECLARATION_DRIFT or an equivalently stable structural code and never trusts copied semantics.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-002-NO-WAVE1A-PROMOTION",
+            "desc": "Caller-authored completeness, coverage-basis, authority, observed result or pass fields cannot promote a Wave 1 topology diagnostic into gate evidence; inline result or authority promotion attempts are rejected or ignored with explicit deterministic diagnostics.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The terminal prints `Topology state: legacy_missing` for an old contract, or `Result: inconclusive_basis_unverified` plus stable `AT_*` diagnostics for a configured contract; it never prints `complete` or `ready-for-review`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-1995-002-VALID-REFERENCE-GRAPH",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke at 35de890d50 proves a legitimate logic-test note may say the graph remains inconclusive_basis_unverified and still covers its intent.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-002-LEGACY-MISSING",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Missing topology normalizes to legacy_missing without exception or authority promotion.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-002-STABLE-INVALID-REFS",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Unknown, duplicate, and orphan mutations emit deterministic AT_* codes.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-002-SELF-AUTHORSHIP-MUTATION",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Deleting the canonical declaration emits AT_PLANNED_PATH_DECLARATION_MISSING; topology cannot self-author it.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-002-SEMANTIC-OVERRIDE-MUTATION",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Inline edge semantics emit AT_PLANNED_PATH_DECLARATION_DRIFT.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-002-NO-WAVE1A-PROMOTION",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Inline result and basis/authority fields emit forbidden diagnostics and cannot promote the Wave 1 result.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement derived read-only acceptance matrix rendering",
+      "context": "Render canonical source IDs and structural diagnostic rows from milestone ledger, acceptance bindings, verificationIntent and existing evidence without persisting verdicts or accepting matrix writes. Resolve renderer placement during PLAN and keep output non-evidentiary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#derived-acceptance-matrix"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T03:15:29.170Z",
+      "endTime": "2026-07-22T04:08:34.345Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-1995-003-MATRIX-USER-DEMO",
+            "desc": "Running the named read-only surface lattice acceptance_matrix --storyId=B-1995 --json for a topology-enabled fixture emits one row per acceptance binding with canonical acceptance, milestone, verification-intent, declaration, endpoint and diagnostic IDs, so a user can trace each displayed cell back to its owner.",
+            "type": "cli",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-1995-003-LEGACY-AND-CONFLICT",
+            "desc": "The same acceptance_matrix surface renders legacy bindings as legacy_missing and renders conflicting or unresolved canonical inputs as diagnostics; it does not crash, invent replacement values, or silently label either case complete.",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-003-DETERMINISTIC-ORDER",
+            "desc": "Equivalent inputs with shuffled source insertion order produce the same ordered rows, source IDs and diagnostic-code order in JSON, and two consecutive reads of unchanged inputs are byte-equivalent after excluding no fields because the renderer adds no timestamps or random IDs.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-1995-003-NO-WRITES",
+            "desc": "Snapshot Story files, process-event length and git status before and after acceptance_matrix text and JSON invocations: both commands exit through a read-only path and leave every persisted artifact, evidence collection, lifecycle state and worktree byte unchanged.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-003-WRITE-PAYLOAD-REJECTED",
+            "desc": "Attempt to submit a result, verdict, row, acceptance-matrix payload or other write-shaped option to the renderer: argument validation rejects it and no writable acceptance_matrix artifact or completion truth source is created.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-003-NON-EVIDENTIARY",
+            "desc": "Feed rendered matrix output or its computed result label back as verification evidence or gate authority: canonical evidence validation must not recognize the L0 projection as a receipt, pass or authority fact.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "`lattice acceptance_matrix --storyId=<id>` prints deterministic canonical rows and legacy/warning/inconclusive diagnostics, explicitly marked observe, read-only, and non-evidentiary.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-1995-003-MATRIX-USER-DEMO",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke captures the real supported acceptance_matrix CLI transcript and verifies its canonical read-only output without submitting the L0 producer command itself as evidence.",
+          "headHash": "01f0284f6df7136db80f97e72ccbcb7cc3594508",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:43.938Z"
+        },
+        {
+          "intentRef": "VI-1995-003-LEGACY-AND-CONFLICT",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Real CLI renders configured, legacy_missing, unsupported, and malformed inputs without fabricated completion.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-003-DETERMINISTIC-ORDER",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Permuted sources and consecutive unchanged CLI reads are byte-equivalent.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-003-NO-WRITES",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Tree digest, git status, process events, phase, and transition decision remain unchanged across text and JSON reads.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-003-WRITE-PAYLOAD-REJECTED",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke invokes the real write-shaped CLI mutation and proves argument rejection plus byte/event atomicity.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-003-NON-EVIDENTIARY",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke at 01d888403c proves rg, printf and CLI-contract argument tokens remain admissible through checklist_update, verification_evidence_add and batch while real invocations fail closed.",
+          "headHash": "01d888403cd4e5f100149b41f3e39b2a3d5729e6",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:22.401Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Prove Wave 1 compatibility and non-gating boundaries",
+      "context": "Add focused round-trip, legacy, invalid-ref, topology-self-authorship, read-only renderer, docs-only and no-lifecycle-behavior-change tests. Verify no Wave 1A basis completeness or pre-review gate behavior is accidentally shipped.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#verification-and-mutation-matrix",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#non-goals"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T03:16:01.339Z",
+      "endTime": "2026-07-22T03:16:05.622Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-1995-004-FOCUSED-SUITE",
+            "desc": "A focused Wave 1 smoke or test suite exercises planned-declaration round-trip, reference-only topology normalization, stable structural diagnostics, the acceptance_matrix CLI text and JSON surfaces, and passes from a clean build.",
+            "type": "cli",
+            "requiredIn": "light",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-1995-004-COMPATIBILITY-MATRIX",
+            "desc": "The focused suite covers topology-enabled, legacy missing-topology, docs-only and unsupported-version fixtures and proves each remains readable with its explicit observe-only diagnostic classification and no fabricated runtime mutation requirement.",
+            "type": "logic",
+            "requiredIn": "balanced",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-004-LIFECYCLE-EQUIVALENCE",
+            "desc": "For otherwise identical Stories, lifecycle transition guards and phase outcomes are identical before and after adding valid, missing or invalid Wave 1 topology data; diagnostics may differ, but PLAN to DEV and DEV to REVIEW are not newly blocked or auto-advanced.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-1995-004-MUTATION-BITES",
+            "desc": "Seed real mutations independently: remove a referenced declaration, change a planned endpoint ID, introduce a duplicate ID, orphan each graph direction, inject topology-owned edge semantics, and add a write-shaped matrix request; each mutation fails for its intended stable diagnostic or read-only reason and the restored control passes.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-004-NO-GATE-OR-BASIS-SHIP",
+            "desc": "Source inventory plus behavior tests prove Wave 1 does not register acceptance topology as a lifecycle-consumed process fact, does not persist or sign a coverage basis, does not add PLAN or pre-REVIEW blocking guards, and does not implement Wave 1A discovery adapters under another name.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "VI-1995-004-LEGACY-TRANSITION-MUTATION",
+            "desc": "Mutate a legacy Story from no topology to malformed topology while holding all canonical lifecycle facts constant: only read-only diagnostic output changes, no new process event or gate artifact appears, and transition decisions remain unchanged.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The focused test exits 0 and prints `ProofStory acceptance topology Wave 1 smoke passed`; lifecycle phase/guard equality, read-only bytes, and no-Wave-1A assertions are all included in that pass.",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "package.json",
+          "package-lock.json",
+          "packages/main/package-lock.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "docs/CLI.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-1995-004-FOCUSED-SUITE",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Clean build focused suite covers schema, topology diagnostics, and real acceptance_matrix text/JSON surfaces.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-004-COMPATIBILITY-MATRIX",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke at 01d888403c covers bounded command-form compatibility and false-positive controls in general verification, ProofStory and milestone consumers.",
+          "headHash": "01d888403cd4e5f100149b41f3e39b2a3d5729e6",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:22.401Z"
+        },
+        {
+          "intentRef": "VI-1995-004-LIFECYCLE-EQUIVALENCE",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Machine transition decisions and phase remain equal before and after valid/malformed topology diagnostics.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-004-MUTATION-BITES",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke at 01d888403c independently bites true producer commands while restored non-producer argument/search controls cover.",
+          "headHash": "01d888403cd4e5f100149b41f3e39b2a3d5729e6",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:22.401Z"
+        },
+        {
+          "intentRef": "VI-1995-004-NO-GATE-OR-BASIS-SHIP",
+          "kind": "integration_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact contract at cef7fc56fe verifies the shared bounded provenance classifier is consumed by writer, general verification, ProofStory, and milestone paths without promoting acceptance_matrix above L0.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        },
+        {
+          "intentRef": "VI-1995-004-LEGACY-TRANSITION-MUTATION",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run test:proofstory-acceptance-topology-smoke",
+          "result": "pass",
+          "note": "Legacy-to-malformed topology mutation changes only warning output, not events or lifecycle decisions.",
+          "headHash": "55af2e0fcf1f201bde801d7eb654de03afab0e87",
+          "materialHash": "7b4f80cd41be373194c52ffb2436ecf13542d810b2c37dcc32be800baedfe11f",
+          "storyFilesHash": "77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327",
+          "timestamp": "2026-07-22T04:08:30.358Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-22T02:59:42.560Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation delegated to lattice-implementer; owner records lifecycle status without transferring active lease.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-22T03:23:01.701Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "REVIEW round 1 reopened declaration authority and adversarial coverage defects; implementation delegated to lattice-implementer.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-22T03:39:49.467Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "REVIEW round 1 authority, topology-totality, CLI-path, lifecycle-equivalence and non-evidentiary defects fixed and verified at 92d375b70a."
+    },
+    {
+      "timestamp": "2026-07-22T03:45:33.886Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "REVIEW round 2 reopened typed evidence provenance and milestone-status non-evidentiary filtering defects F-011/F-012.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-22T03:54:09.966Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-011/F-012 typed provenance and milestone consumer fixes verified at cef7fc56fe."
+    },
+    {
+      "timestamp": "2026-07-22T03:54:50.238Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Self-test exposed F-011 legacy fallback false-positive on legitimate logic evidence mentioning reserved result; typed scope narrowed to manual_transcript.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-22T03:58:10.191Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Typed provenance false-positive narrowed and verified at 35de890d50."
+    },
+    {
+      "timestamp": "2026-07-22T04:02:37.750Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "REVIEW round 3 F-013 requires actual Proofbound subcommand parsing instead of token-presence classification.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-07-22T04:08:34.345Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "F-013 bounded producer-command parser and writer/consumer false-positive controls pass at 01d888403c."
+    }
+  ]
+}

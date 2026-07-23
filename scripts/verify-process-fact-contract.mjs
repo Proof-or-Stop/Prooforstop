@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
@@ -37,6 +38,13 @@ const requiredReviewerRunIdPromptFiles = new Set([
   'lattice-review-delivery.md',
   'lattice-review-scope-plan.md',
   'lattice-review-story-init.md',
+]);
+const modularReviewerBootstrapFiles = new Set([
+  'lattice-review-behavior.md',
+  'lattice-review-concept.md',
+  'lattice-review-docs.md',
+  'lattice-review-quality.md',
+  'lattice-review-test-coverage.md',
 ]);
 const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels.ts';
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
@@ -139,6 +147,14 @@ const requiredProcessFactSemantics = {
   milestone_ledger_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   milestone_ledger_add: ['schema-contract', 'verification-policy', 'gate-evidence'],
   proofstory_contract_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  acceptance_topology_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
+  acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
+  acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
+  pre_review_check: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+  pre_review_check_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+  topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
+  topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
+  topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -155,9 +171,13 @@ const requiredProcessFactSemantics = {
   parent_roadmap_evaluate: ['schema-contract', 'verification-policy'],
 };
 const requiredRuntimeFactSemantics = {
+  'runtime:acceptance_topology_plan_dev_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
+  'runtime:topology_critic_authority_verification': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'verification-policy'],
   'runtime:evidence_environment_gate_projection': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'normalization-policy', 'freshness-policy', 'verification-policy', 'gate-evidence'],
   'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
+  'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
+  'runtime:review_run_atomic_persistence_gate': ['runtime-behavior', 'atomic-persistence', 'prompt-envelope', 'review-run', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 };
@@ -165,6 +185,7 @@ const requiredReviewerLanes = [
   'lattice-review-story-init',
   'product-reviewer',
   'lattice-review-scope-plan',
+  'lattice-review-topology-critic',
   'lattice-review-concept',
   'lattice-review-quality',
   'lattice-review-test-coverage',
@@ -204,6 +225,8 @@ const requiredArtifactFacts = [
   { name: 'artifact:parent-ledger-rollup.json', path: 'parent-ledger-rollup.json', signed: false },
   { name: 'artifact:closeout-write-receipts.jsonl', path: 'closeout-write-receipts.jsonl', signed: false },
   { name: 'artifact:proofstory.json', path: 'proofstory.json', signed: false },
+  { name: 'artifact:topology-exclusion-approvals.json', path: 'topology-exclusion-approvals.json', signed: true, signaturePattern: /Ed25519\(canonical scope-plan approval binding exclusion\/basis\/topology\/scope\/story\/closure\/provenance\)/ },
+  { name: 'artifact:topology-critic-receipt.json', path: 'topology-critic-receipt.json', signed: true, signaturePattern: /Ed25519\(canonical critic receipt binding role\/provenance\/basis\/topology\/scope\/story\/closure\/findings\/exclusions\/verdict\/time\)/ },
   { name: 'artifact:intent-collision.json', path: 'intent-collision.json', signed: false },
   { name: 'artifact:scope-shrinkage-decision.json', path: 'scope-shrinkage-decision.json', signed: false },
   { name: 'artifact:red-evidence.json', path: 'red-evidence.json', signed: false },
@@ -536,7 +559,57 @@ function read(relPath) {
   const absPath = join(root, relPath);
   assert(existsSync(absPath), `${relPath} should exist`);
   if (!existsSync(absPath)) return '';
-  return readFileSync(absPath, 'utf8');
+  let text = readFileSync(absPath, 'utf8');
+  const mutation = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
+  if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('lattice-implementer.md')) {
+    text = text.replace(/^Acceptance-basis boundary: only `lattice acceptance_basis_generate`.*$/m, '');
+  }
+  if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
+    text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
+  }
+  if (mutation === 'drop-acceptance-topology-prompt' && relPath.endsWith('lattice-implementer.md')) {
+    text = text.replace(/^Acceptance-topology boundary:.*$/m, '');
+  }
+  if (mutation === 'drop-acceptance-topology-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
+    text = text.replace(/acceptance_topology_check/g, 'topology_check_removed');
+  }
+  if (mutation === 'drop-acceptance-topology-gate' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
+    text = text.replace(/evaluateAcceptanceTopologyForContext/g, 'topology_gate_removed');
+  }
+  if (mutation === 'invert-acceptance-topology-polarity' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
+    text = text.replace('if (topology.blocking)', 'if (!topology.blocking)');
+  }
+  if (mutation === 'drop-topology-critic-prompt' && relPath.endsWith('lattice-review-topology-critic.md')) {
+    text = text.replace(/^- A pass is forbidden when the basis.*$/m, '');
+  }
+  if (mutation === 'drop-topology-critic-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
+    text = text.replace(/topology_critic_receipt_set/g, 'topology_critic_receipt_removed');
+  }
+  if (mutation === 'drop-topology-critic-cli-schema' && relPath === 'packages/main/src/cli/command-catalog.ts') {
+    text = text.replace(/topology_critic_receipt_set/g, 'topology_critic_receipt_schema_removed');
+  }
+  if (mutation === 'add-topology-critic-lifecycle-consumer' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
+    text += '\n// forbidden Wave 2A lifecycle consumer: evaluateTopologyCriticReceiptForContext; if (!critic.ok) {}\n';
+  }
+  if (mutation === 'drop-topology-critic-verifier' && relPath === 'packages/main/src/core/topology-critic-receipt.ts') {
+    text = text.replace(/verifyTopologyCriticReceipt/g, 'verifyTopologyCriticReceiptRemoved');
+  }
+  if (mutation === 'weaken-topology-critic-incomplete-basis' && relPath === 'packages/main/src/core/topology-critic-receipt.ts') {
+    text = text.replaceAll("context.basisStatus !== 'complete'", "context.basisStatus === 'complete'");
+  }
+  if (mutation === 'trust-pre-review-raw-claims' && relPath === 'packages/main/src/core/pre-review-check.ts') {
+    text = text.replace('const proof = executableProofState', 'const trustedClaims = input.checklist.items.flatMap(item => item.verificationEvidence?.flatMap(evidence => evidence.attestation?.checkedClaims ?? []) ?? []);\n  const proof = executableProofState');
+  }
+  if (mutation === 'use-planned-self-reference-as-actual' && relPath === 'packages/main/src/core/acceptance-discovery-adapters.ts') {
+    text = text.replace('sourceExactSymbolCount(endpoint.expectedFileRef, sourceText, endpoint.expectedSymbolOrFact) === 1', 'sourceText.includes(endpoint.expectedSymbolOrFact)');
+  }
+  if (mutation === 'accept-global-transcript-proof' && relPath === 'packages/main/src/core/pre-review-check.ts') {
+    text = text.replace('const transcriptIds = row.transcriptProofs.map', 'const transcriptIds = proof.bindingProofs.flatMap(item => item.transcriptProofs).map');
+  }
+  if (mutation === 'allow-arbitrary-pre-review-command' && relPath === 'packages/main/src/core/pre-review-check.ts') {
+    text = text.replace('transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND', "typeof transcript.actual?.command !== 'string'");
+  }
+  return text;
 }
 
 // ── B-956f FIX 2: STRUCTURAL (AST-anchored) source assertions ──
@@ -873,7 +946,12 @@ function assertProofStoryProgressiveBoundary() {
   const catalogText = read('packages/main/src/cli/command-catalog.ts');
   const handlerText = read('packages/main/src/handlers/proofstory.ts');
   const coreText = read('packages/main/src/core/proofstory.ts');
+  const topologyText = read('packages/main/src/core/acceptance-topology.ts');
+  const verificationText = read('packages/main/src/core/verification.ts');
+  const milestoneStatusText = read('packages/main/src/core/milestone-status.ts');
+  const checklistHandlerText = read('packages/main/src/handlers/checklist.ts');
   const configText = read('packages/main/src/core/config.ts');
+  const activityPolicyText = read('packages/main/src/cli/activity-policy.ts');
   const commandPolicyEntries = new Map(parseCommandPolicyEntries().map(entry => [entry.name, entry]));
   const storyAdvanceText = read('packages/main/src/handlers/story-advance.ts');
   const phaseGatesText = read('packages/main/src/handlers/phase-gates.ts');
@@ -896,6 +974,12 @@ function assertProofStoryProgressiveBoundary() {
     'parent_ledger_rollup_get',
     'proofstory_contract_set',
     'proofstory_contract_get',
+    'acceptance_matrix',
+    'acceptance_topology_check',
+    'acceptance_basis_generate',
+    'acceptance_basis',
+    'pre_review_check',
+    'pre_review_check_read',
     'intent_collision_set',
     'intent_collision_get',
     'scope_shrinkage_decision_set',
@@ -917,6 +1001,144 @@ function assertProofStoryProgressiveBoundary() {
   }
   assert(handlerText.includes("mode === 'enforce'") && handlerText.includes('observe'), 'handlers/proofstory.ts: ProofStory checks must support observe/warn/enforce without writing evidence');
   assert(coreText.includes('computeIntentRequestHash'), 'core/proofstory.ts: requestHash helper must remain explicit');
+  assert(topologyText.includes('isAcceptanceMatrixDerivedEvidence')
+    && topologyText.includes('acceptanceMatrixEvidenceProvenance')
+    && verificationText.includes('isAcceptanceMatrixDerivedEvidence')
+    && coreText.includes('isAcceptanceMatrixDerivedEvidence')
+    && milestoneStatusText.includes('isAcceptanceMatrixDerivedEvidence')
+    && checklistHandlerText.includes('acceptance_matrix_non_evidentiary_projection'),
+  'acceptance_matrix L0 projection must derive bounded provenance, reject evidence writes, and remain ignored by general/ProofStory/milestone consumers');
+  const basisText = read('packages/main/src/core/acceptance-coverage-basis.ts');
+  const adaptersText = read('packages/main/src/core/acceptance-discovery-adapters.ts');
+  const receiptText = read('packages/main/src/core/acceptance-basis-receipt.ts');
+  const processRegistryText = read('packages/main/src/core/process-fact-registry.ts');
+  const processLevelText = read(processFactLevelRegistryPath);
+  const transitionOrchestratorText = read('packages/main/src/handlers/transition-orchestrator.ts');
+  const acceptanceWriterPolicy = commandPolicyEntries.get('acceptance_basis_generate');
+  const acceptancePromptPaths = [
+    'packages/main/templates/agents/lattice-implementer.md',
+    '.claude/agents/lattice-implementer.md',
+    '.lattice-codex/agents/lattice-implementer.md',
+  ];
+  const acceptanceRequiredSemantics = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-contract'
+    ? requiredProcessFactSemantics.acceptance_basis_generate.filter(item => item !== 'workspace-binding')
+    : requiredProcessFactSemantics.acceptance_basis_generate;
+  assert(
+    handlerText.includes('acceptance_basis_generate')
+      && handlerText.includes('acceptance_basis(args')
+      && catalogText.includes("status: z.never()")
+      && basisText.includes('deriveAcceptanceCoverageBasis')
+      && basisText.includes('verifyAcceptanceCoverageBasis')
+      && basisText.includes('snapshotSeal')
+      && adaptersText.includes('AT_REQUIRED_ADAPTER_RESULT_MISSING')
+      && adaptersText.includes('AT_DISCOVERY_DISAGREEMENT')
+      && receiptText.includes('verifyAcceptanceBasisReceipt')
+      && receiptText.includes('checkEvidenceFreshnessForGit')
+      && receiptText.includes('sealDigest')
+      && processRegistryText.includes('structured snapshotSeal/sealDigest integrity fact')
+      && /name:\s*'artifact:acceptance-basis\.json'[\s\S]{0,450}semantics:\s*\[[^\]]*'workspace-binding'[^\]]*'gate-evidence'[^\]]*\][\s\S]{0,100}level:\s*'L4'/.test(processRegistryText)
+      && acceptanceWriterPolicy?.status === 'gateEvidence'
+      && acceptanceWriterPolicy.gateEvidence === true
+      && /name:\s*'acceptance_basis_generate',\s*level:\s*'L4'[\s\S]{0,500}acceptance_topology_check/.test(processLevelText)
+      && acceptancePromptPaths.every(path => read(path).includes('lattice acceptance_basis_generate'))
+      && acceptanceRequiredSemantics.includes('workspace-binding'),
+    'acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, structured seal binding, signed receipt verification, and canonical freshness consumption',
+  );
+  const topologyPolicy = commandPolicyEntries.get('acceptance_topology_check');
+  assert(
+    catalogText.includes("name: 'acceptance_topology_check'")
+      && catalogText.includes("mode: z.never()")
+      && handlerText.includes('acceptance_topology_check(args')
+      && handlerText.includes('evaluateAcceptanceTopologyForContext')
+      && topologyText.includes('evaluateAcceptanceTopologyCheck')
+      && topologyText.includes('structuralPass')
+      && topologyText.includes('AT_COVERAGE_BASIS_PARTIAL')
+      && basisText.includes('AT_UNMAPPED_SCOPE_REF')
+      && configText.includes('acceptanceTopologyGateMode')
+      && configText.includes('resolveAcceptanceTopologyGateMode')
+      && handlerText.includes('resolveAcceptanceTopologyGateMode')
+      && transitionOrchestratorText.includes('evaluateAcceptanceTopologyForContext')
+      && transitionOrchestratorText.includes('if (topology.blocking)')
+      && processRegistryText.includes('runtime:acceptance_topology_plan_dev_gate')
+      && processLevelText.includes('runtime:acceptance_topology_plan_dev_gate')
+      && topologyPolicy?.status === 'gateEvidence'
+      && topologyPolicy.gateEvidence === true
+      && policyBlockHasOwnershipClass(topologyPolicy, 'readOnly')
+      && activityPolicyText.includes("'acceptance_topology_check'")
+      && acceptancePromptPaths.every(path => read(path).includes('Acceptance-topology boundary:')),
+    'acceptance topology contract must bind CLI schema, canonical evaluator, signed basis verification, independent default-observe rollout mode, PLAN gate, process fact, and prompt guidance',
+  );
+  const preReviewText = read('packages/main/src/core/pre-review-check.ts');
+  const acceptanceDiscoveryText = read('packages/main/src/core/acceptance-discovery-adapters.ts');
+  const preReviewPolicy = commandPolicyEntries.get('pre_review_check');
+  assert(
+    catalogText.includes("name: 'pre_review_check'")
+      && catalogText.includes("name: 'pre_review_check_read'")
+      && handlerText.includes('issuePreReviewCheckArtifact')
+      && handlerText.includes('evaluatePreReviewCheckForContext')
+      && preReviewText.includes('verifyPreReviewCheckArtifact')
+      && preReviewText.includes('PR_MUTATION_DID_NOT_BITE')
+      && preReviewText.includes('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED')
+      && !preReviewText.includes('attestation?.checkedClaims')
+      && !preReviewText.includes('actorTrust')
+      && preReviewText.includes('const transcriptIds = row.transcriptProofs.map')
+      && preReviewText.includes('sameStrings(transcript.producerRefs, assertion.producerRefs)')
+      && preReviewText.includes('transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND')
+      && preReviewText.includes("PRE_REVIEW_LIVE_PROOF_COMMAND = 'node scripts/run-proofstory-pre-review-live-proof.mjs'")
+      && preReviewText.includes('proof case records/root invalid')
+      && preReviewText.includes('proof executable provenance invalid')
+      && preReviewText.includes('exactKindsAndSources')
+      && preReviewText.includes('preReviewExecutableProvenanceIsCurrent')
+      && read('packages/main/src/core/pre-review-live-proof.ts').includes('assemblePreReviewCaseRecords')
+      && read('packages/main/src/core/pre-review-live-proof.ts').includes('extra assertion IDs')
+      && read('scripts/run-proofstory-pre-review-live-proof.mjs').includes("['--prefix', 'packages/main', 'run', 'build']")
+      && acceptanceDiscoveryText.includes('exportedCallableCount(parsed, endpoint.expectedSymbolOrFact)')
+      && acceptanceDiscoveryText.includes('endpointMatchesArtifactKind')
+      && acceptanceDiscoveryText.includes('endpointIsRuntimeReachable')
+      && acceptanceDiscoveryText.includes('producerConsumerRelation')
+      && !acceptanceDiscoveryText.includes('sourceText.includes(endpoint.expectedSymbolOrFact)')
+      && transitionOrchestratorText.includes('runPreReviewCheckGate')
+      && transitionOrchestratorText.includes("story.phase === 'DEV' && args.phase === 'REVIEW'")
+      && processRegistryText.includes('artifact:pre-review-check.json')
+      && processLevelText.includes("name: 'pre_review_check', level: 'L4'")
+      && preReviewPolicy?.status === 'gateEvidence'
+      && preReviewPolicy.gateEvidence === true
+      && policyBlockHasOwnershipClass(preReviewPolicy, 'storyScopedMutating'),
+    'pre-review contract must keep one signed verifier writer, read-only verifier parity, stable PR_* semantics, process-fact registration, and the DEV to REVIEW lifecycle consumer',
+  );
+  const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
+  const topologyCriticPromptPaths = [
+    'packages/main/templates/agents/lattice-review-topology-critic.md',
+    '.claude/agents/lattice-review-topology-critic.md',
+    '.lattice-codex/agents/lattice-review-topology-critic.md',
+  ];
+  const topologyCriticPolicy = commandPolicyEntries.get('topology_critic_receipt_set');
+  assert(
+    catalogText.includes("name: 'topology_exclusion_approval_set'")
+      && catalogText.includes("name: 'topology_critic_receipt_set'")
+      && catalogText.includes("name: 'topology_critic_receipt_check'")
+      && handlerText.includes('topology_critic_receipt_set(args')
+      && handlerText.includes('topology_critic_receipt_check(args')
+      && handlerText.includes('verifyTopologyCriticReceipt')
+      && /export function verifyTopologyCriticReceipt\s*\(/.test(topologyCriticText)
+      && topologyCriticText.includes("context.basisStatus !== 'complete'")
+      && topologyCriticText.includes('independenceMatrix')
+      && topologyCriticText.includes('events: readonly ProcessEvent[];')
+      && topologyCriticText.includes('if (!Array.isArray(args.events) || args.events.length === 0)')
+      && topologyCriticText.includes('implementationProvenanceDiagnostics')
+      && topologyCriticText.includes('exact one-to-one independent approvals')
+      && processRegistryText.includes('runtime:topology_critic_authority_verification')
+      && processLevelText.includes('runtime:topology_critic_authority_verification')
+      && processRegistryText.includes('artifact:topology-critic-receipt.json')
+      && processRegistryText.includes('artifact:topology-exclusion-approvals.json')
+      && !transitionOrchestratorText.includes('evaluateTopologyCriticReceiptForContext')
+      && !transitionOrchestratorText.includes('independent topology critic gate rejected PLAN admission')
+      && topologyCriticPolicy?.status === 'supported'
+      && topologyCriticPolicy.gateEvidence !== true
+      && activityPolicyText.includes("'topology_critic_receipt_check'")
+      && topologyCriticPromptPaths.every(path => read(path).startsWith('---\n') && read(path).includes('- A pass is forbidden when the basis')),
+    'topology critic contract must bind role prompt, production producer/read-only verifier, required registered dispatch events, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
+  );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');
   assert(catalogText.includes('parentLedgerId') && catalogText.includes('assignedStory'), 'CLI schema: milestone ledger rows must expose optional parent/assigned-story fields');
@@ -1178,7 +1400,7 @@ function assertCloseoutTrustBoundary() {
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
     '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
-    'd6ca0a50fd24368b13817065278e2ca4d59d38983dc21a79322f9997de497e9e',
+    '235d6921b553cf992430f8e36324aca0bb7eefaa745195a1a67fb3d953032ca1',
     '48ca6562b11dda8996163ad992cdb2a9f6e19e6073beaf171290d064f1d106e2',
     '20149fa438b1ec78fc9c9713eb3cc4a890bc58a1d82e7a5fa0d588e9c4e7ee91',
     '518890b58fd8e369488721d66d954f9589a049a42066635f42c057227788ae45',
@@ -1888,13 +2110,21 @@ function assertCloseoutTrustBoundary() {
   }
   assert(read(lifecycleRegistryPath).includes("'closeout-write-receipts.jsonl'"), `${lifecycleRegistryPath}: receipt ledger must remain classified lifecycle metadata`);
   const lifecycleText = read(lifecycleRegistryPath);
-  assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'") && lifecycleText.includes("'owner-lease.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed and registry-backed`);
+  assert(lifecycleText.includes('REVIEW_RETENTION_PROTOCOL_METADATA_PATHS') && lifecycleText.includes("'prompt-envelopes.json'") && lifecycleText.includes("'process-metrics.json'") && lifecycleText.includes("'test-runs.json'") && lifecycleText.includes("'owner-lease.json'"), `${lifecycleRegistryPath}: non-authoritative review-retention companion metadata must remain closed, prompt-envelope complete, and registry-backed`);
   for (const fact of [
     'runtime:closeout_phase_transition',
+    'runtime:closeout_reviewer_reattestation_boundary',
     'runtime:closeout_human_confirmation',
     'runtime:closeout_validation_terminal',
   ]) {
     assert(read(processFactRegistryPath).includes(`name: '${fact}'`), `${processFactRegistryPath}: missing durable closeout convergence fact ${fact}`);
+  }
+  const reattestationBoundaryFact = registry.get('runtime:closeout_reviewer_reattestation_boundary');
+  assert(reattestationBoundaryFact?.level === 'L4', `${processFactRegistryPath}: reviewer re-attestation boundary must remain L4`);
+  assert(reattestationBoundaryFact?.producer.includes('review_run_start') && reattestationBoundaryFact?.producer.includes('review_pass_set'), `${processFactRegistryPath}: reviewer re-attestation boundary must identify review run/pass producers`);
+  assert(reattestationBoundaryFact?.consumerGate === 'done_prepare convergence acceptance', `${processFactRegistryPath}: reviewer re-attestation boundary must identify the done_prepare consumer`);
+  for (const token of ['same attempt', 'materialHash', 'storyFilesHash', 'reviewRound', 'first completed identity per lane', 'ReviewPass.createdAt', 'reviewRunId/pass id tie-breakers', 'independent of run start order', 'completed before TEST entry', 'at or after TEST entry', 'fail-closed']) {
+    assert(reattestationBoundaryFact?.rationale.includes(token), `${processFactRegistryPath}: reviewer re-attestation boundary rationale missing ${token}`);
   }
   assert(read(processFactRegistryPath).includes('...PROCESS_FACT_CLOSEOUT_TELEMETRY'), `${processFactRegistryPath}: durable closeout convergence facts must be included in the final registry`);
 
@@ -2226,29 +2456,52 @@ function promptSemanticTokens(text) {
   return [...tokens].sort();
 }
 
-function comparePromptSemantics(promptMap) {
+async function comparePromptSemantics(promptMap) {
   const templateDir = 'packages/main/templates/agents';
   const mirrorDirs = ['.claude/agents', '.lattice-codex/agents'];
+  const registryModule = await importBuiltModule('packages/main/dist/core/prompt-registry.js');
+  if (!registryModule?.readPromptRegistry || !registryModule?.renderPromptEntryForHost) {
+    fail('packages/main/dist/core/prompt-registry.js must expose the canonical host prompt renderer');
+    return;
+  }
+  const registryByFile = new Map(
+    registryModule.readPromptRegistry().agents.map(entry => [entry.file, entry]),
+  );
   const templateFiles = [...promptMap.keys()]
     .filter(relPath => relPath.startsWith(`${templateDir}/`))
     .sort();
 
   for (const templateRel of templateFiles) {
     const name = basename(templateRel);
-    const templateTokens = promptSemanticTokens(promptMap.get(templateRel));
+    const entry = registryByFile.get(name);
+    if (!entry) {
+      fail(`${templateRel} is missing from the canonical prompt registry`);
+      continue;
+    }
     for (const mirrorDir of mirrorDirs) {
       const mirrorRel = `${mirrorDir}/${name}`;
       if (!promptMap.has(mirrorRel)) {
         warn(`${mirrorRel} missing; no semantic drift comparison available`);
         continue;
       }
+      if (modularReviewerBootstrapFiles.has(name)) {
+        const bootstrap = promptMap.get(mirrorRel);
+        if (!bootstrap.includes('review_run_start') || bootstrap.includes('finding_add') || bootstrap.includes('review_pass_set')) {
+          fail(`${mirrorRel} must be a body-free reviewer bootstrap that selects exactly one runtime prompt`);
+        }
+        continue;
+      }
+      const host = mirrorDir === '.claude/agents' ? 'claude' : 'codex';
+      const canonicalTokens = promptSemanticTokens(
+        registryModule.renderPromptEntryForHost(entry, host),
+      );
       const mirrorTokens = promptSemanticTokens(promptMap.get(mirrorRel));
-      const missing = templateTokens.filter(token => !mirrorTokens.includes(token));
-      const extra = mirrorTokens.filter(token => !templateTokens.includes(token));
+      const missing = canonicalTokens.filter(token => !mirrorTokens.includes(token));
+      const extra = mirrorTokens.filter(token => !canonicalTokens.includes(token));
       if (missing.length || extra.length) {
         const changed = [...missing, ...extra];
         const commandOrPathDrift = changed.some(token => token.startsWith('cmd:') || token.startsWith('path:'));
-        const message = `${mirrorRel} command/path semantics drifted from template ${templateRel}; missing=[${missing.join(', ')}] extra=[${extra.join(', ')}]`;
+        const message = `${mirrorRel} command/path semantics drifted from canonical ${host} host render for ${templateRel}; missing=[${missing.join(', ')}] extra=[${extra.join(', ')}]`;
         if (commandOrPathDrift) fail(message);
         else warn(message);
       }
@@ -3365,7 +3618,7 @@ function parseProcessFactRegistry() {
   assertProcessFactMappedSourceContracts(sourceText);
 
   if (builtProcessFactRegistryModule?.PROCESS_FACT_REGISTRY) {
-    const entries = builtProcessFactRegistryModule.PROCESS_FACT_REGISTRY.map(entry => ({
+    let entries = builtProcessFactRegistryModule.PROCESS_FACT_REGISTRY.map(entry => ({
       name: entry.name,
       kind: entry.kind,
       semantics: Array.isArray(entry.semantics) ? [...entry.semantics] : [],
@@ -3384,6 +3637,12 @@ function parseProcessFactRegistry() {
       reviewerLane: entry.reviewerLane || '',
       rationale: entry.rationale || '',
     }));
+    // Mutation seam used by the focused production-contract smoke: remove one
+    // side of registration and require the ordinary cross-registry assertions
+    // below to fail. It never changes normal verification behavior.
+    if (process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
+      entries = entries.filter(entry => entry.name !== 'acceptance_basis_generate');
+    }
     assert(entries.length > 0, `${processFactRegistryPath}: compiled PROCESS_FACT_REGISTRY should not be empty`);
     cachedProcessFactRegistryEntries = entries;
     return entries;
@@ -3445,8 +3704,18 @@ function parseProcessFactRegistry() {
     reviewerLane: '',
     rationale: entry.rationale,
   }));
+  const closeoutTelemetryEntries = parseRegistryArrayEntriesFromSource(sourceText, 'PROCESS_FACT_CLOSEOUT_TELEMETRY');
 
-  cachedProcessFactRegistryEntries = [...commandEntries, ...laneEntries, ...artifactEntries, ...flowPolicyEntries];
+  cachedProcessFactRegistryEntries = [
+    ...commandEntries,
+    ...laneEntries,
+    ...artifactEntries,
+    ...flowPolicyEntries,
+    ...closeoutTelemetryEntries,
+  ];
+  if (process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
+    cachedProcessFactRegistryEntries = cachedProcessFactRegistryEntries.filter(entry => entry.name !== 'acceptance_basis_generate');
+  }
   return cachedProcessFactRegistryEntries;
 }
 
@@ -3655,8 +3924,70 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     assert(routineReuseText.includes(token), `shared routine validation reuse contract missing ${token}`);
   }
   const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');
-  for (const token of ["['_', 'OLDPWD', 'SHLVL']", "platform === 'win32'", "effective[canonicalKey('PWD')] = cwd", 'effective[canonicalKey(key)] = value']) {
+  const expectedValidationTransportKeys = [
+    'AGY_SESSION_ID',
+    'ANTIGRAVITY_SESSION_ID',
+    'CLAUDE_CODE_SESSION_ID',
+    'CLAUDE_SESSION_ID',
+    'CODEX_SESSION_ID',
+    'CODEX_THREAD_ID',
+    'GEMINI_SESSION_ID',
+    'LATTICE_ACTIVITY_RECORD_READONLY',
+    'LATTICE_ACTIVITY_ROLE',
+    'LATTICE_ACTIVITY_SESSION',
+    'LATTICE_ACTIVITY_SOURCE',
+    'LATTICE_AGENT',
+    'LATTICE_CODEX_ENTRYPOINT',
+    'LATTICE_OWNER_SESSION_ADAPTER_AGENT',
+    'LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY',
+    'LATTICE_OWNER_SESSION_ADAPTER_GENERATED',
+    'LATTICE_OWNER_SESSION_ADAPTER_PROVIDER',
+    'LATTICE_OWNER_SESSION_ADAPTER_ROLE',
+    'LATTICE_OWNER_SESSION_ADAPTER_SESSION',
+    'LATTICE_OWNER_SESSION_ADAPTER_TASK',
+    'LATTICE_SESSION_ID',
+    'OLDPWD',
+    'OPENAI_SESSION_ID',
+    'SHLVL',
+    'TERM_SESSION_ID',
+    '_',
+  ];
+  const transportListMatch = validationEnvironmentText.match(
+    /export const VALIDATION_TRANSPORT_ENV_KEY_LIST = \[([\s\S]*?)\] as const;/,
+  );
+  assert(transportListMatch, 'shared validation command environment must export the canonical transport key list');
+  const actualValidationTransportKeys = transportListMatch
+    ? [...transportListMatch[1].matchAll(/'([A-Z0-9_]+)'/g)].map((match) => match[1])
+    : [];
+  assert(
+    JSON.stringify(actualValidationTransportKeys) === JSON.stringify(expectedValidationTransportKeys),
+    `shared validation command environment canonical transport set mismatch: expected ${JSON.stringify(expectedValidationTransportKeys)}, got ${JSON.stringify(actualValidationTransportKeys)}`,
+  );
+  const expectedTransportDigest = `sha256:${createHash('sha256')
+    .update(JSON.stringify(expectedValidationTransportKeys))
+    .digest('hex')}`;
+  assert(
+    validationEnvironmentText.includes(`'${expectedTransportDigest}'`),
+    `shared validation command environment transport digest mismatch: ${expectedTransportDigest}`,
+  );
+  for (const token of [
+    'new Set<string>(VALIDATION_TRANSPORT_ENV_KEY_LIST)',
+    "platform === 'win32'",
+    "effective[canonicalKey('PWD')] = cwd",
+    'effective[canonicalKey(key)] = value',
+  ]) {
     assert(validationEnvironmentText.includes(token), `shared validation command environment contract missing ${token}`);
+  }
+  const doneRequiredSmokeText = read('packages/main/src/tasks/done-required-validation-smoke.ts');
+  for (const token of [
+    'const behaviorEnvironmentMutations = [',
+    "{ name: 'LANG', environment: { ...deliveryEnvironment, LANG: 'en_GB.UTF-8' } }",
+    "{ name: 'LC_ALL', environment: { ...deliveryEnvironment, LC_ALL: 'en_GB.UTF-8' } }",
+    "/effective-environment-digest-mismatch\\[0\\]/",
+    "/effective-environment-digest-mismatch\\[1\\]/",
+    'for (const mutation of behaviorEnvironmentMutations)',
+  ]) {
+    assert(doneRequiredSmokeText.includes(token), `DONE-required environment mutation contract missing ${token}`);
   }
   const validationExecutorEnvironmentText = read('packages/main/src/core/validation-executor.ts');
   assert(
@@ -5620,10 +5951,58 @@ function assertParentRoadmapTotalityRuntime() {
   assert(levelText.includes('runtime:agent_dispatch_role_authority_gate'), 'process-fact-levels: typed agent dispatch authority fact missing');
   assert(registryFactText.includes("'runtime:agent_dispatch_role_authority_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence']"), 'process-fact-registry: typed dispatch authority must remain a gate-consumed reviewer-lane schema contract');
   assert(levelText.includes('runtime:incremental_review_eligibility_gate'), 'process-fact-levels: incremental review eligibility fact missing');
+  assert(read('packages/main/src/core/review-run.ts').includes('passesCutoffAt: run.startedAt'), 'review-run verifier must bind prior-pass eligibility to signed run.startedAt');
+  assert(read('packages/main/src/handlers/review-run.ts').includes('passesCutoffAt: startedAt'), 'review_run_start assembly must use the same prior-pass cutoff as verification');
+  assert(read('packages/main/src/tasks/review-incremental-context-smoke.ts').includes('passesCutoffAt'), 'incremental review smoke must exercise the prior-pass cutoff contract');
+  const taskContextSource = read('packages/main/src/core/prompt-envelope.ts');
   assert(
-    registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
-    'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/freshness contract',
+    taskContextSource.includes('phase: _phase')
+      && taskContextSource.includes("context.phase === 'TEST' ? 'REVIEW' : context.phase")
+      && taskContextSource.includes('phase: semanticPhase'),
+    'model-relevant TaskContext digest must equate only TEST with REVIEW while preserving every other actual phase',
   );
+  const incrementalLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:incremental_review_eligibility_gate');
+  for (const token of ['only TEST as equivalent', 'mandatory REVIEW-to-TEST transition', 'DEV, DONE, DISCARDED', 'malformed or unknown phases remain distinct', 'checklist', 'scope mutations']) {
+    assert(incrementalLevel?.rationale.includes(token), `incremental review eligibility rationale missing lifecycle semantic boundary: ${token}`);
+  }
+  assert(incrementalLevel?.gateConsumer.includes('DONE/done_prepare') && incrementalLevel?.gateConsumer.includes('collectReviewerEvidenceState'), 'incremental review eligibility must identify the shared DONE/done_prepare evidence oracle');
+  const incrementalSmoke = read('packages/main/src/tasks/review-incremental-context-smoke.ts');
+  for (const token of ['REVIEW-TO-TEST TASK SNAPSHOT', 'only REVIEW/TEST are equivalent', 'DEV/DONE/DISCARDED/unknown', 'title/checklist mutations fail closed', 'DONE oracle agrees']) {
+    assert(incrementalSmoke.includes(token), `incremental review smoke missing lifecycle task-context proof token: ${token}`);
+  }
+  assert(
+    registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
+    'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/normalization/freshness contract',
+  );
+  assert(levelText.includes('runtime:prompt_role_body_rollout_gate'), 'process-fact-levels: prompt role-body rollout gate fact missing');
+  assert(
+    registryFactText.includes("'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence']"),
+    'process-fact-registry: prompt role-body rollout must remain a gate-consumed role/envelope contract',
+  );
+  const roleBodyRolloutLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:prompt_role_body_rollout_gate');
+  assert(roleBodyRolloutLevel?.level === 'L4', 'prompt role-body rollout must remain L4');
+  for (const token of ['five active REVIEW lanes', 'content-addressed', 'byte-exact legacy role body', 'Every supported host mode binds both', 'total model input explicit', 'Compatibility and retired']) {
+    assert(roleBodyRolloutLevel?.rationale.includes(token), `prompt role-body rollout rationale must preserve ${token}`);
+  }
+  const reviewAtomicLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:review_run_atomic_persistence_gate');
+  assert(reviewAtomicLevel?.level === 'L4', 'review-run atomic persistence must remain L4');
+  for (const token of ['Every Prompt Envelope producer', 'Story-aware agent_prompt', 'bakery-style unique-ticket', 'never-reused UUID ticket path', 'stale reclaim removes only the exact dead acquisition path', 'fixed-path ABA', 'nests no fixed-path Prompt Envelope lock']) {
+    assert(reviewAtomicLevel?.rationale.includes(token), `review-run atomic persistence rationale must preserve ${token}`);
+  }
+  const mkdirLockText = read('packages/main/src/core/mkdir-lock.ts');
+  const reviewRunHandlerText = read('packages/main/src/handlers/review-run.ts');
+  const agentPromptHandlerText = read('packages/main/src/handlers/agent-prompt.ts');
+  const incrementalSmokeText = read('packages/main/src/tasks/review-incremental-context-smoke.ts');
+  for (const token of ['acquireMkdirTicketLock', '.choosing', '.ticket', 'randomUUID()', 'rmSync(candidate.path']) {
+    assert(mkdirLockText.includes(token), `mkdir ticket lock must preserve identity-conditional reclaim marker ${token}`);
+  }
+  assert(reviewRunHandlerText.includes('withReviewMetadataTicketLock'), 'review_run_start must use the shared review metadata transaction lock');
+  assert(agentPromptHandlerText.includes('withReviewMetadataTicketLock'), 'Story-aware agent_prompt must use the shared review metadata transaction lock');
+  assert(!reviewRunHandlerText.includes("'prompt-envelopes.lock'"), 'review_run_start must not nest the legacy fixed-path Prompt Envelope lock');
+  assert(!agentPromptHandlerText.includes("'prompt-envelopes.lock'"), 'Story-aware agent_prompt must not use the legacy fixed-path Prompt Envelope lock');
+  for (const token of ['MIXED WRITER LOCK ABA:', "'review_run_start'", "'agent_prompt'", 'observed-w2', 'observed-w1', 'allow-remove-w2', 'acquired-w2', 'allow-remove-w1', 'actual mixed producers preserve both Prompt Envelope records', 'verifyReviewRunPromptEnvelope']) {
+    assert(incrementalSmokeText.includes(token), `review incremental smoke must preserve deterministic ABA barrier ${token}`);
+  }
   const dispatchAuthorityLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:agent_dispatch_role_authority_gate');
   assert(dispatchAuthorityLevel?.level === 'L4', 'typed agent dispatch authority must remain L4');
   assert(/dispatch prompt admission and role-gated checklist\/reviewer evidence mutation consumers/.test(dispatchAuthorityLevel?.gateConsumer || ''), 'typed agent dispatch authority must name prompt and mutation consumers');
@@ -6418,7 +6797,7 @@ for (const dir of promptDirs) {
     );
   }
 }
-comparePromptSemantics(promptMap);
+await comparePromptSemantics(promptMap);
 assertSyntheticAdversarialChecks();
 for (const relPath of [
   'packages/main/src/cli-engine.ts',

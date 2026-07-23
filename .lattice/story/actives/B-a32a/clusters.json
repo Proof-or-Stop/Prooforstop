@@ -1,0 +1,116 @@
+{
+  "clusters": [
+    {
+      "clusterId": "CL-001",
+      "rootCause": "Multiple findings all involve packages/main/src/core/acceptance-discovery-adapters.ts",
+      "findingIds": [
+        "B-a32a:F-001",
+        "B-a32a:F-006"
+      ],
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-07-22T07:04:54.897Z"
+    },
+    {
+      "clusterId": "CL-002",
+      "rootCause": "Multiple findings all involve packages/main/src/core/acceptance-coverage-basis.ts",
+      "findingIds": [
+        "B-a32a:F-002",
+        "B-a32a:F-005"
+      ],
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "acceptance-discovery-adapters.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-07-22T07:04:55.723Z"
+    },
+    {
+      "clusterId": "CL-003",
+      "rootCause": "Multiple findings all involve packages/main/src/core/acceptance-coverage-basis.ts",
+      "findingIds": [
+        "B-a32a:F-003",
+        "B-a32a:F-004"
+      ],
+      "files": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "handlers/proofstory.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-07-22T07:04:56.546Z"
+    },
+    {
+      "clusterId": "CL-004",
+      "rootCause": "Multiple findings all involve packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+      "findingIds": [
+        "B-a32a:F-007",
+        "B-a32a:F-008",
+        "B-a32a:F-009",
+        "B-a32a:F-010"
+      ],
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/cli/command-schemas.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        ".lattice/story/actives/B-a32a/plan.md"
+      ],
+      "severity": "high",
+      "createdAt": "2026-07-22T07:04:57.681Z"
+    },
+    {
+      "clusterId": "CL-005",
+      "rootCause": "Multiple findings all involve packages/main/src/core/acceptance-discovery-adapters.ts",
+      "findingIds": [
+        "B-a32a:F-011",
+        "B-a32a:F-013"
+      ],
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "registry.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-07-22T07:43:51.925Z"
+    },
+    {
+      "clusterId": "CL-006",
+      "rootCause": "Multiple findings all involve packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+      "findingIds": [
+        "B-a32a:F-015",
+        "B-a32a:F-016",
+        "B-a32a:F-017"
+      ],
+      "files": [
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "severity": "high",
+      "createdAt": "2026-07-22T07:43:54.641Z"
+    },
+    {
+      "clusterId": "CL-007",
+      "rootCause": "Multiple findings all involve packages/main/src/core/acceptance-discovery-adapters.ts",
+      "findingIds": [
+        "B-a32a:F-018",
+        "B-a32a:F-019"
+      ],
+      "files": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "command-catalog.ts",
+        "handlers/proofstory.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-07-22T08:26:11.716Z"
+    }
+  ]
+}

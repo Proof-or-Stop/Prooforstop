@@ -28,6 +28,7 @@ export type AgentDispatchCanonicalType =
   | 'lattice-review-story-init'
   | 'product-reviewer'
   | 'lattice-review-scope-plan'
+  | 'lattice-review-topology-critic'
   | 'lattice-review-concept'
   | 'lattice-review-quality'
   | 'lattice-review-test-coverage'
@@ -57,6 +58,7 @@ export type AgentDispatchPromptBuilderKey =
   | 'init-review'
   | 'product-init-review'
   | 'scope-plan-review'
+  | 'topology-critic-review'
   | 'story-review'
   | 'item-review'
   | 'coverage-review'
@@ -68,6 +70,8 @@ export type AgentDispatchMutationCommand =
   | 'checklist_update'
   | 'init_check_set'
   | 'scope_check_save'
+  | 'topology_exclusion_approval_set'
+  | 'topology_critic_receipt_set'
   | 'review_run_start'
   | 'finding_add'
   | 'review_pass_set'
@@ -78,6 +82,7 @@ export type AgentDispatchReviewerLane =
   | 'lattice-review-story-init'
   | 'product-reviewer'
   | 'lattice-review-scope-plan'
+  | 'lattice-review-topology-critic'
   | 'lattice-review-concept'
   | 'lattice-review-quality'
   | 'lattice-review-test-coverage'
@@ -91,6 +96,8 @@ export type AgentDispatchEvidenceOwnership =
   | 'verification-intent'
   | 'init-check'
   | 'scope-check'
+  | 'topology-exclusion-approval'
+  | 'topology-critic-receipt'
   | 'review-run'
   | 'finding'
   | 'review-pass'
@@ -197,6 +204,384 @@ export interface VerificationIntentItem {
   type: VerificationIntentType;
   requiredIn?: VerificationRequiredIn;
   priority?: VerificationPriority;
+  /** PLAN-only, verification-intent-owned declarations for paths DEV will add. */
+  plannedPathDeclarations?: VerificationPlannedPathDeclarationV1[];
+}
+
+export type VerificationPlannedPathArtifactKind = 'source_file' | 'handler' | 'dispatch' | 'process_fact';
+
+export interface VerificationPlannedPathEndpointV1 {
+  id: string;
+  role: 'producer' | 'consumer';
+  expectedArtifactKind: VerificationPlannedPathArtifactKind;
+  expectedFileRef: string;
+  expectedSymbolOrFact: string;
+  fileDeclarationRef: string;
+}
+
+export interface VerificationPlannedPathDeclarationV1 {
+  schemaVersion: 'proofstory.verification_planned_path_declaration.v1';
+  id: string;
+  relation: 'producer_to_consumer';
+  producer: VerificationPlannedPathEndpointV1;
+  consumers: VerificationPlannedPathEndpointV1[];
+  outputFactRef: string;
+}
+
+export interface ExistingTopologySourceRefV1 {
+  refKind: 'existing';
+  canonicalSourceRef: string;
+}
+
+export interface PlannedTopologySourceRefV1 {
+  refKind: 'planned';
+  plannedPathDeclarationRef: string;
+  endpointRef: string;
+}
+
+export type TopologySourceRefV1 = ExistingTopologySourceRefV1 | PlannedTopologySourceRefV1;
+
+export interface AcceptanceTopologyProducerRefV1 {
+  id: string;
+  sourceRef: TopologySourceRefV1;
+}
+
+export interface AcceptanceTopologyConsumerRefV1 {
+  id: string;
+  sourceRef: TopologySourceRefV1;
+  producerRefs: string[];
+}
+
+export interface AcceptanceTopologyAssertionRefV1 {
+  id: string;
+  sourceRef: TopologySourceRefV1;
+  producerRefs: string[];
+  consumerRefs: string[];
+}
+
+/**
+ * Wave 1 is deliberately reference-only. It contains no copied edge semantics,
+ * observed outcomes, coverage basis, authority, freshness, or verdict fields.
+ */
+export interface AcceptanceVerificationTopologyV1 {
+  schemaVersion: 'proofstory.acceptance_topology.v1';
+  producerRefs: AcceptanceTopologyProducerRefV1[];
+  consumerRefs: AcceptanceTopologyConsumerRefV1[];
+  positiveAssertionRefs: AcceptanceTopologyAssertionRefV1[];
+  mutationCaseRefs: AcceptanceTopologyAssertionRefV1[];
+  transcriptAssertionRefs: AcceptanceTopologyAssertionRefV1[];
+  commandRefs: TopologySourceRefV1[];
+}
+
+export type CoverageDiscoveryMethodV1 =
+  | 'scope_contract'
+  | 'actual_diff_hunks'
+  | 'process_fact_registry'
+  | 'handler_dispatch_inventory'
+  | 'static_call_graph'
+  | 'runtime_trace';
+
+export interface CoverageAdapterResultV1 {
+  schemaVersion: 'proofstory.coverage_adapter_result.v1';
+  adapterId: string;
+  method: CoverageDiscoveryMethodV1;
+  pathRefs: string[];
+  coverageClaim: 'complete_for_scope' | 'partial' | 'unsupported';
+  blindSpots: string[];
+  provenanceRefs: string[];
+  asymmetryPolicy: {
+    kind: 'exhaustive' | 'bounded_non_exhaustive' | 'unsupported';
+    policyRef: string;
+    scopeRefs: string[];
+  };
+  resultDigest: string;
+}
+
+export interface PlannedCoveragePathV1 {
+  schemaVersion: 'proofstory.planned_coverage_path.v1';
+  plannedPathRef: string;
+  plannedPathDeclarationRef: string;
+  declarationDigest: string;
+  producer: VerificationPlannedPathEndpointV1;
+  consumers: VerificationPlannedPathEndpointV1[];
+  outputFactRef: string;
+  acceptanceBindingRefs: string[];
+  verificationIntentRefs: string[];
+  declarationRefs: string[];
+  plannedPathDigest: string;
+}
+
+export interface PlannedActualPathReconciliationV1 {
+  schemaVersion: 'proofstory.planned_actual_path_reconciliation.v1';
+  plannedPathRef: string;
+  actualPathRefs: string[];
+  relation: 'exact' | 'expanded' | 'replaced';
+  replacementDecisionRef?: string;
+  reconciliationDigest: string;
+}
+
+export type AcceptanceSnapshotSealIssueCodeV1 =
+  | 'directory_changed'
+  | 'source_file_changed'
+  | 'safe_no_follow_unsupported'
+  | 'inventory_unsealable'
+  | 'snapshot_missing'
+  | 'derivation_diagnostic';
+
+export interface AcceptanceSnapshotSealIssueV1 {
+  code: AcceptanceSnapshotSealIssueCodeV1;
+  targetKind: 'directory' | 'source_file' | 'config' | 'inventory';
+  canonicalRef: string;
+}
+
+export interface AcceptanceSnapshotSealV1 {
+  schemaVersion: 'proofstory.acceptance_snapshot_seal.v1';
+  inventoryDirectoryDigest: string;
+  inventoryDirectoryCount: number;
+  sourceSnapshotDigest: string;
+  sourceSnapshotCount: number;
+  configSnapshotDigest: string;
+  status: 'complete' | 'partial';
+  issues: AcceptanceSnapshotSealIssueV1[];
+  sealDigest: string;
+}
+
+export interface AcceptanceCoverageBasisV1 {
+  schemaVersion: 'proofstory.acceptance_coverage_basis.v1';
+  storyId: string;
+  phaseBasis: 'plan' | 'pre_review';
+  priorPlanBasisDigest?: string;
+  status: 'complete' | 'partial' | 'unsupported';
+  generatedBy: {
+    verifier: 'acceptance-coverage-basis-verifier';
+    command: 'lattice acceptance_basis_generate' | 'lattice pre_review_check';
+    algorithmVersion: 'v1';
+  };
+  discoveryProfileRef: string;
+  discoveryProfileDigest: string;
+  discoveryMethods: CoverageDiscoveryMethodV1[];
+  adapterResults: CoverageAdapterResultV1[];
+  scopeRefs: string[];
+  sourceInventoryRefs: string[];
+  plannedPathRecords: PlannedCoveragePathV1[];
+  plannedActualReconciliations: PlannedActualPathReconciliationV1[];
+  enumeratedPathRefs: string[];
+  excludedPathRefs: Array<{ pathRef: string; decisionRef: string }>;
+  blindSpots: string[];
+  snapshotSeal: AcceptanceSnapshotSealV1;
+  binding: {
+    headHash: string;
+    materialHash: string;
+    storyFilesHash: string;
+    scopeCheckDigest: string;
+    scopeContractDigest?: string;
+    closureFilesHash: string;
+  };
+  receiptRef: string;
+  basisDigest: string;
+}
+
+export interface AcceptanceBasisReceiptV1 {
+  schemaVersion: 'proofstory.acceptance_basis_receipt.v1';
+  receiptRef: string;
+  issuer: 'acceptance-coverage-basis-verifier';
+  issuerKeyId: string;
+  signerPublicKey: string;
+  storyId: string;
+  phaseBasis: 'plan' | 'pre_review';
+  basisDigest: string;
+  topologyDigest: string;
+  scopeCheckDigest: string;
+  scopeContractDigest?: string;
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  closureFilesHash: string;
+  sealDigest: string;
+  workspaceIdentityDigest: string;
+  signature: string;
+}
+
+export interface AcceptanceBasisArtifactV1 {
+  schemaVersion: 'proofstory.acceptance_basis_artifact.v1';
+  basis: AcceptanceCoverageBasisV1;
+  receipt: AcceptanceBasisReceiptV1;
+}
+
+export type PreReviewCheckCodeV1 =
+  | 'ok'
+  | 'PR_ARTIFACT_MISSING'
+  | 'PR_COVERAGE_BASIS_CHANGED'
+  | 'PR_COVERAGE_INCONCLUSIVE'
+  | 'PR_PLANNED_PATH_UNRESOLVED'
+  | 'PR_PLANNED_PATH_RECONCILIATION_TAMPERED'
+  | 'PR_POSITIVE_EVIDENCE_MISSING'
+  | 'PR_PRODUCTION_PATH_UNPROVEN'
+  | 'PR_MUTATION_EVIDENCE_MISSING'
+  | 'PR_MUTATION_DID_NOT_BITE'
+  | 'PR_CONTROL_NOT_RESTORED'
+  | 'PR_TRANSCRIPT_MISSING'
+  | 'PR_TRANSCRIPT_UNRELATED'
+  | 'PR_AUTHORITY_INADMISSIBLE'
+  | 'PR_EVIDENCE_STALE'
+  | 'PR_CUTOFF_UNBOUND'
+  | 'PR_NEW_PATH_UNMAPPED'
+  | 'PR_REQUIRED_ADAPTER_RESULT_MISSING'
+  | 'PR_ADAPTER_RESULT_DIGEST_MISMATCH'
+  | 'PR_ADAPTER_RESULT_INVALID'
+  | 'PR_CLOSURE_FILES_CHANGED'
+  | 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'
+  | 'PR_ARTIFACT_TAMPERED';
+
+export interface PreReviewMutationProofV1 {
+  mutationId: string;
+  expectedCode: string;
+  observedCode: string;
+  controlRestored: boolean;
+}
+
+export interface PreReviewTranscriptProofV1 {
+  transcriptId: string;
+  producerRefs: string[];
+  consumerRefs: string[];
+  producerSequence: number;
+  consumerSequence: number;
+}
+
+export interface PreReviewBindingProofV1 {
+  bindingId: string;
+  positiveAssertionIds: string[];
+  mutationProofs: PreReviewMutationProofV1[];
+  transcriptProofs: PreReviewTranscriptProofV1[];
+}
+
+/** Compact, canonical machine record: id, kind, target, mutationKind, operation,
+ * expected, observed, controlRestored, ordered producer/consumer events, and
+ * the exact topology assertion sourceRef. */
+export type PreReviewCaseRecordV1 = [
+  id: string,
+  kind: 'positive' | 'mutation' | 'transcript',
+  target: string,
+  mutationKind: string,
+  operation: string,
+  expectedCode: string,
+  observedCode: string,
+  controlRestored: boolean,
+  events: Array<[event: string, sequence: number]>,
+  assertionSourceRef: string,
+];
+
+export interface PreReviewExecutableProvenanceV1 {
+  runnerPath: string;
+  runnerDigest: string;
+  targetPath: string;
+  targetDigest: string;
+  buildCommand: string;
+}
+
+export interface PreReviewExecutableProofV1 {
+  schemaVersion: 'proofstory.pre_review_executable_proof.v1';
+  storyId: string;
+  producer: 'registered-verification-command';
+  verifier: 'pre-review-check-command-runner';
+  commandDigests: string[];
+  caseRecordsEncoding: 'gzip-base64';
+  caseRecords: string;
+  provenance: PreReviewExecutableProvenanceV1;
+  bindingProofs: PreReviewBindingProofV1[];
+}
+
+export interface PreReviewEvidenceRefV1 {
+  intentRef: string;
+  itemId: string;
+  evidenceIndex: number;
+  kind: VerificationEvidenceKind;
+  evidenceDigest: string;
+}
+
+export interface PreReviewCheckArtifactV1 {
+  schemaVersion: 'proofstory.pre_review_check.v1';
+  storyId: string;
+  mode: 'observe' | 'warn' | 'enforce';
+  cutoffAt: string;
+  planBasisDigest: string;
+  preReviewBasisArtifact: AcceptanceBasisArtifactV1;
+  topologyDigest: string;
+  scopeCheckDigest: string;
+  scopeContractDigest?: string;
+  storyFilesHash: string;
+  closureFilesHash: string;
+  evidenceRefs: PreReviewEvidenceRefV1[];
+  executableProof: PreReviewExecutableProofV1;
+  criticReceiptDigest?: string;
+  codes: PreReviewCheckCodeV1[];
+  status: 'pass' | 'fail' | 'inconclusive';
+  issuedAt: string;
+  signerPublicKey: string;
+  signature: string;
+}
+
+export interface TopologyActorProvenanceV1 {
+  agentId: string;
+  sessionId: string;
+  dispatchId: string;
+  storyId: string;
+  headHash: string;
+  storyFilesHash: string;
+  businessCommit: string;
+  businessCommitAuthor: string;
+  businessCommitAuthorSource: 'git-var:GIT_AUTHOR_IDENT' | 'git-log:commit-author';
+  businessIdentity: string;
+}
+
+export interface TopologyImplementationProvenanceV1 extends TopologyActorProvenanceV1 {}
+
+export interface TopologyExclusionApprovalV1 {
+  schemaVersion: 'proofstory.topology_exclusion_approval.v1';
+  approvalRef: string;
+  storyId: string;
+  exclusionRef: string;
+  scopeRef: string;
+  approverIdentity: string;
+  approverRole: 'lattice-review-scope-plan';
+  approverProvenance: TopologyActorProvenanceV1;
+  implementationProvenance: TopologyImplementationProvenanceV1;
+  basisDigest: string;
+  topologyDigest: string;
+  scopeCheckDigest: string;
+  scopeContractDigest?: string;
+  storyFilesHash: string;
+  closureFilesHash: string;
+  issuedAt: string;
+  signerPublicKey: string;
+  signature: string;
+}
+
+export interface TopologyExclusionApprovalsDataV1 {
+  schemaVersion: 'proofstory.topology_exclusion_approvals.v1';
+  storyId: string;
+  approvals: TopologyExclusionApprovalV1[];
+}
+
+export interface TopologyCriticReceiptV1 {
+  schemaVersion: 'proofstory.topology_critic_receipt.v1';
+  storyId: string;
+  criticIdentity: string;
+  criticRole: 'lattice-review-topology-critic';
+  criticProvenance: TopologyActorProvenanceV1;
+  implementationProvenance: TopologyImplementationProvenanceV1;
+  basisDigest: string;
+  topologyDigest: string;
+  scopeCheckDigest: string;
+  scopeContractDigest?: string;
+  storyFilesHash: string;
+  closureFilesHash: string;
+  findingRefs: string[];
+  approvedExclusionRefs: string[];
+  verdict: 'pass' | 'request_changes';
+  issuedAt: string;
+  signerPublicKey: string;
+  signature: string;
 }
 
 export type VerificationIntent = Record<VerificationLane, VerificationIntentItem[]>;
@@ -2127,6 +2512,7 @@ export interface ProofStoryAcceptanceBinding {
   verificationIntentRefs: string[];
   milestoneIds: string[];
   note?: string;
+  verificationTopology?: AcceptanceVerificationTopologyV1;
 }
 
 export interface ProofStoryDiagnosticGap {

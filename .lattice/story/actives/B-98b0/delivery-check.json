@@ -1,0 +1,78 @@
+{
+  "storyId": "B-98b0",
+  "checkedAt": "2026-07-22T17:27:13.509Z",
+  "headHash": "0796c21f215d78d761bd0af3eaa6105a7e689044",
+  "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf",
+  "storyFilesHash": "e2cd3be6a5c66c16523710eb5866527f7d6a98d60faf69dd9b33c06a60b786e9",
+  "reviewRound": "2026-07-22T17:10:12.954Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-98b0/checklist.json#CHK-001.userSees",
+      "promise": "A complete verifier-signed basis and closed topology can produce the exact PASS structural report in enforce mode.",
+      "status": "verified",
+      "verifiedBy": "live smoke transcript plus source assertion inspection",
+      "evidence": "live-smoke-transcript runs proofstory-acceptance-topology-gate-smoke.js with exitCode 0; the temp-repo control generates a signed complete basis and asserts structuralPass=true with no diagnostics. The current B-98b0 workspace itself is honestly inconclusive/unsupported and is not claimed as production readiness."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-98b0/checklist.json#CHK-002.userSees",
+      "promise": "lattice acceptance_topology_check exposes deterministic canonical text and JSON diagnostics through a read-only, non-evidentiary, diagnostic-only CLI surface.",
+      "status": "verified",
+      "verifiedBy": "direct production CLI invocation and diff/source inspection",
+      "evidence": "command-catalog rejects caller mode/status/authority/write fields; registry routes handlers/proofstory acceptance_topology_check to the shared evaluator; READ_ONLY_COMMANDS includes it; direct current invocation returned readOnly=true, evidentiary=false, authority=diagnostic_only and ordered AT diagnostics."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-98b0/checklist.json#CHK-003.userSees",
+      "promise": "PLAN to DEV consumes the same canonical structural report; enforce blocks non-pass while observe and warn preserve diagnostics without blocking.",
+      "status": "verified",
+      "verifiedBy": "transition source inspection and real temp-repo lifecycle assertions",
+      "evidence": "transition-orchestrator calls evaluateAcceptanceTopologyForContext only for PLAN to DEV and throws only when topology.blocking; the smoke runs three real temp repos and asserts observe/warn reach DEV, enforce stays PLAN, and semantic reports remain equal apart from mode/blocking."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-98b0/checklist.json#CHK-004.userSees",
+      "promise": "The focused Wave 2 production-chain smoke verifies core/CLI/lifecycle parity, compatibility, omission/invention, mutation bite, and exact restoration.",
+      "status": "verified",
+      "verifiedBy": "assertion-level diff inspection and captured executed transcript",
+      "evidence": "548-line focused smoke contains real acceptance_basis_generate, acceptance_topology_check and story_advance calls; named assertions cover missing/partial/unsupported/tampered basis, C2 omission, invention, planned-path errors, mode polarity, process-fact mutations, exact byte restoration and temp cleanup; captured exitCode is 0."
+    },
+    {
+      "docPath": "docs/CLI.md#acceptance-topology-structural-check-wave-2",
+      "promise": "Wave 2 uses an independent default-observe proofStory.acceptanceTopologyGateMode, remains structural-only, and does not claim critic, executable evidence, selective applicability, measured rollout, Authority, or production readiness.",
+      "status": "verified",
+      "verifiedBy": "config/evaluator/docs/prompt diff inspection plus baseline contracts",
+      "evidence": "resolveAcceptanceTopologyGateMode reads only the flat acceptanceTopologyGateMode and defaults observe; evaluator returns diagnostic_only/evidentiary=false; docs and implementer prompt explicitly defer Wave 2A/3/3A/4; process-fact and proof-or-stop prompt baseline scripts both exited 0."
+    },
+    {
+      "docPath": "packages/main/templates/agents/lattice-implementer.md#acceptance-topology-boundary",
+      "promise": "Canonical implementer guidance and tracked Claude/Codex mirrors describe the same Wave 2 read-only structural boundary.",
+      "status": "verified",
+      "verifiedBy": "three-way diff comparison and prompt baseline verifier",
+      "evidence": "template, .claude mirror and .lattice-codex mirror contain the same added boundary; prompt registry/generated baselines were refreshed and verify-proof-or-stop-prompt-baseline.mjs exited 0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Executed live smoke exit 0; complete signed-basis control passes, non-pass basis families and caller-forgery/omission/invention cases fail with named AT codes."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Executed live smoke exit 0; real CLI text/JSON and forbidden-argument paths are asserted, and process-fact plus prompt baseline contract scripts independently exited 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Executed live smoke exit 0; three real temp repositories exercise story_advance PLAN to DEV in observe, warn, and enforce modes plus a clean enforce admission."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Executed live smoke exit 0; assertion-level inspection confirms compatibility, stable diagnostics, destructive mutations, process-fact bites, exact restoration, and finally cleanup."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All six delivery promises are source- and transcript-verified, and all four feature items have real assertion-bearing machine coverage. Scope acknowledgements are explicit and non-blocking; current-workspace unsupported output and later-wave/Authority/production boundaries are stated rather than overstated."
+  },
+  "_hash": "4e7e16ccb4af1f1ef2f2397536ddbd7cf522ce535c21ca485708f6e8b3465aaf"
+}

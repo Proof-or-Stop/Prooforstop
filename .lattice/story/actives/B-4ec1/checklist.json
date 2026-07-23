@@ -1,0 +1,553 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define canonical pre-review check artifact and deterministic verifier results",
+      "context": "Add the signed/hash-bound pre_review_check schema, command and read-only diagnostics. It must bind the current basis, topology, scope, story/closure files, executable evidence and canonical identifiers without accepting caller-written authority.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "AGENTS.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T22:45:49.962Z",
+      "endTime": "2026-07-22T23:28:40.232Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-W3-M1-PRE-REVIEW-ROUNDTRIP",
+            "desc": "M1: Through the registered production CLI/handler, create a canonical pre_review_check artifact from a complete current basis/topology/scope/story/closure/evidence state, then consume that same artifact through the lifecycle verifier and read-only diagnostic command; require one verifier-owned deterministic PASS, valid signature, canonical IDs, and matching basisDigest, topologyDigest, scopeCheckDigest, applicable scopeContractDigest, storyFilesHash, closureFilesHash, evidence refs, mode and issued-at/freshness bindings.",
+            "type": "cli",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "W3-PRE-REVIEW-GATE-PATH",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "W3-PRE-REVIEW-PRODUCER",
+                  "role": "producer",
+                  "expectedArtifactKind": "process_fact",
+                  "expectedFileRef": "packages/main/src/core/pre-review-check.ts",
+                  "expectedSymbolOrFact": "pre_review_check",
+                  "fileDeclarationRef": "CHK-001:files:create:0"
+                },
+                "consumers": [
+                  {
+                    "id": "W3-PRE-REVIEW-LIFECYCLE-CONSUMER",
+                    "role": "consumer",
+                    "expectedArtifactKind": "handler",
+                    "expectedFileRef": "packages/main/src/handlers/transition-orchestrator.ts",
+                    "expectedSymbolOrFact": "runPreReviewCheckGate",
+                    "fileDeclarationRef": "CHK-001:files:modify:3"
+                  }
+                ],
+                "outputFactRef": "process-fact:pre_review_check"
+              }
+            ]
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-W3-M1-DETERMINISTIC-CODES",
+            "desc": "M1: Run the same canonical input repeatedly and require byte-stable canonical payload/digest plus stable ordered result codes; independently make each required input missing, partial, unsupported, or unresolved and require the documented deterministic failure code with no caller-selected verdict or diagnostic-only value treated as authority.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M1-PRODUCER-CONSUMER-PARITY",
+            "desc": "M1: Prove the explicit pre_review_check command, read-only check, and DEV-to-REVIEW consumer all call the same production verifier and return equivalent semantic results for PASS and representative failures; a prompt-only, duplicate, or permissive consumer must be detected.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-W3-M1-EVERY-BINDING-TAMPER",
+            "desc": "M1: Table-mutate or delete every signed/hash-bound artifact field one at a time—including story/canonical IDs, basis/topology/scope digests, storyFilesHash, closureFilesHash, evidence refs, mode, timestamps and signature—and require verification to fail closed with the field-specific stable code; copying a valid artifact to another story, HEAD, closure, or phase must also fail.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M1-CALLER-AUTHORITY-REPLAY",
+            "desc": "M1: Attempt to submit caller-authored ok/verdict/authority/freshness fields, re-sign with an untrusted key, replay an older valid artifact after material drift, and promote read-only diagnostics or prose to gate evidence; every path must be rejected and no artifact/gate state may be silently rebound.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [
+          "packages/main/src/core/pre-review-check.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ]
+      },
+      "userSees": "User sees \"Pre-review check: PASS\" for a signed current verifier-owned artifact, or \"Pre-review check: FAIL code=PR_*\" naming the invalid binding.",
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-W3-M1-PRE-REVIEW-ROUNDTRIP",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M1-PRE-REVIEW-ROUNDTRIP; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M1-DETERMINISTIC-CODES",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M1-DETERMINISTIC-CODES; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M1-PRODUCER-CONSUMER-PARITY",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M1-PRODUCER-CONSUMER-PARITY; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M1-EVERY-BINDING-TAMPER",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M1-EVERY-BINDING-TAMPER; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M1-CALLER-AUTHORITY-REPLAY",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M1-CALLER-AUTHORITY-REPLAY; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Recompute and reconcile current-worktree planned and actual paths",
+      "context": "At DEV-to-REVIEW recompute the coverage basis from the actual worktree, require every planned path to reconcile to current discovery, and reject missing, partial, unsupported, stale, tampered adapter results or omitted basis refs.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T22:58:45.342Z",
+      "endTime": "2026-07-22T23:28:41.994Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION",
+            "desc": "M2: At DEV-to-REVIEW, recompute the coverage basis from the actual current worktree and global registered producer/consumer closure, then reconcile every frozen verificationIntent plannedPathRef and every topology endpoint to an actual discovered producer, consumer, handler/dispatch/process-fact edge and source ref; exact, valid expanded, and independently approved replacement mappings pass only when completeness is complete and hashes bind the current story and closure files.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-W3-M2-PLANNED-ACTUAL-MATRIX",
+            "desc": "M2: Table-test exact, expanded, approved-replaced, unresolved, ambiguous, removed, and newly discovered paths; planned-only producers/consumers may permit PLAN but must fail pre-REVIEW, while every new current-worktree path is either mapped to topology or independently excluded with deterministic PR_PLANNED_PATH_UNRESOLVED/PR_NEW_PATH_UNMAPPED-class results.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M2-DISCOVERY-STATE-CLOSURE",
+            "desc": "M2: Exercise complete, partial, unsupported, missing, stale, and conflicting adapter states, including a registered consumer outside Story scope and a relevant changed hunk; union discovery must retain every observed path, bind closureFilesHash separately from storyFilesHash, and fail closed whenever any required observer/result cannot establish completeness.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-W3-M2-TOPOLOGY-ONLY-OMISSION",
+            "desc": "M2 mandatory omission mutation: start from a passing basis/topology containing consumer C2, delete only C2 (or its required assertion edge) from topology while leaving C2 in the recomputed basis and source closure, and require the real PLAN/pre-REVIEW topology consumer to fail with AT_UNMAPPED_SCOPE_REF or its canonical equivalent; restore exactly and require the clean control to pass.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M2-ADAPTER-RECORD-TAMPER",
+            "desc": "M2: Omit, duplicate, reorder inconsistently, forge, or alter one required adapter result/record, aggregate count/digest, plannedPathRef, source ref, discovery profile, or reconciliation decision at a time; production verification must reject missing/extra/tampered records and must not let a critic receipt, exclusion, or caller-authored completeness claim override discovery.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-basis-receipt.ts",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ]
+      },
+      "userSees": "User sees \"plannedActual=complete\" when every current path is reconciled, or \"FAIL code=PR_PLANNED_PATH_UNRESOLVED\" / \"AT_UNMAPPED_SCOPE_REF\" with the path.",
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M2-PLANNED-ACTUAL-MATRIX",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M2-PLANNED-ACTUAL-MATRIX; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M2-DISCOVERY-STATE-CLOSURE",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M2-DISCOVERY-STATE-CLOSURE; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M2-TOPOLOGY-ONLY-OMISSION",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M2-TOPOLOGY-ONLY-OMISSION; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M2-ADAPTER-RECORD-TAMPER",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M2-ADAPTER-RECORD-TAMPER; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify executable evidence, mutation polarity, transcripts and authority",
+      "context": "Require real producer-to-consumer tests, adverse mutations that bite, clean controls after exact restoration, transcript relation, authority admissibility and freshness. Deleting a topology path still present in the basis must fail.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T22:58:46.764Z",
+      "endTime": "2026-07-22T23:28:43.248Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-W3-M3-REAL-PROOF-CHAIN",
+            "desc": "M3: Execute one real production chain end to end—producer creates the declared fact, the actual consumer observes/verifies it, the positive control passes, a targeted adverse mutation bites with the declared semantic code, exact restoration makes the clean control pass again, a claim-related transcript proves the required event sequence, authority is admissible, and all evidence is fresh for the current storyFilesHash/closureFilesHash/cutoff; synthetic-only fixtures cannot satisfy this intent.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-W3-M3-MUTATION-POLARITY-RESTORE",
+            "desc": "M3: For every required mutation, verify target, command, expected polarity and expected failure code; distinguish command crash/wrong-reason failure from a semantic bite, require isolated execution or a recorded exact restore, and prove the post-mutation unmodified control passes with no source/runtime residue.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY",
+            "desc": "M3: Verify transcript event refs and ordering are causally related to the declared producer→consumer claim across one-to-many and many-to-one paths, with separate assertion/evidence coverage for each required consumer; missing producer/consumer events, reordered events, unrelated successful commands, or reused transcripts must fail.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-W3-M3-BYPASS-CAMPAIGN",
+            "desc": "M3: Attempt synthetic producer substitution, mutation removal/no-op/wrong target, expected-code spoofing, pre-mutation transcript reuse, diagnostic-to-authority promotion, implementer/self-report evidence, stale evidence replay, cross-story receipt reuse, and silent freshness rebinding; each must fail at the production pre-review verifier with a stable PR_* code.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX",
+            "desc": "M3: Independently drift HEAD/storyFilesHash, coverage basis/topology/scope digests, closureFilesHash, evidence material, authority receipt and temporal cutoff; prove evidence after the cutoff is excluded and both removal of the cutoff and a strictness mutation such as >= to > bite where equal-time exclusion applies, while unchanged current evidence passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/live-smoke-transcript-evidence.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ]
+      },
+      "userSees": "User sees \"executableEvidence=current mutations=biting transcript=related authority=admissible\" only after the real proof chain passes.",
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-W3-M3-REAL-PROOF-CHAIN",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M3-REAL-PROOF-CHAIN; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M3-MUTATION-POLARITY-RESTORE",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M3-MUTATION-POLARITY-RESTORE; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M3-BYPASS-CAMPAIGN",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M3-BYPASS-CAMPAIGN; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Integrate the canonical pre-review gate without later-wave leakage",
+      "context": "Wire the check to DEV-to-REVIEW under the existing project mode contract, register all process facts, prove stable failure codes and rollback behavior, and ensure Wave 3A selective applicability and Wave 4 measured rollout remain absent.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-07-22T22:58:46.153Z",
+      "endTime": "2026-07-22T23:28:44.738Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "VI-W3-M4-LIFECYCLE-MODE-MATRIX",
+            "desc": "M4: Through the real DEV-to-REVIEW transition, consume the canonical pre_review_check result under the existing flat project mode contract: a passing current artifact permits transition; observe records deterministic diagnostics without blocking; warn emits the exact would-block remediation while permitting transition; enforce blocks only the configured applicable transition on the same verifier result.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "VI-W3-M4-LEGACY-DOCS-ROLLBACK",
+            "desc": "M4: Verify legacy topology normalizes visibly to legacy_missing and docs-only/single-outcome claims follow their bounded source/docs assertions without fabricated executable mutations; in observe/warn they remain diagnosable without accidental hard blocking, and rollback from enforce to warn changes only admission behavior while preserving artifacts, codes and audit history.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M4-STABLE-GATE-CODES",
+            "desc": "M4: Feed representative M1-M3 failures through direct command and lifecycle entrypoints and require identical stable codes/remediation, no duplicate verifier semantics, no dirty-worktree or failed-transition partial write, and an immediate clean retry after exact repair to succeed.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M4-CRITIC-REATTESTATION",
+            "desc": "M4: For enforced high-assurance DEV-to-REVIEW, require a fresh independent lattice-review-topology-critic re-attestation bound to the recomputed pre_review basis, topology, scope, storyFilesHash and closureFilesHash; an old PLAN/Wave2A receipt, implementer/self-authored critic, stale or replayed receipt, or receipt bound to a different basis must fail, while observe/warn remain non-blocking diagnostics under the flat project mode.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "VI-W3-M4-PROCESS-FACT-FOUR-LAYER",
+            "desc": "M4: Remove or weaken the pre-review obligation independently from role prompt, CLI/handler producer, process-fact registry/rationale-verifier contract, and DEV-to-REVIEW gate consumer; each mutation must be detected, and prompt compliance or caller prose alone must never bypass the mechanical gate.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "id": "VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
+            "desc": "M4 boundary: assert Wave 3 adds only the canonical executable pre-review verifier and flat observe/warn/enforce consumption; no Wave 3A per-Story/policy selective applicability, triggered-enforcement machinery, or Wave 4 prompt rollout/telemetry/threshold activation is introduced. Seed forbidden config/flags and require rejection or inert diagnostics rather than hidden enforcement.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ]
+      },
+      "userSees": "User sees \"Pre-review check: PASS criticReattestation=current\" before enforce-mode DEV-to-REVIEW admission, otherwise a stable blocking code and remediation.",
+      "verificationEvidence": [
+        {
+          "intentRef": "VI-W3-M4-LIFECYCLE-MODE-MATRIX",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-LIFECYCLE-MODE-MATRIX; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M4-LEGACY-DOCS-ROLLBACK",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-LEGACY-DOCS-ROLLBACK; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M4-STABLE-GATE-CODES",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-STABLE-GATE-CODES; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M4-CRITIC-REATTESTATION",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-CRITIC-REATTESTATION; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M4-PROCESS-FACT-FOUR-LAYER",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-PROCESS-FACT-FOUR-LAYER; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        },
+        {
+          "intentRef": "VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+          "result": "pass",
+          "note": "Fresh formal proof at 2026-07-23T04:30Z executed exact assertion ID/kind/source for VI-W3-M4-NO-LATER-WAVE-LEAKAGE; missing/extra/duplicate/permutation mismatches and stale runner/target provenance fail closed, with fresh build recovery and producer-before-consumer transcript.",
+          "headHash": "dc66f200ca1e7771937203ac58e69f0daa482c5a",
+          "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1",
+          "storyFilesHash": "8de030a80cb36ee84e5bf3dcee1bf75bb16763ad8c3b23a0cc76a032c61c778f",
+          "timestamp": "2026-07-23T15:50:31.544Z"
+        }
+      ]
+    }
+  ]
+}

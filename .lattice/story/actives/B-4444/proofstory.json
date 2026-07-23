@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-4444",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:e44ce42d1e5f56bfb308416b0298956ffa9479fa5509cccefd8885a3bc207d13",
+  "acceptanceBindings": [
+    {
+      "id": "AC-OWNERSHIP",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The plan accurately distinguishes current milestone, acceptance, intent, evidence, and review owners and rejects a parallel writable acceptance matrix.",
+      "note": "Canonical ownership and non-duplication boundary."
+    },
+    {
+      "id": "AC-TOPOLOGY-GATES",
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The plan specifies a reference-based verification topology and deterministic structural PLAN plus executable pre-REVIEW checks with authority and freshness semantics.",
+      "note": "Target schema and lifecycle algorithms."
+    },
+    {
+      "id": "AC-EXECUTION-AUDIT",
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The plan provides bounded implementation waves, rollout, negative controls, process-fact obligations, metrics, risks, decisions, and an audit rubric without claiming runtime completion.",
+      "note": "Auditable implementation authorization surface."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Documentation-only contract for the B-4444 execution-plan deliverable; proposed runtime behavior is explicitly not shipped by this Story.",
+  "createdAt": "2026-07-21T15:26:42.852Z",
+  "updatedAt": "2026-07-21T15:26:42.852Z"
+}

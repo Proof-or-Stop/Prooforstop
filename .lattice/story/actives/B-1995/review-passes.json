@@ -1,0 +1,276 @@
+{
+  "passes": [
+    {
+      "id": "B-1995:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 re-review passed. Replayed F-008 against the production checklist handler: ordinary PLAN removal is rejected with planned_path_writer_not_authorized and persisted checklist bytes remain unchanged. Replayed F-009 against the production matrix builder: swapped planned endpoint roles emit AT_PLANNED_PATH_DECLARATION_DRIFT and result=warning. Clean build and focused Wave 1 smoke pass. acceptance_matrix remains L0/readOnly/non-evidentiary with only legacy_missing, warning, or inconclusive_basis_unverified; no machine/phase-gate diff, signed basis, acceptance_topology_check, pre_review_check, or Wave 1A completeness behavior found.",
+      "createdAt": "2026-07-22T03:43:07.572Z",
+      "reviewRound": "2026-07-22T03:40:27.426Z",
+      "reviewRunId": "B-1995:RR-004",
+      "envelopeId": "29f9055ccb36e66158d1d98894a3fdda94448fa2e3b15ce2dfbf61e6f456d770",
+      "writerSessionId": "sess-1078f9ca1b8239bf4fae7e6ca717ca58",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/plan.md",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1995/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ce451a2b6fc5b28e11756c3218cd49e643caec07ab2cbc07208309d236beb31a"
+    },
+    {
+      "id": "B-1995:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 current-material concept review passed. Inspected cef7fc56fe/35de890d50 provenance and milestone changes and replayed typed boundaries: exact acceptance_matrix producer commands classify non-evidentiary for any evidence kind; legacy manual_transcript reserved result/exact text/JSON markers classify non-evidentiary; independent logic/integration notes mentioning inconclusive_basis_unverified and ordinary warning prose remain admissible. The shared predicate is consumed by writer rejection, general verification coverage, ProofStory completeness, milestone status and closeout. Build, focused topology smoke, and process-fact contract pass. acceptance_matrix remains L0/readOnly/non-evidentiary; no machine/phase-gates diff, coverage-basis receipt, acceptance_topology_check, pre_review_check, or Wave1A completeness authority was introduced.",
+      "createdAt": "2026-07-22T04:01:24.894Z",
+      "reviewRound": "2026-07-22T03:58:24.980Z",
+      "reviewRunId": "B-1995:RR-007",
+      "envelopeId": "e14becbf082ecc5b242058a1f816d858a8fc1bcdb9cceb9889031065a2747282",
+      "writerSessionId": "sess-1078f9ca1b8239bf4fae7e6ca717ca58",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/plan.md",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1995/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cb2adcc54de1404bee58eaf15da21c5ff8f0b439a175814ba0f259572741d502"
+    },
+    {
+      "id": "B-1995:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: mapped 23/23 must intents with current storyFilesHash evidence and zero waivers; replayed F-012 against general verification, ProofStory completeness, milestone status, and closeout; matrix-derived rows remain non-covering while typed producer-command and bounded manual fallback positive/negative controls behave as specified; current focused smoke and process-fact contract completed successfully.",
+      "createdAt": "2026-07-22T04:01:36.208Z",
+      "reviewRound": "2026-07-22T03:58:24.980Z",
+      "reviewRunId": "B-1995:RR-009",
+      "envelopeId": "a9cbe8cf4f69234164321cc3a80af5862b769ffc48d7b44be57efa5b0c5bb28e",
+      "writerSessionId": "sess-741ea583beda234da591cc6ed40d2032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/checklist.json",
+          ".lattice/story/actives/B-1995/plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "88f989436fc381a67627794e6efe5341201d609fc199ad7dcd37acb087eb17c1"
+    },
+    {
+      "id": "B-1995:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 current-material concept review passed. Replayed the bounded actual-subcommand parser after 01d888403c: direct lattice and node/nodejs bin/lattice.js invocations, including bounded --root forms, classify acceptance_matrix as producer provenance; rg/printf/test-script arguments and acceptance_matrix tokens passed to other Lattice subcommands do not. Focused Wave 1 smoke, TypeScript build, and process-fact contract pass. The matrix remains L0/readOnly/non-evidentiary, with no machine/phase-gate diff, coverage basis, acceptance_topology_check, pre_review_check, Wave1A authority, or completion-result promotion.",
+      "createdAt": "2026-07-22T04:11:10.411Z",
+      "reviewRound": "2026-07-22T04:08:53.232Z",
+      "reviewRunId": "B-1995:RR-010",
+      "envelopeId": "f926d4cdb7cc3488fbdc634a892a48e9e71cb522f41d47261f0b7acad757a46d",
+      "writerSessionId": "sess-1078f9ca1b8239bf4fae7e6ca717ca58",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/plan.md",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1995/checklist.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7b38102dd99f9fa4189591d11058b9173e3bc4e07491c316435c2f9274ecfb32"
+    },
+    {
+      "id": "B-1995:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "coverage round 4 passed: 23/23 must intents have current storyFilesHash evidence with zero waivers; F-013 command-form mutation table classifies supported lattice/bin-lattice wrappers and bounded --root acceptance_matrix invocations as non-evidentiary while rg, printf, test arguments, help, and other subcommands remain legitimate; F-012 replay still rejects matrix rows in general verification, ProofStory completeness, milestone evidence/requiredEvidence, and closeout; current build-focused-smoke-process-contract chain passed with no coverage regression.",
+      "createdAt": "2026-07-22T04:11:38.701Z",
+      "reviewRound": "2026-07-22T04:08:53.232Z",
+      "reviewRunId": "B-1995:RR-011",
+      "envelopeId": "e7782d457c217d86d0fe2c099d08182a4fff0d3358d985c40675dcbeded0fd63",
+      "writerSessionId": "sess-741ea583beda234da591cc6ed40d2032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/checklist.json",
+          ".lattice/story/actives/B-1995/plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "aa7eeeacbe1de63b1f6ca220abe483c10639fc2eb0806202df606fabf426cc9d"
+    },
+    {
+      "id": "B-1995:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality round 4 found no blocker. Replayed F-013 with 36 true-invocation combinations across all six evidence kinds, all three evidence writers, and general/ProofStory/milestone consumers; real global, project wrapper, absolute and --root forms fail closed. rg/printf/test-argument/echo/other-subcommand controls remain admissible. Focused topology smoke and process-fact contract pass.",
+      "createdAt": "2026-07-22T04:11:59.112Z",
+      "reviewRound": "2026-07-22T04:08:53.232Z",
+      "reviewRunId": "B-1995:RR-012",
+      "envelopeId": "caa543aaab6f569ea309928bc14fd0068a97a283b2229d9a6d2ab31c6fdcdc93",
+      "writerSessionId": "sess-4b622e09c65b4b8c76d20e981c104f48",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/types.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2c55103ec81df323c6902e1984efb785d678901015c59fcca43b64ba33b3cd61"
+    },
+    {
+      "id": "B-1995:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Final convergence quality review found no blocker. Incremental basis reports no material change since RR-012/RP-006; git confirms no business source or docs change after 01d888403c. Acceptance-matrix producer invocation and non-producer controls remain fail-closed/admissible respectively; focused topology smoke and process-fact contract pass.",
+      "createdAt": "2026-07-22T05:46:17.925Z",
+      "reviewRound": "2026-07-22T05:44:24.060Z",
+      "reviewRunId": "B-1995:RR-014",
+      "envelopeId": "e75327721f7e8f9fb8cf7f574512d566011e847c215ddf0332959a7f6338c953",
+      "writerSessionId": "sess-4b622e09c65b4b8c76d20e981c104f48",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/types.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "80858e3689990a9a6311fdb9921db87bdb8280e25bd195f1213b2edcaafc0dd2"
+    },
+    {
+      "id": "B-1995:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 final convergence review passed on current merged HEAD 32906a80e0. Incremental basis reports changedFiles=[] and ELIGIBLE_NO_MATERIAL_CHANGE; independent git comparison confirms no business source/docs/package/test-script diff since final fix 01d888403c. Current validation evidence is PASS at 2026-07-22T05:44:45.988Z with storyFilesHash 77f9846e588eea74210af44d6e4bb439a94f96dd4ca447759c2d5e38752c0327, 23/23 required intents covered, 0 missing; all 24 recorded evidence rows pass with no waivers, and all 13 findings are resolved. Prior concept checks remain applicable: bounded producer subcommand parsing, no L0 promotion, and no Wave1A/basis/machine/phase-gate overreach. No concept or promised-delivery regression found.",
+      "createdAt": "2026-07-22T05:46:31.373Z",
+      "reviewRound": "2026-07-22T05:44:24.060Z",
+      "reviewRunId": "B-1995:RR-015",
+      "envelopeId": "ed811b668fba883d93170d66653cf03e64d84d15434aaa305143754606d8ebd0",
+      "writerSessionId": "sess-1078f9ca1b8239bf4fae7e6ca717ca58",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/plan.md",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1995/checklist.json",
+          ".lattice/story/actives/B-1995/findings.json",
+          ".lattice/story/actives/B-1995/test-evidence.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3f96ae4294f2f097bfd657baace426e5db3daf28d8e830904ecf079f628e54fe"
+    },
+    {
+      "id": "B-1995:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "final convergence coverage passed: merged HEAD has no business-code changes after 01d888403c; all 23/23 must intents retain current storyFilesHash evidence with zero waivers; current focused smoke replays declaration, topology, command-form, non-evidentiary, milestone/closeout, lifecycle, and mutation cases; the real acceptance_matrix transcript plus summary/delivery evidence shows four deterministic canonical legacy rows in observe/read-only/non-evidentiary mode; fresh strict validation is PASS with 46/46 commands and no failures.",
+      "createdAt": "2026-07-22T05:47:52.682Z",
+      "reviewRound": "2026-07-22T05:44:24.060Z",
+      "reviewRunId": "B-1995:RR-013",
+      "envelopeId": "1df07d674b672e99f2a5a6489c536ac6a01b20b667f4c760fe30c958f723c315",
+      "writerSessionId": "sess-741ea583beda234da591cc6ed40d2032",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-1995/background.md",
+          ".lattice/story/actives/B-1995/checklist.json",
+          ".lattice/story/actives/B-1995/delivery-check.json",
+          ".lattice/story/actives/B-1995/evidence/live-smoke-transcript.json",
+          ".lattice/story/actives/B-1995/plan.md",
+          ".lattice/story/actives/B-1995/summary.json",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-1995/done-required-evidence.json",
+          ".lattice/story/actives/B-1995/test-evidence.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a4588e711c7ffaf6713db7f4b0b5d678a0f6840d5141363b8f50bae481a9a6db"
+    }
+  ]
+}

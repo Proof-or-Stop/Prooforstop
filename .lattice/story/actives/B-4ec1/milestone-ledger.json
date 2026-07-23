@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-4ec1",
+  "state": "confirmed",
+  "ledgerHash": "sha256:2130da0da34f7403dc267e0f1edd73b25cfa5d50301a8ea047ac2a93805aa900",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "WAVE3-PRE-REVIEW-ARTIFACT",
+      "claim": "The canonical pre_review_check result is verifier-owned, signed, hash-bound and deterministic.",
+      "doneMeans": "Production CLI, read-only diagnostics and lifecycle share one verifier; a complete current artifact passes and every field tamper, replay, stale binding or caller-authored verdict fails with stable codes.",
+      "requiredEvidence": [
+        "integration_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "VI-W3-M1-PRE-REVIEW-ROUNDTRIP",
+        "VI-W3-M1-DETERMINISTIC-CODES",
+        "VI-W3-M1-PRODUCER-CONSUMER-PARITY",
+        "VI-W3-M1-EVERY-BINDING-TAMPER",
+        "VI-W3-M1-CALLER-AUTHORITY-REPLAY"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "WAVE3-PLANNED-ACTUAL",
+      "claim": "DEV-to-REVIEW recomputes the current-worktree basis and reconciles every planned path to actual discovery.",
+      "doneMeans": "Complete exact, expanded or approved-replaced paths pass; missing, partial, unsupported, stale, adapter-omitted, record-tampered or basis-backed topology omission cases fail closed.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION",
+        "VI-W3-M2-PLANNED-ACTUAL-MATRIX",
+        "VI-W3-M2-DISCOVERY-STATE-CLOSURE",
+        "VI-W3-M2-TOPOLOGY-ONLY-OMISSION",
+        "VI-W3-M2-ADAPTER-RECORD-TAMPER"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "WAVE3-EXECUTABLE-PROOF",
+      "claim": "Executable producer-consumer evidence, mutation polarity, transcripts, authority and freshness are mechanically admissible.",
+      "doneMeans": "Real chain and clean controls pass; every adverse mutation bites; exact restoration passes; weak authority, unrelated transcript, stale evidence, after-cutoff evidence or silent rebind fails.",
+      "requiredEvidence": [
+        "integration_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "VI-W3-M3-REAL-PROOF-CHAIN",
+        "VI-W3-M3-MUTATION-POLARITY-RESTORE",
+        "VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY",
+        "VI-W3-M3-BYPASS-CAMPAIGN",
+        "VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "WAVE3-LIFECYCLE-INTEGRATION",
+      "claim": "DEV-to-REVIEW consumes the canonical pre-review result and fresh independent critic re-attestation under flat project observe/warn/enforce modes without later-wave leakage.",
+      "doneMeans": "Enforce blocks failing checks or stale/self-authored critic re-attestation, observe/warn preserve diagnostics and rollback, process-fact contract bites at all layers, and no Wave 3A or Wave 4 behavior is present.",
+      "requiredEvidence": [
+        "integration_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "VI-W3-M4-LIFECYCLE-MODE-MATRIX",
+        "VI-W3-M4-LEGACY-DOCS-ROLLBACK",
+        "VI-W3-M4-STABLE-GATE-CODES",
+        "VI-W3-M4-CRITIC-REATTESTATION",
+        "VI-W3-M4-PROCESS-FACT-FOUR-LAYER",
+        "VI-W3-M4-NO-LATER-WAVE-LEAKAGE"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-07-22T22:33:00.523Z",
+  "updatedAt": "2026-07-22T22:37:43.249Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "B-4ec1:IC-001",
+    "acceptedInterpretationHash": "sha256:12f4a30ce7612c0ed81d12bf97ed63e23f5decfb7d20fc219387bf8dc7c89523",
+    "acceptedAt": "2026-07-22T22:37:43.249Z"
+  }
+}

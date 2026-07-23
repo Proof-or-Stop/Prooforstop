@@ -1,0 +1,359 @@
+{
+  "passes": [
+    {
+      "id": "B-98b0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept blocker: Wave 1A diagnostic-only semantics were consistently promoted to the Wave 2 L4 PLAN structural gate; canonical evaluator, CLI and lifecycle share fail-closed basis/topology checks; observe/warn remain non-blocking, enforce alone blocks; later-wave critic/executable/selective-rollout claims remain excluded. Focused production smoke and process-fact/prompt contracts pass on current HEAD, and repository grep found no stale Wave 1A no-gate residue.",
+      "createdAt": "2026-07-22T16:34:09.559Z",
+      "reviewRound": "2026-07-22T16:30:08.066Z",
+      "reviewRunId": "B-98b0:RR-001",
+      "envelopeId": "ca61de8d1633da8eef8bb10e49521099ee50904c836628860ef685008bafa37d",
+      "writerSessionId": "sess-51d8a2b61b6d185a4fb242e9ad7e0aa9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice-codex/agents/lattice-review-concept.md",
+          "AGENTS.md"
+        ],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6b40d68b48806cd4aeb3d5e74cd2087f2a0a0eb03f35a58cb3e86c9f23102271"
+    },
+    {
+      "id": "B-98b0:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS on HEAD 22f9c71: de9bd226 cleanly replaces the topology rollout resolver with independent default-observe acceptanceTopologyGateMode; repo-wide residue scan found no obsolete resolveProofStoryDevGateMode use. Static inspection confirms status/diagnostics derive independently of mode, blocking alone depends on enforce, legacy devGateMode remains confined to the older ProofStory machine gate, and later-wave critic/pre_review/selective-applicability concepts are documentation boundaries rather than implemented prerequisites. F-001..F-004 semantics are addressed without Wave 2 rollout leakage; no promised-but-undelivered blocker found.",
+      "createdAt": "2026-07-22T16:57:34.092Z",
+      "reviewRound": "2026-07-22T16:55:09.966Z",
+      "reviewRunId": "B-98b0:RR-007",
+      "envelopeId": "4bc433181112a934451da7b3ad39faa1de1df0b43487ad8baf6491088e6624b0",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/config.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4900bea7e70ee33877a81910db69f4f468d5cc67f807c07be9cfcaa2dd730ab2"
+    },
+    {
+      "id": "B-98b0:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review at HEAD 22f9c71 found no blocker. F-001 is fixed: status is derived solely from structural/basis semantics, while only blocking depends on acceptanceTopologyGateMode; missing/partial/unsupported remain inconclusive across modes. The new independent default-observe config resolver, caller-forgery CLI schema, shared CLI/lifecycle evaluator, read-only policy, and L4 process-fact registrations are coherent. Static review found no dead code, unsafe cast in production paths, swallowed error, or duplicate evaluator. verify-process-fact-contract, packages/main build, and git diff --check pass; focused smoke was intentionally not duplicated because the test-coverage lane owns its single execution.",
+      "createdAt": "2026-07-22T16:57:44.770Z",
+      "reviewRound": "2026-07-22T16:55:09.966Z",
+      "reviewRunId": "B-98b0:RR-005",
+      "envelopeId": "c515d3b787266141405f0b4088636bfaf173af885f7a75b4840cbe1bcd1b32bc",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8f9b30bff14e3f5bb22463f9604d8fac52d9ebad4b3b6747fd9a44bb810388f5"
+    },
+    {
+      "id": "B-98b0:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "No docs blocker at HEAD 22f9c71. Reviewed the acceptanceTopologyGateMode/default-observe fix against config resolver, PLAN→DEV consumer, registered CLI surface, docs/CLI Wave 2 section, three implementer prompt surfaces, prompt registry/baseline deltas, and the execution-plan Wave 2/2A/3/3A/4 boundaries. The independent mode is documented and implemented consistently; legacy devGateMode=enforce does not activate the Wave 2 gate; later-wave critic, executable pre-review, selective applicability, and measured rollout are not claimed complete. Extracted exported-symbol set included AcceptanceTopologyCheckReport and AcceptanceTopologyGateMode; compared the matching CLI/config/rollout paragraphs and found no promised-but-undelivered blocker. Prompt baseline verifier passed.",
+      "createdAt": "2026-07-22T16:57:59.243Z",
+      "reviewRound": "2026-07-22T16:55:09.966Z",
+      "reviewRunId": "B-98b0:RR-006",
+      "envelopeId": "e6b194db199cadbc92f1a8fe26de8c0a97aed9fd196d746c861a0104ff6faa4c",
+      "writerSessionId": "sess-57c822af9b82810b79be218940de592a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".claude/agents/lattice-implementer.md",
+          ".lattice-codex/agents/lattice-implementer.md",
+          "docs/CLI.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/templates/agents/lattice-implementer.md",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "2aec71978c9480d900d1a4765350f095377d8f9ca5f2b3cacf36a9a7e2284472"
+    },
+    {
+      "id": "B-98b0:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test-coverage PASS: independently reviewed all 25 must intents/evidence (25 passing, 0 gaps, 0 waivers), re-ran the focused production smoke and process-fact contract on the current business code. F-003 is covered by three independent real temp repositories proving the same failing canonical report is non-blocking in observe/warn, blocking in enforce, and core report deep-equals real CLI; polarity mutation bites. F-004 named failure families are now asserted: missing/partial/unsupported/stale/closure/signature/aggregate/required-adapter basis, omissions/inventions, exclusions/orphans/uncovered/mutation/transcript/command gaps, and planned-path semantic/unknown/wrong-role/missing-file/outside-scope cases, with exact restoration and process-fact mutations. No blocking coverage gap remains.",
+      "createdAt": "2026-07-22T16:59:44.315Z",
+      "reviewRound": "2026-07-22T16:55:09.966Z",
+      "reviewRunId": "B-98b0:RR-008",
+      "envelopeId": "10c70fb021aef03b51bfadf80b8cd874b9e4fd066002348696f870cbf79c39b0",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "ec324774beea6863406e47df5aa0fbc0a4f41c64c90d837a35c871cf754fe77c"
+    },
+    {
+      "id": "B-98b0:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Incremental concept re-review PASS on HEAD f2cdd3f. Mechanical diff from prior reviewed HEAD 22f9c71 excluding .lattice is empty; the only change is owner finding-resolution metadata. The de9bd226 conclusions therefore remain unchanged: independent acceptanceTopologyGateMode defaults observe, status/diagnostics are mode-invariant, enforce changes blocking only, old devGateMode remains the separate legacy gate, and no later-wave critic/pre_review/selective-applicability requirement leaked into Wave 2.",
+      "createdAt": "2026-07-22T17:01:14.776Z",
+      "reviewRound": "2026-07-22T16:55:09.966Z",
+      "reviewRunId": "B-98b0:RR-009",
+      "envelopeId": "9419788c0bae28da34a85a231298ed0c95910e7d9b63a1ae52841ff16e605b80",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/config.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7a8a678909abe56a60d7e6c5ced1ee616ba82011ce54bdafd46c962da8a67cca"
+    },
+    {
+      "id": "B-98b0:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept re-review PASS on HEAD abf5e08. Mechanical comparison with prior reviewed business HEAD 22f9c71 shows zero non-.lattice changes. Commit 20ae286 changes only CHK-002 relatedDocs from a Chinese AGENTS.md anchor to the same root AGENTS.md reference for the English-artifact gate; it changes no concept, behavior, implementation, or Wave boundary. The previously reviewed de9bd226 default-observe, mode-invariant diagnostics, blocking-only mode effect, and no later-wave leakage conclusions remain valid.",
+      "createdAt": "2026-07-22T17:11:13.744Z",
+      "reviewRound": "2026-07-22T17:10:12.954Z",
+      "reviewRunId": "B-98b0:RR-011",
+      "envelopeId": "605725ea9c2bf6086840a6469133b03f52a764b8c93316d4b25d8c03ec36709c",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/config.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4be1f3cd7042c85c975a957b038f0c54225af663372ec2930dff0c5ad8fe6d57"
+    },
+    {
+      "id": "B-98b0:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 incremental rebind found no blocker. Commit 20ae286 changes only Lattice story metadata: CHK-002 relatedDocs now references AGENTS.md without the prior non-English heading fragment, while retaining the process-fact decision-doc reference. The repository business/documentation/test diff from de9bd226 through current REVIEW HEAD is byte-identical, and storyFilesHash remains e2cd3be6. Therefore the prior quality conclusion and F-001 verification remain valid; no implementation, executable evidence, process-fact, or product semantics changed. Per instruction, no build or smoke was rerun.",
+      "createdAt": "2026-07-22T17:11:21.303Z",
+      "reviewRound": "2026-07-22T17:10:12.954Z",
+      "reviewRunId": "B-98b0:RR-010",
+      "envelopeId": "d564f19ad772ed62700d86767bf784a8fd946a9264aa280f6336e8bc334ca7db",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "AGENTS.md",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d1110142dd86500b580bed6809adbacf242b95b8f81c7f21560f7a427fd58ba9"
+    },
+    {
+      "id": "B-98b0:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 incremental rebind PASS at HEAD abf5e08. Commit 20ae286 changes only one CHK-002 relatedDocs reference from AGENTS.md#流程事实双层契约 to AGENTS.md. Zero new exported symbols and zero business/docs prose changes. Compared two relevant documentation sections: AGENTS.md Flow process fact double-layer contract and execution-plan section 13 Process-fact and authority obligations. The file-level AGENTS.md reference still resolves to the same tracked truth source, whose section explicitly requires prompt plus CLI/handler/gate enforcement and synchronized process-fact registry/levels/contract updates; no semantic drift or promised-but-undelivered change was introduced. The broader reference intentionally fixes English artifact path/anchor handling without weakening the obligation.",
+      "createdAt": "2026-07-22T17:11:43.272Z",
+      "reviewRound": "2026-07-22T17:10:12.954Z",
+      "reviewRunId": "B-98b0:RR-012",
+      "envelopeId": "8f7bb7512283c0f4250027314036857cc4b18720935910207e78016cc6fb219f",
+      "writerSessionId": "sess-57c822af9b82810b79be218940de592a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "a3a9e998124016f02ccab313e753562a92687ac1930f8932406c9a3361073aa7"
+    },
+    {
+      "id": "B-98b0:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 incremental coverage rebind PASS. Compared the RR-008 reviewed baseline through commit 20ae286: no non-story/business/test path changed, checklist remains 4/4 with exactly 25 must intents, 25 passing evidence, 0 failures and 0 waivers. The only material checklist edit is the relatedDocs anchor normalization from the CJK section anchor to AGENTS.md; the trusted review prompt now assembles successfully under the English-only guard. Therefore RR-008 findings analysis and coverage proof remain applicable. Per dispatch instruction, focused smoke was not rerun.",
+      "createdAt": "2026-07-22T17:11:45.131Z",
+      "reviewRound": "2026-07-22T17:10:12.954Z",
+      "reviewRunId": "B-98b0:RR-013",
+      "envelopeId": "fdaf9bed4a462cb41eebae6b6f4e97936394418e463ba2465101cb98998c6b87",
+      "writerSessionId": "sess-a0f385fa5192dd2e0f2159d387946b61",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "c78b7ca534626a3e7a0656b4b45008994b0a7c8097359a516be883138f6fbb41"
+    }
+  ]
+}

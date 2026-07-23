@@ -175,7 +175,8 @@ function makeFixture(
     const assetDir = selectedHost === 'codex' ? '.lattice-codex/agents' : '.claude/agents';
     for (const lane of REVIEW_LANES) {
       const entry = promptRegistry.agents.find(candidate => candidate.agentId === lane)!;
-      write(root, `${assetDir}/${entry.file}`, renderPromptEntryForHost(entry, selectedHost));
+      const hostTemplate = renderPromptEntryForHost(entry, selectedHost);
+      write(root, `${assetDir}/${entry.file}`, hostTemplate);
     }
   }
   write(root, 'README.md', 'quorum submit smoke\n');
@@ -237,7 +238,7 @@ function withFreshFixture(
   const previous = process.cwd();
   try {
     process.chdir(fixture.root);
-    fn(fixture);
+    withSessionProvider('codex', () => fn(fixture));
   } finally {
     process.chdir(previous);
     rmSync(fixture.root, { recursive: true, force: true });
@@ -285,7 +286,11 @@ function assertQuorumRefuses(registry: ReturnType<typeof createMainRegistry>, st
   assert.equal(verdictFileCount(root), beforeVerdicts, `${label}: no verdict files written`);
 }
 
-function startRunAndPass(registry: ReturnType<typeof createMainRegistry>, lane: string): void {
+function startRunAndPass(
+  registry: ReturnType<typeof createMainRegistry>,
+  lane: string,
+  mode: 'legacy-full-context' | 'full-envelope' = 'full-envelope',
+): void {
   const dispatch = registry.get('dispatch');
   const start = registry.get('review_run_start');
   const pass = registry.get('review_pass_set');
@@ -300,7 +305,13 @@ function startRunAndPass(registry: ReturnType<typeof createMainRegistry>, lane: 
   }));
   const match = output.match(/Review run (\S+) started/);
   assert.ok(match?.[1], `review_run_start output contains reviewRunId for ${lane}`);
-  assert.match(output, /BEGIN EXACT ASSEMBLED REVIEW PROMPT/, 'review_run_start delivers the exact bound prompt bytes');
+  assert.match(
+    output,
+    mode === 'full-envelope'
+      ? /BEGIN EXACT ASSEMBLED REVIEW PROMPT/
+      : /BEGIN EXACT SELECTED LEGACY ROLE BODY/,
+    `review_run_start delivers the selected ${mode} prompt bytes`,
+  );
   pass({
     storyId: STORY_ID,
     agent: lane,
@@ -314,30 +325,29 @@ const SESSION_ENV_KEYS = [
   'LATTICE_SESSION_ID',
   'LATTICE_ACTIVITY_SOURCE',
   'LATTICE_ACTIVITY_SESSION',
+  'LATTICE_AGENT',
   'LATTICE_OWNER_SESSION_ADAPTER_PROVIDER',
   'LATTICE_OWNER_SESSION_ADAPTER_SESSION',
   'LATTICE_OWNER_SESSION_ADAPTER_TASK',
   'LATTICE_OWNER_SESSION_ADAPTER_AGENT',
   'LATTICE_OWNER_SESSION_ADAPTER_ROLE',
+  'LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY',
+  'LATTICE_OWNER_SESSION_ADAPTER_GENERATED',
   'CLAUDE_CODE_SESSION_ID',
   'CLAUDE_SESSION_ID',
   'CODEX_SESSION_ID',
   'CODEX_THREAD_ID',
   'OPENAI_SESSION_ID',
+  'TERM_SESSION_ID',
   'ANTIGRAVITY_SESSION_ID',
   'AGY_SESSION_ID',
 ] as const;
 
-function withSessionProvider<T>(
-  provider: string | undefined,
+function withClearedSessionEnvironment<T>(
   fn: () => T,
-  competingEnv: Record<string, string> = {},
 ): T {
   const previous = Object.fromEntries(SESSION_ENV_KEYS.map(key => [key, process.env[key]]));
   for (const key of SESSION_ENV_KEYS) delete process.env[key];
-  process.env.LATTICE_SESSION_ID = `sess-quorum-${provider ?? 'absent'}`;
-  if (provider !== undefined) process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = provider;
-  for (const [key, value] of Object.entries(competingEnv)) process.env[key] = value;
   resetSessionIdForTest();
   try {
     return fn();
@@ -349,6 +359,20 @@ function withSessionProvider<T>(
     }
     resetSessionIdForTest();
   }
+}
+
+function withSessionProvider<T>(
+  provider: string | undefined,
+  fn: () => T,
+  competingEnv: Record<string, string> = {},
+): T {
+  return withClearedSessionEnvironment(() => {
+    process.env.LATTICE_SESSION_ID = `sess-quorum-${provider ?? 'absent'}`;
+    if (provider !== undefined) process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER = provider;
+    for (const [key, value] of Object.entries(competingEnv)) process.env[key] = value;
+    resetSessionIdForTest();
+    return fn();
+  });
 }
 
 function recordReviewerPasses(
@@ -523,45 +547,47 @@ try {
     assert.equal(absentClaude.hostProvider, 'claude-code', 'absent explicit provider preserves Claude inference');
   });
 
-  check('real story-owned fixture delta reaches incremental only with case-level Story intent closure', () => {
-    withFreshFixture((fixture) => {
-      recordReviewerPasses(fixture.registry);
-      const fixturePath = 'packages/main/tests/fixtures/quorum-smoke.json';
-      write(fixture.root, fixturePath, JSON.stringify({
-        cases: [
-          { _id: 'base-case', name: 'base case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
-          { _id: 'added-case', name: 'new bounded case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
-        ],
-      }, null, 2) + '\n');
-      git(fixture.root, ['add', fixturePath]);
-      git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'add story-scoped fixture case']);
-      const dispatch = fixture.registry.get('dispatch')!;
-      const start = fixture.registry.get('review_run_start')!;
-      dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' });
-      const output = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
-      assert.match(output, /context incremental\/SAFE_INCREMENTAL/);
-      const latest = [...fixture.store.readReviewRuns(STORY_ID).runs].reverse().find(
-        candidate => candidate.lane === 'lattice-review-quality',
-      )!;
-      const envelope = fixture.store.readPromptEnvelopes(STORY_ID).envelopes.find(
-        candidate => candidate.envelopeId === latest.envelopeId,
-      )!;
-      assert.equal(envelope.freshnessClassification, 'RELATED_STORY_MATERIAL_DRIFT');
-      assert.ok(envelope.eligibilityReasonCodes?.includes('ELIGIBLE_RELATED_PURE_STORY_FIXTURE_DRIFT'));
-      assert.equal(verifyReviewRunPromptEnvelope(fixture.store, latest).ok, true);
+  check('real story-owned fixture delta is host-independent and requires case-level Story intent closure', () => {
+    withClearedSessionEnvironment(() => {
+      withFreshFixture((fixture) => {
+        recordReviewerPasses(fixture.registry);
+        const fixturePath = 'packages/main/tests/fixtures/quorum-smoke.json';
+        write(fixture.root, fixturePath, JSON.stringify({
+          cases: [
+            { _id: 'base-case', name: 'base case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
+            { _id: 'added-case', name: 'new bounded case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
+          ],
+        }, null, 2) + '\n');
+        git(fixture.root, ['add', fixturePath]);
+        git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'add story-scoped fixture case']);
+        const dispatch = fixture.registry.get('dispatch')!;
+        const start = fixture.registry.get('review_run_start')!;
+        dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' });
+        const output = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
+        assert.match(output, /context incremental\/SAFE_INCREMENTAL/);
+        const latest = [...fixture.store.readReviewRuns(STORY_ID).runs].reverse().find(
+          candidate => candidate.lane === 'lattice-review-quality',
+        )!;
+        const envelope = fixture.store.readPromptEnvelopes(STORY_ID).envelopes.find(
+          candidate => candidate.envelopeId === latest.envelopeId,
+        )!;
+        assert.equal(envelope.freshnessClassification, 'RELATED_STORY_MATERIAL_DRIFT');
+        assert.ok(envelope.eligibilityReasonCodes?.includes('ELIGIBLE_RELATED_PURE_STORY_FIXTURE_DRIFT'));
+        assert.equal(verifyReviewRunPromptEnvelope(fixture.store, latest).ok, true);
 
-      write(fixture.root, fixturePath, JSON.stringify({
-        cases: [
-          { _id: 'base-case', name: 'base case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
-          { _id: 'added-case', name: 'new bounded case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
-          { _id: 'unbound-case', name: 'attacker omitted current Story intent', expect: true },
-        ],
-      }, null, 2) + '\n');
-      git(fixture.root, ['add', fixturePath]);
-      git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'add unbound fixture case']);
-      dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' });
-      const rejectedOutput = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
-      assert.match(rejectedOutput, /context full\/SAFETY_REQUIRES_FULL/);
+        write(fixture.root, fixturePath, JSON.stringify({
+          cases: [
+            { _id: 'base-case', name: 'base case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
+            { _id: 'added-case', name: 'new bounded case', intentRef: `${STORY_ID}:CHK-001:happy:0`, expect: true },
+            { _id: 'unbound-case', name: 'attacker omitted current Story intent', expect: true },
+          ],
+        }, null, 2) + '\n');
+        git(fixture.root, ['add', fixturePath]);
+        git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'add unbound fixture case']);
+        dispatch({ storyId: STORY_ID, agentType: 'lattice-review-quality' });
+        const rejectedOutput = String(start({ storyId: STORY_ID, agent: 'lattice-review-quality' }));
+        assert.match(rejectedOutput, /context full\/SAFETY_REQUIRES_FULL/);
+      });
     });
   });
 
@@ -649,11 +675,8 @@ try {
         competingEnv: { CLAUDE_CODE_SESSION_ID: 'competing-claude-session' },
       },
     ] as const;
-    const primaryCwd = process.cwd();
     for (const testCase of cases) {
-      const unsupported = makeFixture('global-thin');
-      try {
-        process.chdir(unsupported.root);
+      withFreshFixture((unsupported) => {
         withSessionProvider(testCase.provider, () => {
           const dispatch = unsupported.registry.get('dispatch');
           const start = unsupported.registry.get('review_run_start');
@@ -689,11 +712,7 @@ try {
           assert.equal(unsupported.store.readReviewRuns(STORY_ID).runs.length, 0);
           assert.equal(unsupported.store.readPromptEnvelopes(STORY_ID).envelopes.length, 0);
         }, testCase.competingEnv);
-      } finally {
-        process.chdir(primaryCwd);
-        rmSync(unsupported.root, { recursive: true, force: true });
-        resetConfigCache();
-      }
+      });
     }
   });
 
@@ -847,6 +866,33 @@ try {
       assert.equal(git(fixture.root, ['status', '--porcelain=v1']), '');
       assert.equal(hostVerdictEventCount(fixture.store), 6);
       assert.equal(verdictFileCount(fixture.root), 6);
+    });
+  });
+
+  check('mixed legacy/full reviewer evidence crosses collector, REVIEW gate, and quorum admission', () => {
+    withFreshFixture((fixture) => {
+      const configPath = join(fixture.root, 'lattice.config.json');
+      const config = JSON.parse(readFileSync(configPath, 'utf8'));
+      const modes = {
+        'lattice-review-concept': 'legacy-full-context',
+        'lattice-review-quality': 'full-envelope',
+        'lattice-review-test-coverage': 'legacy-full-context',
+      } as const;
+      config.promptEnvelope.roles = modes;
+      write(fixture.root, 'lattice.config.json', `${JSON.stringify(config, null, 2)}\n`);
+      git(fixture.root, ['add', 'lattice.config.json']);
+      git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'select mixed reviewer rollout']);
+      resetConfigCache();
+
+      withSessionProvider('codex', () => {
+        for (const lane of REVIEW_LANES) startRunAndPass(fixture.registry, lane, modes[lane]);
+      });
+      const evidence = collectReviewerEvidenceState(fixture.store, STORY_ID, fixture.root);
+      assert.equal(evidence.invalid.length, 0, `mixed collector invalid=${JSON.stringify(evidence.invalid)}`);
+      assert.equal(evidence.valid.length, REVIEW_LANES.length);
+      assert.equal(canPassReviewGuard({ storyId: STORY_ID, store: fixture.store, projectRoot: fixture.root }), true);
+      const result: any = fixture.registry.get('quorum_submit')!(quorumArgs());
+      assert.equal(result.emittedCount, 6, 'mixed reviewer passes authorize the same 3x2 quorum batch');
     });
   });
 

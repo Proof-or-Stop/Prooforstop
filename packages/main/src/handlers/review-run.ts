@@ -14,7 +14,7 @@ import {
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
-import { withMkdirLock } from '../core/mkdir-lock.js';
+import { withReviewMetadataTicketLock } from '../core/mkdir-lock.js';
 import { loadConfig } from '../core/config.js';
 import {
   readGitStatusLines,
@@ -25,9 +25,9 @@ import {
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import {
   promptRoleContract,
-  resolvePromptEnvelopeRolloutMode,
+  resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
-import { readPromptRegistry, readPromptTemplate } from '../core/prompt-registry.js';
+import { readPromptRegistry } from '../core/prompt-registry.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
   assembleConditionalReviewPromptEnvelope,
@@ -36,11 +36,9 @@ import {
 } from '../core/prompt-envelope.js';
 import { reviewIncrementalContext } from '../core/review-incremental-context.js';
 
-function withReviewRunLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
-  // B-d877 R3 FIX B: relocate out of the git-tracked story dir to the gitignored
-  // shared `.lattice/locks/review-run/<id>-review-runs.lock`.
+function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
-  return withMkdirLock(lockDir, fn, { label: 'review-runs metadata' });
+  return withReviewMetadataTicketLock(lockDir, `review_run_start for ${storyId}`, fn);
 }
 
 type ResolvedReviewWorkspace = ReturnType<typeof resolveStoryCommandWorkspace>;
@@ -173,25 +171,29 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         }) ?? undefined;
       }
 
-      return withReviewRunLock(ctx, args.storyId, () => {
+      // One per-story unique-ticket transaction covers both Prompt Envelope and
+      // ReviewRun read-modify-write cycles. Stale reclaim removes only the
+      // dead acquisition's UUID path, never a replacement holder's path.
+      return withReviewMetadataTransactionLock(ctx, args.storyId, () => {
         const data = store.readReviewRuns(args.storyId);
         const nextNum = data.runs.reduce((max, run) => {
           const match = run.reviewRunId.match(/:RR-(\d+)$/);
           return match ? Math.max(max, Number(match[1])) : max;
         }, 0) + 1;
         const reviewRunId = `${args.storyId}:RR-${String(nextNum).padStart(3, '0')}`;
-        const rolloutMode = resolvePromptEnvelopeRolloutMode(
+        const resolvedRoleBody = resolvePromptRoleBody(
           lane,
           loadConfig(workspace.metadataRoot || ctx.root).promptEnvelope,
         );
         const promptEntry = readPromptRegistry().agents.find(entry => entry.agentId === lane);
         if (!promptEntry) throw new Error(`review_run_start: no canonical prompt registry entry for ${lane}`);
-        const canonicalRolePrompt = readPromptTemplate(promptEntry);
+        const canonicalRolePrompt = resolvedRoleBody.body;
         let promptHash = hashReviewPrompt(canonicalRolePrompt);
         let envelopeId: string | undefined;
         let assembledPrompt: string | undefined;
         let promptContextNote = 'legacy-full-context';
-        if (rolloutMode === 'full-envelope') {
+        let promptBudgetNote = '';
+        if (resolvedRoleBody.mode === 'full-envelope') {
           const dispatchBinding = verifyCurrentReviewerDispatchBinding({
             store,
             storyId: args.storyId,
@@ -204,6 +206,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           }
           const incremental = reviewIncrementalContext(store, signedWorkspaceRoot, args.storyId, lane, {
             findingsCutoffAt: startedAt,
+            passesCutoffAt: startedAt,
           });
           const assembly = assembleConditionalReviewPromptEnvelope({
             roleContract: promptRoleContract(lane),
@@ -240,27 +243,29 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             reviewBasis: incremental.reviewBasis,
             reviewerEscalationReason,
           });
-          withMkdirLock(store.runtimeLockDirPath(args.storyId, 'prompt-envelopes', 'prompt-envelopes'), () => {
-            const envelopeData = store.readPromptEnvelopes(args.storyId);
-            const existingEnvelope = envelopeData.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
-            if (existingEnvelope && !verifyPromptEnvelopeIntegrity(existingEnvelope)) {
-              throw new Error(`review_run_start: persisted Prompt Envelope ${existingEnvelope.envelopeId} is invalid`);
-            }
-            if (!existingEnvelope) {
-              envelopeData.envelopes.push(assembly.envelope);
-              store.writePromptEnvelopes(args.storyId, envelopeData);
-            }
-            const persistedEnvelope = store.readPromptEnvelopes(args.storyId).envelopes.find(
-              candidate => candidate.envelopeId === assembly.envelope.envelopeId,
-            );
-            if (!persistedEnvelope || !verifyPromptEnvelopeIntegrity(persistedEnvelope)) {
-              throw new Error(`review_run_start: Prompt Envelope ${assembly.envelope.envelopeId} was not durably persisted`);
-            }
-          }, { label: 'prompt-envelopes metadata' });
+          const envelopeData = store.readPromptEnvelopes(args.storyId);
+          const existingEnvelope = envelopeData.envelopes.find(candidate => candidate.envelopeId === assembly.envelope.envelopeId);
+          if (existingEnvelope && !verifyPromptEnvelopeIntegrity(existingEnvelope)) {
+            throw new Error(`review_run_start: persisted Prompt Envelope ${existingEnvelope.envelopeId} is invalid`);
+          }
+          if (!existingEnvelope) {
+            envelopeData.envelopes.push(assembly.envelope);
+            store.writePromptEnvelopes(args.storyId, envelopeData);
+          }
+          const persistedEnvelope = store.readPromptEnvelopes(args.storyId).envelopes.find(
+            candidate => candidate.envelopeId === assembly.envelope.envelopeId,
+          );
+          if (!persistedEnvelope || !verifyPromptEnvelopeIntegrity(persistedEnvelope)) {
+            throw new Error(`review_run_start: Prompt Envelope ${assembly.envelope.envelopeId} was not durably persisted`);
+          }
           envelopeId = assembly.envelope.envelopeId;
           assembledPrompt = assembly.prompt;
           promptHash = assembly.envelope.assembledPromptDigest;
           promptContextNote = `${assembly.envelope.contextMode}/${assembly.selectionReason}`;
+          promptBudgetNote =
+            `, budget full=${assembly.envelope.fullContextBytes ?? 'unavailable'}` +
+            `/incremental=${assembly.envelope.incrementalContextBytes ?? 'unavailable'}` +
+            `/violation=${assembly.envelope.budgetViolation ?? 'none'}`;
         }
         const run: ReviewRun = {
           reviewRunId,
@@ -316,15 +321,15 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           : '';
         const storyHashNote = storyFilesHash ? `, story ${storyFilesHash.slice(0, 7)}` : '';
         const envelopeNote = envelopeId
-          ? `, envelope ${envelopeId.slice(0, 7)}, context ${promptContextNote}`
-          : ', legacy-full-context';
+          ? `, rollout ${resolvedRoleBody.mode}, roleBody ${resolvedRoleBody.bodyDigest.slice(0, 7)}, envelope ${envelopeId.slice(0, 7)}, context ${promptContextNote}${promptBudgetNote}`
+          : `, rollout legacy-full-context, legacyBytesRestored=${resolvedRoleBody.legacyBytesRestored}`;
         const escalationNote = reviewerEscalationReason
           ? `, reviewer escalation: ${reviewerEscalationReason}`
           : '';
         const summary = `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote}${escalationNote})`;
         return assembledPrompt
           ? `${summary}\n\n--- BEGIN EXACT ASSEMBLED REVIEW PROMPT ---\n${assembledPrompt}\n--- END EXACT ASSEMBLED REVIEW PROMPT ---`
-          : summary;
+          : `${summary}\n\nThe host first loads a content-addressed thin bootstrap; the bytes below are the single selected role body, not the total model input.\n\n--- BEGIN EXACT SELECTED LEGACY ROLE BODY ---\n${canonicalRolePrompt}\n--- END EXACT SELECTED LEGACY ROLE BODY ---`;
       });
     },
   };

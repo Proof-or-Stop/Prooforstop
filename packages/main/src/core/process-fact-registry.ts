@@ -78,7 +78,11 @@ export interface ProcessFactRegistryEntry {
   gateEvidence?: boolean;
   destructiveRisk?: CommandDestructiveRisk;
   producer: string;
+  /** Canonical repository sources that implement/register the producer. */
+  producerSourceRefs?: readonly string[];
   consumerGate?: string;
+  /** Canonical repository sources that declare or implement the consumer. */
+  consumerSourceRefs?: readonly string[];
   artifact?: ProcessFactArtifactRef;
   reviewerLane?: string;
   rationale: string;
@@ -105,6 +109,8 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   review_host_availability_probe: 'host-availability-probe',
   review_escalation_fallback_set: 'gate-evidence',
   story_create_from_repro: 'gate-evidence',
+  acceptance_basis_generate: 'signed-artifact',
+  pre_review_check: 'signed-artifact',
 };
 
 export const PROCESS_FACT_REQUIRED_SEMANTICS = {
@@ -143,6 +149,14 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   slice_plan_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   parent_ledger_rollup_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   proofstory_contract_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  acceptance_topology_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
+  acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
+  acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
+  pre_review_check: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+  pre_review_check_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+  topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
+  topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
+  topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -164,8 +178,10 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:review_escalation_done_gate': ['runtime-behavior', 'host-verdict', 'host-availability', 'gate-evidence'],
   'runtime:review_assurance_floor_done_gate': ['runtime-behavior', 'host-verdict', 'host-availability', 'gate-evidence'],
   'runtime:review_run_story_files_hash_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'review-run', 'gate-evidence'],
+  'runtime:review_run_atomic_persistence_gate': ['runtime-behavior', 'atomic-persistence', 'prompt-envelope', 'review-run', 'gate-evidence'],
   'runtime:prompt_envelope_review_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'gate-evidence'],
-  'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence'],
+  'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence'],
+  'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:prompt_role_evidence_eligibility_gate': ['runtime-behavior', 'schema-contract', 'reviewer-lane', 'gate-evidence'],
   'runtime:story_files_hash_freshness_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'verification-evidence', 'review-run', 'host-verdict', 'gate-evidence'],
   'runtime:repro_first_story_intake_preflight': ['runtime-behavior', 'schema-contract', 'workspace-binding', 'gate-evidence'],
@@ -176,6 +192,8 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:composite_scope_digest_review_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'review-run', 'gate-evidence'],
   'runtime:trusted_closeout_artifact_validation': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:routine_validation_fresh_pass_reuse_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'validation-result', 'verification-policy', 'gate-evidence'],
+  'runtime:acceptance_topology_plan_dev_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
+  'runtime:topology_critic_authority_verification': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'verification-policy'],
   'runtime:canonical_scope_path_gate': ['runtime-behavior', 'schema-contract', 'normalization-policy', 'freshness-policy', 'gate-evidence'],
   'runtime:ast_semantic_anchor_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:shared_gap_log_metadata_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
@@ -331,6 +349,32 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'proofstory_contract_set',
     consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+  },
+  acceptance_basis_generate: {
+    name: 'acceptance-basis.json',
+    path: 'acceptance-basis.json',
+    signed: true,
+    signature: 'Ed25519(canonical receipt binding basis/topology/scope/workspace/storyFilesHash/closureFilesHash)',
+    producerCommand: 'acceptance_basis_generate',
+    consumerGate: 'acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate',
+  },
+  pre_review_check: {
+    name: 'pre-review-check.json',
+    path: 'pre-review-check.json',
+    signed: true,
+    signature: 'Ed25519(canonical current basis/topology/scope/storyFilesHash/closureFilesHash/evidence/cutoff/critic binding)',
+    producerCommand: 'pre_review_check',
+    consumerGate: 'pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate',
+  },
+  topology_exclusion_approval_set: {
+    name: 'topology-exclusion-approvals.json', path: 'topology-exclusion-approvals.json', signed: true,
+    signature: 'Ed25519(canonical scope-plan approval binding exclusion/basis/topology/scope/story/closure/provenance)',
+    producerCommand: 'topology_exclusion_approval_set', consumerGate: 'topology_critic_receipt_set and topology_critic_receipt_check',
+  },
+  topology_critic_receipt_set: {
+    name: 'topology-critic-receipt.json', path: 'topology-critic-receipt.json', signed: true,
+    signature: 'Ed25519(canonical critic receipt binding role/provenance/basis/topology/scope/story/closure/findings/exclusions/verdict/time)',
+    producerCommand: 'topology_critic_receipt_set', consumerGate: 'topology_critic_receipt_check CLI verification',
   },
   intent_collision_set: {
     name: 'intent-collision.json',
@@ -712,6 +756,14 @@ export const PROCESS_FACT_REVIEWER_LANE_DEFINITIONS = [
     rationale: 'PLAN scope reviewer signs scope-check evidence before implementation.',
   },
   {
+    name: 'reviewer-lane:lattice-review-topology-critic',
+    producer: 'lattice-review-topology-critic',
+    consumerGate: 'topology_critic_receipt_check CLI verification only',
+    reviewerLane: 'lattice-review-topology-critic',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.topology_critic_receipt_set,
+    rationale: 'Independent topology critic signs a current receipt only after complete discovery, four-dimensional independence, and exact exclusion approval verification.',
+  },
+  {
     name: 'reviewer-lane:lattice-review-concept',
     producer: 'lattice-review-concept',
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
@@ -838,7 +890,17 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
     gateEvidence,
     destructiveRisk: policy?.destructiveRisk,
     producer: entry.owner,
+    producerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
+      ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/core/pre-review-live-proof.ts', 'scripts/run-proofstory-pre-review-live-proof.mjs']
+      : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
+      ? ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts']
+      : undefined,
     consumerGate: entry.gateConsumer,
+    consumerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
+      ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts']
+      : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
+      ? ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs']
+      : undefined,
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name],
     reviewerLane: PROCESS_FACT_ARTIFACT_BY_COMMAND[entry.name]?.reviewerLane,
     rationale: entry.rationale,
@@ -997,6 +1059,54 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'Original intent snapshot freezes sourceText/keyRequirementIds into an immutable requestHash for progressive intent diagnostics and opt-in enforcement.',
   },
   {
+    name: 'artifact:acceptance-basis.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/proofstory.acceptance_basis_generate',
+    producerSourceRefs: ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts'],
+    consumerGate: 'acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate',
+    consumerSourceRefs: ['packages/main/src/core/acceptance-topology.ts', 'packages/main/src/handlers/proofstory.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs'],
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.acceptance_basis_generate,
+    rationale: 'Verifier-only PLAN coverage basis receipt binds the registered adapter profile and full adapter results, deterministic union, planned paths, topology/scope/workspace identity, storyFilesHash, closureFilesHash, and the structured snapshotSeal/sealDigest integrity fact. The canonical topology evaluator verifies it before PLAN to DEV; no read-only caller can mint or rebind it.',
+  },
+  {
+    name: 'artifact:pre-review-check.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/proofstory.pre_review_check',
+    producerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/core/pre-review-live-proof.ts', 'scripts/run-proofstory-pre-review-live-proof.mjs'],
+    consumerGate: 'pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate',
+    consumerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.pre_review_check,
+    rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, artifact-kind/runtime-aware planned-to-actual reconciliation, and the gzip-carried canonical machine records emitted only after the bounded production scenario ledger executes. The loader requires every exact current-topology assertion ID, kind, and canonical sourceRef with no missing/extra/duplicate rows; records are assembled by ID rather than positional kind queues, so permutations or swaps cannot reattribute executed outcomes. It also requires distinct mutation target/kind pairs, observed polarity plus clean controls, ordered producer/consumer events, and a mechanically recomputed aggregate root. Both live loading and signed-artifact readback compare proof provenance against the current tracked runner and built target; the fixed runner performs a fresh build before emission. Stale runner/target bytes, stale gitignored dist, arbitrary formatted digests, hard-coded story/counts, arbitrary commands, raw verificationEvidence checkedClaims/actorTrust, and global transcript presence grant no authority. The artifact also binds the strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation.',
+  },
+  {
+    name: 'artifact:topology-exclusion-approvals.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
+    level: 'L3',
+    producer: 'handlers/proofstory.topology_exclusion_approval_set',
+    producerSourceRefs: ['packages/main/src/core/topology-critic-receipt.ts', 'packages/main/src/handlers/proofstory.ts', 'packages/main/src/core/agent-dispatch-registry.ts'],
+    consumerGate: 'topology_critic_receipt_set and topology_critic_receipt_check',
+    consumerSourceRefs: ['packages/main/src/core/topology-critic-receipt.ts', 'packages/main/src/handlers/proofstory.ts', 'scripts/verify-process-fact-contract.mjs'],
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.topology_exclusion_approval_set,
+    rationale: 'Every topology exclusion is covered exactly once by a signed current lattice-review-scope-plan approval that is independently attributable from both implementation and critic provenance.',
+  },
+  {
+    name: 'artifact:topology-critic-receipt.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
+    level: 'L3',
+    producer: 'handlers/proofstory.topology_critic_receipt_set',
+    producerSourceRefs: ['packages/main/src/core/topology-critic-receipt.ts', 'packages/main/src/handlers/proofstory.ts', 'packages/main/src/core/agent-dispatch-registry.ts'],
+    consumerGate: 'topology_critic_receipt_check CLI verification only',
+    consumerSourceRefs: ['packages/main/src/core/topology-critic-receipt.ts', 'packages/main/src/handlers/proofstory.ts', 'scripts/verify-process-fact-contract.mjs'],
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.topology_critic_receipt_set,
+    rationale: 'The eligible critic receipt signs complete current basis/topology/scope/story/closure bindings, deterministic findings/exclusions, verdict/time, and four-dimensional actor/implementation provenance. Partial or unsupported discovery remains non-pass.',
+  },
+  {
     name: 'artifact:milestone-ledger.json',
     kind: 'artifact',
     semantics: ['artifact', 'schema-contract', 'verification-policy', 'gate-evidence'],
@@ -1123,7 +1233,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/agent-prompt + handlers/review-run',
     consumerGate: 'story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.agent_prompt,
-    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes additionally bind roleId to lane, the exact standard story-dispatch prompt bytes, the selected mode-aware host render identity, and their exact delivered assembledPrompt bytes to the signed ReviewRun promptHash. Claude Code/CLI and Codex/CLI map explicitly to their matching PromptHost; a nonblank explicit unsupported provider becomes unknown before any environment inference, and antigravity/agy, fake, unknown, and absent providers fail closed instead of borrowing another host identity. Runtime-owned/thin identity comes from the deterministic package registry; explicit full-asset identity verifies only the selected host mirror.',
+    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes additionally bind roleId to lane, the exact standard story-dispatch prompt bytes, the selected mode-aware host identity, and their exact delivered assembledPrompt bytes to the signed ReviewRun promptHash. Claude Code/CLI and Codex/CLI map explicitly to their matching PromptHost; a nonblank explicit unsupported provider becomes unknown before any environment inference, and antigravity/agy, fake, unknown, and absent providers fail closed instead of borrowing another host identity. The actual runtime-owned/global-thin package-registry resolver and explicit full-asset renderer return the same canonical body-free bootstrap; review_run_start supplies exactly one selected role-body render, so no modular+legacy double body is hidden.',
   },
   {
     name: 'artifact:review-runs.json',
@@ -1251,7 +1361,7 @@ export const PROCESS_FACT_SIGNED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
   (entry) => entry.artifact?.signed === true,
 ) as readonly ProcessFactRegistryEntry[];
 
-const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
+export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
   {
     name: 'runtime:closeout_phase_transition',
     kind: 'runtime-behavior',
@@ -1260,6 +1370,15 @@ const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
     producer: 'handlers/transition-orchestrator',
     consumerGate: 'done_prepare convergence acceptance',
     rationale: 'Typed from/to phase transitions bind attempt, review round, materialHash, and storyFilesHash so metadata-only rollback counts are mechanically derived.',
+  },
+  {
+    name: 'runtime:closeout_reviewer_reattestation_boundary',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'review-run', 'review-pass', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/review-run review_run_start + handlers/finding review_pass_set',
+    consumerGate: 'done_prepare convergence acceptance',
+    rationale: 'Signed completed reviewer run/pass pairs on the same attempt, materialHash, storyFilesHash, and reviewRound remain total telemetry. The first completed identity per lane is ordered by verified ReviewPass.createdAt with reviewRunId/pass id tie-breakers, independent of run start order. Re-attestations completed before TEST entry are exempt; completion at or after TEST entry increments the fail-closed post-TEST counter.',
   },
   {
     name: 'runtime:closeout_human_confirmation',

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4444",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/lattice.js *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "Lattice CLI"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset *",
+    "npm publish *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "OMX"
+  ],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "package-lock.json",
+    "package.json",
+    "packages/**",
+    "tests/**"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Documentation-only planning Story. Repository reads are allowed for audit grounding; the sole content write is the new decision document. Story metadata writes must go through Lattice.",
+  "createdAt": "2026-07-21T15:18:56.924Z",
+  "updatedAt": "2026-07-21T15:18:56.924Z",
+  "_hash": "f28c5ffae8f11b24892e084291ef57d8fe562eb25dc621dee4c86aa1e0d51b1e"
+}

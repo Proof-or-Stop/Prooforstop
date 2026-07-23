@@ -1,0 +1,56 @@
+{
+  "storyId": "B-4444",
+  "changes": "Created one auditable Markdown execution plan covering the current milestone-ledger and ProofStory ownership model, reference-based acceptance topology, PLAN-to-DEV structural check, DEV-to-REVIEW executable check, rollout, mutation tests, process-fact obligations, authority and freshness. Independent concept, quality, coverage, docs, Claude CLI and Agy/Codex-host audits found the final design non-duplicative, mechanically enforceable, migration-safe, and ready to authorize for separate implementation Stories. No runtime behavior was implemented.",
+  "usage": "Use this audited document to authorize and create separate Wave 1, 1A, 2, 2A, 3, 3A, and 4 implementation Stories. Preserve its canonical ownership and phase boundaries; do not create a writable acceptance matrix or claim runtime gates were delivered by B-4444.",
+  "expectedOutcome": "An independent auditor can use the single Markdown plan to decide that the acceptance-topology architecture preserves canonical milestone/ProofStory ownership, is non-duplicative, mechanically enforceable, migration-safe, and ready to authorize for implementation, while clearly stating that B-4444 implements no runtime behavior.",
+  "actualTranscript": "The captured real-machine command exited 0 and displayed the no-writable-acceptance-matrix invariant, acceptance_topology_check, pre_review_check, bounded Wave 1/1A implementation sections, verification and mutation matrix, and human audit checklist. Current Round 4 concept, quality, coverage and docs reviewers all signed PASS; full 3x2 quorum was recorded.",
+  "outcomeDiff": "No scope difference: the requested single auditable plan covers ownership, topology, both lifecycle checks, rollout, tests, process-fact obligations and non-implementation boundaries; independent auditors accepted it as implementation-ready.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "B-4444 is intentionally documentation-only: proposed schemas, commands, adapters and gates are not runtime features yet. The plan assigns remaining open decisions to explicit later-Wave entry criteria rather than silently deciding them.",
+  "pitfalls": "Four REVIEW rounds found and fixed seven issues: PLAN new-path deadlock, per-adapter auditability, circular planned-path ownership, phase-basis example drift, file-ref mismatch, missing mutation bites, and PLAN actual-diff ambiguity. Future implementers must preserve verificationIntent ownership and PLAN/pre-REVIEW basis separation.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 94451
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 76451
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 377800
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 37485702
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1459652
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1114982
+    }
+  },
+  "totalDurationMs": 40609748,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-22T02:19:38.029Z",
+  "updatedAt": "2026-07-22T02:34:27.795Z"
+}

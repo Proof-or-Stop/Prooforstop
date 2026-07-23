@@ -23,6 +23,7 @@ import { commandCliMaxBudget, effectiveCommandCliMaxBudget, LIVE_SMOKE_CAPTURE_C
 import { validationExecutionLockPath, withValidationExecutionLock } from '../core/validation-execution-lock.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
+import { PRE_REVIEW_LIVE_PROOF_COMMAND, PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS } from '../core/pre-review-check.js';
 
 const STORY_ID = 'B-livesmoke';
 const NOW = '2026-06-20T00:00:00.000Z';
@@ -751,6 +752,8 @@ assert.equal(
     assert.equal(report.write.persisted, true);
     assert.equal(report.write.artifactPath, artifactPath(store), 'reports the persisted artifact path');
     assert.equal(report.transcript.status, 'present-fresh', 'after a fresh --write the artifact is present(fresh)');
+    assert.equal(report.readinessRow?.status, 'pass', 'response readiness is rebuilt after persistence instead of retaining the pre-write missing/timeout state');
+    assert.equal(report.readinessRow?.code, 'live_smoke_transcript', 'response consumes the canonical post-write DONE readiness row');
 
     assert.equal(existsSync(artifactPath(store)), true, '--write created the transcript artifact');
     assertOnlyTranscriptArtifactInEvidenceDir(store);
@@ -803,6 +806,32 @@ assert.equal(
     const budgetEnv = { ...process.env, PATH: `${globalBin}${delimiter}${process.env.PATH ?? ''}` };
     const doneRequiredCommand = 'lattice done_required_validate --storyId=B-livesmoke --json';
     const donePrepareCommand = 'lattice done_prepare --storyId=B-livesmoke --json';
+    const preReviewProof = liveSmokeCaptureBudget(root, PRE_REVIEW_LIVE_PROOF_COMMAND, budgetEnv);
+    assert.equal(preReviewProof.recognizedCommand, 'pre_review_live_proof');
+    assert.equal(preReviewProof.nestedMaxTimeoutMs, PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS);
+    assert.equal(
+      preReviewProof.timeoutMs,
+      PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS + LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS,
+      'exact canonical pre-review live proof gets its bounded execution budget plus cleanup grace',
+    );
+    assert.equal(preReviewProof.source, 'derived-pre-review-live-proof-command');
+    assert.equal(
+      commandCliMaxBudget(root, 'live_smoke_transcript', { capture: PRE_REVIEW_LIVE_PROOF_COMMAND }, budgetEnv).timeoutMs,
+      PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS + LIVE_SMOKE_CAPTURE_CLEANUP_GRACE_MS + 30_000,
+      'outer CLI watchdog outlives exact canonical proof capture and cleanup',
+    );
+    for (const nearMiss of [
+      ` ${PRE_REVIEW_LIVE_PROOF_COMMAND}`,
+      `${PRE_REVIEW_LIVE_PROOF_COMMAND} `,
+      `${PRE_REVIEW_LIVE_PROOF_COMMAND} --extra`,
+      `LATTICE_SESSION_ID=stable ${PRE_REVIEW_LIVE_PROOF_COMMAND}`,
+      `${PRE_REVIEW_LIVE_PROOF_COMMAND}; node extra.js`,
+      `NODE_OPTIONS=--require=/tmp/attacker.cjs ${PRE_REVIEW_LIVE_PROOF_COMMAND}`,
+    ]) {
+      const budget = liveSmokeCaptureBudget(root, nearMiss, budgetEnv);
+      assert.equal(budget.recognizedCommand, null, `near-miss canonical proof remains unrecognized: ${nearMiss}`);
+      assert.equal(budget.timeoutMs, 60_000, `near-miss canonical proof retains arbitrary-command ceiling: ${nearMiss}`);
+    }
 
     const direct = liveSmokeCaptureBudget(root, `LATTICE_SESSION_ID=stable ${doneRequiredCommand}`, budgetEnv);
     assert.equal(direct.nestedMaxTimeoutMs, 150_000, 'direct DONE-required nested max derives command timeout plus validation grace');

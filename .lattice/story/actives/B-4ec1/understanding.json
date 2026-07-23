@@ -1,0 +1,39 @@
+{
+  "task": "Add the canonical Wave 3 executable pre-review proof gate so implementation omissions and stale or weak evidence are rejected before reviewer rounds begin.",
+  "outcome": "Running pre_review_check on a complete current worktree prints `Pre-review check: PASS plannedActual=complete executableEvidence=current mutations=biting transcript=related authority=admissible`; deleting a basis-backed topology path prints `Pre-review check: FAIL code=AT_UNMAPPED_SCOPE_REF` and blocks DEV-to-REVIEW.",
+  "facts": [
+    "Waves 1, 1A, 2 and 2A are DONE on main at CLI 0.3.228.",
+    "Wave 2 acceptance_topology_check is the PLAN-to-DEV structural authority; Wave 2A critic receipts are CLI-verifiable and do not independently gate lifecycle.",
+    "VerificationEvidence already has canonical refs `evidence:<itemId>:<intentRef>:<index>` derived by acceptance-topology; manual_transcript evidence and the canonical live-smoke artifact provide transcript inputs.",
+    "AcceptanceCoverageBasisV1 and its signed receipt already support phaseBasis=`pre_review`, priorPlanBasisDigest, plannedActualReconciliations and current workspace hashes; Wave 3 should consume these instead of creating another inventory truth.",
+    "The narrow insertion point is transition-orchestrator before actor.send when target phase is REVIEW, alongside scope/guard gates and before the new review round is minted.",
+    "A verifier-owned signed pre-review check artifact is needed to bind recomputed basis/topology/evidence/authority/freshness, while the read-only evaluator and lifecycle consumer recompute/verify it; caller-written verdict fields remain forbidden.",
+    "Wave 3A selective applicability and Wave 4 measured rollout are separate scopes."
+  ],
+  "constraints": [
+    "All gate-consumed facts need prompt guidance plus mechanical CLI/handler/gate enforcement and process-fact registration.",
+    "Callers cannot supply authoritative path inventory, authority, freshness or pass status.",
+    "DEV-to-REVIEW must fail closed on missing, partial, unsupported, stale or tampered basis/evidence.",
+    "Existing Stories and flat project modes must retain compatible observe/warn/enforce behavior; no Wave 3A or Wave 4 claims.",
+    "Focused production-path smoke must prove clean pass, adverse bite, exact restoration and no residue."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-basis-receipt.ts",
+    "packages/main/src/core/live-smoke-transcript-evidence.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/CLI.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+  ],
+  "timestamp": "2026-07-22T22:32:29.657Z"
+}

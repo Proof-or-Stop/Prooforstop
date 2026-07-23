@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-98b0",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git status*",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Claude CLI reviewer",
+    "Codex CLI reviewer",
+    "exec_command",
+    "lattice CLI"
+  ],
+  "allowedPaths": [
+    "docs/CLI.md",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "npm test during DEV or REVIEW",
+    "omx*"
+  ],
+  "excludedTools": [
+    "direct story-file editor",
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Only Wave 2 structural gate implementation is authorized. Root full npm test is reserved for canonical DONE-required validation; no remote branch or push.",
+  "createdAt": "2026-07-22T15:47:52.619Z",
+  "updatedAt": "2026-07-22T15:47:52.619Z",
+  "_hash": "ea73568c8d1cb021db56c1644a29ab217014d311684a9b2cbebda4c500f53128"
+}

@@ -4,6 +4,7 @@ import { loadConfig } from './config.js';
 import { resolveDoneRequiredPolicy } from './done-required-validation.js';
 import { resolveCommandTimeoutMs } from './validation-executor.js';
 import type { ValidationCommand } from './validation-types.js';
+import { PRE_REVIEW_LIVE_PROOF_COMMAND, PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS } from './pre-review-check.js';
 
 export const NODE_TIMER_MAX_MS = 2_147_483_647;
 export const DEFAULT_DONE_PREPARE_PHASE_TIMEOUT_MS = 240_000;
@@ -46,6 +47,7 @@ export type LiveSmokeCaptureBudgetSource =
   | 'fixed-arbitrary-command'
   | 'derived-done-required-command'
   | 'derived-done-prepare-command'
+  | 'derived-pre-review-live-proof-command'
   | 'derived-closeout-saturation-adjusted'
   | 'inherited-cli-max'
   | 'inherited-cli-max-saturation-adjusted'
@@ -54,7 +56,7 @@ export type LiveSmokeCaptureBudgetSource =
 export interface LiveSmokeCaptureBudget {
   timeoutMs: number;
   source: LiveSmokeCaptureBudgetSource;
-  recognizedCommand: 'done_required_validate' | 'done_prepare' | null;
+  recognizedCommand: 'done_required_validate' | 'done_prepare' | 'pre_review_live_proof' | null;
   nestedMaxTimeoutMs?: number;
   requestedNestedMaxTimeoutMs?: number;
   saturationAdjusted?: true;
@@ -161,7 +163,8 @@ function recognizedLiveSmokeCommand(
   root: string,
   command: string,
   env: NodeJS.ProcessEnv,
-): 'done_required_validate' | 'done_prepare' | null {
+): 'done_required_validate' | 'done_prepare' | 'pre_review_live_proof' | null {
+  if (command === PRE_REVIEW_LIVE_PROOF_COMMAND) return 'pre_review_live_proof';
   const trimmed = command.trim();
   // A wider budget is reserved for one direct Lattice closeout command. Shell
   // composition/substitution and executable-affecting inline environment stay
@@ -197,6 +200,9 @@ export function liveSmokeCaptureBudget(
     const validate = !/(?:^|\s)--validate(?:=|\s+)false(?:\s|$)/.test(command);
     requestedNestedMaxTimeoutMs = commandCliMaxBudget(root, recognizedCommand, { validate }, env).timeoutMs;
     source = 'derived-done-prepare-command';
+  } else if (recognizedCommand === 'pre_review_live_proof') {
+    requestedNestedMaxTimeoutMs = PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS;
+    source = 'derived-pre-review-live-proof-command';
   }
 
   // Every trusted nested closeout uses its inherited or derived CLI budget as

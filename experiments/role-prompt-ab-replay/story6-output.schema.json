@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["findings", "summary"],
+  "properties": {
+    "summary": { "type": "string" },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["oracleId", "category", "severity", "sourceBinding", "claimBinding", "evidence"],
+        "properties": {
+          "oracleId": { "type": ["string", "null"] },
+          "category": { "enum": ["happy", "edge", "adversarial", "missing"] },
+          "severity": { "enum": ["critical", "high", "medium", "low"] },
+          "sourceBinding": { "type": "string" },
+          "claimBinding": { "type": "string" },
+          "evidence": { "type": "string" }
+        }
+      }
+    }
+  }
+}

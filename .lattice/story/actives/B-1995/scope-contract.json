@@ -1,0 +1,74 @@
+{
+  "storyId": "B-1995",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/verification.ts",
+    "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/package.json",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package-lock.json",
+    "packages/main/src/core/lattice-brand.ts",
+    "docs/CLI.md",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/acceptance-topology.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts"
+  ],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-22T02:48:37.641Z",
+  "updatedAt": "2026-07-22T03:45:12.461Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/cli/command-schemas.ts": "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/story-create.ts": "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/core/proofstory.ts": "packages/main/src/core/proofstory.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/verification.ts": "packages/main/src/core/verification.ts",
+    "packages/main/src/core/milestone-status.ts": "packages/main/src/core/milestone-status.ts",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    "packages/main/package.json": "packages/main/package.json",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "docs/CLI.md": "docs/CLI.md",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts": "packages/main/src/handlers/phase-gates.ts"
+  }
+}

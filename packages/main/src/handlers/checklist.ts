@@ -13,6 +13,12 @@ import { withMkdirLock } from '../core/mkdir-lock.js';
 import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
 import type { ScopeFreezeTextSource } from '../core/types.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import {
+  isAcceptanceMatrixDerivedEvidence,
+  plannedPathDeclarationSnapshot,
+  validatePlannedPathDeclarationsForChecklistItem,
+  verificationIntentHasPlannedPathDeclarations,
+} from '../core/acceptance-topology.js';
 
 const INIT_REVIEWER_CHECKLIST_MUTATION_BLOCKED_AGENTS = new Set([
   'lattice-review-story-init',
@@ -262,6 +268,7 @@ function normalizeEvidenceKind(kind: VerificationEvidenceKindInput): Verificatio
 }
 
 function normalizeEvidence(gitCwd: string, metadataRoot: string, input: VerificationEvidenceInput): VerificationEvidence {
+  assertEvidenceIsNotAcceptanceMatrixProjection(input);
   const hashes = evidenceHashes(gitCwd, metadataRoot);
   const kind = normalizeEvidenceKind(input.kind);
   return makeEvidence({
@@ -278,6 +285,13 @@ function normalizeEvidence(gitCwd: string, metadataRoot: string, input: Verifica
     storyFilesHash: input.storyFilesHash || hashes.storyFilesHash,
     ...(input.attestation ? { attestation: input.attestation } : {}),
   });
+}
+
+function assertEvidenceIsNotAcceptanceMatrixProjection(input: { kind?: string; command?: string; note?: string }): void {
+  if (!isAcceptanceMatrixDerivedEvidence(input)) return;
+  throw new Error(
+    'verification evidence refused: acceptance_matrix output is an L0 read-only projection and cannot satisfy verification or gate authority [acceptance_matrix_non_evidentiary_projection]',
+  );
 }
 
 /**
@@ -311,7 +325,7 @@ function deriveIntentDesc(ev: VerificationEvidence): string {
 
 /** PASSING evidence only seeds intent: never a waiver, never an explicit fail. */
 function isPassingEvidence(ev: VerificationEvidence): boolean {
-  return ev.kind !== 'waiver' && ev.result !== 'fail';
+  return ev.kind !== 'waiver' && ev.result !== 'fail' && !isAcceptanceMatrixDerivedEvidence(ev);
 }
 
 /**
@@ -385,6 +399,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       agent?: string;
       actor?: string;
     }): string {
+      if (verificationIntentHasPlannedPathDeclarations(args.verificationIntent)) {
+        throw new Error(
+          'checklist_add refused: plannedPathDeclarations may only be authored by the dispatched verification-intent role through checklist_update during PLAN [planned_path_writer_not_authorized]',
+        );
+      }
       const story = assertChecklistAddAllowed(store, args);
 
       return withChecklistLock(ctx, args.storyId, () => {
@@ -569,6 +588,14 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       });
       const checklistActor = authority.actor || process.env.USER?.trim() || 'main-agent';
       const dispatchedRole = authority.entry;
+      const incomingHasPlannedDeclarations = verificationIntentHasPlannedPathDeclarations(args.verificationIntent);
+      const isDispatchedVerificationIntentWriter = dispatchedRole?.roleClass === 'verification-intent'
+        && authority.source === 'dispatched-env';
+      if (incomingHasPlannedDeclarations && !isDispatchedVerificationIntentWriter) {
+        throw new Error(
+          'checklist_update refused: plannedPathDeclarations require the dispatched verification-intent role during PLAN [planned_path_writer_not_authorized]',
+        );
+      }
       if (dispatchedRole?.roleClass === 'verification-intent') {
         const disallowed = [
           args.status !== undefined && 'status',
@@ -633,6 +660,23 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const cl = store.readChecklist(args.storyId);
       const item = cl.items.find(i => i.id === args.itemId);
       if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+      if (args.verificationIntent !== undefined) {
+        const existingDeclarationSnapshot = plannedPathDeclarationSnapshot(item.verificationIntent);
+        const incomingDeclarationSnapshot = plannedPathDeclarationSnapshot(args.verificationIntent);
+        if (existingDeclarationSnapshot !== incomingDeclarationSnapshot && !isDispatchedVerificationIntentWriter) {
+          throw new Error(
+            'checklist_update refused: only the dispatched verification-intent role may add, change, move, or remove plannedPathDeclarations during PLAN [planned_path_writer_not_authorized]',
+          );
+        }
+        if (incomingHasPlannedDeclarations) validatePlannedPathDeclarationsForChecklistItem(item, args.verificationIntent);
+      }
+      if (args.files !== undefined
+        && (verificationIntentHasPlannedPathDeclarations(item.verificationIntent) || incomingHasPlannedDeclarations)
+        && JSON.stringify(args.files) !== JSON.stringify(item.files)) {
+        throw new Error(
+          'checklist_update refused: ChecklistItem.files entries referenced by plannedPathDeclarations are frozen [planned_path_file_binding_frozen]',
+        );
+      }
       assertChecklistScopeChangeAllowed(store, args.storyId, {
         title: args.title ?? (args.excludes !== undefined ? item.title : undefined),
         context: args.context ?? (args.excludes !== undefined ? item.context : undefined),
@@ -829,6 +873,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       if (!args.note || args.note.trim().length < 5) {
         throw new Error('verification_evidence_add: note must be ≥ 5 characters, explaining why the evidence covers the intent');
       }
+      assertEvidenceIsNotAcceptanceMatrixProjection(args);
       const kind = normalizeEvidenceKind(args.kind);
       if (args.waiverType && kind !== 'waiver') {
         throw new Error('verification_evidence_add: waiverType can only be used with kind=waiver');
@@ -896,6 +941,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         if (!entry.note || entry.note.trim().length < 5) {
           throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} note must be ≥ 5 characters`);
         }
+        assertEvidenceIsNotAcceptanceMatrixProjection(entry);
         const kind = normalizeEvidenceKind(entry.kind);
         if (entry.waiverType && kind !== 'waiver') {
           throw new Error(`verification_evidence_batch_add: ${entry.itemId} → ${entry.intentRef} waiverType can only be used with kind=waiver`);

@@ -1,0 +1,489 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-98b0",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:f4adea5ee2395c615edcb0c7ee6d3d5a26c3ce338c27a0e9ad3cd7c15fd03365",
+  "confirmedMilestoneLedgerHash": "sha256:e439b460e21be89a180d5e0fc8a368f3a070d4e2822d591fafff4d70cd5407a5",
+  "acceptanceBindings": [
+    {
+      "id": "AC-W2-PLAN-STRUCTURAL-GATE",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "B98B0-M1-H-CANONICAL",
+        "B98B0-M1-E-NONPASS-BASIS",
+        "B98B0-M1-E-MODES",
+        "B98B0-M1-A-CALLER-FORGERY",
+        "B98B0-M1-A-OMISSION-INVENTION",
+        "B98B0-M2-H-PRODUCTION-PARITY",
+        "B98B0-M2-E-CLI-CONTRACT",
+        "B98B0-M2-E-REGISTRY-RATIONALE",
+        "B98B0-M2-A-PROCESS-FACT-MUTATION",
+        "B98B0-M2-A-PROMPT-ONLY",
+        "B98B0-M3-H-PLAN-DEV",
+        "B98B0-M3-H-TYPED-NEW-PATH",
+        "B98B0-M3-E-COMPATIBILITY",
+        "B98B0-M3-E-MODE-LIFECYCLE",
+        "B98B0-M3-A-BLOCKERS",
+        "B98B0-M3-A-PLANNED-PATH-TAMPER",
+        "B98B0-M3-A-NO-LATER-WAVE-LEAKAGE",
+        "B98B0-M4-H-FOCUSED-SMOKE",
+        "B98B0-M4-H-DOCS-TRANSCRIPT",
+        "B98B0-M4-E-COMPATIBILITY-MATRIX",
+        "B98B0-M4-E-STABLE-DIAGNOSTICS",
+        "B98B0-M4-A-REAL-MUTATIONS",
+        "B98B0-M4-A-POLARITY-RESTORE",
+        "B98B0-M4-A-PROCESS-FACT-BITE",
+        "B98B0-M4-A-SCOPE-BOUNDARY"
+      ],
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "acceptanceClaim": "The production CLI and PLAN to DEV gate consume one canonical structural evaluator over the verifier-derived basis and normalized topology, produce stable AT diagnostics, require no executable DEV evidence, and preserve deterministic legacy, docs-only and single-outcome compatibility.",
+      "note": "All 25 must intents are mapped to a positive or mutation assertion; the transcript assertion is separately bound.",
+      "verificationTopology": {
+        "schemaVersion": "proofstory.acceptance_topology.v1",
+        "producerRefs": [
+          {
+            "id": "P-W2-EVALUATOR",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "checklist:CHK-001"
+            }
+          }
+        ],
+        "consumerRefs": [
+          {
+            "id": "C-W2-CLI",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "checklist:CHK-002"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ]
+          },
+          {
+            "id": "C-W2-LIFECYCLE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "checklist:CHK-003"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ]
+          },
+          {
+            "id": "C-W2-VERIFY",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "checklist:CHK-004"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ]
+          }
+        ],
+        "positiveAssertionRefs": [
+          {
+            "id": "A-M1-H",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M1-H-CANONICAL"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-M2-H",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M2-H-PRODUCTION-PARITY"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-CLI"
+            ]
+          },
+          {
+            "id": "A-M3-H-DEV",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M3-H-PLAN-DEV"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-M3-H-NEW",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M3-H-TYPED-NEW-PATH"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-M4-H-SMOKE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M4-H-FOCUSED-SMOKE"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "A-M4-H-DOCS",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M4-H-DOCS-TRANSCRIPT"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-CLI"
+            ]
+          }
+        ],
+        "mutationCaseRefs": [
+          {
+            "id": "M-M1-E-BASIS",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M1-E-NONPASS-BASIS"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M1-E-MODES",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M1-E-MODES"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "M-M1-A-FORGE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M1-A-CALLER-FORGERY"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M1-A-OMIT",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M1-A-OMISSION-INVENTION"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M2-E-CLI",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M2-E-CLI-CONTRACT"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-CLI"
+            ]
+          },
+          {
+            "id": "M-M2-E-REGISTRY",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M2-E-REGISTRY-RATIONALE"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M2-A-FACT",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M2-A-PROCESS-FACT-MUTATION"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M2-A-PROMPT",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M2-A-PROMPT-ONLY"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "M-M3-E-COMPAT",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M3-E-COMPATIBILITY"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "M-M3-E-MODE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M3-E-MODE-LIFECYCLE"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "M-M3-A-BLOCK",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M3-A-BLOCKERS"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "M-M3-A-TAMPER",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M3-A-PLANNED-PATH-TAMPER"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M3-A-SCOPE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M3-A-NO-LATER-WAVE-LEAKAGE"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M4-E-COMPAT",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M4-E-COMPATIBILITY-MATRIX"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M4-E-CODES",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M4-E-STABLE-DIAGNOSTICS"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M4-A-REAL",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M4-A-REAL-MUTATIONS"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M4-A-POLARITY",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M4-A-POLARITY-RESTORE"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M4-A-FACT",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M4-A-PROCESS-FACT-BITE"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          },
+          {
+            "id": "M-M4-A-SCOPE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M4-A-SCOPE-BOUNDARY"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-VERIFY"
+            ]
+          }
+        ],
+        "transcriptAssertionRefs": [
+          {
+            "id": "T-W2-CLI",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:B98B0-M4-H-DOCS-TRANSCRIPT"
+            },
+            "producerRefs": [
+              "P-W2-EVALUATOR"
+            ],
+            "consumerRefs": [
+              "C-W2-CLI"
+            ]
+          }
+        ],
+        "commandRefs": [
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "intent:B98B0-M2-H-PRODUCTION-PARITY"
+          }
+        ]
+      }
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "scope_ambiguity",
+      "severity": "warn",
+      "artifact": "scope-contract.json",
+      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
+      "triggeredBy": [
+        "scope_ambiguity"
+      ]
+    }
+  ],
+  "note": "Wave 2 single-claim reference-only topology; structural declarations only, no result, basis, authority, freshness or executable evidence fields.",
+  "createdAt": "2026-07-22T15:56:22.145Z",
+  "updatedAt": "2026-07-22T15:56:22.145Z"
+}

@@ -1,0 +1,157 @@
+{
+  "findings": [
+    {
+      "id": "B-4444:F-001",
+      "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:22-25,428-459,515-538 — HIGH: the proposed PLAN→DEV gate requires every producer/consumer/command ref to already exist in a canonical owner and in a complete basis independently derived from current diff/source/runtime inputs, while also forbidding implementation commands. For a Story that introduces a new handler, dispatch edge, or consumer, those refs and diff hunks cannot exist before DEV; rules 3/18 therefore yield AT_UNKNOWN_REF or AT_TOPOLOGY_OUTSIDE_BASIS and prevent the implementation that would make them discoverable. The plan needs an explicit planned-path representation and PLAN-safe validation semantics (separate from the DEV current-worktree basis), or a mechanically bounded deferral/reconciliation rule, plus a negative test proving a genuinely new producer→consumer path can enter DEV without weakening pre-REVIEW closure.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-22T01:32:46.282Z",
+      "reviewRound": "2026-07-22T01:29:55.357Z",
+      "reviewRunId": "B-4444:RR-003",
+      "_hash": "2ace9c70cdd53d2c03cea79c115ff6fb3abba33953bf654ef5656ccf671991d3",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "edge|md|code-drift-docs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit b23fe0198d: typed verifier-derived planned paths allow new endpoints through structural PLAN admission, while mandatory digest-bound planned-to-actual reconciliation fails closed before REVIEW. Original docs reviewer re-inspected current HEAD and confirmed schema, PLAN algorithm, PR codes, and mutation rows close the deadlock.",
+      "resolvedAt": "2026-07-22T01:42:46.520Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4444:F-002",
+      "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:184-220,463-470,530-533,569-585 — MEDIUM: the reconciliation rules require each discovery adapter to retain its path set, coverage claim, blind spots, provenance, and typed asymmetry policy, but AcceptanceCoverageBasisV1 stores only discoveryMethods plus aggregate paths/blindSpots. The signed basis shape therefore cannot show which adapter reported a path or claim, which policy explained an asymmetry, or whether a required adapter was silently ignored, so AT_DISCOVERY_DISAGREEMENT is not auditable/replayable from the proposed artifact. Add hash-bound per-adapter result records (or signed refs with equivalent fields) and define their inclusion in basisDigest, then mutate/remove one adapter result and assert deterministic failure.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-22T01:33:02.934Z",
+      "reviewRound": "2026-07-22T01:29:55.357Z",
+      "reviewRunId": "B-4444:RR-003",
+      "_hash": "2a8949788dd6d1037f681ed8aa9ff1477994a9d8def5660009aa0988cc0117ff",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|code-drift-docs",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit b23fe0198d: registered discovery profiles and hash-bound CoverageAdapterResultV1 records retain per-adapter paths, claims, blind spots, provenance, asymmetry policy and digests in basisDigest and receipt. Required-adapter omission, invalidity, tamper and aggregate mismatch codes plus mutation rows are specified; original docs reviewer confirmed closure.",
+      "resolvedAt": "2026-07-22T01:42:49.214Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4444:F-003",
+      "desc": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:311,315-323,659 — WHY: the proposed PLAN verifier cannot independently derive a planned producer→consumer path from the named canonical owners. Current ChecklistItem.files contains only modify/create/test file-path arrays (packages/main/src/core/types.ts:306-329), VerificationIntentItem supplies prose desc/type (types.ts:193-200), and ProofStoryAcceptanceBinding supplies claim/checklist/intent/milestone refs (types.ts:2102-2109); none owns structured expectedSymbolOrFact, outputFact, endpoint role, or producer→consumer relation. Therefore PlannedCoveragePathV1 must either trust the topology-authored planned symbols/edge (making coverageBasis circular and weakening the independent-universe invariant) or cannot be derived at all. Invariant 4 also still requires every producer to feed a real consumer, contradicting the stated PLAN allowance for an unimplemented planned consumer. Add or identify one canonical PLAN-owned structured path declaration outside verificationTopology, define its non-duplicating ownership/derivation rules, and make the phase-specific invariant explicitly accept typed planned consumers only at PLAN while pre-REVIEW requires actual reconciliation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-22T01:44:38.101Z",
+      "reviewRound": "2026-07-22T01:42:32.404Z",
+      "reviewRunId": "B-4444:RR-005",
+      "_hash": "7ae2b7a3724bf6bdc2dc0b9c65b0066f21a80887ec8918b93823078e491f38b8",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 4c4ed0bfc8: VerificationPlannedPathDeclarationV1 is canonically owned by frozen verificationIntent outside topology; topology is reference-only and the verifier derives planned basis records independently. Invariant 4 is phase-specific. Original concept reviewer re-inspected current HEAD and confirmed fixed with no document blocker.",
+      "resolvedAt": "2026-07-22T01:56:11.631Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4444:F-004",
+      "desc": "quality-schema-consistency: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:408 says verificationTopology.coverageBasisDigest is sha256:coverage-basis-digest, while the only referenced basis at lines 488-601 is phaseBasis=pre_review with that same basisDigest; this contradicts lines 869-871, which require topology to remain bound to the PLAN basis and the pre-REVIEW basis to carry a distinct freshly signed digest linked by priorPlanBasisDigest. Split the example into a topology-bound PLAN basis plus a separate pre-REVIEW basis (or change the reference/digests) so implementers cannot collapse the two-phase trust boundary.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T01:44:41.260Z",
+      "reviewRound": "2026-07-22T01:42:32.404Z",
+      "reviewRunId": "B-4444:RR-007",
+      "_hash": "4466b8636a619322984c84ead257234db2750485599f873c12cc51cea47853e9",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "edge|md|quality-schema-consistency",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 4c4ed0bfc8: example topology binds only the PLAN basis; the separate pre-REVIEW artifact has distinct digest/receipt and links via priorPlanBasisDigest. Original quality reviewer confirmed exact refs and no residual blocker.",
+      "resolvedAt": "2026-07-22T01:56:13.698Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4444:F-005",
+      "desc": "quality-example-ref-mismatch: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:626 and :635 bind planned endpoints in existing packages/main/src/handlers/review-run.ts and packages/main/src/core/review-run.ts to CHK-002:files:create refs, but the canonical ChecklistItem.files contract defines create as newly created files and modify as existing files being changed (packages/main/src/core/types.ts:318-325); both target files already exist. Use files:modify refs (or genuinely new paths) so the verifier-derived example is satisfiable under the canonical PLAN declaration semantics it claims to enforce.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T01:44:54.396Z",
+      "reviewRound": "2026-07-22T01:42:32.404Z",
+      "reviewRunId": "B-4444:RR-007",
+      "_hash": "587547fed71b663805c2c1aafc7562d0d14eb5d868e037301768009427e88f83",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "edge|md|quality-example-mismatch",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 4c4ed0bfc8: planned-path example uses two genuinely absent new files with files:create refs, matching canonical ChecklistItem.files semantics. Original quality reviewer verified both paths do not exist and confirmed no residual blocker.",
+      "resolvedAt": "2026-07-22T01:56:15.867Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4444:F-006",
+      "desc": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1275-1292,1443-1445 — The audit rubric requires negative tests for adapter-result omission, duplication, field tampering, and aggregate mismatch, but the mutation matrix explicitly covers omission and record/receipt tampering only. It has no case that duplicates a profile-required adapter result, and no case that holds signed per-adapter records constant while independently mutating the derived aggregate path/blind-spot projection. The deterministic code descriptions at lines 747-748/945-947 state desired behavior but are not bite-test scenarios. Add PLAN and pre-REVIEW negative matrix rows for duplicate required adapter records and aggregate projection mismatch, with expected AT_/PR_ failure codes; otherwise a future implementation can satisfy the stated test matrix without proving these two fail-closed invariants.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-22T01:45:02.167Z",
+      "reviewRound": "2026-07-22T01:42:32.404Z",
+      "reviewRunId": "B-4444:RR-006",
+      "_hash": "ea629a3bb336c70a00c82da10054afc38f39c79393178c92fae7d60741cea641",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 4c4ed0bfc8: mutation matrix now has explicit PLAN and pre-REVIEW rows for duplicate required adapter records and independent aggregate path/blind-spot projection tampering with AT/PR codes. Original coverage reviewer confirmed all four bites and no residual blocker.",
+      "resolvedAt": "2026-07-22T01:56:22.335Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4444:F-007",
+      "desc": "quality-phase-profile-consistency: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:540-569 includes actual_diff_hunks and an actual-diff adapter in the topology-bound phaseBasis=plan example, but the normative invariant at lines 848-852 and human audit criterion at lines 1631-1633 say actual diff hunks are added at pre-REVIEW. This leaves the registered PLAN discovery profile ambiguous and can reintroduce a DEV-output requirement into the structural-only gate. Remove actual_diff_hunks/result from the PLAN example or explicitly redefine the normative phase rules to require a PLAN-safe diff adapter with its empty/pre-DEV semantics.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-22T01:58:32.464Z",
+      "reviewRound": "2026-07-22T01:55:58.204Z",
+      "reviewRunId": "B-4444:RR-010",
+      "_hash": "cd1900068ba8ce8bbd4c3285dc4288965b9a8125464dc5bf55f64665afbd1213",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "signatureTag": "edge|md|quality-phase-profile",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit cd314c6ac1: PLAN discovery profile and example now exclude actual_diff_hunks (five required adapters), while pre-REVIEW retains it (six adapters). Normative invariant, algorithm, prose and audit rubric all state the phase distinction. Original quality reviewer re-inspected current HEAD and confirmed no residual blocker.",
+      "resolvedAt": "2026-07-22T02:02:58.503Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -513,15 +513,6 @@ export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<s
       projectRoot: ctx.root,
     });
 
-    // Consume the V1 readiness reader (same reader lifecycle_check uses); never
-    // re-derive the live-smoke classification.
-    const readinessReport = buildStoryReadinessReport({
-      storyId: args.storyId,
-      target: READINESS_TARGET,
-      store: ctx.store,
-      root: ctx.root,
-    });
-
     const checklist = readChecklist(ctx, args.storyId);
     const expected = expectedFromUserSees(checklist);
 
@@ -533,8 +524,8 @@ export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<s
     if (command !== null) {
       const budget = liveSmokeCaptureBudget(ctx.root, command);
       const captureEnv = budget.nestedMaxTimeoutMs === undefined
-        ? process.env
-        : { ...process.env, LATTICE_MAX_TIMEOUT_MS: String(budget.nestedMaxTimeoutMs) };
+        ? { ...process.env, LATTICE_ACTIVE_STORY_ID: args.storyId }
+        : { ...process.env, LATTICE_ACTIVE_STORY_ID: args.storyId, LATTICE_MAX_TIMEOUT_MS: String(budget.nestedMaxTimeoutMs) };
       return runCapture(command, gitCwd, budget.timeoutMs, ctx.log, captureEnv).then(({ actual, timedOut }) => {
         if (timedOut) reclaimStaleValidationExecutionLock(ctx.root, args.storyId);
         return finish(actual);
@@ -560,6 +551,16 @@ export function createLiveSmokeTranscriptHandlers(ctx: HandlerContext): Record<s
     // reports present-fresh; a read-only/capture-only run reports the pre-existing
     // artifact's status.
     const transcriptStatus = classifyTranscript(artifactPath, args.storyId, gitCwd, ctx.root);
+
+    // Consume the canonical readiness reader only after the optional write.
+    // Building this snapshot before persistence returned the previous artifact's
+    // timeout/missing row even though this invocation had durably replaced it.
+    const readinessReport = buildStoryReadinessReport({
+      storyId: args.storyId,
+      target: READINESS_TARGET,
+      store: ctx.store,
+      root: ctx.root,
+    });
 
     const report: LiveSmokeTranscriptReport = {
       storyId: args.storyId,

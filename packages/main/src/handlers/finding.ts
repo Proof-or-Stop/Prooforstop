@@ -92,8 +92,8 @@ function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T
  * container writes shared main / B-META state, so per
  * session-ownership-and-write-leases.md Rule 5 it must serialize on the unified
  * main write lock. A mutation on a NORMAL story writes story-scoped metadata
- * (the story owner lease's territory, NOT the main write lock) and is run
- * unchanged.
+ * and serializes on a per-story findings lock so concurrent reviewer processes
+ * cannot allocate the same id and overwrite each other's read-modify-write.
  *
  * The lock is reentrant: a B-META finding mutation can be reached from inside
  * another shared-write critical section (e.g. `audit` upserts B-META findings
@@ -102,7 +102,8 @@ function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T
  */
 function withMetaFindingLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   if (!storyId.startsWith('B-META-')) {
-    return fn();
+    const lockDir = ctx.store.storyFilePath(storyId, 'findings.lock');
+    return withMkdirLock(lockDir, fn, { label: 'findings metadata' });
   }
   const mainRepoRoot = resolveMainRepoRoot(ctx.root);
   // A B-META finding write is a sub-second critical section — serialize-and-wait
@@ -543,9 +544,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       // Auto-inject the current review round (reviewer does not need to pass it)
       const reviewRound = story.currentReviewRound || '';
 
-      // B-f60c CHK-003: the readFindings → push → writeFindings critical section
-      // for a B-META story is serialized under the main write lock; a normal
-      // story runs it unchanged (withMetaFindingLock is a pass-through there).
+      // The readFindings → push → writeFindings critical section uses the
+      // unified main lock for B-META and a per-story lock for normal stories.
       const id = withMetaFindingLock(ctx, args.storyId, () => {
         const data = store.readFindings(args.storyId);
         const nextNum = data.findings.length + 1;
@@ -762,8 +762,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       // B-4f46 CHK-002: validate the optional audit-only enums up front (omitted => unchanged legacy behavior).
       const resolutionType: ResolutionType | undefined = validateOptionalEnum('finding_resolve', 'resolutionType', args.resolutionType, RESOLUTION_TYPES);
       const resolveEvidenceStrength: EvidenceStrength | undefined = validateOptionalEnum('finding_resolve', 'resolveEvidenceStrength', args.resolveEvidenceStrength, EVIDENCE_STRENGTHS);
-      // B-f60c CHK-003: a B-META finding mutation is serialized under the main
-      // write lock; a normal story runs unchanged (pass-through).
+      // B-META mutations use the unified main lock; normal Story mutations use
+      // the same per-story findings lock as finding_add.
       withMetaFindingLock(ctx, args.storyId, () => {
         const data = store.readFindings(args.storyId);
         const f = data.findings.find(f => f.id === args.findingId);

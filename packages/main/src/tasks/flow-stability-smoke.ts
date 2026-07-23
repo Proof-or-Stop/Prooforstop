@@ -66,7 +66,8 @@ import {
   lifecycleCommandsByPhase,
   lifecycleResolvedCommandsForPhase,
 } from '../core/lifecycle-registry.js';
-import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
@@ -76,6 +77,8 @@ import { buildDoneChecklist, renderDoneChecklist } from '../core/done-oracle.js'
 import { buildVerificationCoverage } from '../core/verification.js';
 import { formatWorktreePollutionDetails } from '../core/validation-executor.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
+import { createProofStoryHandlers } from '../handlers/proofstory.js';
+import { signScopeCheck } from '../handlers/scope-check.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase-gates.js';
 import { runReviewCliGates, renderPreflight } from '../handlers/review-preflight.js';
@@ -92,6 +95,47 @@ import { buildPhaseTransitionProcessEvent } from '../handlers/transition-orchest
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), content);
+}
+
+function writeAcceptanceBasisDiscoveryFixture(root: string): void {
+  write(root, 'packages/main/src/cli/command-catalog.ts', [
+    'export const MAIN_TOOLS = [',
+    "  { name: 'acceptance_basis' },",
+    "  { name: 'acceptance_basis_generate' },",
+    "  { name: 'acceptance_topology_check' },",
+    "  { name: 'pre_review_check' },",
+    "  { name: 'pre_review_check_read' },",
+    '];',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/registry.ts', [
+    "import { createProofStoryHandlers } from './handlers/proofstory.js';",
+    'const registry = { registerBatch: (_handlers: unknown) => undefined };',
+    'const ctx = {};',
+    'registry.registerBatch(createProofStoryHandlers(ctx));',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/handlers/proofstory.ts', [
+    'export function createProofStoryHandlers() {',
+    '  return {',
+    '    acceptance_basis() { return true; },',
+    '    acceptance_basis_generate() { return true; },',
+    '    acceptance_topology_check() { return true; },',
+    '    pre_review_check() { return true; },',
+    '    pre_review_check_read() { return true; },',
+    '  };',
+    '}',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/core/process-fact-registry.ts', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
+  write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const agentDispatchRegistry = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs', 'export const preReviewLiveProofRunner = true;\n');
+  write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const planConsumer = "acceptance_basis_generate";\n');
+  write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
 }
 
 function git(root: string, args: string[]): void {
@@ -183,12 +227,29 @@ function seedReviewRuns(root: string, store: StoryStore, storyId: string, review
       startedAt,
       headHash,
       materialHash,
-      promptHash: '',
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, ''),
+      promptHash: legacyPromptHash(agent),
+      _hash: signReviewRun(
+        storyId,
+        reviewRunId,
+        agent,
+        agent,
+        reviewRound,
+        startedAt,
+        headHash,
+        materialHash,
+        legacyPromptHash(agent),
+      ),
     };
   });
   store.writeReviewRuns(storyId, { runs });
   return new Map(runs.map((run) => [run.agent, run.reviewRunId]));
+}
+
+function legacyPromptHash(agent: string): string {
+  return hashReviewPrompt(resolvePromptRoleBody(agent, {
+    version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+    roles: { [agent]: 'legacy-full-context' },
+  }).body);
 }
 
 function createReviewStore(root: string): { store: StoryStore; storyId: string; reviewRound: string } {
@@ -1386,9 +1447,9 @@ function signedReviewRunOverHead(
     startedAt,
     headHash,
     materialHash,
-    promptHash: '',
+    promptHash: legacyPromptHash(agent),
     ...(storyFilesHash ? { storyFilesHash } : {}),
-    _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, '', undefined, undefined, storyFilesHash),
+    _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, legacyPromptHash(agent), undefined, undefined, storyFilesHash),
   };
 }
 
@@ -1507,9 +1568,9 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
       startedAt: '2026-06-24T11:10:00.000Z',
       headHash: emptyHead,
       materialHash: emptyMaterial,
-      promptHash: '',
+      promptHash: legacyPromptHash(agent),
       storyFilesHash: EMPTY_STORY_FILES_HASH,
-      _hash: signReviewRun(storyId, emptyRunId, agent, agent, reviewRound, '2026-06-24T11:10:00.000Z', emptyHead, emptyMaterial, '', undefined, undefined, EMPTY_STORY_FILES_HASH),
+      _hash: signReviewRun(storyId, emptyRunId, agent, agent, reviewRound, '2026-06-24T11:10:00.000Z', emptyHead, emptyMaterial, legacyPromptHash(agent), undefined, undefined, EMPTY_STORY_FILES_HASH),
     };
     assert.equal(emptyRun.storyFilesHash, EMPTY_STORY_FILES_HASH, 'empty-signal run must carry the empty-set storyFilesHash');
     store.writeReviewRuns(storyId, { runs: [run1, run2, emptyRun] });
@@ -1588,9 +1649,9 @@ function assertReviewRunStoryFilesHashBindingIsSigned(): void {
       startedAt,
       headHash,
       materialHash,
-      promptHash: '',
+      promptHash: legacyPromptHash(agent),
       workspaceBinding,
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, '', undefined, workspaceBinding.bindingHash),
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, legacyPromptHash(agent), undefined, workspaceBinding.bindingHash),
     };
     assert.equal(verifyReviewRun(run), true, 'review run with storyFilesHash workspace binding must verify');
 
@@ -1854,8 +1915,8 @@ function assertReviewPreflightSurfacesStoryFilesHashAdvisories(): void {
       headHash: recordedHead,
       materialHash: recordedMaterial,
       storyFilesHash: recordedStoryFiles,
-      promptHash: '',
-      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, recordedHead, recordedMaterial, '', undefined, undefined, recordedStoryFiles),
+      promptHash: legacyPromptHash(agent),
+      _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, recordedHead, recordedMaterial, legacyPromptHash(agent), undefined, undefined, recordedStoryFiles),
     };
     store.writeReviewRuns(storyId, { runs: [run] });
     store.writeReviewPasses(storyId, {
@@ -2100,6 +2161,52 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
   const oldCwd = process.cwd();
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
+    write(root, 'packages/main/tsconfig.json', '{}\n');
+    writeAcceptanceBasisDiscoveryFixture(root);
+    const story = store.readStory(storyId);
+    story.phase = 'DEV';
+    story.currentReviewRound = undefined;
+    story.events = [{ phase: 'DEV', action: 'advance', timestamp: '2026-04-27T12:02:00.000Z' }];
+    store.writeStory(storyId, story);
+    const scopeCheckedAt = '2026-04-27T12:01:30.000Z';
+    store.writeScopeCheck(storyId, {
+      storyId,
+      checkedAt: scopeCheckedAt,
+      features: [],
+      summary: { total: 0, covered: 0, excluded: 0, gaps: 0, orphanSuspect: 0, drift: 0 },
+      reviewRound: '',
+      _hash: signScopeCheck(storyId, scopeCheckedAt, 0, 0, ''),
+    });
+    store.writeProofStoryContract(storyId, {
+      schemaVersion: 'proofstory.contract.v1',
+      storyId,
+      diagnosticOnly: true,
+      hardeningLevel: 'standard',
+      triggerReasons: [],
+      acceptanceBindings: [{
+        id: 'AC-REVIEW-ECHO',
+        checklistRefs: ['CHK-001'],
+        verificationIntentRefs: [],
+        milestoneIds: [],
+        verificationTopology: {
+          schemaVersion: 'proofstory.acceptance_topology.v1',
+          producerRefs: [],
+          consumerRefs: [],
+          positiveAssertionRefs: [],
+          mutationCaseRefs: [],
+          transcriptAssertionRefs: [],
+          commandRefs: [
+            { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis' },
+            { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+            { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_topology_check' },
+            { refKind: 'existing', canonicalSourceRef: 'process-fact:artifact:acceptance-basis.json' },
+          ],
+        },
+      }],
+      diagnosticGaps: [],
+      createdAt: scopeCheckedAt,
+      updatedAt: scopeCheckedAt,
+    });
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
     git(root, ['config', 'user.name', 'Proofbound Smoke']);
@@ -2107,13 +2214,17 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     git(root, ['checkout', '-b', `story/${storyId}`]);
-    const story = store.readStory(storyId);
-    story.phase = 'DEV';
-    story.currentReviewRound = undefined;
-    story.events = [{ phase: 'DEV', action: 'advance', timestamp: '2026-04-27T12:02:00.000Z' }];
-    store.writeStory(storyId, story);
 
     process.chdir(root);
+    const basisOutput = createProofStoryHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).acceptance_basis_generate({ storyId });
+    assert.match(basisOutput, /Acceptance coverage basis: complete/);
+    const planArtifact = store.readAcceptanceBasis(storyId);
+    assert.equal(planArtifact?.basis.generatedBy.verifier, 'acceptance-coverage-basis-verifier');
+    assert.equal(planArtifact?.basis.generatedBy.command, 'lattice acceptance_basis_generate');
     const output = await createStoryAdvanceHandlers({
       store,
       root,
@@ -4377,7 +4488,13 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     const attemptMaterial = currentMaterialHash(root, 'HEAD', root)!;
     const attemptStoryFiles = currentStoryFilesHash(root, 'HEAD', root)!;
     const reviewRound = '2026-01-01T00:00:00.000Z';
-    const makeCompletedReview = (suffix: string, startedAt: string, completedAt: string, round = reviewRound) => {
+    const makeCompletedReview = (
+      suffix: string,
+      startedAt: string,
+      completedAt: string,
+      round = reviewRound,
+      binding: { materialHash?: string; storyFilesHash?: string } = {},
+    ) => {
       const reviewRunId = `${storyId}:RR-${suffix}`;
       const agent = 'lattice-review-quality';
       const run: ReviewRun = {
@@ -4388,8 +4505,8 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         reviewRound: round,
         startedAt,
         headHash: currentGitHead(root)!,
-        materialHash: attemptMaterial,
-        storyFilesHash: attemptStoryFiles,
+        materialHash: binding.materialHash ?? attemptMaterial,
+        storyFilesHash: binding.storyFilesHash ?? attemptStoryFiles,
         promptHash: 'prompt',
       };
       run._hash = signReviewRun(
@@ -4409,6 +4526,8 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     };
     const initialReview = makeCompletedReview('001', '2026-01-01T00:01:00.000Z', '2026-01-01T00:02:00.000Z');
     const metadataReattestation = makeCompletedReview('002', '2026-01-01T00:03:00.000Z', '2026-01-01T00:04:00.000Z');
+    const atTestEntryReattestation = makeCompletedReview('003', '2026-01-01T00:04:30.000Z', '2026-01-01T00:05:00.000Z');
+    const postTestReattestation = makeCompletedReview('004', '2026-01-01T00:05:30.000Z', '2026-01-01T00:06:00.000Z');
     const historicalRound = makeCompletedReview('OLD', '2026-01-01T00:03:30.000Z', '2026-01-01T00:04:30.000Z', '2025-12-31T00:00:00.000Z');
     assert.equal(verifyReviewRun(initialReview.run), true);
     assert.equal(verifyReviewRun(metadataReattestation.run), true);
@@ -4434,24 +4553,140 @@ function assertDonePrepareOnePassConvergenceContract(): void {
       [metadataReattestation.run.reviewRunId],
       'collector must count a same-binding REVIEW re-attestation completed before TEST and ignore an old round',
     );
+    assert.deepEqual(collected?.postTestReviewerIdentityIds, [], 'pre-TEST reviewer re-attestations must not enter the blocking counter');
+    const collectedConvergence = deriveDonePreparePassConvergence([
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any, { blockers: [] } as any, collected);
     assert.equal(
-      deriveDonePreparePassConvergence([
-        { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
-        { id: 'doneClosure', status: 'pass' },
-        { id: 'cleanTree', status: 'pass' },
-      ] as any, { blockers: [] } as any, collected)?.reviewerReattestations,
+      collectedConvergence?.reviewerReattestations,
       1,
       'real collector history must make reviewerReattestations non-zero',
     );
+    assert.doesNotThrow(
+      () => assertDonePreparePassConvergence(collectedConvergence!),
+      'legitimate reviewer re-attestations must remain observable without blocking PASS convergence',
+    );
+    store.writeReviewRuns(storyId, { runs: [historicalRound.run, initialReview.run, metadataReattestation.run, atTestEntryReattestation.run, postTestReattestation.run] });
+    store.writeReviewPasses(storyId, { passes: [historicalRound.pass, initialReview.pass, metadataReattestation.pass, atTestEntryReattestation.pass, postTestReattestation.pass] });
+    const postTestCollected = collectDonePrepareConvergenceFacts(ctx, storyId);
+    assert.deepEqual(
+      postTestCollected?.reviewerIdentityIds,
+      [metadataReattestation.run.reviewRunId, atTestEntryReattestation.run.reviewRunId, postTestReattestation.run.reviewRunId],
+      'total reviewer re-attestation telemetry must include pre- and post-TEST completed passes',
+    );
+    assert.deepEqual(
+      postTestCollected?.postTestReviewerIdentityIds,
+      [atTestEntryReattestation.run.reviewRunId, postTestReattestation.run.reviewRunId],
+      'a completed reviewer pass at or after TEST entry must enter the blocking counter',
+    );
+    const postTestConvergence = deriveDonePreparePassConvergence([
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any, { blockers: [] } as any, postTestCollected);
+    assert.equal(postTestConvergence?.reviewerReattestations, 3);
+    assert.equal(postTestConvergence?.postTestReviewerReattestations, 2);
+    assert.throws(
+      () => assertDonePreparePassConvergence(postTestConvergence!),
+      /done_prepare convergence invariant failed/,
+      'post-TEST reviewer re-attestation must fail PASS convergence',
+    );
+
+    const interleavedLate = makeCompletedReview('INT-A', '2026-01-01T00:01:00.000Z', '2026-01-01T00:06:00.000Z');
+    const interleavedEarly = makeCompletedReview('INT-B', '2026-01-01T00:03:00.000Z', '2026-01-01T00:04:00.000Z');
+    const invalidRunSignature = makeCompletedReview('BAD-RUN', '2026-01-01T00:01:30.000Z', '2026-01-01T00:02:30.000Z');
+    invalidRunSignature.run._hash = 'invalid';
+    const invalidPassSignature = makeCompletedReview('BAD-PASS', '2026-01-01T00:01:40.000Z', '2026-01-01T00:02:40.000Z');
+    invalidPassSignature.pass._hash = 'invalid';
+    const wrongMaterial = makeCompletedReview(
+      'WRONG-MATERIAL',
+      '2026-01-01T00:01:50.000Z',
+      '2026-01-01T00:02:50.000Z',
+      reviewRound,
+      { materialHash: 'wrong-material' },
+    );
+    const wrongStoryFiles = makeCompletedReview(
+      'WRONG-STORY-FILES',
+      '2026-01-01T00:02:00.000Z',
+      '2026-01-01T00:03:00.000Z',
+      reviewRound,
+      { storyFilesHash: 'wrong-story-files' },
+    );
+    const missingPass = makeCompletedReview('MISSING-PASS', '2026-01-01T00:02:10.000Z', '2026-01-01T00:03:10.000Z');
+    store.writeReviewRuns(storyId, { runs: [
+      interleavedLate.run,
+      invalidRunSignature.run,
+      wrongStoryFiles.run,
+      interleavedEarly.run,
+      invalidPassSignature.run,
+      wrongMaterial.run,
+      missingPass.run,
+      historicalRound.run,
+    ] });
+    store.writeReviewPasses(storyId, { passes: [
+      interleavedLate.pass,
+      wrongStoryFiles.pass,
+      invalidRunSignature.pass,
+      interleavedEarly.pass,
+      invalidPassSignature.pass,
+      wrongMaterial.pass,
+      historicalRound.pass,
+    ] });
+    const interleavedCollected = collectDonePrepareConvergenceFacts(ctx, storyId);
+    assert.deepEqual(
+      interleavedCollected?.reviewerIdentityIds,
+      [interleavedLate.run.reviewRunId],
+      'the first completed identity is the lane baseline even when it started later',
+    );
+    assert.deepEqual(
+      interleavedCollected?.postTestReviewerIdentityIds,
+      [interleavedLate.run.reviewRunId],
+      'an earlier-started identity that completes after TEST must remain a blocking re-attestation',
+    );
+    for (const excludedId of [
+      invalidRunSignature.run.reviewRunId,
+      invalidPassSignature.run.reviewRunId,
+      wrongMaterial.run.reviewRunId,
+      wrongStoryFiles.run.reviewRunId,
+      missingPass.run.reviewRunId,
+      historicalRound.run.reviewRunId,
+    ]) {
+      assert.equal(interleavedCollected?.reviewerIdentityIds.includes(excludedId), false, `${excludedId} must not count as a completed same-binding identity`);
+    }
+    const interleavedConvergence = deriveDonePreparePassConvergence([
+      { id: 'validate', status: 'pass', reason: 'Validation PASS reused; commandExecutions=0' },
+      { id: 'doneClosure', status: 'pass' },
+      { id: 'cleanTree', status: 'pass' },
+    ] as any, { blockers: [] } as any, interleavedCollected);
+    assert.equal(interleavedConvergence?.postTestReviewerReattestations, 1);
+    assert.throws(
+      () => assertDonePreparePassConvergence(interleavedConvergence!),
+      /done_prepare convergence invariant failed/,
+      'interleaved completion order must not hide a post-TEST re-attestation',
+    );
+    const tieHigh = makeCompletedReview('TIE-Z', '2026-01-01T00:01:00.000Z', '2026-01-01T00:04:30.000Z');
+    const tieLow = makeCompletedReview('TIE-A', '2026-01-01T00:02:00.000Z', '2026-01-01T00:04:30.000Z');
+    store.writeReviewRuns(storyId, { runs: [tieHigh.run, tieLow.run] });
+    store.writeReviewPasses(storyId, { passes: [tieHigh.pass, tieLow.pass] });
+    const tiedCollected = collectDonePrepareConvergenceFacts(ctx, storyId);
+    assert.deepEqual(
+      tiedCollected?.reviewerIdentityIds,
+      [tieHigh.run.reviewRunId],
+      'equal completion timestamps must choose the lexically first reviewRunId as baseline regardless of storage order',
+    );
+    assert.deepEqual(tiedCollected?.postTestReviewerIdentityIds, []);
 
     const transcript = [
       'DONE prepare: PASS',
       `storyId: ${storyId}`,
-      'convergence: metadataRollbacks=0 reviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1',
+      'convergence: metadataRollbacks=0 reviewerReattestations=1 postTestReviewerReattestations=0 humanConfirmations=0 unchangedSuiteExecutions=0 successfulCloseout=1',
     ].join('\n');
     assert.deepEqual(donePrepareJsonResult(storyId, transcript).convergence, {
       metadataRollbacks: 0,
-      reviewerReattestations: 0,
+      reviewerReattestations: 1,
+      postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
       successfulCloseout: 1,
@@ -4464,6 +4699,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         storyFilesHash: 'story-1',
         reviewRound: 'round-1',
       },
+      testEntryAt: '2026-01-01T00:00:30.000Z',
       phaseTransitions: [],
       humanConfirmations: [],
       validationTerminals: [{
@@ -4476,6 +4712,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         commandExecutions: 1,
       }],
       reviewerIdentityIds: [],
+      postTestReviewerIdentityIds: [],
       closeoutWriterSequence: ['validate:test-evidence.json'],
     } as any;
     assert.deepEqual(buildPhaseTransitionProcessEvent({
@@ -4504,6 +4741,7 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     assert.deepEqual(derived, {
       metadataRollbacks: 0,
       reviewerReattestations: 0,
+      postTestReviewerReattestations: 0,
       humanConfirmations: 0,
       unchangedSuiteExecutions: 0,
       successfulCloseout: 1,
@@ -4523,7 +4761,6 @@ function assertDonePrepareOnePassConvergenceContract(): void {
     );
     for (const negative of [
       { ...baseFacts, phaseTransitions: [{ type: 'phase_transition', timestamp: '2026-01-01T00:03:00.000Z', fromPhase: 'TEST', toPhase: 'DEV', materialHash: 'material-1', storyFilesHash: 'story-1' }] },
-      { ...baseFacts, reviewerIdentityIds: ['B-convergence:RR-002'] },
       { ...baseFacts, humanConfirmations: [{ type: 'human_confirmation', timestamp: '2026-01-01T00:03:00.000Z' }] },
     ] as any[]) {
       assert.throws(
@@ -4531,6 +4768,16 @@ function assertDonePrepareOnePassConvergenceContract(): void {
         /done_prepare convergence invariant failed/,
       );
     }
+    const failedCloseout = deriveDonePreparePassConvergence([
+      ...passSteps,
+      { id: 'doneClosure', status: 'blocked', reason: 'closeout blocker remains' },
+    ] as any, { blockers: [] } as any, baseFacts);
+    assert.equal(failedCloseout?.successfulCloseout, 0, 'a blocked closeout must not count as successful convergence');
+    assert.throws(
+      () => assertDonePreparePassConvergence(failedCloseout!),
+      /done_prepare convergence invariant failed/,
+      'a failed closeout must never render PASS',
+    );
     assert.equal(deriveDonePreparePassConvergence(passSteps, { blockers: [] } as any, null), null, 'legacy/missing attempt telemetry must omit the convergence claim');
     assert.doesNotThrow(() => assertDonePreparePassConvergence(derived!));
     assert.equal(donePrepareJsonResult(storyId, 'DONE prepare: BLOCKED\nblockedAt: cleanTree\nreason: materialHash changed').convergence, undefined);

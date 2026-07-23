@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-407c",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:2a084552d4fc3789ed113031bfb5bca65081dd898bed16284f1fffc91cc77f46",
+  "confirmedMilestoneLedgerHash": "sha256:5d63ab9e6c00e1be339727e69f17cb01ae2bd6fb0daa7ed898d35d862e45257b",
+  "acceptanceBindings": [
+    {
+      "id": "AC-S6",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:edge:0",
+        "CHK-003:happy:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5"
+      ],
+      "acceptanceClaim": "在真实 dispatch A/B 与 adversarial gate 验证中，五个角色均有可审计证据且预算 warn 不会降低 correctness coverage。",
+      "note": "Story 6 acceptance is bound to all four checklist items and five milestones; Story 7 enforce is excluded."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Acceptance binding for Story 6 modular complex-role migration.",
+  "createdAt": "2026-07-20T21:35:56.976Z",
+  "updatedAt": "2026-07-20T21:35:56.976Z"
+}

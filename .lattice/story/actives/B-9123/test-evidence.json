@@ -1,0 +1,1183 @@
+{
+  "command": "lattice validate --story=B-9123 --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=74419e1d9218f118fc3f96476750fb909d377d5c104c32ec41683f4b9e293abc\",\"commandExecutions=0\",\"Verification intent coverage: 21/21 covered (0 required missing)\",\"  ✓ VI-CRITIC-ELIGIBLE [happy/must/cli] covered via manual_transcript — Production critic-receipt flow accepts a receipt only when the signer has registered role lattice-review-topology-critic and the signer is mechanically distinct from the implementation provenance on all four dimensions: agent identity, session identity, dispatch provenance, and business commit author; assert the verifier returns ok and reports all four comparisons as independent.\",\"  ✓ VI-CRITIC-FOUR-DIMENSION-MATRIX [edge/must/logic] covered via logic_test — Run a table-driven verifier test with exactly one independence dimension colliding at a time (same agent, same session, same dispatch, or same business commit author) while the other three remain distinct; each case must fail with the dimension-specific reason, and the fully distinct control must pass.\",\"  ✓ VI-CRITIC-MISSING-PROVENANCE [edge/must/logic] covered via logic_test — Omit or make unverifiable each signer/implementer provenance input used by the four-dimensional comparison; the production verifier must fail closed rather than treating absence, legacy identity, or an unresolvable business commit author as independence.\",\"  ✓ VI-CRITIC-ROLE-SPOOF [adversarial/must/cli] covered via manual_transcript — Submit a self-authored or ineligible-role receipt whose prompt text/name claims lattice-review-topology-critic; verify registry-backed role and dispatch provenance reject it, proving prompt identity or user-controlled labels cannot confer authority.\",\"  ✓ VI-CRITIC-SESSION-DISPATCH-REPLAY [adversarial/must/cli] covered via manual_transcript — Replay a valid critic identity through the implementer's session or dispatch, and replay a previously valid critic dispatch against a different business commit; both production verification attempts must be rejected.\",\"  ✓ VI-RECEIPT-PRODUCTION-ROUNDTRIP [happy/must/cli] covered via manual_transcript — Through the registered production CLI producer and read-only verifier, create and verify a signed TopologyCriticReceiptV1 that contains and binds storyId, critic identity, eligible role, basisDigest, topologyDigest, scopeCheckDigest, phase-applicable scopeContractDigest, storyFilesHash, closureFilesHash, findingRefs, approvedExclusionRefs, verdict, issuedAt, and signature; assert persisted and verified values equal canonical recomputation.\",\"  ✓ VI-RECEIPT-FRESHNESS-MATRIX [edge/must/cli] covered via manual_transcript — After a valid round-trip, independently drift basis, topology, scope check, applicable scope contract, story-owned files, and closure files; the read-only verifier must classify every corresponding receipt stale/invalid, while an unchanged immediate re-verification passes.\",\"  ✓ VI-RECEIPT-CANONICAL-COLLECTIONS [edge/must/logic] covered via logic_test — Verify findingRefs and approvedExclusionRefs use canonical ordering/deduplication: semantically identical producer input round-trips deterministically, but omission, invention, duplication that changes semantics, or reference to a nonexistent fact is rejected.\",\"  ✓ VI-RECEIPT-EVERY-FIELD-TAMPER [adversarial/must/cli] covered via manual_transcript — Use one table-driven production-verifier mutation suite that alters or deletes each TopologyCriticReceiptV1 field individually—storyId, critic identity, eligible role, basisDigest, topologyDigest, scopeCheckDigest, scopeContractDigest, storyFilesHash, closureFilesHash, findingRefs, approvedExclusionRefs, verdict, issuedAt, and signature—and assert every case fails with no partial acceptance.\",\"  ✓ VI-RECEIPT-SIGNATURE-FORGERY [adversarial/must/cli] covered via manual_transcript — Prove payload re-signing with an untrusted key, copying a signature from another story/critic/time, and altering a payload then retaining the old signature all fail the production verifier.\",\"  ✓ VI-EXCLUSION-INDEPENDENT-APPROVAL [happy/must/cli] covered via manual_transcript — For every topology exclusion, require a separately attributable current lattice-review-scope-plan approval whose story, scope reference, exclusion reference, digest bindings, session, dispatch, and business-author provenance verify independently from implementer and topology critic; a complete basis plus valid approvals passes.\",\"  ✓ VI-EXCLUSION-ONE-TO-ONE-COVERAGE [edge/must/logic] covered via logic_test — Exercise zero, one, and multiple exclusions and require an exact one-to-one mapping between topology exclusion refs and verified scope-plan approvals; missing, duplicate, orphaned, stale, or cross-story approvals must fail with precise diagnostics.\",\"  ✓ VI-NO-EXCLUSION-CONTROL [edge/must/cli] covered via manual_transcript — A complete topology with no exclusions must not fabricate an approval requirement, but any later added exclusion must immediately require a fresh independent scope-plan approval.\",\"  ✓ VI-EXCLUSION-AUTHORITY-SPOOF [adversarial/must/cli] covered via manual_transcript — Attempt approvals from implementer, topology critic, an ineligible reviewer role, the same agent/session/dispatch/business author, and a forged lattice-review-scope-plan label; every case must be rejected mechanically.\",\"  ✓ VI-CRITIC-CANNOT-OVERRIDE-DISCOVERY [adversarial/must/cli] covered via manual_transcript — Feed missing, partial, unsupported, stale, and tampered discovery/basis states together with an otherwise valid PASS critic receipt and valid exclusion approvals; the canonical gate must reject every case, proving neither critic verdict nor exclusion approval can override discovery status.\",\"  ✓ VI-WAVE2A-PRODUCTION-CHAIN [happy/must/cli] covered via manual_transcript — In an isolated real temp repository, drive the production CLI basis/topology inputs, independent scope-plan approval where needed, critic receipt producer, and read-only verifier from a clean valid state; assert the real Wave 2A set/check chain passes and emits auditable structured facts, then run a real PLAN→DEV control with the receipt absent or failing and assert lifecycle admission remains governed only by the Wave 2 acceptance_topology_check structural gate, with no Wave 3 consumer.\",\"  ✓ VI-WAVE2A-CLEAN-MUTATE-RESTORE [edge/must/cli] covered via manual_transcript — For each authoritative critic/exclusion/binding input, demonstrate clean pass → one controlled mutation produces the expected fail-closed diagnostic → exact byte/content restoration returns to pass without hand-editing generated evidence.\",\"  ✓ VI-WAVE-BOUNDARY-NO-LEAK [edge/must/logic] covered via logic_test — Verify Wave 2A adds only independent critic receipts and exclusion authority: it must not require or synthesize Wave 3 pre_review_check/executable evidence/planned-to-actual reconciliation, Wave 3A selective-applicability behavior, or Wave 4 warn/enforce rollout telemetry/configuration.\",\"  ✓ VI-PROCESS-FACT-MUTATIONS [adversarial/must/cli] covered via integration_test — Mutation-test the Wave 2A process-fact contract at all required layers: remove or weaken the critic/exclusion rule independently in reviewer prompt/registry guidance and the production CLI schema/producer-handler/read-only verifier, then add a false Wave 2A lifecycle/gate consumer or otherwise weaken the explicit no-lifecycle-consumer boundary; the contract or focused production-path test must fail for every mutation, while the unmutated control proves receipt absence/failure does not block PLAN→DEV.\",\"  ✓ VI-PRODUCTION-BYPASS-ATTEMPTS [adversarial/must/cli] covered via manual_transcript — Against production CLI surfaces, attempt self-authored critic, ineligible critic, stale receipt, every-field digest/payload tamper, scope drift, forged/missing exclusion approval, partial discovery, and unsupported discovery; assert no command, read-only verifier, or lifecycle path reports success.\",\"  ✓ VI-RESTORATION-AND-NO-RESIDUE [adversarial/must/cli] covered via manual_transcript — After all adversarial mutations, restore exact inputs and assert production verification passes, git worktree is clean, and no mutated or forged process artifact remains eligible for later reuse.\"],\"warnings\":[],\"timestamp\":\"2026-07-22T22:24:47.351Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":21,\"reason\":\"verificationIntent entries present (21)\"},\"verificationCoverage\":{\"total\":21,\"required\":21,\"covered\":21,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"VI-CRITIC-ELIGIBLE\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"Production critic-receipt flow accepts a receipt only when the signer has registered role lattice-review-topology-critic and the signer is mechanically distinct from the implementation provenance on all four dimensions: agent identity, session identity, dispatch provenance, and business commit author; assert the verifier returns ok and reports all four comparisons as independent.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-CRITIC-ELIGIBLE\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-CRITIC-FOUR-DIMENSION-MATRIX\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Run a table-driven verifier test with exactly one independence dimension colliding at a time (same agent, same session, same dispatch, or same business commit author) while the other three remain distinct; each case must fail with the dimension-specific reason, and the fully distinct control must pass.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-CRITIC-FOUR-DIMENSION-MATRIX\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.\",\"headHash\":\"be578e03f91db9acdb96a5e39b6a16874c3a50fa\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:26.485Z\"}},{\"intentRef\":\"VI-CRITIC-MISSING-PROVENANCE\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"Omit or make unverifiable each signer/implementer provenance input used by the four-dimensional comparison; the production verifier must fail closed rather than treating absence, legacy identity, or an unresolvable business commit author as independence.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-CRITIC-MISSING-PROVENANCE\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.\",\"headHash\":\"be578e03f91db9acdb96a5e39b6a16874c3a50fa\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:26.485Z\"}},{\"intentRef\":\"VI-CRITIC-ROLE-SPOOF\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Submit a self-authored or ineligible-role receipt whose prompt text/name claims lattice-review-topology-critic; verify registry-backed role and dispatch provenance reject it, proving prompt identity or user-controlled labels cannot confer authority.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-CRITIC-ROLE-SPOOF\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-CRITIC-SESSION-DISPATCH-REPLAY\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"Replay a valid critic identity through the implementer's session or dispatch, and replay a previously valid critic dispatch against a different business commit; both production verification attempts must be rejected.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-CRITIC-SESSION-DISPATCH-REPLAY\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-RECEIPT-PRODUCTION-ROUNDTRIP\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"Through the registered production CLI producer and read-only verifier, create and verify a signed TopologyCriticReceiptV1 that contains and binds storyId, critic identity, eligible role, basisDigest, topologyDigest, scopeCheckDigest, phase-applicable scopeContractDigest, storyFilesHash, closureFilesHash, findingRefs, approvedExclusionRefs, verdict, issuedAt, and signature; assert persisted and verified values equal canonical recomputation.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-RECEIPT-PRODUCTION-ROUNDTRIP\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-RECEIPT-FRESHNESS-MATRIX\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"After a valid round-trip, independently drift basis, topology, scope check, applicable scope contract, story-owned files, and closure files; the read-only verifier must classify every corresponding receipt stale/invalid, while an unchanged immediate re-verification passes.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-RECEIPT-FRESHNESS-MATRIX\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-RECEIPT-CANONICAL-COLLECTIONS\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Verify findingRefs and approvedExclusionRefs use canonical ordering/deduplication: semantically identical producer input round-trips deterministically, but omission, invention, duplication that changes semantics, or reference to a nonexistent fact is rejected.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-RECEIPT-CANONICAL-COLLECTIONS\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.\",\"headHash\":\"be578e03f91db9acdb96a5e39b6a16874c3a50fa\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:26.485Z\"}},{\"intentRef\":\"VI-RECEIPT-EVERY-FIELD-TAMPER\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Use one table-driven production-verifier mutation suite that alters or deletes each TopologyCriticReceiptV1 field individually—storyId, critic identity, eligible role, basisDigest, topologyDigest, scopeCheckDigest, scopeContractDigest, storyFilesHash, closureFilesHash, findingRefs, approvedExclusionRefs, verdict, issuedAt, and signature—and assert every case fails with no partial acceptance.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-RECEIPT-EVERY-FIELD-TAMPER\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-RECEIPT-SIGNATURE-FORGERY\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"Prove payload re-signing with an untrusted key, copying a signature from another story/critic/time, and altering a payload then retaining the old signature all fail the production verifier.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-RECEIPT-SIGNATURE-FORGERY\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-EXCLUSION-INDEPENDENT-APPROVAL\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"For every topology exclusion, require a separately attributable current lattice-review-scope-plan approval whose story, scope reference, exclusion reference, digest bindings, session, dispatch, and business-author provenance verify independently from implementer and topology critic; a complete basis plus valid approvals passes.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-EXCLUSION-INDEPENDENT-APPROVAL\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-EXCLUSION-ONE-TO-ONE-COVERAGE\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"Exercise zero, one, and multiple exclusions and require an exact one-to-one mapping between topology exclusion refs and verified scope-plan approvals; missing, duplicate, orphaned, stale, or cross-story approvals must fail with precise diagnostics.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-EXCLUSION-ONE-TO-ONE-COVERAGE\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.\",\"headHash\":\"be578e03f91db9acdb96a5e39b6a16874c3a50fa\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:26.485Z\"}},{\"intentRef\":\"VI-NO-EXCLUSION-CONTROL\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"A complete topology with no exclusions must not fabricate an approval requirement, but any later added exclusion must immediately require a fresh independent scope-plan approval.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-NO-EXCLUSION-CONTROL\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-EXCLUSION-AUTHORITY-SPOOF\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Attempt approvals from implementer, topology critic, an ineligible reviewer role, the same agent/session/dispatch/business author, and a forged lattice-review-scope-plan label; every case must be rejected mechanically.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-EXCLUSION-AUTHORITY-SPOOF\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-CRITIC-CANNOT-OVERRIDE-DISCOVERY\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"Feed missing, partial, unsupported, stale, and tampered discovery/basis states together with an otherwise valid PASS critic receipt and valid exclusion approvals; the canonical gate must reject every case, proving neither critic verdict nor exclusion approval can override discovery status.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-CRITIC-CANNOT-OVERRIDE-DISCOVERY\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-WAVE2A-PRODUCTION-CHAIN\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"In an isolated real temp repository, drive the production CLI basis/topology inputs, independent scope-plan approval where needed, critic receipt producer, and read-only verifier from a clean valid state; assert the real Wave 2A set/check chain passes and emits auditable structured facts, then run a real PLAN→DEV control with the receipt absent or failing and assert lifecycle admission remains governed only by the Wave 2 acceptance_topology_check structural gate, with no Wave 3 consumer.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-WAVE2A-PRODUCTION-CHAIN\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-WAVE2A-CLEAN-MUTATE-RESTORE\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"For each authoritative critic/exclusion/binding input, demonstrate clean pass → one controlled mutation produces the expected fail-closed diagnostic → exact byte/content restoration returns to pass without hand-editing generated evidence.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-WAVE2A-CLEAN-MUTATE-RESTORE\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-WAVE-BOUNDARY-NO-LEAK\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"Verify Wave 2A adds only independent critic receipts and exclusion authority: it must not require or synthesize Wave 3 pre_review_check/executable evidence/planned-to-actual reconciliation, Wave 3A selective-applicability behavior, or Wave 4 warn/enforce rollout telemetry/configuration.\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-WAVE-BOUNDARY-NO-LEAK\",\"kind\":\"logic_test\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.\",\"headHash\":\"be578e03f91db9acdb96a5e39b6a16874c3a50fa\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:26.485Z\"}},{\"intentRef\":\"VI-PROCESS-FACT-MUTATIONS\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Mutation-test the Wave 2A process-fact contract at all required layers: remove or weaken the critic/exclusion rule independently in reviewer prompt/registry guidance and the production CLI schema/producer-handler/read-only verifier, then add a false Wave 2A lifecycle/gate consumer or otherwise weaken the explicit no-lifecycle-consumer boundary; the contract or focused production-path test must fail for every mutation, while the unmutated control proves receipt absence/failure does not block PLAN→DEV.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-PROCESS-FACT-MUTATIONS\",\"kind\":\"integration_test\",\"command\":\"node scripts/verify-process-fact-contract.mjs && node scripts/verify-proof-or-stop-prompt-baseline.mjs\",\"result\":\"pass\",\"note\":\"Owner reran both current-HEAD process-fact and 17-role prompt mutation contracts; both passed.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-PRODUCTION-BYPASS-ATTEMPTS\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"Against production CLI surfaces, attempt self-authored critic, ineligible critic, stale receipt, every-field digest/payload tamper, scope drift, forged/missing exclusion approval, partial discovery, and unsupported discovery; assert no command, read-only verifier, or lifecycle path reports success.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-PRODUCTION-BYPASS-ATTEMPTS\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}},{\"intentRef\":\"VI-RESTORATION-AND-NO-RESIDUE\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"After all adversarial mutations, restore exact inputs and assert production verification passes, git worktree is clean, and no mutated or forged process artifact remains eligible for later reuse.\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"VI-RESTORATION-AND-NO-RESIDUE\",\"kind\":\"manual_transcript\",\"command\":\"npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js\",\"result\":\"pass\",\"note\":\"Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.\",\"headHash\":\"53b209c72638bf72de054922c8c49da4691ddce1\",\"materialHash\":\"a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b\",\"storyFilesHash\":\"5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8\",\"timestamp\":\"2026-07-22T21:28:16.429Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"74419e1d9218f118fc3f96476750fb909d377d5c104c32ec41683f4b9e293abc\"}}",
+  "result": "PASS",
+  "timestamp": "2026-07-22T22:24:47.792Z",
+  "headHash": "74207febaca6caba25cc4685b20669059e4c2f8b",
+  "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+  "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+  "verificationCoverage": {
+    "total": 21,
+    "required": 21,
+    "covered": 21,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "VI-CRITIC-ELIGIBLE",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "Production critic-receipt flow accepts a receipt only when the signer has registered role lattice-review-topology-critic and the signer is mechanically distinct from the implementation provenance on all four dimensions: agent identity, session identity, dispatch provenance, and business commit author; assert the verifier returns ok and reports all four comparisons as independent.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-CRITIC-ELIGIBLE",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-CRITIC-FOUR-DIMENSION-MATRIX",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Run a table-driven verifier test with exactly one independence dimension colliding at a time (same agent, same session, same dispatch, or same business commit author) while the other three remain distinct; each case must fail with the dimension-specific reason, and the fully distinct control must pass.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-CRITIC-FOUR-DIMENSION-MATRIX",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.",
+          "headHash": "be578e03f91db9acdb96a5e39b6a16874c3a50fa",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:26.485Z"
+        }
+      },
+      {
+        "intentRef": "VI-CRITIC-MISSING-PROVENANCE",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "Omit or make unverifiable each signer/implementer provenance input used by the four-dimensional comparison; the production verifier must fail closed rather than treating absence, legacy identity, or an unresolvable business commit author as independence.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-CRITIC-MISSING-PROVENANCE",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.",
+          "headHash": "be578e03f91db9acdb96a5e39b6a16874c3a50fa",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:26.485Z"
+        }
+      },
+      {
+        "intentRef": "VI-CRITIC-ROLE-SPOOF",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Submit a self-authored or ineligible-role receipt whose prompt text/name claims lattice-review-topology-critic; verify registry-backed role and dispatch provenance reject it, proving prompt identity or user-controlled labels cannot confer authority.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-CRITIC-ROLE-SPOOF",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-CRITIC-SESSION-DISPATCH-REPLAY",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "Replay a valid critic identity through the implementer's session or dispatch, and replay a previously valid critic dispatch against a different business commit; both production verification attempts must be rejected.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-CRITIC-SESSION-DISPATCH-REPLAY",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-RECEIPT-PRODUCTION-ROUNDTRIP",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "Through the registered production CLI producer and read-only verifier, create and verify a signed TopologyCriticReceiptV1 that contains and binds storyId, critic identity, eligible role, basisDigest, topologyDigest, scopeCheckDigest, phase-applicable scopeContractDigest, storyFilesHash, closureFilesHash, findingRefs, approvedExclusionRefs, verdict, issuedAt, and signature; assert persisted and verified values equal canonical recomputation.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-RECEIPT-PRODUCTION-ROUNDTRIP",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-RECEIPT-FRESHNESS-MATRIX",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "After a valid round-trip, independently drift basis, topology, scope check, applicable scope contract, story-owned files, and closure files; the read-only verifier must classify every corresponding receipt stale/invalid, while an unchanged immediate re-verification passes.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-RECEIPT-FRESHNESS-MATRIX",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-RECEIPT-CANONICAL-COLLECTIONS",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Verify findingRefs and approvedExclusionRefs use canonical ordering/deduplication: semantically identical producer input round-trips deterministically, but omission, invention, duplication that changes semantics, or reference to a nonexistent fact is rejected.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-RECEIPT-CANONICAL-COLLECTIONS",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.",
+          "headHash": "be578e03f91db9acdb96a5e39b6a16874c3a50fa",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:26.485Z"
+        }
+      },
+      {
+        "intentRef": "VI-RECEIPT-EVERY-FIELD-TAMPER",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Use one table-driven production-verifier mutation suite that alters or deletes each TopologyCriticReceiptV1 field individually—storyId, critic identity, eligible role, basisDigest, topologyDigest, scopeCheckDigest, scopeContractDigest, storyFilesHash, closureFilesHash, findingRefs, approvedExclusionRefs, verdict, issuedAt, and signature—and assert every case fails with no partial acceptance.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-RECEIPT-EVERY-FIELD-TAMPER",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-RECEIPT-SIGNATURE-FORGERY",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "Prove payload re-signing with an untrusted key, copying a signature from another story/critic/time, and altering a payload then retaining the old signature all fail the production verifier.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-RECEIPT-SIGNATURE-FORGERY",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-EXCLUSION-INDEPENDENT-APPROVAL",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "For every topology exclusion, require a separately attributable current lattice-review-scope-plan approval whose story, scope reference, exclusion reference, digest bindings, session, dispatch, and business-author provenance verify independently from implementer and topology critic; a complete basis plus valid approvals passes.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-EXCLUSION-INDEPENDENT-APPROVAL",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-EXCLUSION-ONE-TO-ONE-COVERAGE",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "Exercise zero, one, and multiple exclusions and require an exact one-to-one mapping between topology exclusion refs and verified scope-plan approvals; missing, duplicate, orphaned, stale, or cross-story approvals must fail with precise diagnostics.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-EXCLUSION-ONE-TO-ONE-COVERAGE",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.",
+          "headHash": "be578e03f91db9acdb96a5e39b6a16874c3a50fa",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:26.485Z"
+        }
+      },
+      {
+        "intentRef": "VI-NO-EXCLUSION-CONTROL",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "A complete topology with no exclusions must not fabricate an approval requirement, but any later added exclusion must immediately require a fresh independent scope-plan approval.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-NO-EXCLUSION-CONTROL",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-EXCLUSION-AUTHORITY-SPOOF",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Attempt approvals from implementer, topology critic, an ineligible reviewer role, the same agent/session/dispatch/business author, and a forged lattice-review-scope-plan label; every case must be rejected mechanically.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-EXCLUSION-AUTHORITY-SPOOF",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-CRITIC-CANNOT-OVERRIDE-DISCOVERY",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "Feed missing, partial, unsupported, stale, and tampered discovery/basis states together with an otherwise valid PASS critic receipt and valid exclusion approvals; the canonical gate must reject every case, proving neither critic verdict nor exclusion approval can override discovery status.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-CRITIC-CANNOT-OVERRIDE-DISCOVERY",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-WAVE2A-PRODUCTION-CHAIN",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "In an isolated real temp repository, drive the production CLI basis/topology inputs, independent scope-plan approval where needed, critic receipt producer, and read-only verifier from a clean valid state; assert the real Wave 2A set/check chain passes and emits auditable structured facts, then run a real PLAN→DEV control with the receipt absent or failing and assert lifecycle admission remains governed only by the Wave 2 acceptance_topology_check structural gate, with no Wave 3 consumer.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-WAVE2A-PRODUCTION-CHAIN",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-WAVE2A-CLEAN-MUTATE-RESTORE",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "For each authoritative critic/exclusion/binding input, demonstrate clean pass → one controlled mutation produces the expected fail-closed diagnostic → exact byte/content restoration returns to pass without hand-editing generated evidence.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-WAVE2A-CLEAN-MUTATE-RESTORE",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-WAVE-BOUNDARY-NO-LEAK",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "Verify Wave 2A adds only independent critic receipts and exclusion authority: it must not require or synthesize Wave 3 pre_review_check/executable evidence/planned-to-actual reconciliation, Wave 3A selective-applicability behavior, or Wave 4 warn/enforce rollout telemetry/configuration.",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-WAVE-BOUNDARY-NO-LEAK",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD table-driven logic and production verifier mutation smoke; exact independence, canonical collection, exclusion mapping, and Wave-boundary cases passed.",
+          "headHash": "be578e03f91db9acdb96a5e39b6a16874c3a50fa",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:26.485Z"
+        }
+      },
+      {
+        "intentRef": "VI-PROCESS-FACT-MUTATIONS",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Mutation-test the Wave 2A process-fact contract at all required layers: remove or weaken the critic/exclusion rule independently in reviewer prompt/registry guidance and the production CLI schema/producer-handler/read-only verifier, then add a false Wave 2A lifecycle/gate consumer or otherwise weaken the explicit no-lifecycle-consumer boundary; the contract or focused production-path test must fail for every mutation, while the unmutated control proves receipt absence/failure does not block PLAN→DEV.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-PROCESS-FACT-MUTATIONS",
+          "kind": "integration_test",
+          "command": "node scripts/verify-process-fact-contract.mjs && node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+          "result": "pass",
+          "note": "Owner reran both current-HEAD process-fact and 17-role prompt mutation contracts; both passed.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-PRODUCTION-BYPASS-ATTEMPTS",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "Against production CLI surfaces, attempt self-authored critic, ineligible critic, stale receipt, every-field digest/payload tamper, scope drift, forged/missing exclusion approval, partial discovery, and unsupported discovery; assert no command, read-only verifier, or lifecycle path reports success.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-PRODUCTION-BYPASS-ATTEMPTS",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      },
+      {
+        "intentRef": "VI-RESTORATION-AND-NO-RESIDUE",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "After all adversarial mutations, restore exact inputs and assert production verification passes, git worktree is clean, and no mutated or forged process artifact remains eligible for later reuse.",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "VI-RESTORATION-AND-NO-RESIDUE",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-topology-critic-smoke.js",
+          "result": "pass",
+          "note": "Owner reran current-HEAD full production-path topology critic smoke; clean control, mutation failures, restoration, and Wave 2A boundary all passed. The fresh live transcript separately records the real fast happy path.",
+          "headHash": "53b209c72638bf72de054922c8c49da4691ddce1",
+          "materialHash": "a462946f3dcceecc302cb2f86c4da9c7d516bfe7ba8d19f63c00d610d355d92b",
+          "storyFilesHash": "5d3d54b24dc6170691d48733d8f70a493e4a5b0cd5f55ed5cb86faa7fa0800b8",
+          "timestamp": "2026-07-22T21:28:16.429Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 46,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "970d3750212beda620d9bcfc06bd4c4c95e4cb30b987998522fa8c2b72b8e0d1",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 600000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-9123",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "8f9118780a40301cdf550941b99831aa2910e4a0f2de85c171f73b30f401cd10",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "strict"
+    },
+    "verificationPolicyDigest": "799ab3196b5818d8ea6e36784b2ca36b45ca12251508e9908110ea73387beed0",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v22.13.0"
+    },
+    "digest": "74419e1d9218f118fc3f96476750fb909d377d5c104c32ec41683f4b9e293abc"
+  }
+}

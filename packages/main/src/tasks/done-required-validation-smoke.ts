@@ -26,6 +26,10 @@ import {
 } from '../core/validation-executor.js';
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
+import {
+  effectiveValidationCommandEnvironment,
+  VALIDATION_TRANSPORT_ENV_KEY_LIST,
+} from '../core/validation-command-environment.js';
 
 const STORY_ID = 'B-ac25';
 
@@ -293,6 +297,190 @@ function assertDoneRequiredBlocked(
   const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
   assert.equal(evaluation.blocking, true, message);
   assert.match(evaluation.reasons.join('\n'), reasonPattern, `${message}: ${evaluation.reasons.join(', ')}`);
+}
+
+// A DONE-required PASS is reviewed from a different role/session. Ambient
+// ownership/adapter identity must not make the exact same command environment
+// unverifiable, while behavior-affecting inputs remain bound.
+{
+  const commands = [
+    { label: 'cross-session command 1', command: 'node', args: ['-e', 'process.exit(0)'] },
+    { label: 'cross-session command 2', command: 'node', args: ['-e', 'process.exit(0)'] },
+  ];
+  const { root, store } = fixture(commands);
+  try {
+    const common = {
+      PATH: process.env.PATH ?? '',
+      CI: 'true',
+      LANG: 'en_US.UTF-8',
+      LC_ALL: 'C',
+      NODE_OPTIONS: '',
+    };
+    const ownerEnvironment = {
+      ...common,
+      LATTICE_SESSION_ID: 'owner-session',
+      LATTICE_AGENT: 'main',
+      LATTICE_ACTIVITY_SOURCE: 'codex',
+      LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'main',
+      CODEX_THREAD_ID: 'owner-thread',
+    };
+    const deliveryEnvironment = {
+      ...common,
+      LATTICE_SESSION_ID: 'delivery-session',
+      LATTICE_AGENT: 'lattice-review-delivery',
+      LATTICE_ACTIVITY_SOURCE: 'codex',
+      LATTICE_OWNER_SESSION_ADAPTER_ROLE: 'lattice-review-delivery',
+      CODEX_THREAD_ID: 'delivery-thread',
+    };
+    const policy = resolveDoneRequiredPolicy(root);
+    const producer = buildDoneRequiredExecutionIdentity({
+      projectRoot: root,
+      policy,
+      processEnvironment: ownerEnvironment,
+    });
+    const consumer = buildDoneRequiredExecutionIdentity({
+      projectRoot: root,
+      policy,
+      processEnvironment: deliveryEnvironment,
+    });
+    assert.deepEqual(
+      producer.commands.map(command => command.effectiveEnvironmentDigest),
+      consumer.commands.map(command => command.effectiveEnvironmentDigest),
+      'owner and independent delivery-review sessions share DONE-required command identity',
+    );
+    for (const key of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
+      const owner = { ...common, [key]: 'owner-identity' };
+      const reviewer = { ...common, [key]: 'reviewer-identity' };
+      const posixOwner = buildDoneRequiredExecutionIdentity({
+        projectRoot: root, policy, processEnvironment: owner, platform: 'linux',
+      });
+      const posixReviewer = buildDoneRequiredExecutionIdentity({
+        projectRoot: root, policy, processEnvironment: reviewer, platform: 'linux',
+      });
+      assert.deepEqual(
+        posixOwner.commands.map(command => command.effectiveEnvironmentDigest),
+        posixReviewer.commands.map(command => command.effectiveEnvironmentDigest),
+        `POSIX ambient transport key is session-neutral: ${key}`,
+      );
+
+      const mixedCase = key.split('').map((character, index) =>
+        index % 2 === 0 ? character.toLowerCase() : character.toUpperCase()).join('');
+      const windowsOwner = buildDoneRequiredExecutionIdentity({
+        projectRoot: root,
+        policy,
+        processEnvironment: { ...common, [key.toLowerCase()]: 'owner-identity' },
+        platform: 'win32',
+      });
+      const windowsReviewer = buildDoneRequiredExecutionIdentity({
+        projectRoot: root,
+        policy,
+        processEnvironment: { ...common, [mixedCase]: 'reviewer-identity' },
+        platform: 'win32',
+      });
+      assert.deepEqual(
+        windowsOwner.commands.map(command => command.effectiveEnvironmentDigest),
+        windowsReviewer.commands.map(command => command.effectiveEnvironmentDigest),
+        `Windows ambient transport key is case-insensitively session-neutral: ${key}`,
+      );
+
+      const lower = key.toLowerCase();
+      if (lower !== key) {
+        const lowerOwner = buildDoneRequiredExecutionIdentity({
+          projectRoot: root,
+          policy,
+          processEnvironment: { ...common, [lower]: 'owner-semantic-value' },
+          platform: 'linux',
+        });
+        const lowerReviewer = buildDoneRequiredExecutionIdentity({
+          projectRoot: root,
+          policy,
+          processEnvironment: { ...common, [lower]: 'reviewer-semantic-value' },
+          platform: 'linux',
+        });
+        assert.notDeepEqual(
+          lowerOwner.commands.map(command => command.effectiveEnvironmentDigest),
+          lowerReviewer.commands.map(command => command.effectiveEnvironmentDigest),
+          `POSIX differently-cased noncanonical key remains semantic: ${lower}`,
+        );
+      }
+    }
+
+    const overlayOwner = effectiveValidationCommandEnvironment(
+      ownerEnvironment,
+      { LATTICE_ACTIVITY_ROLE: 'explicit-owner-role' },
+      root,
+      'linux',
+    );
+    const overlayReviewer = effectiveValidationCommandEnvironment(
+      deliveryEnvironment,
+      { LATTICE_ACTIVITY_ROLE: 'explicit-reviewer-role' },
+      root,
+      'linux',
+    );
+    assert.equal(overlayOwner.LATTICE_ACTIVITY_ROLE, 'explicit-owner-role');
+    assert.equal(overlayReviewer.LATTICE_ACTIVITY_ROLE, 'explicit-reviewer-role');
+    assert.notDeepEqual(
+      overlayOwner,
+      overlayReviewer,
+      'explicit command.env overlay remains semantic after ambient transport filtering',
+    );
+
+    const h = hashes(root);
+    const receipts = policy.commands.map((command, index): DoneRequiredCommandReceipt => {
+      const identity = producer.commands[index]!;
+      const executed = { command: command.command, args: command.args, cwd: root };
+      return {
+        label: command.label,
+        command: command.command,
+        args: command.args,
+        cwd: root,
+        status: 'PASS',
+        exitCode: 0,
+        durationMs: 1,
+        outputDigest: `cross-session-output-${index}`,
+        outputTail: '',
+        startedAt: new Date().toISOString(),
+        endedAt: new Date().toISOString(),
+        effectiveEnvironmentDigest: identity.effectiveEnvironmentDigest,
+        executableDigest: identity.executableDigest,
+        shellExecutableDigest: identity.shellExecutableDigest ?? null,
+        commandSpec: buildDoneRequiredCommandSpecEnvelope(root, command, executed),
+        ...(h.headHash ? { headHash: h.headHash } : {}),
+        ...(h.materialHash ? { materialHash: h.materialHash } : {}),
+        ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
+      };
+    });
+    writeDoneEvidence(root, store, receipts);
+    const crossSession = evaluateDoneRequiredEvidence({
+      projectRoot: root,
+      storyId: STORY_ID,
+      store,
+      gitCwd: root,
+      executionIdentityContext: { processEnvironment: deliveryEnvironment },
+    });
+    assert.equal(crossSession.ok, true, crossSession.reasons.join(', '));
+
+    const behaviorEnvironmentMutations = [
+      { name: 'CI', environment: { ...deliveryEnvironment, CI: 'false' } },
+      { name: 'NODE_OPTIONS', environment: { ...deliveryEnvironment, NODE_OPTIONS: '--trace-warnings' } },
+      { name: 'LANG', environment: { ...deliveryEnvironment, LANG: 'en_GB.UTF-8' } },
+      { name: 'LC_ALL', environment: { ...deliveryEnvironment, LC_ALL: 'en_GB.UTF-8' } },
+    ];
+    for (const mutation of behaviorEnvironmentMutations) {
+      const changedBehavior = evaluateDoneRequiredEvidence({
+        projectRoot: root,
+        storyId: STORY_ID,
+        store,
+        gitCwd: root,
+        executionIdentityContext: { processEnvironment: mutation.environment },
+      });
+      assert.equal(changedBehavior.ok, false, `${mutation.name} mutation remains behavior-affecting`);
+      assert.match(changedBehavior.reasons.join('\n'), /effective-environment-digest-mismatch\[0\]/);
+      assert.match(changedBehavior.reasons.join('\n'), /effective-environment-digest-mismatch\[1\]/);
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 }
 
 // The effective timeout armed by the real runner must stay within Node's timer range.

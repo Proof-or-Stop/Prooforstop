@@ -1,0 +1,20 @@
+{
+  "storyId": "B-98b0",
+  "expected": "Acceptance topology check: PASS — mode=enforce, basisStatus=complete, structuralPass=true, diagnostics=none.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/proofstory-acceptance-topology-gate-smoke.js",
+    "exitCode": 0,
+    "stdout": "proofstory acceptance topology gate smoke: PASS\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-22T17:23:33.342Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "9a68ef67331e7754b928b92f72e4ea7f8562d2e1",
+  "materialHash": "30d303732d3b232fed0f6da8a0d2917f97804fcf1a48e2f35f6ff53e01168ccf"
+}

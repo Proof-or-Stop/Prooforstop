@@ -1,0 +1,56 @@
+{
+  "storyId": "B-407c",
+  "changes": "Implemented modular Prompt Envelope paths, production dispatch persistence, observe-only complex-role budgets, real serialized dual-provider A/B evidence, and invariant checks for five complex roles. Because v3 showed worse modular recall, real Claude/Codex production defaults remain immutable legacy; modular full-envelope is explicit audit-only.",
+  "usage": "Normal role dispatch requires no change and uses legacy-full-context safely. For audit evidence run node packages/main/dist/tasks/story6-acceptance-transcript.js; it separates PRODUCTION_DEFAULT from AUDIT_DISPATCH and prints budget, campaign and invariant facts.",
+  "expectedOutcome": "Five complex roles have a real production-bound modular audit path, nonblocking budget observations, trustworthy A/B receipts, and preserved delivery/scope/authority/signature semantics, while rejected modular rollout cannot become the production default.",
+  "actualTranscript": "Fresh 46-command routine validation passed. The real-machine acceptance audit transcript emitted five PRODUCTION_DEFAULT legacy lines, five AUDIT_DISPATCH full-envelope lines with auditOnly=true/canMintReviewEvidence=false/persisted=true, bound bytes/estimatedTokens/limitBytes budget rows, five valid adverse campaign rows, 72-receipt INCONCLUSIVE summary, and real invariant consumer outcomes.",
+  "outcomeDiff": "The migration and audit mechanism matches the expected outcome. The modular arm did not meet non-regression acceptance, so production correctly remains legacy-default and the experiment remains INCONCLUSIVE/adverse rather than rollout-ready.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "audit_only",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Codex cacheCreationInputTokens was unavailable for 36 cells. Modular recall regressed from 24/24 to 20/24 and false positives rose from 0 to 1, so baselineAccepted=false, recallNonRegressionClaim=false, enforceReady=false, and Story 7 remains absent.",
+  "pitfalls": "Closeout exposed host-render drift, process-fact mirror drift, and initially aggregate-only acceptance output. The final transcript separates production from audit, binds budget metrics, and uses real consumer outcomes. Do not rerun the 72-cell campaign unless inputs materially change.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 72621
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 60370
+    },
+    "PLAN": {
+      "count": 4,
+      "durationMs": 1251148
+    },
+    "DEV": {
+      "count": 17,
+      "durationMs": 14695314
+    },
+    "REVIEW": {
+      "count": 14,
+      "durationMs": 4872502
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 912240
+    }
+  },
+  "totalDurationMs": 21864848,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-21T02:58:57.845Z",
+  "updatedAt": "2026-07-21T03:34:15.522Z"
+}

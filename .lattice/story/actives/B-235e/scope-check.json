@@ -1,0 +1,170 @@
+{
+  "storyId": "B-235e",
+  "checkedAt": "2026-07-19T07:23:35.377Z",
+  "features": [
+    {
+      "feature": "Only concept, quality, test-coverage, behavior, and docs are migrated as the Story 5 active reviewer wave.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "canonical Story 5 and CHK-001"
+    },
+    {
+      "feature": "Each migrated role preserves role-specific inputs, checks, commands, forbidden actions, stop conditions, lane, finding and pass authority.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-001 role-contract-semantics-preserved"
+    },
+    {
+      "feature": "Five rollout controls are independently reversible and mixed modular/legacy combinations cannot bleed across roles.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-001 independent-role-flags and mixed-rollout-states"
+    },
+    {
+      "feature": "Rollback restores exact content-addressed legacy prompt bytes rather than the newly rewritten canonical modular template.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-001 mode-aware role-body resolver; prompt-registry and baseline files are in scope"
+    },
+    {
+      "feature": "Package templates remain canonical and Claude/Codex mirrors are deterministic host renders for all five roles.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-001 files and runtime-owned-agent-assets smoke"
+    },
+    {
+      "feature": "Retired lattice-review-channel is not migrated, enabled, counted, dispatched, or credited; historical assets remain audit-only.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit Story 5 exclusion; channel remains retired and is protected from modification.",
+      "source": "canonical Story 5; scope-contract explicitExcludes"
+    },
+    {
+      "feature": "story-init, scope-plan, implementer, delivery, and evaluator prompt migration.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Canonical Story 6 owns complex role migration.",
+      "source": "canonical Story 6; scope-contract explicitExcludes"
+    },
+    {
+      "feature": "Legacy asset isolation and raising prompt budgets from observe to warn.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Canonical Story 7 owns legacy isolation and observe-to-warn rollout.",
+      "source": "canonical Story 7"
+    },
+    {
+      "feature": "All five roles assemble trusted full or mechanically eligible incremental Prompt Envelopes through review_run_start with ReviewRun and host identity binding.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 five-role-trusted-full-envelope and eligible-role-incremental-envelope"
+    },
+    {
+      "feature": "Contract, policy, scope, source/docs/schema/API/protocol, authority, freshness, unknown-impact and budget conditions fail closed to full with stable reasons.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 drift-selects-full-per-role and adversarial intents"
+    },
+    {
+      "feature": "Incremental reviewers retain authoritative read-through and can explicitly request a new full run without mutating the prior run.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 incremental-read-through-and-escalation"
+    },
+    {
+      "feature": "A role-aware preregistered replay freezes five roles, three arms, samples/repetitions, exact prompt/material/model/tool/order bindings, and independent adjudication.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-003 preregistered-per-role-replay-matrix"
+    },
+    {
+      "feature": "Per-role assembled/context/provider/cache usage is reported honestly; insufficient seeds, outputs, adjudication or symmetry yields INCONCLUSIVE.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-003 measurement and INCONCLUSIVE intents"
+    },
+    {
+      "feature": "Reviewer/owner permissions, signatures, active-lane collection, receipt, floor, quorum, legacy-read and rollback safety remain mechanically enforced.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-004 authority and tamper intents"
+    },
+    {
+      "feature": "Gate-time Prompt Envelope reconstruction uses the same selected modular role body and rejects modular/legacy substitution.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-002; packages/main/src/core/review-run.ts added to checklist and enforce scope"
+    },
+    {
+      "feature": "Changed active prompt snapshots, independent approval manifest, measurement baseline, and overlap matrix are updated and reviewed together.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-004 files include all three canonical baseline artifacts and verifier"
+    },
+    {
+      "feature": "Concurrent migration/rollback reads cannot observe a hybrid baseline without introducing a mutable runtime writer.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-001 defines immutable content-addressed repository artifacts; future mutable writer is explicitly out of current design and would require main write lock"
+    },
+    {
+      "feature": "Fresh non-latest same-round PASS remains admissible while open findings retain kind-aware stale-run handling.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "signed-current-run-admission and plan.md now match review-run-binding-race.md"
+    },
+    {
+      "feature": "Canonical usage documentation is synchronized with role-aware replay/measurement semantics.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/host-run-usage.md added to CHK-004 files and enforce scope"
+    },
+    {
+      "feature": "Story 3 frozen corpus remains unchanged while Story 5 adds a separate versioned role-aware campaign.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "plan.md CHK-003; experiments/role-prompt-ab-replay subtree is in scope"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/host-run-usage.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 20,
+    "covered": 17,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9745504d4848afdd2984bde8f83bbd8f350e6d9dde861380f75f301ea3f4a1a6",
+  "openQuestions": []
+}

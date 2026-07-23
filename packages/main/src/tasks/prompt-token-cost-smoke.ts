@@ -7,8 +7,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   LOAD_BEARING_LATTICE_PROMPT_SLICE,
+  isModularReviewerRoleId,
   renderCodexPromptContent,
 } from '../core/prompt-registry.js';
+import { renderReviewerRunBootstrapForTemplate } from '../core/global-agents.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
@@ -55,10 +57,6 @@ const requiredPromptPhrases = [
   'verificationEvidence',
   'signed delivery artifacts',
   'Handoff packs are bounded overflow execution',
-  'receiptVerified',
-  'productionDone',
-  'authorityDone',
-  'fullAuthorityDone',
 ];
 
 const compactQueryGuidancePhrases = [
@@ -70,6 +68,14 @@ const compactQueryGuidancePhrases = [
   'Before evidence-sensitive conclusions or mutations, reload the full output',
   `lattice story_get '{"storyId":"B-xxxx"}'`,
   `lattice checklist_get '{"storyId":"B-xxxx"}'`,
+];
+
+const modularReviewerSafetyPhrases = [
+  'proofbound:modular-role-body:v1',
+  'review_run_start',
+  'review_pass_set',
+  'finding_add',
+  'reviewRunId',
 ];
 
 function bytes(text: string): number {
@@ -122,15 +128,27 @@ function assertPromptReductions(): void {
     baselineTotal += baseline;
     currentTotal += current;
 
-    assert.equal(
-      extractLatticeBlock(content),
-      LOAD_BEARING_LATTICE_PROMPT_SLICE,
-      `${file} uses canonical load-bearing prompt slice`,
-    );
-    for (const phrase of requiredPromptPhrases) {
-      assert.ok(content.includes(phrase), `${file} keeps prompt-safety phrase: ${phrase}`);
+    const roleId = file.replace(/\.md$/, '');
+    if (isModularReviewerRoleId(roleId)) {
+      assert.equal(
+        content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/),
+        null,
+        `${file} does not rematerialize the legacy runtime guide`,
+      );
+      for (const phrase of modularReviewerSafetyPhrases) {
+        assert.ok(content.includes(phrase), `${file} keeps modular reviewer safety phrase: ${phrase}`);
+      }
+    } else {
+      assert.equal(
+        extractLatticeBlock(content),
+        LOAD_BEARING_LATTICE_PROMPT_SLICE,
+        `${file} uses canonical load-bearing prompt slice`,
+      );
+      for (const phrase of requiredPromptPhrases) {
+        assert.ok(content.includes(phrase), `${file} keeps prompt-safety phrase: ${phrase}`);
+      }
+      assertCompactQueryGuidance(content, file);
     }
-    assertCompactQueryGuidance(content, file);
     assert.ok(current < baseline, `${file} current bytes should be smaller than baseline`);
     rows.push(
       `  ${file}: baseline ${baseline} B (~${approxTokens(baseline)} tok), ` +
@@ -159,11 +177,24 @@ function assertMirrorsMatch(): void {
     const packageContent = readRepo(`packages/main/templates/agents/${file}`);
     const claudeContent = readRepo(`.claude/agents/${file}`);
     const codexContent = readRepo(`.lattice-codex/agents/${file}`);
-    assert.equal(claudeContent, packageContent, `.claude mirror matches package template for ${file}`);
-    assert.equal(codexContent, renderCodexPromptContent(packageContent), `.lattice-codex mirror matches package render for ${file}`);
-    assertCompactQueryGuidance(packageContent, `package template ${file}`);
-    assertCompactQueryGuidance(claudeContent, `.claude mirror ${file}`);
-    assertCompactQueryGuidance(codexContent, `.lattice-codex mirror ${file}`);
+    const roleId = file.replace(/\.md$/, '');
+    const codexPackageContent = renderCodexPromptContent(packageContent);
+    const expectedClaude = isModularReviewerRoleId(roleId)
+      ? renderReviewerRunBootstrapForTemplate(packageContent, file)
+      : packageContent;
+    const expectedCodex = isModularReviewerRoleId(roleId)
+      ? renderReviewerRunBootstrapForTemplate(codexPackageContent, file)
+      : codexPackageContent;
+    assert.equal(claudeContent, expectedClaude, `.claude asset matches canonical host input for ${file}`);
+    assert.equal(codexContent, expectedCodex, `.lattice-codex asset matches canonical host input for ${file}`);
+    if (isModularReviewerRoleId(roleId)) {
+      assert.match(claudeContent, /review_run_start/, `.claude bootstrap selects ${file} at runtime`);
+      assert.match(codexContent, /review_run_start/, `.lattice-codex bootstrap selects ${file} at runtime`);
+    } else {
+      assertCompactQueryGuidance(packageContent, `package template ${file}`);
+      assertCompactQueryGuidance(claudeContent, `.claude mirror ${file}`);
+      assertCompactQueryGuidance(codexContent, `.lattice-codex mirror ${file}`);
+    }
   }
 }
 

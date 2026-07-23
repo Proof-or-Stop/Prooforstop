@@ -1,0 +1,568 @@
+{
+  "storyId": "B-235e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/config.ts",
+    "lattice.config.json",
+    "packages/main/templates/agents/lattice-review-concept.md",
+    "packages/main/templates/agents/lattice-review-quality.md",
+    "packages/main/templates/agents/lattice-review-test-coverage.md",
+    "packages/main/templates/agents/lattice-review-behavior.md",
+    "packages/main/templates/agents/lattice-review-docs.md",
+    ".claude/agents/lattice-review-concept.md",
+    ".claude/agents/lattice-review-quality.md",
+    ".claude/agents/lattice-review-test-coverage.md",
+    ".claude/agents/lattice-review-behavior.md",
+    ".claude/agents/lattice-review-docs.md",
+    ".lattice-codex/agents/lattice-review-concept.md",
+    ".lattice-codex/agents/lattice-review-quality.md",
+    ".lattice-codex/agents/lattice-review-test-coverage.md",
+    ".lattice-codex/agents/lattice-review-behavior.md",
+    ".lattice-codex/agents/lattice-review-docs.md",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/core/review-run.ts",
+    "experiments/role-prompt-ab-replay",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "docs/host-run-usage.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+    "packages/main/src/tasks/review-run-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "experiments/role-prompt-ab-replay/selfcheck.mjs",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "packages/main/src/tasks/quorum-submit-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/story-machine.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/templates/agents/lattice-review-channel.md",
+    ".claude/agents/lattice-review-channel.md",
+    ".lattice-codex/agents/lattice-review-channel.md",
+    "packages/main/templates/agents/lattice-review-story-init.md",
+    "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/templates/agents/lattice-review-delivery.md",
+    "packages/main/templates/agents/lattice-evaluator.md"
+  ],
+  "scopeChangeReason": "Revised after independent PLAN review: include core review-run gate reconstruction, all three immutable baseline artifacts, host-run usage docs, and binding-race semantics; migrate only five active REVIEW roles.",
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "Required baseline consumer correction: role-prompt-measurement must measure the same mode-aware modular body actually dispatched by agent_prompt and ReviewRun; leaving the raw compound template would make the declared third baseline materially false.",
+      "timestamp": "2026-07-19T07:41:50.357Z",
+      "paths": [
+        "packages/main/src/core/prompt-measurement.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-measurement.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "35a293c9261dca0caadfef8edc2677e6cf4127a1",
+      "materialHash": "6f7b3346a977cc0086cacb4bb189e4d0fd82ec575c35bce67e923cceb4aec784",
+      "anchors": [
+        "measureRolePrompts",
+        "readPromptTemplate",
+        "resolvePromptBodyForMode"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required repair from real concurrent REVIEW: full-envelope review_run_start writes prompt-envelopes.json, so REVIEW retention must classify that signed protocol artifact as trusted metadata or all reviewer finding/pass writes fail closed.",
+      "timestamp": "2026-07-19T08:04:44.218Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "68d81245734ce888864a14e36a786539d6cb8097",
+      "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+      "anchors": [
+        "REVIEW_RETENTION_PROTOCOL_METADATA_PATHS",
+        "evaluateReviewRunMetadataRetention"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required regression coverage for reviewer dispatch semantics: verify the five migrated active reviewer roles remain dispatchable while the explicitly retired review channel stays registry-readable but dispatch-rejected.",
+      "timestamp": "2026-07-19T08:20:43.750Z",
+      "paths": [
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "25cc8f415be33c862a3528dda958b64bfe924eca",
+      "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+      "anchors": [
+        "runAgentDispatchRegistrySmoke"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required repair from the real five-reviewer concurrent write test: ordinary Story finding_add currently bypasses locking and loses one of two simultaneous findings, so a per-story findings lock is required to preserve reviewer gate evidence; B-META keeps its existing main lock.",
+      "timestamp": "2026-07-19T08:24:45.120Z",
+      "paths": [
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "25cc8f415be33c862a3528dda958b64bfe924eca",
+      "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+      "anchors": [
+        "withMetaFindingLock"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required compatibility regression update for the stricter legacy ReviewRun verifier: the closeout trust fixture must use the frozen legacy role body hash instead of a placeholder prompt hash, proving legitimate rollback evidence remains admissible while forged legacy evidence is rejected.",
+      "timestamp": "2026-07-19T08:28:37.565Z",
+      "paths": [
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "25cc8f415be33c862a3528dda958b64bfe924eca",
+      "materialHash": "4513037005b9273d395a5a02624eb3f9ee48b73ee002e18a7c0076b02fb8e242",
+      "anchors": [
+        "runCloseoutTrustSmoke"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required host-level rollback repair for F-002: the five Claude/Codex full-asset reviewer files must become canonical role-specific bootstraps that select exactly one signed runtime body, and Codex adapter verification must validate those bootstraps instead of requiring the old prompt mirror; a shared renderer prevents divergent bootstrap formats.",
+      "timestamp": "2026-07-19T08:47:37.176Z",
+      "paths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/core/global-agents.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/core/global-agents.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "ba27ee0090ce3f77d05a548a8e7c1c3d07a826ba",
+      "materialHash": "7c861c4de515720b9d0ebe47f161be31c753778d792a3639cbfa6c980b45d9c5",
+      "anchors": [
+        "reviewerHostRenderIdentity",
+        "renderReviewerBootstrap"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required regeneration closure for F-002: project init must materialize the same canonical reviewer bootstrap instead of overwriting repaired Codex assets with role bodies, with focused registry-mode and token-cost regression coverage; existing runtime-assets and quorum tests remain within the original test scope.",
+      "timestamp": "2026-07-19T08:50:09.134Z",
+      "paths": [
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+        "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+        "packages/main/src/tasks/prompt-token-cost-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "ba27ee0090ce3f77d05a548a8e7c1c3d07a826ba",
+      "materialHash": "7c861c4de515720b9d0ebe47f161be31c753778d792a3639cbfa6c980b45d9c5",
+      "anchors": [
+        "materializeCodexAgents",
+        "runCodexRegistryModeSmoke",
+        "runPromptTokenCostSmoke"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required runtime resolution closure for F-002: full-asset discovery currently compares the five repaired reviewer bootstraps against package role bodies, falsely marks canonical assets stale, and falls back away from the selected host; these five roles must use the shared bootstrap renderer as expected bytes while all other roles retain existing comparison behavior.",
+      "timestamp": "2026-07-19T08:55:33.497Z",
+      "paths": [
+        "packages/main/src/core/agent-asset-resolution.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/agent-asset-resolution.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ba27ee0090ce3f77d05a548a8e7c1c3d07a826ba",
+      "materialHash": "7c861c4de515720b9d0ebe47f161be31c753778d792a3639cbfa6c980b45d9c5",
+      "anchors": [
+        "resolveAgentAsset"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required managed-asset closure for F-002: after init writes the five canonical reviewer bootstraps, the upgrade/check path still expects package role bodies and marks those correct assets STALE_SAFE; these five roles must share the bootstrap expected bytes while all non-migrated agents keep existing full-asset semantics.",
+      "timestamp": "2026-07-19T08:58:11.347Z",
+      "paths": [
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/managed-assets.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ba27ee0090ce3f77d05a548a8e7c1c3d07a826ba",
+      "materialHash": "7c861c4de515720b9d0ebe47f161be31c753778d792a3639cbfa6c980b45d9c5",
+      "anchors": [
+        "collectManagedAssets"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required F-005 repair from a reproduced self-invalidating reviewer run: the scope diff reader used Node default 1 MiB maxBuffer, so the large B-235e diff collapsed to zero hunks after review metadata crossed the threshold; using the established 32 MiB git-tree output cap preserves the same business diff hash before and after protocol metadata writes.",
+      "timestamp": "2026-07-19T09:11:08.349Z",
+      "paths": [
+        "packages/main/src/core/scope-diff-pack.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/scope-diff-pack.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2ec14a42b7b3c1a07149db8c2d871754b2ebb1b9",
+      "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
+      "anchors": [
+        "readUnifiedDiff"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required F-006/F-007 regression update: the existing global-agent unit smoke hard-codes agent_prompt shims for every role, so it must assert the five migrated reviewer roles use bootstrap-only global-thin assets while implementer and other non-migrated roles retain their legacy shim contract.",
+      "timestamp": "2026-07-19T09:24:01.177Z",
+      "paths": [
+        "packages/main/src/tasks/global-agents-unit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/global-agents-unit-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5a1c7a728275cd9f54f43d51c06c4b1c54247857",
+      "materialHash": "4eaad11bf22e3d62913997166b62506d06dc49ccc7bd8b612315b2938ba3f04f",
+      "anchors": [
+        "runGlobalAgentsUnitSmoke"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required F-010/F-011 host-path closure: Codex registry and runtime-owned initialization render the five migrated reviewer assets through init-assets, while the fresh init smoke must assert bootstrap-only bytes for those five and preserve agent_prompt shims for the other eleven roles.",
+      "timestamp": "2026-07-19T09:53:25.074Z",
+      "paths": [
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/tasks/global-agents-init-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/tasks/global-agents-init-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "211b2c0f543513e7bd7c44042e3b92c021bac01f",
+      "materialHash": "4636e70e77a742a127e74e4aa1da7e5c318c927d09202718c21e441d65564877",
+      "anchors": [
+        "renderCodexAgentAsset",
+        "runGlobalAgentsInitSmoke"
+      ]
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required F-012 terminology cleanup only: these canonical lifecycle and command descriptions still say migrated reviewer agent_prompt directly returns a role body, while the implemented contract is bootstrap-only plus one review_run_start selected body; no handler registration or CLI schema behavior changes are involved.",
+      "timestamp": "2026-07-19T10:24:22.223Z",
+      "paths": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/registry.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/registry.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "a84c0d175fa09000111b29f1b8535488c5005a12",
+      "materialHash": "d949850142b7cad7a43d0dc5901aaf28a4f2cc37b96991f3c2685a8247a74196",
+      "anchors": [
+        "agentPromptDescription",
+        "renderPromptEntryForHost"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-013/F-014 require a shared atomic identity-conditional stale-lock reclaim primitive; review-run business logic alone cannot safely serialize cross-process ABA recovery.",
+      "timestamp": "2026-07-19T10:38:24.109Z",
+      "paths": [
+        "packages/main/src/core/mkdir-lock.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/mkdir-lock.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d72afc4c848b5b4e36bb0653c61442d22cdbb49e",
+      "materialHash": "41e7db21f76d7c7f185d685863b6bb0a3b54af9f93a3ba9de4418e36bfdefbb3",
+      "anchors": [
+        "review_metadata_transaction_lock",
+        "atomic_stale_lock_reclaim",
+        "aba_regression_barrier"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "TEST exposed Story-owned guard regressions: repin the closeout structural fingerprint and update the reviewer scan fixture to the current legacy prompt hash so the full validation contract passes.",
+      "timestamp": "2026-07-19T11:51:39.798Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "4d9eb9ffde8eb3e8254aed666e75b944446178e0",
+      "materialHash": "7aef176f110a60a3941845a1d23b06b1387f52e50e482c3ec270083245261b07",
+      "anchors": [
+        "validation_guard_regression",
+        "legacy_prompt_hash_fixture",
+        "process_contract_fingerprint"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These smoke tests are required regression coverage for the prompt-envelope review flow and lifecycle evidence gates; they are intentionally part of this story after the main merge.",
+      "timestamp": "2026-07-19T21:32:32.815Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "4bdd4a331cae856bbf7873154904f3677d3952d7",
+      "materialHash": "875f9c5f685ca175d68bca022de769cc317361d5bcf56852d3af05d916fb2cbd",
+      "anchors": [
+        "prompt_envelope_review_flow",
+        "lifecycle_evidence_gates",
+        "post_merge_regression_coverage"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This runtime closeout fix changes the CLI patch version and the incremental eligibility resolver; these files are necessary to ship and verify the metadata-only prior-pass cutoff.",
+      "timestamp": "2026-07-19T23:55:19.401Z",
+      "paths": [
+        "package-lock.json",
+        "package.json",
+        "packages/main/package-lock.json",
+        "packages/main/package.json",
+        "packages/main/src/core/lattice-brand.ts",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package-lock.json",
+        "package.json",
+        "packages/main/package-lock.json",
+        "packages/main/package.json",
+        "packages/main/src/core/lattice-brand.ts",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "38f197554dec831d5abd89b44831ece8b35ff24c",
+      "materialHash": "e3a95d8d958afc1ae0f407b42af6d0472d030997d684c2d1d01a75c6444b14fc",
+      "anchors": [
+        "review_run_eligibility",
+        "metadata_only_closeout",
+        "cli_patch_version"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "BUG-001 directly blocks this story from reaching DONE after legitimate reviewer re-attestation; the minimal gate fix is required for lifecycle convergence and preserves all other hard-fail counters.",
+      "timestamp": "2026-07-20T13:56:27.045Z",
+      "paths": [
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "edf2d243ac2c4008aabd662183b189c8a3715634",
+      "materialHash": "0c255f91b873afdb1558aabb7c0bafd5fcf7f3af4a2656fb02405554d7da3daa"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-025 and F-026 require canonical documentation and end-to-end done_prepare transcript regression updates for the pre-TEST exemption and post-TEST fail-closed reviewer re-attestation boundary.",
+      "timestamp": "2026-07-20T14:10:08.111Z",
+      "paths": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "125d999b8fd7859c138225c9fdbfbdfa0b0673f4",
+      "materialHash": "4ef91643173df5c32e36dda9df1acbcee23df0c3734ea46619696117a439e705"
+    }
+  ],
+  "createdAt": "2026-07-19T07:16:42.767Z",
+  "updatedAt": "2026-07-20T14:10:08.111Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/templates/agents/lattice-review-concept.md": "packages/main/templates/agents/lattice-review-concept.md",
+    "packages/main/templates/agents/lattice-review-quality.md": "packages/main/templates/agents/lattice-review-quality.md",
+    "packages/main/templates/agents/lattice-review-test-coverage.md": "packages/main/templates/agents/lattice-review-test-coverage.md",
+    "packages/main/templates/agents/lattice-review-behavior.md": "packages/main/templates/agents/lattice-review-behavior.md",
+    "packages/main/templates/agents/lattice-review-docs.md": "packages/main/templates/agents/lattice-review-docs.md",
+    ".claude/agents/lattice-review-concept.md": ".claude/agents/lattice-review-concept.md",
+    ".claude/agents/lattice-review-quality.md": ".claude/agents/lattice-review-quality.md",
+    ".claude/agents/lattice-review-test-coverage.md": ".claude/agents/lattice-review-test-coverage.md",
+    ".claude/agents/lattice-review-behavior.md": ".claude/agents/lattice-review-behavior.md",
+    ".claude/agents/lattice-review-docs.md": ".claude/agents/lattice-review-docs.md",
+    ".lattice-codex/agents/lattice-review-concept.md": ".lattice-codex/agents/lattice-review-concept.md",
+    ".lattice-codex/agents/lattice-review-quality.md": ".lattice-codex/agents/lattice-review-quality.md",
+    ".lattice-codex/agents/lattice-review-test-coverage.md": ".lattice-codex/agents/lattice-review-test-coverage.md",
+    ".lattice-codex/agents/lattice-review-behavior.md": ".lattice-codex/agents/lattice-review-behavior.md",
+    ".lattice-codex/agents/lattice-review-docs.md": ".lattice-codex/agents/lattice-review-docs.md",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/handlers/review-run.ts": "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/agent-prompt.ts": "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts",
+    "experiments/role-prompt-ab-replay": "experiments/role-prompt-ab-replay",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "docs/host-run-usage.md": "docs/host-run-usage.md",
+    "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts": "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+    "packages/main/src/tasks/review-run-smoke.ts": "packages/main/src/tasks/review-run-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts": "packages/main/src/tasks/review-incremental-context-smoke.ts",
+    "experiments/role-prompt-ab-replay/selfcheck.mjs": "experiments/role-prompt-ab-replay/selfcheck.mjs",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts": "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/story-machine.ts": "packages/main/src/core/story-machine.ts",
+    "packages/main/templates/agents/lattice-review-channel.md": "packages/main/templates/agents/lattice-review-channel.md",
+    ".claude/agents/lattice-review-channel.md": ".claude/agents/lattice-review-channel.md",
+    ".lattice-codex/agents/lattice-review-channel.md": ".lattice-codex/agents/lattice-review-channel.md",
+    "packages/main/templates/agents/lattice-review-story-init.md": "packages/main/templates/agents/lattice-review-story-init.md",
+    "packages/main/templates/agents/lattice-review-scope-plan.md": "packages/main/templates/agents/lattice-review-scope-plan.md",
+    "packages/main/templates/agents/lattice-implementer.md": "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/templates/agents/lattice-review-delivery.md": "packages/main/templates/agents/lattice-review-delivery.md",
+    "packages/main/templates/agents/lattice-evaluator.md": "packages/main/templates/agents/lattice-evaluator.md",
+    "packages/main/src/core/prompt-measurement.ts": "packages/main/src/core/prompt-measurement.ts",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/core/codex-adapter-checks.ts": "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/core/global-agents.ts": "packages/main/src/core/global-agents.ts",
+    "packages/main/src/cli-init.ts": "packages/main/src/cli-init.ts",
+    "packages/main/src/tasks/codex-registry-mode-smoke.ts": "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts": "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/core/agent-asset-resolution.ts": "packages/main/src/core/agent-asset-resolution.ts",
+    "packages/main/src/core/managed-assets.ts": "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/core/scope-diff-pack.ts": "packages/main/src/core/scope-diff-pack.ts",
+    "packages/main/src/tasks/global-agents-unit-smoke.ts": "packages/main/src/tasks/global-agents-unit-smoke.ts",
+    "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
+    "packages/main/src/tasks/global-agents-init-smoke.ts": "packages/main/src/tasks/global-agents-init-smoke.ts",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts": "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts": "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "package-lock.json": "package-lock.json",
+    "package.json": "package.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/handlers/done-prepare.ts": "packages/main/src/handlers/done-prepare.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts": "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts": "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts": "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts"
+  }
+}
