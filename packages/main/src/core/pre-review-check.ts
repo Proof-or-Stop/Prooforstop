@@ -27,6 +27,7 @@ const KEY_FILE = 'lattice-pre-review-check-verifier-v1.key';
 const EXECUTABLE_PROOF_PREFIX = 'PROOFSTORY_PRE_REVIEW_PROOF=';
 const LIVE_SMOKE_TRANSCRIPT_REL = 'evidence/live-smoke-transcript.json';
 export const PRE_REVIEW_LIVE_PROOF_COMMAND = 'node scripts/run-proofstory-pre-review-live-proof.mjs';
+export const PRE_REVIEW_LIVE_PROOF_TIMEOUT_MS = 120_000;
 
 export interface PreReviewCheckInput {
   gitCwd: string;
