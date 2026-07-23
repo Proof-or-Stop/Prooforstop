@@ -7,7 +7,7 @@
  */
 
 import type { HandlerContext } from './context.js';
-import type { ChecklistData, MilestoneNotApplicableDecision, ProofStoryGateMode } from '../core/types.js';
+import type { AcceptanceBasisArtifactV1, ChecklistData, MilestoneNotApplicableDecision, ProofStoryGateMode } from '../core/types.js';
 import {
   addMilestoneToLedger,
   appendRedEvidence,
@@ -57,6 +57,7 @@ import {
   TOPOLOGY_EXCLUSION_APPROVER_ROLE,
   verifyTopologyCriticReceipt,
 } from '../core/topology-critic-receipt.js';
+import { issuePreReviewCheckArtifact, loadVerifiedPreReviewExecutableProof, verifyPreReviewCheckArtifact, type PreReviewCheckInput, type PreReviewCheckReport } from '../core/pre-review-check.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -90,7 +91,7 @@ function readChecklistForTopology(ctx: HandlerContext, storyId: string): Checkli
   catch { return emptyChecklist(); }
 }
 
-function currentBasisDerivationForContext(ctx: HandlerContext, storyId: string) {
+function currentBasisDerivationForContext(ctx: HandlerContext, storyId: string, phaseBasis: 'plan' | 'pre_review' = 'plan', priorPlanBasisDigest?: string) {
   const { store } = ctx;
   const workspace = resolveStoryCommandWorkspace(store, storyId, ctx.root);
   const headHash = currentGitHead(workspace.signedWorkspaceRoot);
@@ -111,8 +112,85 @@ function currentBasisDerivationForContext(ctx: HandlerContext, storyId: string) 
     headHash,
     materialHash,
     storyFilesHash,
+    phaseBasis,
+    ...(priorPlanBasisDigest ? { priorPlanBasisDigest } : {}),
   });
   return { workspace, scopeCheck, scopeContract, derivation };
+}
+
+function currentPreReviewInputForContext(ctx: HandlerContext, storyId: string): PreReviewCheckInput {
+  const planArtifact = ctx.store.readAcceptanceBasis(storyId);
+  if (!planArtifact) throw new Error('pre_review_check requires the verifier-owned PLAN acceptance basis');
+  const current = currentBasisDerivationForContext(ctx, storyId, 'pre_review', planArtifact.basis.basisDigest);
+  const receipt = issueAcceptanceBasisReceipt({
+    gitCwd: current.workspace.signedWorkspaceRoot,
+    basis: current.derivation.basis,
+    topologyDigest: current.derivation.topologyDigest,
+  });
+  let currentArtifact: AcceptanceBasisArtifactV1 = { schemaVersion: 'proofstory.acceptance_basis_artifact.v1', basis: current.derivation.basis, receipt };
+  const priorPreReviewArtifact = ctx.store.readPreReviewCheck(storyId)?.preReviewBasisArtifact;
+  if (priorPreReviewArtifact) {
+    const priorVerification = verifyAcceptanceBasisReceipt({
+      artifact: priorPreReviewArtifact,
+      gitCwd: current.workspace.signedWorkspaceRoot,
+      metadataRoot: current.workspace.metadataRoot,
+      expectedStoryId: storyId,
+      expectedTopologyDigest: current.derivation.topologyDigest,
+      expectedScopeCheckDigest: current.derivation.basis.binding.scopeCheckDigest,
+      ...(current.derivation.basis.binding.scopeContractDigest ? { expectedScopeContractDigest: current.derivation.basis.binding.scopeContractDigest } : {}),
+      expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+      expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
+      expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
+    });
+    if (priorVerification.ok) currentArtifact = priorPreReviewArtifact;
+  }
+  const topologyDiagnosticCodes = reconcileTopologyWithCoverageBasis(
+    ctx.store.readProofStoryContract(storyId), current.derivation.basis, ctx.store.readDecision(storyId),
+  ).map(item => item.code);
+  let criticVerification: { ok: boolean; code: string } | undefined;
+  try {
+    const result = evaluateTopologyCriticReceiptForContext(ctx, storyId);
+    criticVerification = { ok: result.ok, code: result.code };
+  } catch { criticVerification = { ok: false, code: 'AT_TOPOLOGY_CRITIC_CONTEXT_INVALID' }; }
+  const criticReceipt = ctx.store.readTopologyCriticReceipt(storyId);
+  const cutoffAt = new Date().toISOString();
+  const contract = ctx.store.readProofStoryContract(storyId);
+  const executableProof = loadVerifiedPreReviewExecutableProof({
+    gitCwd: current.workspace.signedWorkspaceRoot,
+    metadataRoot: current.workspace.metadataRoot,
+    storyDir: ctx.store.storyDirPath(storyId),
+    storyId,
+    contract,
+    cutoffAt,
+    storyFilesHash: current.derivation.basis.binding.storyFilesHash,
+  });
+  return {
+    gitCwd: current.workspace.signedWorkspaceRoot,
+    metadataRoot: current.workspace.metadataRoot,
+    storyId,
+    mode: resolveAcceptanceTopologyGateMode(loadConfig(ctx.root)),
+    cutoffAt,
+    planArtifact,
+    currentArtifact,
+    checklist: readChecklistForTopology(ctx, storyId),
+    contract,
+    executableProof,
+    topologyDigest: current.derivation.topologyDigest,
+    topologyDiagnosticCodes,
+    criticVerification,
+    ...(criticReceipt ? { criticReceiptDigest: `sha256:${digestCanonicalJson(criticReceipt)}` } : {}),
+  };
+}
+
+/** Shared production verifier for the CLI and DEV→REVIEW lifecycle consumer. */
+export function evaluatePreReviewCheckForContext(ctx: HandlerContext, storyId: string): PreReviewCheckReport {
+  const stored = ctx.store.readPreReviewCheck(storyId);
+  if (!stored) {
+    const input = currentPreReviewInputForContext(ctx, storyId);
+    return verifyPreReviewCheckArtifact({ ...input, cutoffAt: input.cutoffAt, artifact: null });
+  }
+  const input = currentPreReviewInputForContext(ctx, storyId);
+  return verifyPreReviewCheckArtifact({ ...input, cutoffAt: stored.cutoffAt, artifact: stored });
 }
 
 /** Shared production adapter for the CLI and PLAN→DEV lifecycle consumer. */
@@ -159,8 +237,12 @@ export function evaluateAcceptanceTopologyForContext(ctx: HandlerContext, storyI
 
 function currentTopologyReceiptStateForContext(ctx: HandlerContext, storyId: string) {
   const { store } = ctx;
-  const current = currentBasisDerivationForContext(ctx, storyId);
-  const artifact = store.readAcceptanceBasis(storyId);
+  const preReview = store.readPreReviewCheck(storyId);
+  const planArtifact = store.readAcceptanceBasis(storyId);
+  const current = preReview && planArtifact
+    ? currentBasisDerivationForContext(ctx, storyId, 'pre_review', planArtifact.basis.basisDigest)
+    : currentBasisDerivationForContext(ctx, storyId);
+  const artifact = preReview?.preReviewBasisArtifact ?? planArtifact;
   if (!artifact) throw new Error('topology critic requires the verifier-owned acceptance-basis.json artifact');
   const basisVerification = verifyAcceptanceBasisReceipt({
     artifact,
@@ -444,6 +526,41 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         `Receipt verification: ${report.receiptVerification.ok ? 'PASS' : report.receiptVerification.code}`,
         `Mode: read-only; evidentiary: false`,
         ...report.receiptVerification.diagnostics.map(message => `  - ${message}`),
+      ].join('\n');
+    },
+
+    pre_review_check(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const input = currentPreReviewInputForContext(ctx, args.storyId);
+      const artifact = issuePreReviewCheckArtifact(input);
+      store.writePreReviewCheck(args.storyId, artifact);
+      const report = verifyPreReviewCheckArtifact({ ...input, artifact });
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'pre_review_check');
+      if (args.json) return stringify({ ...report, artifact });
+      return [
+        `Pre-review check: ${report.ok ? 'PASS' : 'FAIL'}${report.codes[0] ? ` code=${report.codes[0]}` : ''}`,
+        `Story: ${args.storyId}`,
+        `Mode: ${report.mode}; blocking=${report.blocking}`,
+        `plannedActual=${report.plannedActual} executableEvidence=${report.executableEvidence} mutations=${report.mutations} transcript=${report.transcript} authority=${report.authority} criticReattestation=${report.criticReattestation}`,
+        `Codes: ${report.codes.join(',') || 'none'}`,
+        ...report.remediation.map(item => `Remediation: ${item}`),
+      ].join('\n') + commitHint;
+    },
+
+    pre_review_check_read(args: { storyId: string; json?: boolean }): string {
+      rejectBasisWriteShape(args as Record<string, unknown>, ['storyId', 'json']);
+      if (!args.storyId) throw new Error('storyId is required');
+      const report = evaluatePreReviewCheckForContext(ctx, args.storyId);
+      if (args.json) return stringify(report);
+      return [
+        `Pre-review check: ${report.ok ? 'PASS' : 'FAIL'}${report.codes[0] ? ` code=${report.codes[0]}` : ''}`,
+        `Story: ${args.storyId}`,
+        `Mode: ${report.mode}; readOnly=true; blocking=${report.blocking}`,
+        `plannedActual=${report.plannedActual} executableEvidence=${report.executableEvidence} mutations=${report.mutations} transcript=${report.transcript} authority=${report.authority} criticReattestation=${report.criticReattestation}`,
+        `Codes: ${report.codes.join(',') || 'none'}`,
+        ...report.remediation.map(item => `Remediation: ${item}`),
       ].join('\n');
     },
     original_intent_snapshot_set(args: {

@@ -1,12 +1,48 @@
 /**
- * Shell/launcher bookkeeping that is not part of a validation command's
- * semantics. These values routinely change when the same command is reached
- * through a direct CLI, a shell wrapper, or a live-smoke wrapper.
+ * Shell/launcher and owner-session identity bookkeeping that is not part of a
+ * validation command's semantics. These values routinely change when the same
+ * command is reached through a direct CLI, wrapper, or independent reviewer.
  *
  * Keep this list deliberately narrow. All other ambient values (including
  * PATH, NODE_OPTIONS, CI, and locale) remain behavior-affecting inputs.
  */
-const VALIDATION_TRANSPORT_ENV_KEYS = new Set(['_', 'OLDPWD', 'SHLVL']);
+export const VALIDATION_TRANSPORT_ENV_KEY_LIST = [
+  // Host/session/role identity controls Proofbound ownership and audit
+  // attribution, not validation command behavior. Keeping these ambient values
+  // in the receipt digest makes one session's PASS unverifiable by an
+  // independent reviewer. Explicit command.env overlays remain semantic below.
+  'AGY_SESSION_ID',
+  'ANTIGRAVITY_SESSION_ID',
+  'CLAUDE_CODE_SESSION_ID',
+  'CLAUDE_SESSION_ID',
+  'CODEX_SESSION_ID',
+  'CODEX_THREAD_ID',
+  'GEMINI_SESSION_ID',
+  'LATTICE_ACTIVITY_RECORD_READONLY',
+  'LATTICE_ACTIVITY_ROLE',
+  'LATTICE_ACTIVITY_SESSION',
+  'LATTICE_ACTIVITY_SOURCE',
+  'LATTICE_AGENT',
+  'LATTICE_CODEX_ENTRYPOINT',
+  'LATTICE_OWNER_SESSION_ADAPTER_AGENT',
+  'LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY',
+  'LATTICE_OWNER_SESSION_ADAPTER_GENERATED',
+  'LATTICE_OWNER_SESSION_ADAPTER_PROVIDER',
+  'LATTICE_OWNER_SESSION_ADAPTER_ROLE',
+  'LATTICE_OWNER_SESSION_ADAPTER_SESSION',
+  'LATTICE_OWNER_SESSION_ADAPTER_TASK',
+  'LATTICE_SESSION_ID',
+  'OLDPWD',
+  'OPENAI_SESSION_ID',
+  'SHLVL',
+  'TERM_SESSION_ID',
+  '_',
+] as const;
+
+export const VALIDATION_TRANSPORT_ENV_KEYS_DIGEST =
+  'sha256:159db7bb6593c703d112dab8973b5d650c9b43b0c02246cf18a553f7b1aa3c0c';
+
+const VALIDATION_TRANSPORT_ENV_KEYS = new Set<string>(VALIDATION_TRANSPORT_ENV_KEY_LIST);
 
 /**
  * Return the exact environment used both for command identity and child spawn.

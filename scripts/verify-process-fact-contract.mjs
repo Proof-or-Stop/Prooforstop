@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -148,6 +149,8 @@ const requiredProcessFactSemantics = {
   acceptance_topology_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
   acceptance_basis_generate: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
+  pre_review_check: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+  pre_review_check_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
   topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
@@ -593,6 +596,18 @@ function read(relPath) {
   if (mutation === 'weaken-topology-critic-incomplete-basis' && relPath === 'packages/main/src/core/topology-critic-receipt.ts') {
     text = text.replaceAll("context.basisStatus !== 'complete'", "context.basisStatus === 'complete'");
   }
+  if (mutation === 'trust-pre-review-raw-claims' && relPath === 'packages/main/src/core/pre-review-check.ts') {
+    text = text.replace('const proof = executableProofState', 'const trustedClaims = input.checklist.items.flatMap(item => item.verificationEvidence?.flatMap(evidence => evidence.attestation?.checkedClaims ?? []) ?? []);\n  const proof = executableProofState');
+  }
+  if (mutation === 'use-planned-self-reference-as-actual' && relPath === 'packages/main/src/core/acceptance-discovery-adapters.ts') {
+    text = text.replace('sourceExactSymbolCount(endpoint.expectedFileRef, sourceText, endpoint.expectedSymbolOrFact) === 1', 'sourceText.includes(endpoint.expectedSymbolOrFact)');
+  }
+  if (mutation === 'accept-global-transcript-proof' && relPath === 'packages/main/src/core/pre-review-check.ts') {
+    text = text.replace('const transcriptIds = row.transcriptProofs.map', 'const transcriptIds = proof.bindingProofs.flatMap(item => item.transcriptProofs).map');
+  }
+  if (mutation === 'allow-arbitrary-pre-review-command' && relPath === 'packages/main/src/core/pre-review-check.ts') {
+    text = text.replace('transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND', "typeof transcript.actual?.command !== 'string'");
+  }
   return text;
 }
 
@@ -642,6 +657,8 @@ function assertProofStoryProgressiveBoundary() {
     'acceptance_topology_check',
     'acceptance_basis_generate',
     'acceptance_basis',
+    'pre_review_check',
+    'pre_review_check_read',
     'intent_collision_set',
     'intent_collision_get',
     'scope_shrinkage_decision_set',
@@ -729,6 +746,44 @@ function assertProofStoryProgressiveBoundary() {
       && activityPolicyText.includes("'acceptance_topology_check'")
       && acceptancePromptPaths.every(path => read(path).includes('Acceptance-topology boundary:')),
     'acceptance topology contract must bind CLI schema, canonical evaluator, signed basis verification, independent default-observe rollout mode, PLAN gate, process fact, and prompt guidance',
+  );
+  const preReviewText = read('packages/main/src/core/pre-review-check.ts');
+  const acceptanceDiscoveryText = read('packages/main/src/core/acceptance-discovery-adapters.ts');
+  const preReviewPolicy = commandPolicyEntries.get('pre_review_check');
+  assert(
+    catalogText.includes("name: 'pre_review_check'")
+      && catalogText.includes("name: 'pre_review_check_read'")
+      && handlerText.includes('issuePreReviewCheckArtifact')
+      && handlerText.includes('evaluatePreReviewCheckForContext')
+      && preReviewText.includes('verifyPreReviewCheckArtifact')
+      && preReviewText.includes('PR_MUTATION_DID_NOT_BITE')
+      && preReviewText.includes('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED')
+      && !preReviewText.includes('attestation?.checkedClaims')
+      && !preReviewText.includes('actorTrust')
+      && preReviewText.includes('const transcriptIds = row.transcriptProofs.map')
+      && preReviewText.includes('sameStrings(transcript.producerRefs, assertion.producerRefs)')
+      && preReviewText.includes('transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND')
+      && preReviewText.includes("PRE_REVIEW_LIVE_PROOF_COMMAND = 'node scripts/run-proofstory-pre-review-live-proof.mjs'")
+      && preReviewText.includes('proof case records/root invalid')
+      && preReviewText.includes('proof executable provenance invalid')
+      && preReviewText.includes('exactKindsAndSources')
+      && preReviewText.includes('preReviewExecutableProvenanceIsCurrent')
+      && read('packages/main/src/core/pre-review-live-proof.ts').includes('assemblePreReviewCaseRecords')
+      && read('packages/main/src/core/pre-review-live-proof.ts').includes('extra assertion IDs')
+      && read('scripts/run-proofstory-pre-review-live-proof.mjs').includes("['--prefix', 'packages/main', 'run', 'build']")
+      && acceptanceDiscoveryText.includes('exportedCallableCount(parsed, endpoint.expectedSymbolOrFact)')
+      && acceptanceDiscoveryText.includes('endpointMatchesArtifactKind')
+      && acceptanceDiscoveryText.includes('endpointIsRuntimeReachable')
+      && acceptanceDiscoveryText.includes('producerConsumerRelation')
+      && !acceptanceDiscoveryText.includes('sourceText.includes(endpoint.expectedSymbolOrFact)')
+      && transitionOrchestratorText.includes('runPreReviewCheckGate')
+      && transitionOrchestratorText.includes("story.phase === 'DEV' && args.phase === 'REVIEW'")
+      && processRegistryText.includes('artifact:pre-review-check.json')
+      && processLevelText.includes("name: 'pre_review_check', level: 'L4'")
+      && preReviewPolicy?.status === 'gateEvidence'
+      && preReviewPolicy.gateEvidence === true
+      && policyBlockHasOwnershipClass(preReviewPolicy, 'storyScopedMutating'),
+    'pre-review contract must keep one signed verifier writer, read-only verifier parity, stable PR_* semantics, process-fact registration, and the DEV to REVIEW lifecycle consumer',
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
   const topologyCriticPromptPaths = [
@@ -3548,8 +3603,70 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     assert(routineReuseText.includes(token), `shared routine validation reuse contract missing ${token}`);
   }
   const validationEnvironmentText = read('packages/main/src/core/validation-command-environment.ts');
-  for (const token of ["['_', 'OLDPWD', 'SHLVL']", "platform === 'win32'", "effective[canonicalKey('PWD')] = cwd", 'effective[canonicalKey(key)] = value']) {
+  const expectedValidationTransportKeys = [
+    'AGY_SESSION_ID',
+    'ANTIGRAVITY_SESSION_ID',
+    'CLAUDE_CODE_SESSION_ID',
+    'CLAUDE_SESSION_ID',
+    'CODEX_SESSION_ID',
+    'CODEX_THREAD_ID',
+    'GEMINI_SESSION_ID',
+    'LATTICE_ACTIVITY_RECORD_READONLY',
+    'LATTICE_ACTIVITY_ROLE',
+    'LATTICE_ACTIVITY_SESSION',
+    'LATTICE_ACTIVITY_SOURCE',
+    'LATTICE_AGENT',
+    'LATTICE_CODEX_ENTRYPOINT',
+    'LATTICE_OWNER_SESSION_ADAPTER_AGENT',
+    'LATTICE_OWNER_SESSION_ADAPTER_BOUNDARY',
+    'LATTICE_OWNER_SESSION_ADAPTER_GENERATED',
+    'LATTICE_OWNER_SESSION_ADAPTER_PROVIDER',
+    'LATTICE_OWNER_SESSION_ADAPTER_ROLE',
+    'LATTICE_OWNER_SESSION_ADAPTER_SESSION',
+    'LATTICE_OWNER_SESSION_ADAPTER_TASK',
+    'LATTICE_SESSION_ID',
+    'OLDPWD',
+    'OPENAI_SESSION_ID',
+    'SHLVL',
+    'TERM_SESSION_ID',
+    '_',
+  ];
+  const transportListMatch = validationEnvironmentText.match(
+    /export const VALIDATION_TRANSPORT_ENV_KEY_LIST = \[([\s\S]*?)\] as const;/,
+  );
+  assert(transportListMatch, 'shared validation command environment must export the canonical transport key list');
+  const actualValidationTransportKeys = transportListMatch
+    ? [...transportListMatch[1].matchAll(/'([A-Z0-9_]+)'/g)].map((match) => match[1])
+    : [];
+  assert(
+    JSON.stringify(actualValidationTransportKeys) === JSON.stringify(expectedValidationTransportKeys),
+    `shared validation command environment canonical transport set mismatch: expected ${JSON.stringify(expectedValidationTransportKeys)}, got ${JSON.stringify(actualValidationTransportKeys)}`,
+  );
+  const expectedTransportDigest = `sha256:${createHash('sha256')
+    .update(JSON.stringify(expectedValidationTransportKeys))
+    .digest('hex')}`;
+  assert(
+    validationEnvironmentText.includes(`'${expectedTransportDigest}'`),
+    `shared validation command environment transport digest mismatch: ${expectedTransportDigest}`,
+  );
+  for (const token of [
+    'new Set<string>(VALIDATION_TRANSPORT_ENV_KEY_LIST)',
+    "platform === 'win32'",
+    "effective[canonicalKey('PWD')] = cwd",
+    'effective[canonicalKey(key)] = value',
+  ]) {
     assert(validationEnvironmentText.includes(token), `shared validation command environment contract missing ${token}`);
+  }
+  const doneRequiredSmokeText = read('packages/main/src/tasks/done-required-validation-smoke.ts');
+  for (const token of [
+    'const behaviorEnvironmentMutations = [',
+    "{ name: 'LANG', environment: { ...deliveryEnvironment, LANG: 'en_GB.UTF-8' } }",
+    "{ name: 'LC_ALL', environment: { ...deliveryEnvironment, LC_ALL: 'en_GB.UTF-8' } }",
+    "/effective-environment-digest-mismatch\\[0\\]/",
+    "/effective-environment-digest-mismatch\\[1\\]/",
+    'for (const mutation of behaviorEnvironmentMutations)',
+  ]) {
+    assert(doneRequiredSmokeText.includes(token), `DONE-required environment mutation contract missing ${token}`);
   }
   const validationExecutorEnvironmentText = read('packages/main/src/core/validation-executor.ts');
   assert(

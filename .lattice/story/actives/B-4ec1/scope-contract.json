@@ -1,0 +1,251 @@
+{
+  "storyId": "B-4ec1",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-basis-receipt.ts",
+    "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/core/pre-review-live-proof.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/live-smoke-transcript-evidence.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/CLI.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    ".lattice/story/actives/B-4ec1/acceptance-basis.json",
+    "packages/main/src/core/done-required-timeout-budget.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/core/pre-review-live-proof.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Include the exact registered pre-review live-proof timeout budget producer in the canonical Wave 3 source discovery closure; arbitrary and injected capture commands remain fixed at 60 seconds, and Wave 4 remains excluded.",
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Wave 3 command registration requires the canonical read-only activity classification, command ownership/gate policy, and DEV phase allowlist; these are necessary mechanical consumers of the planned pre_review_check CLI path.",
+      "timestamp": "2026-07-22T23:01:46.892Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "78e97269993796c91cc6cb67f49ba4a0ea403a52",
+      "materialHash": "d4c7cef25f4b99aac498a0a51ab75ebd3a2d824040bf76151151b329f635a7f2",
+      "anchors": [
+        "pre_review_check",
+        "pre_review_check_read",
+        "runPreReviewCheckGate"
+      ]
+    },
+    {
+      "actor": "lattice-implementer",
+      "reason": "Wave 3 phase-bounded discovery changes the shared Wave 1A and Wave 2A closure; these focused compatibility fixtures must include the new registered source and replace stale pre-Wave-3 leakage expectations so backward behavior is mechanically revalidated.",
+      "timestamp": "2026-07-22T23:18:57.890Z",
+      "paths": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "fb2170f016a9e48d354e4b0506701eb372a9b05c",
+      "materialHash": "38311722e185b1b87ae9754e608c2dc7c73082fed9d0e05eb6ec2f92c12db957",
+      "anchors": [
+        "runAcceptanceDiscoveryAdapters",
+        "deriveAcceptanceCoverageBasis",
+        "writeDiscoveryRegistration",
+        "topologyCriticReceipt"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Wave 3 necessarily introduces the canonical signed pre-review gate artifact and extends the focused topology smoke to prove strict phase-aware basis-path validation and fail-closed mutations.",
+      "timestamp": "2026-07-23T02:17:02.430Z",
+      "paths": [
+        ".lattice/story/actives/B-4ec1/pre-review-check.json",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-4ec1/pre-review-check.json",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c4bb631515c187a8ef34a910df13f30b0e4c691f",
+      "materialHash": "8c44753588c9190c729f080916901ae5d5c293a9eb3bc062c0e0bf2967a7d523"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Wave 3 requires a tracked exact runner that performs a fresh build before producing executable pre-review proof, so the verifier can bind source/build/target provenance and reject overwritten gitignored dist output.",
+      "timestamp": "2026-07-23T03:39:21.032Z",
+      "paths": [
+        "scripts/run-proofstory-pre-review-live-proof.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/run-proofstory-pre-review-live-proof.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "87ccb01dff6caa0ec542d50127e37c2fcd54ef44",
+      "materialHash": "290796a73dc6c453842393e684c3f9b81dbaa56d395e58c3ad4dc10295e42b5e"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required regression coverage for the in-scope live-smoke readiness-after-write handler fix; no production behavior beyond Wave 3 scope.",
+      "timestamp": "2026-07-23T04:02:09.166Z",
+      "paths": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2648914636c13e1d523837eac8d2ee187799dd91",
+      "materialHash": "84d938afd67051380ff6fd31e36b989ebe057ba0957698ffc8bdf7ae19d2bebe"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "DONE-required full suite exposed a pre-existing DEV-to-REVIEW smoke that must seed the new verifier-owned acceptance basis without weakening the production gate.",
+      "timestamp": "2026-07-23T05:05:19.990Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "1f450055b0bc122c37eb525f68367f66398a19ba",
+      "materialHash": "fd563784961be1fe1b388cecebec699f423345df123d7c74b051fa54eecfd51f"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The exact registered Wave 3 pre-review live-proof command builds and executes bounded scenarios, so its transcript producer needs a dedicated finite budget while arbitrary and injected commands retain the 60-second ceiling.",
+      "timestamp": "2026-07-23T12:50:36.545Z",
+      "paths": [
+        "packages/main/src/core/done-required-timeout-budget.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-required-timeout-budget.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "02f8e8245f16edd234417fb3ecd45e72e3c76330",
+      "materialHash": "0dfcf0bd664b9b2939769edc9912cef2fb8585b8d7be55c5b94900256d0348b9"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Independent delivery review proved DONE-required receipts were bound to owner session identity; these two paths are required to make validation identity cross-session stable and to add the biting regression.",
+      "timestamp": "2026-07-23T14:19:51.103Z",
+      "paths": [
+        "packages/main/src/core/validation-command-environment.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/validation-command-environment.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "b11ef96bb9270614ead3e8f29916c01abc0552bc",
+      "materialHash": "2e2a681513b223d5ad861d0072e506951226bdcc8e213c720468847f841a682c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Full TEST validation proved the quorum smoke depended on ambient Codex provider identity; this test path is required to make the fixture session-neutral and reproduce the validator environment.",
+      "timestamp": "2026-07-23T15:47:48.636Z",
+      "paths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b8f78335f08186765bb3e5e09571d7d35a09a684",
+      "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1"
+    }
+  ],
+  "createdAt": "2026-07-22T22:41:51.162Z",
+  "updatedAt": "2026-07-23T15:47:48.636Z",
+  "fileRules": [],
+  "protectedAnchors": [],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-basis-receipt.ts": "packages/main/src/core/acceptance-basis-receipt.ts",
+    "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/live-smoke-transcript-evidence.ts": "packages/main/src/core/live-smoke-transcript-evidence.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "docs/CLI.md": "docs/CLI.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    ".lattice/story/actives/B-4ec1/acceptance-basis.json": ".lattice/story/actives/B-4ec1/acceptance-basis.json",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+    ".lattice/story/actives/B-4ec1/pre-review-check.json": ".lattice/story/actives/B-4ec1/pre-review-check.json",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts",
+    "scripts/run-proofstory-pre-review-live-proof.mjs": "scripts/run-proofstory-pre-review-live-proof.mjs",
+    "packages/main/src/tasks/live-smoke-transcript-smoke.ts": "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/core/done-required-timeout-budget.ts": "packages/main/src/core/done-required-timeout-budget.ts",
+    "packages/main/src/core/validation-command-environment.ts": "packages/main/src/core/validation-command-environment.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts"
+  }
+}

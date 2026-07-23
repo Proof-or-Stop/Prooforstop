@@ -1,6 +1,6 @@
 # ProofStory Acceptance Topology and Pre-Review Gates — Execution Plan
 
-Status: **PROPOSED — AUDIT REQUIRED — NOT IMPLEMENTED**  
+Status: **WAVES 1/1A/2/2A/3 IMPLEMENTED — WAVE 3A SKIPPED FOR FLAT ROLLOUT — WAVE 4 NOT IMPLEMENTED**
 Story: `B-4444`  
 Motivating incident: `B-407c` (evidence only; no changes to that Story)  
 Decision owner: human approval after document audit
@@ -33,8 +33,12 @@ confirmed milestone ledger, ProofStory acceptance bindings, checklist intents,
 and evidence. It is never independently authored and never satisfies a gate by
 its own existence.
 
-This document specifies future work. `B-4444` does not ship either command,
-schema version, handler, prompt, test, or lifecycle gate.
+This document records the staged design and its implementation status.
+`B-4444` was the audited documentation deliverable; subsequent implementation
+Stories shipped Waves 1, 1A, 2, 2A, and 3. Wave 3A was intentionally skipped
+because the current rollout is flat and project-wide. Wave 4 remains future
+work; this document does not claim prompt integration or measured rollout is
+complete.
 
 ### 1.1 Guarantee boundary
 
@@ -81,16 +85,16 @@ The target outcome is not “eliminate REVIEW.” It is:
 
 ## 3. Current implementation versus target
 
-| Surface | Current implementation | Proposed change |
+| Surface | Current implementation through Wave 3 | Remaining target |
 |---|---|---|
 | `MilestoneLedgerItem` | Owns requirement claim, `doneMeans`, required evidence classes, checklist refs, verification-intent refs, and candidate/confirmed intent binding | Remains unchanged as the canonical intent-totality ledger |
-| `ProofStoryAcceptanceBinding` | Owns an acceptance binding ID plus claim/checklist/intent/milestone refs | Adds an optional versioned `verificationTopology` |
-| `verificationIntent` | Declares planned happy, edge, and adversarial scenarios | Remains checklist-scoped and gains an optional versioned planned-path declaration on an intent item; topology references stable intent/declaration/endpoint IDs |
+| `ProofStoryAcceptanceBinding` | Owns an acceptance binding ID plus claim/checklist/intent/milestone refs and optional versioned `verificationTopology` | No separate writable matrix |
+| `verificationIntent` | Declares planned happy, edge, and adversarial scenarios plus optional versioned planned-path declarations; topology references stable intent/declaration/endpoint IDs | Remains checklist-scoped |
 | `verificationEvidence` | Records observed command/manual/docs results against intent refs | Remains the observation store; topology references evidence IDs/receipts rather than copying results |
-| ProofStory DEV diagnostics | Check intent artifacts, known refs, and coverage | Adds structural topology diagnostics through `acceptance_topology_check` |
+| ProofStory DEV diagnostics | Check intent artifacts, known refs, coverage, and structural topology through `acceptance_topology_check` | Wave 4 measures rollout behavior |
 | `evaluateReviewCompleteness` | At REVIEW → TEST, checks bound intent refs have passing evidence | Remains in place; consumes the stronger topology after implementation |
-| DEV → REVIEW transition | Does not require the complete proposed proof topology to have current executable evidence | Adds `pre_review_check` before REVIEW begins |
-| Acceptance matrix | No canonical writable artifact | Add only a derived read-only rendering |
+| DEV → REVIEW transition | Consumes `pre_review_check` under the configured flat project rollout mode | Wave 4 may promote the measured project-level mode |
+| Acceptance matrix | Derived read-only rendering; no canonical writable artifact | Remains non-evidentiary |
 
 The current source facts behind this table are in:
 
@@ -148,7 +152,7 @@ the field stay readable and normalize to `topologyState: "legacy_missing"`.
 The topology uses references. It must not copy `claim`, `doneMeans`, intent
 descriptions, observed output, or verdicts from their canonical owners.
 
-### 5.2 Proposed TypeScript shape
+### 5.2 Implemented TypeScript shape
 
 ```ts
 interface ProofStoryAcceptanceBinding {
@@ -161,7 +165,7 @@ interface ProofStoryAcceptanceBinding {
   verificationTopology?: AcceptanceVerificationTopologyV1;
 }
 
-/** Proposed additive field on the existing checklist verificationIntent item. */
+/** Implemented additive field on the existing checklist verificationIntent item. */
 interface VerificationIntentItem {
   id?: string;
   desc: string;
@@ -541,7 +545,7 @@ For example:
   "status": "complete",
   "generatedBy": {
     "verifier": "acceptance-coverage-basis-verifier",
-    "command": "lattice acceptance_coverage_basis_check --storyId=B-4444",
+    "command": "lattice acceptance_basis_generate --storyId=B-4444",
     "algorithmVersion": "v1"
   },
   "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
@@ -855,6 +859,22 @@ actual discovered paths, or admission fails.
     edge or to an exclusion carrying an independently approved decision ref.
 18. Every topology producer/consumer source ref occurs in the current basis;
     topology cannot expand or narrow its own closure universe.
+    Two bounded forward-declaration forms are the only PLAN exceptions. First,
+    the discovery-owned deferred pre-review fact set is exactly
+    `pre_review_check`, `pre_review_check_read`, and
+    `artifact:pre-review-check.json`; this is a closed platform allowlist, not a
+    story-authored prefix or arbitrary future-phase category. Second, an
+    existing source ref may use `basis-path:` only in producer, consumer, or
+    command positions and only for the verifier-producible canonical path
+    grammars `path:process-fact:<fact>->consumer:<consumer>`,
+    `path:runtime-fact:<fact>->checker:<checker>`, or
+    `path:static-call:<source>#<symbol>->consumer:<source>#<symbol>`. Unknown
+    path kinds, free-form edges, and basis paths in positive, mutation, or
+    transcript assertion positions are invalid.
+    PLAN may retain those strict refs before the later-phase path materializes;
+    pre-REVIEW removes that deferral and requires every ref to occur exactly in
+    the current verifier-derived basis. Missing, misspelled, or deleted edges
+    therefore fail closed as outside/unmapped coverage.
 19. A `complete` basis has no unresolved blind spots. Dynamic/reflection/plugin
     paths require an admissible runtime trace or force `partial`/`unsupported`.
 20. The basis digest, scope-artifact digests, current `storyFilesHash`, and
@@ -879,6 +899,13 @@ actual discovered paths, or admission fails.
 25. Every planned path is reconciled to current actual discovery before REVIEW.
     No unresolved planned endpoint can satisfy executable readiness; expansions
     and approved replacements remain subject to topology/basis closure.
+    Endpoint resolution is artifact-kind aware and runtime aware: a handler or
+    dispatch must be registered/reachable, a process fact must resolve through
+    the process-fact registry, and a source endpoint must be an exported
+    callable on a proven producer→consumer relation. A same-named interface,
+    type, enum, dead constant, nested property, or unreachable callable is not
+    an actual endpoint. The relation itself must be witnessed by a bound static
+    call or by the registered process-fact producer/consumer contract.
 26. The registered discovery profile, not the basis payload, determines required
     adapters. Every required adapter has exactly one digest-valid result record.
 27. `discoveryMethods`, aggregate paths, and aggregate blind spots equal the
@@ -1097,8 +1124,61 @@ weak assertions, design problems, or unmodeled interactions.
 
 ### 8.1 Deterministic executable codes
 
+The implemented Wave 3 surface distinguishes absence from corruption:
+`PR_ARTIFACT_MISSING` means no pre-review artifact exists and directs the user
+to run `pre_review_check`; `PR_ARTIFACT_TAMPERED` is reserved for a present
+artifact whose signature, digest, receipt, or canonical contents fail
+verification. Enforced high-assurance work also emits
+`PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED` when the independent critic receipt
+is absent or stale for the current basis. Codes are emitted in a canonical
+priority order, not incidental lexical order: artifact absence/corruption
+first, then `PR_NEW_PATH_UNMAPPED` before its supporting
+`PR_COVERAGE_BASIS_CHANGED`, followed by coverage, execution, freshness, and
+critic diagnostics. CLI and lifecycle consumers display the same first code
+and remediation.
+
+Executable proof authority is additionally argv-bound. The causal
+`live_smoke_transcript` receipt is admissible here only when its captured
+command is exactly
+`node scripts/run-proofstory-pre-review-live-proof.mjs`. The tracked runner performs a fresh
+`npm --prefix packages/main run build` before invoking the generated target; the proof binds
+both current runner and freshly-built target digests. The live proof carries gzip-compressed
+canonical machine case records for every required positive, mutation, and transcript ID. Each
+executed record carries its exact topology assertion ID, kind, and canonical `sourceRef`; assembly
+matches by ID and rejects missing, extra, duplicate, kind-mismatched, or source-mismatched records
+instead of reassigning a per-kind array position. Permuting records therefore cannot reattribute an
+observed outcome, and swapping two assertion source refs fails closed. The loader also checks
+distinct mutation targets/kinds, validates observed outcomes/control reruns and
+producer-before-consumer events, and mechanically recomputes the aggregate root. Both initial
+loading and signed-artifact readback compare provenance with the current tracked runner and built
+target. A formatted arbitrary digest, stale runner, or stale/overwritten `dist` emitter is therefore
+not executable evidence; a fresh runner build and proof issuance restores admissibility.
+
+The machine records come from the bounded production pre-review scenario suite, not from replaying
+the topology as a data structure. Its ledger binds the four positive paths and the seventeen
+adversarial intents to their executed checks: deterministic projection; producer/read/lifecycle
+parity; signed-field tamper; authority replay; planned-to-actual and discovery-state mutations;
+topology omission; adapter/reconciliation tamper; wrong-polarity plus clean rerun; transcript
+cardinality; bypass attempts; equal-cutoff freshness; legacy/config rollback; stable direct versus
+lifecycle codes; critic freshness/replay; the process-fact contract; and the no-later-wave scan.
+The transcript case consumes the producer/consumer events recorded by that execution.
+That bounded mode executes the production producer/read/lifecycle chain and
+the required exact-cardinality, authority, planned→actual, restoration, and
+tamper mutations within the fixed live-smoke safety ceiling. Merely printing a
+proof-shaped JSON line from another command remains inadmissible.
+The fixed argv is necessary but not sufficient: `live_smoke_transcript` injects
+the active story identity into that runner, and the runner reads that story's
+current contract/topology rather than carrying a story ID or case count in its
+source. It executes each binding's positive, mutation, clean-control, and
+producer-before-consumer transcript checks, records evaluator-observed mutation
+codes, and emits canonical per-case digests. The causal receipt binds those
+digests and the captured output; retaining case IDs while changing an observed
+outcome is therefore a failing mutation, not admissible self-report.
+
 | Code | Condition |
 |---|---|
+| `PR_ARTIFACT_MISSING` | No verifier-issued pre-review artifact exists; run `pre_review_check` after recording current canonical executable proof |
+| `PR_ARTIFACT_TAMPERED` | A present pre-review artifact fails canonical signature, digest, receipt, or content verification; discard and reissue it through `pre_review_check` |
 | `PR_POSITIVE_EVIDENCE_MISSING` | Required positive assertion lacks successful evidence |
 | `PR_PRODUCTION_PATH_UNPROVEN` | Evidence uses a synthetic path instead of declared producer/consumer |
 | `PR_MUTATION_EVIDENCE_MISSING` | Required mutation was not executed |
@@ -1121,11 +1201,11 @@ weak assertions, design problems, or unmodeled interactions.
 | `PR_REQUIRED_ADAPTER_RESULT_MISSING` | A profile-required current-worktree adapter result is absent or duplicated |
 | `PR_ADAPTER_RESULT_DIGEST_MISMATCH` | A current-worktree adapter record, aggregate projection, or basis digest was altered |
 | `PR_ADAPTER_RESULT_INVALID` | A current adapter result lacks admissible claim, blind-spot, provenance, or asymmetry-policy fields |
+| `PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED` | Enforced high-assurance admission lacks a fresh independent critic receipt bound to the current pre-review basis |
 
 ### 8.2 Independent topology critic
 
-In the target state, after the phase-appropriate Wave 3 and Wave 4 gate work is
-implemented and enabled, enforced high-assurance paths consume an independent
+In the implemented Wave 3 state, the phase-appropriate gates consume an independent
 topology critic before DEV admission and consume its re-attestation of the
 recomputed DEV basis before REVIEW. The critic challenges scope, discovery
 methods, exclusions, and closure. Its result must be a signed, hash-bound
@@ -1139,13 +1219,12 @@ methods, exclusions, and closure. Its result must be a signed, hash-bound
 `TopologyCriticReceiptV1` type; adding a signed field requires updating both
 the verifier binding and this inventory.
 
-Wave 2A is deliberately narrower than that target state. It only produces and
-verifies the signed receipt and exclusion approvals through explicit CLI
-commands. It has no lifecycle admission consumer: absence or failure of a
-Wave 2A receipt cannot block PLAN → DEV or DEV → REVIEW. Binding pre-DEV and
-pre-REVIEW consumption begins only in the later Wave 3/Wave 4 work at the
-phase-appropriate gate; this section does not authorize implementing those
-later waves early.
+Wave 2A by itself was deliberately narrower than that target state. It only produced and
+verified the signed receipt and exclusion approvals through explicit CLI
+commands. It had no lifecycle admission consumer: absence or failure of a
+Wave 2A receipt alone did not block PLAN → DEV or DEV → REVIEW. Binding pre-DEV and
+pre-REVIEW consumption was added by Wave 3 at the phase-appropriate gate.
+Wave 4 rollout work remains separate.
 
 The CLI independently verifies those bindings and the critic's eligible role.
 Prompt text, natural-language approval, or a self-authored reviewer ID is not
@@ -1219,16 +1298,22 @@ Every cell is a link or ID derived from canonical inputs. The result column is a
 computed diagnostic such as `structurally-complete`, `ready-for-review`,
 `warning`, or `blocked`; it is not persisted as a new completion fact.
 
-Proposed command surface:
+Implemented command surface through Wave 3:
 
 ```text
-lattice acceptance_coverage_basis_check --storyId=B-xxxx [--json]
+lattice acceptance_basis_generate --storyId=B-xxxx [--json]
+lattice acceptance_basis --storyId=B-xxxx [--json]
 lattice acceptance_topology_check --storyId=B-xxxx [--json]
 lattice pre_review_check --storyId=B-xxxx [--json]
+lattice pre_review_check_read --storyId=B-xxxx [--json]
 lattice acceptance_matrix --storyId=B-xxxx [--json]   # read-only renderer
 ```
 
-Names remain subject to audit. No command above exists because of this plan.
+Implementation status through Wave 3: `acceptance_topology_check`,
+`pre_review_check`, and `acceptance_matrix` exist. The PLAN basis writer is
+named `acceptance_basis_generate`; `pre_review_check_read` is the explicit
+read-only pre-review verifier. Wave 3A was skipped under the flat project-level
+rollout. Wave 4 remains outside this status and is not implemented.
 
 ## 12. Rollout and rollback
 
@@ -1339,6 +1424,8 @@ avoid a second concept with a misleading synonym.
 
 ### Wave 1 — Schema and read-only diagnostics
 
+Status: **IMPLEMENTED**
+
 Outcome: add/freeze the versioned planned-path declaration under existing
 verificationIntent ownership, normalize v1 topology references, validate
 references/totality, and render the derived matrix in observe mode.
@@ -1351,6 +1438,8 @@ canonical IDs; no lifecycle behavior changes.
 Stop: any need for a separate writable artifact or ambiguous canonical owner.
 
 ### Wave 1A — Independently derived coverage basis
+
+Status: **IMPLEMENTED**
 
 Outcome: implement the registered basis verifier, `complete` / `partial` /
 `unsupported` classification, discovery adapters, signed receipt, digest and
@@ -1377,6 +1466,8 @@ already implemented graph or dispatch inventory.
 
 ### Wave 2 — PLAN structural gate
 
+Status: **IMPLEMENTED**
+
 Outcome: integrate `acceptance_topology_check` at PLAN → DEV behind
 observe/warn/enforce configuration.
 
@@ -1389,6 +1480,8 @@ are registered.
 Stop: the check requires executed evidence or duplicates verificationIntent.
 
 ### Wave 2A — Independent topology critic and role eligibility
+
+Status: **IMPLEMENTED**
 
 Outcome: implement the independent topology-critic role, eligible-role policy,
 signed/hash-bound receipt, exclusion-approval path, and CLI verification of
@@ -1412,14 +1505,18 @@ approver is `lattice-review-scope-plan`. The production writer commands are
 current basis/topology/scope/workspace hashes and exact actor, session,
 dispatch, and business-commit-author provenance. Exclusions require a current
 one-to-one signed approval mapping. A `partial` or `unsupported` basis is an
-unconditional non-pass. Wave 2A adds no lifecycle admission gate: PLAN → DEV
-continues to consume only Wave 2 `acceptance_topology_check` structural
-semantics under its existing observe/warn/enforce rollout. A critic receipt is
-produced and verified through the explicit CLI set/check path; its absence or
-failure cannot independently block PLAN → DEV. These mechanics do not imply
-Wave 3 executable evidence, Wave 3A applicability selection, or Wave 4 rollout.
+unconditional non-pass. Wave 2A alone added no lifecycle admission gate:
+PLAN → DEV continued to consume only Wave 2 `acceptance_topology_check`
+structural semantics under its existing observe/warn/enforce rollout. A critic
+receipt was produced and verified through the explicit CLI set/check path; its
+absence or failure could not independently block PLAN → DEV. Those Wave 2A
+mechanics did not themselves imply later-wave completion. Wave 3 executable
+evidence was implemented separately; Wave 3A selective applicability and Wave 4
+rollout remain outside the implemented scope.
 
 ### Wave 3 — Executable pre-review evidence
+
+Status: **IMPLEMENTED**
 
 Outcome: implement `pre_review_check`, current-worktree basis recomputation,
 omission mutations, mutation polarity, transcript relation, authority
@@ -1434,6 +1531,8 @@ partial, and weak basis/evidence fail deterministically.
 Stop: the implementation relies on caller-written authority or silent rebinding.
 
 ### Wave 3A — Explicit applicability selection for selective enforcement
+
+Status: **SKIPPED — OPTIONAL UNDER THE CURRENT FLAT PROJECT-LEVEL ROLLOUT**
 
 Outcome: if selective rollout is approved, add a separately scoped mechanism
 that resolves gate mode from explicit Story/policy applicability rather than
@@ -1453,6 +1552,8 @@ that enforcement applies only to newly created high-risk, lifecycle, or
 proof-gate Stories.
 
 ### Wave 4 — Prompt integration and measured rollout
+
+Status: **NOT IMPLEMENTED**
 
 Outcome: update role guidance, enable warn telemetry, measure impact, and opt in
 bounded project-level enforcement. Selective high-risk per-Story enforcement is
@@ -1510,8 +1611,8 @@ decomposition. A wave cannot claim later-wave completion.
 | Remove/tamper a required adapter result after DEV | pre-REVIEW | `PR_REQUIRED_ADAPTER_RESULT_MISSING` / `PR_ADAPTER_RESULT_DIGEST_MISMATCH` |
 | Duplicate one profile-required current-worktree adapter result after DEV | pre-REVIEW | `PR_REQUIRED_ADAPTER_RESULT_MISSING`; exactly-once cardinality fails |
 | Keep every signed current-worktree adapter result unchanged but independently mutate aggregate paths or aggregate blind spots | pre-REVIEW | `PR_ADAPTER_RESULT_DIGEST_MISMATCH`; derived projection fails |
-| DEV adds consumer C2 after PLAN | pre-REVIEW | `PR_COVERAGE_BASIS_CHANGED` plus `PR_NEW_PATH_UNMAPPED` |
-| Remove C2 from topology while current basis retains C2 | both | omission mutation must fail with `AT_UNMAPPED_SCOPE_REF` |
+| DEV adds consumer C2 after PLAN | pre-REVIEW | canonical first code `PR_NEW_PATH_UNMAPPED`, with supporting `PR_COVERAGE_BASIS_CHANGED` |
+| Remove C2 from topology while current basis retains C2 | PLAN / pre-REVIEW | PLAN diagnostic is `AT_UNMAPPED_SCOPE_REF`; executable pre-REVIEW gate fails with canonical first code `PR_NEW_PATH_UNMAPPED` and supporting `PR_COVERAGE_BASIS_CHANGED` |
 | Dynamic path cannot be enumerated or traced | pre-REVIEW | `PR_COVERAGE_INCONCLUSIVE` |
 | Synthetic fixture bypasses real producer | pre-REVIEW | `PR_PRODUCTION_PATH_UNPROVEN` |
 | Remove producer cutoff | pre-REVIEW | mutation must fail; otherwise `PR_MUTATION_DID_NOT_BITE` |
@@ -1595,44 +1696,39 @@ to find genuinely unmodeled issues.
 | REVIEW metrics improve deceptively | More waivers or fewer checks | Quality regression | Track false pass/block, waivers, and seeded defects |
 | 3×1 is reported as 3×2 | Host identity not bound | Fake independence | Existing signed host quorum only |
 
-## 19. Open decisions for human audit
+## 19. Decision record and remaining Wave 4 questions
 
-1. Should `verificationTopology` be nested on each acceptance binding, as
-   proposed, or referenced from a topology table inside the same
-   `proofstory.json` envelope? Either is acceptable only if there is one owner and
-   atomic versioning; a separate artifact is not recommended.
+1. **Resolved:** `verificationTopology` is nested on each acceptance binding in
+   the same `proofstory.json` envelope.
 2. Which claim classes require transcript assertions by default: all
    user-visible/orchestration claims, or a narrower configured taxonomy?
 3. Which claim classes require mutation cases by default? The proposed default is
    behavior, lifecycle, proof, and safety claims, with docs-only exemptions.
-4. Should DEV → REVIEW enforce be a separate config key
-   (`preReviewGateMode`) or derived from an existing ProofStory gate mode? A
-   separate key improves rollout control but expands configuration.
+4. **Resolved for Waves 1–3:** DEV → REVIEW uses the existing flat project-level
+   ProofStory gate mode.
 5. What measured thresholds authorize warn → enforce (false-block rate, seeded
    defect detection, minimum Story sample size)? These must be set before Wave 4.
-6. Should the matrix renderer be a dedicated command or part of existing
-   ProofStory status output? It must remain L0/read-only either way.
-7. Should selective enforcement be Story-bound, policy-profile-bound, or remain
-   project-wide? Until Wave 3A and this decision are complete, the only supported
-   model is the existing flat project-wide mode.
+6. **Resolved:** `acceptance_matrix` is the dedicated L0/read-only renderer.
+7. **Resolved for the current rollout:** enforcement remains project-wide and
+   flat. Selective enforcement requires a future Wave 3A implementation.
 8. Which discovery adapters are sufficient to classify each supported
    language/framework as `complete`, and which combinations require runtime
    traces? The reconciliation rule is already fixed: union all discovered paths,
    and unexplained disagreement yields `partial`. Until adapter sufficiency is
    answered, unsupported adapters must return `partial` or `unsupported`, never
    optimistic completeness.
-9. Should the signed coverage basis be a dedicated durable process artifact or
-   a verifier-recomputable section of `proofstory.json`? Either choice must keep
-   path inventory non-caller-writable and atomically bind basis/topology digests.
-10. Which roles may approve exclusions and topology-critic receipts, and how is
-    independence from the implementer mechanically established?
+9. **Resolved:** the signed coverage basis is a dedicated durable verifier-owned
+   process artifact with non-caller-writable path inventory.
+10. **Resolved in Wave 2A:** registered critic/exclusion roles and signed
+    provenance mechanically establish independence from the implementer.
 
 ## 20. Human audit checklist
 
 Mark **Pass** only if every required row below is true. Otherwise mark
 **Request changes** and cite the section/row.
 
-- [ ] The document clearly says PROPOSED / NOT IMPLEMENTED.
+- [ ] The document accurately marks Waves 1/1A/2/2A/3 implemented, Wave 3A
+      skipped under flat rollout, and Wave 4 not implemented.
 - [ ] Milestone ledger remains the canonical intent-totality and `doneMeans`
       owner.
 - [ ] ProofStory acceptance bindings remain the acceptance-claim reference owner.
@@ -1713,7 +1809,8 @@ Mark **Pass** only if every required row below is true. Otherwise mark
       the independently derived basis, and the gate fails.
 - [ ] Success metrics include false passes, false blocks, waiver use, and total
       cost—not only fewer REVIEW rounds.
-- [ ] Open decisions are resolved or explicitly accepted before implementation.
+- [ ] Remaining Wave 4 decisions are resolved or explicitly accepted before
+      Wave 4 implementation.
 
 Audit result:
 
@@ -1754,6 +1851,6 @@ Conditions:
    independently derived coverage basis, three-state completeness, omission
    mutations, waves, risks, metrics, open decisions, and audit rubric are
    present;
-5. independent reviewers find no unmarked claim that proposed gates already
-   exist; and
-6. the user receives this file for audit before any implementation Story starts.
+5. independent reviewers find no status claim that contradicts the implemented
+   Waves 1–3 or overstates Wave 4; and
+6. the user received this file for audit before implementation Stories started.

@@ -269,6 +269,9 @@ try {
     const invalidFileCases: Array<[string, VerificationIntent, RegExp]> = [
       ['wrong item', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, fileDeclarationRef: 'CHK-002:files:create:0' } }] }] }, /planned_path_file_ref_wrong_item/],
       ['unsafe path', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: '../producer.ts' } }] }] }, /planned_path_file_ref_unsafe/],
+      ['absolute path', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: '/tmp/evil.ts' } }] }] }, /planned_path_file_ref_unsafe/],
+      ['dot segment', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: 'packages/./main/src/producer.ts' } }] }] }, /planned_path_file_ref_unsafe/],
+      ['backslash path', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: 'packages\\main\\src\\producer.ts' } }] }] }, /planned_path_file_ref_unsafe/],
       ['unresolved index', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, fileDeclarationRef: 'CHK-001:files:create:99' } }] }] }, /planned_path_file_ref_unresolved/],
       ['mismatched target', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: 'packages/main/src/not-declared.ts' } }] }] }, /planned_path_file_ref_mismatch/],
     ];
@@ -432,6 +435,47 @@ assert.equal(enabledReport.result, 'inconclusive_basis_unverified', 'a coherent 
 assert.deepEqual(enabledReport.diagnostics, [], 'valid reference-only graph has no intrinsic structural warning');
 assert.deepEqual(enabledReport.rows[0].plannedPathDeclarationRefs, ['INT-001:VPP-1']);
 assert.deepEqual(enabledReport.rows[0].endpointRefs, ['ENDPOINT-CONSUMER', 'ENDPOINT-PRODUCER']);
+const staticBasisPathRefs = [
+  'basis-path:path:static-call:packages/main/src/a.ts#produceA->consumer:packages/main/src/b.ts#consumeA',
+  'basis-path:path:static-call:packages/main/src/c.ts#produceB->consumer:packages/main/src/d.ts#consumeB',
+  'basis-path:path:static-call:packages/main/src/e.ts#produceC->consumer:packages/main/src/f.ts#consumeC',
+  'basis-path:path:static-call:packages/main/src/g.ts#produceD->consumer:packages/main/src/h.ts#consumeD',
+];
+const basisPathStructuralTopology: AcceptanceVerificationTopologyV1 = {
+  ...topology,
+  commandRefs: [
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+    ...staticBasisPathRefs.map(canonicalSourceRef => ({ refKind: 'existing' as const, canonicalSourceRef })),
+  ],
+};
+const basisPathStructuralReport = buildAcceptanceMatrixReport({
+  storyId,
+  checklist: checklist(),
+  contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: basisPathStructuralTopology }]),
+  ledger: null,
+});
+assert.ok(!basisPathStructuralReport.rows[0].diagnosticCodes.includes('AT_UNKNOWN_REF'), 'canonical process-fact object and four strict basis-path static edges pass structural reference validation');
+for (const malformed of [
+  'basis-path:static-call:a#produce->consumer:b#consume',
+  'basis-path:path:not-an-edge',
+  'basis-path:path:bogus:x->y',
+  'basis-path:path:static-call:/tmp/evil.ts#produce->consumer:packages/main/src/consumer.ts#consume',
+  'basis-path:path:static-call:packages/../evil.ts#produce->consumer:packages/main/src/consumer.ts#consume',
+  'basis-path:path:static-call:packages/./main/src/producer.ts#produce->consumer:packages/main/src/consumer.ts#consume',
+  'basis-path:path:static-call:packages\\main\\src\\producer.ts#produce->consumer:packages/main/src/consumer.ts#consume',
+  'basis-path:path:process-fact:pre_review_check->consumer:../evil',
+  'basis-path:path:static-call:a#produce->consumer:b#consume\nforged',
+]) {
+  const malformedTopology = { ...topology, commandRefs: [{ refKind: 'existing' as const, canonicalSourceRef: malformed }] };
+  const malformedReport = buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: malformedTopology }]), ledger: null });
+  assert.ok(malformedReport.rows[0].diagnosticCodes.includes('AT_UNKNOWN_REF'), `malformed basis-path reference remains unknown: ${JSON.stringify(malformed)}`);
+}
+const unreconciledBasisPathTopology = {
+  ...topology,
+  positiveAssertionRefs: [{ ...topology.positiveAssertionRefs[0], sourceRef: { refKind: 'existing' as const, canonicalSourceRef: staticBasisPathRefs[0] } }],
+};
+assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: unreconciledBasisPathTopology }]), ledger: null })
+  .rows[0].diagnosticCodes.includes('AT_UNKNOWN_REF'), 'basis-path cannot bypass validation in assertion groups that basis reconciliation does not consume');
 const permutedTopology: AcceptanceVerificationTopologyV1 = {
   ...topology,
   producerRefs: [...topology.producerRefs].reverse(),
@@ -470,7 +514,9 @@ assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contrac
 const orphanConsumerTopology = { ...topology, consumerRefs: [{ ...topology.consumerRefs[0], producerRefs: [] }] };
 assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: orphanConsumerTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_ORPHAN_CONSUMER'), 'orphan consumer bites');
 const noCommandTopology = { ...topology, commandRefs: [] };
-assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: noCommandTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_COMMAND_MISSING'), 'empty command group bites');
+const noCommandChecklist = checklist();
+noCommandChecklist.items[0].verificationIntent!.edge.push({ id: 'INT-COMMAND', desc: 'second outcome requires an explicit command', type: 'cli', priority: 'must' });
+assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: noCommandChecklist, contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001', 'INT-COMMAND'], milestoneIds: [], verificationTopology: noCommandTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_COMMAND_MISSING'), 'empty command group bites for a non-minimal multi-outcome binding');
 const unrelatedIntentChecklist = checklist();
 unrelatedIntentChecklist.items[0].verificationIntent!.happy.push({ id: 'INT-OTHER', desc: 'unrelated must intent', type: 'logic', priority: 'must' });
 const wrongIntentTopology = { ...topology, positiveAssertionRefs: [{ ...topology.positiveAssertionRefs[0], sourceRef: { refKind: 'existing' as const, canonicalSourceRef: 'intent:INT-OTHER' } }] };

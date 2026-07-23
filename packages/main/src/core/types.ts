@@ -354,7 +354,7 @@ export interface AcceptanceCoverageBasisV1 {
   status: 'complete' | 'partial' | 'unsupported';
   generatedBy: {
     verifier: 'acceptance-coverage-basis-verifier';
-    command: 'lattice acceptance_basis_generate';
+    command: 'lattice acceptance_basis_generate' | 'lattice pre_review_check';
     algorithmVersion: 'v1';
   };
   discoveryProfileRef: string;
@@ -406,6 +406,119 @@ export interface AcceptanceBasisArtifactV1 {
   schemaVersion: 'proofstory.acceptance_basis_artifact.v1';
   basis: AcceptanceCoverageBasisV1;
   receipt: AcceptanceBasisReceiptV1;
+}
+
+export type PreReviewCheckCodeV1 =
+  | 'ok'
+  | 'PR_ARTIFACT_MISSING'
+  | 'PR_COVERAGE_BASIS_CHANGED'
+  | 'PR_COVERAGE_INCONCLUSIVE'
+  | 'PR_PLANNED_PATH_UNRESOLVED'
+  | 'PR_PLANNED_PATH_RECONCILIATION_TAMPERED'
+  | 'PR_POSITIVE_EVIDENCE_MISSING'
+  | 'PR_PRODUCTION_PATH_UNPROVEN'
+  | 'PR_MUTATION_EVIDENCE_MISSING'
+  | 'PR_MUTATION_DID_NOT_BITE'
+  | 'PR_CONTROL_NOT_RESTORED'
+  | 'PR_TRANSCRIPT_MISSING'
+  | 'PR_TRANSCRIPT_UNRELATED'
+  | 'PR_AUTHORITY_INADMISSIBLE'
+  | 'PR_EVIDENCE_STALE'
+  | 'PR_CUTOFF_UNBOUND'
+  | 'PR_NEW_PATH_UNMAPPED'
+  | 'PR_REQUIRED_ADAPTER_RESULT_MISSING'
+  | 'PR_ADAPTER_RESULT_DIGEST_MISMATCH'
+  | 'PR_ADAPTER_RESULT_INVALID'
+  | 'PR_CLOSURE_FILES_CHANGED'
+  | 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'
+  | 'PR_ARTIFACT_TAMPERED';
+
+export interface PreReviewMutationProofV1 {
+  mutationId: string;
+  expectedCode: string;
+  observedCode: string;
+  controlRestored: boolean;
+}
+
+export interface PreReviewTranscriptProofV1 {
+  transcriptId: string;
+  producerRefs: string[];
+  consumerRefs: string[];
+  producerSequence: number;
+  consumerSequence: number;
+}
+
+export interface PreReviewBindingProofV1 {
+  bindingId: string;
+  positiveAssertionIds: string[];
+  mutationProofs: PreReviewMutationProofV1[];
+  transcriptProofs: PreReviewTranscriptProofV1[];
+}
+
+/** Compact, canonical machine record: id, kind, target, mutationKind, operation,
+ * expected, observed, controlRestored, ordered producer/consumer events, and
+ * the exact topology assertion sourceRef. */
+export type PreReviewCaseRecordV1 = [
+  id: string,
+  kind: 'positive' | 'mutation' | 'transcript',
+  target: string,
+  mutationKind: string,
+  operation: string,
+  expectedCode: string,
+  observedCode: string,
+  controlRestored: boolean,
+  events: Array<[event: string, sequence: number]>,
+  assertionSourceRef: string,
+];
+
+export interface PreReviewExecutableProvenanceV1 {
+  runnerPath: string;
+  runnerDigest: string;
+  targetPath: string;
+  targetDigest: string;
+  buildCommand: string;
+}
+
+export interface PreReviewExecutableProofV1 {
+  schemaVersion: 'proofstory.pre_review_executable_proof.v1';
+  storyId: string;
+  producer: 'registered-verification-command';
+  verifier: 'pre-review-check-command-runner';
+  commandDigests: string[];
+  caseRecordsEncoding: 'gzip-base64';
+  caseRecords: string;
+  provenance: PreReviewExecutableProvenanceV1;
+  bindingProofs: PreReviewBindingProofV1[];
+}
+
+export interface PreReviewEvidenceRefV1 {
+  intentRef: string;
+  itemId: string;
+  evidenceIndex: number;
+  kind: VerificationEvidenceKind;
+  evidenceDigest: string;
+}
+
+export interface PreReviewCheckArtifactV1 {
+  schemaVersion: 'proofstory.pre_review_check.v1';
+  storyId: string;
+  mode: 'observe' | 'warn' | 'enforce';
+  cutoffAt: string;
+  planBasisDigest: string;
+  preReviewBasisArtifact: AcceptanceBasisArtifactV1;
+  topologyDigest: string;
+  scopeCheckDigest: string;
+  scopeContractDigest?: string;
+  storyFilesHash: string;
+  closureFilesHash: string;
+  evidenceRefs: PreReviewEvidenceRefV1[];
+  executableProof: PreReviewExecutableProofV1;
+  criticReceiptDigest?: string;
+  codes: PreReviewCheckCodeV1[];
+  status: 'pass' | 'fail' | 'inconclusive';
+  issuedAt: string;
+  signerPublicKey: string;
+  signature: string;
 }
 
 export interface TopologyActorProvenanceV1 {

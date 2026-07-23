@@ -8,6 +8,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  acceptanceCoverageBasisSemanticDigest,
   deriveAcceptanceCoverageBasis,
   derivePlannedCoveragePaths,
   computeClosureFilesHash,
@@ -17,12 +18,14 @@ import {
   verifyAcceptanceCoverageBasis,
 } from '../core/acceptance-coverage-basis.js';
 import {
+  detectAcceptanceDiscoverySupport,
   reconcileAcceptanceDiscoveryResults,
   deriveRegisteredProcessFactClosure,
   digestCoverageAdapterResult,
   enumerateBoundedSourceTree,
   readBoundedSourceSetForTest,
   runAcceptanceDiscoveryAdapters,
+  runAcceptanceDiscoverySnapshot,
 } from '../core/acceptance-discovery-adapters.js';
 import { verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
 import { digestCanonicalJson } from '../core/digest.js';
@@ -102,7 +105,7 @@ const declaration = {
     expectedFileRef: 'packages/main/src/producer.ts', expectedSymbolOrFact: 'produceBasis', fileDeclarationRef: 'CHK-001:files:create:0',
   },
   consumers: [{
-    id: 'EP-CONSUMER', role: 'consumer' as const, expectedArtifactKind: 'process_fact' as const,
+    id: 'EP-CONSUMER', role: 'consumer' as const, expectedArtifactKind: 'handler' as const,
     expectedFileRef: 'packages/main/src/consumer.ts', expectedSymbolOrFact: 'verifyBasis', fileDeclarationRef: 'CHK-001:files:create:1',
   }],
   outputFactRef: 'process-fact:acceptance-basis',
@@ -119,7 +122,9 @@ const topology: AcceptanceVerificationTopologyV1 = {
     { refKind: 'existing', canonicalSourceRef: 'intent:INT-BASIS' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_topology_check' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:artifact:acceptance-basis.json' },
+    { refKind: 'existing', canonicalSourceRef: 'basis-path:path:static-call:packages/main/src/producer.ts#produceBasis->consumer:packages/main/src/consumer.ts#produceBasis' },
   ],
 };
 
@@ -128,6 +133,9 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
     'export const MAIN_TOOLS = [',
     "  { name: 'acceptance_basis' },",
     "  { name: 'acceptance_basis_generate' },",
+    "  { name: 'acceptance_topology_check' },",
+    "  { name: 'pre_review_check' },",
+    "  { name: 'pre_review_check_read' },",
     '];',
     '',
   ].join('\n'));
@@ -143,11 +151,21 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
     '  return {',
     '    acceptance_basis() { return true; },',
     '    acceptance_basis_generate() { return true; },',
+    '    acceptance_topology_check() { return true; },',
+    '    pre_review_check() { return true; },',
+    '    pre_review_check_read() { return true; },',
     '  };',
     '}',
     '',
   ].join('\n'));
   write(root, 'packages/main/src/core/process-fact-registry.ts', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
+  write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const agentDispatchRegistry = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs', 'export const preReviewLiveProofRunner = true;\n');
+  write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const planConsumer = "acceptance_basis_generate";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
 }
 
@@ -197,15 +215,56 @@ try {
     storyId, workspaceRoot: pureRoot, checklist: checklist(), contract: contract(), scopeCheck: scopeCheck(pureRoot), scopeContract: scopeContract(),
     headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
   });
-  assert.equal(plannedBeforeCode.basis.status, 'complete', `valid PLAN endpoints are structurally complete before implementation files exist: ${JSON.stringify({ diagnostics: plannedBeforeCode.diagnostics, adapters: plannedBeforeCode.basis.adapterResults }, null, 2)}`);
+  assert.equal(plannedBeforeCode.basis.status, 'complete', `valid PLAN endpoints are structurally complete before implementation files exist: ${JSON.stringify({ diagnostics: plannedBeforeCode.diagnostics, adapters: plannedBeforeCode.basis.adapterResults, blindSpots: plannedBeforeCode.basis.blindSpots, seal: plannedBeforeCode.basis.snapshotSeal }, null, 2)}`);
   write(pureRoot, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
-  write(pureRoot, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => true;\n');
+  write(pureRoot, 'packages/main/src/consumer.ts', "import { produceBasis } from './producer.js'; export const verifyBasis = () => produceBasis(); export const invokeBasis=()=>verifyBasis();\n");
   const input = {
     storyId, workspaceRoot: pureRoot, checklist: checklist(), contract: contract(), scopeCheck: scopeCheck(pureRoot), scopeContract: scopeContract(),
     headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
   };
   const first = deriveAcceptanceCoverageBasis(input);
   assert.equal(first.basis.status, 'complete', 'stable end-of-assembly seal preserves the complete control');
+  const preReviewFactRefs = [
+    'process-fact:pre_review_check',
+    'process-fact:pre_review_check_read',
+    'process-fact:artifact:pre-review-check.json',
+  ];
+  const phaseAwareTopology: AcceptanceVerificationTopologyV1 = {
+    ...topology,
+    commandRefs: [
+      ...topology.commandRefs,
+      ...preReviewFactRefs.map(canonicalSourceRef => ({ refKind: 'existing' as const, canonicalSourceRef })),
+    ],
+  };
+  const phasePlan = deriveAcceptanceCoverageBasis({ ...input, contract: contract(phaseAwareTopology), phaseBasis: 'plan' });
+  assert.equal(phasePlan.basis.status, 'complete', `PLAN permits registered next-phase declarations without inventing current paths: ${JSON.stringify(phasePlan.diagnostics)}`);
+  for (const ref of preReviewFactRefs) {
+    assert.ok(!phasePlan.basis.enumeratedPathRefs.some(path => path.startsWith(`path:${ref}->`)), `${ref} remains deferred outside PLAN discovery`);
+  }
+  const phasePreReview = deriveAcceptanceCoverageBasis({
+    ...input,
+    contract: contract(phaseAwareTopology),
+    phaseBasis: 'pre_review',
+    priorPlanBasisDigest: phasePlan.basis.basisDigest,
+  });
+  assert.equal(phasePreReview.basis.status, 'complete', `PRE_REVIEW materializes and exactly maps deferred facts: ${JSON.stringify(phasePreReview.diagnostics)}`);
+  for (const ref of preReviewFactRefs) {
+    assert.ok(phasePreReview.basis.enumeratedPathRefs.some(path => path.startsWith(`path:${ref}->`)), `${ref} becomes material in PRE_REVIEW discovery`);
+  }
+  const missingFutureMappingTopology = structuredClone(phaseAwareTopology);
+  missingFutureMappingTopology.commandRefs = missingFutureMappingTopology.commandRefs
+    .filter(ref => ref.refKind !== 'existing' || ref.canonicalSourceRef !== 'process-fact:pre_review_check_read');
+  const missingFutureMapping = reconcileTopologyWithCoverageBasis(contract(missingFutureMappingTopology), phasePreReview.basis);
+  assert.ok(missingFutureMapping.some(item => item.code === 'AT_UNMAPPED_SCOPE_REF'
+    && item.pathRef?.startsWith('path:process-fact:pre_review_check_read->')), 'deleting one PRE_REVIEW mapping exposes the newly material path');
+  const unrelatedFutureTopology = structuredClone(phaseAwareTopology);
+  unrelatedFutureTopology.commandRefs.push({ refKind: 'existing', canonicalSourceRef: 'process-fact:review_run_start' });
+  assert.ok(reconcileTopologyWithCoverageBasis(contract(unrelatedFutureTopology), phasePlan.basis)
+    .some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS' && item.pathRef === 'process-fact:review_run_start'), 'registered but unrelated future process fact is not deferred implicitly');
+  const nonexistentFutureTopology = structuredClone(phaseAwareTopology);
+  nonexistentFutureTopology.commandRefs.push({ refKind: 'existing', canonicalSourceRef: 'process-fact:not_registered_future_fact' });
+  assert.ok(reconcileTopologyWithCoverageBasis(contract(nonexistentFutureTopology), phasePlan.basis)
+    .some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS' && item.pathRef === 'process-fact:not_registered_future_fact'), 'nonexistent future process fact remains fail-closed');
   const lateC2 = join(pureRoot, 'packages/main/src/late-c2.ts');
   const lateAddition = deriveAcceptanceCoverageBasis({
     ...input,
@@ -290,8 +349,8 @@ try {
   }
   const adapterControl = runAcceptanceDiscoveryAdapters({ supported: true, workspaceRoot: pureRoot, storyId, plannedPathRecords: first.basis.plannedPathRecords, scopeRefs: ['S1', 'scope:file:packages/main/src/handlers/proofstory.ts'] });
   const globalClosure = deriveRegisteredProcessFactClosure(pureRoot, ['packages/main/src/handlers/proofstory.ts']);
-  assert.ok(globalClosure.pathRefs.some(path => path.includes('acceptance_basis_generate->consumer:<audit-only>')), 'non-gate writer remains registered without inventing a lifecycle consumer');
-  assert.ok(globalClosure.pathRefs.some(path => path.includes('artifact:acceptance-basis.json') && path.includes('consumer:acceptance_basis read-only receipt verification')), 'signed artifact retains its read-only verifier consumer boundary');
+  assert.ok(globalClosure.pathRefs.some(path => path.includes('acceptance_basis->consumer:<audit-only>')), 'non-gate reader remains registered without inventing a lifecycle consumer');
+  assert.ok(globalClosure.pathRefs.some(path => path.includes('artifact:acceptance-basis.json') && path.includes('consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate')), 'signed artifact retains its canonical lifecycle consumer boundary');
   assert.ok(globalClosure.sourceFileRefs.includes('scripts/verify-process-fact-contract.mjs'), 'global consumer source enters closure binding');
   const adapterControlReconciled = reconcileAcceptanceDiscoveryResults(adapterControl);
   assert.equal(adapterControlReconciled.status, 'complete', JSON.stringify(adapterControlReconciled, null, 2));
@@ -306,9 +365,23 @@ try {
   assert.ok(reconcileAcceptanceDiscoveryResults(resultTamper).diagnostics.some(item => item.code === 'AT_ADAPTER_RESULT_DIGEST_MISMATCH'), 'adapter path mutation without digest bites');
   const disagreement = structuredClone(adapterControl);
   const disagreementDispatch = disagreement.find(item => item.method === 'handler_dispatch_inventory')!;
-  disagreementDispatch.pathRefs = ['path:process-fact:forged-dispatch->consumer:<audit-only>'];
+  disagreementDispatch.pathRefs = disagreementDispatch.pathRefs
+    .filter(path => !path.startsWith('path:process-fact:acceptance_basis_generate->'));
+  disagreementDispatch.pathRefs.push('path:process-fact:forged-dispatch->consumer:<audit-only>');
+  disagreementDispatch.pathRefs.sort();
   redigestAdapter(disagreementDispatch);
-  assert.ok(reconcileAcceptanceDiscoveryResults(disagreement).diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'), 'unexplained registry/dispatch disagreement bites');
+  const disagreementDiagnostic = reconcileAcceptanceDiscoveryResults(disagreement).diagnostics.find(item => item.code === 'AT_DISCOVERY_DISAGREEMENT');
+  assert.ok(disagreementDiagnostic, 'unexplained registry/dispatch disagreement bites');
+  assert.match(disagreementDiagnostic.message, /registryOnly\(count=1\)=\[acceptance_basis_generate\]/, 'registry-only difference is bounded and specific');
+  assert.match(disagreementDiagnostic.message, /dispatchOnly\(count=1\)=\[forged-dispatch\]/, 'dispatch-only difference is bounded and specific');
+  const boundedDisagreement = structuredClone(adapterControl);
+  const boundedDispatch = boundedDisagreement.find(item => item.method === 'handler_dispatch_inventory')!;
+  boundedDispatch.pathRefs.push(...Array.from({ length: 10 }, (_, index) => `path:process-fact:forged-${String(index).padStart(2, '0')}->consumer:<audit-only>`));
+  boundedDispatch.pathRefs.sort();
+  redigestAdapter(boundedDispatch);
+  const boundedDiagnostic = reconcileAcceptanceDiscoveryResults(boundedDisagreement).diagnostics.find(item => item.code === 'AT_DISCOVERY_DISAGREEMENT')!;
+  assert.match(boundedDiagnostic.message, /dispatchOnly\(count=10\)=\[forged-00,forged-01,forged-02,forged-03,forged-04,forged-05,forged-06,forged-07,…\]/, 'large difference reports total count and bounded sorted names');
+  assert.doesNotMatch(boundedDiagnostic.message, /forged-08|forged-09/, 'bounded difference does not leak the full set');
   assert.ok(!adapterControlReconciled.diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'), 'typed bounded runtime asymmetry retains static-only paths');
   for (const [label, mutate] of [
     ['claim', (value: any) => { value.coverageClaim = 'complete'; }],
@@ -390,10 +463,10 @@ try {
   assert.notEqual(closureOmission.basisDigest, first.basis.basisDigest, 'registered out-of-scope consumer omission changes the signed basis');
   const closureAdapterOmission = structuredClone(first.basis);
   const closureRegistry = closureAdapterOmission.adapterResults.find(item => item.method === 'process_fact_registry')!;
-  closureRegistry.pathRefs = closureRegistry.pathRefs.filter(path => !path.includes('artifact:acceptance-basis.json'));
+  closureRegistry.pathRefs = closureRegistry.pathRefs.filter(path => !path.startsWith('path:process-fact:acceptance_basis_generate->'));
   redigestAdapter(closureRegistry);
   redigestBasis(closureAdapterOmission);
-  assert.ok(!verifyAcceptanceCoverageBasis(closureAdapterOmission).ok, 'omitting registered consumer path from one closure adapter fails disagreement verification');
+  assert.ok(!verifyAcceptanceCoverageBasis(closureAdapterOmission).ok, 'omitting a dispatchable registry path from one closure adapter fails disagreement verification');
   const optimistic = structuredClone(first.basis);
   optimistic.adapterResults[0].coverageClaim = 'partial';
   optimistic.status = 'complete';
@@ -459,13 +532,173 @@ try {
   (invalidRelation.items[0].verificationIntent!.happy[0].plannedPathDeclarations![0] as any).relation = 'consumer_to_producer';
   assert.ok(derivePlannedCoveragePaths(invalidRelation, contract(), scopeContract()).diagnostics.some(item => item.code === 'AT_PLANNED_PATH_INVALID'), 'declaration relation drift is rejected');
 
+  const repositoryShapeRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-repository-shape-'));
+  try {
+    write(repositoryShapeRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    write(repositoryShapeRoot, 'packages/main/tsconfig.json', '{}\n');
+    write(repositoryShapeRoot, 'packages/main/src/cli/command-catalog.ts', [
+      'export const MAIN_TOOLS = [',
+      "  { name: 'acceptance_basis' },",
+      "  { name: 'acceptance_basis_generate' },",
+      "  { name: 'acceptance_topology_check' },",
+      "  { name: 'pre_review_check' },",
+      "  { name: 'pre_review_check_read' },",
+      "  { name: 'story_advance' },",
+      "  { name: 'topology_critic_receipt_check' },",
+      '];', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/handlers/proofstory.ts', [
+      'export const acceptanceBasisProducer = () => true;',
+      'export function createProofStoryHandlers() {',
+      '  return {',
+      '    acceptance_basis() { return true; },',
+      '    acceptance_basis_generate() { return acceptanceBasisProducer(); },',
+      '    acceptance_topology_check() { return true; },',
+      '    topology_critic_receipt_check() { return true; },',
+      '  };',
+      '}', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story-advance.ts', [
+      'export function createStoryAdvanceHandlers(_ctx: unknown) {',
+      '  return { story_advance() { return true; } };',
+      '}', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story.ts', [
+      "import { createStoryAdvanceHandlers } from './story-advance.js';",
+      'export function createStoryHandlers(ctx: unknown) {',
+      '  return {',
+      '    ...createStoryAdvanceHandlers(ctx),',
+      '    story_get() { return true; },',
+      '  };',
+      '}', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/handlers/transition-orchestrator.ts', [
+      "import { acceptanceBasisProducer as consumeBasis } from './proofstory.js';",
+      'export const runPreReviewGate = () => consumeBasis();', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/registry.ts', [
+      "import { createProofStoryHandlers } from './handlers/proofstory.js';",
+      "import { createStoryHandlers } from './handlers/story.js';",
+      'const registry = { registerBatch: (_handlers: unknown) => undefined };',
+      'const ctx = {};',
+      'registry.registerBatch(createProofStoryHandlers(ctx));',
+      'registry.registerBatch(createStoryHandlers(ctx));', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology = true;\n');
+    write(repositoryShapeRoot, 'scripts/verify-process-fact-contract.mjs', 'export const processFactContract = true;\n');
+    write(repositoryShapeRoot, 'packages/main/src/tests/unrelated.ts', [
+      "import { acceptanceBasisProducer } from '../handlers/proofstory.js';",
+      'export const unrelatedTestCall = () => acceptanceBasisProducer();', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/cli-engine.ts', [
+      "import { acceptanceBasisProducer } from './handlers/proofstory.js';",
+      'export const unrelatedCliEngineCall = () => acceptanceBasisProducer();', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'docs/process-fact-notes.md', '# Process fact notes\n\nThis is snapshot material, not TypeScript.\n');
+    write(repositoryShapeRoot, 'packages/main/src/process-fact-shape.json', '{ "notTypeScript": }\n');
+    write(repositoryShapeRoot, 'packages/main/src/unrelated-loader.mjs', [
+      "const target = './handlers/proofstory.js';",
+      'export const loadUnrelated = () => import(target);', '',
+    ].join('\n'));
+    const repositoryShapePath = structuredClone(first.basis.plannedPathRecords[0]);
+    repositoryShapePath.producer.expectedFileRef = 'packages/main/src/handlers/proofstory.ts';
+    repositoryShapePath.producer.expectedSymbolOrFact = 'acceptanceBasisProducer';
+    repositoryShapePath.consumers[0].expectedFileRef = 'packages/main/src/handlers/transition-orchestrator.ts';
+    repositoryShapePath.consumers[0].expectedSymbolOrFact = 'runPreReviewGate';
+    repositoryShapePath.outputFactRef = 'process-fact:acceptance_basis_generate';
+    const repositoryShapeInput = {
+      supported: true,
+      workspaceRoot: repositoryShapeRoot,
+      storyId: 'B-repository-shape',
+      plannedPathRecords: [repositoryShapePath],
+      scopeRefs: [
+        'scope:file:packages/main/src/handlers/proofstory.ts',
+        'scope:file:packages/main/src/handlers/story.ts',
+        'scope:file:packages/main/src/handlers/transition-orchestrator.ts',
+        'scope:file:packages/main/src/tests/unrelated.ts',
+        'scope:file:packages/main/src/cli-engine.ts',
+        'scope:file:docs/process-fact-notes.md',
+        'scope:file:packages/main/src/process-fact-shape.json',
+        'scope:file:packages/main/src/unrelated-loader.mjs',
+      ],
+      topologyPathRefs: [
+        'process-fact:acceptance_basis_generate',
+        'process-fact:story_advance',
+        'process-fact:topology_critic_receipt_check',
+      ],
+    };
+    const repositoryShape = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(repositoryShapeInput));
+    assert.equal(repositoryShape.status, 'complete', JSON.stringify(repositoryShape, null, 2));
+    const repositorySnapshot = runAcceptanceDiscoverySnapshot(repositoryShapeInput);
+    for (const snapshotOnlyFile of ['docs/process-fact-notes.md', 'packages/main/src/process-fact-shape.json', 'packages/main/src/unrelated-loader.mjs']) {
+      assert.ok(repositorySnapshot.sourceSnapshots.some(snapshot => snapshot.canonicalFile === snapshotOnlyFile), `${snapshotOnlyFile} remains freshness-bound`);
+    }
+    assert.ok(!repositoryShape.blindSpots.some(item => item.includes('process-fact-shape.json') || item.includes('unrelated-loader.mjs')), 'snapshot-only assets do not create global parser/import blind spots');
+    for (const fact of ['acceptance_basis_generate', 'story_advance', 'topology_critic_receipt_check']) {
+      assert.ok(repositoryShape.enumeratedPathRefs.some(path => path.startsWith(`path:process-fact:${fact}->`)), `explicit topology fact ${fact} enters registry basis`);
+    }
+    assert.ok(repositoryShape.enumeratedPathRefs.some(path => path.includes('static-call:packages/main/src/handlers/proofstory.ts#acceptanceBasisProducer')
+      && path.includes('consumer:packages/main/src/handlers/transition-orchestrator.ts#consumeBasis')), 'planned proofstory to transition direct edge enters static basis');
+    const repositoryDispatch = repositoryShape.adapterResults.find(item => item.method === 'handler_dispatch_inventory')!;
+    assert.ok(repositoryDispatch.pathRefs.some(path => path.startsWith('path:process-fact:story_advance->')), 'registered parent handler spread recursively discovers story_advance dispatch');
+    assert.ok(!repositoryShape.enumeratedPathRefs.some(path => path.includes('/tests/unrelated.ts') || path.includes('/cli-engine.ts')), 'closure-only unrelated calls stay out of topology path refs');
+
+    const storyParentControl = bytes(repositoryShapeRoot, 'packages/main/src/handlers/story.ts');
+    const storyChildControl = bytes(repositoryShapeRoot, 'packages/main/src/handlers/story-advance.ts');
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story.ts', [
+      'export function createStoryHandlers(ctx: unknown) {',
+      '  return { ...createMissingHandlers(ctx) };',
+      '}', '',
+    ].join('\n'));
+    const missingSpread = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(repositoryShapeInput));
+    assert.equal(missingSpread.status, 'partial', 'missing handler spread target fails closed');
+    assert.ok(missingSpread.blindSpots.some(item => item.includes('handler factory spread target is missing')), 'missing spread target is named as the blind spot');
+
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story.ts', [
+      "import { createStoryAdvanceHandlers } from './story-advance.js';",
+      'function createStoryAdvanceHandlers(_ctx: unknown) { return { local_only() { return true; } }; }',
+      'export function createStoryHandlers(ctx: unknown) {',
+      '  return { ...createStoryAdvanceHandlers(ctx) };',
+      '}', '',
+    ].join('\n'));
+    const ambiguousSpread = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(repositoryShapeInput));
+    assert.equal(ambiguousSpread.status, 'partial', 'ambiguous handler spread target fails closed');
+    assert.ok(ambiguousSpread.blindSpots.some(item => item.includes('handler factory spread target is ambiguous')), 'ambiguous spread target is named as the blind spot');
+
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story.ts', storyParentControl);
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story-advance.ts', [
+      "import { createStoryHandlers } from './story.js';",
+      'export function createStoryAdvanceHandlers(ctx: unknown) {',
+      '  return { ...createStoryHandlers(ctx) };',
+      '}', '',
+    ].join('\n'));
+    const cyclicSpread = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(repositoryShapeInput));
+    assert.equal(cyclicSpread.status, 'partial', 'cyclic handler spread fails closed');
+    assert.ok(cyclicSpread.blindSpots.some(item => item.includes('handler factory spread cycle')), 'spread cycle is named as the blind spot');
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story-advance.ts', storyChildControl);
+  } finally {
+    rmSync(repositoryShapeRoot, { recursive: true, force: true });
+  }
+
   const genericRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-generic-'));
   try {
     write(genericRoot, 'tsconfig.json', '{}\n');
     write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
-    write(genericRoot, 'packages/main/src/cli/command-catalog.ts', "export const MAIN_TOOLS = [\n  { name: 'review_run_start' },\n];\n");
+    writeCanonicalAcceptanceRegistration(genericRoot);
+    write(genericRoot, 'packages/main/src/cli/command-catalog.ts', [
+      'export const MAIN_TOOLS = [',
+      "  { name: 'acceptance_basis' },",
+      "  { name: 'acceptance_basis_generate' },",
+      "  { name: 'acceptance_topology_check' },",
+      "  { name: 'pre_review_check' },",
+      "  { name: 'pre_review_check_read' },",
+      "  { name: 'review_run_start' },",
+      '];',
+      '',
+    ].join('\n'));
     write(genericRoot, 'packages/main/src/handlers/review-run.ts', [
       'export const emitReviewRunFact = () => true;',
+      "export const unrelatedOptions = { ordinary_object_key: true };",
       'export function createReviewRunHandlers() {',
       '  return {',
       '    review_run_start() { return emitReviewRunFact(); },',
@@ -475,9 +708,11 @@ try {
       '',
     ].join('\n'));
     const genericRegistryControl = [
+      "import { createProofStoryHandlers } from './handlers/proofstory.js';",
       "import { createReviewRunHandlers as makeReviewHandlers } from './handlers/review-run.js';",
       'const registry = { registerBatch: (_handlers: unknown) => undefined };',
       'const ctx = {};',
+      'registry.registerBatch(createProofStoryHandlers(ctx));',
       'registry.registerBatch(makeReviewHandlers(ctx));',
       '',
     ].join('\n');
@@ -485,21 +720,55 @@ try {
     write(genericRoot, 'packages/main/src/consumers/c2.ts', [
       "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
       'export const c2 = () => consumeReviewRun();',
+      'export const invokeC2 = () => c2();',
       '',
     ].join('\n'));
     write(genericRoot, 'packages/main/src/unrelated.ts', 'export const unrelated = () => true;\n');
+    const genericPlannedPath = structuredClone(first.basis.plannedPathRecords[0]);
+    genericPlannedPath.outputFactRef = 'process-fact:review_run_start';
+    genericPlannedPath.producer.expectedFileRef = 'packages/main/src/handlers/review-run.ts';
+    genericPlannedPath.producer.expectedSymbolOrFact = 'emitReviewRunFact';
+    genericPlannedPath.consumers[0].expectedFileRef = 'packages/main/src/consumers/c2.ts';
+    genericPlannedPath.consumers[0].expectedSymbolOrFact = 'c2';
     const genericInput = {
-      supported: true, workspaceRoot: genericRoot, storyId: 'B-generic', plannedPathRecords: [],
+      supported: true, workspaceRoot: genericRoot, storyId: 'B-generic', phaseBasis: 'pre_review' as const, plannedPathRecords: [genericPlannedPath],
       scopeRefs: ['scope:file:packages/main/src/handlers/review-run.ts'],
+      topologyPathRefs: ['process-fact:review_run_start'],
+    };
+    const genericInputForConsumer = (consumerFile: string) => {
+      const boundedPath = structuredClone(genericPlannedPath);
+      boundedPath.consumers[0].expectedFileRef = consumerFile;
+      return { ...genericInput, plannedPathRecords: [boundedPath] };
     };
     const genericControl = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
     assert.equal(genericControl.status, 'complete', JSON.stringify(genericControl, null, 2));
+    assert.ok(genericControl.adapterResults.find(result => result.method === 'static_call_graph')?.pathRefs.includes('actual:handler:packages/main/src/consumers/c2.ts#c2'), 'PRE_REVIEW exact consumer relation emits the actual consumer endpoint');
     const c2Path = genericControl.enumeratedPathRefs.find(path => path.includes('static-call:packages/main/src/handlers/review-run.ts#emitReviewRunFact') && path.includes('consumer:packages/main/src/consumers/c2.ts#consumeReviewRun'));
-    assert.ok(c2Path, 'empty planned declarations still discover a non-ProofStory handler and its unregistered external C2 consumer');
+    assert.ok(c2Path, 'planned bounded graph discovers its non-ProofStory handler and external C2 consumer');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', [
+      "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+      'export const c2 = () => true;',
+      'export const invokeC2 = () => c2();',
+      'export const decoyCaller = () => consumeReviewRun();',
+      '',
+    ].join('\n'));
+    const decoyRelation = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+    assert.ok(!decoyRelation.adapterResults.find(result => result.method === 'static_call_graph')?.pathRefs.includes('actual:handler:packages/main/src/consumers/c2.ts#c2'), 'a decoy caller elsewhere in the consumer file cannot satisfy the declared consumer-symbol relation');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', [
+      "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+      'export const c2 = () => consumeReviewRun();',
+      'export const invokeC2 = () => c2();',
+      '',
+    ].join('\n'));
     assert.ok(genericControl.enumeratedPathRefs.some(path => path.includes('process-fact:review_run_start')), 'generic factory alias resolves the registered review-run command');
-    assert.ok(!genericControl.enumeratedPathRefs.some(path => path.includes('acceptance_basis')), 'bounded graph does not pull the unrelated process registry universe');
-    const closureControl = deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']);
-    assert.ok(closureControl.sourceFileRefs.includes('packages/main/src/consumers/c2.ts'), 'outside-scope C2 is discovered from canonical source-root reverse import/call inventory');
+    assert.ok(!genericControl.enumeratedPathRefs.some(path => path.includes('ordinary_object_key')), 'ordinary object keys do not become handler commands');
+    assert.ok(genericControl.enumeratedPathRefs.some(path => path.includes('acceptance_basis_generate')), 'independent PLAN profile control facts remain in the bounded basis');
+    assert.ok(!genericControl.enumeratedPathRefs.some(path => path.includes('story_create')), 'bounded graph does not pull the unrelated process registry universe');
+    const closureControl = deriveRegisteredProcessFactClosure(genericRoot, [
+      'packages/main/src/handlers/review-run.ts',
+      'packages/main/src/consumers/c2.ts',
+    ]);
+    assert.ok(closureControl.sourceFileRefs.includes('packages/main/src/consumers/c2.ts'), 'explicit bounded C2 seed enters the source closure');
     assert.ok(!closureControl.sourceFileRefs.includes('packages/main/src/unrelated.ts'), 'unrelated source inventory file without a call relation stays outside closure');
     const closureHash = computeClosureFilesHash(genericRoot, [], closureControl.sourceInventoryRefs);
 
@@ -568,9 +837,9 @@ try {
     ]) {
       const consumerFile = `packages/main/src/consumers/c2.${row.extension}`;
       write(genericRoot, consumerFile, `${row.source}\n`);
-      const moduleForm = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+      const moduleForm = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInputForConsumer(consumerFile)));
       assert.equal(moduleForm.status, 'complete', `${row.extension} module form discovers its bound consumer`);
-      assert.ok(deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']).sourceFileRefs.includes(consumerFile), `${row.extension} consumer enters closure`);
+      assert.ok(deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts', consumerFile]).sourceFileRefs.includes(consumerFile), `${row.extension} consumer enters closure`);
       rmSync(join(genericRoot, consumerFile), { force: true });
     }
     for (const row of [
@@ -589,9 +858,9 @@ try {
       const consumerFile = `packages/main/src/consumers/c2.${row.extension}`;
       write(genericRoot, 'packages/main/src/consumers/c2.ts', 'export const inactive = true;\n');
       write(genericRoot, consumerFile, `${row.source}\n`);
-      const result = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+      const result = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInputForConsumer(consumerFile)));
       assert.equal(result.status, 'complete', `${row.label} discovers a bound consumer`);
-      assert.ok(deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']).sourceFileRefs.includes(consumerFile), `${row.label} enters closure`);
+      assert.ok(deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts', consumerFile]).sourceFileRefs.includes(consumerFile), `${row.label} enters closure`);
       if (consumerFile !== 'packages/main/src/consumers/c2.ts') rmSync(join(genericRoot, consumerFile), { force: true });
     }
     write(genericRoot, 'packages/main/src/consumers/c2.ts', "const target = '../handlers/review-run.js'; export const c2 = async () => (await import(target)).emitReviewRunFact();\n");
@@ -617,7 +886,9 @@ try {
       'export const bridge = () => consume();', '',
     ].join('\n'));
     write(genericRoot, 'packages/main/src/consumers/c2.js', "import { bridge } from '../bridges'; export const c2 = () => bridge();\n");
-    assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'complete', 'extensionless directory index chain is discovered transitively');
+    const chainedInput = genericInputForConsumer('packages/main/src/consumers/c2.js');
+    chainedInput.scopeRefs = [...chainedInput.scopeRefs, 'scope:file:packages/main/src/bridges/index.ts'];
+    assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(chainedInput)).status, 'complete', 'explicit bounded directory index chain is discovered transitively');
     rmSync(join(genericRoot, 'packages/main/src/consumers/c2.js'), { force: true });
     rmSync(join(genericRoot, 'packages/main/src/bridges'), { recursive: true, force: true });
     write(genericRoot, 'packages/main/src/handlers/review-run.tsx', 'export const ambiguous = true;\n');
@@ -636,20 +907,60 @@ try {
     genericBasis.storyId = 'B-generic';
     genericBasis.adapterResults = genericControl.adapterResults;
     genericBasis.discoveryMethods = genericControl.adapterResults.map(item => item.method).sort();
-    genericBasis.enumeratedPathRefs = genericControl.enumeratedPathRefs;
+    genericBasis.enumeratedPathRefs = genericControl.enumeratedPathRefs.filter(path => !path.startsWith('planned:'));
     genericBasis.blindSpots = genericControl.blindSpots;
     genericBasis.plannedPathRecords = [];
     redigestBasis(genericBasis);
     const c2Topology: AcceptanceVerificationTopologyV1 = {
       schemaVersion: 'proofstory.acceptance_topology.v1', producerRefs: [], consumerRefs: [], positiveAssertionRefs: [], mutationCaseRefs: [], transcriptAssertionRefs: [],
-      commandRefs: genericControl.enumeratedPathRefs.map(path => ({ refKind: 'existing' as const, canonicalSourceRef: `basis-path:${path}` })),
+      commandRefs: genericBasis.enumeratedPathRefs.map(path => ({ refKind: 'existing' as const, canonicalSourceRef: `basis-path:${path}` })),
     };
-    assert.equal(reconcileTopologyWithCoverageBasis(contract(c2Topology), genericBasis).length, 0, 'restored generic C2 topology control passes');
+    const genericTopologyDiagnostics = reconcileTopologyWithCoverageBasis(contract(c2Topology), genericBasis);
+    assert.equal(genericTopologyDiagnostics.length, 0, `restored generic C2 topology control passes: ${JSON.stringify(genericTopologyDiagnostics)}`);
+    const focusedStaticPaths = [
+      'path:static-call:packages/main/src/a.ts#produceA->consumer:packages/main/src/b.ts#consumeA',
+      'path:static-call:packages/main/src/c.ts#produceB->consumer:packages/main/src/d.ts#consumeB',
+      'path:static-call:packages/main/src/e.ts#produceC->consumer:packages/main/src/f.ts#consumeC',
+      'path:static-call:packages/main/src/g.ts#produceD->consumer:packages/main/src/h.ts#consumeD',
+    ];
+    const focusedProcessPath = 'path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check';
+    const focusedBasis = structuredClone(genericBasis);
+    focusedBasis.enumeratedPathRefs = [focusedProcessPath, ...focusedStaticPaths];
+    focusedBasis.plannedPathRecords = [];
+    focusedBasis.plannedActualReconciliations = [];
+    focusedBasis.excludedPathRefs = [];
+    focusedBasis.phaseBasis = 'pre_review';
+    focusedBasis.priorPlanBasisDigest = genericBasis.basisDigest;
+    const focusedTopology: AcceptanceVerificationTopologyV1 = {
+      schemaVersion: 'proofstory.acceptance_topology.v1',
+      producerRefs: [], consumerRefs: [], positiveAssertionRefs: [], mutationCaseRefs: [], transcriptAssertionRefs: [],
+      commandRefs: [
+        { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+        ...focusedStaticPaths.map(path => ({ refKind: 'existing' as const, canonicalSourceRef: `basis-path:${path}` })),
+      ],
+    };
+    assert.deepEqual(reconcileTopologyWithCoverageBasis(contract(focusedTopology), focusedBasis), [], 'canonical process-fact mapping plus four exact basis-path static edges reconcile against the current basis');
+    const planForwardBasis = structuredClone(focusedBasis);
+    planForwardBasis.phaseBasis = 'plan';
+    delete planForwardBasis.priorPlanBasisDigest;
+    planForwardBasis.enumeratedPathRefs = [focusedProcessPath];
+    assert.deepEqual(reconcileTopologyWithCoverageBasis(contract(focusedTopology), planForwardBasis), [], 'PLAN accepts strict basis-path edges as next-phase forward declarations');
+    const deletedEdgeTopology = structuredClone(focusedTopology);
+    deletedEdgeTopology.commandRefs = deletedEdgeTopology.commandRefs.filter(ref => ref.refKind !== 'existing'
+      || ref.canonicalSourceRef !== `basis-path:${focusedStaticPaths[0]}`);
+    assert.ok(reconcileTopologyWithCoverageBasis(contract(deletedEdgeTopology), focusedBasis)
+      .some(item => item.code === 'AT_UNMAPPED_SCOPE_REF' && item.pathRef === focusedStaticPaths[0]), 'deleting a material PRE_REVIEW edge mapping bites');
+    const nonexistentTopology = structuredClone(focusedTopology);
+    nonexistentTopology.commandRefs.push({ refKind: 'existing', canonicalSourceRef: 'basis-path:path:static-call:packages/main/src/missing.ts#produce->consumer:packages/main/src/absent.ts#consume' });
+    assert.ok(reconcileTopologyWithCoverageBasis(contract(nonexistentTopology), focusedBasis)
+      .some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS'), 'well-formed but nonexistent basis-path remains fail-closed at reconciliation');
     write(genericRoot, 'packages/main/src/consumers/c2.ts', 'export const c2 = () => true;\n');
     const omittedC2 = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
     assert.equal(omittedC2.status, 'partial', 'consumerGate without a resolvable outside-scope consumer fails closed');
     assert.ok(omittedC2.blindSpots.some(item => item.includes('consumerGate but no resolvable consumer source')), 'missing C2 produces an explicit consumer-source blind spot');
     const omittedBasis = structuredClone(genericBasis);
+    omittedBasis.phaseBasis = 'pre_review';
+    omittedBasis.priorPlanBasisDigest = genericBasis.basisDigest;
     omittedBasis.adapterResults = omittedC2.adapterResults;
     omittedBasis.enumeratedPathRefs = omittedC2.enumeratedPathRefs;
     omittedBasis.blindSpots = omittedC2.blindSpots;
@@ -664,7 +975,10 @@ try {
       "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
       'export const c2 = () => consumeReviewRun();', '// content-bound mutation', '',
     ].join('\n'));
-    const mutatedClosure = deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']);
+    const mutatedClosure = deriveRegisteredProcessFactClosure(genericRoot, [
+      'packages/main/src/handlers/review-run.ts',
+      'packages/main/src/consumers/c2.ts',
+    ]);
     assert.notEqual(computeClosureFilesHash(genericRoot, [], mutatedClosure.sourceInventoryRefs), closureHash, 'outside-scope C2 content mutation stales the closure binding');
 
     write(genericRoot, 'packages/main/src/registry.ts', genericRegistryControl.replace('registry.registerBatch(makeReviewHandlers(ctx));', '// deleted registerBatch(makeReviewHandlers(ctx));'));
@@ -856,15 +1170,30 @@ try {
   rmSync(pureRoot, { recursive: true, force: true });
 }
 
+const packageProfileRoot = mkdtempSync(join(tmpdir(), 'proofstory-package-profile-'));
+try {
+  write(packageProfileRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+  write(packageProfileRoot, 'packages/main/tsconfig.json', '{}\n');
+  assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), true, 'scanRoot tsconfig activates the canonical TypeScript profile without a root tsconfig');
+  write(packageProfileRoot, 'lattice.config.json', JSON.stringify({ scanRoot: '..', rootDir: 'src' }));
+  assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'escaping config cannot activate discovery support');
+  rmSync(join(packageProfileRoot, 'lattice.config.json'));
+  assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'missing config cannot authorize a package-local profile');
+} finally {
+  rmSync(packageProfileRoot, { recursive: true, force: true });
+}
+
 const root = mkdtempSync(join(tmpdir(), 'proofstory-basis-cli-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'basis-smoke@example.test']);
   git(root, ['config', 'user.name', 'Basis Smoke']);
   write(root, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures' }, null, 2));
-  write(root, 'tsconfig.json', '{}\n');
+  write(root, 'packages/main/tsconfig.json', '{}\n');
+  write(root, 'packages/main/src/acceptance-basis.json', '{"staticSource":true}\n');
+  write(root, `.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":true}\n');
   write(root, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
-  write(root, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => true;\n');
+  write(root, 'packages/main/src/consumer.ts', "import { produceBasis } from './producer.js'; export const verifyBasis = () => produceBasis(); export const invokeBasis=()=>verifyBasis();\n");
   writeCanonicalAcceptanceRegistration(root);
   resetConfigCache();
   const store = new StoryStore(root);
@@ -873,7 +1202,11 @@ try {
   store.writeStory(storyId, story);
   store.writeChecklist(storyId, checklist());
   store.writeProofStoryContract(storyId, contract());
-  store.writeScopeContract(storyId, scopeContract());
+  const cliScopeContract = scopeContract();
+  cliScopeContract.allowedModify.push(`.lattice/story/actives/${storyId}/acceptance-basis.json`);
+  cliScopeContract.allowedModify.push(`.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`);
+  cliScopeContract.allowedModify.push('packages/main/src/acceptance-basis.json');
+  store.writeScopeContract(storyId, cliScopeContract);
   store.writeScopeCheck(storyId, scopeCheck(root));
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'seed real basis repo']);
@@ -886,13 +1219,64 @@ try {
   assert.equal(artifact.basis.status, 'complete', `${generated}\nCLI CHECKLIST:\n${cliChecklist}`);
   const control = verifyAcceptanceBasisReceipt({ artifact, gitCwd: root, metadataRoot: root, expectedStoryId: storyId });
   assert.equal(control.ok, true, control.diagnostics.join('; '));
+  assert.ok(
+    artifact.basis.enumeratedPathRefs.some(ref => ref.includes('path:process-fact:artifact:acceptance-basis.json->consumer:')),
+    'generated acceptance-basis artifact retains its canonical process-fact consumer path',
+  );
+  assert.equal(
+    artifact.basis.sourceInventoryRefs.some(ref => ref === `source-file:closure:.lattice/story/actives/${storyId}/acceptance-basis.json`),
+    false,
+    'generated acceptance-basis bytes are not source closure content',
+  );
+  assert.ok(
+    artifact.basis.sourceInventoryRefs.includes('source-file:closure:packages/main/src/acceptance-basis.json'),
+    'a same-basename static source outside the configured story artifact directory remains in closure',
+  );
+  assert.ok(
+    artifact.basis.sourceInventoryRefs.includes(`source-file:closure:.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`),
+    'a nested same-basename file is not confused with the canonical generated root artifact',
+  );
+  const firstSemanticDigest = acceptanceCoverageBasisSemanticDigest(artifact.basis);
+  const firstClosureFilesHash = artifact.basis.binding.closureFilesHash;
+  writeFileSync(
+    join(root, `.lattice/story/actives/${storyId}/acceptance-basis.json`),
+    `${readFileSync(join(root, `.lattice/story/actives/${storyId}/acceptance-basis.json`), 'utf8')}\n`,
+  );
+  const regenerated = run(root, 'acceptance_basis_generate', { storyId, json: true });
+  assert.match(regenerated, /proofstory\.acceptance_basis_artifact\.v1/);
+  artifact = store.readAcceptanceBasis(storyId)!;
+  assert.equal(artifact.basis.status, 'complete', 'consecutive generation remains complete after generated-artifact content mutation');
+  assert.equal(artifact.basis.binding.closureFilesHash, firstClosureFilesHash, 'generated-artifact mutation does not stale source closure');
+  assert.equal(acceptanceCoverageBasisSemanticDigest(artifact.basis), firstSemanticDigest, 'generated-artifact mutation does not alter basis semantics');
+  const stableRead = run(root, 'acceptance_basis', { storyId, json: true });
+  const stableTopology = run(root, 'acceptance_topology_check', { storyId, json: true });
+  assert.doesNotMatch(stableRead, /AT_ADAPTER_RESULT_DIGEST_MISMATCH|AT_CLOSURE_FILES_STALE/);
+  assert.doesNotMatch(stableTopology, /AT_ADAPTER_RESULT_DIGEST_MISMATCH|AT_CLOSURE_FILES_STALE/);
+  write(root, `.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":false}\n');
+  assert.match(
+    run(root, 'acceptance_basis', { storyId, json: true }),
+    /basis semantic discovery digest mismatch|snapshot seal digest mismatch|"status": "invalid"/,
+    'nested same-basename content mutation still bites',
+  );
+  write(root, `.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":true}\n');
+  run(root, 'acceptance_basis_generate', { storyId, json: true });
+  artifact = store.readAcceptanceBasis(storyId)!;
+  write(root, 'packages/main/src/acceptance-basis.json', '{"staticSource":false}\n');
+  assert.match(
+    run(root, 'acceptance_basis', { storyId, json: true }),
+    /basis semantic discovery digest mismatch|snapshot seal digest mismatch|"status": "invalid"/,
+    'same-basename static source mutation still bites',
+  );
+  write(root, 'packages/main/src/acceptance-basis.json', '{"staticSource":true}\n');
+  run(root, 'acceptance_basis_generate', { storyId, json: true });
+  artifact = store.readAcceptanceBasis(storyId)!;
 
-  rmSync(join(root, 'tsconfig.json'));
+  rmSync(join(root, 'packages/main/tsconfig.json'));
   git(root, ['add', '-A']);
   git(root, ['commit', '-m', 'remove supported profile marker']);
   const unsupportedCli = run(root, 'acceptance_basis_generate', { storyId, json: true });
   assert.match(unsupportedCli, /"status": "unsupported"/, 'real CLI emits unsupported when the registered profile is unavailable');
-  write(root, 'tsconfig.json', '{}\n');
+  write(root, 'packages/main/tsconfig.json', '{}\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'restore supported profile marker']);
   run(root, 'acceptance_basis_generate', { storyId, json: true });
@@ -1064,7 +1448,7 @@ try {
     status: git(root, ['status', '--porcelain']),
   }, legacySnapshot, 'legacy read and failed generation leave no partial artifact, event, or lifecycle mutation');
 
-  write(root, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => false;\n');
+  write(root, 'packages/main/src/consumer.ts', "import { produceBasis } from './producer.js'; export const verifyBasis = () => produceBasis() && false; export const invokeBasis=()=>verifyBasis();\n");
   git(root, ['add', 'packages/main/src/consumer.ts']);
   git(root, ['commit', '-m', 'mutate closure source']);
   const stale = run(root, 'acceptance_basis', { storyId, json: true });

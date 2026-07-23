@@ -7,15 +7,27 @@ import type {
   CoverageAdapterResultV1,
   CoverageDiscoveryMethodV1,
   PlannedCoveragePathV1,
+  VerificationPlannedPathEndpointV1,
 } from './types.js';
 import { digestCanonicalJson, digestText } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
 import { RUNTIME_FACT_REGISTRY } from './runtime-fact-registry.js';
+import { LATTICE_STORY_DIR } from './lattice-paths.js';
 
 export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
   ref: 'profile:typescript-proof-gate:plan:v1',
   methods: ['scope_contract', 'process_fact_registry', 'handler_dispatch_inventory', 'static_call_graph', 'runtime_trace'] as CoverageDiscoveryMethodV1[],
 } as const;
+
+const PLAN_CONTROL_FACT_NAMES = ['acceptance_basis', 'acceptance_basis_generate', 'acceptance_topology_check', 'artifact:acceptance-basis.json'] as const;
+const PRE_REVIEW_CONTROL_FACT_NAMES = ['pre_review_check', 'pre_review_check_read', 'artifact:pre-review-check.json'] as const;
+
+/** Canonical phase in which a discovery control fact first becomes material. */
+export function acceptanceDiscoveryFactActivationPhase(factName: string): 'plan' | 'pre_review' | null {
+  if ((PLAN_CONTROL_FACT_NAMES as readonly string[]).includes(factName)) return 'plan';
+  if ((PRE_REVIEW_CONTROL_FACT_NAMES as readonly string[]).includes(factName)) return 'pre_review';
+  return null;
+}
 
 export interface AcceptanceDiscoveryInput {
   supported: boolean;
@@ -23,6 +35,11 @@ export interface AcceptanceDiscoveryInput {
   storyId: string;
   plannedPathRecords: PlannedCoveragePathV1[];
   scopeRefs: string[];
+  /** Canonical topology refs that require registry closure even across scope. */
+  topologyPathRefs?: string[];
+  /** Compatibility-only helper mode for explicitly requesting a whole seeded handler factory. */
+  expandSeedHandlerCommands?: boolean;
+  phaseBasis?: 'plan' | 'pre_review';
   /** Test-only bounded runtime observations; production derives without caller-authored paths. */
   runtimeObservedPathRefs?: string[];
   /** Test-only mutation point after graph/provenance assembly and before the derivation seal. */
@@ -96,6 +113,11 @@ interface FactoryInventory {
   commandKeys: string[];
 }
 
+interface HandlerFactoryResolution {
+  commandKeys: string[];
+  blindSpots: string[];
+}
+
 interface BoundedSourceGraph {
   seedFiles: string[];
   sourceInventoryFiles: string[];
@@ -110,7 +132,7 @@ interface BoundedSourceGraph {
 
 interface LocalImportCallScan {
   imports: Array<{ imported: string; local: string; sourceFile: string }>;
-  calledImports: Array<{ imported: string; local: string; sourceFile: string }>;
+  calledImports: Array<{ imported: string; local: string; sourceFile: string; caller: string | null }>;
   blindSpots: string[];
   unresolvedImports: string[];
 }
@@ -126,6 +148,12 @@ interface BindingAnalysisContext {
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']);
 const SOURCE_INVENTORY_EXCLUDED_DIRECTORIES = new Set(['.git', '.lattice', '.worktrees', 'dist', 'node_modules']);
+const GENERATED_PROOF_ARTIFACT_BASENAMES = new Set([
+  'acceptance-basis.json',
+  'pre-review-check.json',
+  'topology-critic-receipt.json',
+  'topology-exclusion-approvals.json',
+]);
 const DEFAULT_SOURCE_INVENTORY_BUDGET = {
   maxDirectories: 10_000,
   maxEntries: 100_000,
@@ -133,6 +161,10 @@ const DEFAULT_SOURCE_INVENTORY_BUDGET = {
   maxBytes: 100 * 1024 * 1024,
 } as const;
 const MAX_LEXICAL_SOURCE_BYTES = 2 * 1024 * 1024;
+
+function supportsBindingAnalysis(file: string): boolean {
+  return SOURCE_EXTENSIONS.has(extname(file).toLowerCase());
+}
 
 export interface SourceInventoryTraversalBudget {
   maxDirectories: number;
@@ -359,6 +391,33 @@ export function enumerateBoundedSourceTree(
 
 const MAX_LATTICE_CONFIG_BYTES = 64 * 1024;
 
+/**
+ * Detect the TypeScript discovery profile from no-follow workspace snapshots.
+ * A repository-level tsconfig remains valid; package layouts may instead put
+ * the canonical tsconfig at lattice.config.scanRoot. Unsafe or ambiguous
+ * config paths never become support authority.
+ */
+export function detectAcceptanceDiscoverySupport(workspaceRoot: string): boolean {
+  const rootContext = createSourceReadContext(workspaceRoot);
+  if (readSourceSafely(rootContext, 'tsconfig.json').text !== undefined) return true;
+  const configContext = createSourceReadContext(workspaceRoot);
+  const configRead = readSourceSafely(configContext, 'lattice.config.json', MAX_LATTICE_CONFIG_BYTES);
+  if (configRead.text === undefined) return false;
+  try {
+    const parsed = JSON.parse(configRead.text) as unknown;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return false;
+    const config = parsed as Record<string, unknown>;
+    const scanRoot = config.scanRoot;
+    const rootDir = config.rootDir;
+    if (typeof scanRoot !== 'string' || scanRoot.trim().length === 0
+      || isAbsolute(scanRoot) || scanRoot.split(/[\\/]/).includes('..')
+      || (rootDir !== undefined && (typeof rootDir !== 'string' || rootDir.trim().length === 0
+        || isAbsolute(rootDir) || rootDir.split(/[\\/]/).includes('..')))) return false;
+    const candidate = join(scanRoot, 'tsconfig.json');
+    return readSourceSafely(configContext, candidate).text !== undefined;
+  } catch { return false; }
+}
+
 function configuredSourceInventory(workspaceRoot: string, readContext: SourceReadContext): { files: string[]; blindSpots: string[]; directoryFingerprints: DirectoryFingerprint[] } {
   let rawConfig: Record<string, unknown>;
   try {
@@ -378,6 +437,16 @@ function configuredSourceInventory(workspaceRoot: string, readContext: SourceRea
       || isAbsolute(configuredRootDir) || configuredRootDir.split(/[\\/]/).includes('..')))) {
     return { files: [], blindSpots: ['canonical scanRoot/rootDir is missing or ambiguous'], directoryFingerprints: [] };
   }
+  const profileCandidates = stable(['tsconfig.json', join(configuredScanRoot, 'tsconfig.json')]);
+  let profileMarker: string | null = null;
+  for (const candidate of profileCandidates) {
+    if (readSourceSafely(readContext, candidate).text !== undefined) {
+      profileMarker = candidate;
+      break;
+    }
+  }
+  if (!profileMarker) return { files: [], blindSpots: ['canonical TypeScript profile marker is missing or unreadable'], directoryFingerprints: [] };
+  for (const candidate of profileCandidates) if (candidate !== profileMarker) readContext.failures.delete(candidate);
   // Only the fields that choose discovery scope belong to the cross-run basis
   // identity. The raw file fingerprint is still retained and revalidated below
   // during this assembly, so a concurrent config mutation remains fail-closed.
@@ -680,6 +749,10 @@ function createBindingAnalysisContext(root: string, files: readonly string[], re
   for (const file of stable(files)) {
     const read = readSourceSafely(readContext, file);
     if (read.blindSpot || read.text === undefined) { readBlindSpots.set(file, [read.blindSpot ?? `source file is unreadable: ${file}`]); continue; }
+    // Non-code process-fact assets still participate in the immutable freshness
+    // snapshot, but they are not TypeScript programs and must not create parser
+    // blind spots merely by entering the registered closure.
+    if (!supportsBindingAnalysis(file)) continue;
     try {
       const absolute = resolve(physicalRoot, file);
       const source = ts.createSourceFile(absolute, read.text, ts.ScriptTarget.Latest, true, scriptKindFor(file));
@@ -810,21 +883,31 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
     ts.forEachChild(node, visitModuleBindings);
   };
   visitModuleBindings(source);
-  const called: Array<{ imported: string; local: string; sourceFile: string }> = [];
+  const callerFor = (node: ts.Node): string | null => {
+    let current: ts.Node | undefined = node;
+    while (current && current !== source) {
+      if (ts.isFunctionDeclaration(current) && current.name) return current.name.text;
+      if ((ts.isArrowFunction(current) || ts.isFunctionExpression(current)) && ts.isVariableDeclaration(current.parent)
+        && ts.isIdentifier(current.parent.name)) return current.parent.name.text;
+      current = current.parent;
+    }
+    return null;
+  };
+  const called: Array<{ imported: string; local: string; sourceFile: string; caller: string | null }> = [];
   const visit = (node: ts.Node): void => {
     if (ts.isCallExpression(node)) {
       const inlineModule = moduleCall(node.expression);
       if (inlineModule) {
         supportedModuleCalls.add(inlineModule.call);
         const sourceFile = resolveSpecifier(inlineModule.specifier);
-        if (sourceFile && inlineModule.kind === 'require') called.push({ imported: 'default', local: 'default', sourceFile });
+        if (sourceFile && inlineModule.kind === 'require') called.push({ imported: 'default', local: 'default', sourceFile, caller: callerFor(node) });
         else if (inlineModule.kind === 'import') bindingBlindSpots.push(`module namespace is not directly callable in ${file}`);
       }
       const directProperty = propertyModuleCall(node.expression);
       if (directProperty?.module) {
         supportedModuleCalls.add(directProperty.module.call);
         const sourceFile = resolveSpecifier(directProperty.module.specifier);
-        if (sourceFile) called.push({ imported: directProperty.property, local: directProperty.property, sourceFile });
+        if (sourceFile) called.push({ imported: directProperty.property, local: directProperty.property, sourceFile, caller: callerFor(node) });
       }
       let target: ts.Identifier | null = null;
       let property: string | null = null;
@@ -842,9 +925,9 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
         for (const binding of bindings.filter(candidate => candidate.local === target!.text)) {
           if (!targetSymbol) { bindingBlindSpots.push(`unresolved call binding ${target.text} in ${file}`); continue; }
           if (!binding.symbol || targetSymbol !== binding.symbol) continue;
-          if (property === null && binding.direct) called.push({ imported: binding.imported, local: binding.local, sourceFile: binding.sourceFile });
+          if (property === null && binding.direct) called.push({ imported: binding.imported, local: binding.local, sourceFile: binding.sourceFile, caller: callerFor(node) });
           if (property === null && !binding.direct && binding.imported === '*') bindingBlindSpots.push(`module namespace is not directly callable in ${file}`);
-          if (property !== null && binding.property) called.push({ imported: property, local: binding.local, sourceFile: binding.sourceFile });
+          if (property !== null && binding.property) called.push({ imported: property, local: binding.local, sourceFile: binding.sourceFile, caller: callerFor(node) });
         }
       }
       const possibleDynamic = unwrapExpression(node.expression);
@@ -865,37 +948,167 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
   return { imports: stableRows(imports), calledImports: stableRows(called), blindSpots: stable(bindingBlindSpots), unresolvedImports: stable(unresolved) };
 }
 
-function returnedHandlerKeysFromText(sourceText: string): string[] {
-  const text = executableText(sourceText);
-  const returnIndex = text.indexOf('return {');
-  if (returnIndex < 0) return [];
-  const body = text.slice(returnIndex + 'return {'.length);
-  return stable([...body.matchAll(/^\s+([a-z][a-z0-9_]*)\s*(?:\([^\n]*\)\s*(?::[^\n{]+)?\{|:\s*)/gm)].map(match => match[1]));
+function resolveHandlerFactoryKeys(
+  context: BindingAnalysisContext,
+  sourceFile: string,
+  factoryName: string,
+  visiting = new Set<string>(),
+  memo = new Map<string, HandlerFactoryResolution>(),
+): HandlerFactoryResolution {
+  const identity = `${sourceFile}#${factoryName}`;
+  const cached = memo.get(identity);
+  if (cached) return cached;
+  if (!/^[A-Za-z_$][\w$]*Handlers$/.test(factoryName)) {
+    return { commandKeys: [], blindSpots: [`unsupported handler factory name ${identity}`] };
+  }
+  if (visiting.has(identity)) {
+    return { commandKeys: [], blindSpots: [`handler factory spread cycle at ${identity}`] };
+  }
+  const source = context.sourceFiles.get(sourceFile);
+  if (!source) {
+    return { commandKeys: [], blindSpots: context.readBlindSpots.get(sourceFile) ?? [`handler factory source is uninspectable: ${identity}`] };
+  }
+  const declarations = source.statements.filter((statement): statement is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(statement) && statement.name?.text === factoryName && statement.body !== undefined);
+  if (declarations.length !== 1) {
+    const result = { commandKeys: [], blindSpots: [`handler factory declaration is ${declarations.length === 0 ? 'missing' : 'ambiguous'}: ${identity}`] };
+    memo.set(identity, result);
+    return result;
+  }
+  const returns = declarations[0].body!.statements
+    .filter((statement): statement is ts.ReturnStatement => ts.isReturnStatement(statement) && statement.expression !== undefined)
+    .map(statement => unwrapExpression(statement.expression!))
+    .filter(ts.isObjectLiteralExpression);
+  if (returns.length !== 1) {
+    const result = { commandKeys: [], blindSpots: [`handler factory returned command object is ${returns.length === 0 ? 'missing' : 'ambiguous'}: ${identity}`] };
+    memo.set(identity, result);
+    return result;
+  }
+  const keys: string[] = [];
+  const blindSpots: string[] = [];
+  const propertyName = (name: ts.PropertyName | undefined): string | null => {
+    if (!name) return null;
+    if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
+    return null;
+  };
+  visiting.add(identity);
+  for (const property of returns[0].properties) {
+    if (ts.isMethodDeclaration(property) || ts.isPropertyAssignment(property) || ts.isShorthandPropertyAssignment(property)) {
+      const key = propertyName(property.name);
+      if (key && /^[a-z][a-z0-9_]*$/.test(key)) keys.push(key);
+      continue;
+    }
+    if (!ts.isSpreadAssignment(property)) continue;
+    const spread = unwrapExpression(property.expression);
+    if (!ts.isCallExpression(spread) || spread.arguments.length !== 1
+      || !ts.isIdentifier(spread.arguments[0]) || spread.arguments[0].text !== 'ctx'
+      || !ts.isIdentifier(unwrapExpression(spread.expression))) {
+      blindSpots.push(`unsupported handler factory spread in ${identity}`);
+      continue;
+    }
+    const localName = (unwrapExpression(spread.expression) as ts.Identifier).text;
+    if (!/^[A-Za-z_$][\w$]*Handlers$/.test(localName)) {
+      blindSpots.push(`unsupported handler factory spread target ${localName} in ${identity}`);
+      continue;
+    }
+    const localTargets = source.statements
+      .filter((statement): statement is ts.FunctionDeclaration => ts.isFunctionDeclaration(statement) && statement.name?.text === localName && statement.body !== undefined)
+      .map(() => ({ sourceFile, factoryName: localName }));
+    const importedTargets = analyzeLocalImportCalls(context, sourceFile).imports
+      .filter(binding => binding.local === localName && /^[A-Za-z_$][\w$]*Handlers$/.test(binding.imported))
+      .map(binding => ({ sourceFile: binding.sourceFile, factoryName: binding.imported }));
+    const targets = [...new Map([...localTargets, ...importedTargets]
+      .map(target => [`${target.sourceFile}#${target.factoryName}`, target])).values()];
+    if (targets.length !== 1) {
+      blindSpots.push(`handler factory spread target is ${targets.length === 0 ? 'missing' : 'ambiguous'}: ${identity}->${localName}`);
+      continue;
+    }
+    const nested = resolveHandlerFactoryKeys(context, targets[0].sourceFile, targets[0].factoryName, visiting, memo);
+    keys.push(...nested.commandKeys);
+    blindSpots.push(...nested.blindSpots);
+  }
+  visiting.delete(identity);
+  const result = { commandKeys: stable(keys), blindSpots: stable(blindSpots) };
+  memo.set(identity, result);
+  return result;
 }
 
 function commandNamesForEntry(entry: ProcessFactRegistryEntry): string[] {
-  const producerCommands = (entry.artifact?.producerCommand ?? '').split('/').filter(value => /^[a-z][a-z0-9_]*$/.test(value));
+  const producerCommands = artifactProducerCommands(entry);
   return stable([...producerCommands, ...(/^[a-z][a-z0-9_]*$/.test(entry.name) ? [entry.name] : [])]);
 }
 
-function sourceSeedFiles(input: AcceptanceDiscoveryInput): string[] {
+function artifactProducerCommands(entry: ProcessFactRegistryEntry): string[] {
+  return (entry.artifact?.producerCommand ?? '').split('/').filter(value => /^[a-z][a-z0-9_]*$/.test(value));
+}
+
+function isDispatchableProcessFact(entry: ProcessFactRegistryEntry): boolean {
+  return entry.lifecycle !== undefined && /^[a-z][a-z0-9_]*$/.test(entry.name);
+}
+
+function graphFactoryCommandRegistered(factories: readonly FactoryInventory[], command: string): boolean {
+  return factories.some(factory => factory.registered && factory.commandKeys.includes(command));
+}
+
+function topologyFactNames(input: AcceptanceDiscoveryInput): Set<string> {
+  return new Set((input.topologyPathRefs ?? [])
+    .map(ref => ref.startsWith('process-fact:') ? ref.slice('process-fact:'.length) : ref.startsWith('path:process-fact:') ? ref.slice('path:process-fact:'.length).split('->consumer:')[0] : '')
+    .filter(Boolean));
+}
+
+function generatedStoryArtifactDirectory(context: SourceReadContext, storyId: string): string | null {
+  try {
+    const read = readSourceSafely(context, 'lattice.config.json', MAX_LATTICE_CONFIG_BYTES);
+    if (read.text === undefined) return null;
+    const parsed = JSON.parse(read.text) as Record<string, unknown>;
+    const configured = parsed.storyDir ?? LATTICE_STORY_DIR;
+    if (typeof configured !== 'string' || configured.trim().length === 0
+      || isAbsolute(configured) || configured.split(/[\\/]/).includes('..')) return null;
+    return `${configured.replace(/\\/g, '/').replace(/\/+$/, '')}/${storyId}/`;
+  } catch { return null; }
+}
+
+function sourceSeedFiles(input: AcceptanceDiscoveryInput, storyArtifactDirectory: string | null): string[] {
+  // These files remain scope/process-fact evidence, but their generated
+  // bytes cannot define the source closure that signs the next generation.
   return stable([
     ...input.scopeRefs.filter(ref => ref.startsWith('scope:file:')).map(ref => ref.slice('scope:file:'.length)),
     ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
-  ]);
+  ]).filter(file => {
+    const canonical = file.replace(/\\/g, '/');
+    const basename = canonical.split('/').at(-1) ?? '';
+    return !(storyArtifactDirectory
+      && GENERATED_PROOF_ARTIFACT_BASENAMES.has(basename)
+      && canonical === `${storyArtifactDirectory}${basename}`);
+  });
 }
 
 function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSourceGraph {
   const root = input.workspaceRoot;
   const readContext = createSourceReadContext(root);
-  const seedFiles = sourceSeedFiles(input);
+  const seedFiles = sourceSeedFiles(input, generatedStoryArtifactDirectory(readContext, input.storyId));
   const sourceInventory = configuredSourceInventory(root, readContext);
   const blindSpots: string[] = [...sourceInventory.blindSpots];
   const registryCandidates = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)]);
   const analysisContext = createBindingAnalysisContext(root, stable([...sourceInventory.files, ...seedFiles, ...registryCandidates]), readContext);
   const registryFiles = registryCandidates.filter(file => file === 'packages/main/src/registry.ts'
     || executableText(analysisContext.sourceFiles.get(file)?.text ?? '').includes('registerBatch('));
+  const planControlFacts = new Set<string>(PLAN_CONTROL_FACT_NAMES);
+  const preReviewControlFacts = new Set<string>(PRE_REVIEW_CONTROL_FACT_NAMES);
+  const phaseControlFacts = new Set([...planControlFacts, ...preReviewControlFacts, 'acceptance_topology_check',
+    'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'topology_critic_receipt_check',
+    'artifact:topology-exclusion-approvals.json', 'artifact:topology-critic-receipt.json']);
+  const allowedPhaseControlFacts = (input.phaseBasis ?? 'plan') === 'pre_review'
+    ? new Set([...planControlFacts, ...preReviewControlFacts]) : planControlFacts;
+  const explicitTopologyFactNames = topologyFactNames(input);
+  const plannedFactNames = new Set(input.plannedPathRecords.flatMap(record => [
+    record.outputFactRef.replace(/^process-fact:/, '').replace(/-/g, '_'),
+    record.producer.expectedSymbolOrFact,
+    ...record.consumers.map(consumer => consumer.expectedSymbolOrFact),
+  ]).filter(value => /^[a-z][a-z0-9_:.-]*$/.test(value)));
+  const relevantFactNames = new Set([...allowedPhaseControlFacts, ...explicitTopologyFactNames, ...plannedFactNames]);
   const factories: FactoryInventory[] = [];
+  const handlerResolutionMemo = new Map<string, HandlerFactoryResolution>();
   for (const registryFile of registryFiles) {
     const source = analysisContext.sourceFiles.get(registryFile);
     if (!source) { blindSpots.push(...(analysisContext.readBlindSpots.get(registryFile) ?? [`uninspectable registry source ${registryFile}`])); continue; }
@@ -905,15 +1118,18 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
     const imports = registryScan.imports;
     const registrations = new Set([...text.matchAll(/registry\.registerBatch\(\s*([A-Za-z_$][\w$]*)\s*\(\s*ctx\s*\)\s*\)/g)].map(match => match[1]));
     for (const imported of imports.filter(item => /Handlers$/.test(item.imported) || /Handlers$/.test(item.local))) {
-      if (!seedFiles.includes(imported.sourceFile)) continue;
       const registered = registrations.has(imported.local);
-      const commandKeys = returnedHandlerKeysFromText(analysisContext.sourceFiles.get(imported.sourceFile)?.text ?? '');
+      const resolution = resolveHandlerFactoryKeys(analysisContext, imported.sourceFile, imported.imported, new Set(), handlerResolutionMemo);
+      const commandKeys = resolution.commandKeys;
+      if (!seedFiles.includes(imported.sourceFile)
+        && input.expandSeedHandlerCommands !== true
+        && !commandKeys.some(command => relevantFactNames.has(command))) continue;
       factories.push({ factory: imported.local, sourceFile: imported.sourceFile, registered, commandKeys });
+      blindSpots.push(...resolution.blindSpots);
       if (!registered) blindSpots.push(`handler factory ${imported.local} from ${imported.sourceFile} lacks exact registerBatch(factory(ctx))`);
       if (commandKeys.length === 0) blindSpots.push(`handler factory ${imported.local} from ${imported.sourceFile} has ambiguous or empty returned command object`);
     }
   }
-  const handlerCommands = new Set(factories.flatMap(factory => factory.commandKeys));
   const inferredHandlerFiles = new Map<string, string>();
   for (const factory of factories) for (const command of factory.commandKeys) inferredHandlerFiles.set(command, factory.sourceFile);
   const entryFiles = (entry: ProcessFactRegistryEntry): string[] => stable([
@@ -923,37 +1139,48 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const closure = new Set(seedFiles);
   const reached = new Set<ProcessFactRegistryEntry>();
   const hubs = new Set(registryFiles);
-  const boundedUniverse = sourceInventory.files;
-  const sourceScans = new Map(boundedUniverse.map(file => [file, analyzeLocalImportCalls(analysisContext, file)]));
-  blindSpots.push(...[...sourceScans.values()].flatMap(scan => scan.blindSpots));
+  const sourceScans = new Map<string, LocalImportCallScan>();
   let changed = true;
   while (changed) {
     changed = false;
     for (const entry of PROCESS_FACT_REGISTRY) {
+      if ((input.phaseBasis ?? 'plan') === 'plan'
+        && acceptanceDiscoveryFactActivationPhase(entry.name) === 'pre_review') continue;
+      if (phaseControlFacts.has(entry.name)) {
+        if (!allowedPhaseControlFacts.has(entry.name) && !explicitTopologyFactNames.has(entry.name)) continue;
+      }
       const files = entryFiles(entry).filter(file => !hubs.has(file));
-      const commandMatch = commandNamesForEntry(entry).some(command => handlerCommands.has(command));
-      if (!commandMatch && !files.some(file => closure.has(file))) continue;
+      const explicitTopologyMatch = explicitTopologyFactNames.has(entry.name);
+      const phaseControlMatch = allowedPhaseControlFacts.has(entry.name);
+      const plannedMatch = plannedFactNames.has(entry.name)
+        || (['artifact', 'signed-artifact'].includes(entry.kind)
+          && artifactProducerCommands(entry).some(command => plannedFactNames.has(command)));
+      const expandedHandlerMatch = input.expandSeedHandlerCommands === true
+        && commandNamesForEntry(entry).some(command => inferredHandlerFiles.has(command));
+      if (!phaseControlMatch && !explicitTopologyMatch && !plannedMatch && !expandedHandlerMatch) continue;
       if (!reached.has(entry)) { reached.add(entry); changed = true; }
       for (const file of files) if (!closure.has(file)) { closure.add(file); changed = true; }
     }
-    for (const file of boundedUniverse.filter(file => !hubs.has(file) && !closure.has(file))) {
-      if ((sourceScans.get(file)?.calledImports ?? []).some(item => closure.has(item.sourceFile))) { closure.add(file); changed = true; }
-    }
+  }
+  for (const file of closure) {
+    blindSpots.push(...(analysisContext.readBlindSpots.get(file) ?? []));
+    if (supportsBindingAnalysis(file)) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
   }
   for (const entry of reached) {
     for (const file of entryFiles(entry)) if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
     if (entry.consumerGate) {
-      const explicitConsumer = (entry.consumerSourceRefs ?? []).some(file => existsSync(resolve(root, file)));
+      const dispatchConsumer = isDispatchableProcessFact(entry)
+        && graphFactoryCommandRegistered(factories, entry.name);
+      const explicitConsumer = dispatchConsumer || (entry.consumerSourceRefs ?? []).some(file => existsSync(resolve(root, file)));
       const producerFiles = stable([
         ...(entry.producerSourceRefs ?? []),
         ...commandNamesForEntry(entry).map(command => inferredHandlerFiles.get(command) ?? '').filter(Boolean),
       ]);
-      const discoveredConsumer = sourceInventory.files.some(file => !hubs.has(file) && !producerFiles.includes(file)
+      const discoveredConsumer = [...closure].some(file => !hubs.has(file) && !producerFiles.includes(file)
         && (sourceScans.get(file)?.calledImports ?? []).some(item => producerFiles.includes(item.sourceFile)));
       if (!explicitConsumer && !discoveredConsumer) blindSpots.push(`process fact ${entry.name} has consumerGate but no resolvable consumer source`);
     }
   }
-  for (const file of closure) if (!sourceScans.has(file)) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
   return {
     seedFiles, sourceInventoryFiles: sourceInventory.files, closureFiles: stable([...closure]), entries: [...reached], factories,
     sourceScans, blindSpots: stable(blindSpots), readContext, directoryFingerprints: sourceInventory.directoryFingerprints,
@@ -978,7 +1205,7 @@ function registeredProcessFactClosureFromGraph(graph: BoundedSourceGraph): Regis
 }
 
 export function deriveRegisteredProcessFactClosure(workspaceRoot: string, seedRefs: readonly string[]): RegisteredProcessFactClosure {
-  const graph = buildBoundedSourceGraph({ supported: true, workspaceRoot, storyId: '<closure>', plannedPathRecords: [], scopeRefs: seedRefs.map(ref => ref.startsWith('scope:file:') ? ref : `scope:file:${ref}`) });
+  const graph = buildBoundedSourceGraph({ supported: true, workspaceRoot, storyId: '<closure>', plannedPathRecords: [], scopeRefs: seedRefs.map(ref => ref.startsWith('scope:file:') ? ref : `scope:file:${ref}`), expandSeedHandlerCommands: true });
   return registeredProcessFactClosureFromGraph(graph);
 }
 
@@ -1022,21 +1249,149 @@ function catalogCommands(context: SourceReadContext): Set<string> {
   catch { return new Set(); }
 }
 
-function staticCallPaths(root: string, graph: BoundedSourceGraph): { paths: string[]; blindSpots: string[] } {
+function staticCallPaths(input: AcceptanceDiscoveryInput, graph: BoundedSourceGraph): { paths: string[]; blindSpots: string[] } {
   const paths: string[] = [];
   const blindSpots: string[] = [];
-  for (const file of graph.closureFiles.filter(value => !value.endsWith('/registry.ts'))) {
-    const absolute = resolve(root, file);
+  const explicitFacts = topologyFactNames(input);
+  const relevantFiles = new Set([
+    ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
+    ...graph.entries.filter(entry => explicitFacts.has(entry.name)).flatMap(sourceFiles),
+    ...graph.factories.filter(factory => factory.commandKeys.some(command => explicitFacts.has(command))).map(factory => factory.sourceFile),
+  ]);
+  const bindingRequiredFiles = new Set([
+    ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
+    ...graph.factories.filter(factory => factory.commandKeys.some(command => explicitFacts.has(command))).map(factory => factory.sourceFile),
+  ]);
+  for (const file of stable([...relevantFiles]).filter(value => !value.endsWith('/registry.ts'))) {
+    const absolute = resolve(input.workspaceRoot, file);
     if (!existsSync(absolute)) continue;
     const scan = graph.sourceScans.get(file);
-    if (!scan) { blindSpots.push(`source file lacks binding analysis context: ${file}`); continue; }
-    blindSpots.push(...scan.blindSpots, ...scan.unresolvedImports);
+    if (!scan) {
+      if (bindingRequiredFiles.has(file)) blindSpots.push(`source file lacks binding analysis context: ${file}`);
+      continue;
+    }
+    // A process-fact source ref is sufficient for freshness binding, but does
+    // not make every import in that file part of the claimed edge. Binding
+    // ambiguity blocks only files needed to resolve planned endpoints or an
+    // explicitly relevant handler dispatch.
+    if (bindingRequiredFiles.has(file)) blindSpots.push(...scan.blindSpots, ...scan.unresolvedImports);
     for (const imported of scan.calledImports) {
-      if (!graph.closureFiles.includes(imported.sourceFile) || /Handlers$/.test(imported.imported)) continue;
+      if (!relevantFiles.has(imported.sourceFile) || /Handlers$/.test(imported.imported)) continue;
       paths.push(`path:static-call:${imported.sourceFile}#${imported.imported}->consumer:${file}#${imported.local}`);
     }
   }
   return { paths: stable(paths), blindSpots: stable(blindSpots) };
+}
+
+function isExported(node: ts.Node): boolean {
+  return (ts.getCombinedModifierFlags(node as ts.Declaration) & ts.ModifierFlags.Export) !== 0;
+}
+
+function exportedCallableCount(source: ts.SourceFile, expected: string): number {
+  let count = 0;
+  for (const statement of source.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name?.text === expected && statement.body && isExported(statement)) count += 1;
+    if (!ts.isVariableStatement(statement) || !isExported(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== expected || !declaration.initializer) continue;
+      const initializer = unwrapExpression(declaration.initializer);
+      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) count += 1;
+    }
+  }
+  return count;
+}
+
+function sameFileCallableCalls(source: ts.SourceFile, caller: string, callee: string): boolean {
+  let found = false;
+  const inspectBody = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) && ts.isIdentifier(unwrapExpression(node.expression))
+      && (unwrapExpression(node.expression) as ts.Identifier).text === callee) found = true;
+    if (!found) ts.forEachChild(node, inspectBody);
+  };
+  for (const statement of source.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name?.text === caller && statement.body) inspectBody(statement.body);
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== caller || !declaration.initializer) continue;
+      const initializer = unwrapExpression(declaration.initializer);
+      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) inspectBody(initializer.body);
+    }
+  }
+  return found;
+}
+
+function hasSameFileIncomingCall(source: ts.SourceFile, expected: string): boolean {
+  for (const statement of source.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name && statement.name.text !== expected
+      && sameFileCallableCalls(source, statement.name.text, expected)) return true;
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (ts.isIdentifier(declaration.name) && declaration.name.text !== expected
+        && sameFileCallableCalls(source, declaration.name.text, expected)) return true;
+    }
+  }
+  return false;
+}
+
+function registeredHandlerEndpoint(graph: BoundedSourceGraph, endpoint: VerificationPlannedPathEndpointV1): boolean {
+  return graph.factories.some(factory => factory.registered && factory.sourceFile === endpoint.expectedFileRef
+    && factory.commandKeys.includes(endpoint.expectedSymbolOrFact));
+}
+
+function endpointMatchesArtifactKind(graph: BoundedSourceGraph, endpoint: VerificationPlannedPathEndpointV1): boolean {
+  if (endpoint.expectedArtifactKind === 'process_fact') {
+    return graph.entries.some(entry => entry.name === endpoint.expectedSymbolOrFact && sourceFiles(entry).includes(endpoint.expectedFileRef));
+  }
+  const registered = registeredHandlerEndpoint(graph, endpoint);
+  if (endpoint.expectedArtifactKind === 'dispatch') return registered;
+  const source = graph.sourceScans.get(endpoint.expectedFileRef) ? graph.readContext.snapshots.get(endpoint.expectedFileRef) : undefined;
+  if (source === undefined) return false;
+  const parsed = ts.createSourceFile(endpoint.expectedFileRef, source, ts.ScriptTarget.Latest, true, scriptKindFor(endpoint.expectedFileRef));
+  const exported = exportedCallableCount(parsed, endpoint.expectedSymbolOrFact);
+  if (endpoint.expectedArtifactKind === 'handler') return Number(registered) + exported === 1;
+  return exported === 1;
+}
+
+function endpointIsRuntimeReachable(graph: BoundedSourceGraph, endpoint: VerificationPlannedPathEndpointV1): boolean {
+  if (endpoint.expectedArtifactKind === 'process_fact' || registeredHandlerEndpoint(graph, endpoint)) return true;
+  const importedIncoming = [...graph.sourceScans.values()].some(scan => scan.calledImports.some(call =>
+    call.sourceFile === endpoint.expectedFileRef && call.imported === endpoint.expectedSymbolOrFact));
+  if (importedIncoming) return true;
+  const sourceText = graph.readContext.snapshots.get(endpoint.expectedFileRef);
+  if (sourceText === undefined) return false;
+  const source = ts.createSourceFile(endpoint.expectedFileRef, sourceText, ts.ScriptTarget.Latest, true, scriptKindFor(endpoint.expectedFileRef));
+  return hasSameFileIncomingCall(source, endpoint.expectedSymbolOrFact);
+}
+
+function producerConsumerRelation(
+  graph: BoundedSourceGraph,
+  producer: VerificationPlannedPathEndpointV1,
+  consumer: VerificationPlannedPathEndpointV1,
+): boolean {
+  const importedCall = (graph.sourceScans.get(consumer.expectedFileRef)?.calledImports ?? []).some(call =>
+    call.sourceFile === producer.expectedFileRef && call.imported === producer.expectedSymbolOrFact
+      && call.caller === consumer.expectedSymbolOrFact);
+  const source = graph.readContext.snapshots.get(consumer.expectedFileRef) !== undefined
+    ? ts.createSourceFile(consumer.expectedFileRef, graph.readContext.snapshots.get(consumer.expectedFileRef)!, ts.ScriptTarget.Latest, true, scriptKindFor(consumer.expectedFileRef))
+    : undefined;
+  const sameFileCall = producer.expectedFileRef === consumer.expectedFileRef && source
+    ? sameFileCallableCalls(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact) : false;
+  const registryRelation = (producer.expectedArtifactKind === 'process_fact' || consumer.expectedArtifactKind === 'process_fact')
+    && graph.entries.some(entry => commandNamesForEntry(entry).includes(producer.expectedSymbolOrFact)
+    && (entry.consumerSourceRefs ?? []).includes(consumer.expectedFileRef)
+    && (sourceFiles(entry).includes(producer.expectedFileRef) || registeredHandlerEndpoint(graph, producer)));
+  return importedCall || sameFileCall || registryRelation;
+}
+
+function actualEndpointPathRefs(input: AcceptanceDiscoveryInput, graph: BoundedSourceGraph): string[] {
+  const refs: string[] = [];
+  for (const record of input.plannedPathRecords) {
+    const endpoints = [record.producer, ...record.consumers];
+    if (!endpoints.every(endpoint => endpointMatchesArtifactKind(graph, endpoint) && endpointIsRuntimeReachable(graph, endpoint))) continue;
+    if (!record.consumers.every(consumer => producerConsumerRelation(graph, record.producer, consumer))) continue;
+    refs.push(...endpoints.map(endpoint => `actual:${endpoint.expectedArtifactKind}:${endpoint.expectedFileRef}#${endpoint.expectedSymbolOrFact}`));
+  }
+  return stable(refs);
 }
 
 function buildResult(
@@ -1051,6 +1406,13 @@ function buildResult(
   let provenanceRefs: string[] = [];
   if (!unsupported) {
     const graph = prebuiltGraph ?? buildBoundedSourceGraph(input);
+    const plannedFiles = new Set(input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers]
+      .map(endpoint => endpoint.expectedFileRef)));
+    const graphBlindSpots = graph.blindSpots.filter(message => {
+      if ((input.phaseBasis ?? 'plan') !== 'plan' || !/unreadable or disappeared/.test(message)) return true;
+      const file = message.match(/: (.+?)(?: -> .+)?$/)?.[1];
+      return !file || !plannedFiles.has(file);
+    });
     if (method === 'scope_contract') {
       pathRefs = input.plannedPathRecords.map(record => record.plannedPathRef);
       provenanceRefs = stable([
@@ -1060,27 +1422,30 @@ function buildResult(
       ]);
     } else if (method === 'process_fact_registry') {
       pathRefs = graph.entries.map(processFactPath);
-      blindSpots = graph.blindSpots;
+      blindSpots = graphBlindSpots;
       provenanceRefs = stable(graph.entries.flatMap(entry => [`process-fact:${entry.name}:${digestCanonicalJson(entry)}`, ...sourceFiles(entry).map(file => sourceProvenance(graph.readContext, file))]));
     } else if (method === 'handler_dispatch_inventory') {
       const commands = catalogCommands(graph.readContext);
       const registeredKeys = new Set(graph.factories.filter(factory => factory.registered).flatMap(factory => factory.commandKeys));
-      const inspectableEntries = graph.entries.filter(entry => commandNamesForEntry(entry).some(command => registeredKeys.has(command) && commands.has(command)));
+      const dispatchableEntries = graph.entries.filter(isDispatchableProcessFact);
+      const inspectableEntries = dispatchableEntries.filter(entry => registeredKeys.has(entry.name) && commands.has(entry.name));
+      const requiredCommands = new Set(dispatchableEntries.map(entry => entry.name));
       pathRefs = inspectableEntries.map(processFactPath);
       blindSpots = stable([
-        ...graph.blindSpots,
+        ...graphBlindSpots,
         ...graph.factories.filter(factory => !factory.registered).map(factory => `unregistered handler factory ${factory.factory}`),
-        ...[...registeredKeys].filter(command => !commands.has(command)).map(command => `registered handler command ${command} has no exact command catalog binding`),
-        ...graph.entries.filter(entry => commandNamesForEntry(entry).length > 0 && !inspectableEntries.includes(entry)).map(entry => `registered process fact ${entry.name} has no exact registered handler/catalog dispatch`),
+        ...[...requiredCommands].filter(command => registeredKeys.has(command) && !commands.has(command)).map(command => `registered handler command ${command} has no exact command catalog binding`),
+        ...dispatchableEntries.filter(entry => !inspectableEntries.includes(entry)).map(entry => `dispatchable process fact ${entry.name} has no exact registered handler/catalog dispatch`),
       ]);
       provenanceRefs = stable(['packages/main/src/cli/command-catalog.ts', 'packages/main/src/registry.ts', ...graph.factories.map(factory => factory.sourceFile)]
         .map(file => sourceProvenance(graph.readContext, file)));
     } else if (method === 'static_call_graph') {
       const inspectableEntries = graph.entries.filter(entry => sourceFiles(entry).every(file => existsSync(resolve(input.workspaceRoot, file))));
-      const staticCalls = staticCallPaths(input.workspaceRoot, graph);
+      const staticCalls = staticCallPaths(input, graph);
       pathRefs = inspectableEntries.map(processFactPath);
       pathRefs.push(...staticCalls.paths);
-      blindSpots = stable([...graph.blindSpots, ...staticCalls.blindSpots, ...graph.entries.filter(entry => !inspectableEntries.includes(entry)).map(entry => `static registered source graph is incomplete for ${entry.name}`)]);
+      if (input.phaseBasis === 'pre_review') pathRefs.push(...actualEndpointPathRefs(input, graph));
+      blindSpots = stable([...graphBlindSpots, ...staticCalls.blindSpots, ...graph.entries.filter(entry => !inspectableEntries.includes(entry)).map(entry => `static registered source graph is incomplete for ${entry.name}`)]);
       provenanceRefs = stable(graph.closureFiles.map(file => sourceProvenance(graph.readContext, file)));
     } else {
       pathRefs = stable(input.runtimeObservedPathRefs ?? []);
@@ -1149,6 +1514,13 @@ function sameSet(left: readonly string[], right: readonly string[]): boolean {
   return JSON.stringify(stable(left)) === JSON.stringify(stable(right));
 }
 
+function boundedProcessFactDifference(label: 'registryOnly' | 'dispatchOnly', paths: readonly string[]): string {
+  const names = stable(paths.map(path => path.match(/^path:process-fact:(.+?)->consumer:/)?.[1] ?? '<malformed>'));
+  const limit = 8;
+  const shown = names.slice(0, limit).join(',');
+  return `${label}(count=${names.length})=[${shown}${names.length > limit ? ',…' : ''}]`;
+}
+
 export function reconcileAcceptanceDiscoveryResults(results: readonly CoverageAdapterResultV1[]): AcceptanceDiscoveryReconciliation {
   const diagnostics: AcceptanceDiscoveryDiagnostic[] = [];
   const byMethod = new Map<CoverageDiscoveryMethodV1, CoverageAdapterResultV1[]>();
@@ -1176,9 +1548,19 @@ export function reconcileAcceptanceDiscoveryResults(results: readonly CoverageAd
   }
   const registryResult = byMethod.get('process_fact_registry')?.[0];
   const dispatchResult = byMethod.get('handler_dispatch_inventory')?.[0];
-  const registryProcessPaths = registryResult?.pathRefs.filter(path => path.startsWith('path:process-fact:')) ?? [];
+  const dispatchablePaths = new Set(PROCESS_FACT_REGISTRY.filter(isDispatchableProcessFact).map(processFactPath));
+  const registryProcessPaths = registryResult?.pathRefs.filter(path => dispatchablePaths.has(path)) ?? [];
   const dispatchProcessPaths = dispatchResult?.pathRefs.filter(path => path.startsWith('path:process-fact:')) ?? [];
-  if (registryResult && dispatchResult && !sameSet(registryProcessPaths, dispatchProcessPaths)) diagnostics.push({ code: 'AT_DISCOVERY_DISAGREEMENT', message: 'process-fact and handler/dispatch discovery disagree' });
+  if (registryResult && dispatchResult && !sameSet(registryProcessPaths, dispatchProcessPaths)) {
+    const registrySet = new Set(registryProcessPaths);
+    const dispatchSet = new Set(dispatchProcessPaths);
+    const registryOnly = registryProcessPaths.filter(path => !dispatchSet.has(path));
+    const dispatchOnly = dispatchProcessPaths.filter(path => !registrySet.has(path));
+    diagnostics.push({
+      code: 'AT_DISCOVERY_DISAGREEMENT',
+      message: `process-fact and handler/dispatch discovery disagree; ${boundedProcessFactDifference('registryOnly', registryOnly)}; ${boundedProcessFactDifference('dispatchOnly', dispatchOnly)}`,
+    });
+  }
   const enumeratedPathRefs = stable(results.flatMap(result => result.pathRefs));
   const blindSpots = stable(results.flatMap(result => result.blindSpots));
   const unsupported = results.some(result => result.coverageClaim === 'unsupported' || result.asymmetryPolicy.kind === 'unsupported');

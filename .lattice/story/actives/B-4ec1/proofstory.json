@@ -1,0 +1,481 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-4ec1",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "milestones_provided",
+      "message": "A milestone ledger exists, so every ledger row needs checklist and verificationIntent coverage.",
+      "requires": "milestone-ledger"
+    },
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:074797dc28d5cab2b348c301e323e67a240fd95a575309835af191a56c381a24",
+  "confirmedMilestoneLedgerHash": "sha256:2130da0da34f7403dc267e0f1edd73b25cfa5d50301a8ea047ac2a93805aa900",
+  "acceptanceBindings": [
+    {
+      "id": "AB-WAVE3-PRE-REVIEW",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "VI-W3-M1-PRE-REVIEW-ROUNDTRIP",
+        "VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION",
+        "VI-W3-M3-REAL-PROOF-CHAIN",
+        "VI-W3-M4-LIFECYCLE-MODE-MATRIX",
+        "VI-W3-M1-DETERMINISTIC-CODES",
+        "VI-W3-M1-PRODUCER-CONSUMER-PARITY",
+        "VI-W3-M1-EVERY-BINDING-TAMPER",
+        "VI-W3-M1-CALLER-AUTHORITY-REPLAY",
+        "VI-W3-M2-PLANNED-ACTUAL-MATRIX",
+        "VI-W3-M2-DISCOVERY-STATE-CLOSURE",
+        "VI-W3-M2-TOPOLOGY-ONLY-OMISSION",
+        "VI-W3-M2-ADAPTER-RECORD-TAMPER",
+        "VI-W3-M3-MUTATION-POLARITY-RESTORE",
+        "VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY",
+        "VI-W3-M3-BYPASS-CAMPAIGN",
+        "VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX",
+        "VI-W3-M4-LEGACY-DOCS-ROLLBACK",
+        "VI-W3-M4-STABLE-GATE-CODES",
+        "VI-W3-M4-CRITIC-REATTESTATION",
+        "VI-W3-M4-PROCESS-FACT-FOUR-LAYER",
+        "VI-W3-M4-NO-LATER-WAVE-LEAKAGE"
+      ],
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "acceptanceClaim": "The production pre_review_check and DEV-to-REVIEW consumer share a signed current verifier result, pass the real chain, reject omission/stale/tamper/weak-authority mutations, require current critic re-attestation when enforced, restore cleanly, and add no Wave 3A or Wave 4 behavior.",
+      "note": "Canonical Wave 3 acceptance binding; reference-only topology owned by verificationIntent declarations and existing canonical facts.",
+      "verificationTopology": {
+        "schemaVersion": "proofstory.acceptance_topology.v1",
+        "producerRefs": [
+          {
+            "id": "P-PRE-REVIEW",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "VI-W3-M1-PRE-REVIEW-ROUNDTRIP:W3-PRE-REVIEW-GATE-PATH",
+              "endpointRef": "W3-PRE-REVIEW-PRODUCER"
+            }
+          }
+        ],
+        "consumerRefs": [
+          {
+            "id": "C-DEV-REVIEW-GATE",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "VI-W3-M1-PRE-REVIEW-ROUNDTRIP:W3-PRE-REVIEW-GATE-PATH",
+              "endpointRef": "W3-PRE-REVIEW-LIFECYCLE-CONSUMER"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ]
+          }
+        ],
+        "positiveAssertionRefs": [
+          {
+            "id": "A-POS-1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M1-PRE-REVIEW-ROUNDTRIP"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-POS-2",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-POS-3",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M3-REAL-PROOF-CHAIN"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-POS-4",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M4-LIFECYCLE-MODE-MATRIX"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          }
+        ],
+        "mutationCaseRefs": [
+          {
+            "id": "A-MUT-1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M1-DETERMINISTIC-CODES"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-2",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M1-PRODUCER-CONSUMER-PARITY"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-3",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M1-EVERY-BINDING-TAMPER"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-4",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M1-CALLER-AUTHORITY-REPLAY"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-5",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M2-PLANNED-ACTUAL-MATRIX"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-6",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M2-DISCOVERY-STATE-CLOSURE"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-7",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M2-TOPOLOGY-ONLY-OMISSION"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-8",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M2-ADAPTER-RECORD-TAMPER"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-9",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M3-MUTATION-POLARITY-RESTORE"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-10",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-11",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M3-BYPASS-CAMPAIGN"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-12",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-13",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M4-LEGACY-DOCS-ROLLBACK"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-14",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M4-STABLE-GATE-CODES"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-15",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M4-CRITIC-REATTESTATION"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-16",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M4-PROCESS-FACT-FOUR-LAYER"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          },
+          {
+            "id": "A-MUT-17",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M4-NO-LATER-WAVE-LEAKAGE"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          }
+        ],
+        "transcriptAssertionRefs": [
+          {
+            "id": "A-TRANSCRIPT-1",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:VI-W3-M3-REAL-PROOF-CHAIN"
+            },
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ]
+          }
+        ],
+        "commandRefs": [
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:story_advance"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_basis_generate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:topology_critic_receipt_check"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_basis"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_topology_check"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:artifact:acceptance-basis.json"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:pre_review_check"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:pre_review_check_read"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:artifact:pre-review-check.json"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-check.ts#issuePreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#issuePreReviewCheckArtifact"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-check.ts#loadVerifiedPreReviewExecutableProof->consumer:packages/main/src/handlers/proofstory.ts#loadVerifiedPreReviewExecutableProof"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-check.ts#verifyPreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyPreReviewCheckArtifact"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#decodePreReviewCaseRecords->consumer:packages/main/src/core/pre-review-check.ts#decodePreReviewCaseRecords"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#canonicalPreReviewAssertionSourceRef->consumer:packages/main/src/core/pre-review-check.ts#canonicalPreReviewAssertionSourceRef"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:live_smoke_transcript"
+          }
+        ]
+      }
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Wave 3 canonical acceptance contract; live_smoke_transcript is mapped as the registered producer and its exact budget implementation is bound through the allowed source closure; no duplicate writable matrix or later-wave rollout semantics.",
+  "createdAt": "2026-07-22T22:40:14.304Z",
+  "updatedAt": "2026-07-23T13:00:52.898Z"
+}

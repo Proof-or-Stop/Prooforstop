@@ -92,7 +92,7 @@ const declaration = {
   schemaVersion: 'proofstory.verification_planned_path_declaration.v1' as const,
   id: 'VPP-CRITIC', relation: 'producer_to_consumer' as const,
   producer: { id: 'EP-P', role: 'producer' as const, expectedArtifactKind: 'handler' as const, expectedFileRef: 'packages/main/src/producer.ts', expectedSymbolOrFact: 'produce', fileDeclarationRef: 'CHK-001:files:create:0' },
-  consumers: [{ id: 'EP-C', role: 'consumer' as const, expectedArtifactKind: 'process_fact' as const, expectedFileRef: 'packages/main/src/consumer.ts', expectedSymbolOrFact: 'consume', fileDeclarationRef: 'CHK-001:files:create:1' }],
+  consumers: [{ id: 'EP-C', role: 'consumer' as const, expectedArtifactKind: 'handler' as const, expectedFileRef: 'packages/main/src/consumer.ts', expectedSymbolOrFact: 'consume', fileDeclarationRef: 'CHK-001:files:create:1' }],
   outputFactRef: 'process-fact:topology-critic',
 };
 
@@ -103,7 +103,14 @@ const topology: AcceptanceVerificationTopologyV1 = {
   positiveAssertionRefs: [{ id: 'A', sourceRef: { refKind: 'existing', canonicalSourceRef: 'intent:INT-1' }, producerRefs: ['P'], consumerRefs: ['C'] }],
   mutationCaseRefs: [{ id: 'M', sourceRef: { refKind: 'existing', canonicalSourceRef: 'intent:INT-1' }, producerRefs: ['P'], consumerRefs: ['C'] }],
   transcriptAssertionRefs: [{ id: 'T', sourceRef: { refKind: 'existing', canonicalSourceRef: 'intent:INT-1' }, producerRefs: ['P'], consumerRefs: ['C'] }],
-  commandRefs: [{ refKind: 'existing', canonicalSourceRef: 'intent:INT-1' }],
+  commandRefs: [
+    { refKind: 'existing', canonicalSourceRef: 'intent:INT-1' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_topology_check' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:artifact:acceptance-basis.json' },
+    { refKind: 'existing', canonicalSourceRef: 'basis-path:path:static-call:packages/main/src/producer.ts#produce->consumer:packages/main/src/consumer.ts#produce' },
+  ],
 };
 
 function checklist(): ChecklistData {
@@ -131,13 +138,31 @@ function scopeCheck(root: string): ScopeCheckData {
 }
 
 function writeDiscoveryRegistration(root: string): void {
-  write(root, 'packages/main/src/cli/command-catalog.ts', "export const MAIN_TOOLS=[{name:'acceptance_basis'},{name:'acceptance_basis_generate'},{name:'topology_critic_receipt_set'},{name:'topology_critic_receipt_check'}];\n");
-  write(root, 'packages/main/src/registry.ts', "import {createProofStoryHandlers} from './handlers/proofstory.js'; const registry={registerBatch(_:unknown){}}; registry.registerBatch(createProofStoryHandlers({} as any));\n");
-  write(root, 'packages/main/src/handlers/proofstory.ts', "export function createProofStoryHandlers(){return{acceptance_basis(){},acceptance_basis_generate(){},topology_critic_receipt_set(){},topology_critic_receipt_check(){}}}\n");
+  write(root, 'packages/main/src/cli/command-catalog.ts', [
+    'export const MAIN_TOOLS=[',
+    "  {name:'acceptance_basis'},",
+    "  {name:'acceptance_basis_generate'},",
+    "  {name:'acceptance_topology_check'},",
+    "  {name:'topology_critic_receipt_set'},",
+    "  {name:'topology_critic_receipt_check'},",
+    '];',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/registry.ts', [
+    "import {createProofStoryHandlers} from './handlers/proofstory.js';",
+    'const registry={registerBatch(_:unknown){}};',
+    'const ctx={} as any;',
+    'registry.registerBatch(createProofStoryHandlers(ctx));',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/handlers/proofstory.ts', "export function createProofStoryHandlers(){return{acceptance_basis(){},acceptance_basis_generate(){},acceptance_topology_check(){},topology_critic_receipt_set(){},topology_critic_receipt_check(){}}}\n");
   write(root, 'packages/main/src/core/process-fact-registry.ts', "export const facts=['acceptance_basis','acceptance_basis_generate','topology_critic_receipt_set','topology_critic_receipt_check','artifact:acceptance-basis.json'];\n");
   write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['acceptance_basis','acceptance_basis_generate','topology_critic_receipt_set','topology_critic_receipt_check','artifact:acceptance-basis.json'];\n");
   write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology=true;\n');
   write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const topologyCriticRole=true;\n');
+  write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck=true;\n');
+  write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof=true;\n');
+  write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs', 'export const preReviewLiveProofRunner=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt=true;\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const topologyConsumer=true;\n');
 }
@@ -158,7 +183,7 @@ smokeSuite: try {
   write(root, 'tsconfig.json', '{}\n');
   writeDiscoveryRegistration(root);
   write(root, 'packages/main/src/producer.ts', 'export const produce=()=>true;\n');
-  write(root, 'packages/main/src/consumer.ts', 'export const consume=()=>true;\n');
+  write(root, 'packages/main/src/consumer.ts', "import {produce} from './producer.js'; export const consume=()=>produce(); export const invokeConsumer=()=>consume();\n");
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.name', 'Independent Reviewer']);
   git(root, ['config', 'user.email', 'reviewer@noreply.local']);
@@ -474,8 +499,8 @@ smokeSuite: try {
 
   const handlerSource = readFileSync(join(sourceRoot, 'src/handlers/proofstory.ts'), 'utf8');
   const catalogSource = readFileSync(join(sourceRoot, 'src/cli/command-catalog.ts'), 'utf8');
-  for (const forbidden of ['pre_review_check', 'evaluatePlannedToActual', 'selective_applicability_check', 'rollout_telemetry']) {
-    assert.equal(handlerSource.includes(forbidden) || catalogSource.includes(forbidden), false, `Wave 2A must not leak ${forbidden}`);
+  for (const forbidden of ['evaluatePlannedToActual', 'selective_applicability_check', 'rollout_telemetry']) {
+    assert.equal(handlerSource.includes(forbidden) || catalogSource.includes(forbidden), false, `Wave 3 must not leak ${forbidden}`);
   }
   for (const mutation of ['drop-topology-critic-prompt', 'drop-topology-critic-handler', 'drop-topology-critic-cli-schema', 'drop-topology-critic-verifier', 'add-topology-critic-lifecycle-consumer', 'weaken-topology-critic-incomplete-basis']) {
     assert.throws(() => execFileSync(process.execPath, [join(repositoryRoot, 'scripts/verify-process-fact-contract.mjs')], {
