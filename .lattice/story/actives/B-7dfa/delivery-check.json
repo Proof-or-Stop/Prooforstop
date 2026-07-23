@@ -1,0 +1,104 @@
+{
+  "storyId": "B-7dfa",
+  "checkedAt": "2026-07-23T22:04:17.939Z",
+  "headHash": "29e0578dd65a6d0cd6bab43ae1a23abab6ef5dfd",
+  "materialHash": "5717eca145aa59e6543766103036b21b775d334b8738ac54f135a532fd4762a8",
+  "storyFilesHash": "3f60da99ef617cdf01e9330267efe313601ba5518df9c74c5e72176821d1d1d8",
+  "reviewRound": "2026-07-23T21:45:49.984Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md#doc-existence",
+      "promise": "A new decision spec exists at docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "verifiedBy": "diff/wc -l",
+      "evidence": "git diff main...HEAD --stat shows the file created at 1607 insertions; wc -l confirms 1607 lines; git diff main...HEAD --name-only shows this is the only non-.lattice file in the diff (no code changed)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md#section-map",
+      "promise": "The document contains sections S0 (scope/threat-model) through S7 (cross-section acceptance), covering all six checklist areas (CHK-001..006) plus the folded-in gate-consumption query contract (CHK-005) and legacy posture (CHK-006).",
+      "verifiedBy": "grep heading anchors + Read",
+      "evidence": "grep of heading markers shows S0 Scope/non-goals/grounding (line 22), S1 Assertion envelope+GREEN predicate+rejection rules (134), S2 Disposable-workspace runner+four-tuple invariance (767), S3 Supersedes-chain integrity+idempotency key (935), S4 Owner-gated quarantine/recover+retention+legacy link (1090), S5 Gate-consumption query contract (1239), S6 Legacy record posture (1522), S7 Cross-section acceptance (1601). One-to-one with plan.md CHK-001..006."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md#section-1-green-predicate",
+      "promise": "S1 states the exact GREEN predicate verbatim: GREEN = exit0 AND !timeout AND pattern-absent AND target-exists, plus the four envelope fields and rejection rules R1-1..R1-6.",
+      "verifiedBy": "grep + Read",
+      "evidence": "Line 443 contains the boxed line: GREEN = exit0 AND !timeout AND pattern-absent AND target-exists, matching the plan.md CHK-001 DoneWhen requirement verbatim."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md#section-2-four-tuple",
+      "promise": "S2 defines the four measured quantities (headHash, materialHash, indexState, gitStatus) captured PRE/POST in a disposable workspace with an exact invariance pass rule.",
+      "verifiedBy": "Read lines 767-800",
+      "evidence": "S2.1 enumerates all four fields with precise definitions (git rev-parse HEAD; currentMaterialHash function call with its exact signature; git write-tree object id; SHA-256 over filtered git status porcelain v1 output) matching CHK-002 DoneWhen."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md#section-3-chain-integrity",
+      "promise": "S3 defines the three-check chain integrity rule (monotonic seq + prior-record digest + fork rejection) yielding a unique chain head, and the idempotency key.",
+      "verifiedBy": "Read lines 935-970",
+      "evidence": "S3.2 CHAIN-HEAD invariant and S3.3 three required integrity checks (monotonic seq shown, digest link and fork rejection follow) match CHK-003 DoneWhen."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md#section-4-quarantine-recover",
+      "promise": "S4 defines owner-gated quarantine/recover as registered operations creating NEW records linked by recoversRecordId, plus the corrected retention claim citing transition-orchestrator.ts near line 775 (story.currentReviewRound = now).",
+      "verifiedBy": "Read + src spot-check",
+      "evidence": "S4.1 lists four owner-gated registered operations (red_evidence_assert, red_evidence_green_confirm, and quarantine/recover per plan.md); spot-checked packages/main/src/handlers/transition-orchestrator.ts lines 770-780: the statement story.currentReviewRound = now appears at line 774 (spec cites approx 775, off-by-one negligible, correct code line located and confirms the drift-correction claim over the plan's stale line-663 citation)."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md#section-5-query-contract",
+      "promise": "S5 defines the single read-only query redEvidenceGateQuery (request: storyId+acceptanceTargetRef; response: tagged union with chainHeadRecordId/status/verdict/provenance/freshness), the edge-state answers, and a MUST-NOT boundary statement (W2/W3).",
+      "verifiedBy": "Read lines 1239-1270",
+      "evidence": "S5.1 shows the exact request/response JSON shapes matching CHK-005 happy-lane description; S5.4/5.5 (edge-state table + boxed MUST-NOT boundary) confirmed present by section headers and cross-verified by RP-001/RP-002 review-pass notes citing those exact subsection numbers."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md#section-6-legacy-posture",
+      "promise": "S6 states ONE normative legacy posture (GRANDFATHERED via adoption-time migration manifest), the in-flight transition rule, and closes the downgrade loophole by binding legacy status to manifest membership at adoption time (not to record creation timestamp, which is author-writable).",
+      "verifiedBy": "Read lines 1522-1560",
+      "evidence": "S6.1 POSTURE block states GRANDFATHERED / read-only via manifest membership as the sole criterion; S6.2 describes the adoption-point migration manifest keyed by (storyId, recordId) with fixed ordinal (not createdAt) as the tiebreaker, closing the downgrade loophole matching CHK-006 adversarial lane."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md#section-0-threat-model",
+      "promise": "S0.6 states an honest assurance-tier scope clause: W2 defends against accidental fabrication, workflow drift, and casual gaming, NOT a fully hostile local agent with filesystem/toolchain control (that is Tier-C signed-receipt scope), and implementation stories must not advertise W2 above this tier.",
+      "verifiedBy": "Read lines 96-125",
+      "evidence": "The verbatim ASSURANCE TIER clause is present in S0.6 and matches summary.json limitations field describing the same scoping; this is an honest, non-oversold limitation statement, not a hidden gap."
+    },
+    {
+      "docPath": "docs/requirements/decisions/red-evidence-subsystem-spec.md#f-001-fix",
+      "promise": "The R1 docs-lane finding F-001 (S5.3 falsely claimed currentMaterialHash derives from resolveMaterialCodePolicy) was fixed by rebinding S5.3 dirty-filter claim to the real function isMaterialExcludedPath.",
+      "verifiedBy": "src spot-check + findings.json/review-passes.json cross-check",
+      "evidence": "findings.json F-001 status is resolved with resolutionType fixed; packages/main/src/core/evidence-freshness.ts lines 163-165 define isMaterialExcludedPath as isStoryMetadataPath OR isMaterialExcludedRuntimeArtifactPath, and it is invoked inside currentMaterialHash at line 502 as a continue-on-match filter -- both citations match exactly, confirming the round-2 fix-verification passes (RP-004, RP-005, RP-006) that independently re-checked this same code are accurate and the doc-vs-code contradiction is resolved."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "docs_check: S1 (lines 134-766) verified to contain all 4 envelope fields, the verbatim GREEN predicate (line 443), rejection rules R1-1..R1-6, and the query-contract summary (S1.9); 4 of 4 verificationIntent lanes (happy x2, edge x1, adversarial x1) pass per checklist.json evidence bound to headHash bdfa261b (post-F-001-fix) and cross-verified independently by RP-001/RP-002 (test-coverage/quality lanes) plus RP-007 round-2 re-check."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "docs_check: S2 (lines 767-934) verified to define the four-tuple (headHash/materialHash/indexState/gitStatus), disposable-workspace lifecycle, dirty-index/timeout edge cases, and invariance-violation rejection rule; 4 of 4 lanes pass; independently confirmed by RP-001 test-coverage lane citing S2.1-2.5 subsection map."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "docs_check: S3 (lines 935-1089) verified to define per-target chain schema, CHAIN-HEAD uniqueness invariant (S3.2), the three required integrity checks (S3.3), idempotency key composition, and fork/replay edge cases; 3 of 3 lanes pass; independently confirmed by RP-002 quality-lane desk-check that walked the operationKey/idempotency dedupe path end-to-end (no chicken-egg between operationKey/recordId/seq)."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "docs_check: S4 (lines 1090-1238) verified to define the four owner-gated registered operations with recoversRecordId linkage and the corrected retention claim (transition-orchestrator.ts:774, spot-checked against source, matches the spec approx line-775 citation); 4 of 4 lanes pass; independently confirmed by RP-002 (all citations exact-match against src) and RP-003 concept lane (no orphaned terminology)."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "docs_check: S5 (lines 1239-1521) verified to define the single read-only redEvidenceGateQuery with request/response tagged-union shapes; 3 of 3 lanes pass; independently confirmed by RP-001/RP-002 citing S5.1-5.2 (request/response + zero-design-decision determinacy), S5.4 (4-row edge-state table), S5.5 (boxed MUST-NOT boundary)."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "docs_check: S6 (lines 1522-1600) verified to state the single GRANDFATHERED posture via adoption-time migration manifest, the in-flight transition rule, and the downgrade-loophole closure (manifest-membership, not timestamp); 3 of 3 lanes pass; independently confirmed by RP-001/RP-002 citing S6.1/6.3/6.4."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "This is a docs-only story (1607-line decision spec, zero code changed, confirmed via git diff main...HEAD --name-only). All six checklist sections (CHK-001..006) map one-to-one to spec sections S1-S6 with content spot-verified against the plan.md DoneWhen criteria; about ten of the spec's own source-code citations were independently re-spot-checked against current src at HEAD and all resolved correctly, including the R1 finding F-001 fix (a real factual doc-vs-code mismatch the docs-lane reviewer caught and the author fixed, verified true by three independent round-2 re-checks). The one honesty risk area -- the six-round dual-host audit loop with 75 findings claimed in summary.json actualTranscript -- is NOT represented in any structured Lattice evidence file (findings.json holds only the single formal F-001; review-passes.json and review-runs.json hold only the 2 formal REVIEW rounds times 4 lanes); that pre-formal-review claim is self-reported narrative, not gate-verifiable, and is noted here rather than silently accepted. The formal, gate-verifiable record (1 finding filed and fixed, 2 review rounds, 4 lanes each round, all passing in round 2) is fully consistent and independently spot-confirmed."
+  },
+  "_hash": "9546db9a5cd1a34a9b816f75d14f55f92be7cbad10d059c19089f98d660a4fb7"
+}
