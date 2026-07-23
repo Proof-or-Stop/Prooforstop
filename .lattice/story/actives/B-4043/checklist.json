@@ -88,7 +88,21 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "An opt-in enforce attempt passes only with a current qualifying rollout receipt and full 3x2; rollback restores non-blocking mode while preserving the audit trail."
+      "userSees": "An opt-in enforce attempt passes only with a current qualifying rollout receipt and full 3x2; rollback restores non-blocking mode while preserving the audit trail.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-005",
