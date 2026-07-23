@@ -148,62 +148,6 @@
             "plannedPathDeclarations": [
               {
                 "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
-                "id": "W4-ROLLOUT-REPORT-GATE-PATH",
-                "relation": "producer_to_consumer",
-                "producer": {
-                  "id": "W4-ROLLOUT-REPORT-PRODUCER",
-                  "role": "producer",
-                  "expectedArtifactKind": "source_file",
-                  "expectedFileRef": "packages/main/src/core/acceptance-rollout.ts",
-                  "expectedSymbolOrFact": "deriveAcceptanceRolloutReport",
-                  "fileDeclarationRef": "CHK-002:files:create:0"
-                },
-                "consumers": [
-                  {
-                    "id": "W4-ROLLOUT-CLI-CONSUMER",
-                    "role": "consumer",
-                    "expectedArtifactKind": "handler",
-                    "expectedFileRef": "packages/main/src/handlers/proofstory.ts",
-                    "expectedSymbolOrFact": "acceptance_rollout_report",
-                    "fileDeclarationRef": "CHK-002:files:modify:2"
-                  },
-                  {
-                    "id": "W4-ROLLOUT-SMOKE-CONSUMER",
-                    "role": "consumer",
-                    "expectedArtifactKind": "source_file",
-                    "expectedFileRef": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-                    "expectedSymbolOrFact": "runProofStoryAcceptanceRolloutSmoke",
-                    "fileDeclarationRef": "CHK-002:files:create:1"
-                  }
-                ],
-                "outputFactRef": "process-fact:acceptance_rollout_report"
-              },
-              {
-                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
-                "id": "W4-COHORT-RUNNER-REPORT-PATH",
-                "relation": "producer_to_consumer",
-                "producer": {
-                  "id": "W4-COHORT-RUNNER-PRODUCER",
-                  "role": "producer",
-                  "expectedArtifactKind": "source_file",
-                  "expectedFileRef": "packages/main/src/core/acceptance-rollout.ts",
-                  "expectedSymbolOrFact": "verifyAcceptanceRolloutArtifact",
-                  "fileDeclarationRef": "CHK-002:files:create:0"
-                },
-                "consumers": [
-                  {
-                    "id": "W4-COHORT-REPORT-EVALUATOR",
-                    "role": "consumer",
-                    "expectedArtifactKind": "source_file",
-                    "expectedFileRef": "packages/main/src/handlers/proofstory.ts",
-                    "expectedSymbolOrFact": "evaluateAcceptanceRolloutForContext",
-                    "fileDeclarationRef": "CHK-002:files:modify:2"
-                  }
-                ],
-                "outputFactRef": "process-fact:acceptance_rollout_report"
-              },
-              {
-                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
                 "id": "W4-ROLLOUT-SMOKE-PATH",
                 "relation": "producer_to_consumer",
                 "producer": {
