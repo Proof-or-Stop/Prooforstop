@@ -57,7 +57,7 @@ import {
   TOPOLOGY_EXCLUSION_APPROVER_ROLE,
   verifyTopologyCriticReceipt,
 } from '../core/topology-critic-receipt.js';
-import { issuePreReviewCheckArtifact, verifyPreReviewCheckArtifact, type PreReviewCheckInput, type PreReviewCheckReport } from '../core/pre-review-check.js';
+import { issuePreReviewCheckArtifact, loadVerifiedPreReviewExecutableProof, verifyPreReviewCheckArtifact, type PreReviewCheckInput, type PreReviewCheckReport } from '../core/pre-review-check.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -127,7 +127,23 @@ function currentPreReviewInputForContext(ctx: HandlerContext, storyId: string): 
     basis: current.derivation.basis,
     topologyDigest: current.derivation.topologyDigest,
   });
-  const currentArtifact: AcceptanceBasisArtifactV1 = { schemaVersion: 'proofstory.acceptance_basis_artifact.v1', basis: current.derivation.basis, receipt };
+  let currentArtifact: AcceptanceBasisArtifactV1 = { schemaVersion: 'proofstory.acceptance_basis_artifact.v1', basis: current.derivation.basis, receipt };
+  const priorPreReviewArtifact = ctx.store.readPreReviewCheck(storyId)?.preReviewBasisArtifact;
+  if (priorPreReviewArtifact) {
+    const priorVerification = verifyAcceptanceBasisReceipt({
+      artifact: priorPreReviewArtifact,
+      gitCwd: current.workspace.signedWorkspaceRoot,
+      metadataRoot: current.workspace.metadataRoot,
+      expectedStoryId: storyId,
+      expectedTopologyDigest: current.derivation.topologyDigest,
+      expectedScopeCheckDigest: current.derivation.basis.binding.scopeCheckDigest,
+      ...(current.derivation.basis.binding.scopeContractDigest ? { expectedScopeContractDigest: current.derivation.basis.binding.scopeContractDigest } : {}),
+      expectedClosureFilesHash: current.derivation.basis.binding.closureFilesHash,
+      expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
+      expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
+    });
+    if (priorVerification.ok) currentArtifact = priorPreReviewArtifact;
+  }
   const topologyDiagnosticCodes = reconcileTopologyWithCoverageBasis(
     ctx.store.readProofStoryContract(storyId), current.derivation.basis, ctx.store.readDecision(storyId),
   ).map(item => item.code);
@@ -137,15 +153,27 @@ function currentPreReviewInputForContext(ctx: HandlerContext, storyId: string): 
     criticVerification = { ok: result.ok, code: result.code };
   } catch { criticVerification = { ok: false, code: 'AT_TOPOLOGY_CRITIC_CONTEXT_INVALID' }; }
   const criticReceipt = ctx.store.readTopologyCriticReceipt(storyId);
+  const cutoffAt = new Date().toISOString();
+  const contract = ctx.store.readProofStoryContract(storyId);
+  const executableProof = loadVerifiedPreReviewExecutableProof({
+    gitCwd: current.workspace.signedWorkspaceRoot,
+    metadataRoot: current.workspace.metadataRoot,
+    storyDir: ctx.store.storyDirPath(storyId),
+    storyId,
+    cutoffAt,
+    storyFilesHash: current.derivation.basis.binding.storyFilesHash,
+  });
   return {
     gitCwd: current.workspace.signedWorkspaceRoot,
     metadataRoot: current.workspace.metadataRoot,
     storyId,
     mode: resolveAcceptanceTopologyGateMode(loadConfig(ctx.root)),
-    cutoffAt: new Date().toISOString(),
+    cutoffAt,
     planArtifact,
     currentArtifact,
     checklist: readChecklistForTopology(ctx, storyId),
+    contract,
+    executableProof,
     topologyDigest: current.derivation.topologyDigest,
     topologyDiagnosticCodes,
     criticVerification,
@@ -516,6 +544,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         `Mode: ${report.mode}; blocking=${report.blocking}`,
         `plannedActual=${report.plannedActual} executableEvidence=${report.executableEvidence} mutations=${report.mutations} transcript=${report.transcript} authority=${report.authority} criticReattestation=${report.criticReattestation}`,
         `Codes: ${report.codes.join(',') || 'none'}`,
+        ...report.remediation.map(item => `Remediation: ${item}`),
       ].join('\n') + commitHint;
     },
 
@@ -530,6 +559,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         `Mode: ${report.mode}; readOnly=true; blocking=${report.blocking}`,
         `plannedActual=${report.plannedActual} executableEvidence=${report.executableEvidence} mutations=${report.mutations} transcript=${report.transcript} authority=${report.authority} criticReattestation=${report.criticReattestation}`,
         `Codes: ${report.codes.join(',') || 'none'}`,
+        ...report.remediation.map(item => `Remediation: ${item}`),
       ].join('\n');
     },
     original_intent_snapshot_set(args: {

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type {
   AcceptanceCoverageBasisV1,
@@ -291,17 +291,13 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
   const receiptRef = `receipt:coverage-basis:${input.storyId}:${phaseBasis}:${digest({ storyId: input.storyId, phaseBasis, topologyDigest, closureFilesHash }).slice(7, 23)}`;
   const plannedActualReconciliations = phaseBasis === 'pre_review'
     ? planned.records.flatMap(record => {
-      const implemented = [record.producer, ...record.consumers].every(endpoint => {
-        const path = resolve(input.workspaceRoot, endpoint.expectedFileRef);
-        if (!existsSync(path)) return false;
-        try { return readFileSync(path, 'utf8').includes(endpoint.expectedSymbolOrFact); }
-        catch { return false; }
-      });
-      if (!implemented) return [];
+      const actualPathRefs = [record.producer, ...record.consumers].map(endpoint =>
+        `actual:${endpoint.expectedArtifactKind}:${endpoint.expectedFileRef}#${endpoint.expectedSymbolOrFact}`);
+      if (!actualPathRefs.every(ref => reconciled.enumeratedPathRefs.includes(ref))) return [];
       const unsignedReconciliation = {
         schemaVersion: 'proofstory.planned_actual_path_reconciliation.v1' as const,
         plannedPathRef: record.plannedPathRef,
-        actualPathRefs: [record.plannedPathRef],
+        actualPathRefs,
         relation: 'exact' as const,
       };
       return [{ ...unsignedReconciliation, reconciliationDigest: digest(unsignedReconciliation) }];
@@ -426,6 +422,12 @@ export function verifyAcceptanceCoverageBasis(
       else {
         const { reconciliationDigest, ...unsigned } = row;
         if (digest(unsigned) !== reconciliationDigest) diagnostics.push({ code: 'PR_PLANNED_PATH_RECONCILIATION_TAMPERED', message: `reconciliation digest mismatch: ${record.plannedPathRef}` });
+        const expectedActualRefs = [record.producer, ...record.consumers].map(endpoint =>
+          `actual:${endpoint.expectedArtifactKind}:${endpoint.expectedFileRef}#${endpoint.expectedSymbolOrFact}`).sort();
+        if (row.relation !== 'exact' || JSON.stringify([...row.actualPathRefs].sort()) !== JSON.stringify(expectedActualRefs)
+          || !row.actualPathRefs.every(ref => basis.enumeratedPathRefs.includes(ref))) {
+          diagnostics.push({ code: 'PR_PLANNED_PATH_RECONCILIATION_TAMPERED', message: `reconciliation is not backed by exact discovered endpoints: ${record.plannedPathRef}` });
+        }
       }
     }
   }
@@ -466,6 +468,7 @@ export function reconcileTopologyWithCoverageBasis(
   const derivedPlanned = new Set(basis.plannedPathRecords.map(record => record.plannedPathRef));
   const excluded = new Set(basis.excludedPathRefs.map(item => item.pathRef));
   const pathMapped = (path: string): boolean => {
+    if (path.startsWith('actual:') && basis.plannedActualReconciliations.some(row => row.actualPathRefs.includes(path))) return true;
     if (topologySourceRefs.includes(`basis-path:${path}`)) return true;
     const processMatch = /^path:process-fact:(.+)->consumer:/.exec(path);
     if (processMatch && topologySourceRefs.includes(`process-fact:${processMatch[1]}`)) return true;

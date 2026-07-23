@@ -410,6 +410,7 @@ export interface AcceptanceBasisArtifactV1 {
 
 export type PreReviewCheckCodeV1 =
   | 'ok'
+  | 'PR_ARTIFACT_MISSING'
   | 'PR_COVERAGE_BASIS_CHANGED'
   | 'PR_COVERAGE_INCONCLUSIVE'
   | 'PR_PLANNED_PATH_UNRESOLVED'
@@ -432,6 +433,37 @@ export type PreReviewCheckCodeV1 =
   | 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'
   | 'PR_ARTIFACT_TAMPERED';
 
+export interface PreReviewMutationProofV1 {
+  mutationId: string;
+  expectedCode: string;
+  observedCode: string;
+  controlRestored: boolean;
+}
+
+export interface PreReviewTranscriptProofV1 {
+  transcriptId: string;
+  producerRefs: string[];
+  consumerRefs: string[];
+  producerSequence: number;
+  consumerSequence: number;
+}
+
+export interface PreReviewBindingProofV1 {
+  bindingId: string;
+  positiveAssertionIds: string[];
+  mutationProofs: PreReviewMutationProofV1[];
+  transcriptProofs: PreReviewTranscriptProofV1[];
+}
+
+export interface PreReviewExecutableProofV1 {
+  schemaVersion: 'proofstory.pre_review_executable_proof.v1';
+  storyId: string;
+  producer: 'registered-verification-command';
+  verifier: 'pre-review-check-command-runner';
+  commandDigests: string[];
+  bindingProofs: PreReviewBindingProofV1[];
+}
+
 export interface PreReviewEvidenceRefV1 {
   intentRef: string;
   itemId: string;
@@ -453,6 +485,7 @@ export interface PreReviewCheckArtifactV1 {
   storyFilesHash: string;
   closureFilesHash: string;
   evidenceRefs: PreReviewEvidenceRefV1[];
+  executableProof: PreReviewExecutableProofV1;
   criticReceiptDigest?: string;
   codes: PreReviewCheckCodeV1[];
   status: 'pass' | 'fail' | 'inconclusive';

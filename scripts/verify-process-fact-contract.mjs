@@ -595,6 +595,15 @@ function read(relPath) {
   if (mutation === 'weaken-topology-critic-incomplete-basis' && relPath === 'packages/main/src/core/topology-critic-receipt.ts') {
     text = text.replaceAll("context.basisStatus !== 'complete'", "context.basisStatus === 'complete'");
   }
+  if (mutation === 'trust-pre-review-raw-claims' && relPath === 'packages/main/src/core/pre-review-check.ts') {
+    text = text.replace('const proof = executableProofState', 'const trustedClaims = input.checklist.items.flatMap(item => item.verificationEvidence?.flatMap(evidence => evidence.attestation?.checkedClaims ?? []) ?? []);\n  const proof = executableProofState');
+  }
+  if (mutation === 'use-planned-self-reference-as-actual' && relPath === 'packages/main/src/core/acceptance-discovery-adapters.ts') {
+    text = text.replace('sourceExactSymbolCount(endpoint.expectedFileRef, sourceText, endpoint.expectedSymbolOrFact) === 1', 'sourceText.includes(endpoint.expectedSymbolOrFact)');
+  }
+  if (mutation === 'accept-global-transcript-proof' && relPath === 'packages/main/src/core/pre-review-check.ts') {
+    text = text.replace('const transcriptIds = row.transcriptProofs.map', 'const transcriptIds = proof.bindingProofs.flatMap(item => item.transcriptProofs).map');
+  }
   return text;
 }
 
@@ -735,6 +744,7 @@ function assertProofStoryProgressiveBoundary() {
     'acceptance topology contract must bind CLI schema, canonical evaluator, signed basis verification, independent default-observe rollout mode, PLAN gate, process fact, and prompt guidance',
   );
   const preReviewText = read('packages/main/src/core/pre-review-check.ts');
+  const acceptanceDiscoveryText = read('packages/main/src/core/acceptance-discovery-adapters.ts');
   const preReviewPolicy = commandPolicyEntries.get('pre_review_check');
   assert(
     catalogText.includes("name: 'pre_review_check'")
@@ -744,6 +754,12 @@ function assertProofStoryProgressiveBoundary() {
       && preReviewText.includes('verifyPreReviewCheckArtifact')
       && preReviewText.includes('PR_MUTATION_DID_NOT_BITE')
       && preReviewText.includes('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED')
+      && !preReviewText.includes('attestation?.checkedClaims')
+      && !preReviewText.includes('actorTrust')
+      && preReviewText.includes('const transcriptIds = row.transcriptProofs.map')
+      && preReviewText.includes('sameStrings(transcript.producerRefs, assertion.producerRefs)')
+      && acceptanceDiscoveryText.includes('sourceExactSymbolCount(endpoint.expectedFileRef, sourceText, endpoint.expectedSymbolOrFact) === 1')
+      && !acceptanceDiscoveryText.includes('sourceText.includes(endpoint.expectedSymbolOrFact)')
       && transitionOrchestratorText.includes('runPreReviewCheckGate')
       && transitionOrchestratorText.includes("story.phase === 'DEV' && args.phase === 'REVIEW'")
       && processRegistryText.includes('artifact:pre-review-check.json')

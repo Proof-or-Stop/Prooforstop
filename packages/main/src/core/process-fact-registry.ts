@@ -1080,7 +1080,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate',
     consumerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.pre_review_check,
-    rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, planned-to-actual reconciliation, executable evidence refs, mutation/control/transcript/authority claims, strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation.',
+    rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, exact AST-discovered planned-to-actual reconciliation, and per-acceptance-binding positive/mutation/control/transcript rows captured by the registered live_smoke_transcript writer with a causally valid closeout receipt. Raw verificationEvidence checkedClaims/actorTrust and global transcript presence grant no authority. The artifact also binds the strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation.',
   },
   {
     name: 'artifact:topology-exclusion-approvals.json',

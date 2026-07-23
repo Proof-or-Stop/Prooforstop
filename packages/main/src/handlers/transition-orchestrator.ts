@@ -117,6 +117,7 @@ export function runPreReviewCheckGate(ctx: HandlerContext, storyId: string): str
     `  mode=${report.mode}; status=${report.status}; blocking=${report.blocking}`,
     `  plannedActual=${report.plannedActual}; executableEvidence=${report.executableEvidence}; mutations=${report.mutations}; transcript=${report.transcript}; authority=${report.authority}; criticReattestation=${report.criticReattestation}`,
     `  codes=${report.codes.join(',') || 'none'}`,
+    ...report.remediation.map(item => `  remediation=${item}`),
   ].join('\n');
   if (report.blocking) {
     throw new Error(`Cannot enter REVIEW: executable pre-review gate blocked DEV admission.${rendered}\n\n-> Run lattice pre_review_check after current evidence, then obtain the independent topology-critic re-attestation when enforce mode requires it.`);

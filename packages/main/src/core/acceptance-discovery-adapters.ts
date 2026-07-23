@@ -1050,6 +1050,42 @@ function staticCallPaths(root: string, graph: BoundedSourceGraph): { paths: stri
   return { paths: stable(paths), blindSpots: stable(blindSpots) };
 }
 
+function sourceExactSymbolCount(file: string, text: string, expected: string): number {
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, scriptKindFor(file));
+  let count = 0;
+  const named = (name: ts.PropertyName | ts.BindingName | undefined): boolean => {
+    if (!name) return false;
+    return (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) && name.text === expected;
+  };
+  const visit = (node: ts.Node): void => {
+    if ((ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node) || ts.isInterfaceDeclaration(node)
+      || ts.isTypeAliasDeclaration(node) || ts.isEnumDeclaration(node)) && node.name?.text === expected) count += 1;
+    else if (ts.isVariableDeclaration(node) && named(node.name)) count += 1;
+    else if ((ts.isMethodDeclaration(node) || ts.isMethodSignature(node) || ts.isPropertyDeclaration(node)
+      || ts.isPropertySignature(node) || ts.isPropertyAssignment(node) || ts.isShorthandPropertyAssignment(node)) && named(node.name)) count += 1;
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return count;
+}
+
+function actualEndpointPathRefs(input: AcceptanceDiscoveryInput, graph: BoundedSourceGraph): string[] {
+  const refs: string[] = [];
+  for (const record of input.plannedPathRecords) {
+    for (const endpoint of [record.producer, ...record.consumers]) {
+      const actualRef = `actual:${endpoint.expectedArtifactKind}:${endpoint.expectedFileRef}#${endpoint.expectedSymbolOrFact}`;
+      if (endpoint.expectedArtifactKind === 'process_fact') {
+        if (graph.entries.some(entry => entry.name === endpoint.expectedSymbolOrFact
+          && sourceFiles(entry).includes(endpoint.expectedFileRef))) refs.push(actualRef);
+        continue;
+      }
+      const sourceText = graph.readContext.snapshots.get(endpoint.expectedFileRef);
+      if (sourceText !== undefined && sourceExactSymbolCount(endpoint.expectedFileRef, sourceText, endpoint.expectedSymbolOrFact) === 1) refs.push(actualRef);
+    }
+  }
+  return stable(refs);
+}
+
 function buildResult(
   input: AcceptanceDiscoveryInput,
   method: CoverageDiscoveryMethodV1,
@@ -1091,6 +1127,7 @@ function buildResult(
       const staticCalls = staticCallPaths(input.workspaceRoot, graph);
       pathRefs = inspectableEntries.map(processFactPath);
       pathRefs.push(...staticCalls.paths);
+      if (input.phaseBasis === 'pre_review') pathRefs.push(...actualEndpointPathRefs(input, graph));
       blindSpots = stable([...graph.blindSpots, ...staticCalls.blindSpots, ...graph.entries.filter(entry => !inspectableEntries.includes(entry)).map(entry => `static registered source graph is incomplete for ${entry.name}`)]);
       provenanceRefs = stable(graph.closureFiles.map(file => sourceProvenance(graph.readContext, file)));
     } else {

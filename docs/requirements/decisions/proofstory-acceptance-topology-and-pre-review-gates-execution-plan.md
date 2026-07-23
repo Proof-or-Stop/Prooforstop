@@ -1097,8 +1097,23 @@ weak assertions, design problems, or unmodeled interactions.
 
 ### 8.1 Deterministic executable codes
 
+The implemented Wave 3 surface distinguishes absence from corruption:
+`PR_ARTIFACT_MISSING` means no pre-review artifact exists and directs the user
+to run `pre_review_check`; `PR_ARTIFACT_TAMPERED` is reserved for a present
+artifact whose signature, digest, receipt, or canonical contents fail
+verification. Enforced high-assurance work also emits
+`PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED` when the independent critic receipt
+is absent or stale for the current basis. Codes are emitted in a canonical
+priority order, not incidental lexical order: artifact absence/corruption
+first, then `PR_NEW_PATH_UNMAPPED` before its supporting
+`PR_COVERAGE_BASIS_CHANGED`, followed by coverage, execution, freshness, and
+critic diagnostics. CLI and lifecycle consumers display the same first code
+and remediation.
+
 | Code | Condition |
 |---|---|
+| `PR_ARTIFACT_MISSING` | No verifier-issued pre-review artifact exists; run `pre_review_check` after recording current canonical executable proof |
+| `PR_ARTIFACT_TAMPERED` | A present pre-review artifact fails canonical signature, digest, receipt, or content verification; discard and reissue it through `pre_review_check` |
 | `PR_POSITIVE_EVIDENCE_MISSING` | Required positive assertion lacks successful evidence |
 | `PR_PRODUCTION_PATH_UNPROVEN` | Evidence uses a synthetic path instead of declared producer/consumer |
 | `PR_MUTATION_EVIDENCE_MISSING` | Required mutation was not executed |
@@ -1121,6 +1136,7 @@ weak assertions, design problems, or unmodeled interactions.
 | `PR_REQUIRED_ADAPTER_RESULT_MISSING` | A profile-required current-worktree adapter result is absent or duplicated |
 | `PR_ADAPTER_RESULT_DIGEST_MISMATCH` | A current-worktree adapter record, aggregate projection, or basis digest was altered |
 | `PR_ADAPTER_RESULT_INVALID` | A current adapter result lacks admissible claim, blind-spot, provenance, or asymmetry-policy fields |
+| `PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED` | Enforced high-assurance admission lacks a fresh independent critic receipt bound to the current pre-review basis |
 
 ### 8.2 Independent topology critic
 
@@ -1513,8 +1529,8 @@ decomposition. A wave cannot claim later-wave completion.
 | Remove/tamper a required adapter result after DEV | pre-REVIEW | `PR_REQUIRED_ADAPTER_RESULT_MISSING` / `PR_ADAPTER_RESULT_DIGEST_MISMATCH` |
 | Duplicate one profile-required current-worktree adapter result after DEV | pre-REVIEW | `PR_REQUIRED_ADAPTER_RESULT_MISSING`; exactly-once cardinality fails |
 | Keep every signed current-worktree adapter result unchanged but independently mutate aggregate paths or aggregate blind spots | pre-REVIEW | `PR_ADAPTER_RESULT_DIGEST_MISMATCH`; derived projection fails |
-| DEV adds consumer C2 after PLAN | pre-REVIEW | `PR_COVERAGE_BASIS_CHANGED` plus `PR_NEW_PATH_UNMAPPED` |
-| Remove C2 from topology while current basis retains C2 | both | omission mutation must fail with `AT_UNMAPPED_SCOPE_REF` |
+| DEV adds consumer C2 after PLAN | pre-REVIEW | canonical first code `PR_NEW_PATH_UNMAPPED`, with supporting `PR_COVERAGE_BASIS_CHANGED` |
+| Remove C2 from topology while current basis retains C2 | PLAN / pre-REVIEW | PLAN diagnostic is `AT_UNMAPPED_SCOPE_REF`; executable pre-REVIEW gate fails with canonical first code `PR_NEW_PATH_UNMAPPED` and supporting `PR_COVERAGE_BASIS_CHANGED` |
 | Dynamic path cannot be enumerated or traced | pre-REVIEW | `PR_COVERAGE_INCONCLUSIVE` |
 | Synthetic fixture bypasses real producer | pre-REVIEW | `PR_PRODUCTION_PATH_UNPROVEN` |
 | Remove producer cutoff | pre-REVIEW | mutation must fail; otherwise `PR_MUTATION_DID_NOT_BITE` |

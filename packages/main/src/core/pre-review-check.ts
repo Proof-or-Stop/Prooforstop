@@ -1,13 +1,15 @@
 import { createPublicKey, randomBytes } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import type {
   AcceptanceBasisArtifactV1,
   ChecklistData,
   PreReviewCheckArtifactV1,
   PreReviewCheckCodeV1,
+  PreReviewExecutableProofV1,
   PreReviewEvidenceRefV1,
+  ProofStoryContractData,
   VerificationEvidence,
 } from './types.js';
 import type { AcceptanceTopologyGateMode } from './config.js';
@@ -15,9 +17,12 @@ import { exportPublicKeyRaw, importPrivateKeyRaw, signCanonical, verifyCanonical
 import { digestCanonicalJson } from './digest.js';
 import { verifyAcceptanceBasisReceipt } from './acceptance-basis-receipt.js';
 import { verifyAcceptanceCoverageBasis } from './acceptance-coverage-basis.js';
+import { latestCausallyValidCloseoutReceipt } from './closeout-trust.js';
+import { evaluateLiveSmokeTranscriptValue } from './live-smoke-transcript-evidence.js';
 
 const KEY_FILE = 'lattice-pre-review-check-verifier-v1.key';
-const REQUIRED_CLAIMS = ['production-path', 'mutation-applied', 'mutation-bites', 'control-restored', 'transcript-related', 'authority-admissible', 'cutoff-bound'] as const;
+const EXECUTABLE_PROOF_PREFIX = 'PROOFSTORY_PRE_REVIEW_PROOF=';
+const LIVE_SMOKE_TRANSCRIPT_REL = 'evidence/live-smoke-transcript.json';
 
 export interface PreReviewCheckInput {
   gitCwd: string;
@@ -28,6 +33,8 @@ export interface PreReviewCheckInput {
   planArtifact: AcceptanceBasisArtifactV1 | null;
   currentArtifact: AcceptanceBasisArtifactV1;
   checklist: ChecklistData;
+  contract: ProofStoryContractData | null;
+  executableProof: PreReviewExecutableProofV1 | null;
   topologyDigest: string;
   topologyDiagnosticCodes: string[];
   criticVerification?: { ok: boolean; code: string };
@@ -48,6 +55,7 @@ export interface PreReviewCheckReport {
   transcript: 'related' | 'missing';
   authority: 'admissible' | 'inadmissible';
   criticReattestation: 'current' | 'missing' | 'not_required';
+  remediation: string[];
   artifact: PreReviewCheckArtifactV1 | null;
 }
 
@@ -80,7 +88,7 @@ function allEvidence(checklist: ChecklistData): Array<{ itemId: string; index: n
   return checklist.items.flatMap(item => (item.verificationEvidence ?? []).map((evidence, index) => ({ itemId: item.id, index, evidence })));
 }
 
-function evidenceState(checklist: ChecklistData, cutoffAt: string, storyFilesHash: string, gitCwd = '', storyId = '') {
+function evidenceState(checklist: ChecklistData, cutoffAt: string, storyFilesHash: string) {
   const cutoff = Date.parse(cutoffAt);
   const rows = allEvidence(checklist);
   const afterCutoff = rows.filter(({ evidence }) => typeof evidence.timestamp === 'string' && Date.parse(evidence.timestamp) >= cutoff);
@@ -100,30 +108,140 @@ function evidenceState(checklist: ChecklistData, cutoffAt: string, storyFilesHas
     (item.verificationIntent?.[lane] ?? []).filter(intent => (intent.priority ?? 'must') === 'must').map((intent, index) => intent.id ?? `${item.id}:${lane}:${index}`)));
   const currentRefs = new Set(current.map(row => row.evidence.intentRef));
   const missingIntents = mustIntents.filter(ref => !currentRefs.has(ref));
-  const claims = new Set(current.flatMap(row => row.evidence.attestation?.checkedClaims ?? []));
-  let transcriptRelated = false;
-  for (const { evidence } of current.filter(row => row.evidence.kind === 'manual_transcript')) {
-    if (!gitCwd || !evidence.file || isAbsolute(evidence.file) || evidence.file.split(/[\\/]/).includes('..')) continue;
-    try {
-      const transcript = JSON.parse(readFileSync(resolve(gitCwd, evidence.file), 'utf8')) as Record<string, unknown>;
-      const events = Array.isArray(transcript.events) ? transcript.events as Array<Record<string, unknown>> : [];
-      const producer = events.findIndex(event => event.kind === 'producer' && event.intentRef === evidence.intentRef);
-      const consumer = events.findIndex(event => event.kind === 'consumer' && event.intentRef === evidence.intentRef);
-      const mutation = transcript.mutation as Record<string, unknown> | undefined;
-      transcriptRelated = transcript.storyId === storyId && producer >= 0 && consumer > producer;
-      if (transcriptRelated) claims.add('transcript-related');
-      if (mutation?.applied === true && typeof mutation.expectedCode === 'string' && mutation.expectedCode === mutation.observedCode) {
-        claims.add('mutation-applied'); claims.add('mutation-bites');
-      }
-      if (mutation?.controlRestored === true) claims.add('control-restored');
-    } catch { /* malformed or missing transcript remains unrelated */ }
-  }
-  const trusted = current.some(row => {
-    const trust = row.evidence.actorTrust;
-    return trust?.trustStatus !== 'revoked'
-      && Boolean(trust?.producerActorId && trust?.verifierActorId && trust.producerActorId !== trust.verifierActorId);
+  return { evidenceRefs, missingIntents, afterCutoff: afterCutoff.length, stale: stale.length };
+}
+
+export function loadVerifiedPreReviewExecutableProof(input: {
+  gitCwd: string;
+  metadataRoot: string;
+  storyDir: string;
+  storyId: string;
+  cutoffAt: string;
+  storyFilesHash: string;
+}): PreReviewExecutableProofV1 | null {
+  const reject = (reason: string): null => { if (process.env.LATTICE_DEBUG_PRE_REVIEW_PROOF === '1') process.stderr.write(`[pre-review-proof] ${reason}\n`); return null; };
+  const canonicalGitCwd = realpathSync(input.gitCwd);
+  const canonicalMetadataRoot = realpathSync(input.metadataRoot);
+  const canonicalStoryDir = realpathSync(input.storyDir);
+  const artifactPath = join(canonicalStoryDir, LIVE_SMOKE_TRANSCRIPT_REL);
+  if (!existsSync(artifactPath)) return reject('artifact missing');
+  const bytes = readFileSync(artifactPath, 'utf8');
+  const receipt = latestCausallyValidCloseoutReceipt(canonicalStoryDir, input.storyId, LIVE_SMOKE_TRANSCRIPT_REL, {
+    projectRoot: canonicalGitCwd,
+    metadataRoot: canonicalMetadataRoot,
   });
-  return { evidenceRefs, missingIntents, claims, trusted, afterCutoff: afterCutoff.length, stale: stale.length, transcriptRelated };
+  if (!receipt || receipt.writerCommand !== 'live_smoke_transcript'
+    || receipt.storyFilesHash !== input.storyFilesHash
+    || Date.parse(receipt.timestamp) >= Date.parse(input.cutoffAt)) return reject(`receipt invalid writer=${receipt?.writerCommand ?? 'missing'} storyFiles=${receipt?.storyFilesHash ?? 'missing'} expected=${input.storyFilesHash} timestamp=${receipt?.timestamp ?? 'missing'} cutoff=${input.cutoffAt}`);
+  let transcript: { actual?: { command?: unknown; stdout?: unknown; exitCode?: unknown } | null };
+  try { transcript = JSON.parse(bytes) as typeof transcript; }
+  catch { return reject('artifact JSON malformed'); }
+  if (!evaluateLiveSmokeTranscriptValue(transcript, input.storyId).ok
+    || typeof transcript.actual?.command !== 'string'
+    || typeof transcript.actual.stdout !== 'string'
+    || transcript.actual.exitCode !== 0) return reject('captured transcript shape/exit invalid');
+  const proofLine = transcript.actual.stdout.split(/\r?\n/).find(line => line.startsWith(EXECUTABLE_PROOF_PREFIX));
+  if (!proofLine) return reject('proof line missing');
+  let parsed: unknown;
+  try { parsed = JSON.parse(proofLine.slice(EXECUTABLE_PROOF_PREFIX.length)); }
+  catch { return reject('proof line JSON malformed'); }
+  if (!parsed || typeof parsed !== 'object') return reject('proof is not an object');
+  const candidate = parsed as Partial<PreReviewExecutableProofV1>;
+  if (candidate.schemaVersion !== 'proofstory.pre_review_executable_proof.v1'
+    || candidate.storyId !== input.storyId || !Array.isArray(candidate.bindingProofs)) return reject('proof schema/story/bindings invalid');
+  return {
+    schemaVersion: 'proofstory.pre_review_executable_proof.v1',
+    storyId: input.storyId,
+    producer: 'registered-verification-command',
+    verifier: 'pre-review-check-command-runner',
+    commandDigests: [digest({ command: transcript.actual.command, stdout: transcript.actual.stdout, receipt: receipt.integrityHash })],
+    bindingProofs: candidate.bindingProofs,
+  };
+}
+
+function sameStrings(left: readonly string[], right: readonly string[]): boolean {
+  return JSON.stringify(stable(left)) === JSON.stringify(stable(right));
+}
+
+const PRE_REVIEW_CODE_PRIORITY: readonly PreReviewCheckCodeV1[] = [
+  'PR_ARTIFACT_MISSING',
+  'PR_ARTIFACT_TAMPERED',
+  'PR_NEW_PATH_UNMAPPED',
+  'PR_COVERAGE_BASIS_CHANGED',
+  'PR_COVERAGE_INCONCLUSIVE',
+  'PR_PLANNED_PATH_UNRESOLVED',
+  'PR_PLANNED_PATH_RECONCILIATION_TAMPERED',
+  'PR_REQUIRED_ADAPTER_RESULT_MISSING',
+  'PR_ADAPTER_RESULT_DIGEST_MISMATCH',
+  'PR_ADAPTER_RESULT_INVALID',
+  'PR_CLOSURE_FILES_CHANGED',
+  'PR_POSITIVE_EVIDENCE_MISSING',
+  'PR_PRODUCTION_PATH_UNPROVEN',
+  'PR_MUTATION_EVIDENCE_MISSING',
+  'PR_MUTATION_DID_NOT_BITE',
+  'PR_CONTROL_NOT_RESTORED',
+  'PR_TRANSCRIPT_MISSING',
+  'PR_TRANSCRIPT_UNRELATED',
+  'PR_AUTHORITY_INADMISSIBLE',
+  'PR_EVIDENCE_STALE',
+  'PR_CUTOFF_UNBOUND',
+  'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED',
+];
+
+function orderedCodes(codes: readonly PreReviewCheckCodeV1[]): PreReviewCheckCodeV1[] {
+  const priority = new Map(PRE_REVIEW_CODE_PRIORITY.map((code, index) => [code, index]));
+  return [...new Set(codes)].sort((left, right) =>
+    (priority.get(left) ?? Number.MAX_SAFE_INTEGER) - (priority.get(right) ?? Number.MAX_SAFE_INTEGER)
+    || left.localeCompare(right));
+}
+
+function executableProofState(contract: ProofStoryContractData | null, proof: PreReviewExecutableProofV1 | null) {
+  const state = { authority: false, positives: false, mutationsPresent: false, mutationsBite: false, controlsRestored: false, transcriptsPresent: false, transcriptsRelated: false };
+  if (!contract || !proof || proof.schemaVersion !== 'proofstory.pre_review_executable_proof.v1'
+    || proof.storyId !== contract.storyId || proof.producer !== 'registered-verification-command'
+    || proof.verifier !== 'pre-review-check-command-runner' || proof.commandDigests.length === 0
+    || proof.commandDigests.some(value => !/^sha256:[a-f0-9]{64}$/.test(value))) return state;
+  const expectedBindings = contract.acceptanceBindings.filter(binding => binding.verificationTopology);
+  if (proof.bindingProofs.length !== expectedBindings.length) return state;
+  const byBinding = new Map(proof.bindingProofs.map(row => [row.bindingId, row]));
+  if (byBinding.size !== proof.bindingProofs.length) return state;
+  state.authority = true;
+  state.positives = true;
+  state.mutationsPresent = true;
+  state.mutationsBite = true;
+  state.controlsRestored = true;
+  state.transcriptsPresent = true;
+  state.transcriptsRelated = true;
+  for (const binding of expectedBindings) {
+    const topology = binding.verificationTopology!;
+    const row = byBinding.get(binding.id);
+    if (!row) return { ...state, authority: false, positives: false, mutationsPresent: false, mutationsBite: false, controlsRestored: false, transcriptsPresent: false, transcriptsRelated: false };
+    if (!sameStrings(row.positiveAssertionIds, topology.positiveAssertionRefs.map(item => item.id))) state.positives = false;
+    const mutationIds = row.mutationProofs.map(item => item.mutationId);
+    if (!sameStrings(mutationIds, topology.mutationCaseRefs.map(item => item.id)) || new Set(mutationIds).size !== mutationIds.length) state.mutationsPresent = false;
+    if (row.mutationProofs.some(item => !item.expectedCode || item.expectedCode !== item.observedCode)) state.mutationsBite = false;
+    if (row.mutationProofs.some(item => item.controlRestored !== true)) state.controlsRestored = false;
+    const transcriptIds = row.transcriptProofs.map(item => item.transcriptId);
+    if (!sameStrings(transcriptIds, topology.transcriptAssertionRefs.map(item => item.id)) || new Set(transcriptIds).size !== transcriptIds.length) state.transcriptsPresent = false;
+    for (const assertion of topology.transcriptAssertionRefs) {
+      const transcript = row.transcriptProofs.find(item => item.transcriptId === assertion.id);
+      if (!transcript || !sameStrings(transcript.producerRefs, assertion.producerRefs)
+        || !sameStrings(transcript.consumerRefs, assertion.consumerRefs)
+        || !Number.isInteger(transcript.producerSequence) || !Number.isInteger(transcript.consumerSequence)
+        || transcript.producerSequence >= transcript.consumerSequence) state.transcriptsRelated = false;
+    }
+  }
+  return state;
+}
+
+function remediationFor(codes: readonly PreReviewCheckCodeV1[]): string[] {
+  return stable(codes.map(code => code === 'PR_ARTIFACT_MISSING'
+    ? 'Run lattice pre_review_check --storyId=<id> after recording a current canonical live_smoke_transcript proof.'
+    : code === 'PR_ARTIFACT_TAMPERED'
+      ? 'Discard the invalid pre-review artifact and reissue it through lattice pre_review_check; do not edit StoryStore files directly.'
+      : code === 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'
+        ? 'Obtain a fresh independent topology critic receipt bound to the current pre-review basis, then reissue pre_review_check.'
+        : 'Repair the reported PR_* condition, recapture verifier-owned executable proof, and reissue pre_review_check.'));
 }
 
 export function issuePreReviewCheckArtifact(input: PreReviewCheckInput): PreReviewCheckArtifactV1 {
@@ -139,20 +257,21 @@ export function issuePreReviewCheckArtifact(input: PreReviewCheckInput): PreRevi
   if (basis.plannedActualReconciliations.length !== basis.plannedPathRecords.length) codes.push('PR_PLANNED_PATH_UNRESOLVED');
   if (input.topologyDiagnosticCodes.some(code => code === 'AT_UNMAPPED_SCOPE_REF')) codes.push('PR_NEW_PATH_UNMAPPED');
   if (input.topologyDiagnosticCodes.length > 0) codes.push('PR_COVERAGE_BASIS_CHANGED');
-  const evidence = evidenceState(input.checklist, input.cutoffAt, basis.binding.storyFilesHash, input.gitCwd, input.storyId);
+  const evidence = evidenceState(input.checklist, input.cutoffAt, basis.binding.storyFilesHash);
+  const proof = executableProofState(input.contract, input.executableProof);
   if (evidence.stale > 0) codes.push('PR_EVIDENCE_STALE');
   if (evidence.afterCutoff > 0) codes.push('PR_CUTOFF_UNBOUND');
   if (evidence.missingIntents.length > 0) codes.push('PR_POSITIVE_EVIDENCE_MISSING');
-  if (!evidence.claims.has('production-path')) codes.push('PR_PRODUCTION_PATH_UNPROVEN');
-  if (!evidence.claims.has('mutation-applied')) codes.push('PR_MUTATION_EVIDENCE_MISSING');
-  if (!evidence.claims.has('mutation-bites')) codes.push('PR_MUTATION_DID_NOT_BITE');
-  if (!evidence.claims.has('control-restored')) codes.push('PR_CONTROL_NOT_RESTORED');
-  if (!evidence.transcriptRelated) codes.push(evidence.evidenceRefs.some(ref => ref.kind === 'manual_transcript') ? 'PR_TRANSCRIPT_UNRELATED' : 'PR_TRANSCRIPT_MISSING');
-  if (!evidence.trusted || !evidence.claims.has('authority-admissible')) codes.push('PR_AUTHORITY_INADMISSIBLE');
-  if (!evidence.claims.has('cutoff-bound')) codes.push('PR_CUTOFF_UNBOUND');
+  if (!proof.positives) codes.push('PR_PRODUCTION_PATH_UNPROVEN');
+  if (!proof.mutationsPresent) codes.push('PR_MUTATION_EVIDENCE_MISSING');
+  if (!proof.mutationsBite) codes.push('PR_MUTATION_DID_NOT_BITE');
+  if (!proof.controlsRestored) codes.push('PR_CONTROL_NOT_RESTORED');
+  if (!proof.transcriptsPresent) codes.push('PR_TRANSCRIPT_MISSING');
+  else if (!proof.transcriptsRelated) codes.push('PR_TRANSCRIPT_UNRELATED');
+  if (!proof.authority) codes.push('PR_AUTHORITY_INADMISSIBLE');
   if (input.mode === 'enforce' && !input.criticVerification?.ok) codes.push('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED');
-  const orderedCodes = stable(codes);
-  const status = orderedCodes.length === 0 ? 'pass' : basis.status === 'complete' ? 'fail' : 'inconclusive';
+  const emittedCodes = orderedCodes(codes);
+  const status = emittedCodes.length === 0 ? 'pass' : basis.status === 'complete' ? 'fail' : 'inconclusive';
   const key = privateKey(input.gitCwd);
   const signerPublicKey = exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(key)));
   const unsigned: Omit<PreReviewCheckArtifactV1, 'signature'> = {
@@ -168,8 +287,12 @@ export function issuePreReviewCheckArtifact(input: PreReviewCheckInput): PreRevi
     storyFilesHash: basis.binding.storyFilesHash,
     closureFilesHash: basis.binding.closureFilesHash,
     evidenceRefs: evidence.evidenceRefs,
+    executableProof: input.executableProof ?? {
+      schemaVersion: 'proofstory.pre_review_executable_proof.v1', storyId: input.storyId,
+      producer: 'registered-verification-command', verifier: 'pre-review-check-command-runner', commandDigests: [], bindingProofs: [],
+    },
     ...(input.criticReceiptDigest ? { criticReceiptDigest: input.criticReceiptDigest } : {}),
-    codes: orderedCodes,
+    codes: emittedCodes,
     status,
     issuedAt: input.cutoffAt,
     signerPublicKey,
@@ -181,16 +304,16 @@ export function verifyPreReviewCheckArtifact(input: PreReviewCheckInput & { arti
   const artifact = input.artifact;
   if (!artifact) return {
     storyId: input.storyId, mode: input.mode, readOnly: true, status: 'fail', ok: false, blocking: input.mode === 'enforce',
-    codes: ['PR_ARTIFACT_TAMPERED'], plannedActual: 'incomplete', executableEvidence: 'missing', mutations: 'missing', transcript: 'missing', authority: 'inadmissible',
-    criticReattestation: input.mode === 'enforce' ? 'missing' : 'not_required', artifact: null,
+    codes: ['PR_ARTIFACT_MISSING'], plannedActual: 'incomplete', executableEvidence: 'missing', mutations: 'missing', transcript: 'missing', authority: 'inadmissible',
+    criticReattestation: input.mode === 'enforce' ? 'missing' : 'not_required', remediation: remediationFor(['PR_ARTIFACT_MISSING']), artifact: null,
   };
   // Metadata auto-commit advances HEAD after the producer writes the artifact.
   // Re-evaluate semantic evidence against the signed basis while the canonical
   // receipt freshness reader below independently rejects material/story/closure
   // drift; do not silently rebind the stored artifact to the later HEAD.
-  const expectedInput = artifact ? { ...input, currentArtifact: artifact.preReviewBasisArtifact } : input;
+  const expectedInput = { ...input, currentArtifact: artifact.preReviewBasisArtifact, executableProof: artifact.executableProof };
   const expected = issuePreReviewCheckArtifact(expectedInput);
-  const codes: PreReviewCheckCodeV1[] = artifact ? [...expected.codes] : ['PR_ARTIFACT_TAMPERED'];
+  const codes: PreReviewCheckCodeV1[] = [...expected.codes];
   const trusted = trustedPublicKey(input.gitCwd);
   if (!artifact || !trusted || artifact.signerPublicKey !== trusted
     || !verifyCanonical(unsignedArtifact(artifact), artifact.signature, trusted)
@@ -209,15 +332,16 @@ export function verifyPreReviewCheckArtifact(input: PreReviewCheckInput & { arti
     });
     if (!receipt.ok || artifact.storyId !== input.storyId) codes.push('PR_ARTIFACT_TAMPERED');
   }
-  const ordered = stable(codes);
+  const ordered = orderedCodes(codes);
   const ok = ordered.length === 0 && artifact?.status === 'pass';
-  const claims = evidenceState(input.checklist, input.cutoffAt, input.currentArtifact.basis.binding.storyFilesHash, input.gitCwd, input.storyId).claims;
+  const proof = executableProofState(input.contract, artifact.executableProof);
   return {
     storyId: input.storyId, mode: input.mode, readOnly: true, status: ok ? 'pass' : input.currentArtifact.basis.status === 'complete' ? 'fail' : 'inconclusive',
     ok, blocking: input.mode === 'enforce' && !ok, codes: ordered,
     plannedActual: input.currentArtifact.basis.plannedActualReconciliations.length === input.currentArtifact.basis.plannedPathRecords.length ? 'complete' : 'incomplete',
-    executableEvidence: claims.has('production-path') ? 'current' : 'missing', mutations: claims.has('mutation-bites') && claims.has('control-restored') ? 'biting' : 'missing',
-    transcript: claims.has('transcript-related') ? 'related' : 'missing', authority: claims.has('authority-admissible') ? 'admissible' : 'inadmissible',
+    executableEvidence: proof.positives ? 'current' : 'missing', mutations: proof.mutationsBite && proof.controlsRestored ? 'biting' : 'missing',
+    transcript: proof.transcriptsPresent && proof.transcriptsRelated ? 'related' : 'missing', authority: proof.authority ? 'admissible' : 'inadmissible',
     criticReattestation: input.mode !== 'enforce' ? 'not_required' : input.criticVerification?.ok ? 'current' : 'missing', artifact,
+    remediation: remediationFor(ordered),
   };
 }

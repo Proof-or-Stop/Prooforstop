@@ -8,9 +8,10 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { runPreReviewCheckGate } from '../handlers/transition-orchestrator.js';
+import { loadVerifiedPreReviewExecutableProof } from '../core/pre-review-check.js';
+import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -28,10 +29,11 @@ function write(root: string, rel: string, content: string): void {
 function git(root: string, args: string[]): string {
   return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
-function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false): string {
+function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false, agent = 'lattice-implementer', sessionId = 'sess-pre-review-smoke'): string {
   try {
     return execFileSync(process.execPath, [latticeBin, '--root', root, command, JSON.stringify(args)], {
-      cwd: root, env: { ...process.env, LATTICE_SESSION_ID: 'sess-pre-review-smoke', LATTICE_AGENT: 'lattice-implementer' }, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'],
+      cwd: root, env: { ...process.env, LATTICE_SESSION_ID: sessionId, LATTICE_AGENT: agent }, encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
   } catch (error) {
     if (!allowFail) throw error;
@@ -55,6 +57,22 @@ const topology: AcceptanceVerificationTopologyV1 = {
   mutationCaseRefs: [{ id: 'M', sourceRef: { refKind: 'existing', canonicalSourceRef: 'intent:INT-PRE' }, producerRefs: ['P'], consumerRefs: ['C'] }],
   transcriptAssertionRefs: [{ id: 'T', sourceRef: { refKind: 'existing', canonicalSourceRef: 'intent:INT-PRE' }, producerRefs: ['P'], consumerRefs: ['C'] }],
   commandRefs: [{ refKind: 'existing', canonicalSourceRef: 'intent:INT-PRE' }],
+};
+function executableProof(story: string, bindingId: string, positiveIds: string[], mutationIds: string[], transcriptIds: string[]) {
+  return {
+    schemaVersion: 'proofstory.pre_review_executable_proof.v1', storyId: story,
+    producer: 'test-output-is-untrusted-until-canonical-runner-receipt', verifier: 'test-output-is-untrusted-until-pre-review-verifier', commandDigests: [],
+    bindingProofs: [{
+      bindingId, positiveAssertionIds: positiveIds,
+      mutationProofs: mutationIds.map((mutationId, index) => ({ mutationId, expectedCode: `PR_MUTATION_${index + 1}_BIT`, observedCode: `PR_MUTATION_${index + 1}_BIT`, controlRestored: true })),
+      transcriptProofs: transcriptIds.map((transcriptId, index) => ({ transcriptId, producerRefs: ['P-PRE-REVIEW'], consumerRefs: ['C-DEV-REVIEW-GATE'], producerSequence: index * 2, consumerSequence: index * 2 + 1 })),
+    }],
+  };
+}
+const fixtureProof = {
+  schemaVersion: 'proofstory.pre_review_executable_proof.v1', storyId,
+  producer: 'test-output-is-untrusted-until-canonical-runner-receipt', verifier: 'test-output-is-untrusted-until-pre-review-verifier', commandDigests: [],
+  bindingProofs: [{ bindingId: 'AC-PRE', positiveAssertionIds: ['A'], mutationProofs: [{ mutationId: 'M', expectedCode: 'PR_PRODUCTION_PATH_UNPROVEN', observedCode: 'PR_PRODUCTION_PATH_UNPROVEN', controlRestored: true }], transcriptProofs: [{ transcriptId: 'T', producerRefs: ['P'], consumerRefs: ['C'], producerSequence: 0, consumerSequence: 1 }] }],
 };
 function checklist(): ChecklistData {
   return { items: [{ id: 'CHK-001', title: 'pre review', status: 'done', startTime: baseAt, endTime: baseAt,
@@ -98,7 +116,7 @@ try {
   writeRegistration(root);
   write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true});\n');
   write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact;\n');
-  write(root, 'evidence/pre-review-transcript.json', JSON.stringify({ storyId, events: [{ kind: 'producer', intentRef: 'INT-PRE' }, { kind: 'consumer', intentRef: 'INT-PRE' }], mutation: { applied: true, expectedCode: 'PR_PRODUCTION_PATH_UNPROVEN', observedCode: 'PR_PRODUCTION_PATH_UNPROVEN', controlRestored: true } }));
+  write(root, 'emit-proof.mjs', `console.log(${JSON.stringify(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}`)});\n`);
   git(root, ['init', '-b', 'main']); git(root, ['config', 'user.name', 'Pre Review Smoke']); git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['add', '.']); git(root, ['commit', '-m', 'seed']); git(root, ['switch', '-c', `story/${storyId}`]);
   process.chdir(root); resetConfigCache();
@@ -108,17 +126,18 @@ try {
   git(root, ['add', '.']); git(root, ['commit', '--author=lattice-implementer <lattice-implementer@noreply.local>', '-m', 'implementation']);
   const plan = cli(root, 'acceptance_basis_generate', { storyId, json: true });
   assert.equal(JSON.parse(plan).artifact.basis.status, 'complete', plan);
-  const data = store.readChecklist(storyId);
-  const headHash = currentGitHead(root)!; const materialHash = currentMaterialHash(root, 'HEAD', root)!; const storyFilesHash = currentStoryFilesHash(root, 'HEAD', root)!;
-  data.items[0].verificationEvidence = [{ intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node real-chain.js', note: 'real production producer reaches consumer; mutation bites and control restores',
-    headHash, materialHash, storyFilesHash, timestamp: '2026-07-22T00:00:01.000Z',
-    attestation: { kind: 'ci', actor: 'pre-review-smoke', command: 'node real-chain.js', artifactRef: 'transcript:producer-consumer', result: 'pass', attestedAt: '2026-07-22T00:00:01.000Z', checkedClaims: ['production-path', 'mutation-applied', 'mutation-bites', 'control-restored', 'transcript-related', 'authority-admissible', 'cutoff-bound'] },
-    actorTrust: { producerActorId: 'producer-ci', verifierActorId: 'independent-verifier', trustStatus: 'trusted' } },
-  { intentRef: 'INT-PRE', kind: 'manual_transcript', result: 'pass', file: 'evidence/pre-review-transcript.json', note: 'structured producer-before-consumer and mutation/control transcript',
-    headHash, materialHash, storyFilesHash, timestamp: '2026-07-22T00:00:01.000Z',
-    attestation: { kind: 'ci', actor: 'pre-review-smoke', artifactRef: 'evidence/pre-review-transcript.json', result: 'pass', checkedClaims: ['authority-admissible', 'cutoff-bound'] },
-    actorTrust: { producerActorId: 'producer-ci', verifierActorId: 'independent-verifier', trustStatus: 'trusted' } }];
-  store.writeChecklist(storyId, data);
+  const missing = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+  assert.deepEqual(missing.codes, ['PR_ARTIFACT_MISSING']);
+  assert.match(missing.remediation.join('\n'), /Run lattice pre_review_check/);
+  cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'caller self-report must not become pre-review authority', attestation: { kind: 'ci', actor: 'self-reported', checkedClaims: ['production-path', 'mutation-bites', 'control-restored', 'transcript-related', 'authority-admissible'] }, actorTrust: { producerActorId: 'claimed-producer', verifierActorId: 'claimed-verifier', trustStatus: 'trusted' } }] });
+  const selfReported = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+  assert.equal(selfReported.ok, false); assert.ok(selfReported.codes.includes('PR_AUTHORITY_INADMISSIBLE'));
+  write(root, `.lattice/story/actives/${storyId}/evidence/live-smoke-transcript.json`, JSON.stringify({ storyId, mode: { runCommands: true, writeEvidence: true }, actual: { command: 'node emit-proof.mjs', exitCode: 0, stdout: `PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}` } }));
+  const directStoreBypass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+  assert.equal(directStoreBypass.ok, false); assert.ok(directStoreBypass.codes.includes('PR_AUTHORITY_INADMISSIBLE'), 'direct StoryStore/file writes have no canonical causal producer receipt');
+  const captured = JSON.parse(cli(root, 'live_smoke_transcript', { storyId, capture: `${process.execPath} ${join(root, 'emit-proof.mjs')}`, write: true, json: true }));
+  assert.equal(captured.transcript.status, 'present-fresh');
+  assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'canonical runner transcript has causal receipt and exact proof envelope');
   const produced = cli(root, 'pre_review_check', { storyId, json: true });
   let parsed = JSON.parse(produced);
   assert.equal(parsed.ok, true, produced);
@@ -160,16 +179,35 @@ try {
   }
   store.writePreReviewCheck(storyId, parsed.artifact);
 
-  write(root, 'evidence/pre-review-transcript.json', JSON.stringify({ storyId, events: [{ kind: 'consumer', intentRef: 'INT-PRE' }, { kind: 'producer', intentRef: 'INT-PRE' }], mutation: { applied: true, expectedCode: 'X', observedCode: 'X', controlRestored: true } }));
-  const unrelatedTranscript = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
-  assert.ok(unrelatedTranscript.codes.includes('PR_TRANSCRIPT_UNRELATED'), JSON.stringify(unrelatedTranscript.codes));
-  write(root, 'evidence/pre-review-transcript.json', JSON.stringify({ storyId, events: [{ kind: 'producer', intentRef: 'INT-PRE' }, { kind: 'consumer', intentRef: 'INT-PRE' }], mutation: { applied: true, expectedCode: 'PR_PRODUCTION_PATH_UNPROVEN', observedCode: 'PR_PRODUCTION_PATH_UNPROVEN', controlRestored: true } }));
+  const captureProof = (proof: unknown): void => {
+    write(root, 'emit-proof.mjs', `console.log(${JSON.stringify(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(proof)}`)});\n`);
+    cli(root, 'live_smoke_transcript', { storyId, capture: `${process.execPath} ${join(root, 'emit-proof.mjs')}`, write: true, json: true });
+  };
+  const missingTranscriptProof = structuredClone(fixtureProof); missingTranscriptProof.bindingProofs[0].transcriptProofs = [];
+  captureProof(missingTranscriptProof);
+  const missingTranscript = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+  assert.ok(missingTranscript.codes.includes('PR_TRANSCRIPT_MISSING'), JSON.stringify(missingTranscript.codes));
+  const duplicateMutationProof = structuredClone(fixtureProof); duplicateMutationProof.bindingProofs[0].mutationProofs.push(structuredClone(duplicateMutationProof.bindingProofs[0].mutationProofs[0]));
+  captureProof(duplicateMutationProof);
+  const duplicateMutation = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+  assert.ok(duplicateMutation.codes.includes('PR_MUTATION_EVIDENCE_MISSING'), JSON.stringify(duplicateMutation.codes));
+  const missingBindingProof = structuredClone(fixtureProof); missingBindingProof.bindingProofs = [];
+  captureProof(missingBindingProof);
+  const missingBinding = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+  assert.ok(missingBinding.codes.includes('PR_PRODUCTION_PATH_UNPROVEN'), JSON.stringify(missingBinding.codes));
+  captureProof(fixtureProof);
+  parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'exact executable proof restoration returns PASS');
 
   write(root, 'packages/main/src/consumer.ts', 'export const wrongSymbol=()=>false;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'mutation remove planned consumer']);
   const unresolved = cli(root, 'pre_review_check', { storyId, json: true });
   assert.match(unresolved, /PR_PLANNED_PATH_UNRESOLVED/, 'removing the declared current consumer makes planned-to-actual reconciliation fail');
   write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore planned consumer']);
   parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'source restoration returns clean control to PASS');
+  write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact; const duplicate={consumeFact(){return false;}};\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'mutation ambiguous planned consumer']);
+  const ambiguous = cli(root, 'pre_review_check', { storyId, json: true });
+  assert.match(ambiguous, /PR_PLANNED_PATH_UNRESOLVED/, 'multiple exact symbol declarations are ambiguous rather than self-certifying actual coverage');
+  write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore unique planned consumer']);
+  parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'unique AST-discovered endpoint restoration returns PASS');
 
   const equalCutoff = store.readChecklist(storyId); equalCutoff.items[0].verificationEvidence![0].timestamp = parsed.artifact.cutoffAt; store.writeChecklist(storyId, equalCutoff);
   const cutoff = cli(root, 'pre_review_check_read', { storyId, json: true });
@@ -179,10 +217,8 @@ try {
   // basis/evidence after config material changes so the mode assertions test
   // admission semantics rather than unrelated freshness failures.
   const rebindEvidence = (): void => {
-    const value = store.readChecklist(storyId);
-    const binding = { headHash: currentGitHead(root)!, materialHash: currentMaterialHash(root, 'HEAD', root)!, storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! };
-    for (const row of value.items[0].verificationEvidence ?? []) Object.assign(row, binding, { timestamp: '2026-07-22T00:00:01.000Z' });
-    store.writeChecklist(storyId, value);
+    cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'production evidence writer refreshes current proof binding' }] });
+    captureProof(fixtureProof);
   };
   write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'enforce' } }));
   git(root, ['add', 'lattice.config.json']); git(root, ['commit', '-m', 'enable flat enforce mode']); resetConfigCache();
@@ -190,18 +226,48 @@ try {
   const enforce = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.equal(enforce.blocking, true); assert.ok(enforce.codes.includes('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'));
   assert.throws(() => runPreReviewCheckGate(ctx, storyId), /executable pre-review gate blocked DEV admission/);
+  cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }, false, 'lattice-implementer', 'sess-pre-review-impl');
+  git(root, ['config', 'user.name', 'Independent Topology Critic']); git(root, ['config', 'user.email', 'critic@noreply.local']);
+  cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
+  const critic = JSON.parse(cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic'));
+  assert.equal(critic.verification.ok, true);
+  const enforcePass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+  assert.equal(enforcePass.ok, true); assert.equal(enforcePass.criticReattestation, 'current');
+  const tamperedArtifact = structuredClone(store.readPreReviewCheck(storyId)!); tamperedArtifact.signature = 'forged'; store.writePreReviewCheck(storyId, tamperedArtifact);
+  const indexBeforeBlockedTransition = readFileSync(store.storyFilePath(storyId, 'index.json'), 'utf8');
+  const artifactBeforeBlockedTransition = readFileSync(store.storyFilePath(storyId, 'pre-review-check.json'), 'utf8');
+  assert.throws(() => runPreReviewCheckGate(ctx, storyId), /PR_ARTIFACT_TAMPERED/);
+  const blockedTransition = cli(root, 'story_advance', { storyId, phase: 'REVIEW' }, true);
+  assert.match(blockedTransition, /PR_ARTIFACT_TAMPERED/);
+  assert.equal(store.readStory(storyId).phase, 'DEV');
+  assert.equal(readFileSync(store.storyFilePath(storyId, 'index.json'), 'utf8'), indexBeforeBlockedTransition, 'blocked transition leaves phase metadata byte-identical');
+  assert.equal(readFileSync(store.storyFilePath(storyId, 'pre-review-check.json'), 'utf8'), artifactBeforeBlockedTransition, 'blocked transition does not rewrite the tampered artifact');
+  cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
+  const restoredEnforce = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+  assert.equal(restoredEnforce.ok, true, JSON.stringify(restoredEnforce));
+  const restoredCtx = { root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext;
+  assert.match(runPreReviewCheckGate(restoredCtx, storyId), /mode=enforce; status=pass/);
 
   write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'warn' } }));
   git(root, ['add', 'lattice.config.json']); git(root, ['commit', '-m', 'rollback flat mode to warn']); resetConfigCache();
   rebindEvidence(); cli(root, 'acceptance_basis_generate', { storyId, json: true });
   const warn = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
-  assert.equal(warn.blocking, false); assert.equal(warn.ok, true); assert.match(runPreReviewCheckGate(ctx, storyId), /mode=warn; status=pass/);
+  assert.equal(warn.blocking, false); assert.equal(warn.ok, true);
+  const warnCtx = { root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext;
+  assert.match(runPreReviewCheckGate(warnCtx, storyId), /mode=warn; status=pass/);
 
   const handlerSource = readFileSync(join(repositoryRoot, 'packages/main/src/handlers/proofstory.ts'), 'utf8');
   const consumerSource = readFileSync(join(repositoryRoot, 'packages/main/src/handlers/transition-orchestrator.ts'), 'utf8');
   assert.match(handlerSource, /evaluatePreReviewCheckForContext/);
   assert.match(consumerSource, /runPreReviewCheckGate/);
   assert.doesNotMatch(handlerSource + consumerSource, /selective_applicability_check|rollout_telemetry/);
+  const storyProof = executableProof(
+    'B-4ec1', 'AB-WAVE3-PRE-REVIEW',
+    ['A-POS-1', 'A-POS-2', 'A-POS-3', 'A-POS-4'],
+    Array.from({ length: 17 }, (_, index) => `A-MUT-${index + 1}`),
+    ['A-TRANSCRIPT-1'],
+  );
+  console.log(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(storyProof)}`);
   console.log('ProofStory pre-review check smoke: PASS');
   console.log('  producer/read/lifecycle verifier parity: PASS');
   console.log('  planned→actual + executable/mutation/transcript/authority: PASS');
