@@ -1299,6 +1299,13 @@ function sameSet(left: readonly string[], right: readonly string[]): boolean {
   return JSON.stringify(stable(left)) === JSON.stringify(stable(right));
 }
 
+function boundedProcessFactDifference(label: 'registryOnly' | 'dispatchOnly', paths: readonly string[]): string {
+  const names = stable(paths.map(path => path.match(/^path:process-fact:(.+?)->consumer:/)?.[1] ?? '<malformed>'));
+  const limit = 8;
+  const shown = names.slice(0, limit).join(',');
+  return `${label}(count=${names.length})=[${shown}${names.length > limit ? ',…' : ''}]`;
+}
+
 export function reconcileAcceptanceDiscoveryResults(results: readonly CoverageAdapterResultV1[]): AcceptanceDiscoveryReconciliation {
   const diagnostics: AcceptanceDiscoveryDiagnostic[] = [];
   const byMethod = new Map<CoverageDiscoveryMethodV1, CoverageAdapterResultV1[]>();
@@ -1329,7 +1336,16 @@ export function reconcileAcceptanceDiscoveryResults(results: readonly CoverageAd
   const dispatchablePaths = new Set(PROCESS_FACT_REGISTRY.filter(isDispatchableProcessFact).map(processFactPath));
   const registryProcessPaths = registryResult?.pathRefs.filter(path => dispatchablePaths.has(path)) ?? [];
   const dispatchProcessPaths = dispatchResult?.pathRefs.filter(path => path.startsWith('path:process-fact:')) ?? [];
-  if (registryResult && dispatchResult && !sameSet(registryProcessPaths, dispatchProcessPaths)) diagnostics.push({ code: 'AT_DISCOVERY_DISAGREEMENT', message: 'process-fact and handler/dispatch discovery disagree' });
+  if (registryResult && dispatchResult && !sameSet(registryProcessPaths, dispatchProcessPaths)) {
+    const registrySet = new Set(registryProcessPaths);
+    const dispatchSet = new Set(dispatchProcessPaths);
+    const registryOnly = registryProcessPaths.filter(path => !dispatchSet.has(path));
+    const dispatchOnly = dispatchProcessPaths.filter(path => !registrySet.has(path));
+    diagnostics.push({
+      code: 'AT_DISCOVERY_DISAGREEMENT',
+      message: `process-fact and handler/dispatch discovery disagree; ${boundedProcessFactDifference('registryOnly', registryOnly)}; ${boundedProcessFactDifference('dispatchOnly', dispatchOnly)}`,
+    });
+  }
   const enumeratedPathRefs = stable(results.flatMap(result => result.pathRefs));
   const blindSpots = stable(results.flatMap(result => result.blindSpots));
   const unsupported = results.some(result => result.coverageClaim === 'unsupported' || result.asymmetryPolicy.kind === 'unsupported');

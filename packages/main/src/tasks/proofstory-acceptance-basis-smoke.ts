@@ -315,9 +315,23 @@ try {
   assert.ok(reconcileAcceptanceDiscoveryResults(resultTamper).diagnostics.some(item => item.code === 'AT_ADAPTER_RESULT_DIGEST_MISMATCH'), 'adapter path mutation without digest bites');
   const disagreement = structuredClone(adapterControl);
   const disagreementDispatch = disagreement.find(item => item.method === 'handler_dispatch_inventory')!;
-  disagreementDispatch.pathRefs = ['path:process-fact:forged-dispatch->consumer:<audit-only>'];
+  disagreementDispatch.pathRefs = disagreementDispatch.pathRefs
+    .filter(path => !path.startsWith('path:process-fact:acceptance_basis_generate->'));
+  disagreementDispatch.pathRefs.push('path:process-fact:forged-dispatch->consumer:<audit-only>');
+  disagreementDispatch.pathRefs.sort();
   redigestAdapter(disagreementDispatch);
-  assert.ok(reconcileAcceptanceDiscoveryResults(disagreement).diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'), 'unexplained registry/dispatch disagreement bites');
+  const disagreementDiagnostic = reconcileAcceptanceDiscoveryResults(disagreement).diagnostics.find(item => item.code === 'AT_DISCOVERY_DISAGREEMENT');
+  assert.ok(disagreementDiagnostic, 'unexplained registry/dispatch disagreement bites');
+  assert.match(disagreementDiagnostic.message, /registryOnly\(count=1\)=\[acceptance_basis_generate\]/, 'registry-only difference is bounded and specific');
+  assert.match(disagreementDiagnostic.message, /dispatchOnly\(count=1\)=\[forged-dispatch\]/, 'dispatch-only difference is bounded and specific');
+  const boundedDisagreement = structuredClone(adapterControl);
+  const boundedDispatch = boundedDisagreement.find(item => item.method === 'handler_dispatch_inventory')!;
+  boundedDispatch.pathRefs.push(...Array.from({ length: 10 }, (_, index) => `path:process-fact:forged-${String(index).padStart(2, '0')}->consumer:<audit-only>`));
+  boundedDispatch.pathRefs.sort();
+  redigestAdapter(boundedDispatch);
+  const boundedDiagnostic = reconcileAcceptanceDiscoveryResults(boundedDisagreement).diagnostics.find(item => item.code === 'AT_DISCOVERY_DISAGREEMENT')!;
+  assert.match(boundedDiagnostic.message, /dispatchOnly\(count=10\)=\[forged-00,forged-01,forged-02,forged-03,forged-04,forged-05,forged-06,forged-07,…\]/, 'large difference reports total count and bounded sorted names');
+  assert.doesNotMatch(boundedDiagnostic.message, /forged-08|forged-09/, 'bounded difference does not leak the full set');
   assert.ok(!adapterControlReconciled.diagnostics.some(item => item.code === 'AT_DISCOVERY_DISAGREEMENT'), 'typed bounded runtime asymmetry retains static-only paths');
   for (const [label, mutate] of [
     ['claim', (value: any) => { value.coverageClaim = 'complete'; }],
