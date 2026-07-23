@@ -24,7 +24,7 @@
       "desc": "23-case executable proof is exact by ID/kind/sourceRef but several cases do not semantically exercise the intents they claim: A-POS-1 labels generic producer/read/lifecycle parity as CHK-001 role-guidance; A-POS-2 labels plannedActual completeness as CHK-002 real-cohort receipt; A-POS-3 labels capture-loader loading as CHK-003 bounded thresholds; A-POS-4 labels rollout mode/rollback as CHK-005 canonical docs. Likewise A-MUT-2 does not exercise docs-only/legacy/single-outcome false-block controls and A-MUT-6 does not exercise prompt-command removal/degraded-3x1/prompt-authority. The separate verificationEvidence may cover these behaviors, but the topology live-proof catalog currently attributes unrelated executed records to those intent refs, so pre_review_check PASS does not prove the declared positive/mutation semantics. Replace/rebind these catalog cases to execute the corresponding canonical checks (or split topology assertions so each case has truthful semantics), then recapture the canonical live proof and require a mutation that swaps an intent to a semantically unrelated case to fail.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-23T18:07:16.385Z",
@@ -37,7 +37,11 @@
         "scripts/run-proofstory-pre-review-live-proof.mjs"
       ],
       "signatureTag": "missing|json|case-executable-proof",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 8784c2d5d8 and d5cc375a1e: canonical assertion semantic registry binds A-POS-1..4, A-MUT-2 and A-MUT-6 to truthful targets/mutation kinds; decoder and assembler reject semantic mismatches. Explicit same-ID/sourceRef semantic-swap mutation fails. Current frozen proof-scenarios PASS exactly 5 positive / 17 mutation / 1 transcript and current pre_review_check reports executableEvidence=current, mutations=biting, transcript=related, authority=admissible.",
+      "resolvedAt": "2026-07-23T19:28:32.896Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4043:F-003",
