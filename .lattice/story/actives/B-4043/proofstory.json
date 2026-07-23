@@ -170,6 +170,72 @@
             "consumerRefs": [
               "C-W4-ROLLOUT-CLI"
             ]
+          },
+          {
+            "id": "A-W4-PROMPTS-EDGE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:edge:mirror-mode"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-CLI",
+              "C-W4-ROLLOUT-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-W4-REPORT-EDGE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-002:edge:false-block-controls"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-CLI"
+            ]
+          },
+          {
+            "id": "A-W4-POLICY-EDGE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:edge:inconclusive-boundary"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-W4-ENFORCE-EDGE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:edge:mode-invariant-diagnostics"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-W4-DOCS-EDGE",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-005:edge:authority-and-exclusions"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-CLI"
+            ]
           }
         ],
         "mutationCaseRefs": [
@@ -305,6 +371,30 @@
           {
             "refKind": "existing",
             "canonicalSourceRef": "process-fact:live_smoke_transcript"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_basis"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:artifact:acceptance-basis.json"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
           }
         ]
       }
@@ -323,5 +413,5 @@
   ],
   "note": "Canonical Story 6 Wave 4 flat measured-rollout acceptance binding. The verification-intent planned declaration owns the new report producer and both CLI/lifecycle consumers; Wave 3A selective applicability is excluded.",
   "createdAt": "2026-07-23T16:46:17.327Z",
-  "updatedAt": "2026-07-23T16:46:55.761Z"
+  "updatedAt": "2026-07-23T16:47:22.846Z"
 }

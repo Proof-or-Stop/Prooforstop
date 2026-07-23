@@ -4,7 +4,7 @@
     "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
     "storyId": "B-4043",
     "phaseBasis": "plan",
-    "status": "partial",
+    "status": "complete",
     "generatedBy": {
       "verifier": "acceptance-coverage-basis-verifier",
       "command": "lattice acceptance_basis_generate",
@@ -306,14 +306,7 @@
       "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH"
     ],
     "excludedPathRefs": [],
-    "blindSpots": [
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
-    ],
+    "blindSpots": [],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:ce81d329dafff00ff2f1f33de41dd687b9536ab5ac2ba7bdd24bf6759796322d",
@@ -321,68 +314,37 @@
       "sourceSnapshotDigest": "sha256:e145aa7d049751687d197608c0eb7870b406a0bf17928c70ec4c7708fea110d3",
       "sourceSnapshotCount": 748,
       "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
-      "status": "partial",
-      "issues": [
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_basis->consumer:<audit-only>"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
-        },
-        {
-          "code": "derivation_diagnostic",
-          "targetKind": "inventory",
-          "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
-        }
-      ],
-      "sealDigest": "sha256:a5fb2e99bd3d0ed70e60c3b754ac64389c78cbf16c67a8a963b2acdc7cf63648"
+      "status": "complete",
+      "issues": [],
+      "sealDigest": "sha256:98641d715068c5c74719f1dbc32303f58fec7ef2f7626a4033d60e4eff2fb4dc"
     },
     "binding": {
-      "headHash": "ac11c23298e6ad84a548ddc55d55414e8766d11f",
+      "headHash": "97c0fcafa05625e6fc63b5d1482b2f42c591ec4e",
       "materialHash": "f6e2e2988c7bcfe443e1993d29fda2fecd90e66204f1c4eff51645e47d7d5261",
       "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "scopeCheckDigest": "sha256:ec28f0d34b4e7b650ee2672dcbc86f2f8fc4b41ddf37a79fe81484df05eb70c8",
       "closureFilesHash": "sha256:50d15f84d24dd0c8f9fc014913be8293c248ae22a574b526bebdee18127f1173"
     },
-    "receiptRef": "receipt:coverage-basis:B-4043:plan:38fd8c3be8a78e9a",
-    "basisDigest": "sha256:47f1c8cc13347040f2266162f7bbb1aaec70dbbfdcc8bc90236f67fc5ea4a499"
+    "receiptRef": "receipt:coverage-basis:B-4043:plan:a73d25d71ac3f0c6",
+    "basisDigest": "sha256:6d05bf38cd43960d5be82aa84706a5c5c17428e09f168aac483b997cae9d609c"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-4043:plan:38fd8c3be8a78e9a",
+    "receiptRef": "receipt:coverage-basis:B-4043:plan:a73d25d71ac3f0c6",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
     "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
     "storyId": "B-4043",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:47f1c8cc13347040f2266162f7bbb1aaec70dbbfdcc8bc90236f67fc5ea4a499",
-    "topologyDigest": "sha256:467e0bb77c556f338558df23c6cc554a49e136328f5bf8a5af674010d76b4eea",
+    "basisDigest": "sha256:6d05bf38cd43960d5be82aa84706a5c5c17428e09f168aac483b997cae9d609c",
+    "topologyDigest": "sha256:f8ee1c2d0413e2d256d3825193c9daf32d88506702c78606e0acf09007951b15",
     "scopeCheckDigest": "sha256:ec28f0d34b4e7b650ee2672dcbc86f2f8fc4b41ddf37a79fe81484df05eb70c8",
-    "headHash": "ac11c23298e6ad84a548ddc55d55414e8766d11f",
+    "headHash": "97c0fcafa05625e6fc63b5d1482b2f42c591ec4e",
     "materialHash": "f6e2e2988c7bcfe443e1993d29fda2fecd90e66204f1c4eff51645e47d7d5261",
     "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "closureFilesHash": "sha256:50d15f84d24dd0c8f9fc014913be8293c248ae22a574b526bebdee18127f1173",
-    "sealDigest": "sha256:a5fb2e99bd3d0ed70e60c3b754ac64389c78cbf16c67a8a963b2acdc7cf63648",
+    "sealDigest": "sha256:98641d715068c5c74719f1dbc32303f58fec7ef2f7626a4033d60e4eff2fb4dc",
     "workspaceIdentityDigest": "sha256:6e61ba6ab6ff8068c1890049a84394a794f898a20fefcf7f56a8840651960b91",
-    "signature": "mvN3NtalM8CfxXTmWOBEqrUMOWPaIpf1QEAm0z4y2TfSg8rUVq9x1xLg1PR4DKROyMqXuWmbzK3kSiE2Xo9wDg=="
+    "signature": "l3By/GlHHRV12ODVIpujbm7E+v0jEbRD0qOnQNYY+ndDdqRvecx1kHrsEUqO0B28ZXnQoP0KeVPy+HJUBPKkAQ=="
   }
 }
