@@ -5,7 +5,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1090-1124 labels §8.1 as the deterministic executable-code table but omits PR_ARTIFACT_TAMPERED. The real read-only observe path returns {status:fail, blocking:false, codes:[PR_ARTIFACT_TAMPERED]} when pre-review-check.json is absent, as reproduced with `node bin/lattice.js pre_review_check_read {storyId:B-4ec1,json:true}` and implemented at packages/main/src/core/pre-review-check.ts:181-186. Add the stable code and its missing/invalid/signature/binding condition so the authoritative plan explains the actual observe diagnostic.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-22T23:31:47.293Z",
@@ -19,7 +19,11 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed docs/code drift: execution plan now distinguishes missing artifact from present-invalid PR_ARTIFACT_TAMPERED and documents the canonical code; current full pre-review smoke and live proof pass.",
+      "resolvedAt": "2026-07-23T02:18:03.090Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-002",
