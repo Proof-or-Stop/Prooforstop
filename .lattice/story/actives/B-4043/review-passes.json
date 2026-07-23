@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-4043:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/status replacement review complete: repository-wide scan found no stale Wave 4 NOT IMPLEMENTED/future-work residue; remaining Wave 2A/Wave 3 wording is explicitly historical. New rollout commands and flat-boundary promises map to catalog, handler, signed verifier artifact, process-fact registry, and transition consumer; no concept-cleanup or promised-but-undelivered blocker found.",
+      "createdAt": "2026-07-23T18:07:01.495Z",
+      "reviewRound": "2026-07-23T18:04:58.804Z",
+      "reviewRunId": "B-4043:RR-003",
+      "envelopeId": "cb6044100823f072d4675ce7db5f5af1f58cb62d1efa10c46ef3df6534e07bc3",
+      "writerSessionId": "sess-3ba73c94b75a97947a45c87cb6ef5696",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "13da308f50bf4f9a23f0678141755cb96c985d5fad5ab4f6fd86c055e4cea268"
+    }
+  ]
+}
