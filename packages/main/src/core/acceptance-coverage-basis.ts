@@ -13,6 +13,7 @@ import type {
 import { digestCanonicalJson } from './digest.js';
 import {
   ACCEPTANCE_PLAN_DISCOVERY_PROFILE,
+  acceptanceDiscoveryFactActivationPhase,
   type AcceptanceSourceSnapshot,
   detectAcceptanceDiscoverySupport,
   discoveryProfileDigest,
@@ -492,8 +493,6 @@ export function reconcileTopologyWithCoverageBasis(
     if (topologySourceRefs.includes(`basis-path:${path}`)) return true;
     const processMatch = /^path:process-fact:(.+)->consumer:/.exec(path);
     if (processMatch && topologySourceRefs.includes(`process-fact:${processMatch[1]}`)) return true;
-    if (processMatch && ['pre_review_check_read', 'artifact:pre-review-check.json'].includes(processMatch[1])
-      && topologySourceRefs.includes('process-fact:pre_review_check')) return true;
     const runtimeMatch = /^path:runtime-fact:(.+)->checker:/.exec(path);
     if (runtimeMatch && topologySourceRefs.includes(`runtime-fact:${runtimeMatch[1]}`)) return true;
     return topology.has(path);
@@ -519,7 +518,12 @@ export function reconcileTopologyWithCoverageBasis(
   for (const ref of topologySourceRefs) {
     const directPath = ref.startsWith('basis-path:') ? ref.slice('basis-path:'.length) : null;
     if (directPath && !basis.enumeratedPathRefs.includes(directPath)) diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `topology basis-path mapping is outside basis: ${directPath}`, pathRef: directPath });
-    if (ref.startsWith('process-fact:') && !basis.enumeratedPathRefs.some(path => path.startsWith(`path:${ref}->`))) diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `topology process-fact mapping is outside basis: ${ref}`, pathRef: ref });
+    if (ref.startsWith('process-fact:') && !basis.enumeratedPathRefs.some(path => path.startsWith(`path:${ref}->`))) {
+      const factName = ref.slice('process-fact:'.length);
+      const deferredToNextPhase = basis.phaseBasis === 'plan'
+        && acceptanceDiscoveryFactActivationPhase(factName) === 'pre_review';
+      if (!deferredToNextPhase) diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `topology process-fact mapping is outside basis: ${ref}`, pathRef: ref });
+    }
     if (ref.startsWith('runtime-fact:') && !basis.enumeratedPathRefs.some(path => path.startsWith(`path:${ref}->`))) diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `topology runtime-fact mapping is outside basis: ${ref}`, pathRef: ref });
   }
   for (const path of topology) {

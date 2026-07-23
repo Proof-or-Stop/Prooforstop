@@ -104,7 +104,7 @@ const declaration = {
     expectedFileRef: 'packages/main/src/producer.ts', expectedSymbolOrFact: 'produceBasis', fileDeclarationRef: 'CHK-001:files:create:0',
   },
   consumers: [{
-    id: 'EP-CONSUMER', role: 'consumer' as const, expectedArtifactKind: 'process_fact' as const,
+    id: 'EP-CONSUMER', role: 'consumer' as const, expectedArtifactKind: 'handler' as const,
     expectedFileRef: 'packages/main/src/consumer.ts', expectedSymbolOrFact: 'verifyBasis', fileDeclarationRef: 'CHK-001:files:create:1',
   }],
   outputFactRef: 'process-fact:acceptance-basis',
@@ -132,6 +132,8 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
     "  { name: 'acceptance_basis' },",
     "  { name: 'acceptance_basis_generate' },",
     "  { name: 'acceptance_topology_check' },",
+    "  { name: 'pre_review_check' },",
+    "  { name: 'pre_review_check_read' },",
     '];',
     '',
   ].join('\n'));
@@ -148,6 +150,8 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
     '    acceptance_basis() { return true; },',
     '    acceptance_basis_generate() { return true; },',
     '    acceptance_topology_check() { return true; },',
+    '    pre_review_check() { return true; },',
+    '    pre_review_check_read() { return true; },',
     '  };',
     '}',
     '',
@@ -216,6 +220,47 @@ try {
   };
   const first = deriveAcceptanceCoverageBasis(input);
   assert.equal(first.basis.status, 'complete', 'stable end-of-assembly seal preserves the complete control');
+  const preReviewFactRefs = [
+    'process-fact:pre_review_check',
+    'process-fact:pre_review_check_read',
+    'process-fact:artifact:pre-review-check.json',
+  ];
+  const phaseAwareTopology: AcceptanceVerificationTopologyV1 = {
+    ...topology,
+    commandRefs: [
+      ...topology.commandRefs,
+      ...preReviewFactRefs.map(canonicalSourceRef => ({ refKind: 'existing' as const, canonicalSourceRef })),
+    ],
+  };
+  const phasePlan = deriveAcceptanceCoverageBasis({ ...input, contract: contract(phaseAwareTopology), phaseBasis: 'plan' });
+  assert.equal(phasePlan.basis.status, 'complete', `PLAN permits registered next-phase declarations without inventing current paths: ${JSON.stringify(phasePlan.diagnostics)}`);
+  for (const ref of preReviewFactRefs) {
+    assert.ok(!phasePlan.basis.enumeratedPathRefs.some(path => path.startsWith(`path:${ref}->`)), `${ref} remains deferred outside PLAN discovery`);
+  }
+  const phasePreReview = deriveAcceptanceCoverageBasis({
+    ...input,
+    contract: contract(phaseAwareTopology),
+    phaseBasis: 'pre_review',
+    priorPlanBasisDigest: phasePlan.basis.basisDigest,
+  });
+  assert.equal(phasePreReview.basis.status, 'complete', `PRE_REVIEW materializes and exactly maps deferred facts: ${JSON.stringify(phasePreReview.diagnostics)}`);
+  for (const ref of preReviewFactRefs) {
+    assert.ok(phasePreReview.basis.enumeratedPathRefs.some(path => path.startsWith(`path:${ref}->`)), `${ref} becomes material in PRE_REVIEW discovery`);
+  }
+  const missingFutureMappingTopology = structuredClone(phaseAwareTopology);
+  missingFutureMappingTopology.commandRefs = missingFutureMappingTopology.commandRefs
+    .filter(ref => ref.refKind !== 'existing' || ref.canonicalSourceRef !== 'process-fact:pre_review_check_read');
+  const missingFutureMapping = reconcileTopologyWithCoverageBasis(contract(missingFutureMappingTopology), phasePreReview.basis);
+  assert.ok(missingFutureMapping.some(item => item.code === 'AT_UNMAPPED_SCOPE_REF'
+    && item.pathRef?.startsWith('path:process-fact:pre_review_check_read->')), 'deleting one PRE_REVIEW mapping exposes the newly material path');
+  const unrelatedFutureTopology = structuredClone(phaseAwareTopology);
+  unrelatedFutureTopology.commandRefs.push({ refKind: 'existing', canonicalSourceRef: 'process-fact:review_run_start' });
+  assert.ok(reconcileTopologyWithCoverageBasis(contract(unrelatedFutureTopology), phasePlan.basis)
+    .some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS' && item.pathRef === 'process-fact:review_run_start'), 'registered but unrelated future process fact is not deferred implicitly');
+  const nonexistentFutureTopology = structuredClone(phaseAwareTopology);
+  nonexistentFutureTopology.commandRefs.push({ refKind: 'existing', canonicalSourceRef: 'process-fact:not_registered_future_fact' });
+  assert.ok(reconcileTopologyWithCoverageBasis(contract(nonexistentFutureTopology), phasePlan.basis)
+    .some(item => item.code === 'AT_TOPOLOGY_OUTSIDE_BASIS' && item.pathRef === 'process-fact:not_registered_future_fact'), 'nonexistent future process fact remains fail-closed');
   const lateC2 = join(pureRoot, 'packages/main/src/late-c2.ts');
   const lateAddition = deriveAcceptanceCoverageBasis({
     ...input,

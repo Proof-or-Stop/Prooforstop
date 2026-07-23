@@ -17,6 +17,16 @@ export const ACCEPTANCE_PLAN_DISCOVERY_PROFILE = {
   methods: ['scope_contract', 'process_fact_registry', 'handler_dispatch_inventory', 'static_call_graph', 'runtime_trace'] as CoverageDiscoveryMethodV1[],
 } as const;
 
+const PLAN_CONTROL_FACT_NAMES = ['acceptance_basis', 'acceptance_basis_generate', 'acceptance_topology_check', 'artifact:acceptance-basis.json'] as const;
+const PRE_REVIEW_CONTROL_FACT_NAMES = ['pre_review_check', 'pre_review_check_read', 'artifact:pre-review-check.json'] as const;
+
+/** Canonical phase in which a discovery control fact first becomes material. */
+export function acceptanceDiscoveryFactActivationPhase(factName: string): 'plan' | 'pre_review' | null {
+  if ((PLAN_CONTROL_FACT_NAMES as readonly string[]).includes(factName)) return 'plan';
+  if ((PRE_REVIEW_CONTROL_FACT_NAMES as readonly string[]).includes(factName)) return 'pre_review';
+  return null;
+}
+
 export interface AcceptanceDiscoveryInput {
   supported: boolean;
   workspaceRoot: string;
@@ -1045,8 +1055,8 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const analysisContext = createBindingAnalysisContext(root, stable([...sourceInventory.files, ...seedFiles, ...registryCandidates]), readContext);
   const registryFiles = registryCandidates.filter(file => file === 'packages/main/src/registry.ts'
     || executableText(analysisContext.sourceFiles.get(file)?.text ?? '').includes('registerBatch('));
-  const planControlFacts = new Set(['acceptance_basis', 'acceptance_basis_generate', 'acceptance_topology_check', 'artifact:acceptance-basis.json']);
-  const preReviewControlFacts = new Set(['pre_review_check', 'pre_review_check_read', 'artifact:pre-review-check.json']);
+  const planControlFacts = new Set<string>(PLAN_CONTROL_FACT_NAMES);
+  const preReviewControlFacts = new Set<string>(PRE_REVIEW_CONTROL_FACT_NAMES);
   const phaseControlFacts = new Set([...planControlFacts, ...preReviewControlFacts, 'acceptance_topology_check',
     'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'topology_critic_receipt_check',
     'artifact:topology-exclusion-approvals.json', 'artifact:topology-critic-receipt.json']);
@@ -1096,6 +1106,8 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   while (changed) {
     changed = false;
     for (const entry of PROCESS_FACT_REGISTRY) {
+      if ((input.phaseBasis ?? 'plan') === 'plan'
+        && acceptanceDiscoveryFactActivationPhase(entry.name) === 'pre_review') continue;
       if (phaseControlFacts.has(entry.name)) {
         if (!allowedPhaseControlFacts.has(entry.name) && !explicitTopologyFactNames.has(entry.name)) continue;
       }
