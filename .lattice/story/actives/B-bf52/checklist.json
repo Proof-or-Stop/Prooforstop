@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Remove the fixed-length truncation so late-diverging rejection reasons keep distinct digests",
       "context": "packages/main/src/core/convergence-breaker.ts:479 truncates the normalized reason to 200 characters before hashing. ProofStory gap lists share a preamble longer than that, so two different gaps hash identically. Hash the full normalized reason, retaining only a large sanity bound to cap CPU on pathological input.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-23T23:10:31.859Z",
-      "endTime": null,
+      "endTime": "2026-07-23T23:11:10.511Z",
       "userSees": "node packages/main/dist/tasks/convergence-breaker-smoke.js prints a passing check stating that two real DEV-gate rejection renders differing only past the former 200-character cut produce different digest keys.",
       "files": {
         "modify": [
