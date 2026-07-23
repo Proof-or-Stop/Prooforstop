@@ -1,83 +1,83 @@
 {
   "storyId": "B-4ec1",
-  "checkedAt": "2026-07-23T04:01:32.871Z",
+  "checkedAt": "2026-07-23T04:08:41.642Z",
   "features": [
     {
-      "feature": "Canonical signed pre_review_check producer, deterministic read-only verifier and stable PR_* diagnostics",
+      "feature": "Canonical signed pre_review_check producer and verifier path",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist CHK-001; packages/main/src/core/pre-review-check.ts; packages/main/src/handlers/proofstory.ts"
+      "source": "packages/main/src/handlers/proofstory.ts#pre_review_check"
     },
     {
-      "feature": "Current-worktree acceptance basis recomputation, closure binding and planned-to-actual reconciliation",
+      "feature": "W3 planned producer classification binds registered pre_review_check process fact to handler consumer",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "process-fact:pre_review_check -> packages/main/src/core/transition-orchestrator.ts#runPreReviewCheckGate"
+    },
+    {
+      "feature": "Current-worktree coverage basis compares planned topology with actual source inventory",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist CHK-002; packages/main/src/core/acceptance-coverage-basis.ts; packages/main/src/core/acceptance-discovery-adapters.ts"
+      "source": "packages/main/src/core/acceptance-topology.ts"
     },
     {
-      "feature": "Executable producer-consumer evidence, mutation polarity, restoration, transcript relation and authority/freshness",
+      "feature": "Executable positive, mutation, transcript, authority, and freshness proof closure",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist CHK-003; packages/main/src/core/pre-review-live-proof.ts; packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      "source": "packages/main/src/tasks/acceptance-topology-smoke.ts"
     },
     {
-      "feature": "Flat observe/warn/enforce DEV-to-REVIEW gate and independent critic re-attestation",
+      "feature": "DEV to REVIEW transition gate and independent critic integration",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist CHK-004; packages/main/src/handlers/transition-orchestrator.ts"
+      "source": "packages/main/src/core/transition-orchestrator.ts"
     },
     {
-      "feature": "Topology producer-to-lifecycle-consumer mapping for pre_review_check",
-      "covered_by": "CHK-001,CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "proofstory_contract_get: W3-PRE-REVIEW-GATE-PATH and evaluatePreReviewCheckForContext->transition-orchestrator mapping"
-    },
-    {
-      "feature": "Topology mapping from active-story case-record decoder to canonical pre-review verifier",
+      "feature": "Static topology mappings include decoder to verifier linkage",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "proofstory_contract_get: pre-review-live-proof.ts#decodePreReviewCaseRecords->pre-review-check.ts#decodePreReviewCaseRecords"
+      "source": "packages/main/src/core/acceptance-topology.ts"
     },
     {
-      "feature": "Live-smoke readiness is recomputed after durable transcript write and regression-covered",
-      "covered_by": "CHK-003,CHK-004",
+      "feature": "Live smoke transcript readiness is checked after artifact write",
+      "covered_by": "CHK-003, CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/handlers/live-smoke-transcript.ts; packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      "source": "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
     },
     {
-      "feature": "Process-fact registry, CLI contract and operator documentation remain synchronized",
+      "feature": "Process-fact registry and operator documentation remain synchronized",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/core/process-fact-registry.ts; scripts/verify-process-fact-contract.mjs; docs/CLI.md"
+      "source": "packages/main/src/core/process-fact-levels.ts"
     },
     {
-      "feature": "Legacy/docs-only rollback remains bounded and diagnosable",
+      "feature": "Legacy stories remain bounded and non-retroactively blocked",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "VI-W3-M4-LEGACY-DOCS-ROLLBACK"
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-pre-review-gates-execution-plan.md"
     },
     {
-      "feature": "Wave 3A per-Story selective applicability",
+      "feature": "Wave 3A selective applicability rules",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Story description and CHK-004 explicitly reserve selective applicability for Wave 3A; current diff retains flat project mode only.",
-      "source": "story description; CHK-004 VI-W3-M4-NO-LATER-WAVE-LEAKAGE"
+      "excluded_by": "Explicit later-wave boundary retained in current scope contract",
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-pre-review-gates-execution-plan.md"
     },
     {
-      "feature": "Wave 4 measured rollout, telemetry and threshold activation",
+      "feature": "Wave 4 rollout telemetry and enforce migration",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Story description and CHK-004 explicitly reserve measured rollout/telemetry for Wave 4; no rollout telemetry machinery is introduced.",
-      "source": "story description; CHK-004 VI-W3-M4-NO-LATER-WAVE-LEAKAGE"
+      "excluded_by": "Explicit later-wave boundary retained in current scope contract",
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-pre-review-gates-execution-plan.md"
     }
   ],
   "readManifest": {
@@ -88,16 +88,14 @@
       ".lattice/story/actives/B-4ec1/plan.md",
       ".lattice/story/actives/B-4ec1/proofstory.json",
       ".lattice/story/actives/B-4ec1/scope-contract.json",
-      ".lattice/story/actives/B-4ec1/understanding.json"
+      ".lattice/story/actives/B-4ec1/understanding.json",
+      "docs/requirements/decisions/proofstory-acceptance-topology-pre-review-gates-execution-plan.md"
     ],
     "filesTriagedByName": [
       "AGENTS.md",
       "docs/CLI.md",
-      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
-      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-      "docs/requirements/decisions/story-lifecycle.md",
-      "docs/requirements/decisions/testing-completeness.md",
-      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
     ],
     "scanEscalationReason": null
   },
@@ -110,6 +108,6 @@
     "drift": 0
   },
   "reviewRound": "2026-07-23T02:59:34.345Z",
-  "_hash": "9027312bb7384a3371af434d8c42962b976d1f9ca59a553db17249aeb2c838e2",
+  "_hash": "46a9bf8a2656334a3859b11ed0a47ea4d3082f37a32de7a6cb2e4a5e856f619f",
   "openQuestions": []
 }
