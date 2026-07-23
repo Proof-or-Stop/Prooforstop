@@ -13,7 +13,7 @@ import { runPreReviewCheckGate } from '../handlers/transition-orchestrator.js';
 import { loadVerifiedPreReviewExecutableProof, PRE_REVIEW_LIVE_PROOF_COMMAND } from '../core/pre-review-check.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
-import { buildActiveStoryPreReviewLiveProof, buildPreReviewLiveProof } from '../core/pre-review-live-proof.js';
+import { buildActiveStoryPreReviewLiveProof, buildPreReviewLiveProof, preReviewCaseAggregateDigest } from '../core/pre-review-live-proof.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 
@@ -164,7 +164,25 @@ secondStoryContract.storyId = 'B-pre-review-second';
 const secondStoryProof = buildPreReviewLiveProof({ storyId: secondStoryContract.storyId, checklist: checklist(), contract: secondStoryContract, ledger: null });
 assert.equal(secondStoryProof.storyId, 'B-pre-review-second', 'live proof derives story identity from invocation context');
 assert.equal(secondStoryProof.bindingProofs[0].mutationProofs[0].observedCode, 'AT_UNKNOWN_REF', 'live proof records the evaluator-observed mutation outcome');
-assert.ok(secondStoryProof.commandDigests.length >= 3, 'positive, mutation, and transcript case artifacts are digest-bound');
+assert.equal(secondStoryProof.commandDigests.length, 1, 'all executable cases collapse to one canonical aggregate digest');
+const aggregateCases = [
+  { kind: 'positive', id: 'A', observedCodes: [] },
+  { kind: 'mutation', id: 'M', observedCodes: ['AT_UNKNOWN_REF'], restoredCodes: [], controlRestored: true },
+  { kind: 'transcript', id: 'T', producerSequence: 0, consumerSequence: 1 },
+];
+const aggregateRoot = preReviewCaseAggregateDigest('B-pre-review-second', aggregateCases);
+const changedCase = structuredClone(aggregateCases); changedCase[0].id = 'A-changed';
+const changedOutcome = structuredClone(aggregateCases); changedOutcome[1].observedCodes = ['NO_DIAGNOSTIC'];
+assert.notEqual(preReviewCaseAggregateDigest('B-pre-review-second', changedCase), aggregateRoot, 'changing any case changes the aggregate root');
+assert.notEqual(preReviewCaseAggregateDigest('B-pre-review-second', changedOutcome), aggregateRoot, 'changing an observed outcome changes the aggregate root');
+
+const expandedContract = structuredClone(contract());
+expandedContract.acceptanceBindings[0].verificationTopology!.mutationCaseRefs = Array.from({ length: 22 }, (_, index) => ({
+  ...structuredClone(topology.mutationCaseRefs[0]),
+  id: `M-${index + 1}`,
+}));
+const expandedProof = buildPreReviewLiveProof({ storyId, checklist: checklist(), contract: expandedContract, ledger: null });
+assert.equal(expandedProof.commandDigests.length, 1);
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
 const originalCwd = process.cwd();
@@ -200,6 +218,16 @@ try {
   write(root, `.lattice/story/actives/${storyId}/evidence/live-smoke-transcript.json`, JSON.stringify({ storyId, mode: { runCommands: true, writeEvidence: true }, actual: { command: 'node emit-proof.mjs', exitCode: 0, stdout: `PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}` } }));
   const directStoreBypass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.equal(directStoreBypass.ok, false); assert.ok(directStoreBypass.codes.includes('PR_AUTHORITY_INADMISSIBLE'), 'direct StoryStore/file writes have no canonical causal producer receipt');
+  writeLiveProofFixture(root, expandedProof);
+  const boundedCapture = JSON.parse(cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true }));
+  assert.equal(boundedCapture.transcript.status, 'present-fresh');
+  const boundedTranscript = JSON.parse(readFileSync(join(store.storyDirPath(storyId), 'evidence/live-smoke-transcript.json'), 'utf8'));
+  assert.equal(boundedTranscript.actual.stdout.includes('...[truncated'), false, '22 mutation cases fit within the live transcript stdout cap');
+  const boundedProofLine = boundedTranscript.actual.stdout.split(/\r?\n/).find((line: string) => line.startsWith('PROOFSTORY_PRE_REVIEW_PROOF='));
+  assert.ok(boundedProofLine);
+  assert.doesNotThrow(() => JSON.parse(boundedProofLine.slice('PROOFSTORY_PRE_REVIEW_PROOF='.length)), 'bounded live proof remains complete JSON');
+  assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'loader accepts the complete aggregate proof under the capture cap');
+  writeActiveLiveProofRunner(root);
   const captured = JSON.parse(cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true }));
   assert.equal(captured.transcript.status, 'present-fresh');
   if (!liveProofMode) assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'canonical runner transcript has causal receipt and exact proof envelope');
@@ -270,7 +298,7 @@ try {
   const missingBinding = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.ok(missingBinding.codes.includes('PR_PRODUCTION_PATH_UNPROVEN'), JSON.stringify(missingBinding.codes));
   captureProof(fixtureProof);
-  parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'exact executable proof restoration returns PASS');
+  parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, `exact executable proof restoration returns PASS: ${JSON.stringify(parsed.codes)}`);
 
   write(root, 'packages/main/src/consumer.ts', 'export const wrongSymbol=()=>false;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'mutation remove planned consumer']);
   const unresolved = cli(root, 'pre_review_check', { storyId, json: true });

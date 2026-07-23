@@ -12,6 +12,14 @@ function digest(value: unknown): string {
   return `sha256:${digestCanonicalJson(value)}`;
 }
 
+export function preReviewCaseAggregateDigest(storyId: string, caseRecords: readonly unknown[]): string {
+  return digest({
+    schemaVersion: 'proofstory.pre_review_case_aggregate.v1',
+    storyId,
+    caseRecords,
+  });
+}
+
 function bindingDiagnosticCodes(
   storyId: string,
   checklist: ChecklistData,
@@ -31,13 +39,13 @@ export function buildPreReviewLiveProof(input: {
 }): PreReviewExecutableProofV1 {
   if (input.contract.storyId !== input.storyId) throw new Error('pre-review live proof story/contract mismatch');
   const bindingProofs: PreReviewExecutableProofV1['bindingProofs'] = [];
-  const caseDigests: string[] = [];
+  const caseRecords: unknown[] = [];
   for (const binding of input.contract.acceptanceBindings.filter(candidate => candidate.verificationTopology)) {
     const topology = binding.verificationTopology!;
     const baselineCodes = bindingDiagnosticCodes(input.storyId, input.checklist, input.contract, input.ledger, binding.id);
     if (baselineCodes.length > 0) throw new Error(`pre-review live proof baseline is structurally invalid for ${binding.id}: ${baselineCodes.join(',')}`);
     const positiveAssertionIds = topology.positiveAssertionRefs.map(assertion => {
-      caseDigests.push(digest({ kind: 'positive', bindingId: binding.id, assertion, observedCodes: baselineCodes }));
+      caseRecords.push({ kind: 'positive', bindingId: binding.id, assertion, observedCodes: baselineCodes });
       return assertion.id;
     });
     const mutationProofs = topology.mutationCaseRefs.map(assertion => {
@@ -49,7 +57,7 @@ export function buildPreReviewLiveProof(input: {
       const observedCode = observedCodes.includes('AT_UNKNOWN_REF') ? 'AT_UNKNOWN_REF' : observedCodes[0] ?? 'NO_DIAGNOSTIC';
       const restoredCodes = bindingDiagnosticCodes(input.storyId, input.checklist, input.contract, input.ledger, binding.id);
       const controlRestored = restoredCodes.length === 0;
-      caseDigests.push(digest({ kind: 'mutation', bindingId: binding.id, mutationId: assertion.id, mutatedSourceRef: mutatedAssertion.sourceRef, observedCodes, restoredCodes }));
+      caseRecords.push({ kind: 'mutation', bindingId: binding.id, assertion, mutatedSourceRef: mutatedAssertion.sourceRef, observedCodes, restoredCodes, controlRestored });
       return { mutationId: assertion.id, expectedCode: 'AT_UNKNOWN_REF', observedCode, controlRestored };
     });
     const producerOrder = new Map(topology.producerRefs.map((producer, index) => [producer.id, index * 2]));
@@ -58,18 +66,18 @@ export function buildPreReviewLiveProof(input: {
       const producerSequence = Math.min(...assertion.producerRefs.map(ref => producerOrder.get(ref) ?? Number.MAX_SAFE_INTEGER));
       const consumerSequence = Math.min(...assertion.consumerRefs.map(ref => consumerOrder.get(ref) ?? Number.MIN_SAFE_INTEGER));
       const proof = { transcriptId: assertion.id, producerRefs: [...assertion.producerRefs], consumerRefs: [...assertion.consumerRefs], producerSequence, consumerSequence };
-      caseDigests.push(digest({ kind: 'transcript', bindingId: binding.id, assertion, proof }));
+      caseRecords.push({ kind: 'transcript', bindingId: binding.id, assertion, proof });
       return proof;
     });
     bindingProofs.push({ bindingId: binding.id, positiveAssertionIds, mutationProofs, transcriptProofs });
   }
-  if (bindingProofs.length === 0 || caseDigests.length === 0) throw new Error('pre-review live proof has no executable cases');
+  if (bindingProofs.length === 0 || caseRecords.length === 0) throw new Error('pre-review live proof has no executable cases');
   return {
     schemaVersion: 'proofstory.pre_review_executable_proof.v1',
     storyId: input.storyId,
     producer: 'registered-verification-command',
     verifier: 'pre-review-check-command-runner',
-    commandDigests: [...new Set(caseDigests)].sort(),
+    commandDigests: [preReviewCaseAggregateDigest(input.storyId, caseRecords)],
     bindingProofs,
   };
 }
