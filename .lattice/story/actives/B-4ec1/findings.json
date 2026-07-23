@@ -246,7 +246,7 @@
       "desc": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:87 authority/cardinality bypass remains: the only globally accepted proof command is hard-coded in packages/main/src/core/pre-review-check.ts:26 to run this smoke with --live-proof, and this smoke constructs storyProof with literal storyId B-4ec1 plus generated A-MUT-1..17 claims (lines 87-92) and emits it at line 230. Those 17 expectedCode===observedCode rows are not the outcomes of 17 executed Story mutations; the command receipt only proves the hard-coded emitter ran. Other stories also receive a proof for B-4ec1 and cannot pass. A canonical runner must derive the current story/bindings and capture each actual mutation command/result/control, not bless hard-coded IDs by overwriting producer/verifier strings in loadVerifiedPreReviewExecutableProof.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-23T02:21:09.742Z",
@@ -254,7 +254,11 @@
       "reviewRunId": "B-4ec1:RR-006",
       "_hash": "8f8ca7fd85e18b746b665fcfc6332e4b41e4320c6121684a688894f6a07b13da",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed hardcoded proof bypass: B-4ec1/17 hardcoding removed; current captured proof contains one aggregate case root and actual observed/restored results, loader binds root+exact stdout+receipt, and tampered outcomes bite.",
+      "resolvedAt": "2026-07-23T02:59:54.148Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-013",
