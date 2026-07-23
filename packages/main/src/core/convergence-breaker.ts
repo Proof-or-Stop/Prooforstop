@@ -487,7 +487,19 @@ export function gateFailureDigest(command: string, reason: string): string {
     .replace(/0x[0-9a-f]+/g, '#')
     .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
     .replace(/\d{4}-\d{2}-\d{2}t[\d:.]+z?/g, '#') // ISO timestamps
-    .replace(/\/[^\s"']+/g, '#')                 // absolute paths
+    // B-bf52 CHK-002: an absolute path is machine-specific, so it must still
+    // collapse — but ONLY when it is a path. The former rule anchored on any
+    // slash, so it ate the tail of every slash-bearing token: `DEV/REVIEW` and
+    // `DEV/TEST` both became `dev#`, and `src/core/alpha.ts` and
+    // `src/core/beta.ts` both became `src#`. This one matches a leading slash
+    // only at a TOKEN START (string start, whitespace, quote, paren or bracket)
+    // and then consumes the rest of the token, so `/Users/...` and
+    // `/private/var/...` still collapse to one key — including when the path
+    // continues into repo-relative segments, which are consumed in the same
+    // match rather than left as a per-host remainder — while a mid-token slash
+    // is left alone. Structural, not an enumeration of machine roots, so it
+    // behaves identically on macOS and Linux.
+    .replace(/(?:^|(?<=[\s"'(\[]))\/[^\s"')\]]*/g, '#') // machine-specific absolute paths
     .replace(/\d+/g, '#')                        // bare numbers
     .replace(/\s+/g, ' ')
     .trim();
