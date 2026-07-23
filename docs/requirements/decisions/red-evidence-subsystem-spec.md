@@ -1,7 +1,7 @@
 # Trusted RED-Evidence Subsystem — Decision Spec (Program Workstream 2)
 
 Status: decision spec / acceptance contract for the W2 implementation stories. No runtime change is authorized by this document; it ships zero code.
-Date: 2026-07-23 (rev 4 — post cross-host audit round 3: codex 5 HIGH + 6 MED + 1 LOW, agy approve-with-changes 3 LOW, each dispositioned in this revision; earlier dispositions retained. Standing deviations, auditor-ACCEPTED in round 3: recordId stays in the idempotency-key tuple as a deterministic derivation (§3.4); `recoversRecordId` keeps its program-pinned name with a `linkKind` discriminator (§4.1))
+Date: 2026-07-23 (rev 5 — post cross-host audit round 4: codex 3 HIGH + 4 MED + 3 LOW, agy 1 HIGH + 2 MED + 1 LOW, each dispositioned in this revision; earlier dispositions retained. Standing deviations, auditor-ACCEPTED in round 3: recordId stays in the idempotency-key tuple as a deterministic derivation (§3.4, now derived from the priorRecordDigest-free operation key); `recoversRecordId` keeps its program-pinned name with a `linkKind` discriminator (§4.1))
 Story: B-7dfa (program Workstream 2 spec story)
 Program: `docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md` (Workstream 2, lines 22-23)
 
@@ -237,6 +237,12 @@ The four **envelope fields** and their validation rules are:
      `expectation` ∈ `{ "present", "absent-in-red-present-in-green", "absent" }`, checked against the
      disposable workspace at RED and GREEN time. It strengthens `target-exists` (both adapter linkage AND
      artifact expectation must hold when declared) but can never substitute for the adapter linkage.
+     **Path validation (audit: "repo-relative" alone permits traversal/symlink escape):** `targetArtifactRef`
+     MUST be slash-normalized and relative — an absolute path, an empty segment, a `.` or `..` segment, or a
+     backslash rejects at envelope schema time (R1-3). At observation time the path is resolved via
+     `realpath` INSIDE the disposable workspace; a resolution (including any symlink hop) that lands outside
+     the workspace root records the observation as `"escape-rejected"` and `target-exists` evaluates FALSE.
+     Host files can never satisfy an artifact expectation.
    A record whose `targetExercisedProof` is absent, or whose adapter did not observe the bound linkage signal
    during the run, is **rejected** (§1.6, R1-1).
 4. **`policyDigest` + `assertionDigest`** — `policyDigest = CANON(policySnapshot)` (the complete resolved
@@ -262,7 +268,7 @@ from config; the numbers below are stated defaults.
 | `policy.killGraceMs` | SIGTERM→SIGKILL grace on timeout (§2.3) | 5000 |
 | `policy.forbiddenCatchAlls` | rejected catch-all patterns (blocklist layer of §1.3) | `.*`, `.+`, `.`, `^$`, `^.*$`, `^.+$`, `\s*`, `""` |
 | `policy.invarianceExcludePaths` | globs excluded from the `gitStatus` digest (§2.1) | `node_modules/**`, `**/.cache/**`, `**/*.tsbuildinfo`, `**/__pycache__/**`, `**/.pytest_cache/**`, `coverage/**`, `tmp/**`, `**/.DS_Store` |
-| `policy.matcherClassRegistry` | named classes: `{ name, predicateKind, param }`, `predicateKind` ∈ `{exit-code-in, stream-nonempty, stream-empty}` | `nonzero-exit`, `stderr-nonempty` |
+| `policy.matcherClassRegistry` | named classes: `{ name, predicateKind, param? }` — discriminated schemas: `exit-code-in` REQUIRES `param` = non-empty array of unique integers in `0..255` and the matcher's `stream` MUST be `"combined"` (exit classes consult no stream; any other declared stream rejects); `stream-nonempty` / `stream-empty` FORBID `param` (present ⇒ config-load reject) and consume the matcher's declared stream | `nonzero-exit` (= exit-code-in `[1..255]`), `stderr-nonempty` |
 | `policy.runnerAdapterRegistry` | adapters (schema below) | `npm-script@1` (script-exit), `node-test@1` (reporter-event) |
 | `policy.runnerProfileRegistry` | runner profiles (schema below) | `node-npm@1` |
 
@@ -286,7 +292,21 @@ them):**
 - **Environment resolution**: `envProjection` = every key in `adapter.allowedEnvKeys ∪
   profile.allowedEnvKeys` that is SET in the runner's own environment, mapped to its value (an unset listed
   key is simply absent — never an error, never an empty string), PLUS the runner-injected
-  `LATTICE_RED_RUN_NONCE`. Nothing else reaches the child environment.
+  `LATTICE_RED_RUN_NONCE` and the runner-set pinned `PATH` (below). Nothing else reaches the child
+  environment. Preparation commands (§2.3 step 2) receive the SAME projection MINUS the nonce.
+- **Forbidden environment keys (HARD, language-neutral — audit: an allowlisted `NODE_OPTIONS` or
+  `LD_PRELOAD` lets the host inject code and manufacture reporter events without touching the committed
+  tree):** no allowlist may contain, and the runner never propagates: `PATH`, `LD_PRELOAD`,
+  `LD_LIBRARY_PATH`, any `DYLD_`-prefixed key, `NODE_OPTIONS`, `NODE_PATH`, `PYTHONPATH`, `PYTHONSTARTUP`,
+  `PYTHONHOME`, `RUBYOPT`, `RUBYLIB`, `PERL5OPT`, `PERL5LIB`, `BASH_ENV`, `ENV`, `ZDOTDIR`,
+  `JAVA_TOOL_OPTIONS`, `GIT_EXEC_PATH`. An allowlist naming any of them fails CLOSED at config load
+  (§1.12). This set is a SPEC constant; policy may extend it, never shrink it.
+- **Executable resolution (pinned)**: the runner SETS the child `PATH` to `policy.pinnedPath` (an ordered
+  list of absolute directories; a relative entry fails config load) and resolves `argv[0]` against it to an
+  absolute real path recorded in the receipt as `resolvedExecutable`. A profile MAY pin a digest-bound
+  toolchain: `toolchain: { "<argv0>": { "absolutePath", "sha256" } }` — when pinned, the resolved real path
+  MUST equal `absolutePath` and the executable file's SHA-256 MUST match, else the run ABORTS with no
+  record. Unsafe keys reject at config load; unsafe resolved executable identity rejects at run time.
 
 Policy and registry contents live in project config (`lattice.config.json`), which is in the W1 immutable
 runtime/build-config manifest set (`language-neutral-gates-execution-plan.md` Change B precedence 1): every
@@ -302,11 +322,14 @@ a conjunction, and structural wildcard bridges are banned):
 
 1. **Not a catch-all (blocklist layer).** `value` (after trimming) MUST NOT be a member of
    `policy.forbiddenCatchAlls`.
-2. **Not a catch-all (structural layer).** For `anchored-regex`: the compiled pattern MUST NOT match the empty
-   string (mechanical check: `regex.test('')` MUST be `false`), MUST NOT match a single-space string
-   (`regex.test(' ')` MUST be `false`), and the pattern MUST NOT begin with `^.*`/`^.+` nor end with
-   `.*$`/`.+$` (unbounded wildcard bridges at either line boundary are rejected by token inspection of the
-   pattern source).
+2. **Not a catch-all (structural layer).** For `anchored-regex`, all checks run against the WRAPPED compiled
+   form of §1.11.1 (audit: ECMAScript `|` binds looser than `^`/`$`, so `^LIT|..$` parses as
+   `(^LIT)|(..$)` and one branch escapes the anchors — the wrap makes anchors govern every alternation
+   branch): the compiled pattern MUST NOT match the empty string (mechanical check: `wrapped.test('')` MUST
+   be `false`), MUST NOT match a single-space string (`wrapped.test(' ')` MUST be `false`), and the pattern
+   BODY (after anchor stripping, §1.11.1) MUST NOT begin or end with an unbounded wildcard bridge — rejected
+   by token inspection: `.*`, `.+`, and every universal-class equivalent (`[\s\S]*`, `[\s\S]+`, `[\w\W]*`,
+   `[\w\W]+`, `[^]*`, `[^]+`, `(?:.*)`, `(?:.+)`) at either boundary of the body.
 3. **Literal floor AND entropy floor (conjunction).** Compute the *effective literal* per §1.11.4. The matcher
    is admissible iff `len(effectiveLiteral) ≥ policy.minMatcherLen` **AND**
    `entropyBits(value) ≥ policy.minMatcherEntropyBits`, with `entropyBits` as defined in §1.11.5.
@@ -510,6 +533,7 @@ receipts (audit: rev 1 never unified these; implementers had to guess):
   "assertion": { "«§1.1 envelope, including policyDigest & assertionDigest»": "..." },
   "policySnapshot": { "«complete resolved policy object of §1.2»": "..." },
   "specDigest": "sha256:...",
+  "operationKey": "sha256:...",
   "runReceipt": {
     "adapterId": "npm-script@1",
     "adapterDigest": "sha256:...",
@@ -525,6 +549,7 @@ receipts (audit: rev 1 never unified these; implementers had to guess):
     "timedOut": false,
     "stdoutDigest": "sha256:...",
     "stderrDigest": "sha256:...",
+    "resolvedExecutable": "/usr/local/bin/npm",
     "tokenValue": "EXERCISED:AB-001:<nonce hex>",
     "tokenObserved": true,
     "evaluationTranscript": {
@@ -539,6 +564,7 @@ receipts (audit: rev 1 never unified these; implementers had to guess):
       "conjuncts": { "exit0": false, "notTimedOut": true, "patternAbsent": false,
                      "patternPresent": true, "targetExists": true }
     },
+    "clean": { "headHash": "...", "materialHash": "...", "indexState": "...", "gitStatus": "..." },
     "pre":  { "headHash": "...", "materialHash": "...", "indexState": "...", "gitStatus": "..." },
     "post": { "headHash": "...", "materialHash": "...", "indexState": "...", "gitStatus": "..." }
   },
@@ -571,19 +597,20 @@ OMITTED, never null):
 
 - `operation: "red-assert"` — the full shape above: chain fields, `storyId`, `acceptanceTargetRef`,
   `trigger`, `observedFailure`, `baselineHeadHash`, `baselineMaterialHash`, `greenRelation`, `assertion`,
-  `policySnapshot`, `specDigest`, `runReceipt`, optional `note`, `createdAt`, `recordDigest`.
+  `policySnapshot`, `specDigest`, `operationKey`, `runReceipt`, optional `note`, `createdAt`, `recordDigest`.
 - `operation: "green-confirm"` — chain fields, `storyId`, `acceptanceTargetRef`, `confirmsRecordId` (the
   red-assert record id), `confirmsRecordDigest` (its `recordDigest`), `confirmsAssertionDigest` (MUST equal
   the red-assert's `assertionDigest` — a green-confirm can only confirm the SAME assertion),
   `redBaselineHeadHash`/`redBaselineMaterialHash` (verified copies, §1.4), `greenHeadHash`/`greenMaterialHash`
-  (= its receipt PRE, §1.4), `greenRelation` (copied from the red-assert), `specDigest`, `runReceipt` (the
-  GREEN run's, including its own nonce and transcript), optional `note`, `createdAt`, `recordDigest`. It
+  (= its receipt PRE, §1.4), `greenRelation` (copied from the red-assert), `specDigest`, `operationKey`,
+  `runReceipt` (the GREEN run's, including its own nonce and transcript), optional `note`, `createdAt`,
+  `recordDigest`. It
   carries NO `assertion`/`policySnapshot` of its own — the confirmed assertion is reachable via
   `confirmsRecordId` and pinned by `confirmsAssertionDigest`.
 - `operation: "quarantine"` / `"recover"` — chain fields, `storyId`, `acceptanceTargetRef`,
   `recoversRecordId`, `referencedRecordDigest` (the `recordDigest` of the record named by
   `recoversRecordId`), `linkKind` (`"quarantines"` | `"recovers"`), `reason`, `approvedBy` (derived, §4.1),
-  `createdAt`, `recordDigest`. They carry NO `baselineHeadHash`/`baselineMaterialHash`, NO `greenRelation`,
+  `operationKey`, `createdAt`, `recordDigest`. They carry NO `baselineHeadHash`/`baselineMaterialHash`, NO `greenRelation`,
   NO `specDigest`, NO `assertion`/`policySnapshot`/`runReceipt` (audit: rev 2 left these ambiguous — they
   are chain-control records; their idempotency preimage is the control preimage of §3.4, which references
   none of the omitted fields, so omission cannot fork digests).
@@ -600,9 +627,14 @@ those keys, that nesting, nothing else.
 
 ### §1.11 Matcher evaluation semantics (pinned — zero design decisions)
 
-1. **Regex dialect**: ECMAScript regular expressions as implemented by Node.js ≥ 20 (`new RegExp(value, "u")`).
-   Flags: exactly `u` (unicode). No `m` (matchers are evaluated per line, so `^`/`$` bind to the evaluated
-   line), no `i`, no `s`. A pattern that throws `SyntaxError` at compile is rejected (R1-3).
+1. **Regex dialect and canonical compilation**: ECMAScript regular expressions as implemented by Node.js
+   ≥ 20. Flags: exactly `u` (unicode); no `m` (matchers are evaluated per line), no `i`, no `s`. Canonical
+   compilation (audit: top-level `|` otherwise defeats the §1.1.1 anchor requirement): strip EXACTLY ONE
+   leading `^` and ONE trailing `$` from `value` (both required per §1.1.1) to obtain the *body*, then
+   compile `new RegExp("^(?:" + body + ")$", "u")` — the non-capturing wrap forces both anchors to govern
+   every top-level alternation branch. All §1.3 structural checks and all matching (§1.11.3) use this
+   wrapped regex; the effective literal (§1.11.4) is computed over the body. A pattern that throws
+   `SyntaxError` at wrapped compile is rejected (R1-3).
 2. **Byte/unicode treatment**: captured stream bytes are decoded as UTF-8 with invalid sequences replaced by
    U+FFFD. NO unicode normalization (no NFC/NFD) is applied — matching is byte-faithful post-decode.
 3. **Framing**: streams are split into lines on `\n`; a trailing `\r` is stripped from each line (CRLF
@@ -638,7 +670,9 @@ the subsystem refuses to run, it does not silently clamp.
 | `matcherClassRegistry` | `predicateKind` ∈ closed §1.2 enum only | no free-form predicates, ever |
 | `invarianceExcludePaths` | MUST NOT match any tracked material path (checked against the live classification at config load) and MUST NOT contain a bare `**`/`*` catch-all | violating globs fail closed |
 | §1.3 rule 4 | always in force | no policy key can exempt class-only `present-in-red` |
-| Adapter/profile registration | only via `policy.runnerAdapterRegistry`/`runnerProfile` entries in `lattice.config.json` (material, W1-immutable manifest set) | no runtime/env registration path exists |
+| Forbidden environment keys (§1.2) | ⊇ the §1.2 hard set (`PATH`, `LD_PRELOAD`, `DYLD_*`, `NODE_OPTIONS`, ...) | policy may extend, never shrink; allowlist naming one fails closed |
+| `policy.pinnedPath` | absolute directories only | relative entry fails config load; child `PATH` is always runner-set |
+| Adapter/profile registration | only via `policy.runnerAdapterRegistry`/`runnerProfileRegistry` entries in `lattice.config.json` (material, W1-immutable manifest set) | no runtime/env registration path exists |
 
 ---
 
@@ -653,7 +687,10 @@ command starts (PRE) and immediately after it exits (POST). The four measured qu
 2. **`materialHash`** — the canonical material digest over the workspace tree at HEAD, computed by the SAME
    function the CLI uses today: `currentMaterialHash(workspaceRoot, 'HEAD', metadataRoot)`
    (`packages/main/src/core/evidence-freshness.ts`, invoked at `packages/main/src/handlers/proofstory.ts:969`).
-   W2 does not redefine the material hash; it reuses this function verbatim.
+   W2 does not redefine the material hash; it reuses this function verbatim. **Scope caveat (audit):** this
+   is a COMMITTED-TREE hash (`git ls-tree` at HEAD) — it never binds dirty worktree bytes. Worktree-content
+   equivalence with the committed tree is established separately by the material-dirt-empty check of
+   §2.3.3(i)/R2-4, not by this hash.
 3. **`indexState`** — EXACTLY the object id printed by `git write-tree` run against the workspace index
    (recorded verbatim, in the repository's git object format). (Audit: rev 2 called this "equivalent" to a
    SHA-256 over `git ls-files --stage -z` — they are NOT equivalent; the write-tree object id is the single
@@ -712,18 +749,38 @@ is mandated (audit: rev 1's "worktree OR recursive copy" produced divergent PRE 
    state.** A reproduction test (or fix) that exists only as an uncommitted working-tree file is NOT visible
    to the runner — the owner MUST commit it (story branch) before the run. Uncommitted-file injection into
    the workspace is prohibited: it would break the §2.3.3 binding-equality requirement.
-2. **Prepare.** Run the profile's preparation commands inside the workspace (dependency install, build).
-   EACH preparation command is bounded by `policy.prepTimeoutMs` under the same process-group
-   SIGTERM → `killGraceMs` → SIGKILL discipline as step 3b; a prep timeout or nonzero prep exit ABORTS the
-   run — no snapshots, no record, workspace discarded (step 6). Then:
-3. **Snapshot PRE** — capture the four-tuple (§2.1). **REQUIRE binding equality (R2-3), operation-specific:**
-   for a red-assert run, `pre.headHash == record.baselineHeadHash` AND
-   `pre.materialHash == record.baselineMaterialHash` (the claimed baseline is runner-verified, not
-   self-reported), else abort with no record. For a green-confirm run, PRE does not verify a claim — it
-   DEFINES the claim: `greenHeadHash := pre.headHash`, `greenMaterialHash := pre.materialHash` (§1.4);
-   GREEN-BIND is then checked against the referenced red-assert's fields at append time.
-   3b. **Exercise.** Spawn argv in its own process group, env = allowlisted projection + `LATTICE_RED_RUN_NONCE`,
-   cwd = profile cwd, capturing stdout/stderr (merged pipe for `combined`). Wall-clock ceiling
+   1b. **Snapshot CLEAN** — capture the four-tuple (§2.1) of the freshly materialized, UNPREPARED tree, and
+   record it in the receipt as `runReceipt.clean`. Require `clean.headHash == <RUN-HEAD>`, a clean index,
+   and an EMPTY filtered `gitStatus` (a fresh detached checkout satisfies all three; anything else aborts —
+   the materialization itself was tampered).
+2. **Prepare.** Run the profile's preparation commands inside the workspace (dependency install, build),
+   with the §1.2 preparation environment (same projection, no nonce, pinned PATH). EACH preparation command
+   is bounded by `policy.prepTimeoutMs` under the same process-group SIGTERM → `killGraceMs` → SIGKILL
+   discipline as step 3b; a prep timeout or nonzero prep exit ABORTS the run — no record, workspace
+   discarded (step 6). **Preparation MUST preserve the committed acceptance material** (audit: prep ran
+   before PRE in rev 4, so a hostile profile could overwrite the bound test and PRE would bless the doctored
+   bytes): prep may create or modify ONLY gitignored or `invarianceExcludePaths`-excluded non-material paths.
+3. **Snapshot PRE** — capture the four-tuple (§2.1). Enforce THREE checks:
+   (i) **Prep invariance (R2-4):** `pre.headHash == clean.headHash` AND `pre.indexState ==
+   clean.indexState` AND the porcelain-v1 `-z` entries at PRE, filtered to entries where ANY path field has
+   `isMaterialPath(path) == true` (§5.3 classifier), are EMPTY — i.e. the worktree BYTES of every tracked
+   material path still equal the committed `<RUN-HEAD>` blobs, proving the exercise tree is equivalent to
+   the committed RUN-HEAD for acceptance material. (This is required precisely because `materialHash` is a
+   COMMITTED-tree hash — `git ls-tree` at HEAD — and by itself never binds dirty worktree bytes; see §2.1.2.)
+   Any violation → abort, no record.
+   (ii) **Binding equality (R2-3), operation-specific:** for a red-assert run, `pre.headHash ==
+   record.baselineHeadHash` AND `pre.materialHash == record.baselineMaterialHash` (the claimed baseline is
+   runner-verified, not self-reported), else abort with no record. For a green-confirm run, PRE does not
+   verify a claim — it DEFINES the claim: `greenHeadHash := pre.headHash`, `greenMaterialHash :=
+   pre.materialHash` (§1.4); GREEN-BIND is then checked against the referenced red-assert's fields at append
+   time.
+   (iii) The committed-tree binding lookup of §1.1.3 (R1-6) resolves against `<RUN-HEAD>`.
+   3b. **Exercise.** Spawn argv in its own process group, env = allowlisted projection + `LATTICE_RED_RUN_NONCE`
+   (per §1.2, with pinned `PATH` and `resolvedExecutable` checks), cwd = the ADAPTER's `cwd` (audit: rev 4
+   said profile cwd here, contradicting §1.2 — adapter cwd governs the exercised command; profile cwd
+   governs prep only). The adapter cwd MUST be slash-normalized and relative with no `..`/empty segments,
+   and its realpath MUST remain inside the disposable workspace, else config-load reject; the receipt `cwd`
+   MUST equal this normalized adapter cwd. Capture stdout/stderr (merged pipe for `combined`). Wall-clock ceiling
    `policy.runTimeoutMs`. **On timeout:** SIGTERM the process GROUP, wait `policy.killGraceMs`, SIGKILL the
    group, reap all descendants — THEN CONTINUE to step 4 (audit: rev 1 made every timeout unrecordable, which
    contradicted `timeout-is-failure`; the POST snapshot is taken after group termination).
@@ -766,6 +823,11 @@ macOS seatbelt sandbox. This is a recorded constraint on the W2 implementation.
 > `pre.headHash == baselineHeadHash AND pre.materialHash == baselineMaterialHash` is aborted; no record is
 > written. A green-confirm's `greenHeadHash`/`greenMaterialHash` are BY DEFINITION its receipt PRE values
 > (§2.3.3); a green-confirm whose stored green hashes differ from its receipt PRE is rejected.*
+>
+> **R2-4 (prep-invariance rejection).** *A run whose PRE snapshot fails §2.3.3(i) — head or index changed
+> since CLEAN, or ANY tracked/material worktree path dirty after preparation — is aborted; no record is
+> written. A record omitting the CLEAN snapshot is REJECTED.* Preparation can never place doctored
+> acceptance-material bytes under the exercise.
 
 A runner that silently mutated the tree produces `post != pre` and is rejected; a runner that skipped the
 invariance proof omits a snapshot and is rejected; a record claiming a baseline the workspace never had is
@@ -831,30 +893,38 @@ legal iff it appears in this table; anything else is REJECTED:
 A `green-confirm` whose `confirmsRecordId` is not the current governing red-assert — an old, superseded, or
 foreign assertion — is REJECTED regardless of chain ordering.
 
+**Target membership is a WRITE-time gate (audit: rev 4 checked it only in one query clause, so hosts could
+disagree and topology changes could retroactively corrupt valid chains):** every mutating operation —
+`red_evidence_binding_set` and all four appends — REQUIRES `acceptanceTargetRef ∈ expectedRedTargets`
+(§0.5) at write time. Membership is NOT re-checked at query time: a chain whose target was later removed
+from the story topology remains fully queryable (records are historical facts and do not rot into
+`corrupt-chain`); what an answer for a since-removed target MEANS for enforcement is W3 policy (§5.5).
+
 ### §3.4 Idempotency key (every component enumerated; recordId is deterministic)
 
-**Deterministic record id (audit round 1: a randomly-minted id made every retry a "new" record, defeating
-dedupe; audit round 2: one universal preimage was unimplementable for control records and falsely conflicted
-successive green-confirms).** The record id is DERIVED, never caller-chosen, from an OPERATION-SPECIFIC
-canonical preimage:
+**Deterministic record id via the logical operation key (audit round 1: random ids defeated dedupe; round
+2: one universal preimage was unimplementable; round 4: `priorRecordDigest` inside the preimage meant a
+retry AFTER a successful append derived a NEW key — the head had changed — and appended again, so "retries
+collide by construction" was false exactly where retries occur).** Logical request identity is SEPARATED
+from chain placement: the **operation key** contains NO `priorRecordDigest`; `priorRecordDigest`/`seq`
+remain record fields covered by `recordDigest` and enforced by the §3.3 append-time chain checks:
 
-> `red-assert`:    `idempotencyDigest = CANON({ operation, storyId, acceptanceTargetRef, baselineHeadHash,
->                   baselineMaterialHash, specDigest, assertionDigest, policyDigest, priorRecordDigest })`
-> `green-confirm`: `idempotencyDigest = CANON({ operation, storyId, acceptanceTargetRef, greenHeadHash,
->                   greenMaterialHash, confirmsRecordDigest, confirmsAssertionDigest, specDigest,
->                   priorRecordDigest })`
-> `quarantine`/`recover` (control preimage): `idempotencyDigest = CANON({ operation, storyId,
->                   acceptanceTargetRef, recoversRecordId, referencedRecordDigest, normalizedReason,
->                   approvedBy, priorRecordDigest })` — `normalizedReason` = `reason` trimmed with internal
->                   whitespace runs collapsed to single spaces; `approvedBy` = the derived authority string
->                   of §4.1 (not caller text).
+> `red-assert`:    `operationKey = CANON({ operation, storyId, acceptanceTargetRef, baselineHeadHash,
+>                   baselineMaterialHash, specDigest, assertionDigest, policyDigest })`
+> `green-confirm`: `operationKey = CANON({ operation, storyId, acceptanceTargetRef, greenHeadHash,
+>                   greenMaterialHash, confirmsRecordDigest, confirmsAssertionDigest, specDigest })`
+> `quarantine`/`recover` (control key): `operationKey = CANON({ operation, storyId, acceptanceTargetRef,
+>                   recoversRecordId, referencedRecordDigest, normalizedReason, approvedBy })` —
+>                   `normalizedReason` = `reason` trimmed with internal whitespace runs collapsed to single
+>                   spaces; `approvedBy` = the derived authority string of §4.1 (not caller text).
 >
-> `recordId = <OP> + "-" + first12hex(idempotencyDigest) + "-" + seq`, with `<OP>` ∈
-> `{RED, GRN, QUA, REC}` per operation.
+> Every v2 record STORES its `operationKey`. `recordId = <OP> + "-" + first12hex(operationKey) + "-" + seq`,
+> with `<OP>` ∈ `{RED, GRN, QUA, REC}` per operation (`seq` is assigned at append, after dedupe).
 
-A retry of the same append at the same chain state reproduces the identical `recordId`. A green-confirm
-re-run at a NEWER green tree (G2 after G1) produces a DIFFERENT `greenHeadHash`, hence a different id — a
-legal re-confirmation append (§3.3 table), never a false conflict.
+A retry of the same logical operation — whatever the chain head now is — reproduces the identical
+`operationKey` and is deduplicated by the §3.5 search. A green-confirm re-run at a NEWER green tree (G2
+after G1) produces a DIFFERENT `greenHeadHash`, hence a different key — a legal re-confirmation append
+(§3.3 table), never a false conflict.
 
 The **idempotency key** of a candidate RUN record (red-assert, green-confirm) is the tuple:
 
@@ -869,35 +939,37 @@ instantiated per operation:
 - **`specDigest`** — as defined in §1.10 (exact subobject pinned).
 - **`policyDigest` / `assertionDigest`** — red-assert: the two envelope digests from §1.1.4; green-confirm:
   `confirmsAssertionDigest` (which pins the confirmed envelope, including its policyDigest, §1.1.4).
-- **`freshness-compatible head`** — red-assert: the pair (`baselineHeadHash`, `priorRecordDigest`);
-  green-confirm: the pair (`greenHeadHash`, `priorRecordDigest`). Two appends are freshness-compatible iff
-  they bind the identical run head AND the identical chain position. (Bounded staleness applies only to the
-  read-side query, §5.3 — never to append dedupe.)
+- **`freshness-compatible head`** — red-assert: `baselineHeadHash`; green-confirm: `greenHeadHash`. Two
+  appends are freshness-compatible iff they bind the identical run head. Chain position
+  (`priorRecordDigest`/`seq`) is deliberately NOT key material — it is placement data enforced at append
+  time by §3.3 (audit round 4). (Bounded staleness applies only to the read-side query, §5.3 — never to
+  append dedupe.)
 
 Control records (quarantine/recover) use their control preimage directly as the dedupe key — the
 five-component frame above applies to run records, which is where the program's idempotency mandate lives.
 
 ### §3.5 Replay-dedup semantics (dedupe vs conflict)
 
-> **DEDUP (pre-run short-circuit — audit: post-run payload comparison made every honest retry a conflict,
-> because a retry necessarily mints a fresh nonce):** every §3.4 preimage input is known BEFORE any run
-> executes (for a green-confirm, `greenHeadHash` is the current story HEAD and `priorRecordDigest` is the
-> current chain head's digest). The handler therefore derives `idempotencyDigest` and `recordId` FIRST; if a
-> record with that `recordId` already exists in the target chain, the append is a *replay*: the existing
-> record is returned and NO run is executed — no fresh nonce, no second receipt, nothing written (same key ⇒
-> same record). If the existing record's stored preimage fields do NOT recompute to its own stored id (§3.4
-> derivation broken), the handler refuses with a **CONFLICT error** and writes nothing — that is store
-> corruption surfacing at append time, not a retry. Dedup/conflict is decided before the chain-integrity
-> checks of §3.3, so a benign retry never appears as a fork.
+> **DEDUP (pre-run, pre-placement short-circuit):** every operation-key input is known BEFORE any run
+> executes and BEFORE the chain head is consulted (audit round 4: dedupe must precede transition
+> resolution, or a post-append retry sees a moved head and re-appends). The handler derives `operationKey`
+> FIRST and searches the target chain for a record with an EQUAL stored `operationKey`; found ⇒ the append
+> is a *replay*: the existing record is returned and NO run is executed — no fresh nonce, no second receipt,
+> nothing written (same key ⇒ same record). If the found record's stored key fields do NOT recompute to its
+> stored `operationKey`/`recordId` (§3.4 derivation broken), the handler refuses with a **CONFLICT error**
+> and writes nothing — store corruption surfacing at append time, not a retry. Only after the dedupe search
+> does the handler resolve the head, run, and apply the §3.3 chain-integrity checks — so a benign retry
+> never appears as a fork.
 
 ### §3.6 Edge cases (traceable to rules)
 
 - **Two records claiming the SAME prior digest (fork attempt).** The first is admitted and becomes the target
   chain head; the second violates §3.3 check 3 (fork rejection) and is **REJECTED**. The chain head remains
   the first record; there is never a second "latest" for a target.
-- **Replay with an identical idempotency key.** Per §3.5 DEDUP the derived `recordId` already exists, so the
-  handler returns the existing record WITHOUT executing a run; `records.length` unchanged. A stored record
-  failing its own id recomputation → CONFLICT error, chain unchanged, nothing written.
+- **Replay with an identical idempotency key.** Per §3.5 DEDUP the derived `operationKey` already exists in
+  the target chain (even if the head has since moved), so the handler returns the existing record WITHOUT
+  executing a run; `records.length` unchanged. A stored record failing its own key/id recomputation →
+  CONFLICT error, chain unchanged, nothing written.
 
 ### §3.7 Rejection rule (silent replacement is detectable)
 
@@ -924,9 +996,10 @@ deletes an existing one):
 
 - **`red_evidence_assert(storyId, acceptanceTargetRef, assertion...)`** — creates a `red-assert` record: the
   handler validates the envelope (§1.1-§1.3, R1-1..R1-6 schema-side), resolves the registered target binding
-  (§1.1.3), verifies transition legality (§3.3 table), executes the RED run via the runner protocol (§2.3
-  with `<RUN-HEAD>` = the claimed `baselineHeadHash`), evaluates R1-4/R2-* against the receipt, computes the
-  §3.4 red-assert preimage, and appends. Supersedes the v1 `red_evidence_create` (retired at adoption, §6).
+  (§1.1.3), derives the §3.4 red-assert operation key and performs the §3.5 dedupe search FIRST, verifies
+  transition legality (§3.3 table), executes the RED run via the runner protocol (§2.3 with `<RUN-HEAD>` =
+  the claimed `baselineHeadHash`), evaluates R1-4/R2-* against the receipt, and appends. Supersedes the v1
+  `red_evidence_create` (retired at adoption, §6).
 - **`red_evidence_green_confirm(storyId, acceptanceTargetRef)`** — creates a `green-confirm` record: the
   handler resolves the target chain, identifies the **governing red-assert** (§3.3) and verifies the head's
   effective operation admits `green-confirm` (§3.3 table); extracts `confirmsRecordId` /
@@ -934,7 +1007,7 @@ deletes an existing one):
   (`redBaselineHeadHash`/`redBaselineMaterialHash`, §1.4) FROM the governing record — none are caller
   arguments; executes the GREEN run via §2.3 (`<RUN-HEAD>` = current story HEAD, which PRE fixes as
   `greenHeadHash`); evaluates the full GREEN predicate (§1.5) and GREEN-BIND (§1.4) against the receipt;
-  computes the §3.4 green-confirm preimage; appends. The record's verdict facts live in its
+  computes the §3.4 green-confirm operation key (dedupe search first, §3.5); appends. The record's verdict facts live in its
   `evaluationTranscript` (§1.10).
 - **`red_evidence_quarantine(storyId, recordId, reason)`** — appends a new record with `operation:
   "quarantine"`, `linkKind: "quarantines"`, `recoversRecordId: <recordId>` (the link back to the record being
@@ -1180,8 +1253,9 @@ derivation):
 - head is `red-assert` or `green-confirm` → `active`, EXCEPT the superseded case below;
 - head is `quarantine` → `quarantined`;
 - head is `recover` → the status the reinstated record would have (its operation re-enters this derivation —
-  and, symmetrically, VERDICT derivation follows the reinstated record too: §5.6 step 6 resolves a recover
-  head to its transitively reinstated record before deriving GREEN/RED);
+  and, symmetrically, VERDICT derivation follows it too: §5.6 step 6 resolves the verdict record with an
+  explicit recursive loop over `recover`/`quarantine` control records until a run record is reached, which
+  handles quarantine-of-recover chains of any depth);
 - **`superseded`** — the head is a `red-assert` whose prior-digest walk since the most recent `green-confirm`
   of the same chain shows it superseded that green-confirm (i.e. the target WAS green-confirmed, a newer RED
   assertion re-opened it, and no newer green-confirm exists). The old GREEN is superseded and not yet
@@ -1226,9 +1300,12 @@ corrupt chains, forks, unknown stories, and storage failures).
 redEvidenceGateQuery(storyId, acceptanceTargetRef):
   1. Resolve story dir. Story unknown                    → error "missing-story"
   2. Read red-evidence.json. I/O or JSON-parse failure   → error "storage-error"
-  3. PARTITION the target's records by schema: V2 := valid-shaped v2 records for the
-     target; V1 := v1-shaped records for the target. A record that is neither
-     v2-shaped nor v1-shaped                             → error "unsupported-schema"
+  3. PARTITION the target's records SOLELY by exact `schemaVersion` string (audit:
+     "valid-shaped" pre-validation made the error class implementation-dependent):
+     V2 := records with schemaVersion "proofstory.red_evidence.v2"; V1 := records
+     with "proofstory.red_evidence.v1". ALL shape validation is deferred: a
+     V2-version record failing shape dies as "corrupt-chain" in step 5a; a record
+     with any other/missing schemaVersion               → error "unsupported-schema"
   4. Route (audit: rev 2 sent legacy-only stories into v2 chain validation, where
      v1 records — having no seq/digests — always died as "corrupt-chain"):
        V2 empty AND V1 empty  → ok { status:"none", verdict:"RED",
@@ -1241,16 +1318,23 @@ redEvidenceGateQuery(storyId, acceptanceTargetRef):
      5a. validateV2Record (each record): operation-specific schema completeness
          (§1.10 field sets); recordDigest recomputes; specDigest / policyDigest /
          assertionDigest recompute over their pinned subobjects (for the run
-         records carrying them — control records omit them, §1.10); recordId
-         matches its §3.4 derivation; run records: receipt pre==post (R2-1),
-         red-assert baseline==receipt PRE (R2-3), targetBindingDigest equals the
-         CANON of the binding stored in the committed run tree
-         (<RUN-HEAD>:.lattice/story/actives/<id>/red-target-bindings.json, §1.1.3),
-         transcript STRUCTURALLY valid (§1.10 trust scope: shape, full matcher
-         coverage, boolean/conjunct consistency — not stream re-derivation);
-         green-confirm: confirms* fields match the referenced record, red-copy
-         fields verified, GREEN-BIND holds; control records:
-         referencedRecordDigest matches; acceptanceTargetRef ∈ expectedRedTargets.
+         records carrying them — control records omit them, §1.10); operationKey
+         recomputes over its §3.4 preimage and recordId matches its derivation;
+         run records: CLEAN snapshot present (R2-4), receipt pre==post (R2-1),
+         red-assert baseline==receipt PRE (R2-3), transcript STRUCTURALLY valid
+         (§1.10 trust scope: shape, full matcher coverage, boolean/conjunct
+         consistency — not stream re-derivation); binding-digest resolution is
+         operation-specific (audit: a green-confirm has no assertion subobject to
+         inspect): red-assert — its assertion's targetBindingDigest equals the
+         CANON of the binding stored in the committed tree
+         <baselineHeadHash>:.lattice/story/actives/<id>/red-target-bindings.json;
+         green-confirm — the targetBindingDigest is RESOLVED via confirmsRecordId
+         from the referenced red-assert's assertion and MUST equal the CANON of
+         the binding in <greenHeadHash>:.lattice/story/actives/<id>/red-target-bindings.json;
+         green-confirm additionally: confirms* fields match the referenced record,
+         red-copy fields verified, GREEN-BIND holds; control records:
+         referencedRecordDigest matches. (Target membership is a WRITE-time gate,
+         §3.3 — deliberately NOT re-checked here.)
      5b. validateTargetChainSemantics (whole chain): priorRecordDigest links resolve;
          seq is 1..n monotonic; every transition legal per the §3.3 table
          (incl. governing-red-assert constraint and §4.1 reference validation).
@@ -1260,9 +1344,14 @@ redEvidenceGateQuery(storyId, acceptanceTargetRef):
                                                             "assertion-digest")
        two heads / duplicated prior-digest consumption   → error "fork-detected"
   6. Resolve the unique head; derive status (§5.4). Derive verdict from the
-     VERDICT RECORD: if head.operation == "recover", the verdict record is the
-     transitively reinstated record (follow recoversRecordId through the referenced
-     quarantine, §5.4); else the head itself.
+     VERDICT RECORD, resolved by an explicit recursive loop (audit: a fixed 2-hop
+     lookup breaks on quarantine-of-recover chains):
+       verdictRecord := head
+       while verdictRecord.operation ∈ { "recover", "quarantine" }:
+         verdictRecord := chain record with id == verdictRecord.recoversRecordId
+         (a dangling reference → error "corrupt-chain")
+     — the loop terminates at a run record (red-assert / green-confirm) because
+     every control record references an earlier record and seq is finite.
        verdict record is green-confirm → read its evaluationTranscript conjuncts
          (§1.10; structurally validated in 5a) → GREEN iff all five stored conjunct
          booleans are true per the §1.5 mapping table (no negation applied), else RED
