@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Spec section: policy-owned assertion envelope with bounded matchers and GREEN definition",
+      "context": "Program plan W2 area 1: bounded matchers, minimum specificity, expected exit class, target-exercised proof; GREEN = exit0 + !timeout + pattern-absent + target-exists.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Spec section: runner pre/post four-tuple invariance in a disposable workspace",
+      "context": "Program plan W2 area 2: head/material/index/status invariance proof captured by the runner.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Spec section: supersedes chain integrity plus idempotency key",
+      "context": "Program plan W2 areas 3-4: monotonic seq + prior digest + fork rejection, unique chain head; idempotency key (recordId, materialHash, specDigest, policy/assertion digest, freshness-compatible head).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Spec section: quarantine/recover operations and corrected retention claims",
+      "context": "Program plan W2 area 5: owner-gated registered operations creating NEW record IDs linked by recoversRecordId; retention corrected per transition-orchestrator.ts:663 (rounds are per-entry).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
