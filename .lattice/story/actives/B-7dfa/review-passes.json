@@ -152,6 +152,33 @@
         "scanEscalationReason": null
       },
       "_hash": "22d3feff2fb01ffc6dc2bfe2422d066a080dd46a5f6671f0b056ea3e13975de8"
+    },
+    {
+      "id": "B-7dfa:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "R2 fix-verification of my own R1 F-001: confirmed docs/requirements/decisions/red-evidence-subsystem-spec.md SS5.3 Shared classifier paragraph now binds the dirty filter to EXACTLY isMaterialExcludedPath (evidence-freshness.ts:163-165, applied at :502 inside currentMaterialHash) with accurate line citations verified against src; the removed resolveMaterialCodePolicy derivation claim is gone (grep confirms exactly one remaining mention, the honest separate-change note); SS5.3 is self-consistent with SS2.1 item 2 (both state W2 reuses currentMaterialHash verbatim, no redefinition); Algorithm step 3 uses the same predicate isMaterialExcludedPath(...)==false; diff scoped to two hunks inside SS5.3 only (confirmed via git show), no other section touched; adjacent unchanged citations (proofstory.ts:969, transition-orchestrator.ts:873) also verified accurate. No other doc-code inconsistency found in the touched region.",
+      "createdAt": "2026-07-23T21:49:52.688Z",
+      "reviewRound": "2026-07-23T21:45:49.984Z",
+      "reviewRunId": "B-7dfa:RR-007",
+      "envelopeId": "8d8bc77fe86353ff7862e788e4c78dc02d90e50ed3aab184c84b6aed04ecfc79",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f12644dec91d9066a08b24d2bced25bf70110e961443d6cca7a41069c29cd4f3"
     }
   ]
 }
