@@ -384,6 +384,42 @@
       },
       "readDiagnostics": [],
       "_hash": "1512490e8a8d16eb2ca344fb00ab1dfcf4e10e26d221efcfdad8a89c55f3f6dc"
+    },
+    {
+      "id": "B-4ec1:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 7 coverage PASS: 21/21 must intents have distinct current evidence; must gaps=0, waivers=0. pre_review_check_read returns ok=true, codes=[], plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, authority=admissible. Canonical proof binds 4 positive + 17 mutation + 1 transcript records with exact ID/kind/source/provenance; live-smoke budget tests accept only exact canonical argv and reject whitespace/extra/env/shell/injection near-misses. F-025 old DONE-required FAIL is superseded by fixture commit 662f0c5ed0, owner root npm test exit 0, and independent RR-022 focused build/acceptance-basis/flow-stability PASS. This pass does not claim fresh DONE-required evidence; that must be generated in TEST.",
+      "createdAt": "2026-07-23T13:08:18.050Z",
+      "reviewRound": "2026-07-23T13:03:31.092Z",
+      "reviewRunId": "B-4ec1:RR-026",
+      "envelopeId": "f3c582f12ed2ea36e7db8f24cd0ded0129b7fd30278c84b386fd95ed4c285414",
+      "writerSessionId": "sess-ce45edc08011c552d33b7221e72a5e30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "AGENTS.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/done-required-timeout-budget.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d8b014ec0897f4f2a450faed7c248c05de24f5acc55ae76e1e0582e4ec077cdc"
     }
   ]
 }
