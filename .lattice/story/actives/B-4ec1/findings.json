@@ -320,6 +320,21 @@
       "resolvedAt": "2026-07-23T02:59:56.774Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4ec1:F-016",
+      "desc": "packages/main/src/core/pre-review-live-proof.ts:45-72 — the active-story runner is generic in storyId, but it still does not execute the Story executable proof cases promised by Wave 3. Every mutationCaseRef is reduced to the same metadata mutation (replace its sourceRef with unknown:mutation:...), so all 17 B-4ec1 mutations report AT_UNKNOWN_REF regardless of their declared target/polarity; positive assertions merely copy IDs from a structurally clean matrix; transcript ordering is invented from producer/consumer array indexes rather than observed events. The current PASS artifact confirms all 17 rows are identical AT_UNKNOWN_REF. Thus F-009/F-012/F-015 remain semantically unresolved: current-story derivation removed the literal ID but still fabricates mutation bite, clean control, positive production execution, and transcript causality from topology structure. Execute each declared command/target and consume recorded outcomes/events, or fail closed when a mutation case lacks executable semantics; add mutations proving two different declared targets/codes and missing/reordered real events cannot be converted into identical structural proof.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-23T03:01:48.915Z",
+      "reviewRound": "2026-07-23T02:59:34.345Z",
+      "reviewRunId": "B-4ec1:RR-009",
+      "_hash": "f33165f876344956c499d743c72d4c77d88659302790b10775d8379986cd3bc9",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
