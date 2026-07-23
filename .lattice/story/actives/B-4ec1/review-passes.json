@@ -902,6 +902,39 @@
       },
       "readDiagnostics": [],
       "_hash": "0e480ba8f50a7c159a6d8b5026ca70b9b1aa12a04a7f4716e3dba1a53e0186f9"
+    },
+    {
+      "id": "B-4ec1:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS on current HEAD 972c0e9. F-030 fix b8f78335f0 is confined to packages/main/src/tasks/quorum-submit-smoke.ts: withFreshFixture supplies a supported Codex provider across the full callback while nested withSessionProvider still clears all transport/session identity and proves unsupported/absent providers fail closed. Production quorum, reviewer host mapping, Prompt Envelope, and gate code are unchanged; story-dispatch still maps codex/codex-cli to Codex and claude-code/claude-cli to Claude. No concept deletion/replacement residue or promised-but-undelivered behavior found. Current pre_review_check_read reports status=pass, plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, authority=admissible. Registered findings: 0.",
+      "createdAt": "2026-07-23T15:52:58.908Z",
+      "reviewRound": "2026-07-23T15:50:51.194Z",
+      "reviewRunId": "B-4ec1:RR-045",
+      "envelopeId": "a5c43ba7a04bd842a3c9d2b39a391984177482368a4dc25ee6c814972705fb77",
+      "writerSessionId": "sess-6fc343ccc81d24fd320d41f1aaf797c9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "fae9b6918a5a432c9f3448739fef7d65bb27766d6b0a4caf1cf7d77c7da1e755"
     }
   ]
 }
