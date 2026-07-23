@@ -3657,6 +3657,17 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   ]) {
     assert(validationEnvironmentText.includes(token), `shared validation command environment contract missing ${token}`);
   }
+  const doneRequiredSmokeText = read('packages/main/src/tasks/done-required-validation-smoke.ts');
+  for (const token of [
+    'const behaviorEnvironmentMutations = [',
+    "{ name: 'LANG', environment: { ...deliveryEnvironment, LANG: 'en_GB.UTF-8' } }",
+    "{ name: 'LC_ALL', environment: { ...deliveryEnvironment, LC_ALL: 'en_GB.UTF-8' } }",
+    "/effective-environment-digest-mismatch\\[0\\]/",
+    "/effective-environment-digest-mismatch\\[1\\]/",
+    'for (const mutation of behaviorEnvironmentMutations)',
+  ]) {
+    assert(doneRequiredSmokeText.includes(token), `DONE-required environment mutation contract missing ${token}`);
+  }
   const validationExecutorEnvironmentText = read('packages/main/src/core/validation-executor.ts');
   assert(
     routineReuseText.includes('effectiveValidationCommandEnvironment(processEnvironment, command.env, cwd, platform)')

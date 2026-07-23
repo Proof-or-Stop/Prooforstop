@@ -309,7 +309,13 @@ function assertDoneRequiredBlocked(
   ];
   const { root, store } = fixture(commands);
   try {
-    const common = { PATH: process.env.PATH ?? '', CI: 'true', LANG: 'en_US.UTF-8', NODE_OPTIONS: '' };
+    const common = {
+      PATH: process.env.PATH ?? '',
+      CI: 'true',
+      LANG: 'en_US.UTF-8',
+      LC_ALL: 'C',
+      NODE_OPTIONS: '',
+    };
     const ownerEnvironment = {
       ...common,
       LATTICE_SESSION_ID: 'owner-session',
@@ -454,10 +460,13 @@ function assertDoneRequiredBlocked(
     });
     assert.equal(crossSession.ok, true, crossSession.reasons.join(', '));
 
-    for (const mutation of [
+    const behaviorEnvironmentMutations = [
       { name: 'CI', environment: { ...deliveryEnvironment, CI: 'false' } },
       { name: 'NODE_OPTIONS', environment: { ...deliveryEnvironment, NODE_OPTIONS: '--trace-warnings' } },
-    ]) {
+      { name: 'LANG', environment: { ...deliveryEnvironment, LANG: 'en_GB.UTF-8' } },
+      { name: 'LC_ALL', environment: { ...deliveryEnvironment, LC_ALL: 'en_GB.UTF-8' } },
+    ];
+    for (const mutation of behaviorEnvironmentMutations) {
       const changedBehavior = evaluateDoneRequiredEvidence({
         projectRoot: root,
         storyId: STORY_ID,
