@@ -757,6 +757,46 @@
         "scanEscalationReason": null
       },
       "_hash": "dfd76fd80d521873677f9b66420d68843750ad9450af963e7e99af7e02bb52b7"
+    },
+    {
+      "id": "B-956f:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "R11 merged-state verification (post main-merge, topology story B-4ec1). Confirmed ZERO W1 functional-code delta since R10 pass (4e1112afec): git diff 4e1112afec..HEAD shows all 9 story-owned files with zero diff bytes (material-code-policy.ts, review-assurance-floor.ts, repro-evidence-binding-gate.ts, validate-concept.ts, language-neutral-gates-smoke.ts, repro-evidence-binding-dev-gate-smoke.ts, machine.ts, phase-gates.ts, scope-contract.ts, story-review.ts). Only proofstory.ts, scope-diff-pack.ts and config.ts changed, and I diffed W1-pre-merge (83e9464a6e) against the merge result (1a101dca7b) directly: proofstory.ts gained only an isAcceptanceMatrixDerivedEvidence import + a rowCoversIntent guard (ProofStory intent-coverage evidence rows, unrelated to materialClassification/trigger-predicate code at lines 640-730 which is untouched); scope-diff-pack.ts gained only a GIT_TREE_OUTPUT_MAX_BUFFER import + maxBuffer option on the readUnifiedDiff execFileSync call (unrelated to the semantic_analysis_unavailable diagnostic-production logic at parseUnifiedDiff/buildScopeDiffPack lines 265-315, which is byte-identical). config.ts, process-fact-levels.ts, types.ts, handlers/proofstory.ts, handlers/story-create.ts differ only via topology-story additions entirely outside W1 scope (acceptanceTopologyGateMode, promptEnvelope role union, DEFAULT_PHASE_TOOLS acceptance_* entries, duplicate-key JSON guard) and do not touch MaterialCodeConfig/materialClassification/semantic_analysis_unavailable identifiers in their diffs. lattice.config.json has single (non-duplicated) materialCode and promptEnvelope keys. No merge-conflict markers anywhere in packages/main/src. Ran both builds fresh (packages/utils tsc, packages/main tsc): 0 errors. Ran language-neutral-gates-smoke.js 3x fresh: 39/39 deterministic PASS all 3 runs. Ran tmp/w1-red/red-language-degradation.cjs 3x: 11/11 GREEN, exit 0, all 3 runs. Ran the full verifier (lattice validate --story=B-956f) end-to-end on the merged tree (after waiting out a lock held by a concurrent reviewer's own validate run, pid 4077, in this shared worktree): exit 0, disposition=executed commandExecutions=46, all 46 configured commands showed a checkmark header with 0 fail markers in output, 12/12 verificationIntent lanes covered, materialHash 6dad08df5685... and storyFilesHash 89fae40835... bound in test-evidence.json match the review_run_start context exactly. No dead code, unsafe any-casts, or empty catches introduced by the merge delta. No interference between W1's snapshot-threading and the topology story's changes; the topology code does not re-introduce a config-blind classification path and does not bypass or suppress W1's semantic_analysis_unavailable / repro-classification diagnostics channels. No blocker.",
+      "createdAt": "2026-07-23T18:37:49.295Z",
+      "reviewRound": "2026-07-23T18:10:20.313Z",
+      "reviewRunId": "B-956f:RR-034",
+      "envelopeId": "700e80ef64edc4a0e03c6743a413f67e2e49f55a381db228c200a6b55df196c3",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/review-passes.json",
+          "lattice.config.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/scope-diff-pack.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/acceptance-basis.json",
+          ".lattice/story/actives/B-956f/test-evidence.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a0b9fdfb3c427d881e13dc750a7109fb5c2ffa7cb893c01c1e0e3dbeb04f3a72"
     }
   ]
 }
