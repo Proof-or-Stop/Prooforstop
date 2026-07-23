@@ -77,6 +77,8 @@ import { buildDoneChecklist, renderDoneChecklist } from '../core/done-oracle.js'
 import { buildVerificationCoverage } from '../core/verification.js';
 import { formatWorktreePollutionDetails } from '../core/validation-executor.js';
 import { createStoryAdvanceHandlers } from '../handlers/story-advance.js';
+import { createProofStoryHandlers } from '../handlers/proofstory.js';
+import { signScopeCheck } from '../handlers/scope-check.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { runReviewToTestPreflightGate, runValidateGate } from '../handlers/phase-gates.js';
 import { runReviewCliGates, renderPreflight } from '../handlers/review-preflight.js';
@@ -93,6 +95,47 @@ import { buildPhaseTransitionProcessEvent } from '../handlers/transition-orchest
 function write(root: string, path: string, content: string): void {
   mkdirSync(dirname(join(root, path)), { recursive: true });
   writeFileSync(join(root, path), content);
+}
+
+function writeAcceptanceBasisDiscoveryFixture(root: string): void {
+  write(root, 'packages/main/src/cli/command-catalog.ts', [
+    'export const MAIN_TOOLS = [',
+    "  { name: 'acceptance_basis' },",
+    "  { name: 'acceptance_basis_generate' },",
+    "  { name: 'acceptance_topology_check' },",
+    "  { name: 'pre_review_check' },",
+    "  { name: 'pre_review_check_read' },",
+    '];',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/registry.ts', [
+    "import { createProofStoryHandlers } from './handlers/proofstory.js';",
+    'const registry = { registerBatch: (_handlers: unknown) => undefined };',
+    'const ctx = {};',
+    'registry.registerBatch(createProofStoryHandlers(ctx));',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/handlers/proofstory.ts', [
+    'export function createProofStoryHandlers() {',
+    '  return {',
+    '    acceptance_basis() { return true; },',
+    '    acceptance_basis_generate() { return true; },',
+    '    acceptance_topology_check() { return true; },',
+    '    pre_review_check() { return true; },',
+    '    pre_review_check_read() { return true; },',
+    '  };',
+    '}',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/core/process-fact-registry.ts', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
+  write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const agentDispatchRegistry = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs', 'export const preReviewLiveProofRunner = true;\n');
+  write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const planConsumer = "acceptance_basis_generate";\n');
+  write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
 }
 
 function git(root: string, args: string[]): void {
@@ -2118,6 +2161,52 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
   const oldCwd = process.cwd();
   try {
     const { store, storyId, reviewRound } = createReviewStore(root);
+    write(root, 'packages/main/tsconfig.json', '{}\n');
+    writeAcceptanceBasisDiscoveryFixture(root);
+    const story = store.readStory(storyId);
+    story.phase = 'DEV';
+    story.currentReviewRound = undefined;
+    story.events = [{ phase: 'DEV', action: 'advance', timestamp: '2026-04-27T12:02:00.000Z' }];
+    store.writeStory(storyId, story);
+    const scopeCheckedAt = '2026-04-27T12:01:30.000Z';
+    store.writeScopeCheck(storyId, {
+      storyId,
+      checkedAt: scopeCheckedAt,
+      features: [],
+      summary: { total: 0, covered: 0, excluded: 0, gaps: 0, orphanSuspect: 0, drift: 0 },
+      reviewRound: '',
+      _hash: signScopeCheck(storyId, scopeCheckedAt, 0, 0, ''),
+    });
+    store.writeProofStoryContract(storyId, {
+      schemaVersion: 'proofstory.contract.v1',
+      storyId,
+      diagnosticOnly: true,
+      hardeningLevel: 'standard',
+      triggerReasons: [],
+      acceptanceBindings: [{
+        id: 'AC-REVIEW-ECHO',
+        checklistRefs: ['CHK-001'],
+        verificationIntentRefs: [],
+        milestoneIds: [],
+        verificationTopology: {
+          schemaVersion: 'proofstory.acceptance_topology.v1',
+          producerRefs: [],
+          consumerRefs: [],
+          positiveAssertionRefs: [],
+          mutationCaseRefs: [],
+          transcriptAssertionRefs: [],
+          commandRefs: [
+            { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis' },
+            { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+            { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_topology_check' },
+            { refKind: 'existing', canonicalSourceRef: 'process-fact:artifact:acceptance-basis.json' },
+          ],
+        },
+      }],
+      diagnosticGaps: [],
+      createdAt: scopeCheckedAt,
+      updatedAt: scopeCheckedAt,
+    });
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
     git(root, ['config', 'user.name', 'Proofbound Smoke']);
@@ -2125,13 +2214,17 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
     git(root, ['checkout', '-b', `story/${storyId}`]);
-    const story = store.readStory(storyId);
-    story.phase = 'DEV';
-    story.currentReviewRound = undefined;
-    story.events = [{ phase: 'DEV', action: 'advance', timestamp: '2026-04-27T12:02:00.000Z' }];
-    store.writeStory(storyId, story);
 
     process.chdir(root);
+    const basisOutput = createProofStoryHandlers({
+      store,
+      root,
+      scanRoot: join(root, 'packages/main'),
+    }).acceptance_basis_generate({ storyId });
+    assert.match(basisOutput, /Acceptance coverage basis: complete/);
+    const planArtifact = store.readAcceptanceBasis(storyId);
+    assert.equal(planArtifact?.basis.generatedBy.verifier, 'acceptance-coverage-basis-verifier');
+    assert.equal(planArtifact?.basis.generatedBy.command, 'lattice acceptance_basis_generate');
     const output = await createStoryAdvanceHandlers({
       store,
       root,
