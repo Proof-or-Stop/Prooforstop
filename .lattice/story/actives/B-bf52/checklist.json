@@ -140,7 +140,43 @@
       "context": "packages/main/src/tasks/convergence-breaker-smoke.ts:180-182 asserts distinct reasons do not accumulate but uses fixtures too short and too plain to reach any collapse rule. Add the four must-differ cases (long-preamble ProofStory gaps, phase pair, checklist ids, in-repo file paths) and the three must-still-collapse cases (timestamps and attempt counters, machine-specific absolute paths, hex digests), each driving the real bumpGateFailureCount and maxGateFailureCount path so the counter consequence is proven, not just the hash.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm run test:convergence-breaker exits zero and its output lists the must-differ and must-still-collapse digest cases by name, each reporting the resulting gate-failure counter value rather than only the hash.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every must-differ case drives the real bumpGateFailureCount path twice and then asserts maxGateFailureCount is 1, proving the counter consequence rather than only the hash inequality.",
+            "type": "logic"
+          },
+          {
+            "desc": "npm run test:convergence-breaker exits zero from a clean build, so the matrix is reachable through the root full test suite that gates DONE.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Every must-still-collapse case drives bumpGateFailureCount twice and asserts maxGateFailureCount reaches 2 and assessBreaker still trips, proving the breaker keeps catching a genuine repeat.",
+            "type": "logic"
+          },
+          {
+            "desc": "The pre-existing assertions in this smoke, including the reset-clears-counter case, keep passing unchanged alongside the new matrix.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Each of the three normalizer changes reverted individually causes a named subset of the matrix to fail and leaves the rest passing, so the matrix localizes which rule regressed instead of failing as one opaque block.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
