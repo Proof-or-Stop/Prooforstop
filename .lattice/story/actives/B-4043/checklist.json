@@ -139,6 +139,54 @@
                   }
                 ],
                 "outputFactRef": "process-fact:acceptance_rollout_report"
+              },
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "W4-COHORT-RUNNER-REPORT-PATH",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "W4-COHORT-RUNNER-PRODUCER",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+                  "expectedSymbolOrFact": "PROOFSTORY_ACCEPTANCE_ROLLOUT_COHORT",
+                  "fileDeclarationRef": "CHK-002:files:create:2"
+                },
+                "consumers": [
+                  {
+                    "id": "W4-COHORT-REPORT-EVALUATOR",
+                    "role": "consumer",
+                    "expectedArtifactKind": "process_fact",
+                    "expectedFileRef": "packages/main/src/core/acceptance-rollout.ts",
+                    "expectedSymbolOrFact": "deriveAcceptanceRolloutReport",
+                    "fileDeclarationRef": "CHK-002:files:create:0"
+                  }
+                ],
+                "outputFactRef": "process-fact:acceptance_rollout_report"
+              },
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "W4-ROLLOUT-SMOKE-PATH",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "W4-ROLLOUT-SMOKE-PRODUCER",
+                  "role": "producer",
+                  "expectedArtifactKind": "process_fact",
+                  "expectedFileRef": "packages/main/src/core/acceptance-rollout.ts",
+                  "expectedSymbolOrFact": "acceptance_rollout_report",
+                  "fileDeclarationRef": "CHK-002:files:create:0"
+                },
+                "consumers": [
+                  {
+                    "id": "W4-ROLLOUT-SMOKE-CONSUMER",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+                    "expectedSymbolOrFact": "proofstory-acceptance-rollout-smoke",
+                    "fileDeclarationRef": "CHK-002:files:create:1"
+                  }
+                ],
+                "outputFactRef": "process-fact:acceptance_rollout_report"
               }
             ]
           }
