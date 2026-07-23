@@ -23,6 +23,35 @@
         "test": [
           "scripts/verify-process-fact-contract.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:role-guidance",
+            "desc": "Build and contract checks prove the mirrored Codex and Claude implementer/reviewer guidance names the canonical acceptance_topology_check, pre_review_check_read, acceptance rollout report/check, current-receipt, full-3x2, and rollback commands, while registered CLI/handler/process-fact consumers—not prompt prose—remain the only admission authority.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:mirror-mode",
+            "desc": "A mirror and mode-invariance check proves Codex and Claude guidance cannot drift and observe, warn, and enforce expose the same ordered diagnostics/status; only enforce changes blocking semantics.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:prompt-authority",
+            "desc": "Targeted mutations that remove a required command from either host prompt, replace full 3x2 with degraded 3x1, or claim prompt text is gate evidence must fail the mirror/process-fact contract with a stable reason, and restoration must return the clean control to PASS.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
