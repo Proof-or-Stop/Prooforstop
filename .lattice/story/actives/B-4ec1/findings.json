@@ -564,7 +564,7 @@
       "desc": "process-fact-contract-underbinds-session-neutral-environment: packages/main/src/core/process-fact-levels.ts:389 promises that ambient Proofbound host/session/role identity keys are removed from the L4 routine-validation execution identity, and packages/main/src/core/validation-command-environment.ts:9-39 defines the canonical 25-key transport set. But scripts/verify-process-fact-contract.mjs:3604-3621 asserts only 9 members, while the cross-session smoke at packages/main/src/tasks/done-required-validation-smoke.ts:309-324 varies only five. Mechanical inventory (`node` extracting the set and matching verifier tokens) reports 16 unguarded keys, including LATTICE_ACTIVITY_SESSION, LATTICE_CODEX_ENTRYPOINT, adapter provider/task/agent/boundary/generated, CODEX_SESSION_ID, OPENAI_SESSION_ID, TERM_SESSION_ID, ANTIGRAVITY_SESSION_ID, and GEMINI_SESSION_ID; the current process-fact verifier still prints `Process fact contract verified`. Removing any unguarded transport key silently weakens the documented L4 session-neutral reuse contract and can reintroduce owner→delivery environment-digest mismatch without the required process-fact mutation bite. Bind the full canonical set/digest in the verifier and table-test every ambient transport key; retain a control proving PATH/NODE_OPTIONS/CI/locale and explicit command.env overlays remain semantic.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-23T14:30:45.777Z",
@@ -578,7 +578,11 @@
         "packages/main/src/tasks/done-required-validation-smoke.ts"
       ],
       "signatureTag": "missing|ts|process-fact-contract",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 88dbd1801d: the canonical 26-key transport inventory is exported, protected by hard digest sha256:159db7..., and the process-fact verifier now parses and exactly compares the full ordered set and recomputes its digest. Table-driven tests cover every ambient key; build, done-required-validation smoke, and process-fact contract pass.",
+      "resolvedAt": "2026-07-23T14:38:46.688Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-028",
