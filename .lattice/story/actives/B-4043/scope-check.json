@@ -1,6 +1,6 @@
 {
   "storyId": "B-4043",
-  "checkedAt": "2026-07-23T16:49:13.225Z",
+  "checkedAt": "2026-07-23T16:51:33.096Z",
   "features": [
     {
       "feature": "Every in-scope Codex/Claude implementer, verification-intent compatibility, topology-critic, concept, quality, coverage, docs and delivery prompt carries lane-appropriate canonical rollout guidance and cannot become authority",
@@ -10,25 +10,32 @@
       "source": ".lattice/story/actives/B-4043/plan.md#CHK-001; .lattice/story/actives/B-4043/checklist.json CHK-001 files/verificationIntent"
     },
     {
-      "feature": "Verifier-owned versioned rollout report derives aggregates and rejects caller verdict/aggregate fields",
+      "feature": "Verifier-owned versioned rollout report derives aggregates and rejects caller membership, verdict and aggregate fields",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002"
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 happy"
     },
     {
-      "feature": "Real reproducible baseline/candidate cohort freezes every eligible member in a declared window, prevents caller cherry-picking, and contains at least three matched pairs (>=3 per arm)",
-      "covered_by": "CHK-002",
-      "status": "gap",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/plan.md#CHK-002; .lattice/story/actives/B-4043/checklist.json CHK-002 verificationIntent"
-    },
-    {
-      "feature": "Report receipt binds eligibility rule, complete frozen membership, source records, version, workspace hashes, cost, rounds, waivers, adapters and full-3x2 provenance",
+      "feature": "Real reproducible cohort freezes verifier-derived eligibility rule, evaluation window and complete eligible membership with at least three matched pairs and at least three cases per arm",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/plan.md#CHK-002; CHK-002 planned producer/consumer path"
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 happy"
+    },
+    {
+      "feature": "Cohort mutations reject omitted eligible rows, added ineligible rows, window/membership/order/digest drift and insufficient paired/arm cardinality",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 adversarial"
+    },
+    {
+      "feature": "Report receipt binds eligibility, full frozen membership, source rows, version, workspace hashes, cost, rounds, waivers, adapters and full-3x2 provenance",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "CHK-002 happy and W4-ROLLOUT-REPORT-GATE-PATH"
     },
     {
       "feature": "Docs-only, legacy and ordinary single-outcome controls measure zero supported false blocks without fabricated runtime proof",
@@ -38,18 +45,18 @@
       "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 edge"
     },
     {
-      "feature": "Real-consumer omission/forgery mutations including topology-only C2 deletion bite and restore a clean control",
-      "covered_by": "CHK-002",
+      "feature": "Every registered seeded defect class must have overall false-pass rate 0, supported omission detection 100%, and incomplete campaigns or non-omission misses fail closed",
+      "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 adversarial"
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-003 happy/adversarial"
     },
     {
-      "feature": "Flat promotion thresholds require zero false passes across every registered seeded defect, 100% supported omission detection, zero false blocks/mislabeled 3x1, nonpositive waiver delta and nonshrinking checks",
+      "feature": "Flat thresholds additionally require zero false blocks and mislabeled 3x1, nonpositive waiver delta, nonshrinking checks, supported adapters and at least three matched samples in each arm",
       "covered_by": "CHK-003",
-      "status": "gap",
+      "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/plan.md#CHK-003; .lattice/story/actives/B-4043/checklist.json CHK-003 verificationIntent"
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-003"
     },
     {
       "feature": "Unknown, partial, unsupported, incomplete-campaign, membership-drift or disagreeing adapters/campaigns fail promotion deterministically",
@@ -99,13 +106,6 @@
       "status": "excluded",
       "excluded_by": "Wave 3A is explicitly skipped for flat rollout and remains mandatory before selective applicability can be claimed.",
       "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#Wave-3A; CHK-005 excludes"
-    },
-    {
-      "feature": "No second writable acceptance matrix, caller-authored rollout verdict, prompt claim or degraded host label becomes gate evidence",
-      "covered_by": "CHK-001,CHK-002,CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/background.md; .lattice/story/actives/B-4043/decision.json"
     }
   ],
   "readManifest": {
@@ -124,38 +124,13 @@
   },
   "summary": {
     "total": 15,
-    "covered": 12,
+    "covered": 14,
     "excluded": 1,
-    "gaps": 2,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "20118f3c6089ed700be895e46ceb874b1e8a1a85830ddb53edd3b71cb8ff8512",
-  "openQuestions": [
-    {
-      "id": "OQ-B4043-COHORT-INTENT-BINDING",
-      "q": "Will CHK-002 verificationIntent explicitly require the verifier to bind and test the eligibility rule, complete frozen membership, >=3 matched pairs/each arm, and rejection of an omitted eligible row or changed evaluation window?",
-      "evidence": "plan.md CHK-002 now states the correct rule, but CHK-002 happy only binds sample identities and caller verdict/aggregates; its adversarial lane does not mutate membership omission/window drift. Plan prose alone cannot require DEV evidence for anti-cherry-pick behavior.",
-      "sourcePointers": [
-        "CHK-002:happy:real-cohort-receipt",
-        "CHK-002:adversarial:seeded-defects",
-        "commit:48a8397bac"
-      ],
-      "resolution": "The dedicated verification-intent writer updated CHK-002 happy/adversarial so the signed report must bind the eligibility rule, evaluation window, complete frozen membership and at least three matched pairs per arm; eligible-row omission, ineligible injection, window/membership/order/digest drift and N below three all fail deterministically.",
-      "resolvedAt": "2026-07-23T16:50:34.702Z"
-    },
-    {
-      "id": "OQ-B4043-FALSE-PASS-INTENT-BINDING",
-      "q": "Will CHK-003 verificationIntent require overall false-pass rate 0 across every registered seeded defect and an incomplete-campaign/undetected-non-omission mutation, in addition to omission detection 100%?",
-      "evidence": "plan.md CHK-003 now states the correct threshold, but CHK-003 happy/adversarial still enumerate omission detection, false blocks, N=2, 3x1, waivers and inventory without overall false-pass=0 or incomplete registered campaign coverage.",
-      "sourcePointers": [
-        "CHK-003:happy:bounded-thresholds",
-        "CHK-003:adversarial:threshold-bypass",
-        "commit:39db2b842f"
-      ],
-      "resolution": "The dedicated verification-intent writer updated CHK-003 happy/adversarial to require overall false-pass rate zero across every registered seeded defect class plus 100 percent supported omission detection; incomplete campaigns and missed non-omission defects fail closed.",
-      "resolvedAt": "2026-07-23T16:50:35.733Z"
-    }
-  ]
+  "_hash": "f1f6e141aa03246d337a156ebd7fb724d9dd45be6eb0654713b57699a05f72aa",
+  "openQuestions": []
 }
