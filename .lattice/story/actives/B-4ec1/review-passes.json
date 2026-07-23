@@ -293,6 +293,45 @@
       },
       "readDiagnostics": [],
       "_hash": "8fc8ffa593e4bbf5dc6002152a0b3c368df960e8bb19e86db82bad575035e331"
+    },
+    {
+      "id": "B-4ec1:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round 7 docs/code consistency: exact Step 1 extraction yielded 455 unique changed declarations (including test-local declarations); seven relevant documentation sections were compared after eliminating incidental common-identifier hits. Wave status consistently marks 1/1A/2/2A/3 implemented, 3A skipped for flat rollout, and Wave 4 not implemented. The exact pre-review live-proof command receives the 120000ms scenario/build budget plus 3000ms cleanup grace while near-miss/composed variants retain the 60000ms arbitrary ceiling, matching the process-fact rationale. Command catalog, handlers, DEV-to-REVIEW consumer, registry and contract verifier match documented surfaces; no promised-but-undelivered blocker found.",
+      "createdAt": "2026-07-23T13:07:37.972Z",
+      "reviewRound": "2026-07-23T13:03:31.092Z",
+      "reviewRunId": "B-4ec1:RR-027",
+      "envelopeId": "f2e20367deae437ae789c5263ef16162ec4e3caec199c793d61372fa6190ec50",
+      "writerSessionId": "sess-4d1c4e3f8b3564df9bcae6e0b05c4890",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "66200b2ddf6e6a1e5066fbb4297c2cc269a309f15eb86c6115035b02d992adc7"
     }
   ]
 }
