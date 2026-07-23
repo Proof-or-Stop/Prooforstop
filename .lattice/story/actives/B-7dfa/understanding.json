@@ -6,7 +6,11 @@
     "appendRedEvidence (packages/main/src/core/proofstory.ts:1312) is append-only into .lattice/story/actives/<id>/red-evidence.json with no supersedes-chain integrity, no idempotency key, and no owner-gated quarantine path, so records can be silently replaced and replays can duplicate records.",
     "The program plan (docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md, Workstream 2) enumerates the five contract areas and sequences a PLAN-reviewed spec story before implementation, then W3 enforcement wiring.",
     "Retention correction: canonical receipts preserve metadata freshness within a round only; review rounds are per-entry via story.currentReviewRound = now at packages/main/src/handlers/transition-orchestrator.ts:775 (the plan original :663 citation drifted across the S1/W1 merges).",
-    "Product-review advisories require the spec to additionally define the gate-consumption query contract (the W2/W3 boundary: what ProofStory gates ask the subsystem) and the legacy-record posture (grandfather / migrate / invalidate for existing red-evidence.json records)."
+    "Product-review advisories require the spec to additionally define the gate-consumption query contract (the W2/W3 boundary: what ProofStory gates ask the subsystem) and the legacy-record posture (grandfather / migrate / invalidate for existing red-evidence.json records).",
+    "READ-ONLY citation source (not edited this story): packages/main/src/core/proofstory.ts:1312 appendRedEvidence (append-only record subsystem the spec governs; not edited this story)",
+    "READ-ONLY citation source (not edited this story): packages/main/src/handlers/proofstory.ts:948 red_evidence_create (current self-reported surface; not edited this story)",
+    "READ-ONLY citation source (not edited this story): packages/main/src/handlers/transition-orchestrator.ts:775 story.currentReviewRound = now (retention-claim source of truth; not edited)",
+    "READ-ONLY citation source (not edited this story): .lattice/story/actives/<id>/red-evidence.json (the record store whose schema/lifecycle the spec defines)"
   ],
   "constraints": [
     "Deliverable is a decision DOCUMENT only; no implementation source under packages/ or scripts/ (reserved for the W2 implementation stories that cite this spec).",
@@ -20,11 +24,7 @@
     "Whether the gate-consumption query resolves against an exact freshness-compatible head or a bounded-staleness window, and the precise answer shape the gate consumes."
   ],
   "touchpoints": [
-    "docs/requirements/decisions/red-evidence-subsystem-spec.md (new; sole material deliverable)",
-    "packages/main/src/core/proofstory.ts:1312 appendRedEvidence (append-only record subsystem the spec governs; not edited this story)",
-    "packages/main/src/handlers/proofstory.ts:948 red_evidence_create (current self-reported surface; not edited this story)",
-    "packages/main/src/handlers/transition-orchestrator.ts:775 story.currentReviewRound = now (retention-claim source of truth; not edited)",
-    ".lattice/story/actives/<id>/red-evidence.json (the record store whose schema/lifecycle the spec defines)"
+    "docs/requirements/decisions/red-evidence-subsystem-spec.md"
   ],
-  "timestamp": "2026-07-23T19:39:52.496Z"
+  "timestamp": "2026-07-23T19:55:38.334Z"
 }
