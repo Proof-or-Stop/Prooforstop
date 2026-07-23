@@ -67,10 +67,32 @@
       "phase": "DEV",
       "headHash": "9a70b968d003156bb4085cc009506a7d95f72f6b",
       "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These verifier-issued signed Wave 4 rollout and pre-review artifacts are required outputs of the Story canonical producers and are consumed by the DEV-to-REVIEW gates.",
+      "timestamp": "2026-07-23T18:03:30.739Z",
+      "paths": [
+        ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+        ".lattice/story/actives/B-4043/pre-review-check.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+        ".lattice/story/actives/B-4043/pre-review-check.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "417e02fb0ecc17e9efebfc7b5f4a986bf80088e8",
+      "materialHash": "75868cfb3cab44502e349c50e09176dc5efe8e4efdc79d794c2bcf43fa913a8c",
+      "anchors": [
+        "acceptance_rollout_report",
+        "pre_review_check"
+      ]
     }
   ],
   "createdAt": "2026-07-23T16:52:35.523Z",
-  "updatedAt": "2026-07-23T17:35:02.285Z",
+  "updatedAt": "2026-07-23T18:03:30.739Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -110,6 +132,8 @@
     "tests/fixtures/**": "tests/fixtures/**",
     ".lattice/story/actives/B-4043/acceptance-basis.json": ".lattice/story/actives/B-4043/acceptance-basis.json",
     "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
-    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    ".lattice/story/actives/B-4043/acceptance-rollout-report.json": ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+    ".lattice/story/actives/B-4043/pre-review-check.json": ".lattice/story/actives/B-4043/pre-review-check.json"
   }
 }
