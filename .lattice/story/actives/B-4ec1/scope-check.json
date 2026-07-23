@@ -1,6 +1,6 @@
 {
   "storyId": "B-4ec1",
-  "checkedAt": "2026-07-23T04:11:16.724Z",
+  "checkedAt": "2026-07-23T04:32:21.974Z",
   "features": [
     {
       "feature": "Canonical signed pre_review_check producer and verifier path",
@@ -10,53 +10,60 @@
       "source": "packages/main/src/core/pre-review-check.ts#pre_review_check"
     },
     {
-      "feature": "W3-PRE-REVIEW-GATE-PATH exact producer tuple is process_fact / core pre-review-check / pre_review_check / CHK-001 create declaration and binds to lifecycle handler consumer",
+      "feature": "Exact process_fact producer to lifecycle handler planned path tuple",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "process_fact|packages/main/src/core/pre-review-check.ts|pre_review_check|CHK-001:files:create:0 -> handler|packages/main/src/handlers/transition-orchestrator.ts|runPreReviewCheckGate|CHK-001:files:modify:3"
     },
     {
-      "feature": "Current-worktree coverage basis compares planned topology with actual source inventory",
+      "feature": "Current-worktree coverage basis and planned-to-actual reconciliation",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/core/acceptance-topology.ts"
+      "source": "packages/main/src/core/acceptance-coverage-basis.ts"
     },
     {
-      "feature": "Executable positive, mutation, transcript, authority, and freshness proof closure",
+      "feature": "Observed static call from canonicalPreReviewAssertionSourceRef producer to pre-review verifier consumer is mapped",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      "source": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#canonicalPreReviewAssertionSourceRef->consumer:packages/main/src/core/pre-review-check.ts#canonicalPreReviewAssertionSourceRef"
     },
     {
-      "feature": "DEV to REVIEW transition gate and independent critic integration",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "packages/main/src/handlers/transition-orchestrator.ts#runPreReviewCheckGate"
-    },
-    {
-      "feature": "Static topology mappings include decoder to verifier linkage",
+      "feature": "Observed static call from preReviewExecutableProvenanceIsCurrent producer to pre-review verifier consumer is mapped",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/core/acceptance-topology.ts"
+      "source": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
     },
     {
-      "feature": "Live smoke transcript readiness is checked after artifact write",
-      "covered_by": "CHK-003, CHK-004",
+      "feature": "Exact case assertion ID, kind, canonical sourceRef, cardinality, aggregate root, and current runner/target provenance enforcement",
+      "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      "source": "packages/main/src/core/pre-review-live-proof.ts; packages/main/src/core/pre-review-check.ts"
     },
     {
-      "feature": "Process-fact registry and operator documentation remain synchronized",
+      "feature": "Executable positive, 17 mutation, restoration, transcript, authority, and freshness proof closure",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+    },
+    {
+      "feature": "All seven F-024 remediation files are declared Wave 3 code, test, registry, type, decision-doc, or contract-verifier scope",
+      "covered_by": "CHK-001, CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "commit:43644a9046"
+    },
+    {
+      "feature": "Process-fact rationale, contract verifier, types, and execution-plan documentation synchronized",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/core/process-fact-levels.ts#pre_review_check"
+      "source": "packages/main/src/core/process-fact-registry.ts; packages/main/src/core/types.ts; scripts/verify-process-fact-contract.mjs; docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     },
     {
       "feature": "Legacy stories remain bounded and non-retroactively blocked",
@@ -100,14 +107,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 11,
-    "covered": 9,
+    "total": 12,
+    "covered": 10,
     "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-07-23T02:59:34.345Z",
-  "_hash": "dfe7a9ace119006bf14f193a2e21711178aa2c5101672d7536e2421a49773547",
+  "reviewRound": "2026-07-23T04:11:56.497Z",
+  "_hash": "796af1ae6423c00ce8eb62d9ec340759cd32b66367b7c5dd091f5a686e0af158",
   "openQuestions": []
 }
