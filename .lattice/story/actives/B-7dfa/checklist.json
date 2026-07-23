@@ -6,7 +6,31 @@
       "context": "Program plan W2 area 1: bounded matchers, minimum specificity, expected exit class, target-exercised proof; GREEN = exit0 + !timeout + pattern-absent + target-exists.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The spec §1 defines every assertion-envelope field (bounded matcher set, minimum specificity threshold, expected exit class, target-exercised proof) each with its validation rule, and states the exact GREEN predicate verbatim: GREEN = exit0 AND !timeout AND pattern-absent AND target-exists; a reader can cite each field name and the predicate from the section text.",
+            "type": "docs"
+          },
+          {
+            "desc": "§1 defines the GATE-CONSUMPTION QUERY CONTRACT: the exact read-only question ProofStory gates (W3) ask the subsystem (e.g. does a GREEN-satisfying record exist for acceptanceTargetRef X at freshness-compatible head H) and the exact answer shape returned, drawing the W2/W3 boundary explicitly so W3 enforcement consumes a stable query API rather than reaching into storage; a reader can name the query inputs and outputs.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "§1 specifies the envelope outcome for a matcher that matches ZERO lines (vacuous/under-specific pattern) and for a TARGET FILE DELETED between the RED and GREEN runs (target-exists sub-predicate fails), stating the concrete accept/reject result for each case so a reader can trace both to a rule.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "§1 makes fabrication detectable by construction: a record lacking a target-exercised proof, or carrying an over-broad matcher below the minimum-specificity threshold, is REJECTED by the envelope schema; the rejection rule is quoted so a reviewer can confirm a forged or vacuous RED cannot satisfy the gate.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
