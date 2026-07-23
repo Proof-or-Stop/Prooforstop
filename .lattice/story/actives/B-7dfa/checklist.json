@@ -70,7 +70,27 @@
       "context": "Program plan W2 areas 3-4: monotonic seq + prior digest + fork rejection, unique chain head; idempotency key (recordId, materialHash, specDigest, policy/assertion digest, freshness-compatible head).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The spec section 3 defines the supersedes chain integrity rule (monotonic seq + prior-record digest link + fork rejection, yielding a unique chain head = latest) and the idempotency key composition (recordId, materialHash, specDigest, policy/assertion digest, freshness-compatible head); a reader can enumerate every idempotency-key component and state the chain-head uniqueness invariant.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Section 3 specifies behavior when two records claim the SAME prior digest (a fork attempt) and when a replay arrives with an identical idempotency key (dedup, no new record), stating the concrete outcome for each so a reader can trace fork-rejection and replay-dedup to explicit rules.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Section 3 makes history tampering detectable: a record that silently REPLACES a prior record instead of superseding it (broken/absent prior digest, non-monotonic seq, or a second chain head) is REJECTED; the integrity rule is quoted so a reviewer confirms an auditable append-only supersession cannot be forged.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
