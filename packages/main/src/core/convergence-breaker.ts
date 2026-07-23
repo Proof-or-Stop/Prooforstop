@@ -500,7 +500,14 @@ export function gateFailureDigest(command: string, reason: string): string {
     // is left alone. Structural, not an enumeration of machine roots, so it
     // behaves identically on macOS and Linux.
     .replace(/(?:^|(?<=[\s"'(\[]))\/[^\s"')\]]*/g, '#') // machine-specific absolute paths
-    .replace(/\d+/g, '#')                        // bare numbers
+    // B-bf52 CHK-003: a free-standing counter is incidental, but a digit run
+    // ATTACHED to an identifier is part of that identifier's name. The former
+    // unconditional rule rewrote both, so `CHK-001` and `CHK-002` — two
+    // different checklist items — both became `chk-#`. This one matches only a
+    // standalone number, i.e. one not preceded or followed by a word character
+    // or a hyphen, so `attempt 41`, `3>=2` and `0/4 lanes` still collapse while
+    // `CHK-001`, `round-2` and story ids survive.
+    .replace(/(?<![\w-])\d+(?![\w-])/g, '#')     // free-standing numbers only
     .replace(/\s+/g, ' ')
     .trim();
   const h = createHash('sha1').update(`${command}\n${normalized}`).digest('hex').slice(0, 12);
