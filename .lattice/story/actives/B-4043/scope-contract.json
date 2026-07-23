@@ -2,6 +2,7 @@
   "storyId": "B-4043",
   "mode": "enforce",
   "allowedModify": [
+    ".lattice/story/actives/B-4043/acceptance-basis.json",
     ".lattice-codex/agents/lattice-implementer.md",
     ".claude/agents/lattice-implementer.md",
     ".lattice-codex/agents/test-case-reviewer.md",
@@ -48,10 +49,10 @@
     "docs/story/**",
     "tests/fixtures/**"
   ],
-  "scopeChangeReason": "Initialize the executable scope contract from the independently reviewed Wave 4 PLAN file declarations; preserve explicit OMX, direct story metadata, and fixture exclusions.",
+  "scopeChangeReason": "Preserve the independently reviewed PLAN scope and explicitly classify only the verifier-owned acceptance-basis.json lifecycle artifact required by the PLAN gate.",
   "acknowledgements": [],
   "createdAt": "2026-07-23T16:52:35.523Z",
-  "updatedAt": "2026-07-23T16:52:35.523Z",
+  "updatedAt": "2026-07-23T16:53:18.968Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -86,8 +87,9 @@
     "docs/CLI.md": "docs/CLI.md",
     "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
     "scripts/run-proofstory-acceptance-rollout-cohort.mjs": "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
-    "packages/main/src/.omx/**": ".omx/**",
+    "packages/main/src/.omx/**": "packages/main/src/.omx/**",
     "docs/story/**": "docs/story/**",
-    "tests/fixtures/**": "tests/fixtures/**"
+    "tests/fixtures/**": "tests/fixtures/**",
+    ".lattice/story/actives/B-4043/acceptance-basis.json": ".lattice/story/actives/B-4043/acceptance-basis.json"
   }
 }
