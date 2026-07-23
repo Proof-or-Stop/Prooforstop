@@ -1322,13 +1322,21 @@ existing function `currentMaterialHash(gitCwd, ref = 'HEAD', metadataRoot = gitC
 `packages/main/src/handlers/proofstory.ts:969` and `transition-orchestrator.ts:873`). W2 does not define a new
 material classification; the material set is whatever that function (post-W1 snapshot policy) hashes.
 **Shared classifier (audit: `currentMaterialHash` hashes the HEAD tree and does not itself classify
-untracked paths):** the W2 implementation MUST export ONE path predicate, `isMaterialPath(path,
-projectRoot)`, implemented by the same W1 policy resolution the material hash's file set derives from
-(`resolveMaterialCodePolicy`, `language-neutral-gates-execution-plan.md` Change A — its precedence chain is
-path/extension-based, so it classifies ANY path, tracked or not), and BOTH material hashing and the step-3
-dirty filter MUST call it. Untracked paths: classified by that predicate directly. Renames: BOTH porcelain
-path fields are tested (either material ⇒ dirty; consistent with §2.1.4). Submodules: a dirty submodule
-pointer is dirty iff the submodule's path is material under the predicate.
+untracked paths; formal-review F-001: the dirty filter binds to the classification the hash ACTUALLY
+applies):** the dirty filter uses EXACTLY the material classification `currentMaterialHash` applies today:
+the path-based exclusion predicate `isMaterialExcludedPath(path, metadataRoot)`
+(`packages/main/src/core/evidence-freshness.ts:163-165`, applied inside `currentMaterialHash` at
+`evidence-freshness.ts:502`). A path is material for the dirty filter iff `isMaterialExcludedPath` returns
+FALSE — the same rule by which the hash includes tree entries; being purely path-based, it classifies ANY
+path, tracked or not. The single-shared-predicate requirement is that the step-3 dirty filter MUST call
+this SAME function — never a reimplementation and never a different policy (consistent with §2.1.2: W2
+reuses the material-hash function verbatim and does not redefine this global freshness primitive). Any
+future unification of `isMaterialExcludedPath` with W1's `resolveMaterialCodePolicy`
+(`material-code-policy.ts` — today consumed by the review floor / scope-diff / concept validation, NOT by
+`currentMaterialHash`) is a SEPARATE reviewed change outside this spec. Untracked paths: classified by the
+predicate directly. Renames: BOTH porcelain path fields are tested (either material ⇒ dirty; consistent
+with §2.1.4). Submodules: a dirty submodule pointer is dirty iff the submodule's path is material under the
+predicate.
 
 **Algorithm** (evaluated at query time against the live story tree):
 
@@ -1337,7 +1345,8 @@ FRESH(head):
   1. liveHead     := git rev-parse HEAD            — on git failure → error "storage-error"
   2. liveMaterial := currentMaterialHash(...)      — on failure → error "storage-error"
   3. dirty        := any porcelain-v1 -z entry (parsed per §2.1.4, both path fields
-                     of an R/C entry) names a path with isMaterialPath(path)==true
+                     of an R/C entry) names a path with
+                     isMaterialExcludedPath(path, metadataRoot) == false
                      (the shared classifier above; excluded/ignored paths never count)
   4. if dirty                          → liveMatch=false, reason="dirty-tree"
   5. else if boundHead == liveHead
