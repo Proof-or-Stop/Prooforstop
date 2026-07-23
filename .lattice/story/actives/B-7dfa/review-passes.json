@@ -29,6 +29,37 @@
         "scanEscalationReason": null
       },
       "_hash": "8dce5ef7c149d8e063b082f53f8b908d80ef194a6aad7f1749a485d2f49406c2"
+    },
+    {
+      "id": "B-7dfa:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality-lane desk-check of the docs-only B-7dfa deliverable (spec has no code diff; git diff main...HEAD confirms only story metadata + docs/requirements/decisions/red-evidence-subsystem-spec.md). Desk-checked the 3 most load-bearing normative algorithms end-to-end (happy + edge case each): (1) SS5.6 total gate-consumption query algorithm -- walked GREEN happy case (red-assert->green-confirm chain head, step6 verdict derivation) and superseded-but-unreplaced edge case (red-assert->green-confirm->red-assert2); every referenced term is defined earlier in the doc, recover/quarantine loop provably terminates, error taxonomy is closed and total. (2) SS3.4-3.5 operationKey/idempotency-key + dedupe -- walked a fresh red-assert append (operationKey computable purely from caller inputs + resolved policy before any run executes) and a replay-with-identical-key edge case (dedupe search matches stored operationKey field before head resolution/run); confirmed no chicken-egg between operationKey/recordId/seq. (3) SS2.3 disposable-workspace runner CLEAN/PRE/POST protocol -- walked the SS1.7 valid-envelope example through steps 0->1/1b->2->3->3b->4->5->6, and the timeout-before-POST edge case (SIGTERM->grace->SIGKILL->POST attempted->admissible only if expectedExitClass==timeout-is-failure AND POST captured AND invariance holds); no undefined variable or design-decision gap found. Cross-checked every source-code citation in the spec (sed -n <line>p) against the actual repo: proofstory.ts:78/91/870/883/1135/1312, handlers/proofstory.ts:948/969, types.ts:2617/2621/2628/2639, transition-orchestrator.ts:775/777/873 (confirms the previously-drifted retention citation now correctly reads story.currentReviewRound = now at line 775), ownership-gate.ts:235/282, agent-dispatch-registry.ts:504, currentMaterialHash(gitCwd, ref=HEAD, metadataRoot=gitCwd) signature at evidence-freshness.ts:489 -- all exact matches, no drift. Verified plan.md CHK-001..006 acceptance criteria are each satisfied: CHK-001 by SS1 (4 envelope fields+rules, verbatim GREEN predicate SS1.5, query summary SS1.9, rejection rules SS1.6, edge cases SS1.8); CHK-002 by SS2 (four-tuple SS2.1, disposable-workspace lifecycle SS2.3, macOS-sandbox-compatible constraint, edge cases SS2.4, rejection rule SS2.5); CHK-003 by SS3 (three-check chain integrity SS3.3, idempotency-key enumeration SS3.4, fork+replay edge cases SS3.6, rejection rule SS3.7); CHK-004 by SS4 (owner-gated ops+recoversRecordId SS4.1, corrected retention SS4.3 citing :775, legacy-posture link SS4.4, edge cases SS4.5, immutability rejection rule SS4.6); CHK-005 by SS5 (redEvidenceGateQuery request/response SS5.1, zero-design-decision determinacy SS5.2, all 4 edge-state answers in SS5.4 table, boxed W2/W3 MUST-NOT boundary SS5.5); CHK-006 by SS6 (single GRANDFATHERED posture+rationale SS6.1, manifest mechanics SS6.2, in-flight transition rule SS6.3, downgrade-loophole closure SS6.4). No blocking implementability gaps, undefined variables, unreachable references, or missing-tier design decisions found; not re-litigating the settled architecture (literal-only matchers, SS0.6 assurance tier) per instruction. Clean pass, no findings.",
+      "createdAt": "2026-07-23T21:31:46.687Z",
+      "reviewRound": "2026-07-23T21:23:04.577Z",
+      "reviewRunId": "B-7dfa:RR-002",
+      "envelopeId": "37ec9a59a60a23e3d4d3567f3079de07e0825e060a9e366a7549d3ec858716f1",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bcb5a53e4d86c3f7512d19cd6e34ff3d17db0ba498a67a2a1bcfa03e6b23ce64"
     }
   ]
 }
