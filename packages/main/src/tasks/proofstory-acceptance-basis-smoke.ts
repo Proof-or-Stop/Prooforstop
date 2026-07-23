@@ -24,6 +24,7 @@ import {
   enumerateBoundedSourceTree,
   readBoundedSourceSetForTest,
   runAcceptanceDiscoveryAdapters,
+  runAcceptanceDiscoverySnapshot,
 } from '../core/acceptance-discovery-adapters.js';
 import { verifyAcceptanceBasisReceipt } from '../core/acceptance-basis-receipt.js';
 import { digestCanonicalJson } from '../core/digest.js';
@@ -542,6 +543,12 @@ try {
       "import { acceptanceBasisProducer } from './handlers/proofstory.js';",
       'export const unrelatedCliEngineCall = () => acceptanceBasisProducer();', '',
     ].join('\n'));
+    write(repositoryShapeRoot, 'docs/process-fact-notes.md', '# Process fact notes\n\nThis is snapshot material, not TypeScript.\n');
+    write(repositoryShapeRoot, 'packages/main/src/process-fact-shape.json', '{ "notTypeScript": }\n');
+    write(repositoryShapeRoot, 'packages/main/src/unrelated-loader.mjs', [
+      "const target = './handlers/proofstory.js';",
+      'export const loadUnrelated = () => import(target);', '',
+    ].join('\n'));
     const repositoryShapePath = structuredClone(first.basis.plannedPathRecords[0]);
     repositoryShapePath.producer.expectedFileRef = 'packages/main/src/handlers/proofstory.ts';
     repositoryShapePath.producer.expectedSymbolOrFact = 'acceptanceBasisProducer';
@@ -559,6 +566,9 @@ try {
         'scope:file:packages/main/src/handlers/transition-orchestrator.ts',
         'scope:file:packages/main/src/tests/unrelated.ts',
         'scope:file:packages/main/src/cli-engine.ts',
+        'scope:file:docs/process-fact-notes.md',
+        'scope:file:packages/main/src/process-fact-shape.json',
+        'scope:file:packages/main/src/unrelated-loader.mjs',
       ],
       topologyPathRefs: [
         'process-fact:acceptance_basis_generate',
@@ -568,6 +578,11 @@ try {
     };
     const repositoryShape = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(repositoryShapeInput));
     assert.equal(repositoryShape.status, 'complete', JSON.stringify(repositoryShape, null, 2));
+    const repositorySnapshot = runAcceptanceDiscoverySnapshot(repositoryShapeInput);
+    for (const snapshotOnlyFile of ['docs/process-fact-notes.md', 'packages/main/src/process-fact-shape.json', 'packages/main/src/unrelated-loader.mjs']) {
+      assert.ok(repositorySnapshot.sourceSnapshots.some(snapshot => snapshot.canonicalFile === snapshotOnlyFile), `${snapshotOnlyFile} remains freshness-bound`);
+    }
+    assert.ok(!repositoryShape.blindSpots.some(item => item.includes('process-fact-shape.json') || item.includes('unrelated-loader.mjs')), 'snapshot-only assets do not create global parser/import blind spots');
     for (const fact of ['acceptance_basis_generate', 'story_advance', 'topology_critic_receipt_check']) {
       assert.ok(repositoryShape.enumeratedPathRefs.some(path => path.startsWith(`path:process-fact:${fact}->`)), `explicit topology fact ${fact} enters registry basis`);
     }

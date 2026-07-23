@@ -144,6 +144,10 @@ const DEFAULT_SOURCE_INVENTORY_BUDGET = {
 } as const;
 const MAX_LEXICAL_SOURCE_BYTES = 2 * 1024 * 1024;
 
+function supportsBindingAnalysis(file: string): boolean {
+  return SOURCE_EXTENSIONS.has(extname(file).toLowerCase());
+}
+
 export interface SourceInventoryTraversalBudget {
   maxDirectories: number;
   maxEntries: number;
@@ -727,6 +731,10 @@ function createBindingAnalysisContext(root: string, files: readonly string[], re
   for (const file of stable(files)) {
     const read = readSourceSafely(readContext, file);
     if (read.blindSpot || read.text === undefined) { readBlindSpots.set(file, [read.blindSpot ?? `source file is unreadable: ${file}`]); continue; }
+    // Non-code process-fact assets still participate in the immutable freshness
+    // snapshot, but they are not TypeScript programs and must not create parser
+    // blind spots merely by entering the registered closure.
+    if (!supportsBindingAnalysis(file)) continue;
     try {
       const absolute = resolve(physicalRoot, file);
       const source = ts.createSourceFile(absolute, read.text, ts.ScriptTarget.Latest, true, scriptKindFor(file));
@@ -1104,8 +1112,10 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
       for (const file of files) if (!closure.has(file)) { closure.add(file); changed = true; }
     }
   }
-  for (const file of closure) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
-  blindSpots.push(...[...sourceScans.values()].flatMap(scan => scan.blindSpots));
+  for (const file of closure) {
+    blindSpots.push(...(analysisContext.readBlindSpots.get(file) ?? []));
+    if (supportsBindingAnalysis(file)) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
+  }
   for (const entry of reached) {
     for (const file of entryFiles(entry)) if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
     if (entry.consumerGate) {
@@ -1198,12 +1208,23 @@ function staticCallPaths(input: AcceptanceDiscoveryInput, graph: BoundedSourceGr
     ...graph.entries.filter(entry => explicitFacts.has(entry.name)).flatMap(sourceFiles),
     ...graph.factories.filter(factory => factory.commandKeys.some(command => explicitFacts.has(command))).map(factory => factory.sourceFile),
   ]);
+  const bindingRequiredFiles = new Set([
+    ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
+    ...graph.factories.filter(factory => factory.commandKeys.some(command => explicitFacts.has(command))).map(factory => factory.sourceFile),
+  ]);
   for (const file of stable([...relevantFiles]).filter(value => !value.endsWith('/registry.ts'))) {
     const absolute = resolve(input.workspaceRoot, file);
     if (!existsSync(absolute)) continue;
     const scan = graph.sourceScans.get(file);
-    if (!scan) { blindSpots.push(`source file lacks binding analysis context: ${file}`); continue; }
-    blindSpots.push(...scan.blindSpots, ...scan.unresolvedImports);
+    if (!scan) {
+      if (bindingRequiredFiles.has(file)) blindSpots.push(`source file lacks binding analysis context: ${file}`);
+      continue;
+    }
+    // A process-fact source ref is sufficient for freshness binding, but does
+    // not make every import in that file part of the claimed edge. Binding
+    // ambiguity blocks only files needed to resolve planned endpoints or an
+    // explicitly relevant handler dispatch.
+    if (bindingRequiredFiles.has(file)) blindSpots.push(...scan.blindSpots, ...scan.unresolvedImports);
     for (const imported of scan.calledImports) {
       if (!relevantFiles.has(imported.sourceFile) || /Handlers$/.test(imported.imported)) continue;
       paths.push(`path:static-call:${imported.sourceFile}#${imported.imported}->consumer:${file}#${imported.local}`);
