@@ -1,7 +1,7 @@
 # Trusted RED-Evidence Subsystem — Decision Spec (Program Workstream 2)
 
 Status: decision spec / acceptance contract for the W2 implementation stories. No runtime change is authorized by this document; it ships zero code.
-Date: 2026-07-23 (rev 2 — post cross-host audit round 1: codex 22 findings, agy 9 findings, both `AUDIT: reject`; every finding dispositioned in this revision)
+Date: 2026-07-23 (rev 3 — post cross-host audit round 2: codex 10 findings, agy 7 findings, each dispositioned in this revision; round-1 dispositions retained. Standing accepted deviations from audit prescriptions, grounds stated inline: recordId stays in the idempotency-key tuple as a deterministic derivation (§3.4); `recoversRecordId` keeps its program-pinned name with a `linkKind` discriminator (§4.1))
 Story: B-7dfa (program Workstream 2 spec story)
 Program: `docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md` (Workstream 2, lines 22-23)
 
@@ -104,6 +104,13 @@ internally-inconsistent rewrite. **Full offline-rewrite resistance requires cryp
 which is explicitly fenced to the Tier-C program (§0.3)** — implementation stories MUST NOT claim
 tamper-proof storage on W2's behalf.
 
+One further residual is stated for §1.1.3's target linkage: W2 proves that the REGISTERED harness adapter
+reported the BOUND test case running with the observed result at the bound tree. A maliciously AUTHORED
+registered test — committed into the story tree so that its own body fakes an outcome — is not detectable by
+W2. It is caught by story review of the acceptance-material diff, which is exactly where the registered
+target binding (§1.1.3) forces such a test to appear: to attack the linkage you must first change the
+reviewed binding or the reviewed test file.
+
 ---
 
 ## §1. Assertion envelope, GREEN predicate, and rejection rules
@@ -132,6 +139,7 @@ form, exactly what the RED run asserted and how a later GREEN run is proven to s
       "method": "harness-token",
       "testCaseRef": "npm-script:test:autopilot-resume-smoke",
       "adapterId": "npm-script@1",
+      "targetBindingDigest": "sha256:...",
       "supplementaryArtifact": {
         "targetArtifactRef": "packages/main/dist/tasks/autopilot-resume-smoke.js",
         "expectation": "absent-in-red-present-in-green"
@@ -165,27 +173,44 @@ The four **envelope fields** and their validation rules are:
    exit expectation is fixed at `0` by the GREEN predicate and is not configurable per-envelope.
 3. **`targetExercisedProof`** — the *target-exercised proof*: how a run proves the named `acceptanceTargetRef`
    was actually exercised (not merely referenced in prose). ONE method, `"harness-token"`, with an optional
-   supplementary check (audit note: the rev-1 `artifact-presence`-standalone and `path-touch` methods are
-   REMOVED — presence of a file proves nothing about execution, and unprivileged macOS file-access tracing is
-   unimplementable):
-   - **`"harness-token"` (the required method).** The assertion names a `testCaseRef` (a registered test-case
-     reference, e.g. `npm-script:<name>` or `node-test:<file>#<test-name>`) and an `adapterId` from
-     `policy.runnerAdapterRegistry`. The RUNNER — never the caller — derives the argv from the adapter's
-     template (§2.3 step 0); caller-supplied free shell text is never executed. At run time the runner
-     generates a fresh random 128-bit hex **nonce**, exports it to the command's environment as
-     `LATTICE_RED_RUN_NONCE`, and requires the run to emit, on the matcher-visible streams, the exact token
-     `EXERCISED:<acceptanceTargetRef>:<nonce>`. Because the nonce is unknown before the run and injected only
-     into that process's environment, pre-fabricated output cannot contain it; because the command itself is
-     adapter-derived (registered argv, not caller shell), a bare `echo` cannot be substituted for the real
-     test invocation. The run receipt (§2.3) binds `adapterId`, resolved argv, cwd, environment projection,
-     and the nonce. Token emission is checked at RED time and at GREEN time; it yields the `target-exists`
-     sub-predicate (§1.5).
+   supplementary check (audit note, round 1: `artifact-presence`-standalone and `path-touch` REMOVED — file
+   presence proves nothing about execution, and unprivileged macOS file-access tracing is unimplementable.
+   Audit note, round 2: token emission is now ADAPTER-OWNED and the target↔test mapping is a registered
+   binding — a test that merely prints a token no longer proves anything):
+   - **The registered target binding (prerequisite).** Before any RED run, the story's acceptance material
+     MUST register the binding for the target: `{ acceptanceTargetRef, adapterId, testCaseRef }`, with
+     `targetBindingDigest = CANON` of exactly that object. The binding is story metadata (reviewed at
+     PLAN/REVIEW like all acceptance material). The assertion's `adapterId`/`testCaseRef` MUST equal the
+     registered binding for its `acceptanceTargetRef`, and `targetBindingDigest` MUST recompute — a run
+     against an unregistered or mismatched binding is rejected (§1.6, R1-6). This closes the
+     "commit a fresh script that matches the pattern" attack: a NEW testCaseRef is unusable until the
+     reviewed binding names it. (Adapted from the round-2 prescription of a policy-global registry:
+     acceptance-target ids are story-scoped, so the story's reviewed acceptance material — not global
+     policy — is the registration surface; the digest binding and rejection rule are as prescribed.)
+   - **`"harness-token"` (the required method, adapter-owned emission).** The RUNNER — never the caller —
+     derives the argv from the adapter's template (§2.3 step 0); caller-supplied free shell text is never
+     executed. At run time the runner generates a fresh random 128-bit hex **nonce** and exports it as
+     `LATTICE_RED_RUN_NONCE`. The token `EXERCISED:<acceptanceTargetRef>:<nonce>` is EMITTED BY THE ADAPTER
+     into the run receipt (`runReceipt.tokenValue`), NEVER scanned from command output; a token-shaped string
+     in stdout/stderr is ignored. The adapter emits it only after observing its **linkage signal**, per the
+     adapter's declared `linkageKind` (§1.2):
+     - `reporter-event` — the adapter runs the harness with its structured reporter (e.g. TAP,
+       `node --test` reporter, jest JSON) and emits the token only upon observing the completion event of the
+       test id named by `testCaseRef`. (Parsing a test-reporter protocol is not a language parser and stays
+       inside the §0.3 fence.)
+     - `script-exit` — coarse whole-script linkage: the adapter emits the token when the registered script
+       ran to completion. Permitted, but the receipt records `linkageKind: "script-exit"` so W3 policy can
+       weight the coarser evidence.
+     The run receipt (§2.3) binds `adapterId`, resolved argv, cwd, environment projection, the nonce, the
+     token, and `linkageKind`. Adapter linkage is checked at RED time and at GREEN time; it yields the
+     `target-exists` sub-predicate (§1.5). Residual threat scope in §0.6 (a maliciously authored registered
+     test is a review-caught, not W2-caught, attack).
    - **`supplementaryArtifact` (optional, never standalone).** Names a repo-relative `targetArtifactRef` and an
      `expectation` ∈ `{ "present", "absent-in-red-present-in-green", "absent" }`, checked against the
-     disposable workspace at RED and GREEN time. It strengthens `target-exists` (both harness token AND
-     artifact expectation must hold when declared) but can never substitute for the harness token.
-   A record whose `targetExercisedProof` is absent, or whose harness token was not emitted with the correct
-   nonce during the run, is **rejected** (§1.6, R1-1).
+     disposable workspace at RED and GREEN time. It strengthens `target-exists` (both adapter linkage AND
+     artifact expectation must hold when declared) but can never substitute for the adapter linkage.
+   A record whose `targetExercisedProof` is absent, or whose adapter did not observe the bound linkage signal
+   during the run, is **rejected** (§1.6, R1-1).
 4. **`policyDigest` + `assertionDigest`** — `policyDigest = CANON(policySnapshot)` (the complete resolved
    policy embedded in the record, §1.10 — so any later evaluator can recompute it without config archaeology).
    `assertionDigest = CANON` over the `assertion` subobject **including `policyDigest` but excluding
@@ -205,11 +230,18 @@ from config; the numbers below are stated defaults.
 | `policy.minMatcherLen` | min effective-literal length (§1.3) | 8 |
 | `policy.minMatcherEntropyBits` | min total Shannon entropy of `value` (§1.3 formula) | 24 |
 | `policy.runTimeoutMs` | per-run wall clock ceiling (§2) | 600000 |
+| `policy.prepTimeoutMs` | wall clock ceiling for EACH §2.3 step-2 preparation command (same SIGTERM→grace→SIGKILL discipline as step 3b; prep timeout aborts the run, no record) | 900000 |
 | `policy.killGraceMs` | SIGTERM→SIGKILL grace on timeout (§2.3) | 5000 |
 | `policy.forbiddenCatchAlls` | rejected catch-all patterns (blocklist layer of §1.3) | `.*`, `.+`, `.`, `^$`, `^.*$`, `^.+$`, `\s*`, `""` |
 | `policy.invarianceExcludePaths` | globs excluded from the `gitStatus` digest (§2.1) | `node_modules/**`, `**/.cache/**`, `**/*.tsbuildinfo`, `**/__pycache__/**`, `**/.pytest_cache/**`, `coverage/**`, `tmp/**`, `**/.DS_Store` |
 | `policy.matcherClassRegistry` | named classes: `{ name, predicateKind, param }`, `predicateKind` ∈ `{exit-code-in, stream-nonempty, stream-empty}` | `nonzero-exit`, `stderr-nonempty` |
-| `policy.runnerAdapterRegistry` | adapters: `{ adapterId, testCaseRefPattern, argvTemplate, allowedEnvKeys, cwd }` | `npm-script@1`, `node-test@1` |
+| `policy.runnerAdapterRegistry` | adapters: `{ adapterId, testCaseRefPattern, argvTemplate, allowedEnvKeys, cwd, linkageKind }`, `linkageKind` ∈ `{reporter-event, script-exit}` (§1.1.3) | `npm-script@1` (script-exit), `node-test@1` (reporter-event) |
+
+Policy and registry contents live in project config (`lattice.config.json`), which is in the W1 immutable
+runtime/build-config manifest set (`language-neutral-gates-execution-plan.md` Change B precedence 1): every
+policy or registry change is a material-code diff that surfaces in story review, and no config key can
+exclude it. All tunables are additionally clamped by the HARD spec-level floors of §1.12, which no policy
+value may cross.
 
 ### §1.3 Minimum-specificity rule (quantified)
 
@@ -229,7 +261,12 @@ a conjunction, and structural wildcard bridges are banned):
    `entropyBits(value) ≥ policy.minMatcherEntropyBits`, with `entropyBits` as defined in §1.11.5.
 
 `class` matchers are exempt from rule 3 (their breadth is bounded by the policy registry itself) but the
-registry MUST only contain classes from the closed `predicateKind` enum of §1.2.
+registry MUST only contain classes from the closed `predicateKind` enum of §1.2, AND:
+
+4. **Class matchers are supplementary for RED (audit: a lone `stderr-nonempty` matcher would accept any
+   warning byte as the asserted failure).** At least one matcher with `polarity = "present-in-red"` MUST be
+   of kind `literal` or `anchored-regex` and pass rules 1-3. A `class` matcher can never be the sole
+   `present-in-red` evidence; an envelope violating this is REJECTED (R1-2).
 
 ### §1.4 GREEN relation and GREEN binding rule (retained, tightened)
 
@@ -237,14 +274,22 @@ The v1 `greenRelation` (`packages/main/src/core/types.ts:2628`) is retained: `ta
 record's `acceptanceTargetRef`, and `relation` ∈ `{ same_acceptance, regression_to_green, replacement }`
 (`VALID_GREEN_RELATIONS`, `packages/main/src/core/proofstory.ts:91`).
 
-The binding rule is strengthened over v1's optional-field check (`packages/main/src/core/proofstory.ts:878-879`):
-a `green-confirm` record (§3.1) MUST carry **BOTH** `greenHeadHash` **AND** `greenMaterialHash`, and both are
-taken from the GREEN run's own receipt (runner-measured, §2.3), never caller-supplied. The exact rule:
+The binding rule is strengthened over v1's optional-field check (`packages/main/src/core/proofstory.ts:878-879`),
+and the RED-vs-GREEN baseline semantics are operation-specific (audit: rev 2 made every record inherit
+`baselineHeadHash`, leaving R2-3 and GREEN-BIND contradictory for green-confirms). A `green-confirm` record
+(§3.1, schema §1.10) carries FOUR binding hashes:
 
-> **GREEN-BIND**: `greenHeadHash` MUST be a strict descendant of the bound RED record's `baselineHeadHash`
-> (mechanically: `git merge-base --is-ancestor <baselineHeadHash> <greenHeadHash>` succeeds and the hashes
-> differ), AND `greenMaterialHash` MUST differ from `baselineMaterialHash` (the fix changed material). A
-> green-confirm violating either clause is rejected.
+- **`redBaselineHeadHash` / `redBaselineMaterialHash`** — copied from the referenced red-assert record
+  (`confirmsRecordId`) and VERIFIED equal to that record's `baselineHeadHash`/`baselineMaterialHash` at
+  append time (copy-mismatch rejects).
+- **`greenHeadHash` / `greenMaterialHash`** — the GREEN run's OWN tree binding, equal by definition to the
+  GREEN run receipt's PRE `headHash`/`materialHash` (runner-measured, §2.3; never caller-supplied).
+
+> **GREEN-BIND**: `greenHeadHash` MUST be a strict descendant of `redBaselineHeadHash`
+> (mechanically: `git merge-base --is-ancestor <redBaselineHeadHash> <greenHeadHash>` succeeds and the
+> hashes differ), AND `greenMaterialHash` MUST differ from `redBaselineMaterialHash` (the fix changed
+> material). A green-confirm violating either clause, or whose red-copy fields do not match the referenced
+> record, is rejected.
 
 ### §1.5 The exact GREEN predicate
 
@@ -268,10 +313,11 @@ run in the disposable workspace (§2):
   output (per §1.11 semantics).
 - **`pattern-present`** — EVERY `present-in-green` matcher matched the GREEN run's declared `stream` output
   (vacuously true when none are declared).
-- **`target-exists`** — the `targetExercisedProof` (§1.1.3) holds at GREEN time: the harness token
-  `EXERCISED:<targetRef>:<nonce>` (with the GREEN run's own nonce) was emitted, and any declared
-  `supplementaryArtifact` expectation holds. Note this also closes the silent-GREEN hole even without
-  `present-in-green` matchers: an empty-output GREEN run cannot have emitted the token.
+- **`target-exists`** — the `targetExercisedProof` (§1.1.3) holds at GREEN time: the adapter observed the
+  bound linkage signal for `testCaseRef` and emitted the token `EXERCISED:<targetRef>:<nonce>` (with the
+  GREEN run's own nonce) into the receipt, and any declared `supplementaryArtifact` expectation holds. Note
+  this also closes the silent-GREEN hole even without `present-in-green` matchers: a run whose harness never
+  reported the bound test case yields no adapter linkage.
 
 A target is **GREEN-satisfying** iff its chain head is a `green-confirm` record (§3.1) whose receipt satisfies
 all conjuncts; otherwise the verdict is **RED**. The gate-consumption query (§5) returns exactly this verdict.
@@ -281,9 +327,9 @@ all conjuncts; otherwise the verdict is **RED**. The gate-consumption query (§5
 The envelope schema REJECTS a record — it is never written — when any of the following holds:
 
 - **R1-1 (missing target-exercised proof).** *A record whose `assertion.targetExercisedProof` is absent, or
-  whose run did not emit the nonce-bound harness token `EXERCISED:<targetRef>:<nonce>` on a matcher-visible
-  stream, is REJECTED.* A RED that cannot prove it exercised the named acceptance target cannot satisfy the
-  gate.
+  whose run's adapter did not observe the bound linkage signal (and therefore never emitted the nonce-bound
+  token `EXERCISED:<targetRef>:<nonce>` into the receipt), is REJECTED.* A RED that cannot prove it
+  exercised the named acceptance target cannot satisfy the gate.
 - **R1-2 (over-broad / below-threshold matcher).** *A record carrying any matcher that fails the
   minimum-specificity rule of §1.3 — a blocklisted or structurally catch-all pattern, or one failing the
   literal-AND-entropy floor — is REJECTED.* A vacuous or over-broad RED cannot satisfy the gate.
@@ -297,6 +343,10 @@ The envelope schema REJECTS a record — it is never written — when any of the
   `adapterId`'s registered template for the declared `testCaseRef`, or an `adapterId` absent from
   `policy.runnerAdapterRegistry`, is REJECTED. (Closes the `sh -c 'echo ...; exit 7'` fabrication class: the
   caller cannot choose the executable.)
+- **R1-6 (unregistered target binding).** A record whose `(adapterId, testCaseRef)` does not equal the
+  story's registered target binding for `acceptanceTargetRef`, or whose `targetBindingDigest` does not
+  recompute over that registered binding, is REJECTED. (Closes the "commit a fresh pattern-matching script"
+  class: an unreviewed testCaseRef cannot carry the proof.)
 
 ### §1.7 Worked examples
 
@@ -315,6 +365,7 @@ The envelope schema REJECTS a record — it is never written — when any of the
     "method": "harness-token",
     "testCaseRef": "npm-script:test:autopilot-resume-smoke",
     "adapterId": "npm-script@1",
+    "targetBindingDigest": "sha256:...",
     "supplementaryArtifact": {
       "targetArtifactRef": "packages/main/dist/tasks/autopilot-resume-smoke.js",
       "expectation": "absent-in-red-present-in-green"
@@ -323,10 +374,11 @@ The envelope schema REJECTS a record — it is never written — when any of the
 }
 ```
 
-Accepted: one `present-in-red` matcher whose effective literal (the full 48-byte value) exceeds
-`policy.minMatcherLen` and whose entropy exceeds the floor; exit class `nonzero`; the proof names a registered
-adapter + test-case ref, so the runner derives `npm run test:autopilot-resume-smoke` itself and requires the
-nonce token in its output; the supplementary artifact strengthens the proof.
+Accepted: one `present-in-red` matcher of kind `literal` (satisfying §1.3 rule 4) whose effective literal
+(the full 48-byte value) exceeds `policy.minMatcherLen` and whose entropy exceeds the floor; exit class
+`nonzero`; the proof names the story-registered binding (adapter + test-case ref, digest recomputes), so the
+runner derives `npm run test:autopilot-resume-smoke` itself and the adapter emits the nonce token into the
+receipt on script completion; the supplementary artifact strengthens the proof.
 
 **INVALID envelope (rejected).**
 
@@ -352,7 +404,7 @@ is absent (R1-1). Any one failure alone rejects the record.
   (b) if the matcher is admissible but simply did not appear in the RED run output, the RED assertion was not
   exhibited and the record is rejected by **R1-4**. In neither case is a zero-matching RED written.
 - **Target file DELETED between the RED and GREEN runs** (declared `supplementaryArtifact` with expectation
-  `present`, or harness token no longer emitted because the test was deleted). The `target-exists` conjunct
+  `present`, or no adapter linkage because the bound test was deleted). The `target-exists` conjunct
   of §1.5 evaluates FALSE at GREEN time, so no green-confirm can be appended (its receipt fails the
   predicate); the chain head remains the `red-assert` record and the gate query (§5) reports verdict **RED**
   for the target. The existing red-assert record is not rejected retroactively — it is simply never
@@ -393,6 +445,7 @@ receipts (audit: rev 1 never unified these; implementers had to guess):
   "runReceipt": {
     "adapterId": "npm-script@1",
     "testCaseRef": "npm-script:test:autopilot-resume-smoke",
+    "linkageKind": "script-exit",
     "argv": ["npm", "run", "test:autopilot-resume-smoke"],
     "cwd": ".",
     "envProjection": { "LATTICE_RED_RUN_NONCE": "<nonce hex>" },
@@ -402,7 +455,20 @@ receipts (audit: rev 1 never unified these; implementers had to guess):
     "timedOut": false,
     "stdoutDigest": "sha256:...",
     "stderrDigest": "sha256:...",
+    "tokenValue": "EXERCISED:AB-001:<nonce hex>",
     "tokenObserved": true,
+    "evaluationTranscript": {
+      "matcherResults": [
+        { "id": "M1", "stream": "combined", "polarity": "present-in-red",
+          "matched": true, "matchedLineIndex": 12, "matchedLineDigest": "sha256:..." }
+      ],
+      "artifactObservations": [
+        { "targetArtifactRef": "packages/main/dist/tasks/autopilot-resume-smoke.js",
+          "observed": "absent" }
+      ],
+      "conjuncts": { "exit0": false, "timeout": false, "patternAbsent": false,
+                     "patternPresent": true, "targetExists": true }
+    },
     "pre":  { "headHash": "...", "materialHash": "...", "indexState": "...", "gitStatus": "..." },
     "post": { "headHash": "...", "materialHash": "...", "indexState": "...", "gitStatus": "..." }
   },
@@ -412,15 +478,39 @@ receipts (audit: rev 1 never unified these; implementers had to guess):
 }
 ```
 
-Type-specific additions:
+**The evaluation transcript is mandatory on every run record** (audit: stream DIGESTS alone cannot support
+re-derivation of `pattern-absent`/`pattern-present` at query time): one entry per matcher id (all matchers
+covered, none extra), `matchedLineIndex`/`matchedLineDigest` present iff `matched` (line digest = SHA-256 of
+the matched line's bytes), one `artifactObservations` entry per declared supplementary artifact, and the five
+predicate conjunct booleans. The query (§5.6) VALIDATES this transcript against the assertion and receipt —
+it does not re-run anything (§5.6 step 6v).
 
-- `operation: "green-confirm"` records ADD: `confirmsRecordId` (the red-assert record id),
-  `confirmsRecordDigest` (its `recordDigest`), `confirmsAssertionDigest` (MUST equal the red-assert's
-  `assertionDigest` — a green-confirm can only confirm the SAME assertion), `greenHeadHash`,
-  `greenMaterialHash` (both runner-measured; GREEN-BIND rule §1.4). Their `runReceipt` is the GREEN run's.
-- `operation: "quarantine"` / `"recover"` records ADD: `recoversRecordId`, `linkKind`
-  (`"quarantines"` | `"recovers"`), `reason`, `approvedBy` (§4.1); they carry NO `assertion`/`runReceipt`
-  (they are chain-control records, not run attestations — verdict derivation in §5.4 accounts for this).
+Operation-specific field sets (exhaustive; §0.4 omission rules apply — a field not listed for an operation is
+OMITTED, never null):
+
+- `operation: "red-assert"` — the full shape above: chain fields, `storyId`, `acceptanceTargetRef`,
+  `trigger`, `observedFailure`, `baselineHeadHash`, `baselineMaterialHash`, `greenRelation`, `assertion`,
+  `policySnapshot`, `specDigest`, `runReceipt`, optional `note`, `createdAt`, `recordDigest`.
+- `operation: "green-confirm"` — chain fields, `storyId`, `acceptanceTargetRef`, `confirmsRecordId` (the
+  red-assert record id), `confirmsRecordDigest` (its `recordDigest`), `confirmsAssertionDigest` (MUST equal
+  the red-assert's `assertionDigest` — a green-confirm can only confirm the SAME assertion),
+  `redBaselineHeadHash`/`redBaselineMaterialHash` (verified copies, §1.4), `greenHeadHash`/`greenMaterialHash`
+  (= its receipt PRE, §1.4), `greenRelation` (copied from the red-assert), `specDigest`, `runReceipt` (the
+  GREEN run's, including its own nonce and transcript), optional `note`, `createdAt`, `recordDigest`. It
+  carries NO `assertion`/`policySnapshot` of its own — the confirmed assertion is reachable via
+  `confirmsRecordId` and pinned by `confirmsAssertionDigest`.
+- `operation: "quarantine"` / `"recover"` — chain fields, `storyId`, `acceptanceTargetRef`,
+  `recoversRecordId`, `referencedRecordDigest` (the `recordDigest` of the record named by
+  `recoversRecordId`), `linkKind` (`"quarantines"` | `"recovers"`), `reason`, `approvedBy` (derived, §4.1),
+  `createdAt`, `recordDigest`. They carry NO `baselineHeadHash`/`baselineMaterialHash`, NO `greenRelation`,
+  NO `specDigest`, NO `assertion`/`policySnapshot`/`runReceipt` (audit: rev 2 left these ambiguous — they
+  are chain-control records; their idempotency preimage is the control preimage of §3.4, which references
+  none of the omitted fields, so omission cannot fork digests).
+
+**Registered CLI surface (the four entrypoints; full handler contracts in §4.1):** `red_evidence_assert`
+(red-assert), `red_evidence_green_confirm` (green-confirm), `red_evidence_quarantine`,
+`red_evidence_recover`. The v1 `red_evidence_create` handler is retired at the §6.2 adoption point (new
+v1-schema appends are `unsupported-schema` thereafter, §6.4).
 
 **`specDigest`** is defined exactly as
 `CANON({ "acceptanceTargetRef": <record.acceptanceTargetRef>, "greenRelation": { "targetRef": <...>, "relation": <...> } })` —
@@ -448,6 +538,26 @@ those keys, that nesting, nothing else.
    `p(b)` of `value`. (Total bits, not per-symbol: a long low-variety string and a short high-variety string
    are both measured honestly.)
 
+### §1.12 Hard safety floors (spec-level, non-tunable)
+
+(Audit: without these, a policy edit could zero out every anti-fabrication floor and the embedded
+`policySnapshot` would merely record the bypass.) The following limits are SPEC constants. Policy resolution
+MUST clamp-reject: a resolved policy that crosses any of them fails CLOSED at config load with a diagnostic —
+the subsystem refuses to run, it does not silently clamp.
+
+| Hard floor/cap | Value | Rule |
+|---|---|---|
+| `minMatcherLen` | ≥ 4 | policy may raise, never set below 4 |
+| `minMatcherEntropyBits` | ≥ 12 | policy may raise, never set below 12 |
+| `maxMatchers` | ≤ 32 | policy may lower, never exceed 32 |
+| `maxMatcherLen` | ≤ 4096 | policy may lower, never exceed 4096 |
+| `runTimeoutMs` / `prepTimeoutMs` | ≤ 3600000 | never above one hour |
+| `forbiddenCatchAlls` | ⊇ the §1.2 default set | policy may extend, never remove a default entry |
+| `matcherClassRegistry` | `predicateKind` ∈ closed §1.2 enum only | no free-form predicates, ever |
+| `invarianceExcludePaths` | MUST NOT match any tracked material path (checked against the live classification at config load) and MUST NOT contain a bare `**`/`*` catch-all | violating globs fail closed |
+| §1.3 rule 4 | always in force | no policy key can exempt class-only `present-in-red` |
+| Adapter/profile registration | only via `policy.runnerAdapterRegistry`/`runnerProfile` entries in `lattice.config.json` (material, W1-immutable manifest set) | no runtime/env registration path exists |
+
 ---
 
 ## §2. Disposable-workspace runner and four-tuple net-state invariance
@@ -462,15 +572,23 @@ command starts (PRE) and immediately after it exits (POST). The four measured qu
    function the CLI uses today: `currentMaterialHash(workspaceRoot, 'HEAD', metadataRoot)`
    (`packages/main/src/core/evidence-freshness.ts`, invoked at `packages/main/src/handlers/proofstory.ts:969`).
    W2 does not redefine the material hash; it reuses this function verbatim.
-3. **`indexState`** — the `git write-tree` object id of the staged index (equivalently a SHA-256 over
-   `git ls-files --stage -z` output). Captures staged mutations. NOT filtered by any exclusion set — a RED/GREEN
-   command has no business touching the index at all.
-4. **`gitStatus`** — SHA-256 over the output of `git status --porcelain=v1 -z` (WITHOUT `--ignored`, so
-   gitignored build artifacts never enter the tuple), after removing every line whose path matches a glob in
-   `policy.invarianceExcludePaths` (§1.2 — the precisely-defined invariance exclusion set for non-ignored
-   ephemera such as test caches). Glob semantics: the same segment-aware matching as the W1 material-policy
-   resolver contract (`language-neutral-gates-execution-plan.md` Change C). The exclusion set is part of
-   `policySnapshot`, hence digest-bound into the record.
+3. **`indexState`** — EXACTLY the object id printed by `git write-tree` run against the workspace index
+   (recorded verbatim, in the repository's git object format). (Audit: rev 2 called this "equivalent" to a
+   SHA-256 over `git ls-files --stage -z` — they are NOT equivalent; the write-tree object id is the single
+   normative definition.) Captures staged mutations. NOT filtered by any exclusion set — a RED/GREEN command
+   has no business touching the index at all.
+4. **`gitStatus`** — SHA-256 over the FILTERED, re-serialized output of `git status --porcelain=v1 -z`
+   (WITHOUT `--ignored`, so gitignored build artifacts never enter the tuple). Byte-level parse rule (audit:
+   "removing lines" is not well-defined for NUL-delimited rename records): split the raw output into entries
+   at NUL boundaries, where an entry whose two-letter `XY` code contains `R` or `C` consumes TWO
+   NUL-terminated path fields (new path, then original path) and every other entry consumes ONE; paths are
+   raw bytes (no encoding assumption). An entry is EXCLUDED iff EVERY path field it carries matches a glob in
+   `policy.invarianceExcludePaths` (§1.2); an entry with any non-matching path field is kept — for
+   invariance, either side of a rename touching a non-excluded path counts. The kept entries are
+   re-serialized in original order with single-NUL termination and hashed. Glob semantics: the same
+   segment-aware matching as the W1 material-policy resolver contract
+   (`language-neutral-gates-execution-plan.md` Change C). The exclusion set is part of `policySnapshot`,
+   hence digest-bound into the record.
 
 The four-tuple pair is stored on the record as `runReceipt.pre` / `runReceipt.post` (§1.10).
 
@@ -503,18 +621,25 @@ is mandated (audit: rev 1's "worktree OR recursive copy" produced divergent PRE 
    caller-supplied text (R1-5). Resolve the runner profile `runnerProfileId` from policy: an ordered list of
    preparation commands (e.g. `npm ci`, build steps), an environment allowlist (`allowedEnvKeys`), and a
    relative `cwd`. `runnerProfileDigest = CANON(profile)` goes into the receipt.
-1. **Create.** `git worktree add --detach <tmpdir> <baselineHeadHash>` where `<tmpdir>` is a fresh directory
-   under the OS temp root (`$TMPDIR`). This is the ONLY materialization method. Submodules are initialized iff
-   the profile declares `submodules: true`; symlinks/exec bits materialize per git defaults. **Consequence
-   (stated, not implied): the baseline MUST be a committed state.** A reproduction test that exists only as an
-   uncommitted working-tree file is NOT visible to the runner — the owner MUST commit it (story branch) before
-   the RED run. Uncommitted-file injection into the workspace is prohibited: it would break the §2.3.3
-   baseline-equality requirement.
-2. **Prepare.** Run the profile's preparation commands inside the workspace (dependency install, build). Then:
-3. **Snapshot PRE** — capture the four-tuple (§2.1). **REQUIRE baseline equality (R2-3):**
-   `pre.headHash == record.baselineHeadHash` AND `pre.materialHash == record.baselineMaterialHash`, else the
-   run is aborted and no record is written. (The claimed baseline is thereby runner-verified, not
-   self-reported.)
+1. **Create.** `git worktree add --detach <tmpdir> <RUN-HEAD>` where `<tmpdir>` is a fresh directory under
+   the OS temp root (`$TMPDIR`) and `<RUN-HEAD>` is operation-specific: for a **red-assert** run, the
+   record's claimed `baselineHeadHash`; for a **green-confirm** run, the CURRENT story-tree `HEAD` at
+   invocation (which the receipt PRE then fixes as `greenHeadHash`, §1.4). This is the ONLY materialization
+   method. Submodules are initialized iff the profile declares `submodules: true`; symlinks/exec bits
+   materialize per git defaults. **Consequence (stated, not implied): the run tree MUST be a committed
+   state.** A reproduction test (or fix) that exists only as an uncommitted working-tree file is NOT visible
+   to the runner — the owner MUST commit it (story branch) before the run. Uncommitted-file injection into
+   the workspace is prohibited: it would break the §2.3.3 binding-equality requirement.
+2. **Prepare.** Run the profile's preparation commands inside the workspace (dependency install, build).
+   EACH preparation command is bounded by `policy.prepTimeoutMs` under the same process-group
+   SIGTERM → `killGraceMs` → SIGKILL discipline as step 3b; a prep timeout or nonzero prep exit ABORTS the
+   run — no snapshots, no record, workspace discarded (step 6). Then:
+3. **Snapshot PRE** — capture the four-tuple (§2.1). **REQUIRE binding equality (R2-3), operation-specific:**
+   for a red-assert run, `pre.headHash == record.baselineHeadHash` AND
+   `pre.materialHash == record.baselineMaterialHash` (the claimed baseline is runner-verified, not
+   self-reported), else abort with no record. For a green-confirm run, PRE does not verify a claim — it
+   DEFINES the claim: `greenHeadHash := pre.headHash`, `greenMaterialHash := pre.materialHash` (§1.4);
+   GREEN-BIND is then checked against the referenced red-assert's fields at append time.
    3b. **Exercise.** Spawn argv in its own process group, env = allowlisted projection + `LATTICE_RED_RUN_NONCE`,
    cwd = profile cwd, capturing stdout/stderr (merged pipe for `combined`). Wall-clock ceiling
    `policy.runTimeoutMs`. **On timeout:** SIGTERM the process GROUP, wait `policy.killGraceMs`, SIGKILL the
@@ -553,9 +678,10 @@ macOS seatbelt sandbox. This is a recorded constraint on the W2 implementation.
 > its PRE four-tuple (R2-1), or that omits either the PRE or the POST snapshot (R2-2), is REJECTED and never
 > written.*
 >
-> **R2-3 (baseline-equality rejection).** *A run whose PRE four-tuple does not satisfy
+> **R2-3 (binding-equality rejection).** *A red-assert run whose PRE four-tuple does not satisfy
 > `pre.headHash == baselineHeadHash AND pre.materialHash == baselineMaterialHash` is aborted; no record is
-> written.*
+> written. A green-confirm's `greenHeadHash`/`greenMaterialHash` are BY DEFINITION its receipt PRE values
+> (§2.3.3); a green-confirm whose stored green hashes differ from its receipt PRE is rejected.*
 
 A runner that silently mutated the tree produces `post != pre` and is rejected; a runner that skipped the
 invariance proof omits a snapshot and is rejected; a record claiming a baseline the workspace never had is
@@ -605,43 +731,78 @@ A new appended record is admitted only if ALL THREE hold within its target chain
    `newRecord.priorRecordDigest` as ITS `priorRecordDigest`. If a prior digest has already been consumed, the
    new record is a fork attempt and is rejected. This preserves a single head per target chain.
 
+**Transition legality (complete table — audit: ordering checks alone let a green-confirm bless a stale RED,
+or a red-assert bypass a quarantine invisibly).** Define the **governing red-assert** of a chain as its most
+recent `red-assert` record, and the **effective head operation** as the head's operation, except that a
+`recover` head's effective operation is that of the record it reinstates (transitively). A new append is
+legal iff it appears in this table; anything else is REJECTED:
+
+| Effective head operation | Legal next operations |
+|---|---|
+| (empty chain) | `red-assert` only |
+| `red-assert` | `green-confirm` (MUST confirm the governing red-assert: `confirmsRecordId` == its id, `confirmsRecordDigest` == its `recordDigest`, `confirmsAssertionDigest` == its `assertionDigest`); `red-assert` (supersede with a new assertion); `quarantine` |
+| `green-confirm` | `red-assert` (re-open/regression); `green-confirm` (RE-confirmation of the SAME governing red-assert at a newer green tree — same `confirmsRecordId` constraint); `quarantine` |
+| `quarantine` | `recover` (undo a mistaken quarantine, §4.1); `red-assert` (the DELIBERATE REPLACEMENT rule: retire-and-replace is the intended bad-record flow — a fresh assertion may follow a quarantine without recovering the quarantined record) |
+
+A `green-confirm` whose `confirmsRecordId` is not the current governing red-assert — an old, superseded, or
+foreign assertion — is REJECTED regardless of chain ordering.
+
 ### §3.4 Idempotency key (every component enumerated; recordId is deterministic)
 
-**Deterministic record id (audit: a randomly-minted id made every retry a "new" record, defeating dedupe).**
-The record id is DERIVED, never caller-chosen:
+**Deterministic record id (audit round 1: a randomly-minted id made every retry a "new" record, defeating
+dedupe; audit round 2: one universal preimage was unimplementable for control records and falsely conflicted
+successive green-confirms).** The record id is DERIVED, never caller-chosen, from an OPERATION-SPECIFIC
+canonical preimage:
 
-> `idempotencyDigest = CANON({ operation, acceptanceTargetRef, baselineHeadHash, baselineMaterialHash,
-> specDigest, assertionDigest, policyDigest, priorRecordDigest })`
+> `red-assert`:    `idempotencyDigest = CANON({ operation, storyId, acceptanceTargetRef, baselineHeadHash,
+>                   baselineMaterialHash, specDigest, assertionDigest, policyDigest, priorRecordDigest })`
+> `green-confirm`: `idempotencyDigest = CANON({ operation, storyId, acceptanceTargetRef, greenHeadHash,
+>                   greenMaterialHash, confirmsRecordDigest, confirmsAssertionDigest, specDigest,
+>                   priorRecordDigest })`
+> `quarantine`/`recover` (control preimage): `idempotencyDigest = CANON({ operation, storyId,
+>                   acceptanceTargetRef, recoversRecordId, referencedRecordDigest, normalizedReason,
+>                   approvedBy, priorRecordDigest })` — `normalizedReason` = `reason` trimmed with internal
+>                   whitespace runs collapsed to single spaces; `approvedBy` = the derived authority string
+>                   of §4.1 (not caller text).
+>
 > `recordId = <OP> + "-" + first12hex(idempotencyDigest) + "-" + seq`, with `<OP>` ∈
 > `{RED, GRN, QUA, REC}` per operation.
 
-A retry of the same append at the same chain state therefore reproduces the identical `recordId`.
+A retry of the same append at the same chain state reproduces the identical `recordId`. A green-confirm
+re-run at a NEWER green tree (G2 after G1) produces a DIFFERENT `greenHeadHash`, hence a different id — a
+legal re-confirmation append (§3.3 table), never a false conflict.
 
-The **idempotency key** of a candidate record is the tuple:
+The **idempotency key** of a candidate RUN record (red-assert, green-confirm) is the tuple:
 
 > **IDEMPOTENCY-KEY** = ( `recordId`, `materialHash`, `specDigest`, `policyDigest`/`assertionDigest`,
 > `freshness-compatible head` )
 
+instantiated per operation:
+
 - **`recordId`** — the derived id above (deterministic, so retries collide by construction).
-- **`materialHash`** — the record's `baselineMaterialHash` (runner-verified per R2-3).
+- **`materialHash`** — red-assert: `baselineMaterialHash` (runner-verified per R2-3); green-confirm:
+  `greenMaterialHash` (= receipt PRE).
 - **`specDigest`** — as defined in §1.10 (exact subobject pinned).
-- **`policyDigest` / `assertionDigest`** — the two envelope digests from §1.1.4. Both participate; a change to
-  either yields a different key.
-- **`freshness-compatible head`** — defined EXACTLY as the pair (`baselineHeadHash`, `priorRecordDigest`):
-  two appends are freshness-compatible iff they bind the identical baseline head AND the identical chain
-  position. (Audit: rev 1's "freshness bucket" had no algorithm; this pair is fully deterministic. Bounded
-  staleness applies only to the read-side query, §5.3 — never to append dedupe.)
+- **`policyDigest` / `assertionDigest`** — red-assert: the two envelope digests from §1.1.4; green-confirm:
+  `confirmsAssertionDigest` (which pins the confirmed envelope, including its policyDigest, §1.1.4).
+- **`freshness-compatible head`** — red-assert: the pair (`baselineHeadHash`, `priorRecordDigest`);
+  green-confirm: the pair (`greenHeadHash`, `priorRecordDigest`). Two appends are freshness-compatible iff
+  they bind the identical run head AND the identical chain position. (Bounded staleness applies only to the
+  read-side query, §5.3 — never to append dedupe.)
+
+Control records (quarantine/recover) use their control preimage directly as the dedupe key — the
+five-component frame above applies to run records, which is where the program's idempotency mandate lives.
 
 ### §3.5 Replay-dedup semantics (dedupe vs conflict)
 
-> **DEDUP**: an append whose IDEMPOTENCY-KEY equals that of an already-present record is compared to it by
-> FULL canonical payload (`CANON` of the candidate minus `recordDigest` vs the stored record's
-> `recordDigest` preimage). If the payloads are IDENTICAL, the append is a *replay*: NO new record is written
-> and the existing record is returned (same key + same payload ⇒ same record). If the payloads DIFFER, the
-> append is a **CONFLICT and is REJECTED with a conflict error** — never silently deduped and never written
-> (audit: rev 1's "same key ⇒ same record" would have masked materially different runs, e.g. differing exit
-> codes or receipts, behind one key). Dedup/conflict is decided before the chain-integrity checks of §3.3, so
-> a benign retry never appears as a fork.
+> **DEDUP**: an append whose IDEMPOTENCY-KEY (or control preimage) equals that of an already-present record
+> is compared to it by REPLAY payload: `CANON` of each record with the volatile server-generated fields
+> `createdAt` and `recordDigest` EXCLUDED (audit: including `createdAt` made every honest retry a conflict).
+> If the replay payloads are IDENTICAL, the append is a *replay*: NO new record is written and the existing
+> record is returned (same key + same payload ⇒ same record). If they DIFFER, the append is a **CONFLICT and
+> is REJECTED with a conflict error** — never silently deduped and never written (a differing exit code,
+> receipt, or transcript under the same key is a real inconsistency, not a retry). Dedup/conflict is decided
+> before the chain-integrity checks of §3.3, so a benign retry never appears as a fork.
 
 ### §3.6 Edge cases (traceable to rules)
 
@@ -666,18 +827,34 @@ cannot be forged through the registered surfaces (§0.6): every target's latest 
 
 ## §4. Owner-gated quarantine/recover, corrected retention, and legacy link
 
-### §4.1 Quarantine and recover as owner-gated registered operations
+### §4.1 The four registered operations (all owner-gated); quarantine/recover semantics
 
-Retiring or reinstating a record is done ONLY through two **owner-gated registered operations**, each of which
-appends a NEW record (never edits or deletes an existing one):
+Every chain mutation goes through exactly four **owner-gated registered operations** — the complete W2 CLI
+surface (audit: rev 2 specified quarantine/recover contracts but left green-confirm's entrypoint undefined).
+Each appends a NEW record (never edits or deletes an existing one):
 
+- **`red_evidence_assert(storyId, acceptanceTargetRef, assertion...)`** — creates a `red-assert` record: the
+  handler validates the envelope (§1.1-§1.3, R1-1..R1-6 schema-side), resolves the registered target binding
+  (§1.1.3), verifies transition legality (§3.3 table), executes the RED run via the runner protocol (§2.3
+  with `<RUN-HEAD>` = the claimed `baselineHeadHash`), evaluates R1-4/R2-* against the receipt, computes the
+  §3.4 red-assert preimage, and appends. Supersedes the v1 `red_evidence_create` (retired at adoption, §6).
+- **`red_evidence_green_confirm(storyId, acceptanceTargetRef)`** — creates a `green-confirm` record: the
+  handler resolves the target chain, identifies the **governing red-assert** (§3.3) and verifies the head's
+  effective operation admits `green-confirm` (§3.3 table); extracts `confirmsRecordId` /
+  `confirmsRecordDigest` / `confirmsAssertionDigest` and the red-copy fields
+  (`redBaselineHeadHash`/`redBaselineMaterialHash`, §1.4) FROM the governing record — none are caller
+  arguments; executes the GREEN run via §2.3 (`<RUN-HEAD>` = current story HEAD, which PRE fixes as
+  `greenHeadHash`); evaluates the full GREEN predicate (§1.5) and GREEN-BIND (§1.4) against the receipt;
+  computes the §3.4 green-confirm preimage; appends. The record's verdict facts live in its
+  `evaluationTranscript` (§1.10).
 - **`red_evidence_quarantine(storyId, recordId, reason)`** — appends a new record with `operation:
   "quarantine"`, `linkKind: "quarantines"`, `recoversRecordId: <recordId>` (the link back to the record being
-  retired), a derived `id` (§3.4), and `seq`/`priorRecordDigest` continuing the target chain (§3). The
-  quarantine record becomes the new target chain head; the prior record is untouched.
+  retired), `referencedRecordDigest`, a derived `id` (§3.4 control preimage), and `seq`/`priorRecordDigest`
+  continuing the target chain (§3). The quarantine record becomes the new target chain head; the prior record
+  is untouched.
 - **`red_evidence_recover(storyId, recordId, reason)`** — appends a new record with `operation: "recover"`,
-  `linkKind: "recovers"`, `recoversRecordId: <recordId>`, a derived `id`, and `seq`/`priorRecordDigest`
-  continuing the target chain. The recover record becomes the new target chain head.
+  `linkKind: "recovers"`, `recoversRecordId: <recordId>`, `referencedRecordDigest`, a derived `id`, and
+  `seq`/`priorRecordDigest` continuing the target chain. The recover record becomes the new target chain head.
 
 **Reference validation (state machine — audit: rev 1 allowed recovering arbitrary records):**
 
@@ -693,7 +870,7 @@ referenced quarantine (transitively: the quarantine's own `recoversRecordId`); a
 force only if the §5.3 freshness algorithm still passes at query time — recovery does not refresh freshness.
 
 **Owner-gated — the concrete, implemented authorization (audit: "same gate other handlers use" was not
-citable).** Both operations MUST be wired through the two mechanisms mutating story commands use today:
+citable).** All four operations MUST be wired through the two mechanisms mutating story commands use today:
 
 1. **The story-owner lease gate**: `enforceStoryOwnerLeaseGate`
    (`packages/main/src/cli/ownership-gate.ts:235`), which acquires/refreshes the per-story
@@ -708,10 +885,11 @@ citable).** Both operations MUST be wired through the two mechanisms mutating st
    (`[agent_dispatch_identity_conflict]`).
 
 **`approvedBy` is DERIVED, never caller text**: the recorded `approvedBy` is the resolved actor from
-`resolveAgentMutationAuthority` plus the lease `sessionId` — a free-form `approvedBy` argument is not
-accepted. Known limitation (program plan W0.3): the owner lease is not yet a mutex for same-owner concurrent
-commands; the W2 implementation MUST serialize quarantine/recover appends under the same atomic claim
-discipline the transition orchestrator uses (the `mkdir`-claim pattern of B-d877 R3, visible at
+`resolveAgentMutationAuthority` plus the lease `sessionId` (serialized as `<actor>@<sessionId>`; this exact
+string enters the §3.4 control preimage) — a free-form `approvedBy` argument is not accepted. Known
+limitation (program plan W0.3): the owner lease is not yet a mutex for same-owner concurrent commands; the
+W2 implementation MUST serialize ALL FOUR append operations under the same atomic claim discipline the
+transition orchestrator uses (the `mkdir`-claim pattern of B-d877 R3, visible at
 `packages/main/src/handlers/transition-orchestrator.ts:777-789`), or land after W0.3.
 
 ### §4.2 Immutability (no in-place edits, ever)
@@ -821,10 +999,18 @@ Error shape (`result: "error"`; full error taxonomy in §5.6):
 - **`status`** ∈ `{ "none", "active", "quarantined", "superseded" }` — derived by the total algorithm of §5.6.
 - **`verdict`** ∈ `{ "GREEN", "RED", "legacy-unverified", "indeterminate" }` — per §1.5 for v2 heads, §6 for
   legacy heads, `indeterminate` for freshness mismatch (§5.3/§5.4).
-- **`provenance`** ∈ `{ "v2", "legacy-manifest" }` — whether the answer derives from a v2 chain or a
-  manifest-grandfathered legacy record (§6).
+- **`provenance`** ∈ `{ "v2", "legacy-manifest", "none" }` — whether the answer derives from a v2 chain, a
+  manifest-grandfathered legacy record (§6), or no records at all.
 - **`freshness`** — the head's bound hashes, the resolution `mode`, `liveMatch`, and the `reason` code from
   the §5.3 algorithm.
+
+**State-specific response variants (audit: rev 2's single shape was unsatisfiable for `none` and silent for
+legacy drift):** for `status: "none"` the response carries `chainHeadRecordId: null`,
+`provenance: "none"`, and `freshness: null` (there is no binding to resolve). For a legacy head whose FRESH
+run yields `liveMatch: false`, the response is exactly
+`{ status: "active", verdict: "indeterminate", provenance: "legacy-manifest", freshness: { ..., liveMatch: false } }`
+— freshness mismatch overrides `legacy-unverified` the same way it overrides GREEN/RED (§5.3). Every other
+success state carries all fields non-null.
 
 The query is **read-only**: it computes the answer from stored records, the manifest, and the live tree; it
 writes nothing.
@@ -887,7 +1073,9 @@ derivation):
 - head absent → `none`;
 - head is `red-assert` or `green-confirm` → `active`, EXCEPT the superseded case below;
 - head is `quarantine` → `quarantined`;
-- head is `recover` → the status the reinstated record would have (its operation re-enters this derivation);
+- head is `recover` → the status the reinstated record would have (its operation re-enters this derivation —
+  and, symmetrically, VERDICT derivation follows the reinstated record too: §5.6 step 6 resolves a recover
+  head to its transitively reinstated record before deriving GREEN/RED);
 - **`superseded`** — the head is a `red-assert` whose prior-digest walk since the most recent `green-confirm`
   of the same chain shows it superseded that green-confirm (i.e. the target WAS green-confirmed, a newer RED
   assertion re-opened it, and no newer green-confirm exists). The old GREEN is superseded and not yet
@@ -932,31 +1120,59 @@ corrupt chains, forks, unknown stories, and storage failures).
 redEvidenceGateQuery(storyId, acceptanceTargetRef):
   1. Resolve story dir. Story unknown                    → error "missing-story"
   2. Read red-evidence.json. I/O or JSON-parse failure   → error "storage-error"
-  3. File absent, or zero records for the target:
-       if legacy manifest (§6.2) has entries for (storyId, target) → legacy path (step 7)
-       else → ok { status:"none", verdict:"RED", chainHeadRecordId:null }
-  4. Validate schema versions. A record that is neither valid v2 nor a
-     manifest-member v1 record                           → error "unsupported-schema"
-  5. Build the target chain (v2 records). Verify: every recordDigest recomputes;
-     every priorRecordDigest resolves; seq is 1..n monotonic.
-       digest/link/seq violation                         → error "corrupt-chain"
+  3. PARTITION the target's records by schema: V2 := valid-shaped v2 records for the
+     target; V1 := v1-shaped records for the target. A record that is neither
+     v2-shaped nor v1-shaped                             → error "unsupported-schema"
+  4. Route (audit: rev 2 sent legacy-only stories into v2 chain validation, where
+     v1 records — having no seq/digests — always died as "corrupt-chain"):
+       V2 empty AND V1 empty  → ok { status:"none", verdict:"RED",
+                                     chainHeadRecordId:null, provenance:"none", freshness:null }
+       V2 empty AND V1 nonempty → legacy path (step 7)
+       V2 nonempty              → v2 path (step 5); V1 records for the target are
+                                  then unreachable through the query (§6.3)
+  5. Validate the v2 target chain — TWO mandatory layers (audit: chain-shape checks
+     alone let a canonically-hashed but semantically invalid record reach verdicts):
+     5a. validateV2Record (each record): operation-specific schema completeness
+         (§1.10 field sets); recordDigest recomputes; specDigest / policyDigest /
+         assertionDigest recompute over their pinned subobjects; recordId matches
+         its §3.4 derivation; run records: receipt pre==post (R2-1), red-assert
+         baseline==receipt PRE (R2-3), transcript covers every matcher id with
+         consistent conjuncts; green-confirm: confirms* fields match the referenced
+         record, red-copy fields verified, GREEN-BIND holds; control records:
+         referencedRecordDigest matches; acceptanceTargetRef ∈ expectedRedTargets.
+     5b. validateTargetChainSemantics (whole chain): priorRecordDigest links resolve;
+         seq is 1..n monotonic; every transition legal per the §3.3 table
+         (incl. governing-red-assert constraint and §4.1 reference validation).
+       any 5a/5b violation                               → error "corrupt-chain"
+                                                           (detail = violated rule id,
+                                                            e.g. "R2-3", "transition",
+                                                            "assertion-digest")
        two heads / duplicated prior-digest consumption   → error "fork-detected"
-  6. Resolve the unique head; derive status (§5.4); derive verdict —
-     green-confirm head: evaluate the stored receipt facts against §1.5 → GREEN or RED;
-     red-assert/quarantine/superseded head: RED; run FRESH (§5.3) → may force "indeterminate".
+  6. Resolve the unique head; derive status (§5.4). Derive verdict from the
+     VERDICT RECORD: if head.operation == "recover", the verdict record is the
+     transitively reinstated record (follow recoversRecordId through the referenced
+     quarantine, §5.4); else the head itself.
+       verdict record is green-confirm → evaluate its evaluationTranscript conjuncts
+         (§1.10; already validated in 5a) → GREEN iff all §1.5 conjuncts hold, else RED
+       verdict record is red-assert (incl. superseded status) → RED
+       head is quarantine (no recover)  → RED
+     Run FRESH (§5.3) on the verdict record's binding → may force "indeterminate".
      Return ok with provenance:"v2".
   7. Legacy path: the target's newest manifest-member v1 record is the answer record.
-     Verify its CANON digest equals the manifest entry's recordDigest;
+       V1 records NOT in the manifest                    → error "unsupported-schema"
+     Verify the answer record's CANON digest equals the manifest entry's recordDigest;
        mismatch                                          → error "corrupt-chain"
-     Return ok { status:"active", verdict:"legacy-unverified", provenance:"legacy-manifest",
-                 freshness from the v1 baseline hashes via FRESH }.
-     If BOTH a v2 chain and legacy records exist for the target, the v2 chain wins
-     (steps 5-6); legacy records are then unreachable through the query.
+     Run FRESH on the v1 baseline hashes:
+       liveMatch → ok { status:"active", verdict:"legacy-unverified",
+                        provenance:"legacy-manifest" }
+       !liveMatch → ok { status:"active", verdict:"indeterminate",
+                         provenance:"legacy-manifest" }   (§5.1 variant)
 ```
 
-**Error taxonomy** (`errorKind` closed enum): `missing-story`, `storage-error`, `corrupt-chain`,
-`fork-detected`, `unsupported-schema`. W2 assigns NO gate behavior to errors — the W3 policy decides whether
-each error blocks, warns, or escalates (§5.5).
+**Error taxonomy** (`errorKind` closed enum): `missing-story`, `storage-error`, `corrupt-chain` (with a
+`detail` rule id from the 5a/5b lists — stable strings, machine-consumable), `fork-detected`,
+`unsupported-schema`. W2 assigns NO gate behavior to errors — the W3 policy decides whether each error
+blocks, warns, or escalates (§5.5).
 
 ---
 
