@@ -458,6 +458,38 @@
       ],
       "signatureTag": "adversarial|ts|live-proof-adapter",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4ec1:F-023",
+      "desc": "Live-proof case attribution remains position-based rather than exact assertion-bound. In --live-proof, lines 68-79 split the executed catalog only by kind, then assign queues[kind][index] to each current contract assertion and overwrite the record ID/source target. The scenario emitter sorts IDs lexicographically, so the mutation queue is A-MUT-1,A-MUT-10,A-MUT-11,...,A-MUT-2; current B-4ec1 evidence proves the mismatch: decoded A-MUT-2 (intent:VI-W3-M1-PRODUCER-CONSUMER-PARITY) carries PR_TRANSCRIPT_MISSING from scenario A-MUT-10 instead of the actually executed parity PASS, A-MUT-3 carries PR_AUTHORITY_INADMISSIBLE from A-MUT-11, etc. Thus exact IDs exist syntactically but do not identify the assertion that executed; reordering/adding same-kind assertions silently reattributes unrelated results and pre_review_check still returns PASS. Bind executed records by exact assertion ID (and ideally canonical sourceRef), reject missing/extra/mismatched records, and add a mutation that reorders the catalog/assertions or swaps two record semantics and must fail.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-23T04:15:20.476Z",
+      "reviewRound": "2026-07-23T04:11:56.497Z",
+      "reviewRunId": "B-4ec1:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "09ea3dabe0fdfafdee53f7ec018cfcf99f7ec4a24e66268df3ad055a3468d6a6",
+      "files": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "adversarial|ts|live-proof-case",
+      "signatureTagSource": "auto"
     }
   ]
 }
