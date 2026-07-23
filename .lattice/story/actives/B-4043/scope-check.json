@@ -150,10 +150,11 @@
       "q": "Which exact reviewer/coverage/verification-intent role assets are in Wave 4 scope, or should the plan stop promising implementer/reviewer guidance and explicitly limit integration to lattice-implementer?",
       "evidence": "plan.md promises mirrored implementer/reviewer prompts and the canonical touchpoint inventory names implementer, verification-intent, coverage, and reviewer modules, while CHK-001 files.modify lists only lattice-implementer.md for each host.",
       "sourcePointers": [
-        ".lattice/story/actives/B-4043/plan.md#CHK-001",
-        ".lattice/story/actives/B-4043/checklist.json#CHK-001",
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#14-likely-implementation-touchpoints"
-      ]
+        "plan.md#CHK-001",
+        "CHK-001"
+      ],
+      "resolution": "Wave 4 covers mirrored implementer, test-case-reviewer verification-intent compatibility, topology critic, and concept/quality/test-coverage/docs/delivery reviewer assets for both Codex and Claude. CHK-001 files.modify now enumerates every exact asset plus the registry contract.",
+      "resolvedAt": "2026-07-23T16:45:12.677Z"
     },
     {
       "id": "OQ-B4043-FALSE-PASS-THRESHOLD",
