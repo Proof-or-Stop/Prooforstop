@@ -1136,7 +1136,23 @@ and remediation.
 Executable proof authority is additionally argv-bound. The causal
 `live_smoke_transcript` receipt is admissible here only when its captured
 command is exactly
-`node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --live-proof`.
+`node scripts/run-proofstory-pre-review-live-proof.mjs`. The tracked runner performs a fresh
+`npm --prefix packages/main run build` before invoking the generated target; the proof binds
+both current runner and freshly-built target digests. The live proof carries gzip-compressed
+canonical machine case records for every required positive, mutation, and transcript ID. The
+loader decompresses them, checks exact current-topology cardinality and distinct mutation
+targets/kinds, validates observed outcomes/control reruns and producer-before-consumer events,
+and mechanically recomputes the aggregate root. A formatted arbitrary digest or stale/overwritten
+`dist` emitter is therefore not executable evidence.
+
+The machine records come from the bounded production pre-review scenario suite, not from replaying
+the topology as a data structure. Its ledger binds the four positive paths and the seventeen
+adversarial intents to their executed checks: deterministic projection; producer/read/lifecycle
+parity; signed-field tamper; authority replay; planned-to-actual and discovery-state mutations;
+topology omission; adapter/reconciliation tamper; wrong-polarity plus clean rerun; transcript
+cardinality; bypass attempts; equal-cutoff freshness; legacy/config rollback; stable direct versus
+lifecycle codes; critic freshness/replay; the process-fact contract; and the no-later-wave scan.
+The transcript case consumes the producer/consumer events recorded by that execution.
 That bounded mode executes the production producer/read/lifecycle chain and
 the required exact-cardinality, authority, planned→actual, restoration, and
 tamper mutations within the fixed live-smoke safety ceiling. Merely printing a

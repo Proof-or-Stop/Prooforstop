@@ -222,10 +222,8 @@ export function validatePlannedPathDeclarationsForChecklistItem(item: ChecklistI
 }
 
 function validateEndpointFileDeclaration(item: ChecklistItem, endpoint: VerificationPlannedPathEndpointV1, base: string): void {
-  const normalizedFile = endpoint.expectedFileRef.replace(/\\/g, '/');
-  if (normalizedFile.startsWith('/') || /^[A-Za-z]:\//.test(normalizedFile) || normalizedFile.split('/').includes('..')) {
-    throw new Error(`${base}.expectedFileRef must be a safe repository-relative path [planned_path_file_ref_unsafe]`);
-  }
+  const normalizedFile = canonicalRepositoryRelativePath(endpoint.expectedFileRef);
+  if (!normalizedFile) throw new Error(`${base}.expectedFileRef must be a canonical repository-relative path [planned_path_file_ref_unsafe]`);
   const match = endpoint.fileDeclarationRef.match(/^(CHK-\d{3}):files:(modify|create|test):(\d+)$/);
   if (!match) throw new Error(`${base}.fileDeclarationRef must match CHK-NNN:files:{modify|create|test}:index [planned_path_file_ref_invalid]`);
   const [, itemRef, group, rawIndex] = match;
@@ -235,6 +233,16 @@ function validateEndpointFileDeclaration(item: ChecklistItem, endpoint: Verifica
   if (file !== endpoint.expectedFileRef) {
     throw new Error(`${base}.expectedFileRef must equal ${endpoint.fileDeclarationRef} (${file}) [planned_path_file_ref_mismatch]`);
   }
+}
+
+function canonicalRepositoryRelativePath(value: unknown): string | null {
+  if (typeof value !== 'string' || value.length === 0 || value !== value.trim() || value.includes('\\')
+    || /[\x00-\x1f\x7f]/.test(value) || value.startsWith('/') || /^[A-Za-z]:/.test(value)
+    || value.startsWith('./') || value.includes('//')) return null;
+  const segments = value.split('/');
+  if (segments.some(segment => segment.length === 0 || segment === '.' || segment === '..')) return null;
+  if (!/^[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)*$/.test(value)) return null;
+  return value;
 }
 
 interface IntentIndexEntry {
@@ -293,12 +301,15 @@ function pushDiagnostic(
 export function isAcceptanceBasisPathSourceRef(value: unknown): value is string {
   if (typeof value !== 'string' || value.length > 8_192 || value !== value.trim()) return false;
   if (/[\x00-\x1f\x7f]/.test(value)) return false;
-  const sourceFile = '[A-Za-z0-9_./-]+\\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs)';
+  const sourceFile = '([A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*\\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs))';
   const symbol = '[A-Za-z_$][A-Za-z0-9_$]*';
   const staticCall = new RegExp(`^basis-path:path:static-call:${sourceFile}#${symbol}->consumer:${sourceFile}#${symbol}$`);
-  if (staticCall.test(value)) return true;
+  const staticMatch = value.match(staticCall);
+  if (staticMatch) return canonicalRepositoryRelativePath(staticMatch[1]) === staticMatch[1]
+    && canonicalRepositoryRelativePath(staticMatch[2]) === staticMatch[2];
   const factName = '[a-z][a-z0-9_:.-]*';
-  const registryConsumer = '[A-Za-z0-9_ ./():<>,&-]+';
+  const registryConsumer = '[A-Za-z0-9_ ():<>,&-]+';
+  if (value.includes('..')) return false;
   return new RegExp(`^basis-path:path:process-fact:${factName}->consumer:${registryConsumer}$`).test(value)
     || new RegExp(`^basis-path:path:runtime-fact:${factName}->checker:${registryConsumer}$`).test(value);
 }

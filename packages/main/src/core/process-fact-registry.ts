@@ -891,7 +891,7 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
     destructiveRisk: policy?.destructiveRisk,
     producer: entry.owner,
     producerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
-      ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/core/pre-review-live-proof.ts']
+      ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/core/pre-review-live-proof.ts', 'scripts/run-proofstory-pre-review-live-proof.mjs']
       : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
       ? ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts']
       : undefined,
@@ -1076,11 +1076,11 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/proofstory.pre_review_check',
-    producerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/core/pre-review-live-proof.ts'],
+    producerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/core/pre-review-live-proof.ts', 'scripts/run-proofstory-pre-review-live-proof.mjs'],
     consumerGate: 'pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate',
     consumerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.pre_review_check,
-    rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, artifact-kind/runtime-aware planned-to-actual reconciliation, and active-story-derived per-acceptance-binding positive/mutation/control/transcript case digests captured by the registered live_smoke_transcript writer with a causally valid closeout receipt. The argv must equal the fixed bounded --live-proof runner and the receipt must bind its case digests/output; hard-coded story/counts, arbitrary commands, raw verificationEvidence checkedClaims/actorTrust, and global transcript presence grant no authority. The artifact also binds the strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation.',
+    rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, artifact-kind/runtime-aware planned-to-actual reconciliation, and the gzip-carried canonical machine records emitted only after the bounded production scenario ledger executes. The loader requires exact current-topology case IDs, distinct mutation target/kind pairs, observed polarity plus clean controls, ordered producer/consumer events, and a mechanically recomputed aggregate root. The fixed tracked runner performs a fresh build and the proof binds current runner/target digests plus the causally valid live_smoke_transcript receipt; stale gitignored dist, arbitrary formatted digests, hard-coded story/counts, arbitrary commands, raw verificationEvidence checkedClaims/actorTrust, and global transcript presence grant no authority. The artifact also binds the strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation.',
   },
   {
     name: 'artifact:topology-exclusion-approvals.json',

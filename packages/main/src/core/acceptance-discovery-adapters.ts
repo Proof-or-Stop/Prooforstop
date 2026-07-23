@@ -131,7 +131,7 @@ interface BoundedSourceGraph {
 
 interface LocalImportCallScan {
   imports: Array<{ imported: string; local: string; sourceFile: string }>;
-  calledImports: Array<{ imported: string; local: string; sourceFile: string }>;
+  calledImports: Array<{ imported: string; local: string; sourceFile: string; caller: string | null }>;
   blindSpots: string[];
   unresolvedImports: string[];
 }
@@ -876,21 +876,31 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
     ts.forEachChild(node, visitModuleBindings);
   };
   visitModuleBindings(source);
-  const called: Array<{ imported: string; local: string; sourceFile: string }> = [];
+  const callerFor = (node: ts.Node): string | null => {
+    let current: ts.Node | undefined = node;
+    while (current && current !== source) {
+      if (ts.isFunctionDeclaration(current) && current.name) return current.name.text;
+      if ((ts.isArrowFunction(current) || ts.isFunctionExpression(current)) && ts.isVariableDeclaration(current.parent)
+        && ts.isIdentifier(current.parent.name)) return current.parent.name.text;
+      current = current.parent;
+    }
+    return null;
+  };
+  const called: Array<{ imported: string; local: string; sourceFile: string; caller: string | null }> = [];
   const visit = (node: ts.Node): void => {
     if (ts.isCallExpression(node)) {
       const inlineModule = moduleCall(node.expression);
       if (inlineModule) {
         supportedModuleCalls.add(inlineModule.call);
         const sourceFile = resolveSpecifier(inlineModule.specifier);
-        if (sourceFile && inlineModule.kind === 'require') called.push({ imported: 'default', local: 'default', sourceFile });
+        if (sourceFile && inlineModule.kind === 'require') called.push({ imported: 'default', local: 'default', sourceFile, caller: callerFor(node) });
         else if (inlineModule.kind === 'import') bindingBlindSpots.push(`module namespace is not directly callable in ${file}`);
       }
       const directProperty = propertyModuleCall(node.expression);
       if (directProperty?.module) {
         supportedModuleCalls.add(directProperty.module.call);
         const sourceFile = resolveSpecifier(directProperty.module.specifier);
-        if (sourceFile) called.push({ imported: directProperty.property, local: directProperty.property, sourceFile });
+        if (sourceFile) called.push({ imported: directProperty.property, local: directProperty.property, sourceFile, caller: callerFor(node) });
       }
       let target: ts.Identifier | null = null;
       let property: string | null = null;
@@ -908,9 +918,9 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
         for (const binding of bindings.filter(candidate => candidate.local === target!.text)) {
           if (!targetSymbol) { bindingBlindSpots.push(`unresolved call binding ${target.text} in ${file}`); continue; }
           if (!binding.symbol || targetSymbol !== binding.symbol) continue;
-          if (property === null && binding.direct) called.push({ imported: binding.imported, local: binding.local, sourceFile: binding.sourceFile });
+          if (property === null && binding.direct) called.push({ imported: binding.imported, local: binding.local, sourceFile: binding.sourceFile, caller: callerFor(node) });
           if (property === null && !binding.direct && binding.imported === '*') bindingBlindSpots.push(`module namespace is not directly callable in ${file}`);
-          if (property !== null && binding.property) called.push({ imported: property, local: binding.local, sourceFile: binding.sourceFile });
+          if (property !== null && binding.property) called.push({ imported: property, local: binding.local, sourceFile: binding.sourceFile, caller: callerFor(node) });
         }
       }
       const possibleDynamic = unwrapExpression(node.expression);
@@ -1332,13 +1342,15 @@ function producerConsumerRelation(
   consumer: VerificationPlannedPathEndpointV1,
 ): boolean {
   const importedCall = (graph.sourceScans.get(consumer.expectedFileRef)?.calledImports ?? []).some(call =>
-    call.sourceFile === producer.expectedFileRef && call.imported === producer.expectedSymbolOrFact);
+    call.sourceFile === producer.expectedFileRef && call.imported === producer.expectedSymbolOrFact
+      && call.caller === consumer.expectedSymbolOrFact);
   const source = graph.readContext.snapshots.get(consumer.expectedFileRef) !== undefined
     ? ts.createSourceFile(consumer.expectedFileRef, graph.readContext.snapshots.get(consumer.expectedFileRef)!, ts.ScriptTarget.Latest, true, scriptKindFor(consumer.expectedFileRef))
     : undefined;
   const sameFileCall = producer.expectedFileRef === consumer.expectedFileRef && source
     ? sameFileCallableCalls(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact) : false;
-  const registryRelation = graph.entries.some(entry => commandNamesForEntry(entry).includes(producer.expectedSymbolOrFact)
+  const registryRelation = (producer.expectedArtifactKind === 'process_fact' || consumer.expectedArtifactKind === 'process_fact')
+    && graph.entries.some(entry => commandNamesForEntry(entry).includes(producer.expectedSymbolOrFact)
     && (entry.consumerSourceRefs ?? []).includes(consumer.expectedFileRef)
     && (sourceFiles(entry).includes(producer.expectedFileRef) || registeredHandlerEndpoint(graph, producer)));
   return importedCall || sameFileCall || registryRelation;

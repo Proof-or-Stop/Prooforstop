@@ -269,6 +269,9 @@ try {
     const invalidFileCases: Array<[string, VerificationIntent, RegExp]> = [
       ['wrong item', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, fileDeclarationRef: 'CHK-002:files:create:0' } }] }] }, /planned_path_file_ref_wrong_item/],
       ['unsafe path', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: '../producer.ts' } }] }] }, /planned_path_file_ref_unsafe/],
+      ['absolute path', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: '/tmp/evil.ts' } }] }] }, /planned_path_file_ref_unsafe/],
+      ['dot segment', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: 'packages/./main/src/producer.ts' } }] }] }, /planned_path_file_ref_unsafe/],
+      ['backslash path', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: 'packages\\main\\src\\producer.ts' } }] }] }, /planned_path_file_ref_unsafe/],
       ['unresolved index', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, fileDeclarationRef: 'CHK-001:files:create:99' } }] }] }, /planned_path_file_ref_unresolved/],
       ['mismatched target', { ...intent, happy: [{ ...intent.happy[0], plannedPathDeclarations: [{ ...declaration, producer: { ...declaration.producer, expectedFileRef: 'packages/main/src/not-declared.ts' } }] }] }, /planned_path_file_ref_mismatch/],
     ];
@@ -456,6 +459,11 @@ for (const malformed of [
   'basis-path:static-call:a#produce->consumer:b#consume',
   'basis-path:path:not-an-edge',
   'basis-path:path:bogus:x->y',
+  'basis-path:path:static-call:/tmp/evil.ts#produce->consumer:packages/main/src/consumer.ts#consume',
+  'basis-path:path:static-call:packages/../evil.ts#produce->consumer:packages/main/src/consumer.ts#consume',
+  'basis-path:path:static-call:packages/./main/src/producer.ts#produce->consumer:packages/main/src/consumer.ts#consume',
+  'basis-path:path:static-call:packages\\main\\src\\producer.ts#produce->consumer:packages/main/src/consumer.ts#consume',
+  'basis-path:path:process-fact:pre_review_check->consumer:../evil',
   'basis-path:path:static-call:a#produce->consumer:b#consume\nforged',
 ]) {
   const malformedTopology = { ...topology, commandRefs: [{ refKind: 'existing' as const, canonicalSourceRef: malformed }] };

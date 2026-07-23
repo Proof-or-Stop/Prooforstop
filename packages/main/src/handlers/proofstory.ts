@@ -160,6 +160,7 @@ function currentPreReviewInputForContext(ctx: HandlerContext, storyId: string): 
     metadataRoot: current.workspace.metadataRoot,
     storyDir: ctx.store.storyDirPath(storyId),
     storyId,
+    contract,
     cutoffAt,
     storyFilesHash: current.derivation.basis.binding.storyFilesHash,
   });

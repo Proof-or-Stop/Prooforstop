@@ -19,11 +19,12 @@ import { verifyAcceptanceBasisReceipt } from './acceptance-basis-receipt.js';
 import { verifyAcceptanceCoverageBasis } from './acceptance-coverage-basis.js';
 import { latestCausallyValidCloseoutReceipt } from './closeout-trust.js';
 import { evaluateLiveSmokeTranscriptValue } from './live-smoke-transcript-evidence.js';
+import { decodePreReviewCaseRecords } from './pre-review-live-proof.js';
 
 const KEY_FILE = 'lattice-pre-review-check-verifier-v1.key';
 const EXECUTABLE_PROOF_PREFIX = 'PROOFSTORY_PRE_REVIEW_PROOF=';
 const LIVE_SMOKE_TRANSCRIPT_REL = 'evidence/live-smoke-transcript.json';
-export const PRE_REVIEW_LIVE_PROOF_COMMAND = 'node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --live-proof';
+export const PRE_REVIEW_LIVE_PROOF_COMMAND = 'node scripts/run-proofstory-pre-review-live-proof.mjs';
 
 export interface PreReviewCheckInput {
   gitCwd: string;
@@ -117,6 +118,7 @@ export function loadVerifiedPreReviewExecutableProof(input: {
   metadataRoot: string;
   storyDir: string;
   storyId: string;
+  contract: ProofStoryContractData | null;
   cutoffAt: string;
   storyFilesHash: string;
 }): PreReviewExecutableProofV1 | null {
@@ -151,7 +153,63 @@ export function loadVerifiedPreReviewExecutableProof(input: {
   if (candidate.schemaVersion !== 'proofstory.pre_review_executable_proof.v1'
     || candidate.storyId !== input.storyId || !Array.isArray(candidate.bindingProofs)
     || !Array.isArray(candidate.commandDigests) || candidate.commandDigests.length !== 1
+    || candidate.caseRecordsEncoding !== 'gzip-base64' || typeof candidate.caseRecords !== 'string' || !candidate.provenance
     || candidate.commandDigests.some(value => typeof value !== 'string' || !/^sha256:[a-f0-9]{64}$/.test(value))) return reject('proof schema/story/bindings/case aggregate digest invalid');
+  let records;
+  try { records = decodePreReviewCaseRecords(candidate.caseRecords); }
+  catch { return reject('proof case records compression invalid'); }
+  const requiredIds = input.contract?.acceptanceBindings.flatMap(binding => binding.verificationTopology
+    ? [...binding.verificationTopology.positiveAssertionRefs, ...binding.verificationTopology.mutationCaseRefs, ...binding.verificationTopology.transcriptAssertionRefs].map(item => item.id)
+    : []) ?? [];
+  const recordIds = records.map(record => Array.isArray(record) ? record[0] : '<invalid>');
+  const mutations = records.filter(record => Array.isArray(record) && record[1] === 'mutation');
+  const validRecords = records.every(record => Array.isArray(record) && record.length === 9
+    && typeof record[0] === 'string' && ['positive', 'mutation', 'transcript'].includes(record[1])
+    && typeof record[2] === 'string' && record[2].length > 0 && typeof record[3] === 'string' && record[3].length > 0
+    && typeof record[4] === 'string' && record[4].length > 0 && typeof record[5] === 'string' && record[5].length > 0
+    && typeof record[6] === 'string' && record[6].length > 0 && typeof record[7] === 'boolean'
+    && Array.isArray(record[8]) && record[8].every(event => Array.isArray(event) && typeof event[0] === 'string' && Number.isInteger(event[1])));
+  const exactIds = JSON.stringify(stable(recordIds)) === JSON.stringify(stable(requiredIds))
+    && new Set(recordIds).size === recordIds.length;
+  const distinctMutationTargets = new Set(mutations.map(record => `${record[2]}\0${record[3]}`)).size === mutations.length;
+  const outcomesBite = records.every(record => record[5] === record[6] && record[7] === true);
+  const transcriptEvents = records.filter(record => record[1] === 'transcript').every(record => {
+    const producer = record[8].find(event => event[0] === 'producer-evaluated')?.[1];
+    const consumer = record[8].find(event => event[0] === 'consumer-verified')?.[1];
+    return Number.isInteger(producer) && Number.isInteger(consumer) && (producer as number) < (consumer as number);
+  });
+  if (!validRecords || !exactIds || !distinctMutationTargets || !outcomesBite || !transcriptEvents
+    || candidate.commandDigests[0] !== digest({ schemaVersion: 'proofstory.pre_review_case_aggregate.v1', storyId: input.storyId, caseRecords: records })) return reject(`proof case records/root invalid shape=${validRecords} ids=${exactIds} distinct=${distinctMutationTargets} outcomes=${outcomesBite} transcript=${transcriptEvents}`);
+  const recordById = new Map(records.map(record => [record[0], record]));
+  const verifiedBindingProofs = input.contract?.acceptanceBindings.filter(binding => binding.verificationTopology).map(binding => {
+    const topology = binding.verificationTopology!;
+    return {
+      bindingId: binding.id,
+      positiveAssertionIds: topology.positiveAssertionRefs.map(item => item.id),
+      mutationProofs: topology.mutationCaseRefs.map(item => {
+        const record = recordById.get(item.id)!;
+        return { mutationId: item.id, expectedCode: record[5], observedCode: record[6], controlRestored: record[7] };
+      }),
+      transcriptProofs: topology.transcriptAssertionRefs.map(item => {
+        const record = recordById.get(item.id)!;
+        return {
+          transcriptId: item.id,
+          producerRefs: [...item.producerRefs], consumerRefs: [...item.consumerRefs],
+          producerSequence: record[8].find(event => event[0] === 'producer-evaluated')![1],
+          consumerSequence: record[8].find(event => event[0] === 'consumer-verified')![1],
+        };
+      }),
+    };
+  }) ?? [];
+  const provenance = candidate.provenance;
+  const runnerPath = join(canonicalGitCwd, provenance.runnerPath);
+  const targetPath = join(canonicalGitCwd, provenance.targetPath);
+  if (provenance.runnerPath !== 'scripts/run-proofstory-pre-review-live-proof.mjs'
+    || provenance.targetPath !== 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js'
+    || provenance.buildCommand !== 'npm --prefix packages/main run build'
+    || !existsSync(runnerPath) || !existsSync(targetPath)
+    || provenance.runnerDigest !== digest(readFileSync(runnerPath))
+    || provenance.targetDigest !== digest(readFileSync(targetPath))) return reject('proof executable provenance invalid');
   return {
     schemaVersion: 'proofstory.pre_review_executable_proof.v1',
     storyId: input.storyId,
@@ -163,7 +221,10 @@ export function loadVerifiedPreReviewExecutableProof(input: {
       stdout: transcript.actual.stdout,
       receipt: receipt.integrityHash,
     })],
-    bindingProofs: candidate.bindingProofs,
+    caseRecordsEncoding: 'gzip-base64',
+    caseRecords: candidate.caseRecords,
+    provenance,
+    bindingProofs: verifiedBindingProofs,
   };
 }
 
@@ -297,7 +358,8 @@ export function issuePreReviewCheckArtifact(input: PreReviewCheckInput): PreRevi
     evidenceRefs: evidence.evidenceRefs,
     executableProof: input.executableProof ?? {
       schemaVersion: 'proofstory.pre_review_executable_proof.v1', storyId: input.storyId,
-      producer: 'registered-verification-command', verifier: 'pre-review-check-command-runner', commandDigests: [], bindingProofs: [],
+      producer: 'registered-verification-command', verifier: 'pre-review-check-command-runner', commandDigests: [], caseRecordsEncoding: 'gzip-base64', caseRecords: '',
+      provenance: { runnerPath: '', runnerDigest: '', targetPath: '', targetDigest: '', buildCommand: '' }, bindingProofs: [],
     },
     ...(input.criticReceiptDigest ? { criticReceiptDigest: input.criticReceiptDigest } : {}),
     codes: emittedCodes,

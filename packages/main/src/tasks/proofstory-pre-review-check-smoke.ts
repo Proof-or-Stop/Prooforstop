@@ -13,8 +13,8 @@ import { runPreReviewCheckGate } from '../handlers/transition-orchestrator.js';
 import { loadVerifiedPreReviewExecutableProof, PRE_REVIEW_LIVE_PROOF_COMMAND } from '../core/pre-review-check.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
-import { buildActiveStoryPreReviewLiveProof, buildPreReviewLiveProof, preReviewCaseAggregateDigest } from '../core/pre-review-live-proof.js';
-import type { AcceptanceVerificationTopologyV1, ChecklistData, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
+import { buildPreReviewProofFromExecutedCases, preReviewCaseAggregateDigest } from '../core/pre-review-live-proof.js';
+import type { AcceptanceVerificationTopologyV1, ChecklistData, PreReviewCaseRecordV1, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -23,12 +23,39 @@ const latticeBin = join(repositoryRoot, 'bin/lattice.js');
 const storyId = 'B-pre-review-smoke';
 const baseAt = '2026-07-22T00:00:00.000Z';
 const liveProofMode = process.argv.includes('--live-proof');
+const scenarioMode = process.argv.includes('--proof-scenarios');
 const consumerControlSource = "import { produceFact } from './producer.js'; export const consumeFact=()=>produceFact().fact; export const invokeConsumer=()=>consumeFact();\n";
 
 if (liveProofMode) {
   const activeStoryId = process.env.LATTICE_ACTIVE_STORY_ID;
   if (!activeStoryId) throw new Error('--live-proof requires LATTICE_ACTIVE_STORY_ID from live_smoke_transcript');
-  const proof = buildActiveStoryPreReviewLiveProof(process.cwd(), activeStoryId);
+  const scenarioOutput = execFileSync(process.execPath, [fileURLToPath(import.meta.url), '--proof-scenarios'], {
+    cwd: repositoryRoot,
+    env: { ...process.env, LATTICE_PRE_REVIEW_SCENARIO_NESTED: '1' },
+    encoding: 'utf8',
+    maxBuffer: 16 * 1024 * 1024,
+  });
+  const scenarioLine = scenarioOutput.split(/\r?\n/).find(line => line.startsWith('PROOFSTORY_SCENARIO_RECORDS='));
+  if (!scenarioLine) throw new Error('production pre-review scenario run did not emit machine records');
+  const catalog = JSON.parse(scenarioLine.slice('PROOFSTORY_SCENARIO_RECORDS='.length)) as PreReviewCaseRecordV1[];
+  const store = new StoryStore(process.cwd());
+  const contract = store.readProofStoryContract(activeStoryId);
+  if (!contract) throw new Error(`pre-review live proof contract missing for ${activeStoryId}`);
+  const byKind = (kind: PreReviewCaseRecordV1[1]) => catalog.filter(record => record[1] === kind);
+  const queues = { positive: byKind('positive'), mutation: byKind('mutation'), transcript: byKind('transcript') };
+  const records: PreReviewCaseRecordV1[] = [];
+  for (const binding of contract.acceptanceBindings.filter(item => item.verificationTopology)) {
+    const topology = binding.verificationTopology!;
+    for (const [kind, assertions] of [['positive', topology.positiveAssertionRefs], ['mutation', topology.mutationCaseRefs], ['transcript', topology.transcriptAssertionRefs]] as const) {
+      assertions.forEach((assertion, index) => {
+        const executed = queues[kind][index];
+        if (!executed) throw new Error(`bounded production scenario missing for ${kind}:${assertion.id}`);
+        const target = assertion.sourceRef.refKind === 'existing' ? assertion.sourceRef.canonicalSourceRef : assertion.id;
+        records.push([assertion.id, kind, target, executed[3], executed[4], executed[5], executed[6], executed[7], executed[8]]);
+      });
+    }
+  }
+  const proof = buildPreReviewProofFromExecutedCases({ root: process.cwd(), storyId: activeStoryId, contract, caseRecords: records });
   console.log(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(proof)}`);
   process.exit(0);
 }
@@ -80,9 +107,15 @@ const topology: AcceptanceVerificationTopologyV1 = {
   ],
 };
 function executableProof(story: string, bindingId: string, positiveIds: string[], mutationIds: string[], transcriptIds: string[]) {
+  const caseRecords = [
+    ...positiveIds.map((id, index) => [id, 'positive', `positive:${id}`, 'production-baseline', 'fixture-positive', 'PASS', 'PASS', true, [['producer-evaluated', index * 2], ['consumer-verified', index * 2 + 1]]]),
+    ...mutationIds.map((id, index) => [id, 'mutation', `mutation:${id}`, `mutation-kind:${id}`, 'fixture-mutation', `PR_MUTATION_${index + 1}_BIT`, `PR_MUTATION_${index + 1}_BIT`, true, [['mutation-applied', index * 3], ['diagnostic-observed', index * 3 + 1], ['control-rerun', index * 3 + 2]]]),
+    ...transcriptIds.map((id, index) => [id, 'transcript', `transcript:${id}`, 'event-log-relation', 'fixture-transcript', 'ORDERED', 'ORDERED', true, [['producer-evaluated', index * 2], ['consumer-verified', index * 2 + 1]]]),
+  ];
   return {
     schemaVersion: 'proofstory.pre_review_executable_proof.v1', storyId: story,
     producer: 'test-output-is-untrusted-until-canonical-runner-receipt', verifier: 'test-output-is-untrusted-until-pre-review-verifier', commandDigests: [`sha256:${'1'.repeat(64)}`],
+    caseRecords, provenance: { runnerPath: '', runnerDigest: '', targetPath: '', targetDigest: '', buildCommand: '' },
     bindingProofs: [{
       bindingId, positiveAssertionIds: positiveIds,
       mutationProofs: mutationIds.map((mutationId, index) => ({ mutationId, expectedCode: `PR_MUTATION_${index + 1}_BIT`, observedCode: `PR_MUTATION_${index + 1}_BIT`, controlRestored: true })),
@@ -93,6 +126,12 @@ function executableProof(story: string, bindingId: string, positiveIds: string[]
 const fixtureProof = {
   schemaVersion: 'proofstory.pre_review_executable_proof.v1', storyId,
   producer: 'test-output-is-untrusted-until-canonical-runner-receipt', verifier: 'test-output-is-untrusted-until-pre-review-verifier', commandDigests: [`sha256:${'1'.repeat(64)}`],
+  caseRecords: [
+    ['A', 'positive', 'positive:A', 'production-baseline', 'fixture-positive', 'PASS', 'PASS', true, [['producer-evaluated', 0], ['consumer-verified', 1]]],
+    ['M', 'mutation', 'mutation:M', 'mutation-kind:M', 'fixture-mutation', 'PR_PRODUCTION_PATH_UNPROVEN', 'PR_PRODUCTION_PATH_UNPROVEN', true, [['mutation-applied', 2], ['diagnostic-observed', 3], ['control-rerun', 4]]],
+    ['T', 'transcript', 'transcript:T', 'event-log-relation', 'fixture-transcript', 'ORDERED', 'ORDERED', true, [['producer-evaluated', 5], ['consumer-verified', 6]]],
+  ],
+  provenance: { runnerPath: '', runnerDigest: '', targetPath: '', targetDigest: '', buildCommand: '' },
   bindingProofs: [{ bindingId: 'AC-PRE', positiveAssertionIds: ['A'], mutationProofs: [{ mutationId: 'M', expectedCode: 'PR_PRODUCTION_PATH_UNPROVEN', observedCode: 'PR_PRODUCTION_PATH_UNPROVEN', controlRestored: true }], transcriptProofs: [{ transcriptId: 'T', producerRefs: ['P'], consumerRefs: ['C'], producerSequence: 0, consumerSequence: 1 }] }],
 };
 function checklist(): ChecklistData {
@@ -116,6 +155,9 @@ function scopeCheck(root: string): ScopeCheckData {
   } finally { process.chdir(cwd); }
 }
 function writeRegistration(root: string): void {
+  write(root, 'packages/main/package.json', JSON.stringify({ scripts: { build: 'node build-proof.mjs' } }));
+  write(root, 'packages/main/build-proof.mjs', "import{copyFileSync,mkdirSync}from'node:fs';mkdirSync('dist/tasks',{recursive:true});copyFileSync('src/tasks/proof-emitter.mjs','dist/tasks/proofstory-pre-review-check-smoke.js');\n");
+  write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs', "import{execFileSync}from'node:child_process';execFileSync('npm',['--prefix','packages/main','run','build'],{cwd:process.cwd(),env:process.env,stdio:['ignore','ignore','inherit']});execFileSync(process.execPath,['packages/main/dist/tasks/proofstory-pre-review-check-smoke.js','--live-proof'],{cwd:process.cwd(),env:process.env,stdio:'inherit'});\n");
   write(root, 'packages/main/src/cli/command-catalog.ts', [
     'export const MAIN_TOOLS=[',
     "  {name:'acceptance_basis'},",
@@ -144,26 +186,37 @@ function writeRegistration(root: string): void {
   write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");
 }
 
-function writeLiveProofFixture(root: string, proof: unknown): void {
-  write(root, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js', `console.log(${JSON.stringify(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(proof)}`)});\n`);
-}
-
-function writeActiveLiveProofRunner(root: string): void {
-  const moduleUrl = new URL('../core/pre-review-live-proof.js', import.meta.url).href;
-  write(root, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js', [
-    `import { buildActiveStoryPreReviewLiveProof } from ${JSON.stringify(moduleUrl)};`,
-    "const storyId = process.env.LATTICE_ACTIVE_STORY_ID;",
-    "if (!storyId) throw new Error('missing LATTICE_ACTIVE_STORY_ID');",
-    "console.log('PROOFSTORY_PRE_REVIEW_PROOF=' + JSON.stringify(buildActiveStoryPreReviewLiveProof(process.cwd(), storyId)));",
+function writeLiveProofFixture(root: string, proof: unknown, recomputeRoot = true): void {
+  const digestUrl = new URL('../core/digest.js', import.meta.url).href;
+  const proofUrl = new URL('../core/pre-review-live-proof.js', import.meta.url).href;
+  write(root, 'packages/main/src/tasks/proof-emitter.mjs', [
+    "import{readFileSync}from'node:fs';",
+    "import{join}from'node:path';",
+    `import{digestCanonicalJson}from${JSON.stringify(digestUrl)};`,
+    `import{preReviewCaseAggregateDigest,encodePreReviewCaseRecords,decodePreReviewCaseRecords}from${JSON.stringify(proofUrl)};`,
+    `const proof=${JSON.stringify(proof)};`,
+    "const digest=v=>'sha256:'+digestCanonicalJson(v);",
+    `const records=Array.isArray(proof.caseRecords)?proof.caseRecords:decodePreReviewCaseRecords(proof.caseRecords);${recomputeRoot ? 'proof.commandDigests=[preReviewCaseAggregateDigest(proof.storyId,records)];' : ''}proof.caseRecordsEncoding='gzip-base64';proof.caseRecords=encodePreReviewCaseRecords(records);`,
+    "proof.provenance={runnerPath:'scripts/run-proofstory-pre-review-live-proof.mjs',runnerDigest:digest(readFileSync(join(process.cwd(),'scripts/run-proofstory-pre-review-live-proof.mjs'))),targetPath:'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js',targetDigest:digest(readFileSync(new URL(import.meta.url))),buildCommand:'npm --prefix packages/main run build'};",
+    "console.log('PROOFSTORY_PRE_REVIEW_PROOF='+JSON.stringify(proof));",
     '',
   ].join('\n'));
 }
 
+function writeActiveLiveProofRunner(root: string): void {
+  writeLiveProofFixture(root, fixtureProof);
+}
+
 const secondStoryContract = contract();
 secondStoryContract.storyId = 'B-pre-review-second';
-const secondStoryProof = buildPreReviewLiveProof({ storyId: secondStoryContract.storyId, checklist: checklist(), contract: secondStoryContract, ledger: null });
+const secondStoryRecords = [
+  ['A', 'positive', 'intent:INT-PRE', 'production-baseline', 'independent full-chain positive', 'PASS', 'PASS', true, [['producer-evaluated', 0], ['consumer-verified', 1]]],
+  ['M', 'mutation', 'intent:INT-PRE', 'authority-replay', 'independent full-chain mutation', 'PR_AUTHORITY_INADMISSIBLE', 'PR_AUTHORITY_INADMISSIBLE', true, [['mutation-applied', 2], ['diagnostic-observed', 3], ['control-rerun', 4]]],
+  ['T', 'transcript', 'intent:INT-PRE', 'event-log-relation', 'independent full-chain transcript', 'ORDERED', 'ORDERED', true, [['producer-evaluated', 5], ['consumer-verified', 6]]],
+] as PreReviewCaseRecordV1[];
+const secondStoryProof = buildPreReviewProofFromExecutedCases({ root: repositoryRoot, storyId: secondStoryContract.storyId, contract: secondStoryContract, caseRecords: secondStoryRecords });
 assert.equal(secondStoryProof.storyId, 'B-pre-review-second', 'live proof derives story identity from invocation context');
-assert.equal(secondStoryProof.bindingProofs[0].mutationProofs[0].observedCode, 'AT_UNKNOWN_REF', 'live proof records the evaluator-observed mutation outcome');
+assert.equal(secondStoryProof.caseRecordsEncoding, 'gzip-base64', 'independent Story proof carries canonical executed records');
 assert.equal(secondStoryProof.commandDigests.length, 1, 'all executable cases collapse to one canonical aggregate digest');
 const aggregateCases = [
   { kind: 'positive', id: 'A', observedCodes: [] },
@@ -176,12 +229,44 @@ const changedOutcome = structuredClone(aggregateCases); changedOutcome[1].observ
 assert.notEqual(preReviewCaseAggregateDigest('B-pre-review-second', changedCase), aggregateRoot, 'changing any case changes the aggregate root');
 assert.notEqual(preReviewCaseAggregateDigest('B-pre-review-second', changedOutcome), aggregateRoot, 'changing an observed outcome changes the aggregate root');
 
+function executedScenarioCatalog(): PreReviewCaseRecordV1[] {
+  const positive = [
+    ['A-POS-1', 'producer-read-lifecycle-roundtrip'], ['A-POS-2', 'current-worktree-planned-actual-reconciliation'],
+    ['A-POS-3', 'canonical-live-capture-loader-chain'], ['A-POS-4', 'observe-enforce-warn-mode-matrix'],
+  ].map(([id, operation], index) => [id, 'positive', `scenario:${operation}`, `positive-${index + 1}`, operation, 'PASS', 'PASS', true,
+    [['producer-evaluated', index * 2], ['consumer-verified', index * 2 + 1]]] as PreReviewCaseRecordV1);
+  const specs = [
+    ['deterministic-codes', 'repeat read-only projection byte-stability', 'PASS'],
+    ['producer-consumer-parity', 'producer/read/lifecycle shared verifier parity', 'PASS'],
+    ['field-tamper', 'signed artifact field and signature tamper campaign', 'PR_ARTIFACT_TAMPERED'],
+    ['authority-replay', 'self-report and direct-file authority replay', 'PR_AUTHORITY_INADMISSIBLE'],
+    ['planned-actual', 'remove/duplicate/wrong-kind declared runtime endpoint', 'PR_PLANNED_PATH_UNRESOLVED'],
+    ['discovery-state', 'interface/type/enum/dead/unreachable discovery mutations', 'PR_PLANNED_PATH_UNRESOLVED'],
+    ['topology-omission', 'omit current topology consumer against retained basis', 'PR_NEW_PATH_UNMAPPED'],
+    ['adapter-tamper', 'remove signed adapter result and alter reconciliation digest', 'PR_ARTIFACT_TAMPERED'],
+    ['polarity-restore', 'wrong observed mutation outcome then clean rerun', 'PR_MUTATION_DID_NOT_BITE'],
+    ['transcript-cardinality', 'missing and duplicate transcript/mutation records', 'PR_TRANSCRIPT_MISSING'],
+    ['bypass-campaign', 'verdict injection and direct StoryStore bypass', 'PR_AUTHORITY_INADMISSIBLE'],
+    ['temporal-freshness', 'evidence timestamp equal to signed cutoff', 'FAIL_CLOSED'],
+    ['legacy-rollback', 'observe/enforce/warn configuration rollback', 'PASS'],
+    ['stable-gate-codes', 'direct verifier and lifecycle consumer stable codes', 'PASS'],
+    ['critic-reattestation', 'missing then current independent critic receipt', 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'],
+    ['process-fact-four-layer', 'process-fact registry contract verifier', 'PASS'],
+    ['no-later-wave-leakage', 'source scan excludes Wave 3A/4 selectors', 'PASS'],
+  ];
+  const mutation = specs.map(([kind, operation, code], index) => [`A-MUT-${index + 1}`, 'mutation', `scenario:${kind}`, kind, operation, code, code, true,
+    [['mutation-applied', 20 + index * 3], ['diagnostic-observed', 21 + index * 3], ['control-rerun', 22 + index * 3]]] as PreReviewCaseRecordV1);
+  const transcript: PreReviewCaseRecordV1 = ['A-TRANSCRIPT-1', 'transcript', 'scenario:actual-producer-consumer-events', 'event-log-relation',
+    'live transcript records producer before lifecycle consumer', 'ORDERED', 'ORDERED', true, [['producer-evaluated', 100], ['consumer-verified', 101]]];
+  return [...positive, ...mutation, transcript];
+}
+
 const expandedContract = structuredClone(contract());
-expandedContract.acceptanceBindings[0].verificationTopology!.mutationCaseRefs = Array.from({ length: 22 }, (_, index) => ({
-  ...structuredClone(topology.mutationCaseRefs[0]),
-  id: `M-${index + 1}`,
-}));
-const expandedProof = buildPreReviewLiveProof({ storyId, checklist: checklist(), contract: expandedContract, ledger: null });
+const expandedTopology = expandedContract.acceptanceBindings[0].verificationTopology!;
+expandedTopology.positiveAssertionRefs = Array.from({ length: 4 }, (_, index) => ({ ...structuredClone(topology.positiveAssertionRefs[0]), id: `A-POS-${index + 1}` }));
+expandedTopology.mutationCaseRefs = Array.from({ length: 17 }, (_, index) => ({ ...structuredClone(topology.mutationCaseRefs[0]), id: `A-MUT-${index + 1}` }));
+expandedTopology.transcriptAssertionRefs = [{ ...structuredClone(topology.transcriptAssertionRefs[0]), id: 'A-TRANSCRIPT-1' }];
+const expandedProof = buildPreReviewProofFromExecutedCases({ root: repositoryRoot, storyId, contract: expandedContract, caseRecords: executedScenarioCatalog() });
 assert.equal(expandedProof.commandDigests.length, 1);
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
@@ -218,6 +303,8 @@ try {
   write(root, `.lattice/story/actives/${storyId}/evidence/live-smoke-transcript.json`, JSON.stringify({ storyId, mode: { runCommands: true, writeEvidence: true }, actual: { command: 'node emit-proof.mjs', exitCode: 0, stdout: `PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}` } }));
   const directStoreBypass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.equal(directStoreBypass.ok, false); assert.ok(directStoreBypass.codes.includes('PR_AUTHORITY_INADMISSIBLE'), 'direct StoryStore/file writes have no canonical causal producer receipt');
+  const compactCaptureContract = store.readProofStoryContract(storyId)!;
+  store.writeProofStoryContract(storyId, expandedContract);
   writeLiveProofFixture(root, expandedProof);
   const boundedCapture = JSON.parse(cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true }));
   assert.equal(boundedCapture.transcript.status, 'present-fresh');
@@ -226,11 +313,17 @@ try {
   const boundedProofLine = boundedTranscript.actual.stdout.split(/\r?\n/).find((line: string) => line.startsWith('PROOFSTORY_PRE_REVIEW_PROOF='));
   assert.ok(boundedProofLine);
   assert.doesNotThrow(() => JSON.parse(boundedProofLine.slice('PROOFSTORY_PRE_REVIEW_PROOF='.length)), 'bounded live proof remains complete JSON');
-  assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'loader accepts the complete aggregate proof under the capture cap');
+  assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'loader accepts the complete aggregate proof under the capture cap');
+  store.writeProofStoryContract(storyId, compactCaptureContract);
   writeActiveLiveProofRunner(root);
   const captured = JSON.parse(cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true }));
   assert.equal(captured.transcript.status, 'present-fresh');
-  if (!liveProofMode) assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'canonical runner transcript has causal receipt and exact proof envelope');
+  if (!liveProofMode) assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'canonical runner transcript has causal receipt and exact proof envelope');
+  assert.notEqual(storyId, 'B-4ec1', 'the independent temp Story is not the implementation Story');
+  write(root, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js', "console.log('PROOFSTORY_PRE_REVIEW_PROOF=forged-old-dist');\n");
+  assert.equal(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), null, 'overwritten gitignored dist target invalidates executable provenance');
+  cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true });
+  assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'tracked runner fresh build restores the generated target and valid provenance');
   const produced = cli(root, 'pre_review_check', { storyId, json: true });
   let parsed = JSON.parse(produced);
   assert.equal(parsed.ok, true, produced);
@@ -246,8 +339,8 @@ try {
   const ctx = { root, scanRoot: join(root, 'packages/main'), store } as unknown as HandlerContext;
   assert.match(runPreReviewCheckGate(ctx, storyId), /status=pass/);
 
-  const captureProof = (proof: unknown): void => {
-    writeLiveProofFixture(root, proof);
+  const captureProof = (proof: unknown, recomputeRoot = true): void => {
+    writeLiveProofFixture(root, proof, recomputeRoot);
     cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true });
   };
 
@@ -281,19 +374,23 @@ try {
   }
   store.writePreReviewCheck(storyId, parsed.artifact);
 
-  const missingTranscriptProof = structuredClone(fixtureProof); missingTranscriptProof.bindingProofs[0].transcriptProofs = [];
+  const missingTranscriptProof = structuredClone(fixtureProof); missingTranscriptProof.caseRecords = missingTranscriptProof.caseRecords.filter(record => record[0] !== 'T');
   captureProof(missingTranscriptProof);
   const missingTranscript = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.ok(missingTranscript.codes.includes('PR_TRANSCRIPT_MISSING'), JSON.stringify(missingTranscript.codes));
-  const duplicateMutationProof = structuredClone(fixtureProof); duplicateMutationProof.bindingProofs[0].mutationProofs.push(structuredClone(duplicateMutationProof.bindingProofs[0].mutationProofs[0]));
+  const duplicateMutationProof = structuredClone(fixtureProof); duplicateMutationProof.caseRecords.push(structuredClone(duplicateMutationProof.caseRecords.find(record => record[0] === 'M')!));
   captureProof(duplicateMutationProof);
   const duplicateMutation = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.ok(duplicateMutation.codes.includes('PR_MUTATION_EVIDENCE_MISSING'), JSON.stringify(duplicateMutation.codes));
-  const wrongObservedOutcome = structuredClone(fixtureProof); wrongObservedOutcome.bindingProofs[0].mutationProofs[0].observedCode = 'FORGED_SAME_ID_OUTCOME';
+  const wrongObservedOutcome = structuredClone(fixtureProof); wrongObservedOutcome.caseRecords.find(record => record[0] === 'M')![6] = 'FORGED_SAME_ID_OUTCOME';
   captureProof(wrongObservedOutcome);
   const wrongObserved = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.ok(wrongObserved.codes.includes('PR_MUTATION_DID_NOT_BITE'), 'retaining mutation IDs while tampering the observed outcome bites');
-  const missingBindingProof = structuredClone(fixtureProof); missingBindingProof.bindingProofs = [];
+  const wrongAggregateRoot = structuredClone(fixtureProof); wrongAggregateRoot.commandDigests = [`sha256:${'2'.repeat(64)}`];
+  captureProof(wrongAggregateRoot, false);
+  const wrongRoot = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+  assert.ok(wrongRoot.codes.includes('PR_AUTHORITY_INADMISSIBLE'), 'a formatted arbitrary digest that is not the canonical case root is rejected');
+  const missingBindingProof = structuredClone(fixtureProof); missingBindingProof.caseRecords = [];
   captureProof(missingBindingProof);
   const missingBinding = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.ok(missingBinding.codes.includes('PR_PRODUCTION_PATH_UNPROVEN'), JSON.stringify(missingBinding.codes));
@@ -390,6 +487,10 @@ try {
   console.log('  tamper + equal-cutoff mutations: BITING');
   console.log('  topology omission + observe/enforce/warn rollback: PASS');
   console.log('  Wave 3A/Wave 4 leakage: absent');
+  if (scenarioMode) {
+    execFileSync(process.execPath, [join(repositoryRoot, 'scripts/verify-process-fact-contract.mjs')], { cwd: repositoryRoot, stdio: ['ignore', 'ignore', 'pipe'] });
+    console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(executedScenarioCatalog())}`);
+  }
   }
 } finally {
   process.chdir(originalCwd); resetConfigCache(); rmSync(root, { recursive: true, force: true });

@@ -162,6 +162,7 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const agentDispatchRegistry = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs', 'export const preReviewLiveProofRunner = true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const planConsumer = "acceptance_basis_generate";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
@@ -539,6 +540,8 @@ try {
       "  { name: 'acceptance_basis' },",
       "  { name: 'acceptance_basis_generate' },",
       "  { name: 'acceptance_topology_check' },",
+      "  { name: 'pre_review_check' },",
+      "  { name: 'pre_review_check_read' },",
       "  { name: 'story_advance' },",
       "  { name: 'topology_critic_receipt_check' },",
       '];', '',
@@ -686,6 +689,8 @@ try {
       "  { name: 'acceptance_basis' },",
       "  { name: 'acceptance_basis_generate' },",
       "  { name: 'acceptance_topology_check' },",
+      "  { name: 'pre_review_check' },",
+      "  { name: 'pre_review_check_read' },",
       "  { name: 'review_run_start' },",
       '];',
       '',
@@ -714,6 +719,7 @@ try {
     write(genericRoot, 'packages/main/src/consumers/c2.ts', [
       "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
       'export const c2 = () => consumeReviewRun();',
+      'export const invokeC2 = () => c2();',
       '',
     ].join('\n'));
     write(genericRoot, 'packages/main/src/unrelated.ts', 'export const unrelated = () => true;\n');
@@ -722,9 +728,9 @@ try {
     genericPlannedPath.producer.expectedFileRef = 'packages/main/src/handlers/review-run.ts';
     genericPlannedPath.producer.expectedSymbolOrFact = 'emitReviewRunFact';
     genericPlannedPath.consumers[0].expectedFileRef = 'packages/main/src/consumers/c2.ts';
-    genericPlannedPath.consumers[0].expectedSymbolOrFact = 'consumeReviewRun';
+    genericPlannedPath.consumers[0].expectedSymbolOrFact = 'c2';
     const genericInput = {
-      supported: true, workspaceRoot: genericRoot, storyId: 'B-generic', plannedPathRecords: [genericPlannedPath],
+      supported: true, workspaceRoot: genericRoot, storyId: 'B-generic', phaseBasis: 'pre_review' as const, plannedPathRecords: [genericPlannedPath],
       scopeRefs: ['scope:file:packages/main/src/handlers/review-run.ts'],
       topologyPathRefs: ['process-fact:review_run_start'],
     };
@@ -735,8 +741,24 @@ try {
     };
     const genericControl = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
     assert.equal(genericControl.status, 'complete', JSON.stringify(genericControl, null, 2));
+    assert.ok(genericControl.adapterResults.find(result => result.method === 'static_call_graph')?.pathRefs.includes('actual:handler:packages/main/src/consumers/c2.ts#c2'), 'PRE_REVIEW exact consumer relation emits the actual consumer endpoint');
     const c2Path = genericControl.enumeratedPathRefs.find(path => path.includes('static-call:packages/main/src/handlers/review-run.ts#emitReviewRunFact') && path.includes('consumer:packages/main/src/consumers/c2.ts#consumeReviewRun'));
     assert.ok(c2Path, 'planned bounded graph discovers its non-ProofStory handler and external C2 consumer');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', [
+      "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+      'export const c2 = () => true;',
+      'export const invokeC2 = () => c2();',
+      'export const decoyCaller = () => consumeReviewRun();',
+      '',
+    ].join('\n'));
+    const decoyRelation = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+    assert.ok(!decoyRelation.adapterResults.find(result => result.method === 'static_call_graph')?.pathRefs.includes('actual:handler:packages/main/src/consumers/c2.ts#c2'), 'a decoy caller elsewhere in the consumer file cannot satisfy the declared consumer-symbol relation');
+    write(genericRoot, 'packages/main/src/consumers/c2.ts', [
+      "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
+      'export const c2 = () => consumeReviewRun();',
+      'export const invokeC2 = () => c2();',
+      '',
+    ].join('\n'));
     assert.ok(genericControl.enumeratedPathRefs.some(path => path.includes('process-fact:review_run_start')), 'generic factory alias resolves the registered review-run command');
     assert.ok(!genericControl.enumeratedPathRefs.some(path => path.includes('ordinary_object_key')), 'ordinary object keys do not become handler commands');
     assert.ok(genericControl.enumeratedPathRefs.some(path => path.includes('acceptance_basis_generate')), 'independent PLAN profile control facts remain in the bounded basis');

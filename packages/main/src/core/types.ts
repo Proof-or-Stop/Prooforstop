@@ -455,12 +455,37 @@ export interface PreReviewBindingProofV1 {
   transcriptProofs: PreReviewTranscriptProofV1[];
 }
 
+/** Compact, canonical machine record: id, kind, target, mutationKind, operation,
+ * expected, observed, controlRestored, and ordered producer/consumer events. */
+export type PreReviewCaseRecordV1 = [
+  id: string,
+  kind: 'positive' | 'mutation' | 'transcript',
+  target: string,
+  mutationKind: string,
+  operation: string,
+  expectedCode: string,
+  observedCode: string,
+  controlRestored: boolean,
+  events: Array<[event: string, sequence: number]>,
+];
+
+export interface PreReviewExecutableProvenanceV1 {
+  runnerPath: string;
+  runnerDigest: string;
+  targetPath: string;
+  targetDigest: string;
+  buildCommand: string;
+}
+
 export interface PreReviewExecutableProofV1 {
   schemaVersion: 'proofstory.pre_review_executable_proof.v1';
   storyId: string;
   producer: 'registered-verification-command';
   verifier: 'pre-review-check-command-runner';
   commandDigests: string[];
+  caseRecordsEncoding: 'gzip-base64';
+  caseRecords: string;
+  provenance: PreReviewExecutableProvenanceV1;
   bindingProofs: PreReviewBindingProofV1[];
 }
 
