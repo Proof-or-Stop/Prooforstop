@@ -402,13 +402,34 @@
             "refKind": "existing",
             "canonicalSourceRef": "process-fact:topology_critic_receipt_check"
           },
-          "path:process-fact:acceptance_basis->consumer:<audit-only>",
-          "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
-          "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
-          "path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
-          "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
-          "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
-          "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_basis"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:acceptance_topology_check"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:artifact:acceptance-basis.json"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
+          }
         ]
       }
     }
@@ -416,5 +437,5 @@
   "diagnosticGaps": [],
   "note": "Wave 3 canonical acceptance contract; no duplicate writable matrix and no later-wave rollout semantics.",
   "createdAt": "2026-07-22T22:40:14.304Z",
-  "updatedAt": "2026-07-23T01:52:58.490Z"
+  "updatedAt": "2026-07-23T01:57:34.159Z"
 }
