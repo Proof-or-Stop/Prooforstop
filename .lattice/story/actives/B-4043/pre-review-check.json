@@ -2,16 +2,16 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-4043",
   "mode": "observe",
-  "cutoffAt": "2026-07-23T17:56:04.650Z",
-  "planBasisDigest": "sha256:6b230123c52a8e076496f9fad59814c2c20efc949ef0b0cc2854d09d308464b0",
+  "cutoffAt": "2026-07-23T18:00:14.360Z",
+  "planBasisDigest": "sha256:a562fc7ce266e6c0fd13fb8bfb40efe22eefc9f50822f861ee73c05200a4e0a2",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-4043",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:6b230123c52a8e076496f9fad59814c2c20efc949ef0b0cc2854d09d308464b0",
-      "status": "complete",
+      "priorPlanBasisDigest": "sha256:a562fc7ce266e6c0fd13fb8bfb40efe22eefc9f50822f861ee73c05200a4e0a2",
+      "status": "partial",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
         "command": "lattice pre_review_check",
@@ -248,8 +248,6 @@
           "adapterId": "scope-contract:plan:v1",
           "method": "scope_contract",
           "pathRefs": [
-            "planned:CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
-            "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
             "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH"
           ],
           "coverageClaim": "complete_for_scope",
@@ -294,10 +292,8 @@
             "scope:file:scripts/run-proofstory-acceptance-rollout-cohort.mjs",
             "scope:file:scripts/verify-process-fact-contract.mjs",
             "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
-            "source-file:packages/main/src/core/acceptance-rollout.ts:sha256:bbd7134ac234444331e7bbe603d5e937a258be3d7c4fe938cbbe10eac5f61a2c",
             "source-file:packages/main/src/handlers/proofstory.ts:sha256:3aa8fd72a23a35c4831212ce2aa569bb0b0a37b27cfb6e1dc6598e85527aa66d",
-            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:02d1ab8ad080a90310e525876c111e0c5f83671240b1964b1d3f1b1067d96a19",
-            "source-file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:sha256:e1cc261fee0a6204b7d962e357e0e6ffad88c2e3208cc5910a61c1820a72f152"
+            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:02d1ab8ad080a90310e525876c111e0c5f83671240b1964b1d3f1b1067d96a19"
           ],
           "asymmetryPolicy": {
             "kind": "exhaustive",
@@ -343,7 +339,7 @@
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:cfce6cf29a19935c1ddb6fa2edaa9e6861a60171ebcc5891bf58f91af886665c"
+          "resultDigest": "sha256:59eee77975e7366623823736c9713917f299dcbbb05c9a9e55db7ce4057e26e1"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -363,16 +359,6 @@
             "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
             "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate",
             "path:process-fact:story_advance->consumer:storyMachine phase guards and story_advance preflight gates",
-            "path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutHistoryDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutHistoryDigest",
-            "path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutSourceRecordDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutSourceRecordDigest",
-            "path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/handlers/proofstory.ts#currentAcceptanceRolloutBinding",
-            "path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#currentAcceptanceRolloutBinding",
-            "path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/handlers/proofstory.ts#deriveAcceptanceRolloutReport",
-            "path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#deriveAcceptanceRolloutReport",
-            "path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#issueAcceptanceRolloutArtifact",
-            "path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#issueAcceptanceRolloutArtifact",
-            "path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyAcceptanceRolloutArtifact",
-            "path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#verifyAcceptanceRolloutArtifact",
             "path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
             "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
             "path:static-call:packages/main/src/core/pre-review-check.ts#issuePreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#issuePreReviewCheckArtifact",
@@ -383,8 +369,7 @@
             "path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent",
             "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
             "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
-            "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext",
-            "path:static-call:packages/main/src/handlers/transition-orchestrator.ts#runAcceptanceRolloutGate->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#runAcceptanceRolloutGate"
+            "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
           ],
           "coverageClaim": "complete_for_scope",
           "blindSpots": [],
@@ -473,7 +458,7 @@
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:3295426b16974ba6ebb146a6155f47f9eeb9d52426073e94c3d3d8a652c05890"
+          "resultDigest": "sha256:37d67a917168a5426b34462d2e27a25f6dada6d82b96f65ef9d3b2be7f9aa987"
         }
       ],
       "scopeRefs": [
@@ -521,9 +506,6 @@
         "artifact:acceptance-rollout-report.json",
         "artifact:index.json",
         "artifact:pre-review-check.json",
-        "handler:packages/main/src/handlers/proofstory.ts#acceptance_rollout_report",
-        "planned:CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
-        "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
         "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH",
         "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
         "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
@@ -618,94 +600,10 @@
         "source-file:producer:pre_review_check_read:packages/main/src/core/pre-review-check.ts",
         "source-file:producer:pre_review_check_read:packages/main/src/core/pre-review-live-proof.ts",
         "source-file:producer:pre_review_check_read:scripts/run-proofstory-pre-review-live-proof.mjs",
-        "source_file:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport",
-        "source_file:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact",
         "source_file:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext",
-        "source_file:packages/main/src/handlers/transition-orchestrator.ts#runAcceptanceRolloutGate",
-        "source_file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#runProofStoryAcceptanceRolloutSmoke"
+        "source_file:packages/main/src/handlers/transition-orchestrator.ts#runAcceptanceRolloutGate"
       ],
       "plannedPathRecords": [
-        {
-          "schemaVersion": "proofstory.planned_coverage_path.v1",
-          "plannedPathRef": "planned:CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
-          "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
-          "declarationDigest": "sha256:0b6fa4159239c58bfd6fa9f824d4cf70045ea8fc2b36f6ec866636e4bddeeac8",
-          "producer": {
-            "id": "W4-COHORT-RUNNER-PRODUCER",
-            "role": "producer",
-            "expectedArtifactKind": "source_file",
-            "expectedFileRef": "packages/main/src/core/acceptance-rollout.ts",
-            "expectedSymbolOrFact": "verifyAcceptanceRolloutArtifact",
-            "fileDeclarationRef": "CHK-002:files:create:0"
-          },
-          "consumers": [
-            {
-              "id": "W4-COHORT-REPORT-EVALUATOR",
-              "role": "consumer",
-              "expectedArtifactKind": "source_file",
-              "expectedFileRef": "packages/main/src/handlers/proofstory.ts",
-              "expectedSymbolOrFact": "evaluateAcceptanceRolloutForContext",
-              "fileDeclarationRef": "CHK-002:files:modify:2"
-            }
-          ],
-          "outputFactRef": "process-fact:acceptance_rollout_report",
-          "acceptanceBindingRefs": [
-            "acceptance-binding:AB-WAVE4-MEASURED-ROLLOUT"
-          ],
-          "verificationIntentRefs": [
-            "CHK-002:happy:real-cohort-receipt"
-          ],
-          "declarationRefs": [
-            "CHK-002:files:create:0",
-            "CHK-002:files:modify:2"
-          ],
-          "plannedPathDigest": "sha256:6fde9f26171cf9d1765c7f9997ee0e324fc274038ad7e50dae5da9f9603d08d7"
-        },
-        {
-          "schemaVersion": "proofstory.planned_coverage_path.v1",
-          "plannedPathRef": "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
-          "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
-          "declarationDigest": "sha256:1bcdc1f64d6fdb1b10813044783326480fdd6fb1273ee7d84bc8b905c9c2f70d",
-          "producer": {
-            "id": "W4-ROLLOUT-REPORT-PRODUCER",
-            "role": "producer",
-            "expectedArtifactKind": "source_file",
-            "expectedFileRef": "packages/main/src/core/acceptance-rollout.ts",
-            "expectedSymbolOrFact": "deriveAcceptanceRolloutReport",
-            "fileDeclarationRef": "CHK-002:files:create:0"
-          },
-          "consumers": [
-            {
-              "id": "W4-ROLLOUT-CLI-CONSUMER",
-              "role": "consumer",
-              "expectedArtifactKind": "handler",
-              "expectedFileRef": "packages/main/src/handlers/proofstory.ts",
-              "expectedSymbolOrFact": "acceptance_rollout_report",
-              "fileDeclarationRef": "CHK-002:files:modify:2"
-            },
-            {
-              "id": "W4-ROLLOUT-SMOKE-CONSUMER",
-              "role": "consumer",
-              "expectedArtifactKind": "source_file",
-              "expectedFileRef": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-              "expectedSymbolOrFact": "runProofStoryAcceptanceRolloutSmoke",
-              "fileDeclarationRef": "CHK-002:files:create:1"
-            }
-          ],
-          "outputFactRef": "process-fact:acceptance_rollout_report",
-          "acceptanceBindingRefs": [
-            "acceptance-binding:AB-WAVE4-MEASURED-ROLLOUT"
-          ],
-          "verificationIntentRefs": [
-            "CHK-002:happy:real-cohort-receipt"
-          ],
-          "declarationRefs": [
-            "CHK-002:files:create:0",
-            "CHK-002:files:create:1",
-            "CHK-002:files:modify:2"
-          ],
-          "plannedPathDigest": "sha256:a6326ab07c72e264f766b91f55562b57d15a54a7e55f9ac27c8d177b8dd08e5f"
-        },
         {
           "schemaVersion": "proofstory.planned_coverage_path.v1",
           "plannedPathRef": "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH",
@@ -769,16 +667,6 @@
         "path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate",
         "path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate",
         "path:process-fact:story_advance->consumer:storyMachine phase guards and story_advance preflight gates",
-        "path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutHistoryDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutHistoryDigest",
-        "path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutSourceRecordDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutSourceRecordDigest",
-        "path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/handlers/proofstory.ts#currentAcceptanceRolloutBinding",
-        "path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#currentAcceptanceRolloutBinding",
-        "path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/handlers/proofstory.ts#deriveAcceptanceRolloutReport",
-        "path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#deriveAcceptanceRolloutReport",
-        "path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#issueAcceptanceRolloutArtifact",
-        "path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#issueAcceptanceRolloutArtifact",
-        "path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyAcceptanceRolloutArtifact",
-        "path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#verifyAcceptanceRolloutArtifact",
         "path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
         "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
         "path:static-call:packages/main/src/core/pre-review-check.ts#issuePreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#issuePreReviewCheckArtifact",
@@ -790,13 +678,22 @@
         "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
         "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
         "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext",
-        "path:static-call:packages/main/src/handlers/transition-orchestrator.ts#runAcceptanceRolloutGate->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#runAcceptanceRolloutGate",
-        "planned:CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
-        "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
         "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH"
       ],
       "excludedPathRefs": [],
-      "blindSpots": [],
+      "blindSpots": [
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutHistoryDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutHistoryDigest",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutSourceRecordDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutSourceRecordDigest",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/handlers/proofstory.ts#currentAcceptanceRolloutBinding",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#currentAcceptanceRolloutBinding",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/handlers/proofstory.ts#deriveAcceptanceRolloutReport",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#deriveAcceptanceRolloutReport",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#issueAcceptanceRolloutArtifact",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#issueAcceptanceRolloutArtifact",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyAcceptanceRolloutArtifact",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#verifyAcceptanceRolloutArtifact",
+        "snapshot-seal:derivation_diagnostic:inventory:AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/handlers/transition-orchestrator.ts#runAcceptanceRolloutGate->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#runAcceptanceRolloutGate"
+      ],
       "snapshotSeal": {
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
         "inventoryDirectoryDigest": "sha256:150f46b129f5256d30a72c997758eb4a1e4127558fdba1bb826e6d9fe5e58537",
@@ -804,47 +701,103 @@
         "sourceSnapshotDigest": "sha256:8b0fd5741882bb04f086043db5d3cf979776ba025c782b6455d648f14402d43c",
         "sourceSnapshotCount": 769,
         "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
-        "status": "complete",
-        "issues": [],
-        "sealDigest": "sha256:28adb2274e1223f182d3bed526390a55d24f0b1c37ea6e3b69e0ba2b2c3c5fbc"
+        "status": "partial",
+        "issues": [
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutHistoryDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutHistoryDigest"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutSourceRecordDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutSourceRecordDigest"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/handlers/proofstory.ts#currentAcceptanceRolloutBinding"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#currentAcceptanceRolloutBinding"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/handlers/proofstory.ts#deriveAcceptanceRolloutReport"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#deriveAcceptanceRolloutReport"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#issueAcceptanceRolloutArtifact"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#issueAcceptanceRolloutArtifact"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyAcceptanceRolloutArtifact"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#verifyAcceptanceRolloutArtifact"
+          },
+          {
+            "code": "derivation_diagnostic",
+            "targetKind": "inventory",
+            "canonicalRef": "AT_TOPOLOGY_OUTSIDE_BASIS:path:static-call:packages/main/src/handlers/transition-orchestrator.ts#runAcceptanceRolloutGate->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#runAcceptanceRolloutGate"
+          }
+        ],
+        "sealDigest": "sha256:7607e92ad910648ec26baeab7b96ecc4d5adbe59653f8b260537b5306ac46900"
       },
       "binding": {
-        "headHash": "869870f3b2b22d93bfb582c2f31b8eeb8ef2affe",
+        "headHash": "65fcb941a568910c1198f3762e04a7a553b70f87",
         "materialHash": "75868cfb3cab44502e349c50e09176dc5efe8e4efdc79d794c2bcf43fa913a8c",
         "storyFilesHash": "9452070f794df6ab784ef3bc65b997db2514101640706ffcff9dc5e1dec6b600",
         "scopeCheckDigest": "sha256:a85397cfdc9b48cd672155b8b15b2c8c23cd5daaa03b5f5a9f7c0a4e75686054",
         "scopeContractDigest": "sha256:f56a50c45dc02de942ccc00926dc753296303fe3dea31bdcc8931ba8cb84b791",
-        "closureFilesHash": "sha256:eceec340c8242d162b1176690475009b69fbeb41cfac4fe03eff6f01f9ee7fd3"
+        "closureFilesHash": "sha256:dedd0f511abe1197c93b74fed78c593a1477ea2177139a3b2f5d3b1c52fec467"
       },
-      "receiptRef": "receipt:coverage-basis:B-4043:pre_review:30e00f3234bed465",
-      "basisDigest": "sha256:5bc9912cec24568d4dd50b900db55e3e77f14d2e77d9c407ffcf40d17b3f081b"
+      "receiptRef": "receipt:coverage-basis:B-4043:pre_review:3e9dd03f190a443a",
+      "basisDigest": "sha256:b6f7cc7d987909154667d2776d616299ce6551bada2a53b5e4572e06c24c67ed"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-4043:pre_review:30e00f3234bed465",
+      "receiptRef": "receipt:coverage-basis:B-4043:pre_review:3e9dd03f190a443a",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
       "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
       "storyId": "B-4043",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:5bc9912cec24568d4dd50b900db55e3e77f14d2e77d9c407ffcf40d17b3f081b",
-      "topologyDigest": "sha256:5c302d0c1aec26643ba1c6ceab4c07179db6a9513f8194cc23429bf76126cd9d",
+      "basisDigest": "sha256:b6f7cc7d987909154667d2776d616299ce6551bada2a53b5e4572e06c24c67ed",
+      "topologyDigest": "sha256:5dcb6c628a4005f3afdc05c45233b2aa5b7a5fd1e107d5f2f0641ca7db645912",
       "scopeCheckDigest": "sha256:a85397cfdc9b48cd672155b8b15b2c8c23cd5daaa03b5f5a9f7c0a4e75686054",
       "scopeContractDigest": "sha256:f56a50c45dc02de942ccc00926dc753296303fe3dea31bdcc8931ba8cb84b791",
-      "headHash": "869870f3b2b22d93bfb582c2f31b8eeb8ef2affe",
+      "headHash": "65fcb941a568910c1198f3762e04a7a553b70f87",
       "materialHash": "75868cfb3cab44502e349c50e09176dc5efe8e4efdc79d794c2bcf43fa913a8c",
       "storyFilesHash": "9452070f794df6ab784ef3bc65b997db2514101640706ffcff9dc5e1dec6b600",
-      "closureFilesHash": "sha256:eceec340c8242d162b1176690475009b69fbeb41cfac4fe03eff6f01f9ee7fd3",
-      "sealDigest": "sha256:28adb2274e1223f182d3bed526390a55d24f0b1c37ea6e3b69e0ba2b2c3c5fbc",
+      "closureFilesHash": "sha256:dedd0f511abe1197c93b74fed78c593a1477ea2177139a3b2f5d3b1c52fec467",
+      "sealDigest": "sha256:7607e92ad910648ec26baeab7b96ecc4d5adbe59653f8b260537b5306ac46900",
       "workspaceIdentityDigest": "sha256:6e61ba6ab6ff8068c1890049a84394a794f898a20fefcf7f56a8840651960b91",
-      "signature": "mOZGhlqFZVSbNY73AN8Ijoqvv053wbT9Q1MyoXqoM5Lk8+t1wCi96CACJT2wU2AyIHAh+SyOmgnvu9/kfI+iAw=="
+      "signature": "0uERBye5MQhtWwtUIt4dH2XwDLTEOvRuxiUhU2II0ZBrQ2gNYB9x6qj0N+cS1VuKm2V4ZmcH4C5kL7Oyx6ioBg=="
     }
   },
-  "topologyDigest": "sha256:5c302d0c1aec26643ba1c6ceab4c07179db6a9513f8194cc23429bf76126cd9d",
+  "topologyDigest": "sha256:5dcb6c628a4005f3afdc05c45233b2aa5b7a5fd1e107d5f2f0641ca7db645912",
   "scopeCheckDigest": "sha256:a85397cfdc9b48cd672155b8b15b2c8c23cd5daaa03b5f5a9f7c0a4e75686054",
   "scopeContractDigest": "sha256:f56a50c45dc02de942ccc00926dc753296303fe3dea31bdcc8931ba8cb84b791",
   "storyFilesHash": "9452070f794df6ab784ef3bc65b997db2514101640706ffcff9dc5e1dec6b600",
-  "closureFilesHash": "sha256:eceec340c8242d162b1176690475009b69fbeb41cfac4fe03eff6f01f9ee7fd3",
+  "closureFilesHash": "sha256:dedd0f511abe1197c93b74fed78c593a1477ea2177139a3b2f5d3b1c52fec467",
   "evidenceRefs": [
     {
       "intentRef": "CHK-001:adversarial:prompt-authority",
@@ -958,7 +911,7 @@
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
     "commandDigests": [
-      "sha256:49b76d746ded9c3c7da2284a7eb1f5651a9f810111f41a672a6e97ce3a14e313"
+      "sha256:1a82d6d329c0f2f1411c51b057c889867927f13a371c8e40a1edfa69c1ddafaa"
     ],
     "caseRecordsEncoding": "gzip-base64",
     "caseRecords": "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",
@@ -1087,7 +1040,7 @@
           {
             "transcriptId": "A-TRANSCRIPT-1",
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -1100,11 +1053,11 @@
     ]
   },
   "codes": [
-    "PR_PLANNED_PATH_UNRESOLVED",
-    "PR_ADAPTER_RESULT_INVALID"
+    "PR_COVERAGE_BASIS_CHANGED",
+    "PR_COVERAGE_INCONCLUSIVE"
   ],
-  "status": "fail",
-  "issuedAt": "2026-07-23T17:56:04.650Z",
+  "status": "inconclusive",
+  "issuedAt": "2026-07-23T18:00:14.360Z",
   "signerPublicKey": "00gcM7H5Amw/DnKQu6nfdIUKn5PpXXjYXeTQE79mpv0=",
-  "signature": "8x9GhUXTag1ZLWtcpxbKwz7IMJd43kFfMAa3rtL2ttfia1QGV9xBJ5K3MBG3ma2bKEXIzcMc9Tjau0ADkISNAg=="
+  "signature": "RQqoHIOIlyh5fF4wjbAbvMcSxBStRt9xOts/RtVBvusk7tS1jYyfNqc93Afl580w+rKWoEgD7Q0DeAevU9DiBA=="
 }
