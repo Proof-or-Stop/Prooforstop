@@ -67,6 +67,49 @@
         }
       ],
       "_hash": "bd10e2d544f2fa1efe8d67409a2f62aefad9e7b5d886ff82cccdd028a05ab730"
+    },
+    {
+      "timestamp": "2026-07-23T16:47:46.221Z",
+      "issueCount": 7,
+      "blockerCount": 3,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "scope_ambiguity: Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Wave 4 integrates canonical acceptance topology/pre-review/rollout guidance into both Codex and Claude role assets without making prompt prose authority\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Measured rollout uses a real reproducible comparable baseline/candidate high-assurance Story cohort rather than synthetic-only fixtures\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Flat project rollout thresholds cover transcript/mutation taxonomy, supported adapter sufficiency, sample floor, omission detection, false blocks, degraded-host mislabeling, waivers and non-shrinking checks\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-4043 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "0ebf3364a12417c94eef12696df0256b1640be9cfec9f2571dd1a397c837ce4b"
     }
   ]
 }

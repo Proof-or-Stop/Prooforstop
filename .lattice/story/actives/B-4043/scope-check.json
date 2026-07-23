@@ -1,107 +1,107 @@
 {
   "storyId": "B-4043",
-  "checkedAt": "2026-07-23T16:40:44.067Z",
+  "checkedAt": "2026-07-23T16:49:13.225Z",
   "features": [
     {
-      "feature": "Wave 4 integrates canonical acceptance topology/pre-review/rollout guidance into both Codex and Claude role assets without making prompt prose authority",
+      "feature": "Every in-scope Codex/Claude implementer, verification-intent compatibility, topology-critic, concept, quality, coverage, docs and delivery prompt carries lane-appropriate canonical rollout guidance and cannot become authority",
       "covered_by": "CHK-001",
-      "status": "gap",
+      "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/plan.md#CHK-001; .lattice/story/actives/B-4043/checklist.json CHK-001"
+      "source": ".lattice/story/actives/B-4043/plan.md#CHK-001; .lattice/story/actives/B-4043/checklist.json CHK-001 files/verificationIntent"
     },
     {
-      "feature": "Verifier-owned versioned rollout case/report model derives aggregates and rejects caller verdict/aggregate fields",
+      "feature": "Verifier-owned versioned rollout report derives aggregates and rejects caller verdict/aggregate fields",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4043/checklist.json CHK-002"
     },
     {
-      "feature": "Measured rollout uses a real reproducible comparable baseline/candidate high-assurance Story cohort rather than synthetic-only fixtures",
+      "feature": "Real reproducible baseline/candidate cohort freezes every eligible member in a declared window, prevents caller cherry-picking, and contains at least three matched pairs (>=3 per arm)",
       "covered_by": "CHK-002",
       "status": "gap",
       "excluded_by": null,
-      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#17-success-metrics; .lattice/story/actives/B-4043/checklist.json CHK-002"
+      "source": ".lattice/story/actives/B-4043/plan.md#CHK-002; .lattice/story/actives/B-4043/checklist.json CHK-002 verificationIntent"
     },
     {
-      "feature": "Report receipt binds source case rows, project/threshold version, workspace hashes, cost, review rounds, waivers, adapter results and quorum provenance",
+      "feature": "Report receipt binds eligibility rule, complete frozen membership, source records, version, workspace hashes, cost, rounds, waivers, adapters and full-3x2 provenance",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002"
+      "source": ".lattice/story/actives/B-4043/plan.md#CHK-002; CHK-002 planned producer/consumer path"
     },
     {
-      "feature": "Docs-only, legacy and ordinary single-outcome controls measure supported false blocks without fabricated runtime proof",
+      "feature": "Docs-only, legacy and ordinary single-outcome controls measure zero supported false blocks without fabricated runtime proof",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 edge"
     },
     {
-      "feature": "Supported omission/forgery defects and topology-only C2 deletion bite through real consumers and restore clean control",
+      "feature": "Real-consumer omission/forgery mutations including topology-only C2 deletion bite and restore a clean control",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 adversarial"
     },
     {
-      "feature": "Flat project rollout thresholds cover transcript/mutation taxonomy, supported adapter sufficiency, sample floor, omission detection, false blocks, degraded-host mislabeling, waivers and non-shrinking checks",
+      "feature": "Flat promotion thresholds require zero false passes across every registered seeded defect, 100% supported omission detection, zero false blocks/mislabeled 3x1, nonpositive waiver delta and nonshrinking checks",
       "covered_by": "CHK-003",
       "status": "gap",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-003"
+      "source": ".lattice/story/actives/B-4043/plan.md#CHK-003; .lattice/story/actives/B-4043/checklist.json CHK-003 verificationIntent"
     },
     {
-      "feature": "Unknown, partial, unsupported or disagreeing adapters remain non-authoritative and fail promotion deterministically",
+      "feature": "Unknown, partial, unsupported, incomplete-campaign, membership-drift or disagreeing adapters/campaigns fail promotion deterministically",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-003 edge"
+      "source": ".lattice/story/actives/B-4043/plan.md#CHK-003; CHK-003 edge/adversarial"
     },
     {
-      "feature": "Opt-in enforce mechanically consumes the exact current signed PASS rollout receipt at the real transition consumer",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-004"
-    },
-    {
-      "feature": "Enforcement additionally requires genuine current full 3 rounds x 2 independent supported hosts; degraded 3x1 is never authority",
+      "feature": "Opt-in enforce mechanically consumes the exact current signed PASS report receipt at CLI and lifecycle consumers",
       "covered_by": "CHK-002,CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/understanding.json; .lattice/story/actives/B-4043/checklist.json CHK-002/CHK-004"
+      "source": "CHK-002 W4-ROLLOUT-REPORT-GATE-PATH; .lattice/story/actives/B-4043/checklist.json CHK-004"
     },
     {
-      "feature": "Missing, stale, tampered or failing report/quorum/threshold inputs fail closed with stable codes at the real gate consumer",
+      "feature": "Enforcement requires genuine current three rounds across two independent supported hosts and degraded 3x1 is never authority",
+      "covered_by": "CHK-002,CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/understanding.json; CHK-002/CHK-004"
+    },
+    {
+      "feature": "Missing, stale, tampered, failing or weakened report/quorum/threshold inputs fail closed at the real consumer with stable codes",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4043/checklist.json CHK-004 adversarial"
     },
     {
-      "feature": "Rollback to warn/observe changes only blocking policy and preserves reports, receipts, transitions, diagnostics and evidence history",
+      "feature": "Rollback changes blocking policy only and preserves reports, receipts, transitions, diagnostics and evidence history",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4043/checklist.json CHK-004"
     },
     {
-      "feature": "Canonical Story 6 plan and CLI docs update only after executable cohort and enforcement/rollback evidence pass, with exact measured output and commands",
+      "feature": "Canonical Story 6 plan and CLI docs update only after executable cohort/enforcement/rollback proof, with exact measured results and commands",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
       "source": ".lattice/story/actives/B-4043/checklist.json CHK-005"
     },
     {
-      "feature": "Wave 3A selective per-Story/per-policy applicability remains explicitly unimplemented and excluded from flat Wave 4",
+      "feature": "Selective per-Story/per-policy enforcement remains excluded until Wave 3A is implemented",
       "covered_by": "CHK-003,CHK-005",
       "status": "excluded",
-      "excluded_by": "Wave 3A is optional for flat project rollout and mandatory before any selective enforcement claim; B-4043 explicitly forbids selective applicability.",
-      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#Wave-3A; .lattice/story/actives/B-4043/checklist.json CHK-005"
+      "excluded_by": "Wave 3A is explicitly skipped for flat rollout and remains mandatory before selective applicability can be claimed.",
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#Wave-3A; CHK-005 excludes"
     },
     {
-      "feature": "No second writable acceptance matrix, caller-authored rollout verdict or prompt claim becomes gate evidence",
+      "feature": "No second writable acceptance matrix, caller-authored rollout verdict, prompt claim or degraded host label becomes gate evidence",
       "covered_by": "CHK-001,CHK-002,CHK-004",
       "status": "covered",
       "excluded_by": null,
@@ -124,49 +124,34 @@
   },
   "summary": {
     "total": 15,
-    "covered": 11,
+    "covered": 12,
     "excluded": 1,
-    "gaps": 3,
+    "gaps": 2,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "94ff62265dba3501162cd6ab6c7081bf34d3b33a6d9caf280ad9d88190f55ed7",
+  "_hash": "20118f3c6089ed700be895e46ceb874b1e8a1a85830ddb53edd3b71cb8ff8512",
   "openQuestions": [
     {
-      "id": "OQ-B4043-COHORT-SELECTION",
-      "q": "What verifier-owned, predeclared eligibility and selection rule freezes baseline/candidate cohort membership so an operator cannot cherry-pick favorable real Stories, and does the minimum N=3 mean three matched pairs or at least three Stories in each arm?",
-      "evidence": "CHK-002 says registered real case records and rejects caller verdict/aggregates, but does not make cohort membership/selection non-caller-writable; CHK-003 says only 'at least 3 comparable samples'.",
+      "id": "OQ-B4043-COHORT-INTENT-BINDING",
+      "q": "Will CHK-002 verificationIntent explicitly require the verifier to bind and test the eligibility rule, complete frozen membership, >=3 matched pairs/each arm, and rejection of an omitted eligible row or changed evaluation window?",
+      "evidence": "plan.md CHK-002 now states the correct rule, but CHK-002 happy only binds sample identities and caller verdict/aggregates; its adversarial lane does not mutate membership omission/window drift. Plan prose alone cannot require DEV evidence for anti-cherry-pick behavior.",
       "sourcePointers": [
-        "plan.md#CHK-002",
-        "plan.md#CHK-003",
-        "CHK-002:files:create:0"
-      ],
-      "resolution": "The verifier freezes membership as every eligible comparable high-assurance Story/case in the declared evaluation window; caller selection and omissions are rejected. Minimum N means at least three matched baseline/candidate pairs, therefore at least three samples in each arm. This is now explicit in plan.md CHK-002/CHK-003 and bound into the signed report.",
-      "resolvedAt": "2026-07-23T16:45:11.665Z"
+        ".lattice/story/actives/B-4043/plan.md#CHK-002",
+        ".lattice/story/actives/B-4043/checklist.json#CHK-002:happy:real-cohort-receipt",
+        ".lattice/story/actives/B-4043/checklist.json#CHK-002:adversarial:seeded-defects"
+      ]
     },
     {
-      "id": "OQ-B4043-PROMPT-SURFACES",
-      "q": "Which exact reviewer/coverage/verification-intent role assets are in Wave 4 scope, or should the plan stop promising implementer/reviewer guidance and explicitly limit integration to lattice-implementer?",
-      "evidence": "plan.md promises mirrored implementer/reviewer prompts and the canonical touchpoint inventory names implementer, verification-intent, coverage, and reviewer modules, while CHK-001 files.modify lists only lattice-implementer.md for each host.",
+      "id": "OQ-B4043-FALSE-PASS-INTENT-BINDING",
+      "q": "Will CHK-003 verificationIntent require overall false-pass rate 0 across every registered seeded defect and an incomplete-campaign/undetected-non-omission mutation, in addition to omission detection 100%?",
+      "evidence": "plan.md CHK-003 now states the correct threshold, but CHK-003 happy/adversarial still enumerate omission detection, false blocks, N=2, 3x1, waivers and inventory without overall false-pass=0 or incomplete registered campaign coverage.",
       "sourcePointers": [
-        "plan.md#CHK-001",
-        "CHK-001"
-      ],
-      "resolution": "Wave 4 covers mirrored implementer, test-case-reviewer verification-intent compatibility, topology critic, and concept/quality/test-coverage/docs/delivery reviewer assets for both Codex and Claude. CHK-001 files.modify now enumerates every exact asset plus the registry contract.",
-      "resolvedAt": "2026-07-23T16:45:12.677Z"
-    },
-    {
-      "id": "OQ-B4043-FALSE-PASS-THRESHOLD",
-      "q": "Is Wave 4 promotion required to achieve zero false passes across every registered seeded defect class, not only 100% topology-omission detection, and where is that canonical threshold encoded?",
-      "evidence": "Wave 4 exit and Success Metrics require false-pass thresholds, but CHK-003's explicit thresholds name omission detection and false blocks without a general seeded-defect false-pass threshold.",
-      "sourcePointers": [
-        "plan.md#CHK-003",
-        "CHK-003",
-        "packages/main/src/core/acceptance-rollout.ts"
-      ],
-      "resolution": "Yes. Promotion requires zero false passes across every registered seeded defect class, in addition to 100 percent supported omission detection. The canonical threshold is encoded in the Wave 4 rollout evaluator/policy planned in acceptance-rollout.ts and stated in plan.md CHK-003; incomplete campaigns fail promotion.",
-      "resolvedAt": "2026-07-23T16:45:13.624Z"
+        ".lattice/story/actives/B-4043/plan.md#CHK-003",
+        ".lattice/story/actives/B-4043/checklist.json#CHK-003:happy:bounded-thresholds",
+        ".lattice/story/actives/B-4043/checklist.json#CHK-003:adversarial:threshold-bypass"
+      ]
     }
   ]
 }
