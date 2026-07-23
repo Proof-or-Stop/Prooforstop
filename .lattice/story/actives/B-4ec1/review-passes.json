@@ -117,6 +117,37 @@
         "scanEscalationReason": null
       },
       "_hash": "ccc632f0c1304470eb7d5f836aa4a8e32dc008bec9ee13a2b66451c6e3b11875"
+    },
+    {
+      "id": "B-4ec1:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Quality review found no remaining blocker. F-023 now exact-maps executed cases by assertion ID, kind, and canonical sourceRef; reorder/source-swap/duplicate/extra/missing mutations fail closed. Focused pre-review smoke passed, stale runner/target and malformed provenance are rejected, strict repository-relative path probes reject absolute/dot/dotdot/noncanonical paths, readiness is computed after durable transcript write, and current pre_review_check is PASS with empty codes and admissible current provenance.",
+      "createdAt": "2026-07-23T04:36:35.768Z",
+      "reviewRound": "2026-07-23T04:33:12.403Z",
+      "reviewRunId": "B-4ec1:RR-018",
+      "envelopeId": "b86d06188cdd56dcf7953f6885be59b406439f2940831c07d24fb8d777ea042c",
+      "writerSessionId": "sess-93544b687c5626149c489f697e527223",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/live-smoke-transcript.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "48cfdb795d02d333646fecfc6ae4633fd3b1755c2e3e8d3fed73f5ffe8bde234"
     }
   ]
 }
