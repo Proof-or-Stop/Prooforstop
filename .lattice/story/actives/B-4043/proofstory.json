@@ -144,7 +144,7 @@
         ],
         "positiveAssertionRefs": [
           {
-            "id": "A-W4-PROMPTS",
+            "id": "A-POS-1",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-001:happy:role-guidance"
@@ -158,7 +158,7 @@
             ]
           },
           {
-            "id": "A-W4-REPORT",
+            "id": "A-POS-2",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-002:happy:real-cohort-receipt"
@@ -175,7 +175,7 @@
             ]
           },
           {
-            "id": "A-W4-POLICY",
+            "id": "A-POS-3",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-003:happy:bounded-thresholds"
@@ -188,20 +188,7 @@
             ]
           },
           {
-            "id": "A-W4-ENFORCE",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-004:happy:enforce-and-rollback"
-            },
-            "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
-            ],
-            "consumerRefs": [
-              "C-W4-ROLLOUT-LIFECYCLE"
-            ]
-          },
-          {
-            "id": "A-W4-DOCS",
+            "id": "A-POS-4",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-005:happy:canonical-wave4-status"
@@ -212,9 +199,11 @@
             "consumerRefs": [
               "C-W4-ROLLOUT-CLI"
             ]
-          },
+          }
+        ],
+        "mutationCaseRefs": [
           {
-            "id": "A-W4-PROMPTS-EDGE",
+            "id": "A-MUT-1",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-001:edge:mirror-mode"
@@ -228,20 +217,24 @@
             ]
           },
           {
-            "id": "A-W4-REPORT-EDGE",
+            "id": "A-MUT-2",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-002:edge:false-block-controls"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-REPORT",
+              "P-W4-COHORT-RUNNER",
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
+              "C-W4-ROLLOUT-CLI",
+              "C-W4-COHORT-REPORT-EVALUATOR",
+              "C-W4-ROLLOUT-SMOKE"
             ]
           },
           {
-            "id": "A-W4-POLICY-EDGE",
+            "id": "A-MUT-3",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-003:edge:inconclusive-boundary"
@@ -254,7 +247,7 @@
             ]
           },
           {
-            "id": "A-W4-ENFORCE-EDGE",
+            "id": "A-MUT-4",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-004:edge:mode-invariant-diagnostics"
@@ -267,7 +260,7 @@
             ]
           },
           {
-            "id": "A-W4-DOCS-EDGE",
+            "id": "A-MUT-5",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-005:edge:authority-and-exclusions"
@@ -278,11 +271,9 @@
             "consumerRefs": [
               "C-W4-ROLLOUT-CLI"
             ]
-          }
-        ],
-        "mutationCaseRefs": [
+          },
           {
-            "id": "MUT-W4-PROMPT",
+            "id": "A-MUT-6",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-001:adversarial:prompt-authority"
@@ -296,7 +287,7 @@
             ]
           },
           {
-            "id": "MUT-W4-SEEDS",
+            "id": "A-MUT-7",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-002:adversarial:seeded-defects"
@@ -313,7 +304,7 @@
             ]
           },
           {
-            "id": "MUT-W4-THRESHOLDS",
+            "id": "A-MUT-8",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-003:adversarial:threshold-bypass"
@@ -326,7 +317,7 @@
             ]
           },
           {
-            "id": "MUT-W4-GATE",
+            "id": "A-MUT-9",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-004:adversarial:fail-closed-mutations"
@@ -339,10 +330,102 @@
             ]
           },
           {
-            "id": "MUT-W4-DOCS",
+            "id": "A-MUT-10",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-005:adversarial:no-status-overclaim"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-CLI"
+            ]
+          },
+          {
+            "id": "A-MUT-11",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:adversarial:fail-closed-mutations"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-MUT-12",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:adversarial:fail-closed-mutations"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-MUT-13",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:edge:mode-invariant-diagnostics"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-MUT-14",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:adversarial:threshold-bypass"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-MUT-15",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:adversarial:fail-closed-mutations"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-MUT-16",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:adversarial:prompt-authority"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-CLI",
+              "C-W4-ROLLOUT-LIFECYCLE"
+            ]
+          },
+          {
+            "id": "A-MUT-17",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-005:edge:authority-and-exclusions"
             },
             "producerRefs": [
               "P-W4-ROLLOUT-REPORT"
@@ -354,24 +437,7 @@
         ],
         "transcriptAssertionRefs": [
           {
-            "id": "T-W4-REPORT",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-002:happy:real-cohort-receipt"
-            },
-            "producerRefs": [
-              "P-W4-ROLLOUT-REPORT",
-              "P-W4-COHORT-RUNNER",
-              "P-W4-ROLLOUT-SMOKE"
-            ],
-            "consumerRefs": [
-              "C-W4-ROLLOUT-CLI",
-              "C-W4-COHORT-REPORT-EVALUATOR",
-              "C-W4-ROLLOUT-SMOKE"
-            ]
-          },
-          {
-            "id": "T-W4-ENFORCE",
+            "id": "A-TRANSCRIPT-1",
             "sourceRef": {
               "refKind": "existing",
               "canonicalSourceRef": "intent:CHK-004:happy:enforce-and-rollback"
@@ -381,19 +447,6 @@
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
-            ]
-          },
-          {
-            "id": "T-W4-DOCS",
-            "sourceRef": {
-              "refKind": "existing",
-              "canonicalSourceRef": "intent:CHK-005:happy:canonical-wave4-status"
-            },
-            "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
-            ],
-            "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
             ]
           }
         ],
@@ -509,5 +562,5 @@
   "diagnosticGaps": [],
   "note": "Canonical Story 6 Wave 4 flat measured-rollout acceptance binding. The verification-intent planned declaration owns the new report producer and both CLI/lifecycle consumers; Wave 3A selective applicability is excluded.",
   "createdAt": "2026-07-23T16:46:17.327Z",
-  "updatedAt": "2026-07-23T17:24:12.688Z"
+  "updatedAt": "2026-07-23T17:34:13.290Z"
 }

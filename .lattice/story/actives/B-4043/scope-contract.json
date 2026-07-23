@@ -41,7 +41,8 @@
   "allowedTest": [
     "scripts/verify-process-fact-contract.mjs",
     "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-    "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+    "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [
@@ -49,7 +50,7 @@
     "docs/story/**",
     "tests/fixtures/**"
   ],
-  "scopeChangeReason": "Preserve the independently reviewed PLAN scope and explicitly classify only the verifier-owned acceptance-basis.json lifecycle artifact required by the PLAN gate.",
+  "scopeChangeReason": "Include the registered pre-review live-proof fixture compatibility update required by Wave 4 rollout source discovery.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -69,7 +70,7 @@
     }
   ],
   "createdAt": "2026-07-23T16:52:35.523Z",
-  "updatedAt": "2026-07-23T17:18:30.864Z",
+  "updatedAt": "2026-07-23T17:35:02.285Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -108,6 +109,7 @@
     "docs/story/**": "docs/story/**",
     "tests/fixtures/**": "tests/fixtures/**",
     ".lattice/story/actives/B-4043/acceptance-basis.json": ".lattice/story/actives/B-4043/acceptance-basis.json",
-    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts"
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   }
 }
