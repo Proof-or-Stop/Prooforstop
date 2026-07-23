@@ -579,6 +579,26 @@
       ],
       "signatureTag": "missing|ts|process-fact-contract",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4ec1:F-028",
+      "desc": "packages/main/src/core/validation-command-environment.ts:9-39 — cross-role session-neutrality is incomplete: the filter removes LATTICE_AGENT but omits the repository-supported LATTICE_ACTIVITY_ROLE consumed by cli-engine.ts for reviewer/intent telemetry. Repro against the built module: effectiveValidationCommandEnvironment with PATH=/bin, CI=true, LATTICE_ACTIVITY_ROLE=main, LATTICE_SESSION_ID=owner and the same input with role=reviewer/session=reviewer produce different digests (c172bb… vs 5a5494…), even though only ambient role/session identity changed. This can still make an owner-produced DONE-required PASS unverifiable by an independent reviewer, contradicting the b11ef96 contract. Add LATTICE_ACTIVITY_ROLE to the narrow case-insensitive transport set and cover POSIX plus Windows casing, cross-session receipt acceptance, overlay-last (explicit command.env LATTICE_ACTIVITY_ROLE must remain semantic), and CI/NODE_OPTIONS mutation rejection.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-23T14:30:51.092Z",
+      "reviewRound": "2026-07-23T14:27:52.079Z",
+      "reviewRunId": "B-4ec1:RR-032",
+      "_hash": "0c58f2070131f7543275758cf4e4c7b4949ddcbcde5d9a0f3cb95aa8ace6e2c6",
+      "files": [
+        "packages/main/src/core/validation-command-environment.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
