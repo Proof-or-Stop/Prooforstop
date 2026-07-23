@@ -1,0 +1,167 @@
+{
+  "storyId": "B-4043",
+  "checkedAt": "2026-07-23T16:40:44.067Z",
+  "features": [
+    {
+      "feature": "Wave 4 integrates canonical acceptance topology/pre-review/rollout guidance into both Codex and Claude role assets without making prompt prose authority",
+      "covered_by": "CHK-001",
+      "status": "gap",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/plan.md#CHK-001; .lattice/story/actives/B-4043/checklist.json CHK-001"
+    },
+    {
+      "feature": "Verifier-owned versioned rollout case/report model derives aggregates and rejects caller verdict/aggregate fields",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002"
+    },
+    {
+      "feature": "Measured rollout uses a real reproducible comparable baseline/candidate high-assurance Story cohort rather than synthetic-only fixtures",
+      "covered_by": "CHK-002",
+      "status": "gap",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#17-success-metrics; .lattice/story/actives/B-4043/checklist.json CHK-002"
+    },
+    {
+      "feature": "Report receipt binds source case rows, project/threshold version, workspace hashes, cost, review rounds, waivers, adapter results and quorum provenance",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002"
+    },
+    {
+      "feature": "Docs-only, legacy and ordinary single-outcome controls measure supported false blocks without fabricated runtime proof",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 edge"
+    },
+    {
+      "feature": "Supported omission/forgery defects and topology-only C2 deletion bite through real consumers and restore clean control",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 adversarial"
+    },
+    {
+      "feature": "Flat project rollout thresholds cover transcript/mutation taxonomy, supported adapter sufficiency, sample floor, omission detection, false blocks, degraded-host mislabeling, waivers and non-shrinking checks",
+      "covered_by": "CHK-003",
+      "status": "gap",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-003"
+    },
+    {
+      "feature": "Unknown, partial, unsupported or disagreeing adapters remain non-authoritative and fail promotion deterministically",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-003 edge"
+    },
+    {
+      "feature": "Opt-in enforce mechanically consumes the exact current signed PASS rollout receipt at the real transition consumer",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-004"
+    },
+    {
+      "feature": "Enforcement additionally requires genuine current full 3 rounds x 2 independent supported hosts; degraded 3x1 is never authority",
+      "covered_by": "CHK-002,CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/understanding.json; .lattice/story/actives/B-4043/checklist.json CHK-002/CHK-004"
+    },
+    {
+      "feature": "Missing, stale, tampered or failing report/quorum/threshold inputs fail closed with stable codes at the real gate consumer",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-004 adversarial"
+    },
+    {
+      "feature": "Rollback to warn/observe changes only blocking policy and preserves reports, receipts, transitions, diagnostics and evidence history",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-004"
+    },
+    {
+      "feature": "Canonical Story 6 plan and CLI docs update only after executable cohort and enforcement/rollback evidence pass, with exact measured output and commands",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/checklist.json CHK-005"
+    },
+    {
+      "feature": "Wave 3A selective per-Story/per-policy applicability remains explicitly unimplemented and excluded from flat Wave 4",
+      "covered_by": "CHK-003,CHK-005",
+      "status": "excluded",
+      "excluded_by": "Wave 3A is optional for flat project rollout and mandatory before any selective enforcement claim; B-4043 explicitly forbids selective applicability.",
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#Wave-3A; .lattice/story/actives/B-4043/checklist.json CHK-005"
+    },
+    {
+      "feature": "No second writable acceptance matrix, caller-authored rollout verdict or prompt claim becomes gate evidence",
+      "covered_by": "CHK-001,CHK-002,CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".lattice/story/actives/B-4043/background.md; .lattice/story/actives/B-4043/decision.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".lattice/story/actives/B-4043/background.md",
+      ".lattice/story/actives/B-4043/checklist.json",
+      ".lattice/story/actives/B-4043/decision.json",
+      ".lattice/story/actives/B-4043/plan.md",
+      ".lattice/story/actives/B-4043/understanding.json",
+      "AGENTS.md",
+      "docs/CLI.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 15,
+    "covered": 11,
+    "excluded": 1,
+    "gaps": 3,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "94ff62265dba3501162cd6ab6c7081bf34d3b33a6d9caf280ad9d88190f55ed7",
+  "openQuestions": [
+    {
+      "id": "OQ-B4043-COHORT-SELECTION",
+      "q": "What verifier-owned, predeclared eligibility and selection rule freezes baseline/candidate cohort membership so an operator cannot cherry-pick favorable real Stories, and does the minimum N=3 mean three matched pairs or at least three Stories in each arm?",
+      "evidence": "CHK-002 says registered real case records and rejects caller verdict/aggregates, but does not make cohort membership/selection non-caller-writable; CHK-003 says only 'at least 3 comparable samples'.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-4043/checklist.json#CHK-002",
+        ".lattice/story/actives/B-4043/checklist.json#CHK-003",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#17-success-metrics"
+      ]
+    },
+    {
+      "id": "OQ-B4043-PROMPT-SURFACES",
+      "q": "Which exact reviewer/coverage/verification-intent role assets are in Wave 4 scope, or should the plan stop promising implementer/reviewer guidance and explicitly limit integration to lattice-implementer?",
+      "evidence": "plan.md promises mirrored implementer/reviewer prompts and the canonical touchpoint inventory names implementer, verification-intent, coverage, and reviewer modules, while CHK-001 files.modify lists only lattice-implementer.md for each host.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-4043/plan.md#CHK-001",
+        ".lattice/story/actives/B-4043/checklist.json#CHK-001",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#14-likely-implementation-touchpoints"
+      ]
+    },
+    {
+      "id": "OQ-B4043-FALSE-PASS-THRESHOLD",
+      "q": "Is Wave 4 promotion required to achieve zero false passes across every registered seeded defect class, not only 100% topology-omission detection, and where is that canonical threshold encoded?",
+      "evidence": "Wave 4 exit and Success Metrics require false-pass thresholds, but CHK-003's explicit thresholds name omission detection and false blocks without a general seeded-defect false-pass threshold.",
+      "sourcePointers": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#15-bounded-implementation-waves",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#17-success-metrics",
+        ".lattice/story/actives/B-4043/checklist.json#CHK-003"
+      ]
+    }
+  ]
+}
