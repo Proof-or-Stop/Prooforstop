@@ -284,7 +284,7 @@
       "desc": "packages/main/src/core/acceptance-topology.ts:293 the advertised strict basis-path validator accepts every trimmed control-free string matching path:.+->.+; e.g. the shipped function returns true for basis-path:path:bogus:x->y. packages/main/src/core/acceptance-coverage-basis.ts:521-524 then permits that nonexistent arbitrary path during PLAN as a forward declaration. PRE_REVIEW later rejects it, but PLAN structural admission is falsely green and recreates the late-block/review-loop problem. Parse and whitelist canonical path classes/endpoint grammar and add an unknown path-kind PLAN mutation.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-23T02:21:19.073Z",
@@ -292,7 +292,11 @@
       "reviewRunId": "B-4ec1:RR-006",
       "_hash": "34693971907e863e41fc5d2b119a7ec91fa762ef76072ad4dfb41137a42c2ecb",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed path grammar: only canonical process-fact, runtime-fact, and static-call forms pass strict validation; bogus/malformed refs fail and PRE_REVIEW requires exact basis membership.",
+      "resolvedAt": "2026-07-23T02:59:55.894Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-015",
