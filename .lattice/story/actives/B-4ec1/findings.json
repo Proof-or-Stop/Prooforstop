@@ -30,7 +30,7 @@
       "desc": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:145-161 / :187-198 — VI-W3-M1-EVERY-BINDING-TAMPER and VI-W3-M4-STABLE-GATE-CODES lack an end-to-end lifecycle-consumer assertion for artifact tamper. The table mutates every binding and proves only pre_review_check_read reports PR_ARTIFACT_TAMPERED; runPreReviewCheckGate is exercised only for a clean PASS and an enforce failure caused by PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED. Therefore the focused smoke can pass even if the actual DEV→REVIEW consumer drops, masks, or fails to block PR_ARTIFACT_TAMPERED. Add an enforce-mode case with critic precondition satisfied, persist one tampered signed artifact, invoke the real transition gate/entrypoint, assert blocking output contains PR_ARTIFACT_TAMPERED and no phase/partial metadata write occurs, then restore/reissue exactly and assert the same transition path immediately passes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-22T23:31:49.877Z",
@@ -42,7 +42,11 @@
         "packages/main/src/handlers/transition-orchestrator.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed lifecycle tamper coverage: full pre-review smoke exercises present-artifact tamper through the real DEV-to-REVIEW lifecycle consumer, rejects partial write, restores, and passes; current canonical pre_review_check is PASS.",
+      "resolvedAt": "2026-07-23T02:18:04.006Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-003",
