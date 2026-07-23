@@ -831,6 +831,38 @@
       },
       "readDiagnostics": [],
       "_hash": "267c99fa949a89bb82d6093c4f11a21897eb7beb4f008af50d2f8bd82271dd7f"
+    },
+    {
+      "id": "B-4ec1:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 10 coverage PASS at current storyFilesHash: LANG and LC_ALL now join CI and NODE_OPTIONS in the real evaluateDoneRequiredEvidence mutation loop; each mutation fails closed and asserts effective-environment-digest-mismatch for receipts [0] and [1]. Focused done-required-validation smoke and process-fact contract both pass. Canonical transport set remains exactly 26 unique sorted keys with declared SHA-256 digest; POSIX exact-case filtering, POSIX lowercase semantic behavior, Windows case-insensitive filtering, explicit overlay-last semantics, and all 21/21 verification intents remain current, passing, and waiver-free. Pre-review check reports PASS with codes none.",
+      "createdAt": "2026-07-23T14:53:17.906Z",
+      "reviewRound": "2026-07-23T14:49:16.218Z",
+      "reviewRunId": "B-4ec1:RR-039",
+      "envelopeId": "c8d3bf17d9dae3039e1e00a3604f5f718885ef858e6d81f48ae5a28209bd16d2",
+      "writerSessionId": "sess-ce45edc08011c552d33b7221e72a5e30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8abb2cd0f3cfadaff18a98d133429b8a6e0bb38295927a2d758d91323acd81c8"
     }
   ]
 }
