@@ -632,6 +632,25 @@
       "resolvedAt": "2026-07-23T14:49:28.371Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4ec1:F-030",
+      "desc": "packages/main/src/tasks/quorum-submit-smoke.ts:234-246,342-371,537-562 — full `lattice validate` now correctly strips ambient transport/session identity, but `withFreshFixture` establishes only cwd for its callback. `recordReviewerPasses` temporarily installs a provider and restores it before the callback performs the real story-owned fixture `dispatch` / `review_run_start` at lines 549-552. With no outer provider those production calls fail closed with `unsupported session host provider absent`; an isolated run passes only when it inherits the Codex provider, so the smoke is environment-dependent and two full validate runs have failed at the same command. Fix the fixture harness so a supported provider covers the entire `withFreshFixture` callback, and add a regression that explicitly removes all outer provider/session inference variables before running this real fixture path; the compiled smoke must then pass under the stripped validation environment.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-23T15:30:37.996Z",
+      "reviewRound": "2026-07-23T14:49:16.218Z",
+      "reviewRunId": "B-4ec1:RR-041",
+      "_hash": "025bd0bea8fb619a8ee09eff0c05c9de6e31eb18e3564059f30f220b520cbd99",
+      "files": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/core/validation-command-environment.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
