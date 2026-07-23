@@ -60,6 +60,41 @@
         "scanEscalationReason": null
       },
       "_hash": "bcb5a53e4d86c3f7512d19cd6e34ff3d17db0ba498a67a2a1bcfa03e6b23ce64"
+    },
+    {
+      "id": "B-7dfa:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement in this diff: main...HEAD adds one new file (docs/requirements/decisions/red-evidence-subsystem-spec.md, 1598 lines, zero removed lines vs main) plus Lattice story-metadata bookkeeping; nothing existing is deleted or replaced. Repo-wide grep for the document own intra-revision concept removals (anchored-regex matcher language removed in favor of literal-line/class-only; merged-pipe stream capture removed in favor of streamFrames) found zero residue outside their explicit historical/rationale notes (line 176 deferral note, lines 730-731 section 1.11.3 rationale). Supplementary due diligence: independently verified all cited existing-code anchors (red_evidence_create proofstory.ts:948, appendRedEvidence core/proofstory.ts:1312, RED_EVIDENCE_SCHEMA_VERSION :78, RedEvidenceRecord/RedEvidenceData types.ts:2617/2621/2628/2639, redEvidenceRecordSatisfied :870 + lines 877/878-879, redEvidenceSatisfied :883, missing_red_evidence :1135, VALID_GREEN_RELATIONS :91, currentMaterialHash signature + call sites proofstory.ts:969/transition-orchestrator.ts:873, enforceStoryOwnerLeaseGate ownership-gate.ts:235/282, resolveAgentMutationAuthority agent-dispatch-registry.ts:504, story.currentReviewRound=now transition-orchestrator.ts:775 + mkdir-claim comment :777-789, resolveMaterialCodePolicy + Change A/B/C in language-neutral-gates-execution-plan.md) against src at HEAD (v0.3.230) -- all accurate. Terminology (operationKey vs idempotency-key tuple vs recordDigest, CLEAN/PRE/POST snapshots, legacy-manifest/grandfathering, R1-1..R1-6/R2-1..R2-4/R3/R4 rejection-rule IDs, errorKind taxonomy, status/verdict/provenance enums) used consistently throughout with no orphaned definitions.",
+      "createdAt": "2026-07-23T21:32:19.697Z",
+      "reviewRound": "2026-07-23T21:23:04.577Z",
+      "reviewRunId": "B-7dfa:RR-003",
+      "envelopeId": "6457e0979e3de5aed896cf16b679128ee3f578b3a0fc1db3c772d881368674c5",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+          "packages/main/src/cli/ownership-gate.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1dbfd737471588b1d5b26572f70d7b120eaa7191c08f5142be1be06584f177db"
     }
   ]
 }
