@@ -3,19 +3,18 @@
   "expected": "User sees \"Pre-review check: PASS\" for a signed current verifier-owned artifact, or \"Pre-review check: FAIL code=PR_*\" naming the invalid binding.",
   "actual": {
     "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
-    "exitCode": null,
-    "stdout": "",
-    "stderr": "[capture error] command exceeded 60000ms timeout; process group terminated"
+    "exitCode": 0,
+    "stdout": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-4ec1\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:8bb789b5b298a1624c7558b4e7588ff4e29ccc95be95fa1b28f3352912f4ab1f\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"H4sIAAAAAAACE7VYXZObuBL9Kyo/W7Xxx0wSv2kwM6EWAws4uVOplEsj2h7dYIkrhJP597ckAwYPTGW3Ni8Jo24h+rj79Gl9/TohOAoTPJtMJ4UsueYnmEwnSlYi04oXq0LJrGKgsAKa4Zzvgb2w3Pi0FiZFWR2NS7OrY0VUab6nTP9hXvBH+wLU7EIFVVy/TKaTiCRJ+59WFUy/fr2cAieaV1RDNpnefpt+nbSnnkDxPTfrs/m3b9MJFxqEXn328JcF3sxwFLs4dj977hcch9tgncZeNDFvOEc+70de5FQIyDBluqL5ilVKgdD4h1TftQLjcb2EFTApGM851VwKGzvsFJw4/NixZ2DfkYJCKl0iJo9FDhpQfQqxh5h31obe4z+B4P1rBObY2caxG6T4Sxj/mcaugcMJA8fzPZJ6YdABY9EHg9FCVwpwLmkGasWokIIz+8U5PwHu2+2GqqQ5qteRWS8R/KRMI/gJrNL0KQdUKCn3k+nED8naXXce/knEH15HvMCxS3wcxWF4j51PxOuGuOyHeJQZrORTCeoEGMReKgb4B1XCVkGey0pj44OPVCv+czKdGCMypifKvqNLnosMDWT3k9TPqKBl+XcSfDkfCXa5eB3tEvveves8Or6LN+HaxRuSxt5/6pA329QW97HSTXoymUG5svUsRf6CCyX/C6w2ZqBBHbngpeYMW1eDBBRANWoTALW7Uf1xCvVek6Tkznc7D024zXdgWhS5jemj+dCM04OQ9sz6xzD1/K6GQSuZYwWqEpPpbDZU5Gs3deONF3hJ6jnYCddu0gFg3gfgzDh/i9pakiqfqYLsErUCXSlR2p8Y6Wclq8PzQB6M/fqv4bgdh2M+BMdimPPC9dZxY+yEQbLduDGOSOyljx1MFn1MGppelfwgqKneyXSy55BnWNNjYSM4PyDjARkqlKE+w3ItxyO7wQQZ70icevfESXcp2URubOt8eHkci9mHcTA+DoAxfzcEhvvZjR/xnResveABn8/tALG8AqLSz9LmR8YVMI1LLW2kRU5fuvbL0tkRJVqqF/NPzXDoB9fPsjJlY1lRAQNe6BqHbfopND/JzgvIeuMliXcumDds40C9G8dpCKYhlBzi+26M27Nx7EY+6WbMzVUVXXXKplTKl+OTzF85WBY5yhOgDFhui6jupBeybLdG8S7ySRC4611E0k+7bRC7Seh/brJo1DgO0WIco8UQSIv5UCutD8bESbfEf021t32MMl4yeQL1sqqEAsqeTf/DjOa5eeg64FJT2//hp9EKBp3aq00jVQnNj4C4YPLIxQFBdoDfBNZiHKzlEFg3Q2CtvcQJbfElKUld7Phhso3dDlzv+3BpWchcHl4uySSPvCz7xu5anVFNIjUul4yiB8pFqQ1NU25Y64mWvDzjErhfGkw2JIoauAaW32Com/HKux2i60GBloZR6IcPjzgM/Ecc2opvdZnB6UMfJxvEima00LZ9MakM6zYLLWHX8NSEXZuRgrLK9b/H0vPZKAbzoZY1XwxhQNYkSt3YatN4/ZqmP/YhaB4b7ZbhQuZNk24esQLL3mcFk1MGqHFHzQuQrDSTR0D6GQSyn4hYDlSg+rPPiGy2qRXLu7W33gVhurvzUvdN0xuAvR8H7MMQYB+HNG5zLI5Cn9SMnaRhr75m764KTFFRMsULvbJFJA4YTiB0z4QZVRkXND+DWSeRgv9V3LD2xRHZvajNvyjepTEJEif2onRnszh4GF9/A6DlOEA3QwDdDgF0ORPHrn/GyiHx2guI39dCsyuF/PRi5FxPALSrmNFjQflBtI0f73kOVv8bygaFW4mAzlsQ1RqOv6fzjxP1EE/fDOF092g0KXbIJiLeQ5d2ZlfCmVVa7vcrOPEMBANMNX4yMz9VJlFMjFLRHJ/d7HB1AtR4I9O8SsNNSEtTbQ0vnd1R5033xPN3pltYPur99QYS48p58X6oZw1Ojqm7icKY+Pg+dpNPgZskA/PU4nqgEnt+WJnBEDeDoRmR4UDZCz5bu4Z2eKznTXR2qdSZkLREdsZs+n6paQ7oKZfsu+n6jVD4xXliOV5Ly6FaWt4OjpjuA3Ee8Tp0EhyHvn9HnD+7iCyHRsy6PE5lb7gq7SUAPlAN7XxZK+h2qhoZpulBASApztOWAaIqf99ktRwC4jzP4gerZ67GzNmVQmaKa85Wza2CAsMD5ZX51TIIq/qa3DCXD20q0FbqcJFBASKz+tm+qD9fNJJi58Re6jm72CVp6iZ1p4rdv7Ze2+1/1feN2hsf4pdDQ/xyNoTt+XjcO74L7+2rstPKjKyFkgzKEpsRFCs48FJbGumtN96m/iph+edyndH1RI1nm46/nmI340PGzdCQcTMfwiGKQ8cQj1Fg+D7cxtgnjz0xNLsSzqWsFIPVD3qCLiPbv3Og36kdFEpGRX1hZYmmd3fVFtleKpRToyPN9nomM2VG7hI3SDsPb5DOuMJZDimc5cchHIIQ+8Rowi/ks4t9l/xJHhp102nus556MRVkZEm5enWL05hwLg9YQd6O/HZAvcDBxUkyWkMEDDIoO7kyeLkTxutaPbdP/9YN9tBt5rf/A4Vg/765FwAA\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:5ac76b288a560c32e69095d08590bca645df894c4570d62eb63906501627ce67\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-23T12:40:13.465Z",
+  "capturedAtIso": "2026-07-23T12:55:27.603Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "0fbd7f722e5623d6ef22f94f2ead9d3f36d65ff7",
-  "materialHash": "04883f7cf5446116d6d9cdb0c9d99fdb25619e368d4539b46035dea70f254f3f"
+  "headHash": "65c5ec8b15d7c27ee72a70511f5fb154cb41f3d1",
+  "materialHash": "0dfcf0bd664b9b2939769edc9912cef2fb8585b8d7be55c5b94900256d0348b9"
 }
