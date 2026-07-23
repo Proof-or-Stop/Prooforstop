@@ -1,0 +1,33 @@
+{
+  "passes": [
+    {
+      "id": "B-4ec1:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 19 changed exported symbols and compared 7 bounded documentation paragraphs covering the Wave 3 CLI surface, structural phase rules, deterministic PR codes, critic re-attestation, omission-code ordering, rollout boundaries, and PLAN outcome. F-010/F-011 are resolved: the docs now match the closed three-fact pre-review allowlist, strict three-grammar basis-path syntax, producer/consumer/command-only positions, PLAN deferral and exact pre-review fail-closed resolution. F-001/F-004/F-008 remain aligned; current pre_review_check_read is PASS with no codes. No blocker found.",
+      "createdAt": "2026-07-23T03:01:53.164Z",
+      "reviewRound": "2026-07-23T02:59:34.345Z",
+      "reviewRunId": "B-4ec1:RR-012",
+      "envelopeId": "669012bad43a66b8bf11d11e1c1cf60c52499916c586bba0ae92511fcd3f4ece",
+      "writerSessionId": "sess-2ba46045c62c3f21846eca9fa94eaeb1",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "385c080ba5bfd1deac3864f467cf40e6ea3c3e7c45291e043380e0285e162230"
+    }
+  ]
+}
