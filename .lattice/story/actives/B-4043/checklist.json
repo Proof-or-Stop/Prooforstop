@@ -134,6 +134,35 @@
         "test": [
           "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:bounded-thresholds",
+            "desc": "The canonical flat project policy mechanically requires transcripts for user-visible/orchestration claims, biting mutations for behavior/lifecycle/proof/safety with docs-only exemption, registered supported adapter profiles, at least 3 comparable samples, 100% supported omission detection, 0% false blocks, 0 mislabeled 3x1 campaigns, waiver delta <=0, and a non-shrinking check inventory before warn-to-enforce admission can PASS.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:inconclusive-boundary",
+            "desc": "Insufficient samples, unknown/partial/unsupported adapters, unexplained adapter disagreement, and claim-taxonomy gaps fail promotion with stable diagnostics while remaining honestly partial/unsupported; flat project scope is preserved and no selective Story/policy applicability is inferred without Wave 3A.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:threshold-bypass",
+            "desc": "Boundary mutations at N=2, omission detection below 100%, false-block above 0, any mislabeled 3x1, positive waiver delta, or a removed check must each fail closed; caller attempts to lower thresholds, omit adapter records, forge aggregate PASS, or exploit observe/warn mode must not change the canonical diagnostic result.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
