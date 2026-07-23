@@ -198,7 +198,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:820-823 and 845-850 say existing refs resolve now and PLAN uses current registered facts, but packages/main/src/core/acceptance-discovery-adapters.ts:20-27 plus packages/main/src/core/acceptance-coverage-basis.ts:526-530 intentionally defer pre_review_check, pre_review_check_read, and artifact:pre-review-check.json until the pre_review basis. Document the explicit phase-activation exception and its closed allowlist/fail-closed boundary; otherwise topology authors and auditors are told the opposite of the production PLAN gate.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-23T02:20:20.652Z",
@@ -211,7 +211,11 @@
         "packages/main/src/core/acceptance-coverage-basis.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed decision docs: the closed deferred pre-review control-fact allowlist and PLAN-deferred/PRE_REVIEW-exact semantics are now explicit.",
+      "resolvedAt": "2026-07-23T02:59:52.426Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-011",
