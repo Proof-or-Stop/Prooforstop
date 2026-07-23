@@ -154,7 +154,7 @@
       "desc": "doc-code-drift: .lattice/story/actives/B-4ec1/plan.md:5 promises topology-only omission prints `Pre-review check: FAIL code=AT_UNMAPPED_SCOPE_REF`, but packages/main/src/core/pre-review-check.ts:140-141 translates that topology diagnostic to PR_NEW_PATH_UNMAPPED and also adds PR_COVERAGE_BASIS_CHANGED; packages/main/src/handlers/proofstory.ts:514 prints only the first sorted PR_* code. Align the PLAN/user-visible promise with the canonical pre-review vocabulary (and exact first-code ordering), or change implementation/output if AT_UNMAPPED_SCOPE_REF is intentionally the promised surface.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-22T23:32:28.219Z",
@@ -168,7 +168,11 @@
         "docs/CLI.md"
       ],
       "signatureTag": "missing|md|code-drift-lattice",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed PLAN/document promise: canonical topology omission first code is PR_NEW_PATH_UNMAPPED with supporting coverage diagnostics; plan review passed and current topology/pre-review basis is complete.",
+      "resolvedAt": "2026-07-23T02:18:09.691Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
