@@ -179,7 +179,7 @@
       "desc": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:71-92,331 and packages/main/src/core/pre-review-check.ts:141-159 — live-proof authority remains a hard-coded self-host bypass. The only accepted command runs a temp B-pre-review-smoke fixture, then constructs storyProof for literal storyId B-4ec1 and mechanically marks all 17 current mutation IDs as expectedCode===observedCode with controlRestored=true before printing it; those 17 B-4ec1 mutations are not executed. loadVerifiedPreReviewExecutableProof treats the captured argv/receipt plus that unverified JSON as authoritative bindingProofs. Therefore B-4ec1 can PASS from fabricated per-mutation outcomes, while any other Story using the same production command receives storyId B-4ec1 and cannot obtain a proof at all. Exact argv capture proves the command ran, not that its emitted claims are true; this leaves F-005/F-007 semantically unresolved and makes Wave 3 non-general. Replace the hard-coded storyProof with verifier-derived results from the active Story and bind each assertion/mutation/transcript to actual command outcome artifacts; add a second non-B-4ec1 live Story proving the generic path and a mutation that changes an observed outcome without changing IDs.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-23T02:20:05.799Z",
@@ -187,7 +187,11 @@
       "reviewRunId": "B-4ec1:RR-005",
       "_hash": "0a2d5188bd1b68830d670f53b6104158bef33dad86af052ce16dbe5e370e5690",
       "signatureTag": "adversarial|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed active-story proof authority: live-smoke injects current story identity, producer reads the real contract/checklist, executes per-binding mutations and restoration, and emits a canonical aggregate root over all case records; non-B story and changed-outcome tests pass.",
+      "resolvedAt": "2026-07-23T02:59:51.560Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-010",
