@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-0168",
+  "checkedAt": "2026-07-20T17:44:20.533Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "bc281c44fedb6d9ecc10f2b993e8b6115fef4833d5d0bdc971ed2d82cffafe0b",
+  "executionBoundaryHash": "c3fd5eac50f5cc1e814dd2866eae5b2077cca83d305f95fca15f7ba70edde97b",
+  "freshnessHash": "71efa85f7d3cdace7b99cb2f3ae82332bc70b489de2090de991290068353334c",
+  "effectiveExcludedKeywords": [
+    "CLI semver/version bump policy changes",
+    "experiment execution or result claims",
+    "paper number or abstract updates",
+    "protocol.lock.json or records-tier-c.jsonl generation",
+    "runtime code changes"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "CLI semver/version bump policy changes",
+      "source": "scopeBoundary.excluded",
+      "text": "CLI semver/version bump policy changes",
+      "excluded": true
+    },
+    {
+      "keyword": "experiment execution or result claims",
+      "source": "scopeBoundary.excluded",
+      "text": "experiment execution or result claims",
+      "excluded": true
+    },
+    {
+      "keyword": "paper number or abstract updates",
+      "source": "scopeBoundary.excluded",
+      "text": "paper number or abstract updates",
+      "excluded": true
+    },
+    {
+      "keyword": "protocol.lock.json or records-tier-c.jsonl generation",
+      "source": "scopeBoundary.excluded",
+      "text": "protocol.lock.json or records-tier-c.jsonl generation",
+      "excluded": true
+    },
+    {
+      "keyword": "runtime code changes",
+      "source": "scopeBoundary.excluded",
+      "text": "runtime code changes",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "7d639b83990d006f9828d6385aa5e93870d3d5381a93c51375cf2790fb1b0c2a"
+}

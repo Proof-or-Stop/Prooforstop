@@ -1,27 +1,42 @@
 {
   "storyId": "B-7dfa",
-  "checkedAt": "2026-07-23T19:28:27.351Z",
+  "checkedAt": "2026-07-23T19:32:34.548Z",
   "reviewRound": "",
-  "agentId": "lattice-review-story-init",
+  "agentId": "product-reviewer",
   "issues": [
     {
-      "id": "INIT-004",
+      "id": "I-1",
       "severity": "low",
-      "desc": "Residual from INIT-001: checklist.json CHK-004 context still reads verbatim retention corrected per transition-orchestrator.ts:663 (rounds are per-entry). Commit 73a69c1e58 corrected the same citation in background.md Key Insights (now explains the drift and points to approximately line 773 at v0.3.230) but did not update checklist.json, so the two required-reading artifacts now disagree with each other on the same fact. Verified checklist.json was not touched by either fix commit (19ac9267b2 or 73a69c1e58, both diffs only touch background.md/index.json). Re-verified against src again: story.currentReviewRound = now is at line 774 in packages/main/src/handlers/transition-orchestrator.ts, not line 663."
+      "desc": "No checklist item explicitly requires defining the gate-consumption query interface (how ProofStory gates query/validate RED records). CHK-001 GREEN definition partially covers this, and W3 owns enforcement wiring, but the spec should define the subsystem boundary that W2 implementation exposes and W3 consumes."
+    },
+    {
+      "id": "I-2",
+      "severity": "low",
+      "desc": "No checklist item addresses the compatibility posture for existing red-evidence.json records in the old self-reported format. The spec should state whether legacy records are grandfathered, migrated, or invalidated — addressable within CHK-003 (supersedes chain) or CHK-004 (retention)."
     }
   ],
   "agentResults": [
     {
       "agentId": "lattice-review-story-init",
-      "checkedAt": "2026-07-23T19:28:27.351Z",
+      "checkedAt": "2026-07-23T19:29:52.091Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-07-23T19:32:34.548Z",
       "issues": [
         {
-          "id": "INIT-004",
+          "id": "I-1",
           "severity": "low",
-          "desc": "Residual from INIT-001: checklist.json CHK-004 context still reads verbatim retention corrected per transition-orchestrator.ts:663 (rounds are per-entry). Commit 73a69c1e58 corrected the same citation in background.md Key Insights (now explains the drift and points to approximately line 773 at v0.3.230) but did not update checklist.json, so the two required-reading artifacts now disagree with each other on the same fact. Verified checklist.json was not touched by either fix commit (19ac9267b2 or 73a69c1e58, both diffs only touch background.md/index.json). Re-verified against src again: story.currentReviewRound = now is at line 774 in packages/main/src/handlers/transition-orchestrator.ts, not line 663."
+          "desc": "No checklist item explicitly requires defining the gate-consumption query interface (how ProofStory gates query/validate RED records). CHK-001 GREEN definition partially covers this, and W3 owns enforcement wiring, but the spec should define the subsystem boundary that W2 implementation exposes and W3 consumes."
+        },
+        {
+          "id": "I-2",
+          "severity": "low",
+          "desc": "No checklist item addresses the compatibility posture for existing red-evidence.json records in the old self-reported format. The spec should state whether legacy records are grandfathered, migrated, or invalidated — addressable within CHK-003 (supersedes chain) or CHK-004 (retention)."
         }
       ]
     }
   ],
-  "_hash": "e6e816088ab7a56ed1f24b9a7e379eb87e0bfd58c6d7ae2cde2f4ee03954d0eb"
+  "_hash": "cc3597890f22eb3dd6260aa1bc6cc43d461c4cbf8814d8e6469317203a5151aa"
 }
