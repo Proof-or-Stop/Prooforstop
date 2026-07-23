@@ -118,7 +118,17 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/CLI.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
+        ]
+      }
     }
   ]
 }
