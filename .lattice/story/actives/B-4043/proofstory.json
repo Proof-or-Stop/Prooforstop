@@ -67,32 +67,15 @@
         "M5"
       ],
       "acceptanceClaim": "A verifier-frozen real cohort produces a current signed report meeting zero false-pass/false-block, supported adapter, waiver, inventory and full-3x2 thresholds; the flat lifecycle consumer enforces only that receipt, rollback preserves history, roles point to canonical facts, and docs state the exact measured boundary.",
-      "note": "One reference-only topology covers the Wave 4 report producer, CLI/report reader and lifecycle gate consumer.",
+      "note": "Registered acceptance_rollout_report process fact is the canonical producer; acceptance_rollout_report_read and story_advance are the real CLI/lifecycle consumers. Subprocess cohort execution is verified by executable proof, not misrepresented as a direct static call.",
       "verificationTopology": {
         "schemaVersion": "proofstory.acceptance_topology.v1",
         "producerRefs": [
           {
             "id": "P-W4-ROLLOUT-REPORT",
             "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
-              "endpointRef": "W4-ROLLOUT-REPORT-PRODUCER"
-            }
-          },
-          {
-            "id": "P-W4-COHORT-RUNNER",
-            "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
-              "endpointRef": "W4-COHORT-RUNNER-PRODUCER"
-            }
-          },
-          {
-            "id": "P-W4-ROLLOUT-SMOKE",
-            "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH",
-              "endpointRef": "W4-ROLLOUT-SMOKE-PRODUCER"
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:acceptance_rollout_report"
             }
           }
         ],
@@ -100,9 +83,8 @@
           {
             "id": "C-W4-ROLLOUT-CLI",
             "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
-              "endpointRef": "W4-ROLLOUT-CLI-CONSUMER"
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:acceptance_rollout_report_read"
             },
             "producerRefs": [
               "P-W4-ROLLOUT-REPORT"
@@ -111,34 +93,11 @@
           {
             "id": "C-W4-ROLLOUT-LIFECYCLE",
             "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
-              "endpointRef": "W4-ROLLOUT-LIFECYCLE-CONSUMER"
+              "refKind": "existing",
+              "canonicalSourceRef": "process-fact:story_advance"
             },
             "producerRefs": [
               "P-W4-ROLLOUT-REPORT"
-            ]
-          },
-          {
-            "id": "C-W4-COHORT-REPORT-EVALUATOR",
-            "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
-              "endpointRef": "W4-COHORT-REPORT-EVALUATOR"
-            },
-            "producerRefs": [
-              "P-W4-COHORT-RUNNER"
-            ]
-          },
-          {
-            "id": "C-W4-ROLLOUT-SMOKE",
-            "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH",
-              "endpointRef": "W4-ROLLOUT-SMOKE-CONSUMER"
-            },
-            "producerRefs": [
-              "P-W4-ROLLOUT-SMOKE"
             ]
           }
         ],
@@ -164,14 +123,10 @@
               "canonicalSourceRef": "intent:CHK-002:happy:real-cohort-receipt"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT",
-              "P-W4-COHORT-RUNNER",
-              "P-W4-ROLLOUT-SMOKE"
+              "P-W4-ROLLOUT-REPORT"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI",
-              "C-W4-COHORT-REPORT-EVALUATOR",
-              "C-W4-ROLLOUT-SMOKE"
+              "C-W4-ROLLOUT-CLI"
             ]
           },
           {
@@ -236,14 +191,10 @@
               "canonicalSourceRef": "intent:CHK-002:edge:false-block-controls"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT",
-              "P-W4-COHORT-RUNNER",
-              "P-W4-ROLLOUT-SMOKE"
+              "P-W4-ROLLOUT-REPORT"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI",
-              "C-W4-COHORT-REPORT-EVALUATOR",
-              "C-W4-ROLLOUT-SMOKE"
+              "C-W4-ROLLOUT-CLI"
             ]
           },
           {
@@ -306,14 +257,10 @@
               "canonicalSourceRef": "intent:CHK-002:adversarial:seeded-defects"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT",
-              "P-W4-COHORT-RUNNER",
-              "P-W4-ROLLOUT-SMOKE"
+              "P-W4-ROLLOUT-REPORT"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI",
-              "C-W4-COHORT-REPORT-EVALUATOR",
-              "C-W4-ROLLOUT-SMOKE"
+              "C-W4-ROLLOUT-CLI"
             ]
           },
           {
@@ -601,7 +548,7 @@
     }
   ],
   "diagnosticGaps": [],
-  "note": "Canonical Story 6 Wave 4 flat measured-rollout acceptance binding. The verification-intent planned declaration owns the new report producer and both CLI/lifecycle consumers; Wave 3A selective applicability is excluded.",
+  "note": "Canonical Story 6 Wave 4 flat measured-rollout acceptance binding. Registered process facts own the report producer and CLI/lifecycle consumers; executable proof covers the subprocess cohort boundary; Wave 3A selective applicability is excluded.",
   "createdAt": "2026-07-23T16:46:17.327Z",
-  "updatedAt": "2026-07-23T17:46:19.995Z"
+  "updatedAt": "2026-07-23T17:51:24.364Z"
 }
