@@ -11,12 +11,30 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from PLAN checklist files: sole deliverable is the decision spec docs/requirements/decisions/red-evidence-subsystem-spec.md; no code files.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "CLI-generated lifecycle artifact of the acceptance-basis PLAN gate: acceptance_basis_generate persisted its signed verifier receipt here as the v0.3.230 gate requires; command-generated metadata, not story material (same classification precedent as B-956f).",
+      "timestamp": "2026-07-23T21:23:00.951Z",
+      "paths": [
+        ".lattice/story/actives/B-7dfa/acceptance-basis.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-7dfa/acceptance-basis.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a7ebcdbaf8148df7809cb6e435617bd06686f003",
+      "materialHash": "7ef1e694eb50bbc45fca95e70efcff1e97a6396d6f1be86586db64de3b572343"
+    }
+  ],
   "createdAt": "2026-07-23T19:43:24.025Z",
-  "updatedAt": "2026-07-23T19:43:24.025Z",
+  "updatedAt": "2026-07-23T21:23:00.951Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
-    "docs/requirements/decisions/red-evidence-subsystem-spec.md": "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+    "docs/requirements/decisions/red-evidence-subsystem-spec.md": "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+    ".lattice/story/actives/B-7dfa/acceptance-basis.json": ".lattice/story/actives/B-7dfa/acceptance-basis.json"
   }
 }
