@@ -116,7 +116,7 @@
       "desc": "packages/main/src/core/acceptance-coverage-basis.ts:292 planned-actual-bypass: reconciliation declares exact actualPathRefs=[plannedPathRef] whenever each file merely contains the expected symbol text (lines 294-305). A comment, string literal, dead declaration, or wrong producer-consumer relationship therefore satisfies plannedActual=complete without any discovered actual path, contradicting current-worktree discovery/reconciliation and allowing enforce admission on a nonexistent chain. Reconcile against canonical adapter-discovered endpoint/path records and bind those actual refs, with a comment/string mutation that must fail.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T23:32:19.806Z",
@@ -124,7 +124,11 @@
       "reviewRunId": "B-4ec1:RR-002",
       "_hash": "179f5c7e66aca981c895963552c9ee941c4cdf3045fb856d1b4988120dd63e6f",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed planned/actual bypass: AST-backed exact endpoint discovery and reconciliation replace substring/self-reference checks; missing/ambiguous/cycle and unmapped-path mutations fail closed; plannedActual=complete on current worktree.",
+      "resolvedAt": "2026-07-23T02:18:07.832Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-007",
