@@ -290,9 +290,9 @@ function pushDiagnostic(
   diagnostics.push({ code, bindingId, path, message });
 }
 
-function isBasisPathSourceRef(value: unknown): value is string {
+export function isAcceptanceBasisPathSourceRef(value: unknown): value is string {
   if (typeof value !== 'string' || value.length > 8_192 || value !== value.trim()) return false;
-  if (/[ -]/.test(value)) return false;
+  if (/[\x00-\x1f\x7f]/.test(value)) return false;
   const path = value.slice('basis-path:'.length);
   return value.startsWith('basis-path:path:') && /^path:.+->.+$/.test(path);
 }
@@ -324,7 +324,7 @@ function validateSourceRef(
   if (obj.refKind === 'existing') {
     if (!nonEmpty(obj.canonicalSourceRef)
       || (!canonicalRefs.has(obj.canonicalSourceRef)
-        && !(isBasisReconciledSourcePosition(path) && isBasisPathSourceRef(obj.canonicalSourceRef)))) {
+        && !(isBasisReconciledSourcePosition(path) && isAcceptanceBasisPathSourceRef(obj.canonicalSourceRef)))) {
       pushDiagnostic(diagnostics, bindingId, 'AT_UNKNOWN_REF', path, `unknown canonical source ref: ${String(obj.canonicalSourceRef ?? '')}`);
       return [];
     }

@@ -11,6 +11,7 @@ import type {
   VerificationPlannedPathDeclarationV1,
 } from './types.js';
 import { digestCanonicalJson } from './digest.js';
+import { isAcceptanceBasisPathSourceRef } from './acceptance-topology.js';
 import {
   ACCEPTANCE_PLAN_DISCOVERY_PROFILE,
   acceptanceDiscoveryFactActivationPhase,
@@ -517,7 +518,11 @@ export function reconcileTopologyWithCoverageBasis(
   }
   for (const ref of topologySourceRefs) {
     const directPath = ref.startsWith('basis-path:') ? ref.slice('basis-path:'.length) : null;
-    if (directPath && !basis.enumeratedPathRefs.includes(directPath)) diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `topology basis-path mapping is outside basis: ${directPath}`, pathRef: directPath });
+    if (directPath && !basis.enumeratedPathRefs.includes(directPath)) {
+      const validPlanForwardDeclaration = basis.phaseBasis === 'plan'
+        && isAcceptanceBasisPathSourceRef(ref);
+      if (!validPlanForwardDeclaration) diagnostics.push({ code: 'AT_TOPOLOGY_OUTSIDE_BASIS', message: `topology basis-path mapping is outside basis: ${directPath}`, pathRef: directPath });
+    }
     if (ref.startsWith('process-fact:') && !basis.enumeratedPathRefs.some(path => path.startsWith(`path:${ref}->`))) {
       const factName = ref.slice('process-fact:'.length);
       const deferredToNextPhase = basis.phaseBasis === 'plan'

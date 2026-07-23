@@ -904,6 +904,8 @@ try {
     focusedBasis.plannedPathRecords = [];
     focusedBasis.plannedActualReconciliations = [];
     focusedBasis.excludedPathRefs = [];
+    focusedBasis.phaseBasis = 'pre_review';
+    focusedBasis.priorPlanBasisDigest = genericBasis.basisDigest;
     const focusedTopology: AcceptanceVerificationTopologyV1 = {
       schemaVersion: 'proofstory.acceptance_topology.v1',
       producerRefs: [], consumerRefs: [], positiveAssertionRefs: [], mutationCaseRefs: [], transcriptAssertionRefs: [],
@@ -913,6 +915,16 @@ try {
       ],
     };
     assert.deepEqual(reconcileTopologyWithCoverageBasis(contract(focusedTopology), focusedBasis), [], 'canonical process-fact mapping plus four exact basis-path static edges reconcile against the current basis');
+    const planForwardBasis = structuredClone(focusedBasis);
+    planForwardBasis.phaseBasis = 'plan';
+    delete planForwardBasis.priorPlanBasisDigest;
+    planForwardBasis.enumeratedPathRefs = [focusedProcessPath];
+    assert.deepEqual(reconcileTopologyWithCoverageBasis(contract(focusedTopology), planForwardBasis), [], 'PLAN accepts strict basis-path edges as next-phase forward declarations');
+    const deletedEdgeTopology = structuredClone(focusedTopology);
+    deletedEdgeTopology.commandRefs = deletedEdgeTopology.commandRefs.filter(ref => ref.refKind !== 'existing'
+      || ref.canonicalSourceRef !== `basis-path:${focusedStaticPaths[0]}`);
+    assert.ok(reconcileTopologyWithCoverageBasis(contract(deletedEdgeTopology), focusedBasis)
+      .some(item => item.code === 'AT_UNMAPPED_SCOPE_REF' && item.pathRef === focusedStaticPaths[0]), 'deleting a material PRE_REVIEW edge mapping bites');
     const nonexistentTopology = structuredClone(focusedTopology);
     nonexistentTopology.commandRefs.push({ refKind: 'existing', canonicalSourceRef: 'basis-path:path:static-call:packages/main/src/missing.ts#produce->consumer:packages/main/src/absent.ts#consume' });
     assert.ok(reconcileTopologyWithCoverageBasis(contract(nonexistentTopology), focusedBasis)
@@ -922,6 +934,8 @@ try {
     assert.equal(omittedC2.status, 'partial', 'consumerGate without a resolvable outside-scope consumer fails closed');
     assert.ok(omittedC2.blindSpots.some(item => item.includes('consumerGate but no resolvable consumer source')), 'missing C2 produces an explicit consumer-source blind spot');
     const omittedBasis = structuredClone(genericBasis);
+    omittedBasis.phaseBasis = 'pre_review';
+    omittedBasis.priorPlanBasisDigest = genericBasis.basisDigest;
     omittedBasis.adapterResults = omittedC2.adapterResults;
     omittedBasis.enumeratedPathRefs = omittedC2.enumeratedPathRefs;
     omittedBasis.blindSpots = omittedC2.blindSpots;

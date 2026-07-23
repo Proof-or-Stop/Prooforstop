@@ -505,7 +505,9 @@ assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contrac
 const orphanConsumerTopology = { ...topology, consumerRefs: [{ ...topology.consumerRefs[0], producerRefs: [] }] };
 assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: orphanConsumerTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_ORPHAN_CONSUMER'), 'orphan consumer bites');
 const noCommandTopology = { ...topology, commandRefs: [] };
-assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: checklist(), contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001'], milestoneIds: [], verificationTopology: noCommandTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_COMMAND_MISSING'), 'empty command group bites');
+const noCommandChecklist = checklist();
+noCommandChecklist.items[0].verificationIntent!.edge.push({ id: 'INT-COMMAND', desc: 'second outcome requires an explicit command', type: 'cli', priority: 'must' });
+assert.ok(buildAcceptanceMatrixReport({ storyId, checklist: noCommandChecklist, contract: contract([{ id: 'AC-1', checklistRefs: ['CHK-001'], verificationIntentRefs: ['INT-001', 'INT-COMMAND'], milestoneIds: [], verificationTopology: noCommandTopology }]), ledger: null }).rows[0].diagnosticCodes.includes('AT_COMMAND_MISSING'), 'empty command group bites for a non-minimal multi-outcome binding');
 const unrelatedIntentChecklist = checklist();
 unrelatedIntentChecklist.items[0].verificationIntent!.happy.push({ id: 'INT-OTHER', desc: 'unrelated must intent', type: 'logic', priority: 'must' });
 const wrongIntentTopology = { ...topology, positiveAssertionRefs: [{ ...topology.positiveAssertionRefs[0], sourceRef: { refKind: 'existing' as const, canonicalSourceRef: 'intent:INT-OTHER' } }] };
