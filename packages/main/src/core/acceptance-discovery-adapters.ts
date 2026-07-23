@@ -101,6 +101,11 @@ interface FactoryInventory {
   commandKeys: string[];
 }
 
+interface HandlerFactoryResolution {
+  commandKeys: string[];
+  blindSpots: string[];
+}
+
 interface BoundedSourceGraph {
   seedFiles: string[];
   sourceInventoryFiles: string[];
@@ -907,28 +912,89 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
   return { imports: stableRows(imports), calledImports: stableRows(called), blindSpots: stable(bindingBlindSpots), unresolvedImports: stable(unresolved) };
 }
 
-function returnedHandlerKeysFromText(sourceText: string): string[] {
-  const source = ts.createSourceFile('handler-factory.ts', sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+function resolveHandlerFactoryKeys(
+  context: BindingAnalysisContext,
+  sourceFile: string,
+  factoryName: string,
+  visiting = new Set<string>(),
+  memo = new Map<string, HandlerFactoryResolution>(),
+): HandlerFactoryResolution {
+  const identity = `${sourceFile}#${factoryName}`;
+  const cached = memo.get(identity);
+  if (cached) return cached;
+  if (!/^[A-Za-z_$][\w$]*Handlers$/.test(factoryName)) {
+    return { commandKeys: [], blindSpots: [`unsupported handler factory name ${identity}`] };
+  }
+  if (visiting.has(identity)) {
+    return { commandKeys: [], blindSpots: [`handler factory spread cycle at ${identity}`] };
+  }
+  const source = context.sourceFiles.get(sourceFile);
+  if (!source) {
+    return { commandKeys: [], blindSpots: context.readBlindSpots.get(sourceFile) ?? [`handler factory source is uninspectable: ${identity}`] };
+  }
+  const declarations = source.statements.filter((statement): statement is ts.FunctionDeclaration =>
+    ts.isFunctionDeclaration(statement) && statement.name?.text === factoryName && statement.body !== undefined);
+  if (declarations.length !== 1) {
+    const result = { commandKeys: [], blindSpots: [`handler factory declaration is ${declarations.length === 0 ? 'missing' : 'ambiguous'}: ${identity}`] };
+    memo.set(identity, result);
+    return result;
+  }
+  const returns = declarations[0].body!.statements
+    .filter((statement): statement is ts.ReturnStatement => ts.isReturnStatement(statement) && statement.expression !== undefined)
+    .map(statement => unwrapExpression(statement.expression!))
+    .filter(ts.isObjectLiteralExpression);
+  if (returns.length !== 1) {
+    const result = { commandKeys: [], blindSpots: [`handler factory returned command object is ${returns.length === 0 ? 'missing' : 'ambiguous'}: ${identity}`] };
+    memo.set(identity, result);
+    return result;
+  }
   const keys: string[] = [];
+  const blindSpots: string[] = [];
   const propertyName = (name: ts.PropertyName | undefined): string | null => {
     if (!name) return null;
     if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
     return null;
   };
-  for (const statement of source.statements) {
-    if (!ts.isFunctionDeclaration(statement) || !statement.name || !/Handlers$/.test(statement.name.text) || !statement.body) continue;
-    for (const bodyStatement of statement.body.statements) {
-      if (!ts.isReturnStatement(bodyStatement) || !bodyStatement.expression) continue;
-      const returned = unwrapExpression(bodyStatement.expression);
-      if (!ts.isObjectLiteralExpression(returned)) continue;
-      for (const property of returned.properties) {
-        if (!ts.isMethodDeclaration(property) && !ts.isPropertyAssignment(property) && !ts.isShorthandPropertyAssignment(property)) continue;
-        const key = propertyName(property.name);
-        if (key && /^[a-z][a-z0-9_]*$/.test(key)) keys.push(key);
-      }
+  visiting.add(identity);
+  for (const property of returns[0].properties) {
+    if (ts.isMethodDeclaration(property) || ts.isPropertyAssignment(property) || ts.isShorthandPropertyAssignment(property)) {
+      const key = propertyName(property.name);
+      if (key && /^[a-z][a-z0-9_]*$/.test(key)) keys.push(key);
+      continue;
     }
+    if (!ts.isSpreadAssignment(property)) continue;
+    const spread = unwrapExpression(property.expression);
+    if (!ts.isCallExpression(spread) || spread.arguments.length !== 1
+      || !ts.isIdentifier(spread.arguments[0]) || spread.arguments[0].text !== 'ctx'
+      || !ts.isIdentifier(unwrapExpression(spread.expression))) {
+      blindSpots.push(`unsupported handler factory spread in ${identity}`);
+      continue;
+    }
+    const localName = (unwrapExpression(spread.expression) as ts.Identifier).text;
+    if (!/^[A-Za-z_$][\w$]*Handlers$/.test(localName)) {
+      blindSpots.push(`unsupported handler factory spread target ${localName} in ${identity}`);
+      continue;
+    }
+    const localTargets = source.statements
+      .filter((statement): statement is ts.FunctionDeclaration => ts.isFunctionDeclaration(statement) && statement.name?.text === localName && statement.body !== undefined)
+      .map(() => ({ sourceFile, factoryName: localName }));
+    const importedTargets = analyzeLocalImportCalls(context, sourceFile).imports
+      .filter(binding => binding.local === localName && /^[A-Za-z_$][\w$]*Handlers$/.test(binding.imported))
+      .map(binding => ({ sourceFile: binding.sourceFile, factoryName: binding.imported }));
+    const targets = [...new Map([...localTargets, ...importedTargets]
+      .map(target => [`${target.sourceFile}#${target.factoryName}`, target])).values()];
+    if (targets.length !== 1) {
+      blindSpots.push(`handler factory spread target is ${targets.length === 0 ? 'missing' : 'ambiguous'}: ${identity}->${localName}`);
+      continue;
+    }
+    const nested = resolveHandlerFactoryKeys(context, targets[0].sourceFile, targets[0].factoryName, visiting, memo);
+    keys.push(...nested.commandKeys);
+    blindSpots.push(...nested.blindSpots);
   }
-  return stable(keys);
+  visiting.delete(identity);
+  const result = { commandKeys: stable(keys), blindSpots: stable(blindSpots) };
+  memo.set(identity, result);
+  return result;
 }
 
 function commandNamesForEntry(entry: ProcessFactRegistryEntry): string[] {
@@ -986,6 +1052,7 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   ]).filter(value => /^[a-z][a-z0-9_:.-]*$/.test(value)));
   const relevantFactNames = new Set([...allowedPhaseControlFacts, ...explicitTopologyFactNames, ...plannedFactNames]);
   const factories: FactoryInventory[] = [];
+  const handlerResolutionMemo = new Map<string, HandlerFactoryResolution>();
   for (const registryFile of registryFiles) {
     const source = analysisContext.sourceFiles.get(registryFile);
     if (!source) { blindSpots.push(...(analysisContext.readBlindSpots.get(registryFile) ?? [`uninspectable registry source ${registryFile}`])); continue; }
@@ -996,11 +1063,13 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
     const registrations = new Set([...text.matchAll(/registry\.registerBatch\(\s*([A-Za-z_$][\w$]*)\s*\(\s*ctx\s*\)\s*\)/g)].map(match => match[1]));
     for (const imported of imports.filter(item => /Handlers$/.test(item.imported) || /Handlers$/.test(item.local))) {
       const registered = registrations.has(imported.local);
-      const commandKeys = returnedHandlerKeysFromText(analysisContext.sourceFiles.get(imported.sourceFile)?.text ?? '');
+      const resolution = resolveHandlerFactoryKeys(analysisContext, imported.sourceFile, imported.imported, new Set(), handlerResolutionMemo);
+      const commandKeys = resolution.commandKeys;
       if (!seedFiles.includes(imported.sourceFile)
         && input.expandSeedHandlerCommands !== true
         && !commandKeys.some(command => relevantFactNames.has(command))) continue;
       factories.push({ factory: imported.local, sourceFile: imported.sourceFile, registered, commandKeys });
+      blindSpots.push(...resolution.blindSpots);
       if (!registered) blindSpots.push(`handler factory ${imported.local} from ${imported.sourceFile} lacks exact registerBatch(factory(ctx))`);
       if (commandKeys.length === 0) blindSpots.push(`handler factory ${imported.local} from ${imported.sourceFile} has ambiguous or empty returned command object`);
     }

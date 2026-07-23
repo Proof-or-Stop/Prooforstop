@@ -507,8 +507,17 @@ try {
       '}', '',
     ].join('\n'));
     write(repositoryShapeRoot, 'packages/main/src/handlers/story-advance.ts', [
-      'export function createStoryAdvanceHandlers() {',
+      'export function createStoryAdvanceHandlers(_ctx: unknown) {',
       '  return { story_advance() { return true; } };',
+      '}', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story.ts', [
+      "import { createStoryAdvanceHandlers } from './story-advance.js';",
+      'export function createStoryHandlers(ctx: unknown) {',
+      '  return {',
+      '    ...createStoryAdvanceHandlers(ctx),',
+      '    story_get() { return true; },',
+      '  };',
       '}', '',
     ].join('\n'));
     write(repositoryShapeRoot, 'packages/main/src/handlers/transition-orchestrator.ts', [
@@ -517,11 +526,11 @@ try {
     ].join('\n'));
     write(repositoryShapeRoot, 'packages/main/src/registry.ts', [
       "import { createProofStoryHandlers } from './handlers/proofstory.js';",
-      "import { createStoryAdvanceHandlers } from './handlers/story-advance.js';",
+      "import { createStoryHandlers } from './handlers/story.js';",
       'const registry = { registerBatch: (_handlers: unknown) => undefined };',
       'const ctx = {};',
       'registry.registerBatch(createProofStoryHandlers(ctx));',
-      'registry.registerBatch(createStoryAdvanceHandlers(ctx));', '',
+      'registry.registerBatch(createStoryHandlers(ctx));', '',
     ].join('\n'));
     write(repositoryShapeRoot, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology = true;\n');
     write(repositoryShapeRoot, 'scripts/verify-process-fact-contract.mjs', 'export const processFactContract = true;\n');
@@ -539,13 +548,14 @@ try {
     repositoryShapePath.consumers[0].expectedFileRef = 'packages/main/src/handlers/transition-orchestrator.ts';
     repositoryShapePath.consumers[0].expectedSymbolOrFact = 'runPreReviewGate';
     repositoryShapePath.outputFactRef = 'process-fact:acceptance_basis_generate';
-    const repositoryShape = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters({
+    const repositoryShapeInput = {
       supported: true,
       workspaceRoot: repositoryShapeRoot,
       storyId: 'B-repository-shape',
       plannedPathRecords: [repositoryShapePath],
       scopeRefs: [
         'scope:file:packages/main/src/handlers/proofstory.ts',
+        'scope:file:packages/main/src/handlers/story.ts',
         'scope:file:packages/main/src/handlers/transition-orchestrator.ts',
         'scope:file:packages/main/src/tests/unrelated.ts',
         'scope:file:packages/main/src/cli-engine.ts',
@@ -555,14 +565,51 @@ try {
         'process-fact:story_advance',
         'process-fact:topology_critic_receipt_check',
       ],
-    }));
+    };
+    const repositoryShape = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(repositoryShapeInput));
     assert.equal(repositoryShape.status, 'complete', JSON.stringify(repositoryShape, null, 2));
     for (const fact of ['acceptance_basis_generate', 'story_advance', 'topology_critic_receipt_check']) {
       assert.ok(repositoryShape.enumeratedPathRefs.some(path => path.startsWith(`path:process-fact:${fact}->`)), `explicit topology fact ${fact} enters registry basis`);
     }
     assert.ok(repositoryShape.enumeratedPathRefs.some(path => path.includes('static-call:packages/main/src/handlers/proofstory.ts#acceptanceBasisProducer')
       && path.includes('consumer:packages/main/src/handlers/transition-orchestrator.ts#consumeBasis')), 'planned proofstory to transition direct edge enters static basis');
+    const repositoryDispatch = repositoryShape.adapterResults.find(item => item.method === 'handler_dispatch_inventory')!;
+    assert.ok(repositoryDispatch.pathRefs.some(path => path.startsWith('path:process-fact:story_advance->')), 'registered parent handler spread recursively discovers story_advance dispatch');
     assert.ok(!repositoryShape.enumeratedPathRefs.some(path => path.includes('/tests/unrelated.ts') || path.includes('/cli-engine.ts')), 'closure-only unrelated calls stay out of topology path refs');
+
+    const storyParentControl = bytes(repositoryShapeRoot, 'packages/main/src/handlers/story.ts');
+    const storyChildControl = bytes(repositoryShapeRoot, 'packages/main/src/handlers/story-advance.ts');
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story.ts', [
+      'export function createStoryHandlers(ctx: unknown) {',
+      '  return { ...createMissingHandlers(ctx) };',
+      '}', '',
+    ].join('\n'));
+    const missingSpread = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(repositoryShapeInput));
+    assert.equal(missingSpread.status, 'partial', 'missing handler spread target fails closed');
+    assert.ok(missingSpread.blindSpots.some(item => item.includes('handler factory spread target is missing')), 'missing spread target is named as the blind spot');
+
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story.ts', [
+      "import { createStoryAdvanceHandlers } from './story-advance.js';",
+      'function createStoryAdvanceHandlers(_ctx: unknown) { return { local_only() { return true; } }; }',
+      'export function createStoryHandlers(ctx: unknown) {',
+      '  return { ...createStoryAdvanceHandlers(ctx) };',
+      '}', '',
+    ].join('\n'));
+    const ambiguousSpread = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(repositoryShapeInput));
+    assert.equal(ambiguousSpread.status, 'partial', 'ambiguous handler spread target fails closed');
+    assert.ok(ambiguousSpread.blindSpots.some(item => item.includes('handler factory spread target is ambiguous')), 'ambiguous spread target is named as the blind spot');
+
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story.ts', storyParentControl);
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story-advance.ts', [
+      "import { createStoryHandlers } from './story.js';",
+      'export function createStoryAdvanceHandlers(ctx: unknown) {',
+      '  return { ...createStoryHandlers(ctx) };',
+      '}', '',
+    ].join('\n'));
+    const cyclicSpread = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(repositoryShapeInput));
+    assert.equal(cyclicSpread.status, 'partial', 'cyclic handler spread fails closed');
+    assert.ok(cyclicSpread.blindSpots.some(item => item.includes('handler factory spread cycle')), 'spread cycle is named as the blind spot');
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story-advance.ts', storyChildControl);
   } finally {
     rmSync(repositoryShapeRoot, { recursive: true, force: true });
   }
