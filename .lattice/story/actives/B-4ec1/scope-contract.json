@@ -82,10 +82,28 @@
         "writeDiscoveryRegistration",
         "topologyCriticReceipt"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Wave 3 necessarily introduces the canonical signed pre-review gate artifact and extends the focused topology smoke to prove strict phase-aware basis-path validation and fail-closed mutations.",
+      "timestamp": "2026-07-23T02:17:02.430Z",
+      "paths": [
+        ".lattice/story/actives/B-4ec1/pre-review-check.json",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-4ec1/pre-review-check.json",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c4bb631515c187a8ef34a910df13f30b0e4c691f",
+      "materialHash": "8c44753588c9190c729f080916901ae5d5c293a9eb3bc062c0e0bf2967a7d523"
     }
   ],
   "createdAt": "2026-07-22T22:41:51.162Z",
-  "updatedAt": "2026-07-22T23:18:57.890Z",
+  "updatedAt": "2026-07-23T02:17:02.430Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -113,6 +131,8 @@
     "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
-    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+    "packages/main/src/tasks/proofstory-topology-critic-smoke.ts": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+    ".lattice/story/actives/B-4ec1/pre-review-check.json": ".lattice/story/actives/B-4ec1/pre-review-check.json",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
   }
 }
