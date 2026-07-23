@@ -1,108 +1,111 @@
 {
   "storyId": "B-4ec1",
-  "checkedAt": "2026-07-23T04:32:21.974Z",
+  "checkedAt": "2026-07-23T05:08:17.020Z",
   "features": [
     {
-      "feature": "Canonical signed pre_review_check producer and verifier path",
-      "covered_by": "CHK-001",
+      "feature": "Canonical signed pre_review_check artifact, verifier-owned result codes, persistence, CLI producer and read-only diagnostics",
+      "covered_by": "CHK-001 / VI-W3-M1-PRE-REVIEW-ROUNDTRIP",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/core/pre-review-check.ts#pre_review_check"
+      "source": "packages/main/src/core/pre-review-check.ts; packages/main/src/handlers/proofstory.ts; packages/main/src/core/store.ts; packages/main/src/cli/command-catalog.ts"
     },
     {
-      "feature": "Exact process_fact producer to lifecycle handler planned path tuple",
-      "covered_by": "CHK-001",
+      "feature": "DEV-to-REVIEW lifecycle gate consumes the same production verifier and refuses missing or blocking artifacts",
+      "covered_by": "CHK-001 / VI-W3-M1-PRODUCER-CONSUMER-PARITY",
       "status": "covered",
       "excluded_by": null,
-      "source": "process_fact|packages/main/src/core/pre-review-check.ts|pre_review_check|CHK-001:files:create:0 -> handler|packages/main/src/handlers/transition-orchestrator.ts|runPreReviewCheckGate|CHK-001:files:modify:3"
+      "source": "packages/main/src/handlers/transition-orchestrator.ts#runPreReviewCheckGate; packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext"
     },
     {
-      "feature": "Current-worktree coverage basis and planned-to-actual reconciliation",
-      "covered_by": "CHK-002",
+      "feature": "Current-worktree pre_review coverage basis is independently recomputed and reconciled to the frozen PLAN basis",
+      "covered_by": "CHK-002 / VI-W3-M2-CURRENT-WORKTREE-RECONCILIATION",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/core/acceptance-coverage-basis.ts"
+      "source": "packages/main/src/core/acceptance-coverage-basis.ts; packages/main/src/core/acceptance-discovery-adapters.ts; packages/main/src/handlers/proofstory.ts"
     },
     {
-      "feature": "Observed static call from canonicalPreReviewAssertionSourceRef producer to pre-review verifier consumer is mapped",
-      "covered_by": "CHK-003",
+      "feature": "All declared, discovered and changed-scope paths are topology-mapped or explicitly excluded; the flow-stability DEV-to-REVIEW fixture seeds the real verifier-owned basis without adding a production edge",
+      "covered_by": "CHK-002 / VI-W3-M2-PLANNED-ACTUAL-MATRIX and VI-W3-M2-DISCOVERY-STATE-CLOSURE",
       "status": "covered",
       "excluded_by": null,
-      "source": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#canonicalPreReviewAssertionSourceRef->consumer:packages/main/src/core/pre-review-check.ts#canonicalPreReviewAssertionSourceRef"
+      "source": "packages/main/src/core/acceptance-topology.ts; packages/main/src/tasks/flow-stability-smoke.ts; scope acknowledgement scope-ack:6"
     },
     {
-      "feature": "Observed static call from preReviewExecutableProvenanceIsCurrent producer to pre-review verifier consumer is mapped",
-      "covered_by": "CHK-003",
+      "feature": "Exact positive assertion IDs, kinds and canonical source refs are executed and verified, including missing, extra, duplicate and permutation cases",
+      "covered_by": "CHK-003 / VI-W3-M3-REAL-PROOF-CHAIN",
       "status": "covered",
       "excluded_by": null,
-      "source": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
+      "source": "packages/main/src/core/pre-review-live-proof.ts; packages/main/src/core/pre-review-check.ts; packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
     },
     {
-      "feature": "Exact case assertion ID, kind, canonical sourceRef, cardinality, aggregate root, and current runner/target provenance enforcement",
-      "covered_by": "CHK-003",
+      "feature": "Every declared mutation bites with the expected code and clean control restoration",
+      "covered_by": "CHK-003 / VI-W3-M3-MUTATION-POLARITY-RESTORE and VI-W3-M3-BYPASS-CAMPAIGN",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/core/pre-review-live-proof.ts; packages/main/src/core/pre-review-check.ts"
+      "source": "packages/main/src/core/pre-review-live-proof.ts; scripts/run-proofstory-pre-review-live-proof.mjs; packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
     },
     {
-      "feature": "Executable positive, 17 mutation, restoration, transcript, authority, and freshness proof closure",
-      "covered_by": "CHK-003",
+      "feature": "Transcript evidence proves the related producer precedes the lifecycle consumer and rejects unrelated or malformed transcripts",
+      "covered_by": "CHK-003 / VI-W3-M3-TRANSCRIPT-RELATION-CARDINALITY",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      "source": "packages/main/src/handlers/live-smoke-transcript.ts; packages/main/src/core/pre-review-check.ts; packages/main/src/tasks/live-smoke-transcript-smoke.ts"
     },
     {
-      "feature": "All seven F-024 remediation files are declared Wave 3 code, test, registry, type, decision-doc, or contract-verifier scope",
-      "covered_by": "CHK-001, CHK-003, CHK-004",
+      "feature": "Evidence authority, cutoff, executable provenance, hashes, signatures and temporal freshness fail closed under tamper, replay and drift",
+      "covered_by": "CHK-001 and CHK-003 / VI-W3-M1-CALLER-AUTHORITY-REPLAY and VI-W3-M3-TEMPORAL-FRESHNESS-MATRIX",
       "status": "covered",
       "excluded_by": null,
-      "source": "commit:43644a9046"
+      "source": "packages/main/src/core/pre-review-check.ts; packages/main/src/core/pre-review-live-proof.ts; scripts/run-proofstory-pre-review-live-proof.mjs"
     },
     {
-      "feature": "Process-fact rationale, contract verifier, types, and execution-plan documentation synchronized",
-      "covered_by": "CHK-004",
+      "feature": "Observe/enforce, legacy and docs-only applicability semantics remain deterministic and rollback-safe for Wave 3",
+      "covered_by": "CHK-004 / VI-W3-M4-LIFECYCLE-MODE-MATRIX and VI-W3-M4-LEGACY-DOCS-ROLLBACK",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/core/process-fact-registry.ts; packages/main/src/core/types.ts; scripts/verify-process-fact-contract.mjs; docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      "source": "packages/main/src/core/config.ts; packages/main/src/handlers/transition-orchestrator.ts; packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
     },
     {
-      "feature": "Legacy stories remain bounded and non-retroactively blocked",
-      "covered_by": "CHK-004",
+      "feature": "Process-fact registry, level/rationale, command policy, CLI docs and contract verifier agree; no writable acceptance-matrix truth source is introduced",
+      "covered_by": "CHK-004 / VI-W3-M4-PROCESS-FACT-FOUR-LAYER and VI-W3-M4-STABLE-GATE-CODES",
       "status": "covered",
       "excluded_by": null,
+      "source": "packages/main/src/core/process-fact-registry.ts; packages/main/src/core/process-fact-levels.ts; packages/main/src/core/command-policy.ts; scripts/verify-process-fact-contract.mjs; docs/CLI.md"
+    },
+    {
+      "feature": "Wave 3A selective applicability profile or migration automation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit later-wave boundary in B-4444; VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
       "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     },
     {
-      "feature": "Wave 3A selective applicability rules",
+      "feature": "Wave 4 enforcement rollout, telemetry, causal metrics and default-policy promotion",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicit later-wave boundary retained in current scope contract",
-      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
-    },
-    {
-      "feature": "Wave 4 rollout telemetry and enforce migration",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Explicit later-wave boundary retained in current scope contract",
+      "excluded_by": "Explicit later-wave boundary in B-4444; VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
       "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     }
   ],
   "readManifest": {
     "filesReadFully": [
-      ".lattice/story/actives/B-4ec1/background.md",
-      ".lattice/story/actives/B-4ec1/checklist.json",
-      ".lattice/story/actives/B-4ec1/decision.json",
-      ".lattice/story/actives/B-4ec1/plan.md",
-      ".lattice/story/actives/B-4ec1/proofstory.json",
-      ".lattice/story/actives/B-4ec1/scope-contract.json",
-      ".lattice/story/actives/B-4ec1/understanding.json",
-      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      "packages/main/src/core/pre-review-live-proof.ts"
     ],
     "filesTriagedByName": [
-      "AGENTS.md",
       "docs/CLI.md",
-      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
-      "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "packages/main/src/core/acceptance-coverage-basis.ts",
+      "packages/main/src/core/acceptance-discovery-adapters.ts",
+      "packages/main/src/core/acceptance-topology.ts",
+      "packages/main/src/core/pre-review-check.ts",
+      "packages/main/src/handlers/live-smoke-transcript.ts",
+      "packages/main/src/handlers/proofstory.ts",
+      "packages/main/src/handlers/transition-orchestrator.ts",
+      "packages/main/src/tasks/flow-stability-smoke.ts",
+      "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+      "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+      "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "scripts/verify-process-fact-contract.mjs"
     ],
     "scanEscalationReason": null
   },
@@ -114,7 +117,7 @@
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-07-23T04:11:56.497Z",
-  "_hash": "796af1ae6423c00ce8eb62d9ec340759cd32b66367b7c5dd091f5a686e0af158",
+  "reviewRound": "2026-07-23T04:33:12.403Z",
+  "_hash": "35d0c1992996fd444d98aeda6abdd5479df468f35b1ea7fd461e0593c357b49b",
   "openQuestions": []
 }
