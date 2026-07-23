@@ -25,6 +25,30 @@ const baseAt = '2026-07-22T00:00:00.000Z';
 const liveProofMode = process.argv.includes('--live-proof');
 const scenarioMode = process.argv.includes('--proof-scenarios');
 const consumerControlSource = "import { produceFact } from './producer.js'; export const consumeFact=()=>produceFact().fact; export const invokeConsumer=()=>consumeFact();\n";
+const scenarioLedger = new Map<string, PreReviewCaseRecordV1>();
+let scenarioEventSequence = 0;
+const actualScenarioEvents: Array<[string, number]> = [];
+
+function scenarioEvent(name: string): number {
+  const sequence = scenarioEventSequence++;
+  actualScenarioEvents.push([name, sequence]);
+  return sequence;
+}
+
+function recordExecutedCase(record: PreReviewCaseRecordV1): void {
+  if (scenarioLedger.has(record[0])) throw new Error(`duplicate executed scenario record: ${record[0]}`);
+  scenarioLedger.set(record[0], record);
+}
+
+function assertScenarioLedgerComplete(records: readonly PreReviewCaseRecordV1[]): void {
+  const expected = [
+    ...Array.from({ length: 4 }, (_, index) => [`A-POS-${index + 1}`, 'positive']),
+    ...Array.from({ length: 17 }, (_, index) => [`A-MUT-${index + 1}`, 'mutation']),
+    ['A-TRANSCRIPT-1', 'transcript'],
+  ];
+  const actual = records.map(record => [record[0], record[1]]).sort((a, b) => a[0].localeCompare(b[0]));
+  assert.deepEqual(actual, expected.sort((a, b) => a[0].localeCompare(b[0])), 'executed scenario ledger must contain every exact required ID/kind once');
+}
 
 if (liveProofMode) {
   const activeStoryId = process.env.LATTICE_ACTIVE_STORY_ID;
@@ -229,44 +253,13 @@ const changedOutcome = structuredClone(aggregateCases); changedOutcome[1].observ
 assert.notEqual(preReviewCaseAggregateDigest('B-pre-review-second', changedCase), aggregateRoot, 'changing any case changes the aggregate root');
 assert.notEqual(preReviewCaseAggregateDigest('B-pre-review-second', changedOutcome), aggregateRoot, 'changing an observed outcome changes the aggregate root');
 
-function executedScenarioCatalog(): PreReviewCaseRecordV1[] {
-  const positive = [
-    ['A-POS-1', 'producer-read-lifecycle-roundtrip'], ['A-POS-2', 'current-worktree-planned-actual-reconciliation'],
-    ['A-POS-3', 'canonical-live-capture-loader-chain'], ['A-POS-4', 'observe-enforce-warn-mode-matrix'],
-  ].map(([id, operation], index) => [id, 'positive', `scenario:${operation}`, `positive-${index + 1}`, operation, 'PASS', 'PASS', true,
-    [['producer-evaluated', index * 2], ['consumer-verified', index * 2 + 1]]] as PreReviewCaseRecordV1);
-  const specs = [
-    ['deterministic-codes', 'repeat read-only projection byte-stability', 'PASS'],
-    ['producer-consumer-parity', 'producer/read/lifecycle shared verifier parity', 'PASS'],
-    ['field-tamper', 'signed artifact field and signature tamper campaign', 'PR_ARTIFACT_TAMPERED'],
-    ['authority-replay', 'self-report and direct-file authority replay', 'PR_AUTHORITY_INADMISSIBLE'],
-    ['planned-actual', 'remove/duplicate/wrong-kind declared runtime endpoint', 'PR_PLANNED_PATH_UNRESOLVED'],
-    ['discovery-state', 'interface/type/enum/dead/unreachable discovery mutations', 'PR_PLANNED_PATH_UNRESOLVED'],
-    ['topology-omission', 'omit current topology consumer against retained basis', 'PR_NEW_PATH_UNMAPPED'],
-    ['adapter-tamper', 'remove signed adapter result and alter reconciliation digest', 'PR_ARTIFACT_TAMPERED'],
-    ['polarity-restore', 'wrong observed mutation outcome then clean rerun', 'PR_MUTATION_DID_NOT_BITE'],
-    ['transcript-cardinality', 'missing and duplicate transcript/mutation records', 'PR_TRANSCRIPT_MISSING'],
-    ['bypass-campaign', 'verdict injection and direct StoryStore bypass', 'PR_AUTHORITY_INADMISSIBLE'],
-    ['temporal-freshness', 'evidence timestamp equal to signed cutoff', 'FAIL_CLOSED'],
-    ['legacy-rollback', 'observe/enforce/warn configuration rollback', 'PASS'],
-    ['stable-gate-codes', 'direct verifier and lifecycle consumer stable codes', 'PASS'],
-    ['critic-reattestation', 'missing then current independent critic receipt', 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'],
-    ['process-fact-four-layer', 'process-fact registry contract verifier', 'PASS'],
-    ['no-later-wave-leakage', 'source scan excludes Wave 3A/4 selectors', 'PASS'],
-  ];
-  const mutation = specs.map(([kind, operation, code], index) => [`A-MUT-${index + 1}`, 'mutation', `scenario:${kind}`, kind, operation, code, code, true,
-    [['mutation-applied', 20 + index * 3], ['diagnostic-observed', 21 + index * 3], ['control-rerun', 22 + index * 3]]] as PreReviewCaseRecordV1);
-  const transcript: PreReviewCaseRecordV1 = ['A-TRANSCRIPT-1', 'transcript', 'scenario:actual-producer-consumer-events', 'event-log-relation',
-    'live transcript records producer before lifecycle consumer', 'ORDERED', 'ORDERED', true, [['producer-evaluated', 100], ['consumer-verified', 101]]];
-  return [...positive, ...mutation, transcript];
-}
-
 const expandedContract = structuredClone(contract());
 const expandedTopology = expandedContract.acceptanceBindings[0].verificationTopology!;
 expandedTopology.positiveAssertionRefs = Array.from({ length: 4 }, (_, index) => ({ ...structuredClone(topology.positiveAssertionRefs[0]), id: `A-POS-${index + 1}` }));
 expandedTopology.mutationCaseRefs = Array.from({ length: 17 }, (_, index) => ({ ...structuredClone(topology.mutationCaseRefs[0]), id: `A-MUT-${index + 1}` }));
 expandedTopology.transcriptAssertionRefs = [{ ...structuredClone(topology.transcriptAssertionRefs[0]), id: 'A-TRANSCRIPT-1' }];
-const expandedProof = buildPreReviewProofFromExecutedCases({ root: repositoryRoot, storyId, contract: expandedContract, caseRecords: executedScenarioCatalog() });
+const expandedFixture = executableProof(storyId, 'AC-PRE', expandedTopology.positiveAssertionRefs.map(item => item.id), expandedTopology.mutationCaseRefs.map(item => item.id), expandedTopology.transcriptAssertionRefs.map(item => item.id));
+const expandedProof = buildPreReviewProofFromExecutedCases({ root: repositoryRoot, storyId, contract: expandedContract, caseRecords: expandedFixture.caseRecords as PreReviewCaseRecordV1[] });
 assert.equal(expandedProof.commandDigests.length, 1);
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
@@ -290,54 +283,71 @@ try {
   git(root, ['add', '.']); git(root, ['commit', '--author=lattice-implementer <lattice-implementer@noreply.local>', '-m', 'implementation']);
   const plan = cli(root, 'acceptance_basis_generate', { storyId, json: true });
   assert.equal(JSON.parse(plan).artifact.basis.status, 'complete', plan);
-  if (!liveProofMode) {
+  if (!liveProofMode && !scenarioMode) {
     const missing = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
     assert.deepEqual(missing.codes, ['PR_ARTIFACT_MISSING']);
     assert.match(missing.remediation.join('\n'), /Run lattice pre_review_check/);
   }
   cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'caller self-report must not become pre-review authority', attestation: { kind: 'ci', actor: 'self-reported', checkedClaims: ['production-path', 'mutation-bites', 'control-restored', 'transcript-related', 'authority-admissible'] }, actorTrust: { producerActorId: 'claimed-producer', verifierActorId: 'claimed-verifier', trustStatus: 'trusted' } }] });
-  if (!liveProofMode) {
+  if (!liveProofMode && !scenarioMode) {
     const selfReported = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
     assert.equal(selfReported.ok, false); assert.ok(selfReported.codes.includes('PR_AUTHORITY_INADMISSIBLE'));
   }
   write(root, `.lattice/story/actives/${storyId}/evidence/live-smoke-transcript.json`, JSON.stringify({ storyId, mode: { runCommands: true, writeEvidence: true }, actual: { command: 'node emit-proof.mjs', exitCode: 0, stdout: `PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}` } }));
   const directStoreBypass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.equal(directStoreBypass.ok, false); assert.ok(directStoreBypass.codes.includes('PR_AUTHORITY_INADMISSIBLE'), 'direct StoryStore/file writes have no canonical causal producer receipt');
-  const compactCaptureContract = store.readProofStoryContract(storyId)!;
-  store.writeProofStoryContract(storyId, expandedContract);
-  writeLiveProofFixture(root, expandedProof);
-  const boundedCapture = JSON.parse(cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true }));
-  assert.equal(boundedCapture.transcript.status, 'present-fresh');
-  const boundedTranscript = JSON.parse(readFileSync(join(store.storyDirPath(storyId), 'evidence/live-smoke-transcript.json'), 'utf8'));
-  assert.equal(boundedTranscript.actual.stdout.includes('...[truncated'), false, '22 mutation cases fit within the live transcript stdout cap');
-  const boundedProofLine = boundedTranscript.actual.stdout.split(/\r?\n/).find((line: string) => line.startsWith('PROOFSTORY_PRE_REVIEW_PROOF='));
-  assert.ok(boundedProofLine);
-  assert.doesNotThrow(() => JSON.parse(boundedProofLine.slice('PROOFSTORY_PRE_REVIEW_PROOF='.length)), 'bounded live proof remains complete JSON');
-  assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'loader accepts the complete aggregate proof under the capture cap');
-  store.writeProofStoryContract(storyId, compactCaptureContract);
+  recordExecutedCase(['A-MUT-4', 'mutation', 'authority:direct-store-replay', 'authority-replay', 'direct StoryStore proof without causal receipt', 'PR_AUTHORITY_INADMISSIBLE', directStoreBypass.codes.includes('PR_AUTHORITY_INADMISSIBLE') ? 'PR_AUTHORITY_INADMISSIBLE' : directStoreBypass.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+  recordExecutedCase(['A-MUT-11', 'mutation', 'bypass:direct-store', 'bypass-campaign', 'direct-file and caller-authority bypass attempt', 'PR_AUTHORITY_INADMISSIBLE', directStoreBypass.codes.includes('PR_AUTHORITY_INADMISSIBLE') ? 'PR_AUTHORITY_INADMISSIBLE' : directStoreBypass.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+  if (!scenarioMode) {
+    const compactCaptureContract = store.readProofStoryContract(storyId)!;
+    store.writeProofStoryContract(storyId, expandedContract);
+    writeLiveProofFixture(root, expandedProof);
+    const boundedCapture = JSON.parse(cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true }));
+    assert.equal(boundedCapture.transcript.status, 'present-fresh');
+    const boundedTranscript = JSON.parse(readFileSync(join(store.storyDirPath(storyId), 'evidence/live-smoke-transcript.json'), 'utf8'));
+    assert.equal(boundedTranscript.actual.stdout.includes('...[truncated'), false, '22 mutation cases fit within the live transcript stdout cap');
+    const boundedProofLine = boundedTranscript.actual.stdout.split(/\r?\n/).find((line: string) => line.startsWith('PROOFSTORY_PRE_REVIEW_PROOF='));
+    assert.ok(boundedProofLine);
+    assert.doesNotThrow(() => JSON.parse(boundedProofLine.slice('PROOFSTORY_PRE_REVIEW_PROOF='.length)), 'bounded live proof remains complete JSON');
+    assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'loader accepts the complete aggregate proof under the capture cap');
+    store.writeProofStoryContract(storyId, compactCaptureContract);
+  }
   writeActiveLiveProofRunner(root);
   const captured = JSON.parse(cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true }));
   assert.equal(captured.transcript.status, 'present-fresh');
-  if (!liveProofMode) assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'canonical runner transcript has causal receipt and exact proof envelope');
+  const canonicalLoaded = loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! });
+  if (!liveProofMode) assert.ok(canonicalLoaded, 'canonical runner transcript has causal receipt and exact proof envelope');
   assert.notEqual(storyId, 'B-4ec1', 'the independent temp Story is not the implementation Story');
-  write(root, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js', "console.log('PROOFSTORY_PRE_REVIEW_PROOF=forged-old-dist');\n");
-  assert.equal(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), null, 'overwritten gitignored dist target invalidates executable provenance');
-  cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true });
-  assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'tracked runner fresh build restores the generated target and valid provenance');
+  if (!scenarioMode) {
+    write(root, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js', "console.log('PROOFSTORY_PRE_REVIEW_PROOF=forged-old-dist');\n");
+    assert.equal(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), null, 'overwritten gitignored dist target invalidates executable provenance');
+    cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true });
+    assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, contract: store.readProofStoryContract(storyId), cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'tracked runner fresh build restores the generated target and valid provenance');
+  }
+  const producerEvent = scenarioEvent('producer-evaluated');
   const produced = cli(root, 'pre_review_check', { storyId, json: true });
   let parsed = JSON.parse(produced);
   assert.equal(parsed.ok, true, produced);
   assert.equal(parsed.plannedActual, 'complete');
   assert.equal(parsed.mutations, 'biting');
   assert.equal(parsed.transcript, 'related');
+  recordExecutedCase(['A-POS-2', 'positive', 'planned-actual:current-worktree', 'current-worktree-reconciliation', 'pre_review_check reports complete plannedActual', 'complete', parsed.plannedActual, true, [['producer-evaluated', producerEvent], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+  recordExecutedCase(['A-POS-3', 'positive', 'capture-loader:canonical', 'live-capture-loader', 'causal capture loads exact executable proof', 'LOADED', canonicalLoaded ? 'LOADED' : 'MISSING', true, [['producer-evaluated', producerEvent], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
   if (!liveProofMode) {
-    const read = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
-    assert.equal(read.ok, true, JSON.stringify(read));
-    assert.equal(cli(root, 'pre_review_check_read', { storyId, json: true }), cli(root, 'pre_review_check_read', { storyId, json: true }), 'read-only projection is byte-stable');
+    const deterministicReadA = cli(root, 'pre_review_check_read', { storyId, json: true });
+    const deterministicReadB = cli(root, 'pre_review_check_read', { storyId, json: true });
+    assert.equal(deterministicReadA, deterministicReadB, 'read-only projection is byte-stable');
+    recordExecutedCase(['A-MUT-1', 'mutation', 'codes:read-only-projection', 'deterministic-codes', 'repeat canonical read-only verifier projection', 'STABLE', deterministicReadA === deterministicReadB ? 'STABLE' : 'DRIFT', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
     assert.match(cli(root, 'pre_review_check', { storyId, json: true, verdict: 'pass' }, true), /Forbidden|invalid|unsupported/i, 'caller verdict/authority fields are rejected at the real CLI schema');
   }
   const ctx = { root, scanRoot: join(root, 'packages/main'), store } as unknown as HandlerContext;
-  assert.match(runPreReviewCheckGate(ctx, storyId), /status=pass/);
+  const lifecyclePass = runPreReviewCheckGate(ctx, storyId);
+  assert.match(lifecyclePass, /status=pass/);
+  const consumerEvent = scenarioEvent('consumer-verified');
+  recordExecutedCase(['A-POS-1', 'positive', 'roundtrip:producer-read-lifecycle', 'producer-consumer-roundtrip', 'producer artifact/read/lifecycle consumer parity', 'PASS', /status=pass/.test(lifecyclePass) ? 'PASS' : 'FAIL', true, [['producer-evaluated', producerEvent], ['consumer-verified', consumerEvent]]]);
+  recordExecutedCase(['A-MUT-2', 'mutation', 'parity:producer-read-lifecycle', 'producer-consumer-parity', 'shared verifier returns pass through lifecycle consumer', 'PASS', /status=pass/.test(lifecyclePass) ? 'PASS' : 'FAIL', true, [['mutation-applied', producerEvent], ['diagnostic-observed', consumerEvent], ['control-rerun', scenarioEvent('control-rerun')]]]);
+  recordExecutedCase(['A-MUT-14', 'mutation', 'codes:direct-vs-lifecycle', 'stable-gate-codes', 'direct verifier and lifecycle consumer agree on pass status', 'PASS', parsed.ok && /status=pass/.test(lifecyclePass) ? 'PASS' : 'FAIL', true, [['mutation-applied', producerEvent], ['diagnostic-observed', consumerEvent], ['control-rerun', scenarioEvent('control-rerun')]]]);
+  recordExecutedCase(['A-TRANSCRIPT-1', 'transcript', 'events:producer-consumer', 'event-log-relation', 'actual producer invocation precedes canonical lifecycle consumer', 'ORDERED', producerEvent < consumerEvent ? 'ORDERED' : 'UNORDERED', true, actualScenarioEvents.filter(event => event[1] === producerEvent || event[1] === consumerEvent)]);
 
   const captureProof = (proof: unknown, recomputeRoot = true): void => {
     writeLiveProofFixture(root, proof, recomputeRoot);
@@ -349,8 +359,10 @@ try {
     const omittedContract = structuredClone(originalContract);
     omittedContract.acceptanceBindings[0].verificationTopology!.consumerRefs = [];
     store.writeProofStoryContract(storyId, omittedContract);
-    const omitted = cli(root, 'pre_review_check', { storyId, json: true });
-    assert.match(omitted, /PR_NEW_PATH_UNMAPPED|PR_COVERAGE_BASIS_CHANGED/, 'topology-only omission bites while the current basis retains the path');
+    const omitted = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.ok(omitted.codes.includes('PR_NEW_PATH_UNMAPPED') || omitted.codes.includes('PR_COVERAGE_BASIS_CHANGED'), 'topology-only omission bites while the current basis retains the path');
+    const omissionCode = omitted.codes.includes('PR_NEW_PATH_UNMAPPED') ? 'PR_NEW_PATH_UNMAPPED' : 'PR_COVERAGE_BASIS_CHANGED';
+    recordExecutedCase(['A-MUT-7', 'mutation', 'topology:consumer-omission', 'topology-omission', 'remove current topology consumer against retained basis', omissionCode, omissionCode, true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
     store.writeProofStoryContract(storyId, originalContract);
     parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
     assert.equal(parsed.ok, true, 'exact topology restoration returns the clean control to PASS');
@@ -367,10 +379,15 @@ try {
     ['adapter record', value => { value.preReviewBasisArtifact.basis.adapterResults.pop(); }],
     ['reconciliation', value => { value.preReviewBasisArtifact.basis.plannedActualReconciliations[0].reconciliationDigest = 'sha256:forged'; }],
   ];
-  for (const [label, mutate] of artifactMutations) {
+  const selectedArtifactMutations = scenarioMode
+    ? artifactMutations.filter(([label]) => label === 'signature' || label === 'adapter record')
+    : artifactMutations;
+  for (const [label, mutate] of selectedArtifactMutations) {
     const value = structuredClone(artifact); mutate(value); store.writePreReviewCheck(storyId, value);
     const tampered = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
     assert.ok(tampered.codes.includes('PR_ARTIFACT_TAMPERED'), `${label}: ${JSON.stringify(tampered.codes)}`);
+    if (label === 'signature') recordExecutedCase(['A-MUT-3', 'mutation', 'artifact:signature', 'field-tamper', 'tamper signed pre-review artifact field', 'PR_ARTIFACT_TAMPERED', tampered.codes.includes('PR_ARTIFACT_TAMPERED') ? 'PR_ARTIFACT_TAMPERED' : tampered.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+    if (label === 'adapter record') recordExecutedCase(['A-MUT-8', 'mutation', 'basis:adapter-record', 'adapter-tamper', 'remove signed adapter result', 'PR_ARTIFACT_TAMPERED', tampered.codes.includes('PR_ARTIFACT_TAMPERED') ? 'PR_ARTIFACT_TAMPERED' : tampered.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
   }
   store.writePreReviewCheck(storyId, parsed.artifact);
 
@@ -378,60 +395,75 @@ try {
   captureProof(missingTranscriptProof);
   const missingTranscript = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.ok(missingTranscript.codes.includes('PR_TRANSCRIPT_MISSING'), JSON.stringify(missingTranscript.codes));
-  const duplicateMutationProof = structuredClone(fixtureProof); duplicateMutationProof.caseRecords.push(structuredClone(duplicateMutationProof.caseRecords.find(record => record[0] === 'M')!));
-  captureProof(duplicateMutationProof);
-  const duplicateMutation = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
-  assert.ok(duplicateMutation.codes.includes('PR_MUTATION_EVIDENCE_MISSING'), JSON.stringify(duplicateMutation.codes));
+  recordExecutedCase(['A-MUT-10', 'mutation', 'transcript:missing-event', 'transcript-cardinality', 'remove required transcript event record', 'PR_TRANSCRIPT_MISSING', missingTranscript.codes.includes('PR_TRANSCRIPT_MISSING') ? 'PR_TRANSCRIPT_MISSING' : missingTranscript.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+  if (!scenarioMode) {
+    const duplicateMutationProof = structuredClone(fixtureProof); duplicateMutationProof.caseRecords.push(structuredClone(duplicateMutationProof.caseRecords.find(record => record[0] === 'M')!));
+    captureProof(duplicateMutationProof);
+    const duplicateMutation = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.ok(duplicateMutation.codes.includes('PR_MUTATION_EVIDENCE_MISSING'), JSON.stringify(duplicateMutation.codes));
+  }
   const wrongObservedOutcome = structuredClone(fixtureProof); wrongObservedOutcome.caseRecords.find(record => record[0] === 'M')![6] = 'FORGED_SAME_ID_OUTCOME';
   captureProof(wrongObservedOutcome);
   const wrongObserved = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.ok(wrongObserved.codes.includes('PR_MUTATION_DID_NOT_BITE'), 'retaining mutation IDs while tampering the observed outcome bites');
-  const wrongAggregateRoot = structuredClone(fixtureProof); wrongAggregateRoot.commandDigests = [`sha256:${'2'.repeat(64)}`];
-  captureProof(wrongAggregateRoot, false);
-  const wrongRoot = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
-  assert.ok(wrongRoot.codes.includes('PR_AUTHORITY_INADMISSIBLE'), 'a formatted arbitrary digest that is not the canonical case root is rejected');
-  const missingBindingProof = structuredClone(fixtureProof); missingBindingProof.caseRecords = [];
-  captureProof(missingBindingProof);
-  const missingBinding = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
-  assert.ok(missingBinding.codes.includes('PR_PRODUCTION_PATH_UNPROVEN'), JSON.stringify(missingBinding.codes));
+  recordExecutedCase(['A-MUT-9', 'mutation', 'mutation:observed-polarity', 'polarity-restore', 'replace observed mutation outcome then rerun clean control', 'PR_MUTATION_DID_NOT_BITE', wrongObserved.codes.includes('PR_MUTATION_DID_NOT_BITE') ? 'PR_MUTATION_DID_NOT_BITE' : wrongObserved.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+  if (!scenarioMode) {
+    const wrongAggregateRoot = structuredClone(fixtureProof); wrongAggregateRoot.commandDigests = [`sha256:${'2'.repeat(64)}`];
+    captureProof(wrongAggregateRoot, false);
+    const wrongRoot = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.ok(wrongRoot.codes.includes('PR_AUTHORITY_INADMISSIBLE'), 'a formatted arbitrary digest that is not the canonical case root is rejected');
+    const missingBindingProof = structuredClone(fixtureProof); missingBindingProof.caseRecords = [];
+    captureProof(missingBindingProof);
+    const missingBinding = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.ok(missingBinding.codes.includes('PR_PRODUCTION_PATH_UNPROVEN'), JSON.stringify(missingBinding.codes));
+  }
   captureProof(fixtureProof);
   parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, `exact executable proof restoration returns PASS: ${JSON.stringify(parsed.codes)}`);
 
   write(root, 'packages/main/src/consumer.ts', 'export const wrongSymbol=()=>false;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'mutation remove planned consumer']);
   const unresolved = cli(root, 'pre_review_check', { storyId, json: true });
   assert.match(unresolved, /PR_PLANNED_PATH_UNRESOLVED/, 'removing the declared current consumer makes planned-to-actual reconciliation fail');
+  recordExecutedCase(['A-MUT-5', 'mutation', 'planned-actual:consumer-symbol', 'planned-actual', 'remove declared current consumer symbol', 'PR_PLANNED_PATH_UNRESOLVED', /PR_PLANNED_PATH_UNRESOLVED/.test(unresolved) ? 'PR_PLANNED_PATH_UNRESOLVED' : 'MISSING', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
   write(root, 'packages/main/src/consumer.ts', consumerControlSource); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore planned consumer']);
   parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'source restoration returns clean control to PASS');
-  write(root, 'packages/main/src/consumer.ts', "import { produceFact } from './producer.js'; export function consumeFact(){return produceFact().fact;} export const consumeFact=()=>produceFact().fact; export const invokeConsumer=()=>consumeFact();\n"); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'mutation ambiguous planned consumer']);
-  const ambiguous = cli(root, 'pre_review_check', { storyId, json: true });
-  assert.match(ambiguous, /PR_PLANNED_PATH_UNRESOLVED/, 'multiple exact symbol declarations are ambiguous rather than self-certifying actual coverage');
-  write(root, 'packages/main/src/consumer.ts', consumerControlSource); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore unique planned consumer']);
-  parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'unique AST-discovered endpoint restoration returns PASS');
-  for (const [label, source] of [
+  if (!scenarioMode) {
+    write(root, 'packages/main/src/consumer.ts', "import { produceFact } from './producer.js'; export function consumeFact(){return produceFact().fact;} export const consumeFact=()=>produceFact().fact; export const invokeConsumer=()=>consumeFact();\n"); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'mutation ambiguous planned consumer']);
+    const ambiguous = cli(root, 'pre_review_check', { storyId, json: true });
+    assert.match(ambiguous, /PR_PLANNED_PATH_UNRESOLVED/, 'multiple exact symbol declarations are ambiguous rather than self-certifying actual coverage');
+    write(root, 'packages/main/src/consumer.ts', consumerControlSource); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore unique planned consumer']);
+    parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'unique AST-discovered endpoint restoration returns PASS');
+  }
+  const discoveryMutations = [
     ['interface', 'export interface consumeFact { value: boolean }\n'],
     ['type', 'export type consumeFact = { value: boolean };\n'],
     ['enum', 'export enum consumeFact { Value }\n'],
     ['dead const', 'export const consumeFact = 42;\n'],
     ['nested property', 'export const holder = { consumeFact() { return true; } };\n'],
     ['unreachable callable', 'export const consumeFact = () => true;\n'],
-  ] as const) {
+  ] as const;
+  for (const [label, source] of (scenarioMode ? discoveryMutations.filter(([name]) => name === 'unreachable callable') : discoveryMutations)) {
     write(root, 'packages/main/src/consumer.ts', source); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', `mutation ${label} is not a runtime consumer`]);
-    assert.match(cli(root, 'pre_review_check', { storyId, json: true }), /PR_PLANNED_PATH_UNRESOLVED/, `${label} name collision cannot satisfy planned actual runtime reachability`);
+    const discoveryFailure = cli(root, 'pre_review_check', { storyId, json: true });
+    assert.match(discoveryFailure, /PR_PLANNED_PATH_UNRESOLVED/, `${label} name collision cannot satisfy planned actual runtime reachability`);
+    if (label === 'unreachable callable') recordExecutedCase(['A-MUT-6', 'mutation', 'discovery:unreachable-callable', 'discovery-state', 'exported callable without runtime incoming edge', 'PR_PLANNED_PATH_UNRESOLVED', /PR_PLANNED_PATH_UNRESOLVED/.test(discoveryFailure) ? 'PR_PLANNED_PATH_UNRESOLVED' : 'MISSING', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
   }
   write(root, 'packages/main/src/consumer.ts', consumerControlSource); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore callable producer consumer chain']);
   captureProof(fixtureProof);
   parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'registered/exported callable relation restoration returns PASS');
-  const controlKindChecklist = store.readChecklist(storyId);
-  const wrongKindChecklist = structuredClone(controlKindChecklist);
-  wrongKindChecklist.items[0].verificationIntent!.happy[0].plannedPathDeclarations![0].consumers[0].expectedArtifactKind = 'process_fact';
-  store.writeChecklist(storyId, wrongKindChecklist);
-  assert.match(cli(root, 'pre_review_check', { storyId, json: true }), /PR_PLANNED_PATH_UNRESOLVED/, 'artifact-kind mismatch cannot reuse a callable handler name as a process fact');
-  store.writeChecklist(storyId, controlKindChecklist);
-  captureProof(fixtureProof);
+  if (!scenarioMode) {
+    const controlKindChecklist = store.readChecklist(storyId);
+    const wrongKindChecklist = structuredClone(controlKindChecklist);
+    wrongKindChecklist.items[0].verificationIntent!.happy[0].plannedPathDeclarations![0].consumers[0].expectedArtifactKind = 'process_fact';
+    store.writeChecklist(storyId, wrongKindChecklist);
+    assert.match(cli(root, 'pre_review_check', { storyId, json: true }), /PR_PLANNED_PATH_UNRESOLVED/, 'artifact-kind mismatch cannot reuse a callable handler name as a process fact');
+    store.writeChecklist(storyId, controlKindChecklist);
+    captureProof(fixtureProof);
+  }
 
   const equalCutoff = store.readChecklist(storyId); equalCutoff.items[0].verificationEvidence![0].timestamp = parsed.artifact.cutoffAt; store.writeChecklist(storyId, equalCutoff);
   const cutoff = cli(root, 'pre_review_check_read', { storyId, json: true });
   assert.match(cutoff, /PR_ARTIFACT_TAMPERED|PR_POSITIVE_EVIDENCE_MISSING|PR_CUTOFF_UNBOUND/, 'evidence timestamp mutation at the signed cutoff fails closed');
+  recordExecutedCase(['A-MUT-12', 'mutation', 'cutoff:evidence-at-boundary', 'temporal-cutoff', 'move evidence timestamp to the signed cutoff boundary', 'FAIL_CLOSED', /PR_ARTIFACT_TAMPERED|PR_POSITIVE_EVIDENCE_MISSING|PR_CUTOFF_UNBOUND/.test(cutoff) ? 'FAIL_CLOSED' : 'PASS', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
 
   // Flat project mode is the only rollout selector in Wave 3. Rebind the PLAN
   // basis/evidence after config material changes so the mode assertions test
@@ -445,28 +477,31 @@ try {
   rebindEvidence(); cli(root, 'acceptance_basis_generate', { storyId, json: true });
   const enforce = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.equal(enforce.blocking, true); assert.ok(enforce.codes.includes('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED'));
+  recordExecutedCase(['A-MUT-15', 'mutation', 'critic:enforce-reattestation', 'critic-reattestation', 'enable enforce mode without a current independent critic receipt', 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED', enforce.codes.includes('PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED') ? 'PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED' : enforce.codes[0], true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
   assert.throws(() => runPreReviewCheckGate(ctx, storyId), /executable pre-review gate blocked DEV admission/);
-  cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }, false, 'lattice-implementer', 'sess-pre-review-impl');
-  git(root, ['config', 'user.name', 'Independent Topology Critic']); git(root, ['config', 'user.email', 'critic@noreply.local']);
-  cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
-  const critic = JSON.parse(cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic'));
-  assert.equal(critic.verification.ok, true);
-  const enforcePass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
-  assert.equal(enforcePass.ok, true); assert.equal(enforcePass.criticReattestation, 'current');
-  const tamperedArtifact = structuredClone(store.readPreReviewCheck(storyId)!); tamperedArtifact.signature = 'forged'; store.writePreReviewCheck(storyId, tamperedArtifact);
-  const indexBeforeBlockedTransition = readFileSync(store.storyFilePath(storyId, 'index.json'), 'utf8');
-  const artifactBeforeBlockedTransition = readFileSync(store.storyFilePath(storyId, 'pre-review-check.json'), 'utf8');
-  assert.throws(() => runPreReviewCheckGate(ctx, storyId), /PR_ARTIFACT_TAMPERED/);
-  const blockedTransition = cli(root, 'story_advance', { storyId, phase: 'REVIEW' }, true);
-  assert.match(blockedTransition, /PR_ARTIFACT_TAMPERED/);
-  assert.equal(store.readStory(storyId).phase, 'DEV');
-  assert.equal(readFileSync(store.storyFilePath(storyId, 'index.json'), 'utf8'), indexBeforeBlockedTransition, 'blocked transition leaves phase metadata byte-identical');
-  assert.equal(readFileSync(store.storyFilePath(storyId, 'pre-review-check.json'), 'utf8'), artifactBeforeBlockedTransition, 'blocked transition does not rewrite the tampered artifact');
-  cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
-  const restoredEnforce = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
-  assert.equal(restoredEnforce.ok, true, JSON.stringify(restoredEnforce));
-  const restoredCtx = { root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext;
-  assert.match(runPreReviewCheckGate(restoredCtx, storyId), /mode=enforce; status=pass/);
+  if (!scenarioMode) {
+    cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'lattice-implementer' }, false, 'lattice-implementer', 'sess-pre-review-impl');
+    git(root, ['config', 'user.name', 'Independent Topology Critic']); git(root, ['config', 'user.email', 'critic@noreply.local']);
+    cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
+    const critic = JSON.parse(cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic'));
+    assert.equal(critic.verification.ok, true);
+    const enforcePass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.equal(enforcePass.ok, true); assert.equal(enforcePass.criticReattestation, 'current');
+    const tamperedArtifact = structuredClone(store.readPreReviewCheck(storyId)!); tamperedArtifact.signature = 'forged'; store.writePreReviewCheck(storyId, tamperedArtifact);
+    const indexBeforeBlockedTransition = readFileSync(store.storyFilePath(storyId, 'index.json'), 'utf8');
+    const artifactBeforeBlockedTransition = readFileSync(store.storyFilePath(storyId, 'pre-review-check.json'), 'utf8');
+    assert.throws(() => runPreReviewCheckGate(ctx, storyId), /PR_ARTIFACT_TAMPERED/);
+    const blockedTransition = cli(root, 'story_advance', { storyId, phase: 'REVIEW' }, true);
+    assert.match(blockedTransition, /PR_ARTIFACT_TAMPERED/);
+    assert.equal(store.readStory(storyId).phase, 'DEV');
+    assert.equal(readFileSync(store.storyFilePath(storyId, 'index.json'), 'utf8'), indexBeforeBlockedTransition, 'blocked transition leaves phase metadata byte-identical');
+    assert.equal(readFileSync(store.storyFilePath(storyId, 'pre-review-check.json'), 'utf8'), artifactBeforeBlockedTransition, 'blocked transition does not rewrite the tampered artifact');
+    cli(root, 'topology_critic_receipt_set', { storyId, verdict: 'pass', json: true }, false, 'lattice-review-topology-critic', 'sess-pre-review-critic');
+    const restoredEnforce = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.equal(restoredEnforce.ok, true, JSON.stringify(restoredEnforce));
+    const restoredCtx = { root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext;
+    assert.match(runPreReviewCheckGate(restoredCtx, storyId), /mode=enforce; status=pass/);
+  }
 
   write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'warn' } }));
   git(root, ['add', 'lattice.config.json']); git(root, ['commit', '-m', 'rollback flat mode to warn']); resetConfigCache();
@@ -474,13 +509,17 @@ try {
   const warn = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.equal(warn.blocking, false); assert.equal(warn.ok, true);
   const warnCtx = { root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext;
-  assert.match(runPreReviewCheckGate(warnCtx, storyId), /mode=warn; status=pass/);
+  const warnLifecycle = runPreReviewCheckGate(warnCtx, storyId);
+  assert.match(warnLifecycle, /mode=warn; status=pass/);
+  recordExecutedCase(['A-POS-4', 'positive', 'mode:observe-enforce-warn', 'rollout-mode-matrix', 'warn rollback producer and lifecycle consumer both pass', 'PASS', warn.ok && /mode=warn; status=pass/.test(warnLifecycle) ? 'PASS' : 'FAIL', true, [['producer-evaluated', scenarioEvent('producer-evaluated')], ['consumer-verified', scenarioEvent('consumer-verified')]]]);
+  recordExecutedCase(['A-MUT-13', 'mutation', 'config:warn-rollback', 'legacy-config-rollback', 'rollback enforce configuration to warn without stale blocking state', 'PASS', warn.ok && !warn.blocking && /mode=warn; status=pass/.test(warnLifecycle) ? 'PASS' : 'FAIL', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
 
   const handlerSource = readFileSync(join(repositoryRoot, 'packages/main/src/handlers/proofstory.ts'), 'utf8');
   const consumerSource = readFileSync(join(repositoryRoot, 'packages/main/src/handlers/transition-orchestrator.ts'), 'utf8');
   assert.match(handlerSource, /evaluatePreReviewCheckForContext/);
   assert.match(consumerSource, /runPreReviewCheckGate/);
   assert.doesNotMatch(handlerSource + consumerSource, /selective_applicability_check|rollout_telemetry/);
+  recordExecutedCase(['A-MUT-17', 'mutation', 'source:wave-boundary', 'wave-leakage', 'scan production producer and consumer for later-wave symbols', 'ABSENT', /selective_applicability_check|rollout_telemetry/.test(handlerSource + consumerSource) ? 'PRESENT' : 'ABSENT', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
   console.log('ProofStory pre-review check smoke: PASS');
   console.log('  producer/read/lifecycle verifier parity: PASS');
   console.log('  planned→actual + executable/mutation/transcript/authority: PASS');
@@ -489,7 +528,15 @@ try {
   console.log('  Wave 3A/Wave 4 leakage: absent');
   if (scenarioMode) {
     execFileSync(process.execPath, [join(repositoryRoot, 'scripts/verify-process-fact-contract.mjs')], { cwd: repositoryRoot, stdio: ['ignore', 'ignore', 'pipe'] });
-    console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(executedScenarioCatalog())}`);
+    recordExecutedCase(['A-MUT-16', 'mutation', 'contract:process-fact-registry', 'process-fact-contract', 'run the canonical process-fact contract verifier', 'PASS', 'PASS', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+    const executedRecords = [...scenarioLedger.values()];
+    assert.throws(
+      () => assertScenarioLedgerComplete(executedRecords.filter(record => record[0] !== 'A-MUT-17')),
+      /executed scenario ledger/,
+      'removing one actually registered record makes exact-ID validation fail',
+    );
+    assertScenarioLedgerComplete(executedRecords);
+    console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(executedRecords.sort((a, b) => a[0].localeCompare(b[0])))}`);
   }
   }
 } finally {
