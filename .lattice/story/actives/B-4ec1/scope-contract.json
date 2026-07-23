@@ -186,10 +186,26 @@
       "phase": "DEV",
       "headHash": "b11ef96bb9270614ead3e8f29916c01abc0552bc",
       "materialHash": "2e2a681513b223d5ad861d0072e506951226bdcc8e213c720468847f841a682c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Full TEST validation proved the quorum smoke depended on ambient Codex provider identity; this test path is required to make the fixture session-neutral and reproduce the validator environment.",
+      "timestamp": "2026-07-23T15:47:48.636Z",
+      "paths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b8f78335f08186765bb3e5e09571d7d35a09a684",
+      "materialHash": "1fe904c29a9e6e02caf4fcefe81b04de355aa3728dbcfc744c625ec8133870d1"
     }
   ],
   "createdAt": "2026-07-22T22:41:51.162Z",
-  "updatedAt": "2026-07-23T14:19:51.103Z",
+  "updatedAt": "2026-07-23T15:47:48.636Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -229,6 +245,7 @@
     "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
     "packages/main/src/core/done-required-timeout-budget.ts": "packages/main/src/core/done-required-timeout-budget.ts",
     "packages/main/src/core/validation-command-environment.ts": "packages/main/src/core/validation-command-environment.ts",
-    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts"
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts"
   }
 }
