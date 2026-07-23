@@ -114,6 +114,43 @@
         "scanEscalationReason": "Concept lane used full changed-file inventory, all removed-line inspection, targeted fix diffs, and repository-wide grep for replaced status/cardinality/authority concepts; generated signed artifacts were verified through canonical read-only commands rather than reread byte-for-byte."
       },
       "_hash": "a6311f4ce28bd88340455f233cf6587885be4e2a5be3f200ec38000af543a624"
+    },
+    {
+      "id": "B-4043:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage PASS: 15/15 must intents have current passing evidence, 0 gaps and 0 waivers. Re-audited F-002/F-003: A-POS-1..4 and A-MUT-2/A-MUT-6 now execute their declared semantics; assembler and encoded decoder reject the unrelated semantic swap; current signed pre-review artifact binds exactly 5 positive, 17 mutation, and 1 transcript records and reports PASS. Static process-fact contract also passes.",
+      "createdAt": "2026-07-23T19:31:35.043Z",
+      "reviewRound": "2026-07-23T19:28:11.179Z",
+      "reviewRunId": "B-4043:RR-009",
+      "envelopeId": "bd41bf985a6579753a0a6546cf042571af94679e90f9430641263f35e37d0416",
+      "writerSessionId": "sess-5128b44b026b5b0ed586f38e0e302447",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-live-proof.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "11401a814f7e177121d72a4033910cff0f1693a0174de64c6c21f63d437e4a03"
     }
   ]
 }
