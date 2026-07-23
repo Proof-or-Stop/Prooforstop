@@ -44,6 +44,42 @@
       },
       "readDiagnostics": [],
       "_hash": "13da308f50bf4f9a23f0678141755cb96c985d5fad5ab4f6fd86c055e4cea268"
+    },
+    {
+      "id": "B-4043:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "No documentation blocker: extracted 197 changed declaration symbols (including diff-local const noise) and compared the 5 bounded Wave 4 CLI/canonical-plan sections covering commands, thresholds, measured six-pair cohort, full 3x2 authority boundary, rollback immutability, and Wave 3A exclusion against acceptance-rollout verifier code plus current rollout/pre-review read outputs; all statements match current PASS/current/full-3x2 and related/biting/admissible evidence.",
+      "createdAt": "2026-07-23T18:07:03.138Z",
+      "reviewRound": "2026-07-23T18:04:58.804Z",
+      "reviewRunId": "B-4043:RR-006",
+      "envelopeId": "e175e48aba2bf8d251c6fbaad680348e5ceeb01bf440d2570a31b589278ffec0",
+      "writerSessionId": "sess-03c3f67fc4022e5fd3ed717fcf10bdcb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "222062313a09192987105deeea720d87f2f23dfe26ad3c312334ee17f21bc50a"
+      },
+      "readDiagnostics": [],
+      "_hash": "7dec4ffe8016f19658eb4650a128f133e66c8459080a5e8d30a1fabcc91ed460"
     }
   ]
 }
