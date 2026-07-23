@@ -3,19 +3,18 @@
   "expected": "User sees \"Pre-review check: PASS\" for a signed current verifier-owned artifact, or \"Pre-review check: FAIL code=PR_*\" naming the invalid binding.",
   "actual": {
     "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
-    "exitCode": null,
-    "stdout": "",
-    "stderr": "[capture error] command exceeded 60000ms timeout; process group terminated"
+    "exitCode": 0,
+    "stdout": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-4ec1\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:e1397fda8cd34677dc37259d2b97388b96349314a73055d217183a09b81998d8\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"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\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:4a64c9249cf95e677b3b6c050c6300b0ea9ab0539c7245dc0cb1847b09be7201\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-23T03:41:03.181Z",
+  "capturedAtIso": "2026-07-23T03:53:11.318Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "5c89ed0adf326e51561c2e186a2e1063148b2c12",
-  "materialHash": "290796a73dc6c453842393e684c3f9b81dbaa56d395e58c3ad4dc10295e42b5e"
+  "headHash": "95c30459c77dd5f069e506c51465a60931aa72f0",
+  "materialHash": "7b3853ea751e0ed90ea065a5a890336967375d668623e5e913c28a7761f48b56"
 }
