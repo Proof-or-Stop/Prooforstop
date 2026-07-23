@@ -34,6 +34,25 @@
       ],
       "signatureTag": "missing|json|case-executable-proof",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4043:F-003",
+      "desc": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:1159 still states that the live-proof ledger binds four positive paths, while the current canonical proof and topology contain five positives (A-POS-1..A-POS-5). CHK-005 claims exact demonstrated status and its docs_check evidence does not catch this stale cardinality. Update the canonical text and strengthen the docs/contract check to assert the 5 positive / 17 mutation / 1 transcript inventory.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-23T18:07:27.869Z",
+      "reviewRound": "2026-07-23T18:04:58.804Z",
+      "reviewRunId": "B-4043:RR-004",
+      "_hash": "cdec41bbd2d3a288fa3868ffde2cbf4c9a52435b99c2eba4a1d5a6cd07840ff5",
+      "files": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
