@@ -199,6 +199,19 @@
             "consumerRefs": [
               "C-W4-ROLLOUT-CLI"
             ]
+          },
+          {
+            "id": "A-POS-5",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:happy:enforce-and-rollback"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-LIFECYCLE"
+            ]
           }
         ],
         "mutationCaseRefs": [
@@ -562,5 +575,5 @@
   "diagnosticGaps": [],
   "note": "Canonical Story 6 Wave 4 flat measured-rollout acceptance binding. The verification-intent planned declaration owns the new report producer and both CLI/lifecycle consumers; Wave 3A selective applicability is excluded.",
   "createdAt": "2026-07-23T16:46:17.327Z",
-  "updatedAt": "2026-07-23T17:34:13.290Z"
+  "updatedAt": "2026-07-23T17:38:29.557Z"
 }
