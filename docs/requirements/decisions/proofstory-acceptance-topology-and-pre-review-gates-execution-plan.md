@@ -1110,6 +1110,15 @@ first, then `PR_NEW_PATH_UNMAPPED` before its supporting
 critic diagnostics. CLI and lifecycle consumers display the same first code
 and remediation.
 
+Executable proof authority is additionally argv-bound. The causal
+`live_smoke_transcript` receipt is admissible here only when its captured
+command is exactly
+`node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --live-proof`.
+That bounded mode executes the production producer/read/lifecycle chain and
+the required exact-cardinality, authority, planned→actual, restoration, and
+tamper mutations within the fixed live-smoke safety ceiling. Merely printing a
+proof-shaped JSON line from another command remains inadmissible.
+
 | Code | Condition |
 |---|---|
 | `PR_ARTIFACT_MISSING` | No verifier-issued pre-review artifact exists; run `pre_review_check` after recording current canonical executable proof |

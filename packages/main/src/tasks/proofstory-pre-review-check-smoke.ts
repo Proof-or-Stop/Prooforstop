@@ -10,7 +10,7 @@ import { StoryStore } from '../core/store.js';
 import { resetConfigCache } from '../core/config.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { runPreReviewCheckGate } from '../handlers/transition-orchestrator.js';
-import { loadVerifiedPreReviewExecutableProof } from '../core/pre-review-check.js';
+import { loadVerifiedPreReviewExecutableProof, PRE_REVIEW_LIVE_PROOF_COMMAND } from '../core/pre-review-check.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
@@ -21,6 +21,7 @@ const repositoryRoot = resolve(packageRoot, '..', '..', '..');
 const latticeBin = join(repositoryRoot, 'bin/lattice.js');
 const storyId = 'B-pre-review-smoke';
 const baseAt = '2026-07-22T00:00:00.000Z';
+const liveProofMode = process.argv.includes('--live-proof');
 
 function write(root: string, rel: string, content: string): void {
   mkdirSync(dirname(join(root, rel)), { recursive: true });
@@ -74,6 +75,12 @@ const fixtureProof = {
   producer: 'test-output-is-untrusted-until-canonical-runner-receipt', verifier: 'test-output-is-untrusted-until-pre-review-verifier', commandDigests: [],
   bindingProofs: [{ bindingId: 'AC-PRE', positiveAssertionIds: ['A'], mutationProofs: [{ mutationId: 'M', expectedCode: 'PR_PRODUCTION_PATH_UNPROVEN', observedCode: 'PR_PRODUCTION_PATH_UNPROVEN', controlRestored: true }], transcriptProofs: [{ transcriptId: 'T', producerRefs: ['P'], consumerRefs: ['C'], producerSequence: 0, consumerSequence: 1 }] }],
 };
+const storyProof = executableProof(
+  'B-4ec1', 'AB-WAVE3-PRE-REVIEW',
+  ['A-POS-1', 'A-POS-2', 'A-POS-3', 'A-POS-4'],
+  Array.from({ length: 17 }, (_, index) => `A-MUT-${index + 1}`),
+  ['A-TRANSCRIPT-1'],
+);
 function checklist(): ChecklistData {
   return { items: [{ id: 'CHK-001', title: 'pre review', status: 'done', startTime: baseAt, endTime: baseAt,
     files: { modify: [], create: ['packages/main/src/producer.ts', 'packages/main/src/consumer.ts'], test: [] },
@@ -107,9 +114,14 @@ function writeRegistration(root: string): void {
   write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");
 }
 
+function writeLiveProofFixture(root: string, proof: unknown): void {
+  write(root, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js', `console.log(${JSON.stringify(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(proof)}`)});\n`);
+}
+
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
 const originalCwd = process.cwd();
 try {
+  smoke: {
   write(root, '.gitignore', '.lattice/runtime/\n');
   write(root, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', proofStory: { acceptanceTopologyGateMode: 'observe' } }));
   write(root, 'tsconfig.json', '{}\n');
@@ -117,6 +129,7 @@ try {
   write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true});\n');
   write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact;\n');
   write(root, 'emit-proof.mjs', `console.log(${JSON.stringify(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}`)});\n`);
+  writeLiveProofFixture(root, fixtureProof);
   git(root, ['init', '-b', 'main']); git(root, ['config', 'user.name', 'Pre Review Smoke']); git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['add', '.']); git(root, ['commit', '-m', 'seed']); git(root, ['switch', '-c', `story/${storyId}`]);
   process.chdir(root); resetConfigCache();
@@ -126,40 +139,74 @@ try {
   git(root, ['add', '.']); git(root, ['commit', '--author=lattice-implementer <lattice-implementer@noreply.local>', '-m', 'implementation']);
   const plan = cli(root, 'acceptance_basis_generate', { storyId, json: true });
   assert.equal(JSON.parse(plan).artifact.basis.status, 'complete', plan);
-  const missing = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
-  assert.deepEqual(missing.codes, ['PR_ARTIFACT_MISSING']);
-  assert.match(missing.remediation.join('\n'), /Run lattice pre_review_check/);
+  if (!liveProofMode) {
+    const missing = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+    assert.deepEqual(missing.codes, ['PR_ARTIFACT_MISSING']);
+    assert.match(missing.remediation.join('\n'), /Run lattice pre_review_check/);
+  }
   cli(root, 'verification_evidence_batch_add', { storyId, evidences: [{ itemId: 'CHK-001', intentRef: 'INT-PRE', kind: 'integration_test', result: 'pass', command: 'node emit-proof.mjs', note: 'caller self-report must not become pre-review authority', attestation: { kind: 'ci', actor: 'self-reported', checkedClaims: ['production-path', 'mutation-bites', 'control-restored', 'transcript-related', 'authority-admissible'] }, actorTrust: { producerActorId: 'claimed-producer', verifierActorId: 'claimed-verifier', trustStatus: 'trusted' } }] });
-  const selfReported = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
-  assert.equal(selfReported.ok, false); assert.ok(selfReported.codes.includes('PR_AUTHORITY_INADMISSIBLE'));
+  if (!liveProofMode) {
+    const selfReported = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.equal(selfReported.ok, false); assert.ok(selfReported.codes.includes('PR_AUTHORITY_INADMISSIBLE'));
+  }
   write(root, `.lattice/story/actives/${storyId}/evidence/live-smoke-transcript.json`, JSON.stringify({ storyId, mode: { runCommands: true, writeEvidence: true }, actual: { command: 'node emit-proof.mjs', exitCode: 0, stdout: `PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}` } }));
   const directStoreBypass = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.equal(directStoreBypass.ok, false); assert.ok(directStoreBypass.codes.includes('PR_AUTHORITY_INADMISSIBLE'), 'direct StoryStore/file writes have no canonical causal producer receipt');
-  const captured = JSON.parse(cli(root, 'live_smoke_transcript', { storyId, capture: `${process.execPath} ${join(root, 'emit-proof.mjs')}`, write: true, json: true }));
+  const captured = JSON.parse(cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true }));
   assert.equal(captured.transcript.status, 'present-fresh');
-  assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'canonical runner transcript has causal receipt and exact proof envelope');
+  if (!liveProofMode) assert.ok(loadVerifiedPreReviewExecutableProof({ gitCwd: root, metadataRoot: root, storyDir: store.storyDirPath(storyId), storyId, cutoffAt: new Date(Date.now() + 1000).toISOString(), storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)! }), 'canonical runner transcript has causal receipt and exact proof envelope');
   const produced = cli(root, 'pre_review_check', { storyId, json: true });
   let parsed = JSON.parse(produced);
   assert.equal(parsed.ok, true, produced);
   assert.equal(parsed.plannedActual, 'complete');
   assert.equal(parsed.mutations, 'biting');
   assert.equal(parsed.transcript, 'related');
-  const read = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
-  assert.equal(read.ok, true, JSON.stringify(read));
-  assert.equal(cli(root, 'pre_review_check_read', { storyId, json: true }), cli(root, 'pre_review_check_read', { storyId, json: true }), 'read-only projection is byte-stable');
-  assert.match(cli(root, 'pre_review_check', { storyId, json: true, verdict: 'pass' }, true), /Forbidden|invalid|unsupported/i, 'caller verdict/authority fields are rejected at the real CLI schema');
+  if (!liveProofMode) {
+    const read = JSON.parse(cli(root, 'pre_review_check_read', { storyId, json: true }));
+    assert.equal(read.ok, true, JSON.stringify(read));
+    assert.equal(cli(root, 'pre_review_check_read', { storyId, json: true }), cli(root, 'pre_review_check_read', { storyId, json: true }), 'read-only projection is byte-stable');
+    assert.match(cli(root, 'pre_review_check', { storyId, json: true, verdict: 'pass' }, true), /Forbidden|invalid|unsupported/i, 'caller verdict/authority fields are rejected at the real CLI schema');
+  }
   const ctx = { root, scanRoot: join(root, 'packages/main'), store } as unknown as HandlerContext;
   assert.match(runPreReviewCheckGate(ctx, storyId), /status=pass/);
 
-  const originalContract = structuredClone(store.readProofStoryContract(storyId)!);
-  const omittedContract = structuredClone(originalContract);
-  omittedContract.acceptanceBindings[0].verificationTopology!.consumerRefs = [];
-  store.writeProofStoryContract(storyId, omittedContract);
-  const omitted = cli(root, 'pre_review_check', { storyId, json: true });
-  assert.match(omitted, /PR_NEW_PATH_UNMAPPED|PR_COVERAGE_BASIS_CHANGED/, 'topology-only omission bites while the current basis retains the path');
-  store.writeProofStoryContract(storyId, originalContract);
-  parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
-  assert.equal(parsed.ok, true, 'exact topology restoration returns the clean control to PASS');
+  const captureProof = (proof: unknown): void => {
+    writeLiveProofFixture(root, proof);
+    cli(root, 'live_smoke_transcript', { storyId, capture: PRE_REVIEW_LIVE_PROOF_COMMAND, write: true, json: true });
+  };
+
+  if (!liveProofMode) {
+    const originalContract = structuredClone(store.readProofStoryContract(storyId)!);
+    const omittedContract = structuredClone(originalContract);
+    omittedContract.acceptanceBindings[0].verificationTopology!.consumerRefs = [];
+    store.writeProofStoryContract(storyId, omittedContract);
+    const omitted = cli(root, 'pre_review_check', { storyId, json: true });
+    assert.match(omitted, /PR_NEW_PATH_UNMAPPED|PR_COVERAGE_BASIS_CHANGED/, 'topology-only omission bites while the current basis retains the path');
+    store.writeProofStoryContract(storyId, originalContract);
+    parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+    assert.equal(parsed.ok, true, 'exact topology restoration returns the clean control to PASS');
+  }
+
+  if (liveProofMode) {
+    const missingTranscriptProof = structuredClone(fixtureProof); missingTranscriptProof.bindingProofs[0].transcriptProofs = [];
+    captureProof(missingTranscriptProof);
+    assert.ok(JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })).codes.includes('PR_TRANSCRIPT_MISSING'));
+    const duplicateMutationProof = structuredClone(fixtureProof); duplicateMutationProof.bindingProofs[0].mutationProofs.push(structuredClone(duplicateMutationProof.bindingProofs[0].mutationProofs[0]));
+    captureProof(duplicateMutationProof);
+    assert.ok(JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })).codes.includes('PR_MUTATION_EVIDENCE_MISSING'));
+    captureProof(fixtureProof);
+    assert.equal(JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })).ok, true);
+    write(root, 'packages/main/src/consumer.ts', 'export const wrongSymbol=()=>false;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'live mutation remove planned consumer']);
+    assert.ok(JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })).codes.includes('PR_PLANNED_PATH_UNRESOLVED'));
+    write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'live restore planned consumer']);
+    captureProof(fixtureProof);
+    assert.equal(JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })).ok, true);
+    const tampered = structuredClone(store.readPreReviewCheck(storyId)!); tampered.signature = 'forged'; store.writePreReviewCheck(storyId, tampered);
+    assert.match(runPreReviewCheckGate({ root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext, storyId), /PR_ARTIFACT_TAMPERED/);
+    console.log(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(storyProof)}`);
+    console.log('ProofStory pre-review live proof: PASS');
+    break smoke;
+  }
 
   const artifact = store.readPreReviewCheck(storyId)!;
   const artifactMutations: Array<[string, (value: any) => void]> = [
@@ -179,10 +226,6 @@ try {
   }
   store.writePreReviewCheck(storyId, parsed.artifact);
 
-  const captureProof = (proof: unknown): void => {
-    write(root, 'emit-proof.mjs', `console.log(${JSON.stringify(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(proof)}`)});\n`);
-    cli(root, 'live_smoke_transcript', { storyId, capture: `${process.execPath} ${join(root, 'emit-proof.mjs')}`, write: true, json: true });
-  };
   const missingTranscriptProof = structuredClone(fixtureProof); missingTranscriptProof.bindingProofs[0].transcriptProofs = [];
   captureProof(missingTranscriptProof);
   const missingTranscript = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
@@ -261,12 +304,6 @@ try {
   assert.match(handlerSource, /evaluatePreReviewCheckForContext/);
   assert.match(consumerSource, /runPreReviewCheckGate/);
   assert.doesNotMatch(handlerSource + consumerSource, /selective_applicability_check|rollout_telemetry/);
-  const storyProof = executableProof(
-    'B-4ec1', 'AB-WAVE3-PRE-REVIEW',
-    ['A-POS-1', 'A-POS-2', 'A-POS-3', 'A-POS-4'],
-    Array.from({ length: 17 }, (_, index) => `A-MUT-${index + 1}`),
-    ['A-TRANSCRIPT-1'],
-  );
   console.log(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(storyProof)}`);
   console.log('ProofStory pre-review check smoke: PASS');
   console.log('  producer/read/lifecycle verifier parity: PASS');
@@ -274,6 +311,7 @@ try {
   console.log('  tamper + equal-cutoff mutations: BITING');
   console.log('  topology omission + observe/enforce/warn rollback: PASS');
   console.log('  Wave 3A/Wave 4 leakage: absent');
+  }
 } finally {
   process.chdir(originalCwd); resetConfigCache(); rmSync(root, { recursive: true, force: true });
 }

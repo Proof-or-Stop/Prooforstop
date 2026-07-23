@@ -23,6 +23,7 @@ import { evaluateLiveSmokeTranscriptValue } from './live-smoke-transcript-eviden
 const KEY_FILE = 'lattice-pre-review-check-verifier-v1.key';
 const EXECUTABLE_PROOF_PREFIX = 'PROOFSTORY_PRE_REVIEW_PROOF=';
 const LIVE_SMOKE_TRANSCRIPT_REL = 'evidence/live-smoke-transcript.json';
+export const PRE_REVIEW_LIVE_PROOF_COMMAND = 'node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --live-proof';
 
 export interface PreReviewCheckInput {
   gitCwd: string;
@@ -137,7 +138,7 @@ export function loadVerifiedPreReviewExecutableProof(input: {
   try { transcript = JSON.parse(bytes) as typeof transcript; }
   catch { return reject('artifact JSON malformed'); }
   if (!evaluateLiveSmokeTranscriptValue(transcript, input.storyId).ok
-    || typeof transcript.actual?.command !== 'string'
+    || transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND
     || typeof transcript.actual.stdout !== 'string'
     || transcript.actual.exitCode !== 0) return reject('captured transcript shape/exit invalid');
   const proofLine = transcript.actual.stdout.split(/\r?\n/).find(line => line.startsWith(EXECUTABLE_PROOF_PREFIX));

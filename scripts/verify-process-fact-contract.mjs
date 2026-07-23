@@ -604,6 +604,9 @@ function read(relPath) {
   if (mutation === 'accept-global-transcript-proof' && relPath === 'packages/main/src/core/pre-review-check.ts') {
     text = text.replace('const transcriptIds = row.transcriptProofs.map', 'const transcriptIds = proof.bindingProofs.flatMap(item => item.transcriptProofs).map');
   }
+  if (mutation === 'allow-arbitrary-pre-review-command' && relPath === 'packages/main/src/core/pre-review-check.ts') {
+    text = text.replace('transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND', "typeof transcript.actual?.command !== 'string'");
+  }
   return text;
 }
 
@@ -758,6 +761,8 @@ function assertProofStoryProgressiveBoundary() {
       && !preReviewText.includes('actorTrust')
       && preReviewText.includes('const transcriptIds = row.transcriptProofs.map')
       && preReviewText.includes('sameStrings(transcript.producerRefs, assertion.producerRefs)')
+      && preReviewText.includes('transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND')
+      && preReviewText.includes("PRE_REVIEW_LIVE_PROOF_COMMAND = 'node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --live-proof'")
       && acceptanceDiscoveryText.includes('sourceExactSymbolCount(endpoint.expectedFileRef, sourceText, endpoint.expectedSymbolOrFact) === 1')
       && !acceptanceDiscoveryText.includes('sourceText.includes(endpoint.expectedSymbolOrFact)')
       && transitionOrchestratorText.includes('runPreReviewCheckGate')
