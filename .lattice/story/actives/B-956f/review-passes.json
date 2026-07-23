@@ -674,6 +674,41 @@
         "scanEscalationReason": null
       },
       "_hash": "e3a6dbccc241a00bdf4f8427a9b387088e7086e1da8181a4e07aa2f3c01e7559"
+    },
+    {
+      "id": "B-956f:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "R11 merged-state verification (post main-merge). Confirmed zero W1 functional-code delta since R10 pass (RP-020, headHash 4e1112afec): git diff 4e1112afec7c..HEAD across all 9 story-owned files (material-code-policy.ts, review-assurance-floor.ts, repro-evidence-binding-gate.ts, proofstory.ts, config.ts, scope-diff-pack.ts, validate-concept.ts, language-neutral-gates-smoke.ts, concept-gate-scope-smoke.ts) shows changes ONLY in config.ts (unrelated acceptanceTopologyGateMode/promptEnvelope-roles additions + duplicate-key guard), proofstory.ts (unrelated isAcceptanceMatrixDerivedEvidence import/guard), and scope-diff-pack.ts (unrelated GIT_TREE_OUTPUT_MAX_BUFFER maxBuffer addition) -- all from the B-4ec1 acceptance-topology merge, confirmed by inspecting the merge commit 1a101dca7b diff --cc hunks (pure import-union, no logic touching material classification). material-code-policy.ts, review-assurance-floor.ts, repro-evidence-binding-gate.ts, validate-concept.ts, language-neutral-gates-smoke.ts, concept-gate-scope-smoke.ts: 0 diff lines. acceptance-basis.json is CLI-generated infrastructure metadata from the unrelated acceptance-topology gate, not W1 evidence. verification_evidence_refresh_stale legitimately cleared 12/12 stale refs (materialHash unchanged at 6dad08df5685..., only headHash moved via metadata commits -- evidence_inspect confirms freshness:fresh, staleRefs:0 post-refresh). Ran `lattice validate --story=B-956f --json` end-to-end: exit 0, allPass:true, 46/46 configured commands passed (verified via 46 checkmark headers, 0 fail markers in details[]), including the two most W1-relevant commands: quorum-submit-smoke.js (pass) and repro-evidence-binding-dev-gate-smoke.js (pass). Independently re-ran node packages/main/dist/tasks/language-neutral-gates-smoke.js 3x fresh (post validate build): 39/39 deterministic PASS all 3 runs, byte-identical output. Independently re-ran node tmp/w1-red/red-language-degradation.cjs 3x: 11/11 GREEN exit 0 all 3 runs. All 12 checklist verificationEvidence rows show result:pass bound to current materialHash. No test-coverage gaps found this round; R10s verificationIntent-to-evidence coverage findings remain valid since the underlying code is byte-identical. Non-blocking environment observation (not a code finding): a leftover background process from an earlier/different session in this shared worktree (pid 3948, `lattice validate {storyId:B-956f}` without --json) was observed running concurrently near the end of this review; it did not affect the results recorded here (materialHash/evidence/git log all consistent at time of this pass).",
+      "createdAt": "2026-07-23T18:28:39.589Z",
+      "reviewRound": "2026-07-23T18:10:20.313Z",
+      "reviewRunId": "B-956f:RR-035",
+      "envelopeId": "01925b913c2d3fc371f4963827ff2fea62f64386a3541815127b6a6c7e63dc7f",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/acceptance-basis.json",
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/review-passes.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ee3c2be7bddd7babb41c00d21c68bedcadd4724b8b39f7aa3017819228a1d705"
     }
   ]
 }
