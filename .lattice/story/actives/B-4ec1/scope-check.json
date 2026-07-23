@@ -1,6 +1,6 @@
 {
   "storyId": "B-4ec1",
-  "checkedAt": "2026-07-23T02:47:51.870Z",
+  "checkedAt": "2026-07-23T02:49:43.695Z",
   "features": [
     {
       "feature": "Canonical signed pre_review_check artifact and shared CLI/read/lifecycle verifier",
@@ -52,7 +52,7 @@
       "source": "packages/main/src/core/pre-review-live-proof.ts; packages/main/src/core/pre-review-check.ts"
     },
     {
-      "feature": "Production live-smoke transcript handler carries the registered proof output into the canonical transcript/receipt consumer path",
+      "feature": "Production live-smoke transcript handler carries registered proof output into the canonical transcript/receipt consumer path",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
@@ -108,18 +108,18 @@
       "source": "scope_contract_check:B-4ec1 acknowledged warnings"
     },
     {
-      "feature": "Scope contract admits packages/main/src/core/pre-review-live-proof.ts as the canonical active-story executable-proof producer",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Scope contract admits packages/main/src/core/pre-review-live-proof.ts as canonical active-story executable-proof producer in allowedModify and allowedCreate",
+      "covered_by": "CHK-003",
+      "status": "covered",
       "excluded_by": null,
-      "source": "scope_contract_check:B-4ec1 OUT_OF_SCOPE packages/main/src/core/pre-review-live-proof.ts blocking=true"
+      "source": ".lattice/story/actives/B-4ec1/scope-contract.json"
     },
     {
-      "feature": "Scope contract admits packages/main/src/handlers/live-smoke-transcript.ts as the production transcript/proof consumer integration",
-      "covered_by": null,
-      "status": "gap",
+      "feature": "Scope contract admits packages/main/src/handlers/live-smoke-transcript.ts as production transcript/proof integration",
+      "covered_by": "CHK-003",
+      "status": "covered",
       "excluded_by": null,
-      "source": "scope_contract_check:B-4ec1 OUT_OF_SCOPE packages/main/src/handlers/live-smoke-transcript.ts blocking=true"
+      "source": ".lattice/story/actives/B-4ec1/scope-contract.json"
     },
     {
       "feature": "Wave 3A selective per-Story/per-policy applicability resolver",
@@ -167,13 +167,13 @@
   },
   "summary": {
     "total": 19,
-    "covered": 15,
+    "covered": 17,
     "excluded": 2,
-    "gaps": 2,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "2026-07-23T02:17:50.645Z",
-  "_hash": "250abcbda6b29f596ee132fa768f740bf4c957ed2c2b94e7f84835159c293f0a",
+  "_hash": "f2a6f82bfc7d8833f0d8161597498135bd1b3f42088f2db6b41e879f18fe2fc2",
   "openQuestions": []
 }

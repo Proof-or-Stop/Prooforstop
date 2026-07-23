@@ -11,24 +11,27 @@
     "packages/main/src/core/acceptance-basis-receipt.ts",
     "packages/main/src/core/acceptance-topology.ts",
     "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/core/pre-review-live-proof.ts",
     "packages/main/src/core/evidence-freshness.ts",
     "packages/main/src/core/live-smoke-transcript-evidence.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts",
     "scripts/verify-process-fact-contract.mjs",
     "docs/CLI.md",
     "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
     ".lattice/story/actives/B-4ec1/acceptance-basis.json"
   ],
   "allowedCreate": [
-    "packages/main/src/core/pre-review-check.ts"
+    "packages/main/src/core/pre-review-check.ts",
+    "packages/main/src/core/pre-review-live-proof.ts"
   ],
   "allowedTest": [
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Include the canonical verifier-owned acceptance-basis artifact written by acceptance_basis_generate; critic re-attestation remains a CHK-004 requirement and Wave 3A/Wave 4 stay excluded.",
+  "scopeChangeReason": "Include the active-story-derived pre-review proof verifier and registered live-smoke producer needed to close F-009/F-012/F-015; Wave 3A selective applicability and Wave 4 telemetry remain excluded.",
   "acknowledgements": [
     {
       "actor": "lattice-implementer",
@@ -103,7 +106,9 @@
     }
   ],
   "createdAt": "2026-07-22T22:41:51.162Z",
-  "updatedAt": "2026-07-23T02:17:02.430Z",
+  "updatedAt": "2026-07-23T02:48:44.726Z",
+  "fileRules": [],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -133,6 +138,8 @@
     "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts",
     "packages/main/src/tasks/proofstory-topology-critic-smoke.ts": "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
     ".lattice/story/actives/B-4ec1/pre-review-check.json": ".lattice/story/actives/B-4ec1/pre-review-check.json",
-    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts"
   }
 }
