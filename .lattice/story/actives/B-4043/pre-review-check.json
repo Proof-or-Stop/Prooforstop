@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-4043",
   "mode": "observe",
-  "cutoffAt": "2026-07-23T17:22:27.709Z",
-  "planBasisDigest": "sha256:f9c8a53f817a85ef9678eb75992a120ce8193cc6844c5ffb3bd2d8f3b97eeb9f",
+  "cutoffAt": "2026-07-23T17:44:02.819Z",
+  "planBasisDigest": "sha256:7df99f80c96125a93931a9b22122e142111aa945c4f7b40c68786dcf48deb231",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-4043",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:f9c8a53f817a85ef9678eb75992a120ce8193cc6844c5ffb3bd2d8f3b97eeb9f",
+      "priorPlanBasisDigest": "sha256:7df99f80c96125a93931a9b22122e142111aa945c4f7b40c68786dcf48deb231",
       "status": "partial",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -90,11 +90,12 @@
               "scope:file:packages/main/src/handlers/proofstory.ts",
               "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
               "scope:file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
               "scope:file:scripts/run-proofstory-acceptance-rollout-cohort.mjs",
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:860f745d3be2318fa82b346c9a722d4955c3e1bef881753d25597eb920f244ff"
+          "resultDigest": "sha256:bb657101fec39621c884f26c9401411b721f63cc9b3a905ef4727eae24cf5315"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -178,11 +179,12 @@
               "scope:file:packages/main/src/handlers/proofstory.ts",
               "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
               "scope:file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
               "scope:file:scripts/run-proofstory-acceptance-rollout-cohort.mjs",
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:52a64481aca209edecc6f80bcda00a7214904b521adc0e8fee07bd2a232ce59d"
+          "resultDigest": "sha256:2831e694191e5550ca885c4364f734c21b60aff26f05f0cd0a76a7bd6faa8510"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -234,11 +236,12 @@
               "scope:file:packages/main/src/handlers/proofstory.ts",
               "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
               "scope:file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
               "scope:file:scripts/run-proofstory-acceptance-rollout-cohort.mjs",
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:e8417c792c92b17ccee8ec69aeefd2c93be0533d2a4200677ac7a3ccde3b6414"
+          "resultDigest": "sha256:31536516cf040cfb70d4beb4c07a12178b1fb4fb360b8ce437860d524adc3fa7"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -287,6 +290,7 @@
             "scope:file:packages/main/src/handlers/proofstory.ts",
             "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
             "scope:file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+            "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
             "scope:file:scripts/run-proofstory-acceptance-rollout-cohort.mjs",
             "scope:file:scripts/verify-process-fact-contract.mjs",
             "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
@@ -335,11 +339,12 @@
               "scope:file:packages/main/src/handlers/proofstory.ts",
               "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
               "scope:file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
               "scope:file:scripts/run-proofstory-acceptance-rollout-cohort.mjs",
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:2d8d904f2007d6be6b09f4a8bf48bfe0285f7080aed063317a1d4f561ebd9b91"
+          "resultDigest": "sha256:c0ef71b810c3d54b19fdae480821fca04791790fcf19c562d7a588686795b384"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -418,6 +423,7 @@
             "source-file:packages/main/src/handlers/story.ts:sha256:9bc8ba7f11229f46591ada40d5cb3cd5ba50a8d6189cd1df6e928a93785b0a16",
             "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:02d1ab8ad080a90310e525876c111e0c5f83671240b1964b1d3f1b1067d96a19",
             "source-file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:sha256:e1cc261fee0a6204b7d962e357e0e6ffad88c2e3208cc5910a61c1820a72f152",
+            "source-file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:sha256:5f2c33819cd596b64f40e677b83871720d3b1fc76d816f008709a0eadce8b0d3",
             "source-file:scripts/run-proofstory-acceptance-rollout-cohort.mjs:sha256:9c6a1391e5b7e939b88b5fbeff1da09e94b1ee1f83bdc8d1a588ef319826a7ca",
             "source-file:scripts/run-proofstory-pre-review-live-proof.mjs:sha256:1572b45b9c889106ffa8eb70f8bb2bbc82148fa6ec442458e234ef2167bb1108",
             "source-file:scripts/verify-process-fact-contract.mjs:sha256:185f5763d9ed45480cbe50dc4d4857ecee01a13c8af5c77fb18ccbf68ae037e8"
@@ -461,11 +467,12 @@
               "scope:file:packages/main/src/handlers/proofstory.ts",
               "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
               "scope:file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
               "scope:file:scripts/run-proofstory-acceptance-rollout-cohort.mjs",
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:cf75fa25f69824ca169d25700f7b3a1c0bdf4b5ab59e4a58da86b00c2132c14e"
+          "resultDigest": "sha256:10413487ebd0453d2dd90ac701ef9f09a442c4c49d91022bc7185b3d53d95cf1"
         }
       ],
       "scopeRefs": [
@@ -504,6 +511,7 @@
         "scope:file:packages/main/src/handlers/proofstory.ts",
         "scope:file:packages/main/src/handlers/transition-orchestrator.ts",
         "scope:file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
         "scope:file:scripts/run-proofstory-acceptance-rollout-cohort.mjs",
         "scope:file:scripts/verify-process-fact-contract.mjs"
       ],
@@ -563,6 +571,7 @@
         "source-file:closure:packages/main/src/handlers/story.ts",
         "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
         "source-file:closure:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
         "source-file:closure:scripts/run-proofstory-acceptance-rollout-cohort.mjs",
         "source-file:closure:scripts/run-proofstory-pre-review-live-proof.mjs",
         "source-file:closure:scripts/verify-process-fact-contract.mjs",
@@ -774,33 +783,19 @@
       ],
       "excludedPathRefs": [],
       "blindSpots": [
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_rollout_report->consumer:acceptance_rollout_check and transition-orchestrator DEV to REVIEW rollout gate",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-rollout-report.json->consumer:acceptance_rollout_report_read, acceptance_rollout_check, and transition-orchestrator DEV to REVIEW rollout gate",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutHistoryDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutHistoryDigest",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutSourceRecordDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutSourceRecordDigest",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/handlers/proofstory.ts#currentAcceptanceRolloutBinding",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#currentAcceptanceRolloutBinding",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/handlers/proofstory.ts#deriveAcceptanceRolloutReport",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#deriveAcceptanceRolloutReport",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#issueAcceptanceRolloutArtifact",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#issueAcceptanceRolloutArtifact",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyAcceptanceRolloutArtifact",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#verifyAcceptanceRolloutArtifact",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-check.ts#issuePreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#issuePreReviewCheckArtifact",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-check.ts#loadVerifiedPreReviewExecutableProof->consumer:packages/main/src/handlers/proofstory.ts#loadVerifiedPreReviewExecutableProof",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-check.ts#verifyPreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyPreReviewCheckArtifact",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#canonicalPreReviewAssertionSourceRef->consumer:packages/main/src/core/pre-review-check.ts#canonicalPreReviewAssertionSourceRef",
         "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#decodePreReviewCaseRecords->consumer:packages/main/src/core/pre-review-check.ts#decodePreReviewCaseRecords",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
-        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/transition-orchestrator.ts#runAcceptanceRolloutGate->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#runAcceptanceRolloutGate"
+        "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
       ],
       "snapshotSeal": {
         "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
         "inventoryDirectoryDigest": "sha256:150f46b129f5256d30a72c997758eb4a1e4127558fdba1bb826e6d9fe5e58537",
         "inventoryDirectoryCount": 20,
-        "sourceSnapshotDigest": "sha256:04bebc613922be95ad3182325e9fe5230a0445bae0d5fa511681c2d922f5e13f",
+        "sourceSnapshotDigest": "sha256:8b0fd5741882bb04f086043db5d3cf979776ba025c782b6455d648f14402d43c",
         "sourceSnapshotCount": 769,
         "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
         "status": "partial",
@@ -808,67 +803,7 @@
           {
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:acceptance_rollout_report->consumer:acceptance_rollout_check and transition-orchestrator DEV to REVIEW rollout gate"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:acceptance-rollout-report.json->consumer:acceptance_rollout_report_read, acceptance_rollout_check, and transition-orchestrator DEV to REVIEW rollout gate"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
             "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutHistoryDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutHistoryDigest"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#acceptanceRolloutSourceRecordDigest->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#acceptanceRolloutSourceRecordDigest"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/handlers/proofstory.ts#currentAcceptanceRolloutBinding"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#currentAcceptanceRolloutBinding->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#currentAcceptanceRolloutBinding"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/handlers/proofstory.ts#deriveAcceptanceRolloutReport"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#deriveAcceptanceRolloutReport"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#issueAcceptanceRolloutArtifact"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#issueAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#issueAcceptanceRolloutArtifact"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyAcceptanceRolloutArtifact"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-rollout.ts#verifyAcceptanceRolloutArtifact->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#verifyAcceptanceRolloutArtifact"
           },
           {
             "code": "derivation_diagnostic",
@@ -899,162 +834,152 @@
             "code": "derivation_diagnostic",
             "targetKind": "inventory",
             "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext"
-          },
-          {
-            "code": "derivation_diagnostic",
-            "targetKind": "inventory",
-            "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/transition-orchestrator.ts#runAcceptanceRolloutGate->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#runAcceptanceRolloutGate"
           }
         ],
-        "sealDigest": "sha256:8a1642f124fde13add742c89e86cc7462af2cdb9a7dd57f761f624d24a3be3c0"
+        "sealDigest": "sha256:9c7366cf143a4bc23a4ed83c5e2024e7529107051dd674fe0cfa5d30d2f904f8"
       },
       "binding": {
-        "headHash": "9252ce2c3589e9590bb5b582a0ade29e86acddd9",
-        "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
-        "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+        "headHash": "88d099d32a6213a776d08b23fdf3f96343ec4a6d",
+        "materialHash": "75868cfb3cab44502e349c50e09176dc5efe8e4efdc79d794c2bcf43fa913a8c",
+        "storyFilesHash": "9452070f794df6ab784ef3bc65b997db2514101640706ffcff9dc5e1dec6b600",
         "scopeCheckDigest": "sha256:a85397cfdc9b48cd672155b8b15b2c8c23cd5daaa03b5f5a9f7c0a4e75686054",
-        "scopeContractDigest": "sha256:802ab18f47ff2e0ed0d9014e3b3e14f8db7cb746121f101e540386bbc9d9467e",
-        "closureFilesHash": "sha256:96a06a73a2db069ecdc411a71bd967eab5d7cabf42d9f2fcd3855ee156c19602"
+        "scopeContractDigest": "sha256:f56a50c45dc02de942ccc00926dc753296303fe3dea31bdcc8931ba8cb84b791",
+        "closureFilesHash": "sha256:803e1ae5439a8254c836f98615cb79c083e1f1c2c003bb0507ad597f51f3cf7b"
       },
-      "receiptRef": "receipt:coverage-basis:B-4043:pre_review:09cb65f3576c8ad1",
-      "basisDigest": "sha256:eda0de9d505322c60c3c5b4c892df4f4707674175a9b70e37ee92bcd4211f6e9"
+      "receiptRef": "receipt:coverage-basis:B-4043:pre_review:217b9505020e3874",
+      "basisDigest": "sha256:8e4818d439decc2704fdc6c6c991edfa4f3798dd1a6542962addf441d592789f"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-      "receiptRef": "receipt:coverage-basis:B-4043:pre_review:09cb65f3576c8ad1",
+      "receiptRef": "receipt:coverage-basis:B-4043:pre_review:217b9505020e3874",
       "issuer": "acceptance-coverage-basis-verifier",
       "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
       "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
       "storyId": "B-4043",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:eda0de9d505322c60c3c5b4c892df4f4707674175a9b70e37ee92bcd4211f6e9",
-      "topologyDigest": "sha256:dbd3e6b418c142c2436e6d2058d89ba6d42a1fee866acaa3b593e929f9ffac4f",
+      "basisDigest": "sha256:8e4818d439decc2704fdc6c6c991edfa4f3798dd1a6542962addf441d592789f",
+      "topologyDigest": "sha256:606afe9b0217ab2375212c1a5412ebda972738eadd79a2d27d32c845a3eb0ec3",
       "scopeCheckDigest": "sha256:a85397cfdc9b48cd672155b8b15b2c8c23cd5daaa03b5f5a9f7c0a4e75686054",
-      "scopeContractDigest": "sha256:802ab18f47ff2e0ed0d9014e3b3e14f8db7cb746121f101e540386bbc9d9467e",
-      "headHash": "9252ce2c3589e9590bb5b582a0ade29e86acddd9",
-      "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
-      "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
-      "closureFilesHash": "sha256:96a06a73a2db069ecdc411a71bd967eab5d7cabf42d9f2fcd3855ee156c19602",
-      "sealDigest": "sha256:8a1642f124fde13add742c89e86cc7462af2cdb9a7dd57f761f624d24a3be3c0",
+      "scopeContractDigest": "sha256:f56a50c45dc02de942ccc00926dc753296303fe3dea31bdcc8931ba8cb84b791",
+      "headHash": "88d099d32a6213a776d08b23fdf3f96343ec4a6d",
+      "materialHash": "75868cfb3cab44502e349c50e09176dc5efe8e4efdc79d794c2bcf43fa913a8c",
+      "storyFilesHash": "9452070f794df6ab784ef3bc65b997db2514101640706ffcff9dc5e1dec6b600",
+      "closureFilesHash": "sha256:803e1ae5439a8254c836f98615cb79c083e1f1c2c003bb0507ad597f51f3cf7b",
+      "sealDigest": "sha256:9c7366cf143a4bc23a4ed83c5e2024e7529107051dd674fe0cfa5d30d2f904f8",
       "workspaceIdentityDigest": "sha256:6e61ba6ab6ff8068c1890049a84394a794f898a20fefcf7f56a8840651960b91",
-      "signature": "hQR4cZEyoEfylaFrRRdkeAsGj4VYn2esuzTmlldP6fuEmEH26O0Q3w+YQX1sKhifoR548kbYBLykM8e8WGY8Dw=="
+      "signature": "QcXy1JdtBn6K83PXJUqGrPa9h9pKkQ1Kbu8J9BkcZ1uWPYX8aKYFNxLXCVfPg9e2yKZM8WsHDaYKIOKNsE3ZCQ=="
     }
   },
-  "topologyDigest": "sha256:dbd3e6b418c142c2436e6d2058d89ba6d42a1fee866acaa3b593e929f9ffac4f",
+  "topologyDigest": "sha256:606afe9b0217ab2375212c1a5412ebda972738eadd79a2d27d32c845a3eb0ec3",
   "scopeCheckDigest": "sha256:a85397cfdc9b48cd672155b8b15b2c8c23cd5daaa03b5f5a9f7c0a4e75686054",
-  "scopeContractDigest": "sha256:802ab18f47ff2e0ed0d9014e3b3e14f8db7cb746121f101e540386bbc9d9467e",
-  "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
-  "closureFilesHash": "sha256:96a06a73a2db069ecdc411a71bd967eab5d7cabf42d9f2fcd3855ee156c19602",
+  "scopeContractDigest": "sha256:f56a50c45dc02de942ccc00926dc753296303fe3dea31bdcc8931ba8cb84b791",
+  "storyFilesHash": "9452070f794df6ab784ef3bc65b997db2514101640706ffcff9dc5e1dec6b600",
+  "closureFilesHash": "sha256:803e1ae5439a8254c836f98615cb79c083e1f1c2c003bb0507ad597f51f3cf7b",
   "evidenceRefs": [
     {
       "intentRef": "CHK-001:adversarial:prompt-authority",
       "itemId": "CHK-001",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:bf65792d6bc79fa081f0e987be710666804536552815bcd7f3a5cd0282569588"
+      "evidenceDigest": "sha256:4c4cc3383731b3b9f239b46a7d56d997e05e1772ea339872179d498320ba6cab"
     },
     {
       "intentRef": "CHK-001:edge:mirror-mode",
       "itemId": "CHK-001",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:4a9a663f0c61366f49ceef4aacdca6e215bdb2fe0fdaf17d771c29e7c1eca2e7"
+      "evidenceDigest": "sha256:40066e7b92379009bb22d0ef1e1e61b039e1bb2883a19a8bb0ab4df87f295122"
     },
     {
       "intentRef": "CHK-001:happy:role-guidance",
       "itemId": "CHK-001",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:471a839a90837a028e3d0f4a8a4d810c9ec42c610e041b6589a74a80806466ee"
+      "evidenceDigest": "sha256:b41bf633686d6543a57396eaa9e270584c2cac47cbc170bf803f86511a6d8cd4"
     },
     {
       "intentRef": "CHK-002:adversarial:seeded-defects",
       "itemId": "CHK-002",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:db0eb6ab1fe73964a9a1a71abf7369e673c583c4ba251f878820078dfc7f5dbd"
+      "evidenceDigest": "sha256:5f158fb3bcf326640ff06ce96cc85979a12711f732f68cde1addb59be2a8fc10"
     },
     {
       "intentRef": "CHK-002:edge:false-block-controls",
       "itemId": "CHK-002",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:d5868f3ef9c78c5f66c0330a8120e98369b39ea03e3951ac6882530ceb3d0023"
+      "evidenceDigest": "sha256:3c24bacca18e8a0556c4feabc20bbc2cd2e4caddf7426c82b6583fd3bb846700"
     },
     {
       "intentRef": "CHK-002:happy:real-cohort-receipt",
       "itemId": "CHK-002",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:fa9f419a333f9bd5395c1f323f92976dc6b9291ff9a830653f4ba20f9c85f81f"
+      "evidenceDigest": "sha256:d9b1aedf6cbb06bc327cf906b4f30f113c08da87535e6cf09ab13eb1fec3015e"
     },
     {
       "intentRef": "CHK-003:adversarial:threshold-bypass",
       "itemId": "CHK-003",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:5dc735c8fae30ecb5c415461e46e645b76ebaf245c3f15a6e89d4b4440e8bf48"
+      "evidenceDigest": "sha256:8d4f2bf486e070a0651425cddbeb970cb248b41f4cac6d617621285877e0c1fd"
     },
     {
       "intentRef": "CHK-003:edge:inconclusive-boundary",
       "itemId": "CHK-003",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:4ad1bc05470b0df3435036e02ed458007d989a3ee3b2430d2c3a5a756f698be7"
+      "evidenceDigest": "sha256:991d3166ee4d3c71977313775aebc9a68fe6097a88b2e8855b01858a14c99e0f"
     },
     {
       "intentRef": "CHK-003:happy:bounded-thresholds",
       "itemId": "CHK-003",
       "evidenceIndex": 0,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:08915e5f671c406e369b534284b74ca5e50d08c93e2ed301fa0982041808de75"
+      "evidenceDigest": "sha256:eb15e043eadb12abe11b2883900a98c754b75b3f60f3b7b8779f05fe9de3d760"
     },
     {
       "intentRef": "CHK-004:adversarial:fail-closed-mutations",
       "itemId": "CHK-004",
       "evidenceIndex": 2,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:95f2ab326f506488c3ba74af882e52896e8786e2e99b187c70ff27bbd376601e"
+      "evidenceDigest": "sha256:8f8f05601b9746ff9d19fadff72d608012932d2d9fad2a541bc6230c4932d88f"
     },
     {
       "intentRef": "CHK-004:edge:mode-invariant-diagnostics",
       "itemId": "CHK-004",
       "evidenceIndex": 1,
       "kind": "logic_test",
-      "evidenceDigest": "sha256:47a92ff7425b6c6e52ce3d81cf03b3053ad73fd845b22cd6b88259546f252052"
+      "evidenceDigest": "sha256:a054d3fea619fa080d2a0fb6dec5d0de4d263ac8ffa4cbd6ffdc50ae60dac9b0"
     },
     {
       "intentRef": "CHK-004:happy:enforce-and-rollback",
       "itemId": "CHK-004",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:8c7fbd31749e50eadaec914dc74cef542721be37a98a4ecdd6807830060262d7"
+      "evidenceDigest": "sha256:124c33ba6eeee0887a08248af5b7c22f0f12f53e7cbb12fde919f0ebcb97f506"
     },
     {
       "intentRef": "CHK-005:adversarial:no-status-overclaim",
       "itemId": "CHK-005",
       "evidenceIndex": 2,
       "kind": "docs_check",
-      "evidenceDigest": "sha256:6cdc2017a1068937a3f644dbd1e4b7960375c9f8564e10903e5e40508252ea24"
+      "evidenceDigest": "sha256:f7f63237482576027883cc32a97002a7261f98d6c7f4084e8f4e664694039636"
     },
     {
       "intentRef": "CHK-005:edge:authority-and-exclusions",
       "itemId": "CHK-005",
       "evidenceIndex": 1,
       "kind": "docs_check",
-      "evidenceDigest": "sha256:afb0e861ba3697c6158b7f4f21b9f644b7f0c821ddf6329c348bd129a49a2a0b"
+      "evidenceDigest": "sha256:3e04a47a6f1465e129c37e9ad6dadccaba4b965beccdbee0606e7f592bb6963d"
     },
     {
       "intentRef": "CHK-005:happy:canonical-wave4-status",
       "itemId": "CHK-005",
       "evidenceIndex": 0,
       "kind": "docs_check",
-      "evidenceDigest": "sha256:7e5344bb8810b2d00cf83fc7c0f2476f29ec09148869c65202007df8bf35b0d3"
+      "evidenceDigest": "sha256:05ed88a3479c1bb988a7b4a5b562d4ca2cf3be39a05d231b8a72dea2ac76d102"
     }
   ],
   "executableProof": {
@@ -1062,32 +987,156 @@
     "storyId": "B-4043",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [],
+    "commandDigests": [
+      "sha256:d46ece93df164e1d797a4e2292068f313a9b4763a0da7ae1bd2d534ef5f96eda"
+    ],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "",
+    "caseRecords": "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",
     "provenance": {
-      "runnerPath": "",
-      "runnerDigest": "",
-      "targetPath": "",
-      "targetDigest": "",
-      "buildCommand": ""
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:999b359b419a448061e9ea68168782923f6da10ae1ebf7d383772c516858d19b",
+      "buildCommand": "npm --prefix packages/main run build"
     },
-    "bindingProofs": []
+    "bindingProofs": [
+      {
+        "bindingId": "AB-WAVE4-MEASURED-ROLLOUT",
+        "positiveAssertionIds": [
+          "A-POS-1",
+          "A-POS-2",
+          "A-POS-3",
+          "A-POS-4",
+          "A-POS-5"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "A-MUT-1",
+            "expectedCode": "STABLE",
+            "observedCode": "STABLE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-2",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-3",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-4",
+            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-5",
+            "expectedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "observedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-6",
+            "expectedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "observedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-7",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-8",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-9",
+            "expectedCode": "PR_MUTATION_DID_NOT_BITE",
+            "observedCode": "PR_MUTATION_DID_NOT_BITE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-10",
+            "expectedCode": "PR_TRANSCRIPT_MISSING",
+            "observedCode": "PR_TRANSCRIPT_MISSING",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-11",
+            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-12",
+            "expectedCode": "FAIL_CLOSED",
+            "observedCode": "FAIL_CLOSED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-13",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-14",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-15",
+            "expectedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
+            "observedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-16",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-17",
+            "expectedCode": "ABSENT",
+            "observedCode": "ABSENT",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "A-TRANSCRIPT-1",
+            "producerRefs": [
+              "P-W4-ROLLOUT-REPORT"
+            ],
+            "consumerRefs": [
+              "C-W4-ROLLOUT-LIFECYCLE"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 12
+          }
+        ]
+      }
+    ]
   },
   "codes": [
     "PR_NEW_PATH_UNMAPPED",
     "PR_COVERAGE_BASIS_CHANGED",
     "PR_COVERAGE_INCONCLUSIVE",
-    "PR_PLANNED_PATH_UNRESOLVED",
-    "PR_PRODUCTION_PATH_UNPROVEN",
-    "PR_MUTATION_EVIDENCE_MISSING",
-    "PR_MUTATION_DID_NOT_BITE",
-    "PR_CONTROL_NOT_RESTORED",
-    "PR_TRANSCRIPT_MISSING",
-    "PR_AUTHORITY_INADMISSIBLE"
+    "PR_PLANNED_PATH_UNRESOLVED"
   ],
   "status": "inconclusive",
-  "issuedAt": "2026-07-23T17:22:27.709Z",
+  "issuedAt": "2026-07-23T17:44:02.819Z",
   "signerPublicKey": "00gcM7H5Amw/DnKQu6nfdIUKn5PpXXjYXeTQE79mpv0=",
-  "signature": "kHd53zP/QWmPq6a+CZ1/s3qmmWJzCjHXjbSwT1AZsPXUQOaab3Uj42kOaIrZif9+hc2ik6y0TuAymjqGKiHvAA=="
+  "signature": "ZZYrlVFVdGkR/0ECTga8h0B/Wq91b+3pAAAnQV/ZRQBiJBMTfMkPwkpPh+bXeLP33qhtB/leojYSwfKY1AAvCg=="
 }
