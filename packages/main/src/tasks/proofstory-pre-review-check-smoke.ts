@@ -29,6 +29,13 @@ const scenarioLedger = new Map<string, PreReviewCaseRecordV1>();
 let scenarioEventSequence = 0;
 const actualScenarioEvents: Array<[string, number]> = [];
 const scenarioSourceRefs = new Map<string, string>();
+type ScenarioCaseKind = PreReviewCaseRecordV1[1];
+const registeredScenarioKinds = new Map<string, ScenarioCaseKind>([
+  ...Array.from({ length: 5 }, (_, index) => [`A-POS-${index + 1}`, 'positive'] as const),
+  ...Array.from({ length: 17 }, (_, index) => [`A-MUT-${index + 1}`, 'mutation'] as const),
+  ['A-TRANSCRIPT-1', 'transcript'] as const,
+]);
+const activeScenarioAssertions = new Map<string, { kind: ScenarioCaseKind; sourceRef: string }>();
 
 if (scenarioMode) {
   const activeStoryId = process.env.LATTICE_ACTIVE_STORY_ID;
@@ -38,9 +45,19 @@ if (scenarioMode) {
   for (const binding of activeContract.acceptanceBindings) {
     const topology = binding.verificationTopology;
     if (!topology) continue;
-    for (const assertion of [...topology.positiveAssertionRefs, ...topology.mutationCaseRefs, ...topology.transcriptAssertionRefs]) {
+    const assertions: Array<{ assertion: typeof topology.positiveAssertionRefs[number]; kind: ScenarioCaseKind }> = [
+      ...topology.positiveAssertionRefs.map(assertion => ({ assertion, kind: 'positive' as const })),
+      ...topology.mutationCaseRefs.map(assertion => ({ assertion, kind: 'mutation' as const })),
+      ...topology.transcriptAssertionRefs.map(assertion => ({ assertion, kind: 'transcript' as const })),
+    ];
+    for (const { assertion, kind } of assertions) {
       if (scenarioSourceRefs.has(assertion.id)) throw new Error(`duplicate active topology assertion ID: ${assertion.id}`);
-      scenarioSourceRefs.set(assertion.id, canonicalPreReviewAssertionSourceRef(assertion.sourceRef));
+      const registeredKind = registeredScenarioKinds.get(assertion.id);
+      if (!registeredKind) throw new Error(`unknown active topology assertion ID: ${assertion.id}`);
+      if (registeredKind !== kind) throw new Error(`active topology assertion kind mismatch for ${assertion.id}: expected ${registeredKind}, got ${kind}`);
+      const sourceRef = canonicalPreReviewAssertionSourceRef(assertion.sourceRef);
+      scenarioSourceRefs.set(assertion.id, sourceRef);
+      activeScenarioAssertions.set(assertion.id, { kind, sourceRef });
     }
   }
 }
@@ -63,14 +80,27 @@ function recordExecutedCase(unboundRecord: ExecutedCaseWithoutSourceRef): void {
   scenarioLedger.set(record[0], record);
 }
 
-function assertScenarioLedgerComplete(records: readonly PreReviewCaseRecordV1[]): void {
-  const expected = [
-    ...Array.from({ length: 4 }, (_, index) => [`A-POS-${index + 1}`, 'positive']),
-    ...Array.from({ length: 17 }, (_, index) => [`A-MUT-${index + 1}`, 'mutation']),
-    ['A-TRANSCRIPT-1', 'transcript'],
-  ];
-  const actual = records.map(record => [record[0], record[1]]).sort((a, b) => a[0].localeCompare(b[0]));
-  assert.deepEqual(actual, expected.sort((a, b) => a[0].localeCompare(b[0])), 'executed scenario ledger must contain every exact required ID/kind once');
+function selectActiveScenarioRecords(
+  expected: ReadonlyMap<string, { kind: ScenarioCaseKind; sourceRef: string }>,
+  records: readonly PreReviewCaseRecordV1[],
+): PreReviewCaseRecordV1[] {
+  for (const [id, assertion] of expected) {
+    const registeredKind = registeredScenarioKinds.get(id);
+    if (!registeredKind) throw new Error(`unknown active topology assertion ID: ${id}`);
+    if (registeredKind !== assertion.kind) throw new Error(`active topology assertion kind mismatch for ${id}`);
+  }
+  const byId = new Map<string, PreReviewCaseRecordV1>();
+  for (const record of records) {
+    if (byId.has(record[0])) throw new Error(`executed scenario ledger contains duplicate assertion ID: ${record[0]}`);
+    byId.set(record[0], record);
+  }
+  return [...expected].map(([id, assertion]) => {
+    const record = byId.get(id);
+    if (!record) throw new Error(`executed scenario ledger missing expected assertion ID: ${id}`);
+    if (record[1] !== assertion.kind) throw new Error(`executed scenario ledger kind mismatch for ${id}`);
+    if (record[9] !== assertion.sourceRef) throw new Error(`executed scenario ledger sourceRef mismatch for ${id}`);
+    return record;
+  });
 }
 
 if (liveProofMode) {
@@ -295,6 +325,38 @@ assert.throws(() => assemblePreReviewCaseRecords(expandedContract, [...expandedR
 const extraRecord = structuredClone(expandedRecords[0]); extraRecord[0] = 'A-EXTRA';
 assert.throws(() => assemblePreReviewCaseRecords(expandedContract, [...expandedRecords, extraRecord]), /extra assertion IDs: A-EXTRA/, 'extra executed records fail closed');
 assert.throws(() => assemblePreReviewCaseRecords(expandedContract, expandedRecords.filter(record => record[0] !== 'A-MUT-7')), /missing assertion ID: A-MUT-7/, 'missing executed records fail closed');
+
+const fifthPositive = structuredClone(expandedRecords.find(record => record[0] === 'A-POS-4')!);
+fifthPositive[0] = 'A-POS-5';
+fifthPositive[2] = 'rollout:focused-enforce-rollback';
+fifthPositive[4] = 'execute focused Wave 4 rollout smoke with enforce and rollback controls';
+fifthPositive[9] = 'intent:A-POS-5';
+const registeredCatalogFixture = [...expandedRecords, fifthPositive];
+const expectedScenarioAssertions = (records: readonly PreReviewCaseRecordV1[]) =>
+  new Map(records.map(record => [record[0], { kind: record[1], sourceRef: record[9] }]));
+const legacyScenarioAssertions = expectedScenarioAssertions(expandedRecords);
+assert.equal(selectActiveScenarioRecords(legacyScenarioAssertions, registeredCatalogFixture).length, 22, 'legacy active topology omitting A-POS-5 receives the exact legacy 22 records');
+const fivePositiveScenarioAssertions = expectedScenarioAssertions(registeredCatalogFixture);
+assert.equal(selectActiveScenarioRecords(fivePositiveScenarioAssertions, registeredCatalogFixture).filter(record => record[1] === 'positive').length, 5, 'five-intent active topology receives the real fifth positive record');
+assert.throws(
+  () => selectActiveScenarioRecords(fivePositiveScenarioAssertions, registeredCatalogFixture.filter(record => record[0] !== 'A-POS-5')),
+  /missing expected assertion ID: A-POS-5/,
+  'missing expected registered record fails closed',
+);
+const unknownScenarioAssertions = new Map(fivePositiveScenarioAssertions);
+unknownScenarioAssertions.set('A-EXTRA', { kind: 'positive', sourceRef: 'intent:A-EXTRA' });
+assert.throws(
+  () => selectActiveScenarioRecords(unknownScenarioAssertions, registeredCatalogFixture),
+  /unknown active topology assertion ID: A-EXTRA/,
+  'extra or unknown active topology assertion ID fails closed',
+);
+const wrongKindScenarioAssertions = new Map(fivePositiveScenarioAssertions);
+wrongKindScenarioAssertions.set('A-POS-5', { kind: 'mutation', sourceRef: 'intent:A-POS-5' });
+assert.throws(
+  () => selectActiveScenarioRecords(wrongKindScenarioAssertions, registeredCatalogFixture),
+  /active topology assertion kind mismatch for A-POS-5/,
+  'known assertion ID cannot be rebound to a different kind',
+);
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
 const originalCwd = process.cwd();
@@ -584,14 +646,27 @@ try {
   if (scenarioMode) {
     execFileSync(process.execPath, [join(repositoryRoot, 'scripts/verify-process-fact-contract.mjs')], { cwd: repositoryRoot, stdio: ['ignore', 'ignore', 'pipe'] });
     recordExecutedCase(['A-MUT-16', 'mutation', 'contract:process-fact-registry', 'process-fact-contract', 'run the canonical process-fact contract verifier', 'PASS', 'PASS', true, [['mutation-applied', scenarioEvent('mutation-applied')], ['diagnostic-observed', scenarioEvent('diagnostic-observed')], ['control-rerun', scenarioEvent('control-rerun')]]]);
+    const rolloutSmokePath = join(repositoryRoot, 'packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js');
+    const rolloutSmokeSource = readFileSync(join(repositoryRoot, 'packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts'), 'utf8');
+    assert.match(rolloutSmokeSource, /mode=enforce; status=pass/, 'focused rollout smoke must retain the real enforce control');
+    assert.match(rolloutSmokeSource, /rollback to observe is non-blocking/, 'focused rollout smoke must retain the rollback consumer assertion');
+    assert.match(rolloutSmokeSource, /rollback preserves signed history/, 'focused rollout smoke must retain rollback history preservation');
+    const rolloutProducerEvent = scenarioEvent('producer-evaluated');
+    const rolloutSmokeOutput = execFileSync(process.execPath, [rolloutSmokePath], { cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+    const rolloutConsumerEvent = scenarioEvent('consumer-verified');
+    const rolloutControlPassed = /ProofStory acceptance rollout smoke: PASS \(58 assertions\)/.test(rolloutSmokeOutput);
+    assert.equal(rolloutControlPassed, true, `focused rollout enforce+rollback control did not pass: ${rolloutSmokeOutput}`);
+    recordExecutedCase(['A-POS-5', 'positive', 'rollout:focused-enforce-rollback', 'focused-rollout-control', 'execute focused Wave 4 rollout smoke with enforce, rollback, and history-preservation controls', 'PASS', rolloutControlPassed ? 'PASS' : 'FAIL', true, [['producer-evaluated', rolloutProducerEvent], ['consumer-verified', rolloutConsumerEvent]]]);
     const executedRecords = [...scenarioLedger.values()];
+    const selectedRecords = selectActiveScenarioRecords(activeScenarioAssertions, executedRecords);
+    const removedExpectedId = selectedRecords[0]?.[0];
+    assert.ok(removedExpectedId, 'active topology must require at least one registered scenario record');
     assert.throws(
-      () => assertScenarioLedgerComplete(executedRecords.filter(record => record[0] !== 'A-MUT-17')),
-      /executed scenario ledger/,
-      'removing one actually registered record makes exact-ID validation fail',
+      () => selectActiveScenarioRecords(activeScenarioAssertions, executedRecords.filter(record => record[0] !== removedExpectedId)),
+      /executed scenario ledger missing expected assertion ID/,
+      'removing one active registered record makes exact-ID validation fail',
     );
-    assertScenarioLedgerComplete(executedRecords);
-    console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(executedRecords.sort((a, b) => a[0].localeCompare(b[0])))}`);
+    console.log(`PROOFSTORY_SCENARIO_RECORDS=${JSON.stringify(selectedRecords.sort((a, b) => a[0].localeCompare(b[0])))}`);
   }
   }
 } finally {
