@@ -76,10 +76,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Current HEAD process-fact and mirrored role-guidance contract PASS; canonical 5/17/1 inventory and frozen-scenario no-respawn assertions pass.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         },
         {
           "intentRef": "CHK-001:edge:mirror-mode",
@@ -88,10 +88,10 @@
           "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
           "result": "pass",
           "note": "Current HEAD proof scenarios PASS with exact Codex/Claude guidance parity and 23 semantic records; no cohort runner child spawned.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         },
         {
           "intentRef": "CHK-001:adversarial:prompt-authority",
@@ -100,10 +100,10 @@
           "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
           "result": "pass",
           "note": "Command-removal, degraded-3x1, prompt-authority and semantic-swap mutants all bite; clean control passes.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         }
       ]
     },
@@ -200,34 +200,34 @@
           "command": "node scripts/run-proofstory-acceptance-rollout-cohort.mjs > /tmp/b4043-cohort-final.json",
           "result": "pass",
           "note": "Current implementation produced 12 signed production records; each case ran real gates and production review/quorum path. Frozen SHA-256 bfb8b920f3599c665a07058ac74b8e3c8abc4e35ae3b50f972d66365a687537f.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         },
         {
           "intentRef": "CHK-002:edge:false-block-controls",
           "kind": "integration_test",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-          "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "57-assertion frozen smoke PASS; docs-only, legacy and ordinary controls yield falseBlockCount=0.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         },
         {
           "intentRef": "CHK-002:adversarial:seeded-defects",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-          "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "57-assertion frozen smoke rejects caller observation fields, forged receipts, membership/digest drift and degraded quorum; omission, forgery and freshness seeds use exact production diagnostics.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         }
       ]
     },
@@ -288,37 +288,37 @@
           "intentRef": "CHK-003:happy:bounded-thresholds",
           "kind": "manual_transcript",
           "file": "packages/main/src/core/acceptance-rollout.ts",
-          "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Verifier-derived metrics PASS: 6 pairs, 3/3 seeds, omission 100%, false pass/block and mislabeled 3x1 zero, nonpositive waiver delta and no inventory shrink.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         },
         {
           "intentRef": "CHK-003:edge:inconclusive-boundary",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-          "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Focused smoke preserves fail-closed diagnostics for unsupported/incomplete evidence and current signed receipt semantics.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         },
         {
           "intentRef": "CHK-003:adversarial:threshold-bypass",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-          "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "N<3, missed campaigns, false block, omission drop, 3x1, waiver and inventory mutants all fail with stable AR_* diagnostics.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         }
       ]
     },
@@ -381,37 +381,37 @@
           "intentRef": "CHK-004:happy:enforce-and-rollback",
           "kind": "integration_test",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-          "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Real transition consumer accepts current signed full-3x2 report; observe/warn/enforce and rollback preservation checks PASS.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         },
         {
           "intentRef": "CHK-004:edge:mode-invariant-diagnostics",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-          "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Mode-invariant status/diagnostics and enforce-only blocking PASS on current HEAD.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         },
         {
           "intentRef": "CHK-004:adversarial:fail-closed-mutations",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-          "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
           "note": "Tampered/stale/missing receipt and forged/degraded host evidence fail closed; exact restoration passes.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         }
       ]
     },
@@ -477,10 +477,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Canonical docs now state five positive paths and exact 5 positive / 17 mutation / 1 transcript inventory; contract PASS.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         },
         {
           "intentRef": "CHK-005:edge:authority-and-exclusions",
@@ -489,10 +489,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Docs retain flat/local boundary, unsupported/degraded exclusions and production receipt authority distinction; contract PASS.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         },
         {
           "intentRef": "CHK-005:adversarial:no-status-overclaim",
@@ -501,10 +501,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Static contract rejects stale cardinality and direct cohort respawn from proof-scenarios; Wave 4 status remains bounded to measured flat rollout.",
-          "headHash": "8784c2d5d868e387f8782abbbc2cc777c5854833",
-          "materialHash": "67925c53f85f679dab19088918011c7a2a697a0f1319876dc7c4d522241b6fe3",
-          "storyFilesHash": "4d3b39d4a0c4ca60ae00904fa60cfcb8722d185efe2404a60e781ed3017b0b90",
-          "timestamp": "2026-07-23T19:10:01.855Z"
+          "headHash": "d5cc375a1e00c10fbdef5033e2ce9d034f8a4c58",
+          "materialHash": "f4c456864d1590e2e423b1ad660a9e38516d092fb1e5ee3944dee7d727d97050",
+          "storyFilesHash": "a785db36be9aae732bb345d5a9b3bb56d56263a115ce1083aaffdf718a1340bc",
+          "timestamp": "2026-07-23T19:18:24.942Z"
         }
       ]
     }
