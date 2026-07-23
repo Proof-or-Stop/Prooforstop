@@ -468,7 +468,7 @@
       "desc": "Live-proof case attribution remains position-based rather than exact assertion-bound. In --live-proof, lines 68-79 split the executed catalog only by kind, then assign queues[kind][index] to each current contract assertion and overwrite the record ID/source target. The scenario emitter sorts IDs lexicographically, so the mutation queue is A-MUT-1,A-MUT-10,A-MUT-11,...,A-MUT-2; current B-4ec1 evidence proves the mismatch: decoded A-MUT-2 (intent:VI-W3-M1-PRODUCER-CONSUMER-PARITY) carries PR_TRANSCRIPT_MISSING from scenario A-MUT-10 instead of the actually executed parity PASS, A-MUT-3 carries PR_AUTHORITY_INADMISSIBLE from A-MUT-11, etc. Thus exact IDs exist syntactically but do not identify the assertion that executed; reordering/adding same-kind assertions silently reattributes unrelated results and pre_review_check still returns PASS. Bind executed records by exact assertion ID (and ideally canonical sourceRef), reject missing/extra/mismatched records, and add a mutation that reorders the catalog/assertions or swaps two record semantics and must fail.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-23T04:15:20.476Z",
@@ -493,7 +493,11 @@
         "packages/main/src/core/pre-review-check.ts"
       ],
       "signatureTag": "adversarial|ts|live-proof-case",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same root as F-022; fixed by exact-ID/source mapping with no positional relabeling plus permutation/swap/duplicate/extra/missing fail-closed tests. Fresh canonical proof PASS.",
+      "resolvedAt": "2026-07-23T04:33:22.890Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-024",
