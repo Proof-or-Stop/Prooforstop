@@ -11,13 +11,31 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Command-generated lifecycle metadata written by acceptance_basis_generate, a PLAN-phase gate prerequisite. It is not story-authored code or content: this story ran the generator because the gate requires it, and the file records the generated coverage-basis digest and receipt. It fails closed only because acceptance-basis.json is absent from the lifecycle-artifact filename registry that already covers its siblings (proofstory.json, red-evidence.json, intent-collision.json and the rest), so the classifier reports category=unknown rather than lifecycle_artifact.",
+      "timestamp": "2026-07-23T23:22:31.132Z",
+      "paths": [
+        ".lattice/story/actives/B-bf52/acceptance-basis.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-bf52/acceptance-basis.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f1784aecf93693d4223d8a7c5fec231149685e14",
+      "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec"
+    }
+  ],
   "createdAt": "2026-07-23T22:59:24.443Z",
-  "updatedAt": "2026-07-23T22:59:24.443Z",
+  "updatedAt": "2026-07-23T23:22:31.132Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
     "packages/main/src/core/convergence-breaker.ts": "packages/main/src/core/convergence-breaker.ts",
-    "packages/main/src/tasks/convergence-breaker-smoke.ts": "packages/main/src/tasks/convergence-breaker-smoke.ts"
+    "packages/main/src/tasks/convergence-breaker-smoke.ts": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+    ".lattice/story/actives/B-bf52/acceptance-basis.json": ".lattice/story/actives/B-bf52/acceptance-basis.json"
   }
 }
