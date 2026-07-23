@@ -67,7 +67,45 @@
           }
         ]
       },
-      "userSees": "User sees `Role guidance contract: PASS` and both `codex` and `claude` rows name the canonical topology, pre-review, rollout-report, full-3x2, and rollback boundaries."
+      "userSees": "User sees `Role guidance contract: PASS` and both `codex` and `claude` rows name the canonical topology, pre-review, rollout-report, full-3x2, and rollback boundaries.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:role-guidance",
+          "kind": "integration_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact registry and mirrored prompt contract pass with CLI, handler, and lifecycle consumers authoritative.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:mirror-mode",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "result": "pass",
+          "note": "58-assertion smoke proves Codex/Claude mirror requirements and mode-invariant ordered diagnostics with blocking changed only by enforce.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:prompt-authority",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Contract mutations for removed prompt, removed handler, removed consumer, and weakened full-3x2 all bite; restored control passes.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -209,7 +247,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:real-cohort-receipt",
+          "kind": "integration_test",
+          "file": "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "command": "node bin/lattice.js acceptance_rollout_report --storyId=B-4043 --json",
+          "result": "pass",
+          "note": "Verifier ran the registered temp-Story cohort and persisted a signed current report with 6 matched pairs, complete membership, bound hashes, supported adapters, and full-3x2.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:false-block-controls",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "result": "pass",
+          "note": "Cohort includes docs-only, legacy, and ordinary controls; report shows falseBlockCount=0 and read/check parity.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:seeded-defects",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "result": "pass",
+          "note": "58 assertions reject omitted or extra membership, window/digest/signature/freshness tampering, fewer than 3 pairs, campaign incompleteness, and degraded 3x1; restoration passes.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -262,7 +338,45 @@
           }
         ]
       },
-      "userSees": "User sees `Acceptance rollout policy: PASS promotionEligible=true`; insufficient samples, partial adapters, any false block, waiver increase, inventory shrink, or degraded 3x1 instead show a named failure code."
+      "userSees": "User sees `Acceptance rollout policy: PASS promotionEligible=true`; insufficient samples, partial adapters, any false block, waiver increase, inventory shrink, or degraded 3x1 instead show a named failure code.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:bounded-thresholds",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/core/acceptance-rollout.ts",
+          "command": "node bin/lattice.js acceptance_rollout_check --storyId=B-4043 --json",
+          "result": "pass",
+          "note": "Canonical flat policy reports current full-3x2 PASS: 6 pairs, all 3 seeds detected, omission 100%, false pass/block and mislabeled 3x1 zero, waiverDelta -6, no inventory shrink.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:inconclusive-boundary",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "result": "pass",
+          "note": "Focused boundaries classify insufficient samples, unsupported/partial adapters, disagreement, and taxonomy gaps with stable fail-closed diagnostics while retaining flat scope.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:threshold-bypass",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "result": "pass",
+          "note": "Independent threshold mutations cover N<3, incomplete/missed campaigns, false pass/block, omission drop, 3x1, positive waiver delta, inventory shrink, and caller-forged fields.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -317,7 +431,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:enforce-and-rollback",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "result": "pass",
+          "note": "Real transition consumer accepts only current signed PASS plus full-3x2 in enforce; rollback removes blocking and preserves report, receipt, attempts, diagnostics, and history.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:mode-invariant-diagnostics",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "result": "pass",
+          "note": "Observe, warn, and enforce share status, ordered diagnostics, thresholds, and receipt classification; only enforce blocks; repeated rollback is deterministic.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:fail-closed-mutations",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
+          "result": "pass",
+          "note": "Missing/stale/tampered/failing receipt, forged host, degraded quorum, waiver/inventory/false-block/omission failures reject at the real gate and restored control passes without history loss.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -372,7 +524,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:canonical-wave4-status",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "command": "rg -n \"Wave 4|IMPLEMENTED|acceptance_rollout_report|acceptance_rollout_check|full-3x2|rollback\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md docs/CLI.md",
+          "result": "pass",
+          "note": "Canonical plan and CLI guide state the implemented flat Wave 4 boundary, exact commands, measured cohort, authority, thresholds, and rollback.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:authority-and-exclusions",
+          "kind": "docs_check",
+          "file": "docs/CLI.md",
+          "command": "rg -n \"Wave 3A|partial|unsupported|full-3x2|authority|flat\" docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md docs/CLI.md",
+          "result": "pass",
+          "note": "Docs explicitly keep Wave 3A unimplemented, partial/unsupported and degraded evidence non-authoritative, and the rollout flat/project-local.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:no-status-overclaim",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Contract binds Wave 4 prompt/CLI/handler/consumer/full-3x2 facts; canonical metrics match verifier output and rollback history is explicitly non-destructive with Wave 3A excluded.",
+          "headHash": "1f328e0960fbcdc975c9489b15f8beb90d494fa9",
+          "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293",
+          "storyFilesHash": "04af89bb954f5264c424c114a1996dcb4f3977383d7dcd20fd8482b295ae3909",
+          "timestamp": "2026-07-23T17:21:24.296Z"
+        }
+      ]
     }
   ]
 }
