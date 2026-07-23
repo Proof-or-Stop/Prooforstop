@@ -24,11 +24,12 @@ import {
   canonicalizeScopePath,
   SCOPE_PATH_CANONICALIZER_VERSION,
 } from '../core/scope-path-classifier.js';
-import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+import { buildScopeDiffPack, buildSemanticDegradationEvent } from '../core/scope-diff-pack.js';
 import {
   SCOPE_ANCHOR_ARTIFACT_VERSION,
   SCOPE_ANCHOR_PARSER_VERSION,
 } from '../core/scope-diff-pack.js';
+import type { ScopeDiffPack } from '../core/types.js';
 import { checkSemanticScope, mergeSemanticScopeResult } from '../core/semantic-scope-gate.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { resolveStorySignedWorkspace } from '../core/story-signed-workspace-resolution.js';
@@ -473,11 +474,56 @@ export function runScopeGate(
       { projectRoot: metadataRoot, gitCwd: resolvedGitCwd },
     );
   }
+  return runScopeGateAndDiffPack(storyId, store, metadataRoot, gitCwd).result;
+}
+
+/**
+ * B-956f FIX 6: run the scope gate AND return the diff pack it built so the
+ * caller can reuse it for the semantic-degradation event, instead of computing
+ * the full diff pack (git diff + TS AST parsing) twice per transition. Returns
+ * `{ result: null }` (no pack) when no contract is configured — the no-contract
+ * path builds its own pack for degradation diagnostics. The gitReader override
+ * is intentionally NOT supported here (it has no diff pack).
+ */
+export function runScopeGateAndDiffPack(
+  storyId: string,
+  store: import('../core/store.js').StoryStore,
+  metadataRoot: string,
+  gitCwd?: string,
+): { result: import('../core/types.js').ScopeCheckResult | null; diffPack?: ScopeDiffPack } {
+  const contract = store.readScopeContract(storyId);
+  if (!contract) return { result: null };
+  const resolvedGitCwd = gitCwd ?? metadataRoot;
   const diffPack = buildScopeDiffPack(metadataRoot, undefined, resolvedGitCwd);
-  return mergeSemanticScopeResult(
+  const result = mergeSemanticScopeResult(
     checkScopeContract(contract, diffPack.changedFiles, { projectRoot: metadataRoot, gitCwd: resolvedGitCwd }),
     checkSemanticScope(contract, diffPack),
   );
+  return { result, diffPack };
+}
+
+/**
+ * B-956f: emit the deduped, union-typed semantic_analysis_unavailable process
+ * event for a diff pack. This is the ONLY place the event is written — a
+ * MUTATING validation caller. The pure builder only returns diagnostics and
+ * read-only gate checks never call this, so repeated read-only checks cannot
+ * spam or suppress degradation events. Returns the emitted extensions (or null
+ * when there is nothing material/unsupported to report).
+ */
+export function emitSemanticDegradationEvent(
+  store: import('../core/store.js').StoryStore,
+  storyId: string,
+  pack: Pick<ScopeDiffPack, 'semanticAnalysisUnavailable'>,
+): string[] | null {
+  const event = buildSemanticDegradationEvent(pack);
+  if (!event) return null;
+  store.appendProcessEvent(storyId, {
+    type: 'semantic_analysis_unavailable',
+    storyId,
+    extensions: event.extensions,
+    detail: `semantic analysis unavailable for material-code language(s): ${event.extensions.join(', ')} (semantic anchors are TS/JS-only)`,
+  });
+  return event.extensions;
 }
 
 /**

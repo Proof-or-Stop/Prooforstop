@@ -30,6 +30,7 @@ import {
 } from '../core/proofstory.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
+import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
@@ -316,6 +317,26 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
     }
   }
 
+  // B-956f FIX G: production materialClassification for the handler diagnostic
+  // input. Resolution failures yield undefined (diagnostic field; a broken
+  // policy/config surfaces through the fail-closed resolve/floor/repro
+  // consumers, never by breaking the read-path diagnostics).
+  function materialClassification(storyId: string): ReturnType<typeof tryBuildMaterialClassificationSnapshotForDiagnostics> {
+    let gitCwd: string | undefined;
+    try {
+      gitCwd = resolveGitCwd({
+        store,
+        storyId,
+        metadataRoot: ctx.root,
+        projectRoot: ctx.root,
+        cwd: process.cwd(),
+      });
+    } catch {
+      gitCwd = undefined;
+    }
+    return tryBuildMaterialClassificationSnapshotForDiagnostics(ctx.root, gitCwd);
+  }
+
   function diagnosticInput(storyId: string): ProofStoryDiagnosticInput {
     const story = store.readStory(storyId);
     const checklist = readChecklistSafe(storyId);
@@ -335,6 +356,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       spikeEvidence: store.readProofStorySpikes(storyId),
       summary: store.readSummary(storyId),
       currentEvidenceBinding: currentEvidenceBinding(storyId),
+      materialClassification: materialClassification(storyId),
     };
   }
 

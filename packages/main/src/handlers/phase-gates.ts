@@ -50,8 +50,10 @@ import {
   type DoneCheckRow,
 } from '../core/done-oracle.js';
 import {
-  runScopeGate,
+  runScopeGateAndDiffPack,
+  emitSemanticDegradationEvent,
 } from './scope-contract.js';
+import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { renderScopeCheckResult } from '../core/scope-contract.js';
 import {
   evaluateDoneIntentEquivalence,
@@ -59,6 +61,7 @@ import {
   type ProofStoryDiagnosticInput,
 } from '../core/proofstory.js';
 import { readTrustedProofStoryScopeArtifacts } from '../core/closeout-trust.js';
+import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
 import { evaluateValidationEvidenceAdmissibility, type ValidationEvidenceAdmissibility } from '../core/validation-evidence-admissibility.js';
 
 type ScopeLifecycleRow = {
@@ -105,7 +108,26 @@ function currentProofStoryEvidenceBinding(store: StoryStore, storyId: string, ro
   }
 }
 
-function proofStoryDiagnosticInput(store: StoryStore, storyId: string, root?: string): ProofStoryDiagnosticInput {
+/**
+ * B-956f FIX G: production materialClassification for the gate diagnostic
+ * input. Resolution failures yield undefined — the field is DIAGNOSTIC and a
+ * broken policy/config surfaces through the fail-closed resolve/floor/repro
+ * consumers, never by breaking a phase gate.
+ */
+function proofStoryMaterialClassification(store: StoryStore, storyId: string, root?: string) {
+  if (!root) return undefined;
+  let gitCwd: string | undefined;
+  try {
+    gitCwd = resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root });
+  } catch {
+    gitCwd = undefined;
+  }
+  return tryBuildMaterialClassificationSnapshotForDiagnostics(root, gitCwd);
+}
+
+// Exported for the language-neutral-gates smoke (B-956f FIX H): the smoke
+// drives THIS production builder and asserts materialClassification arrives.
+export function proofStoryDiagnosticInput(store: StoryStore, storyId: string, root?: string): ProofStoryDiagnosticInput {
   let checklist: ChecklistData;
   try {
     checklist = store.readChecklist(storyId);
@@ -128,6 +150,7 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string, root?: st
     spikeEvidence: store.readProofStorySpikes(storyId),
     summary: store.readSummary(storyId),
     currentEvidenceBinding: currentProofStoryEvidenceBinding(store, storyId, root),
+    materialClassification: proofStoryMaterialClassification(store, storyId, root),
   };
 }
 
@@ -313,7 +336,7 @@ export async function runReviewToTestPreflightGate(
   runReviewLoopGate(storyId, store);
   const proofStoryMode = configuredProofStoryMode(ctx, 'reviewGateMode');
   if (proofStoryMode !== 'observe') {
-    const proofStoryReport = evaluateReviewCompleteness(proofStoryDiagnosticInput(store, storyId), proofStoryMode);
+    const proofStoryReport = evaluateReviewCompleteness(proofStoryDiagnosticInput(store, storyId, ctx.root), proofStoryMode);
     const renderedProofStory = renderProofStoryRows(
       'ProofStory REVIEW completeness',
       proofStoryReport.mode,
@@ -390,7 +413,21 @@ export function runScopeTransitionGate(
   let result;
   try {
     const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-    result = runScopeGate(storyId, ctx.store, ctx.root, undefined, gitCwd);
+    // B-956f FIX 6: compute the full diff pack (git diff + TS AST parsing) ONCE
+    // and share it between the scope gate and the degradation-event emission —
+    // previously it was built twice per transition when a scope contract existed.
+    const scopeGate = runScopeGateAndDiffPack(storyId, ctx.store, ctx.root, gitCwd);
+    result = scopeGate.result;
+    // B-956f: emit the language-neutral semantic-degradation event regardless of
+    // whether a scope contract exists. The no-contract early return in
+    // runScopeGate must NOT bypass diagnostics, so a pure-.go/.rs/.py story still
+    // surfaces exactly one deduped semantic_analysis_unavailable event during the
+    // mutating transition validation. Best-effort: never blocks the transition.
+    try {
+      // Reuse the contract path's pack; only the no-contract path (no pack) builds one.
+      const diffPack = scopeGate.diffPack ?? buildScopeDiffPack(ctx.root, undefined, gitCwd);
+      emitSemanticDegradationEvent(ctx.store, storyId, diffPack);
+    } catch { /* degradation diagnostics are advisory; never block the transition */ }
   } catch (e) {
     // B-6bfd CHK-006 fail-closed: readScopeContract throws when an existing
     // scope-contract.json is corrupt/unreadable (vs. null for a genuinely

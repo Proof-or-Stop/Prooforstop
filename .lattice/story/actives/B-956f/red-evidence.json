@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-956f",
+  "records": [
+    {
+      "id": "RED-20260719152435",
+      "trigger": "TS-centric material-code classification: classifyReviewAssuranceFloorPath (review-assurance-floor.ts:518, :506-511) whitelists only TS/JS and proofbound-layout prefixes, so non-JS code and cross-ecosystem build manifests classify non-material and repro-first RED never triggers for py/rs/go stories.",
+      "acceptanceTargetRef": "sha256:ba309cb15d22d50c62b75d97c95f8d45b5b22075b2c7d5f00125f77daf3073a8",
+      "baselineHeadHash": "0316a4abc7bf8252ed10211191b179222788c4f2",
+      "baselineMaterialHash": "c23b711f7506966e518f62dc2bc52ed7a33bf82b0499318bff9a38244425acb8",
+      "observedFailure": "9 of 11 assertions FAIL on baseline dist (run 2026-07-19, probe rp-mrqybe17-8biryq): src/core/auth.py, auth.rs, auth.go, auth.java, lib/gate/check.cpp all classify non-material; go.mod, Cargo.toml, pyproject.toml, pom.xml manifests all classify non-material; the 2 doc-exemption assertions (docs/plan.md, deck.pptx non-material) pass. Harness exits 1 printing 'W1 RED: CONFIRMED (9 fail) — classification is TS-centric; non-JS code/manifests escape material classification.'",
+      "failingCommand": "node tmp/w1-red/red-language-degradation.cjs",
+      "expectedGreenCommand": "node tmp/w1-red/red-language-degradation.cjs",
+      "greenRelation": {
+        "targetRef": "sha256:ba309cb15d22d50c62b75d97c95f8d45b5b22075b2c7d5f00125f77daf3073a8",
+        "relation": "same_acceptance",
+        "command": "node tmp/w1-red/red-language-degradation.cjs"
+      },
+      "note": "RED harness at tmp/w1-red/red-language-degradation.cjs relative to the main repo root (/Users/jek/Documents/Work/proofbound); it imports the built dist classifier, so run after npm build. Same command must exit 0 (11/11 pass, 'W1 RED: GREEN') on the fixed build.",
+      "createdAt": "2026-07-19T15:24:35.244Z"
+    }
+  ],
+  "createdAt": "2026-07-19T15:24:35.244Z",
+  "updatedAt": "2026-07-19T15:24:35.244Z"
+}

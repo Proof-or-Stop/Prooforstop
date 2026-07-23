@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-956f",
+  "sourceText": "Proof-or-Stop's advanced gates must protect ANY language, not just TypeScript. A py/rs/go bug story must be RED-required exactly like a .ts one — same repro-first required=true flip, same review-assurance-floor material classification — while doc/binary formats stay exempt and this repo's experiments/ scripts stay excluded.",
+  "normalizedOutcome": "The same type=bug story flips repro-first required=true and classifies material across review-assurance floor + repro classification + ProofStory triggers regardless of source language (.py/.rs/.go/.java/.cpp identical to .ts), driven by one config-resolved, HEAD+materialHash-bound classification snapshot; go.mod at repo root classifies material with no path prefix and no code extension; doc/binary formats stay non-material; experiments/ stays excluded in this repo.",
+  "acceptanceClaim": "tmp/w1-red/red-language-degradation.cjs exits 0 against the fixed build (all 11 assertions: 5 non-JS sources and 4 cross-ecosystem manifests classify material, 2 doc formats stay non-material), and a no-scope-contract story with one material .go file surfaces exactly one semantic_analysis_unavailable degradation event.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:ba309cb15d22d50c62b75d97c95f8d45b5b22075b2c7d5f00125f77daf3073a8",
+  "createdAt": "2026-07-19T15:24:11.065Z",
+  "updatedAt": "2026-07-19T15:24:11.065Z"
+}
