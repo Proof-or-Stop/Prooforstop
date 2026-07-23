@@ -1,0 +1,55 @@
+{
+  "storyId": "B-4ec1",
+  "changes": "实现 Story 6 Wave 3 可执行 pre-review 硬门禁：以 coverage basis 和 acceptance topology 为输入，校验生产者、消费者、mutation、transcript、authority 与 source closure 的完整和新鲜绑定。",
+  "usage": "在 DEV 进入 REVIEW 前运行 acceptance_topology_check 与 pre_review_check；只有当前工作树的结构、真实执行证据、咬住的 mutation 和相关 transcript 全部有效时才允许推进。",
+  "expectedOutcome": "缺少或陈旧的 acceptance 链路在 REVIEW 前被机械阻断，完整且当前的证据链可以稳定通过，并保留 legacy 与 rollout 边界。",
+  "actualTranscript": "当前 pre_review_check 返回 PASS、codes 为空；21/21 must intents 有当前证据；Round 7 四 reviewer lane 通过，Claude CLI 与 Codex CLI 完成 3 rounds × 2 hosts；TEST validate PASS；DONE-required build 与根 npm test 均 exit 0。",
+  "outcomeDiff": "预期与实际一致：门禁对完整真实证据放行，对 omission、伪造、陈旧、near-miss 和 transcript/source-closure 变异 fail-closed。",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Wave 3A 按 flat rollout 明确跳过；Wave 4 强制 rollout 尚未在本 story 实现。",
+  "pitfalls": "canonical live-proof 命令有精确的加长超时预算；任何附加参数、空白变体、环境注入或 shell 组合仍使用默认短预算，避免扩大执行豁免。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 136177
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 60118
+    },
+    "PLAN": {
+      "count": 17,
+      "durationMs": 27641890
+    },
+    "DEV": {
+      "count": 23,
+      "durationMs": 22120393
+    },
+    "REVIEW": {
+      "count": 7,
+      "durationMs": 4689768
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1589822
+    }
+  },
+  "totalDurationMs": 56238826,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-23T14:05:34.450Z",
+  "updatedAt": "2026-07-23T14:05:34.450Z"
+}
