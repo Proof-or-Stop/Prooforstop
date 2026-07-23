@@ -1,20 +1,20 @@
 {
   "storyId": "B-4ec1",
-  "checkedAt": "2026-07-23T04:08:41.642Z",
+  "checkedAt": "2026-07-23T04:11:16.724Z",
   "features": [
     {
       "feature": "Canonical signed pre_review_check producer and verifier path",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/handlers/proofstory.ts#pre_review_check"
+      "source": "packages/main/src/core/pre-review-check.ts#pre_review_check"
     },
     {
-      "feature": "W3 planned producer classification binds registered pre_review_check process fact to handler consumer",
-      "covered_by": "CHK-001, CHK-002",
+      "feature": "W3-PRE-REVIEW-GATE-PATH exact producer tuple is process_fact / core pre-review-check / pre_review_check / CHK-001 create declaration and binds to lifecycle handler consumer",
+      "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "process-fact:pre_review_check -> packages/main/src/core/transition-orchestrator.ts#runPreReviewCheckGate"
+      "source": "process_fact|packages/main/src/core/pre-review-check.ts|pre_review_check|CHK-001:files:create:0 -> handler|packages/main/src/handlers/transition-orchestrator.ts|runPreReviewCheckGate|CHK-001:files:modify:3"
     },
     {
       "feature": "Current-worktree coverage basis compares planned topology with actual source inventory",
@@ -28,14 +28,14 @@
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/tasks/acceptance-topology-smoke.ts"
+      "source": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
     },
     {
       "feature": "DEV to REVIEW transition gate and independent critic integration",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/core/transition-orchestrator.ts"
+      "source": "packages/main/src/handlers/transition-orchestrator.ts#runPreReviewCheckGate"
     },
     {
       "feature": "Static topology mappings include decoder to verifier linkage",
@@ -56,28 +56,28 @@
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/core/process-fact-levels.ts"
+      "source": "packages/main/src/core/process-fact-levels.ts#pre_review_check"
     },
     {
       "feature": "Legacy stories remain bounded and non-retroactively blocked",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "docs/requirements/decisions/proofstory-acceptance-topology-pre-review-gates-execution-plan.md"
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     },
     {
       "feature": "Wave 3A selective applicability rules",
       "covered_by": null,
       "status": "excluded",
       "excluded_by": "Explicit later-wave boundary retained in current scope contract",
-      "source": "docs/requirements/decisions/proofstory-acceptance-topology-pre-review-gates-execution-plan.md"
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     },
     {
       "feature": "Wave 4 rollout telemetry and enforce migration",
       "covered_by": null,
       "status": "excluded",
       "excluded_by": "Explicit later-wave boundary retained in current scope contract",
-      "source": "docs/requirements/decisions/proofstory-acceptance-topology-pre-review-gates-execution-plan.md"
+      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     }
   ],
   "readManifest": {
@@ -89,7 +89,7 @@
       ".lattice/story/actives/B-4ec1/proofstory.json",
       ".lattice/story/actives/B-4ec1/scope-contract.json",
       ".lattice/story/actives/B-4ec1/understanding.json",
-      "docs/requirements/decisions/proofstory-acceptance-topology-pre-review-gates-execution-plan.md"
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     ],
     "filesTriagedByName": [
       "AGENTS.md",
@@ -108,6 +108,6 @@
     "drift": 0
   },
   "reviewRound": "2026-07-23T02:59:34.345Z",
-  "_hash": "46a9bf8a2656334a3859b11ed0a47ea4d3082f37a32de7a6cb2e4a5e856f619f",
+  "_hash": "dfe7a9ace119006bf14f193a2e21711178aa2c5101672d7536e2421a49773547",
   "openQuestions": []
 }
