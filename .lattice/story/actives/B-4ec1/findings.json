@@ -135,7 +135,7 @@
       "desc": "packages/main/src/core/pre-review-check.ts:99 mutation-cardinality-bypass: required intent coverage is reduced to presence of any current evidenceRef, while all production/mutation/control/transcript claims are unioned globally (lines 103-118 and 145-152). One hand-authored transcript whose expectedCode equals observedCode can mark mutation-applied/mutation-bites/control-restored for every required binding and mutation, without target/command/polarity proof; one producer-before-consumer pair similarly satisfies transcriptRelated globally. Verify evidence per topology assertion/mutation/consumer edge and require signed command outcome, target, expected stable code, and post-restore control for each required case.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T23:32:23.198Z",
@@ -143,7 +143,11 @@
       "reviewRunId": "B-4ec1:RR-002",
       "_hash": "38cb7ba2513dafc0847e5dbb7e4986d936d6c32bd69bd2a683baa8665b99ae79",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed cardinality bypass: positive, mutation, and transcript evidence are checked per binding with exact cardinality/relation; 17 targeted mutations bite, no-op/wrong polarity fail, and transcript is related.",
+      "resolvedAt": "2026-07-23T02:18:08.731Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-008",
