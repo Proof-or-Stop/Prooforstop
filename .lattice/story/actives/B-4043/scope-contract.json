@@ -50,9 +50,26 @@
     "tests/fixtures/**"
   ],
   "scopeChangeReason": "Preserve the independently reviewed PLAN scope and explicitly classify only the verifier-owned acceptance-basis.json lifecycle artifact required by the PLAN gate.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Wave 4 adds read-only rollout report and gate inspection commands; classifying them as read-only prevents diagnostic reads from mutating activity state.",
+      "timestamp": "2026-07-23T17:18:30.864Z",
+      "paths": [
+        "packages/main/src/cli/activity-policy.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/activity-policy.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9a70b968d003156bb4085cc009506a7d95f72f6b",
+      "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293"
+    }
+  ],
   "createdAt": "2026-07-23T16:52:35.523Z",
-  "updatedAt": "2026-07-23T16:53:18.968Z",
+  "updatedAt": "2026-07-23T17:18:30.864Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -90,6 +107,7 @@
     "packages/main/src/.omx/**": "packages/main/src/.omx/**",
     "docs/story/**": "docs/story/**",
     "tests/fixtures/**": "tests/fixtures/**",
-    ".lattice/story/actives/B-4043/acceptance-basis.json": ".lattice/story/actives/B-4043/acceptance-basis.json"
+    ".lattice/story/actives/B-4043/acceptance-basis.json": ".lattice/story/actives/B-4043/acceptance-basis.json",
+    "packages/main/src/cli/activity-policy.ts": "packages/main/src/cli/activity-policy.ts"
   }
 }
