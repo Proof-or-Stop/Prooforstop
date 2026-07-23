@@ -165,6 +165,18 @@
           "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec",
           "storyFilesHash": "592e178e8e4d1b71d87a13328d6a1204e6f9c31e61cf1cc35af861e056a76153",
           "timestamp": "2026-07-23T23:20:29.873Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "Case 'must-differ in-repo-file-path [guard: path-rule]' asserts two files under a shared first segment produce keys=2 counter=1 breaker=proceed.",
+          "headHash": "8ea4ec85b4640f39c6f80f3d95a881831d1e9763",
+          "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec",
+          "storyFilesHash": "592e178e8e4d1b71d87a13328d6a1204e6f9c31e61cf1cc35af861e056a76153",
+          "timestamp": "2026-07-23T23:20:30.836Z"
         }
       ]
     },
