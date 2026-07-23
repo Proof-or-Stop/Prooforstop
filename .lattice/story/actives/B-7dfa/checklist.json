@@ -98,7 +98,31 @@
       "context": "Program plan W2 area 5: owner-gated registered operations creating NEW record IDs linked by recoversRecordId; retention corrected per the per-entry review-round assignment (story.currentReviewRound = now) in packages/main/src/handlers/transition-orchestrator.ts, ~line 773-774 at v0.3.230 (the plan's original :663 citation drifted across the S1/W1 merges).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The spec section 4 defines quarantine and recover as OWNER-GATED registered operations that create NEW record IDs linked to the original by recoversRecordId (never mutating or deleting the prior record), and states the corrected retention claim (canonical receipts preserve metadata freshness within a round only; review rounds are per-entry via story.currentReviewRound = now, transition-orchestrator.ts:775); a reader can cite the operation gating, the linkage field, and the corrected retention sentence.",
+            "type": "docs"
+          },
+          {
+            "desc": "Section 4 defines the LEGACY-RECORD POSTURE for existing red-evidence.json records: it states explicitly whether they are grandfathered, migrated, or invalidated, and the rule/criteria used, so in-flight stories know the status of records written before this subsystem lands; a reader can name the chosen posture and its rationale.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Section 4 specifies behavior for recovering an already-recovered record (recover of a recover) and for quarantining the current chain head, stating the concrete resulting record linkage and chain-head outcome so a reader can trace each to a rule.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Section 4 makes quarantine/recover non-destructive by construction: an operation that mutates fields of, or deletes, the referenced prior record is DISALLOWED (immutability preserved; only new linked records may be created); the rule is quoted so a reviewer confirms an owner cannot use quarantine/recover to erase inconvenient RED history, and the legacy posture cannot silently invalidate the records of an in-flight story mid-program without an explicit stated rule.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
