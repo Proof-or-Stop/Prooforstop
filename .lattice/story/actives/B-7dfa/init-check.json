@@ -1,0 +1,47 @@
+{
+  "storyId": "B-7dfa",
+  "checkedAt": "2026-07-23T19:22:05.274Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insights cites transition-orchestrator.ts:663 as the source for the retention claim \"review rounds are per-entry\" (inherited verbatim from docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md Workstream 2, commit 23600eb 2026-07-18). In the current src file packages/main/src/handlers/transition-orchestrator.ts (1041 lines, after the S1/B-d877 and W1/B-956f merges on 2026-07-19/23), line 663 falls inside an unrelated DONE pre-merge-gate comment block (\"TEST->DONE: block A (done-oracle gate + F-020 stray-file dry-run ...)\"). The actual per-entry review-round assignment (`story.currentReviewRound = now;`, inside the REVIEW-advance branch) is now at line ~773. The underlying architectural fact is verified true, but the pinned line citation has drifted and would mislead an implementer trying to verify/cite it directly -- which matters because this spec storys stated goal is to produce contracts the W2 implementation stories can cite section-by-section."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "index.json description uses the term \"ProofStory red_evidence gate\" but \"ProofStory\" is never defined or expanded anywhere in background.md, index.json, checklist.json, or root CLAUDE.md (grep for ProofStory in CLAUDE.md returns zero matches). A fresh reader with no conversation history can infer from context that it is some gate/evidence-consuming subsystem, but the term itself is never spelled out or pointed at a source file."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "background.md Solution Tradeoffs uses the jargon \"Tier-C fence\" (\"no cryptographic receipt signing (Tier-C fence)\") without defining what Tier-C refers to anywhere in the required-reading scope (background.md/index.json/checklist.json/CLAUDE.md). Only contextually inferable as some kind of scope boundary around cryptographic signing, not explicitly defined on first appearance."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-07-23T19:22:05.274Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights cites transition-orchestrator.ts:663 as the source for the retention claim \"review rounds are per-entry\" (inherited verbatim from docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md Workstream 2, commit 23600eb 2026-07-18). In the current src file packages/main/src/handlers/transition-orchestrator.ts (1041 lines, after the S1/B-d877 and W1/B-956f merges on 2026-07-19/23), line 663 falls inside an unrelated DONE pre-merge-gate comment block (\"TEST->DONE: block A (done-oracle gate + F-020 stray-file dry-run ...)\"). The actual per-entry review-round assignment (`story.currentReviewRound = now;`, inside the REVIEW-advance branch) is now at line ~773. The underlying architectural fact is verified true, but the pinned line citation has drifted and would mislead an implementer trying to verify/cite it directly -- which matters because this spec storys stated goal is to produce contracts the W2 implementation stories can cite section-by-section."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "index.json description uses the term \"ProofStory red_evidence gate\" but \"ProofStory\" is never defined or expanded anywhere in background.md, index.json, checklist.json, or root CLAUDE.md (grep for ProofStory in CLAUDE.md returns zero matches). A fresh reader with no conversation history can infer from context that it is some gate/evidence-consuming subsystem, but the term itself is never spelled out or pointed at a source file."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "background.md Solution Tradeoffs uses the jargon \"Tier-C fence\" (\"no cryptographic receipt signing (Tier-C fence)\") without defining what Tier-C refers to anywhere in the required-reading scope (background.md/index.json/checklist.json/CLAUDE.md). Only contextually inferable as some kind of scope boundary around cryptographic signing, not explicitly defined on first appearance."
+        }
+      ]
+    }
+  ],
+  "_hash": "7b0ec4a13eefe9969bb695618a8a4d13a06489f0c5e825e51d3fd381c26b83ac"
+}
