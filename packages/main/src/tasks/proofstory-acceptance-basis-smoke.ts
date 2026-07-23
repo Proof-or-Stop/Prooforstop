@@ -17,6 +17,7 @@ import {
   verifyAcceptanceCoverageBasis,
 } from '../core/acceptance-coverage-basis.js';
 import {
+  detectAcceptanceDiscoverySupport,
   reconcileAcceptanceDiscoveryResults,
   deriveRegisteredProcessFactClosure,
   digestCoverageAdapterResult,
@@ -864,13 +865,26 @@ try {
   rmSync(pureRoot, { recursive: true, force: true });
 }
 
+const packageProfileRoot = mkdtempSync(join(tmpdir(), 'proofstory-package-profile-'));
+try {
+  write(packageProfileRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+  write(packageProfileRoot, 'packages/main/tsconfig.json', '{}\n');
+  assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), true, 'scanRoot tsconfig activates the canonical TypeScript profile without a root tsconfig');
+  write(packageProfileRoot, 'lattice.config.json', JSON.stringify({ scanRoot: '..', rootDir: 'src' }));
+  assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'escaping config cannot activate discovery support');
+  rmSync(join(packageProfileRoot, 'lattice.config.json'));
+  assert.equal(detectAcceptanceDiscoverySupport(packageProfileRoot), false, 'missing config cannot authorize a package-local profile');
+} finally {
+  rmSync(packageProfileRoot, { recursive: true, force: true });
+}
+
 const root = mkdtempSync(join(tmpdir(), 'proofstory-basis-cli-'));
 try {
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'basis-smoke@example.test']);
   git(root, ['config', 'user.name', 'Basis Smoke']);
   write(root, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures' }, null, 2));
-  write(root, 'tsconfig.json', '{}\n');
+  write(root, 'packages/main/tsconfig.json', '{}\n');
   write(root, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
   write(root, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => true;\n');
   writeCanonicalAcceptanceRegistration(root);
@@ -895,12 +909,12 @@ try {
   const control = verifyAcceptanceBasisReceipt({ artifact, gitCwd: root, metadataRoot: root, expectedStoryId: storyId });
   assert.equal(control.ok, true, control.diagnostics.join('; '));
 
-  rmSync(join(root, 'tsconfig.json'));
+  rmSync(join(root, 'packages/main/tsconfig.json'));
   git(root, ['add', '-A']);
   git(root, ['commit', '-m', 'remove supported profile marker']);
   const unsupportedCli = run(root, 'acceptance_basis_generate', { storyId, json: true });
   assert.match(unsupportedCli, /"status": "unsupported"/, 'real CLI emits unsupported when the registered profile is unavailable');
-  write(root, 'tsconfig.json', '{}\n');
+  write(root, 'packages/main/tsconfig.json', '{}\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'restore supported profile marker']);
   run(root, 'acceptance_basis_generate', { storyId, json: true });

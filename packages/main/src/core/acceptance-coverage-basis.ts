@@ -1,5 +1,3 @@
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
 import type {
   AcceptanceCoverageBasisV1,
   AcceptanceSnapshotSealIssueV1,
@@ -16,6 +14,7 @@ import { digestCanonicalJson } from './digest.js';
 import {
   ACCEPTANCE_PLAN_DISCOVERY_PROFILE,
   type AcceptanceSourceSnapshot,
+  detectAcceptanceDiscoverySupport,
   discoveryProfileDigest,
   reconcileAcceptanceDiscoveryResults,
   runAcceptanceDiscoverySnapshot,
@@ -250,7 +249,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     ...(input.scopeContract ? [...input.scopeContract.allowedModify, ...input.scopeContract.allowedCreate, ...input.scopeContract.allowedTest].map(file => `scope:file:${file}`) : []),
     ...input.checklist.items.map(item => `scope:checklist:${item.id}`),
   ]);
-  const supported = input.supported ?? existsSync(resolve(input.workspaceRoot, 'tsconfig.json'));
+  const supported = input.supported ?? detectAcceptanceDiscoverySupport(input.workspaceRoot);
   const initialInventory = sourceInventory(planned.records, input.contract);
   const discoverySeedFiles = stable([
     ...scopeRefs.filter(ref => ref.startsWith('scope:file:')).map(ref => ref.slice('scope:file:'.length)),

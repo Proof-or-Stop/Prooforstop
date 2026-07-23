@@ -360,6 +360,33 @@ export function enumerateBoundedSourceTree(
 
 const MAX_LATTICE_CONFIG_BYTES = 64 * 1024;
 
+/**
+ * Detect the TypeScript discovery profile from no-follow workspace snapshots.
+ * A repository-level tsconfig remains valid; package layouts may instead put
+ * the canonical tsconfig at lattice.config.scanRoot. Unsafe or ambiguous
+ * config paths never become support authority.
+ */
+export function detectAcceptanceDiscoverySupport(workspaceRoot: string): boolean {
+  const rootContext = createSourceReadContext(workspaceRoot);
+  if (readSourceSafely(rootContext, 'tsconfig.json').text !== undefined) return true;
+  const configContext = createSourceReadContext(workspaceRoot);
+  const configRead = readSourceSafely(configContext, 'lattice.config.json', MAX_LATTICE_CONFIG_BYTES);
+  if (configRead.text === undefined) return false;
+  try {
+    const parsed = JSON.parse(configRead.text) as unknown;
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return false;
+    const config = parsed as Record<string, unknown>;
+    const scanRoot = config.scanRoot;
+    const rootDir = config.rootDir;
+    if (typeof scanRoot !== 'string' || scanRoot.trim().length === 0
+      || isAbsolute(scanRoot) || scanRoot.split(/[\\/]/).includes('..')
+      || (rootDir !== undefined && (typeof rootDir !== 'string' || rootDir.trim().length === 0
+        || isAbsolute(rootDir) || rootDir.split(/[\\/]/).includes('..')))) return false;
+    const candidate = join(scanRoot, 'tsconfig.json');
+    return readSourceSafely(configContext, candidate).text !== undefined;
+  } catch { return false; }
+}
+
 function configuredSourceInventory(workspaceRoot: string, readContext: SourceReadContext): { files: string[]; blindSpots: string[]; directoryFingerprints: DirectoryFingerprint[] } {
   let rawConfig: Record<string, unknown>;
   try {
@@ -379,6 +406,16 @@ function configuredSourceInventory(workspaceRoot: string, readContext: SourceRea
       || isAbsolute(configuredRootDir) || configuredRootDir.split(/[\\/]/).includes('..')))) {
     return { files: [], blindSpots: ['canonical scanRoot/rootDir is missing or ambiguous'], directoryFingerprints: [] };
   }
+  const profileCandidates = stable(['tsconfig.json', join(configuredScanRoot, 'tsconfig.json')]);
+  let profileMarker: string | null = null;
+  for (const candidate of profileCandidates) {
+    if (readSourceSafely(readContext, candidate).text !== undefined) {
+      profileMarker = candidate;
+      break;
+    }
+  }
+  if (!profileMarker) return { files: [], blindSpots: ['canonical TypeScript profile marker is missing or unreadable'], directoryFingerprints: [] };
+  for (const candidate of profileCandidates) if (candidate !== profileMarker) readContext.failures.delete(candidate);
   // Only the fields that choose discovery scope belong to the cross-run basis
   // identity. The raw file fingerprint is still retained and revalidated below
   // during this assembly, so a concurrent config mutation remains fail-closed.
