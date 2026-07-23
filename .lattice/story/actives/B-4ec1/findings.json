@@ -613,7 +613,7 @@
       "desc": "process-fact-locale-semantic-control-missing: F-027 inventory closure is otherwise complete (26 canonical keys, exact ordered parse, unique set, matching sha256 digest, and per-key POSIX/Windows transport tests), but packages/main/src/core/process-fact-levels.ts:389 explicitly promises PATH/NODE_OPTIONS/CI/locale plus explicit overlays remain semantic. The new semantic mutation loop at packages/main/src/tasks/done-required-validation-smoke.ts:457-470 covers only CI and NODE_OPTIONS; overlay is covered at 400-419 and PATH/executable identity has existing coverage in validation-evidence-reuse-smoke.ts, but repository search finds LANG only as the unchanged common baseline and no LANG/LC_* effective-environment digest mismatch assertion. scripts/verify-process-fact-contract.mjs also does not require such a locale mutation. Therefore a future change that filters LANG/LC_ALL from validation identity/spawn can violate the L4 rationale while contract and focused smoke remain green. Add a locale mutation (at least LANG and preferably LC_ALL) that must produce effective-environment-digest-mismatch through the real DONE-required evaluator, and bind that assertion in the process-fact contract.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-23T14:40:44.656Z",
@@ -627,7 +627,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "missing|ts|process-fact-locale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 77b0595259: real evaluateDoneRequiredEvidence mutations now cover LANG and LC_ALL as semantic environment inputs, alongside CI and NODE_OPTIONS, and each mutation must produce effective-environment-digest-mismatch for receipts [0] and [1]. The process-fact verifier mechanically requires the locale mutation names, environment assignments, loop, and both mismatch assertions. Build, done-required focused smoke, contract verifier, and diff-check pass.",
+      "resolvedAt": "2026-07-23T14:49:28.371Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
