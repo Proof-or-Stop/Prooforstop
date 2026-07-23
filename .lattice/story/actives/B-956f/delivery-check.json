@@ -1,84 +1,84 @@
 {
   "storyId": "B-956f",
-  "checkedAt": "2026-07-20T15:18:09.223Z",
-  "headHash": "052f4a5bcd6d74c05ee02600a11457067b0cfe37",
-  "materialHash": "c8dfed3ade43ccd9f42a3fe8ed85e815185233dbd430e1c346df88746b22b812",
-  "storyFilesHash": "40ecc3b2df195d74f55cabbfd0d10ac4e2d1ac7bec64d67bac8c2d8bf4f1195b",
-  "reviewRound": "2026-07-20T14:34:02.622Z",
+  "checkedAt": "2026-07-23T18:43:54.205Z",
+  "headHash": "e790a68a17942ebda9b6a0d638a4459ca175adc9",
+  "materialHash": "6dad08df56857816d63bc480899fb757d8cb1b7f5a1c13c8be79f182b252e373",
+  "storyFilesHash": "89fae408354ff2af9939ae9671117cd68d6c39eff3f0643c38e0cca65b7aac2d",
+  "reviewRound": "2026-07-23T18:10:20.313Z",
   "agentId": "",
   "docsPromises": [
     {
       "docPath": "plan.md#CHK-001",
       "promise": "One config-resolved resolveMaterialCodePolicy(projectRoot) + hash-bound buildMaterialClassificationSnapshot service is threaded into the review-assurance floor, collectMaterialCodeFiles (repro gate, snapshot now REQUIRED, old config-blind signature removed), and ProofStoryDiagnosticInput.materialClassification, so a bug story in .py/.rs/.go/.java/.cpp flips required=true identically to .ts.",
-      "verifiedBy": "diff/grep + real-machine test",
-      "evidence": "packages/main/src/core/material-code-policy.ts (new, resolveMaterialCodePolicy/buildMaterialClassificationSnapshot); repro-evidence-binding-gate.ts collectMaterialCodeFiles(checklist, snapshot) now takes a required snapshot param and classifyReproFirstRequirement(story, checklist, snapshot); review-assurance-floor.ts classifyReviewAssuranceFloorPath delegates to classifyMaterialCodePath; proofstory.ts ProofStoryDiagnosticInput.materialClassification + materialClassificationHasMaterialCode; node tmp/w1-red/red-language-degradation.cjs 11/11 GREEN exit 0; node packages/main/dist/tasks/language-neutral-gates-smoke.js CHK-001 happy/edge/adversarial all pass (39/39 total)"
+      "verifiedBy": "diff/grep + independent re-run of real-machine tests on the merged tree (second delivery pass)",
+      "evidence": "Re-confirmed on merged HEAD (post main-merge, story branch fast-forwards main): packages/main/src/core/material-code-policy.ts exports resolveMaterialCodePolicy (line 494) and buildMaterialClassificationSnapshot (line 1112); repro-evidence-binding-gate.ts collectMaterialCodeFiles (line 89, private, snapshot required) feeds classifyReproFirstRequirement (line 113); proofstory.ts ProofStoryDiagnosticInput.materialClassification field (line 145) plus materialClassificationHasMaterialCode (line 648). node tmp/w1-red/red-language-degradation.cjs re-run by this reviewer: 11/11 PASS exit 0. node packages/main/dist/tasks/language-neutral-gates-smoke.js re-run after a clean `tsc` rebuild: 39/39 PASS exit 0 (CHK-001 happy/edge/adversarial all green)."
     },
     {
       "docPath": "plan.md#CHK-002",
       "promise": "Flat whitelist replaced by an 8-step first-hit-wins precedence chain; level-1 immutable cross-ecosystem manifests (go.mod/Cargo.toml/pyproject.toml/pom.xml/gradle family) cannot be excluded by any config key, enforced both at config-resolve time AND by a filesystem-aware transition preflight; strict resolver normalizes extensions/paths and fails closed on malformed materialCode config naming the offending key.",
-      "verifiedBy": "diff/grep + real-machine test",
-      "evidence": "material-code-policy.ts classifyMaterialCodePath (steps 0-8), IMMUTABLE_MANIFEST_BASENAMES/PATTERNS, buildMaterialCodePolicy config-resolve rejection (excludePaths/paths naming a manifest throws MaterialCodePolicyError), preflightMaterialCodeExclusions + assertMaterialCodeExclusionsAgainstTree (tree-bound filesystem preflight); language-neutral-gates-smoke CHK-002 happy/edge/adversarial pass; RED harness go.mod/Cargo.toml/pyproject.toml/pom.xml assertions GREEN"
+      "verifiedBy": "diff/grep + independent re-run of real-machine tests on the merged tree",
+      "evidence": "Re-confirmed on merged HEAD: material-code-policy.ts IMMUTABLE_MANIFEST_BASENAMES (line 47) / IMMUTABLE_MANIFEST_PATTERNS (line 86), classifyMaterialCodePath (line 606, 8-step chain), preflightMaterialCodeExclusions (line 699) and assertMaterialCodeExclusionsAgainstTree (line 773, tree-bound filesystem preflight). git diff main...HEAD for config.ts shows only B-956f's own MaterialCodeConfig interface + materialCode field addition (22 lines) -- the large unrelated acceptance-topology additions visible in a raw pre-merge-vs-HEAD diff are already on main and do not appear in main...HEAD. lattice.config.json diff vs main...HEAD is exactly the agreed 3-line materialCode.excludePaths:[\"experiments/\"] addition, nothing else. Smoke checks CHK-002 happy/edge/adversarial + FIX-D + R3-c + R4-a/b + R5-a/b/c + R6 all re-verified passing in the 39/39 run."
     },
     {
       "docPath": "plan.md#CHK-003",
       "promise": "buildScopeDiffPack returns normalized, deduped semantic_analysis_unavailable diagnostic entries for material non-TS/JS files, including on the no-scope-contract early-return path; only the mutating validation caller writes the deduped process event, pure builder and read-only checks emit nothing.",
-      "verifiedBy": "diff/grep + real-machine test",
-      "evidence": "scope-diff-pack.ts collectSemanticAnalysisUnavailable/buildSemanticDegradationEvent; scope-contract.ts runScopeGateAndDiffPack + emitSemanticDegradationEvent (sole writer); phase-gates.ts runScopeTransitionGate builds a diff pack on the no-contract path too and always calls emitSemanticDegradationEvent; types.ts adds semantic_analysis_unavailable to ProcessEventType and ScopeDiffPack.semanticAnalysisUnavailable; smoke CHK-003 happy/edge/adversarial pass"
+      "verifiedBy": "diff/grep + independent re-run of real-machine tests on the merged tree",
+      "evidence": "Re-confirmed on merged HEAD: scope-diff-pack.ts line 538/551 (semantic_analysis_unavailable diagnostic type + collector), scope-contract.ts line 506-521 (sole mutating emitter), types.ts line 1602 adds semantic_analysis_unavailable to ProcessEventType. Smoke CHK-003 happy/edge/adversarial all re-verified passing (no-contract .go diff -> exactly one deduped event; same-ext dedupe; pure builder vs mutating emitter separation)."
     },
     {
       "docPath": "plan.md#CHK-004",
       "promise": "validate-concept keeps its own distinct skip diagnostic naming skipped non-TS/py material files, never conflated with buildScopeDiffPack semantic_analysis_unavailable channel; a mixed .ts+.go diff analyzes TS and lists only non-TS in the skip diagnostic with no leakage.",
-      "verifiedBy": "diff/grep + real-machine test",
-      "evidence": "validate-concept.ts analyzeDeletedSymbols gains skipDiagnostics as a channel distinct from diagnostics; conceptSkipDiagnostics exported; checkConcept threads deps.projectRoot and returns skipDiagnostics alongside every outcome; smoke CHK-004 happy/edge/adversarial pass"
+      "verifiedBy": "diff/grep + independent re-run of real-machine tests on the merged tree",
+      "evidence": "Re-confirmed on merged HEAD: validate-concept.ts skipDiagnostics field (lines 55, 161), analyzeDeletedSymbols populates it (line 924), conceptSkipDiagnostics exported helper (line 933), checkConcept threads it into every outcome (line 1058). Smoke CHK-004 happy/edge/adversarial all re-verified passing (.go/.rs-only diff surfaces skip diagnostic; mixed .ts+.go no leakage; skip channel vs scope-diff channel stay distinct)."
     },
     {
       "docPath": "background.md / plan.md CHK-001 edge and adversarial acceptance",
       "promise": "All three consumers observe the SAME HEAD+materialHash-bound snapshot within one evaluation; a stale or config-drifted snapshot is re-resolved, never silently consumed; repro classification cannot regress to the config-blind call because the snapshot parameter is compile-time required.",
-      "verifiedBy": "diff/grep + real-machine test",
-      "evidence": "material-code-policy.ts ensureFreshMaterialClassificationSnapshot / materialClassificationSnapshotStale checks policyDigest vs live config and headHash/materialHash vs live tree, throwing on unverifiable freshness; classifyReproFirstRequirement's snapshot parameter has no default in the TypeScript signature, and evaluateStoryEvidenceBindingGate builds and threads it; smoke checks FIX-A and R3-d confirm stale-snapshot re-resolution against real consumers"
+      "verifiedBy": "diff/grep + independent re-run of real-machine tests on the merged tree",
+      "evidence": "Re-confirmed: ensureFreshMaterialClassificationSnapshot (material-code-policy.ts line 1294) checks policyDigest/headHash/materialHash and re-resolves on drift; collectMaterialCodeFiles/classifyReproFirstRequirement take the snapshot as a required (non-optional) parameter. Smoke checks FIX-A, R3-d, R5-c re-verified passing (stale-hash re-resolution, cache-poison rejection) against real consumers on the merged tree."
     },
     {
       "docPath": "background.md wrapper-root namespace translation",
       "promise": "On a wrapper-root layout, git-emitted repo-relative paths are translated into the project-relative namespace before classification and exclusion comparison, at every consumer (floor, repro gate, story_create STORY_INTAKE, story_review), using a safe default gitCwd when no explicit resolution is threaded.",
-      "verifiedBy": "diff/grep + real-machine test",
-      "evidence": "material-code-policy.ts projectRepoPrefix/repoPathToProjectRelative + resolveDefaultSnapshotGitCwd; repro-evidence-binding-gate.ts and story-create.ts thread resolveGitCwd/resolveProjectGitCwd explicitly; story-review.ts buildStoryReviewMaterialClassification uses resolveGitCwd for story-aware resolution rather than the project default; smoke checks R6 (2), R7-a through R7-d (4), and R8-a (1) = 7 wrapper-root/production-call-shape checks pass"
+      "verifiedBy": "diff/grep + independent re-run of real-machine tests on the merged tree",
+      "evidence": "Re-confirmed: material-code-policy.ts projectRepoPrefix/repoPathToProjectRelative + resolveDefaultSnapshotGitCwd; repro-evidence-binding-gate.ts and story-create.ts thread resolveGitCwd/resolveProjectGitCwd explicitly (both present unchanged in main...HEAD diff); story-review.ts buildStoryReviewMaterialClassification uses resolveGitCwd for story-aware resolution. Smoke checks R6 (2), R7-a..d (4), R8-a (1) = 7 wrapper-root/production-call-shape checks all re-verified passing in the 39/39 run."
     },
     {
       "docPath": "process-fact-levels.ts runtime:review_assurance_floor_done_gate rationale",
       "promise": "The DONE review-assurance-floor process-fact rationale names the language-neutral material-code policy semantics (fail-closed config resolution, hash-bound snapshot freshness re-verification, diff-enumeration hard-block, shared classifier with repro-evidence-binding) as part of the gate contract.",
-      "verifiedBy": "diff/grep + real-machine test",
-      "evidence": "process-fact-levels.ts rationale text updated; scripts/verify-process-fact-contract.mjs assertReviewAssuranceFloorContract asserts the rationale contains language-neutral, material-code policy, snapshot freshness, diff enumeration, and repro-evidence-binding tokens; node scripts/verify-process-fact-contract.mjs exits 0"
+      "verifiedBy": "diff/grep + independent re-run of real-machine test on the merged tree",
+      "evidence": "Re-confirmed: process-fact-levels.ts rationale for runtime:review_assurance_floor_done_gate contains language-neutral / material-code policy / snapshot freshness / diff enumeration / repro-evidence-binding tokens (verified in main...HEAD diff hunk). node scripts/verify-process-fact-contract.mjs re-run by this reviewer after a clean rebuild: exit 0, 'Process fact contract verified' -- including the new AST-anchored (ts.Program/TypeChecker, not string includes()) structural assertions added by this story that bind the rationale + production call sites (evaluateReviewAssuranceFloor, classifyReviewAssuranceFloorPath, evaluateStoryEvidenceBindingGate, proofStoryDiagnosticInput builders) together."
     },
     {
       "docPath": "test-evidence.json limitations field (Workstream 3 scope and diagnosticOnly design)",
       "promise": "ProofStory materialClassification-driven triggers are diagnosticOnly and must not change enforce outcomes for any existing project until a later program Workstream-3 enforce flip; the live orchestrator single-resolution entry point and the repro-first enforce flip are explicitly out of this story's scope.",
-      "verifiedBy": "diff/grep + real-machine test",
-      "evidence": "proofstory.ts pushTrigger/classifyTriggers set a diagnosticOnly flag; evaluateProofStoryDiagnostics filters to enforceableTriggers (non-diagnosticOnly) before gap creation; smoke check FIX-G explicitly asserts red.diagnosticOnly is true AND that enforce blocking, gap set, and hardening level are byte-identical with vs without the populated snapshot, so the scope-limitation claim is machine-verified rather than only prose"
+      "verifiedBy": "diff/grep + independent re-run of real-machine test on the merged tree",
+      "evidence": "Re-confirmed: proofstory.ts pushTrigger/classifyTriggers set diagnosticOnly (line 674/677), evaluateProofStoryDiagnostics filters to enforceableTriggers (line 991) before gap creation. Smoke check FIX-G re-verified passing: asserts red.diagnosticOnly is true AND enforce blocking / gap set / hardening level are byte-identical with vs without the populated snapshot, on the merged tree's actual phase-gates.ts production builder."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node tmp/w1-red/red-language-degradation.cjs: 11/11 PASS, exit 0, re-run independently by this reviewer. node packages/main/dist/tasks/language-neutral-gates-smoke.js: CHK-001 happy/edge/adversarial lines all PASS as part of the full 39/39 run, re-run independently."
+      "transcript": "Second delivery pass, run independently by this reviewer on the merged tree after `tsc` rebuild: node tmp/w1-red/red-language-degradation.cjs -> 11/11 PASS, exit 0. node packages/main/dist/tasks/language-neutral-gates-smoke.js -> 39/39 PASS, exit 0, CHK-001 happy/edge/adversarial lines all PASS."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "node packages/main/dist/tasks/language-neutral-gates-smoke.js: CHK-002 happy (root manifests classify material with no prefix/extension help), edge (precedence pairs hold), and adversarial (exclusion rejected at both enforcement layers, malformed config fails closed) all PASS, re-run independently by this reviewer as part of the 39/39 run."
+      "transcript": "Second delivery pass, run independently by this reviewer on the merged tree: node packages/main/dist/tasks/language-neutral-gates-smoke.js CHK-002 happy (root manifests classify material with no prefix/extension help), edge (precedence pairs hold), and adversarial (exclusion rejected at both enforcement layers, malformed config fails closed) all PASS as part of the 39/39 run."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "node packages/main/dist/tasks/language-neutral-gates-smoke.js: CHK-003 happy (no-contract .go diff yields exactly one deduped event), edge (same-extension dedupe, TS/JS produce none), and adversarial (pure builder vs mutating emitter separation) all PASS, re-run independently by this reviewer."
+      "transcript": "Second delivery pass, run independently by this reviewer on the merged tree: node packages/main/dist/tasks/language-neutral-gates-smoke.js CHK-003 happy (no-contract .go diff yields exactly one deduped event), edge (same-extension dedupe, TS/JS produce none), and adversarial (pure builder vs mutating emitter separation) all PASS."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "node packages/main/dist/tasks/language-neutral-gates-smoke.js: CHK-004 happy (.go/.rs diff surfaces the skip diagnostic), edge (mixed .ts+.go diff, no leakage), and adversarial (skip channel vs scope-diff channel stay distinct) all PASS, re-run independently by this reviewer."
+      "transcript": "Second delivery pass, run independently by this reviewer on the merged tree: node packages/main/dist/tasks/language-neutral-gates-smoke.js CHK-004 happy (.go/.rs diff surfaces the skip diagnostic), edge (mixed .ts+.go diff, no leakage), and adversarial (skip channel vs scope-diff channel stay distinct) all PASS. Additionally node scripts/verify-process-fact-contract.mjs re-run independently: exit 0, 'Process fact contract verified' (structural AST assertions over the actual merged-tree production call sites)."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Independently re-ran all three specified real-machine tests from a fresh context: language-neutral-gates-smoke 39/39, RED harness 11/11 exit 0, and verify-process-fact-contract.mjs exit 0 with structural TypeScript-AST assertions (not string includes) binding doc promises to the actual production call sites in review-assurance-floor.ts, repro-evidence-binding-gate.ts, phase-gates.ts, and proofstory.ts. Reverse-scanned the 20-file src/scripts diff against plan.md CHK-001 through CHK-004 and background.md; every promise (8-step precedence chain, non-excludable manifests, hash-bound snapshot sharing, degradation diagnostics, distinct concept-skip channel, wrapper-root translation) has concrete code evidence, and the diagnosticOnly and Workstream-3 scope-limitation claim is itself machine-verified by the FIX-G smoke check, which asserts byte-identical enforce outcomes with vs without the populated snapshot. No TODO, FIXME, or HACK markers found in the diff. No CLAUDE.md or package docs changed in this diff; the promise source was plan.md, background.md, and checklist.json acceptance criteria plus the process-fact-levels.ts rationale contract enforced by the verifier script."
+    "summary": "Second delivery pass after an unrelated acceptance-topology story merged into main and staled the first delivery-check's hash binding (import-union conflicts resolved in config.ts and machine.ts). Independently re-ran all three named real-machine tests on the merged tree after a clean tsc rebuild: red-language-degradation.cjs 11/11 exit 0, language-neutral-gates-smoke.js 39/39 exit 0, verify-process-fact-contract.mjs exit 0. Confirmed via git diff main...HEAD that config.ts and machine.ts contain only B-956f's own additive hunks (MaterialCodeConfig/materialCode field; ProofStory DEV-gate materialClassification builder) with no leaked or dropped content from the topology merge, and grep-verified all 8 previously-recorded docsPromises still resolve to live symbols in the merged tree. Post-merge REVIEW round (3 lanes: concept/quality/test-coverage) recorded fresh passes with zero new findings, corroborating the byte-identical claim. No TODO/FIXME/HACK found in the diff."
   },
-  "_hash": "b67a4d25c080b1719ca38cf5113a65c1d257a13934ef4936afeda26a21a1fac3"
+  "_hash": "e16088d76794547a4e41f8aab02603eb1550af2c6ac243bcc382c3ddb2998ff8"
 }
