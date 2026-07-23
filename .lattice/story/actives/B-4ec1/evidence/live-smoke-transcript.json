@@ -2,20 +2,19 @@
   "storyId": "B-4ec1",
   "expected": "User sees \"Pre-review check: PASS\" for a signed current verifier-owned artifact, or \"Pre-review check: FAIL code=PR_*\" naming the invalid binding.",
   "actual": {
-    "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
-    "exitCode": null,
-    "stdout": "",
-    "stderr": "[capture error] command exceeded 60000ms timeout; process group terminated"
+    "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --live-proof",
+    "exitCode": 0,
+    "stdout": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-4ec1\",\"producer\":\"test-output-is-untrusted-until-canonical-runner-receipt\",\"verifier\":\"test-output-is-untrusted-until-pre-review-verifier\",\"commandDigests\":[],\"bindingProofs\":[{\"bindingId\":\"AB-WAVE3-PRE-REVIEW\",\"positiveAssertionIds\":[\"A-POS-1\",\"A-POS-2\",\"A-POS-3\",\"A-POS-4\"],\"mutationProofs\":[{\"mutationId\":\"A-MUT-1\",\"expectedCode\":\"PR_MUTATION_1_BIT\",\"observedCode\":\"PR_MUTATION_1_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-2\",\"expectedCode\":\"PR_MUTATION_2_BIT\",\"observedCode\":\"PR_MUTATION_2_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-3\",\"expectedCode\":\"PR_MUTATION_3_BIT\",\"observedCode\":\"PR_MUTATION_3_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-4\",\"expectedCode\":\"PR_MUTATION_4_BIT\",\"observedCode\":\"PR_MUTATION_4_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-5\",\"expectedCode\":\"PR_MUTATION_5_BIT\",\"observedCode\":\"PR_MUTATION_5_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-6\",\"expectedCode\":\"PR_MUTATION_6_BIT\",\"observedCode\":\"PR_MUTATION_6_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-7\",\"expectedCode\":\"PR_MUTATION_7_BIT\",\"observedCode\":\"PR_MUTATION_7_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-8\",\"expectedCode\":\"PR_MUTATION_8_BIT\",\"observedCode\":\"PR_MUTATION_8_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-9\",\"expectedCode\":\"PR_MUTATION_9_BIT\",\"observedCode\":\"PR_MUTATION_9_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-10\",\"expectedCode\":\"PR_MUTATION_10_BIT\",\"observedCode\":\"PR_MUTATION_10_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-11\",\"expectedCode\":\"PR_MUTATION_11_BIT\",\"observedCode\":\"PR_MUTATION_11_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-12\",\"expectedCode\":\"PR_MUTATION_12_BIT\",\"observedCode\":\"PR_MUTATION_12_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-13\",\"expectedCode\":\"PR_MUTATION_13_BIT\",\"observedCode\":\"PR_MUTATION_13_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-14\",\"expectedCode\":\"PR_MUTATION_14_BIT\",\"observedCode\":\"PR_MUTATION_14_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-15\",\"expectedCode\":\"PR_MUTATION_15_BIT\",\"observedCode\":\"PR_MUTATION_15_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-16\",\"expectedCode\":\"PR_MUTATION_16_BIT\",\"observedCode\":\"PR_MUTATION_16_BIT\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-17\",\"expectedCode\":\"PR_MUTATION_17_BIT\",\"observedCode\":\"PR_MUTATION_17_BIT\",\"controlRestored\":true}],\"transcriptProofs\":[{\"transcriptId\":\"A-TRANSCRIPT-1\",\"producerRefs\":[\"P-PRE-REVIEW\"],\"consumerRefs\":[\"C-DEV-REVIEW-GATE\"],\"producerSequence\":0,\"consumerSequence\":1}]}]}\nProofStory pre-review live proof: PASS\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-23T00:29:21.872Z",
+  "capturedAtIso": "2026-07-23T00:43:30.639Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "ba048b63c00ab9fdf2a681eaf1f5532c902d4176",
-  "materialHash": "536d1c243c6dfc936d96f6b10379423447cdb925d751d22fb30c9406ec148615"
+  "headHash": "9a861a2e96ed1e79c95380017c4a11741636c32e",
+  "materialHash": "613f73911ee951e829152b544ff4266ae437d5c1b1d64abb9f15677ffea32668"
 }
