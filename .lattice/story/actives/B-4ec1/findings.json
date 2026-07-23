@@ -265,7 +265,7 @@
       "desc": "packages/main/src/core/acceptance-discovery-adapters.ts:1248 planned/actual semantic bypass remains: sourceExactSymbolCount accepts any exactly-once interface, type alias, enum, variable, property, or method with the expected text, regardless of endpoint.expectedArtifactKind, export/registration/reachability, or producer-to-consumer relation; actualEndpointPathRefs then certifies that as the actual endpoint at lines 1267-1279. Replacing a consumer function with an unused type/const can therefore preserve exact reconciliation. Validate the declared artifact kind and bind a discovered P-to-C edge/call/fact relation, with type-only/dead-symbol/wrong-relation mutations.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-23T02:21:14.365Z",
@@ -273,7 +273,11 @@
       "reviewRunId": "B-4ec1:RR-006",
       "_hash": "ef8c5cb1a7bd19b5fa160631223230947710ee459cb67f26f0018bfe44261f90",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed planned/actual resolution: artifact-kind-aware resolver only accepts registered handlers/process facts or exported callables with runtime reachability and producer-consumer relation; type/interface/enum/property/dead/unreachable/duplicate mutations fail.",
+      "resolvedAt": "2026-07-23T02:59:55.015Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-014",
