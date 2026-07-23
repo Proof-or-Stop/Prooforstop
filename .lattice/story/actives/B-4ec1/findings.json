@@ -445,7 +445,7 @@
       "desc": "The live-proof adapter still re-labels executed scenarios by per-kind array position instead of binding them by exact assertion ID. In --live-proof, lines 68-79 build queues and select queues[kind][index], then replace record[0] with assertion.id. The scenario ledger is emitted in execution/insertion order, not topology order. The current signed pre_review_check artifact proves the mismatch: A-MUT-2 (producer-consumer parity) carries transcript-cardinality / PR_TRANSCRIPT_MISSING, A-MUT-8 (adapter-record tamper) carries process-fact-contract / PASS, and A-MUT-16 (process-fact four-layer) carries adapter-tamper / PR_ARTIFACT_TAMPERED. Thus codes=[] and mutations=biting can be obtained while the required assertion sites are not the scenarios actually executed for those IDs. Bind records using an exact-ID map, reject missing/extra/duplicate IDs before proof construction, and add a permutation mutation demonstrating that ledger insertion order cannot change assertion-to-result binding.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-23T04:14:26.739Z",
@@ -457,7 +457,11 @@
         "packages/main/src/core/pre-review-check.ts"
       ],
       "signatureTag": "adversarial|ts|live-proof-adapter",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Exact assertion ID/kind/canonical sourceRef now originates at each executed assertion; assembler rejects missing/extra/duplicate/source swap and reverse permutation preserves attribution. Fresh formal proof and canonical pre_review_check PASS.",
+      "resolvedAt": "2026-07-23T04:33:22.109Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-023",
