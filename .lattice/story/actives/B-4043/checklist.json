@@ -149,14 +149,14 @@
                   "role": "producer",
                   "expectedArtifactKind": "source_file",
                   "expectedFileRef": "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
-                  "expectedSymbolOrFact": "PROOFSTORY_ACCEPTANCE_ROLLOUT_COHORT",
+                  "expectedSymbolOrFact": "runProofStoryAcceptanceRolloutCohort",
                   "fileDeclarationRef": "CHK-002:files:create:2"
                 },
                 "consumers": [
                   {
                     "id": "W4-COHORT-REPORT-EVALUATOR",
                     "role": "consumer",
-                    "expectedArtifactKind": "process_fact",
+                    "expectedArtifactKind": "source_file",
                     "expectedFileRef": "packages/main/src/core/acceptance-rollout.ts",
                     "expectedSymbolOrFact": "deriveAcceptanceRolloutReport",
                     "fileDeclarationRef": "CHK-002:files:create:0"
@@ -171,9 +171,9 @@
                 "producer": {
                   "id": "W4-ROLLOUT-SMOKE-PRODUCER",
                   "role": "producer",
-                  "expectedArtifactKind": "process_fact",
+                  "expectedArtifactKind": "source_file",
                   "expectedFileRef": "packages/main/src/core/acceptance-rollout.ts",
-                  "expectedSymbolOrFact": "acceptance_rollout_report",
+                  "expectedSymbolOrFact": "deriveAcceptanceRolloutReport",
                   "fileDeclarationRef": "CHK-002:files:create:0"
                 },
                 "consumers": [
@@ -182,7 +182,7 @@
                     "role": "consumer",
                     "expectedArtifactKind": "source_file",
                     "expectedFileRef": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-                    "expectedSymbolOrFact": "proofstory-acceptance-rollout-smoke",
+                    "expectedSymbolOrFact": "runProofStoryAcceptanceRolloutSmoke",
                     "fileDeclarationRef": "CHK-002:files:create:1"
                   }
                 ],
