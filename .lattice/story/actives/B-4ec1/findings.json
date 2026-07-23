@@ -395,6 +395,26 @@
       "_hash": "7fc21911c8e9dd91b32561ccb9a6812020a71efddf4acbeb51a67eb0a7ad8344",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4ec1:F-021",
+      "desc": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:28-33,162-177,221-233 and packages/main/src/core/pre-review-live-proof.ts:34-82 / packages/main/src/core/pre-review-check.ts:144-166 — canonical active-Story executable proof is still not the claimed end-to-end per-case proof. --live-proof exits immediately after buildActiveStoryPreReviewLiveProof; it does not execute the producer/read/lifecycle, planned-actual, artifact-tamper, cutoff, critic or restoration cases exercised later by the full smoke. Its 17 active mutation rows all perform the same mutation (replace each mutationCaseRef.sourceRef with unknown:* and call buildAcceptanceMatrixReport), so they do not execute the 17 different intent-declared mutations. The second non-B Story is only a direct buildPreReviewLiveProof unit call, not a live_smoke_transcript -> loader -> canonical pre_review_check roundtrip. The capture-cap case writes a preconstructed expandedProof fixture, and the aggregate-root tests only assert the digest helper changes; loadVerifiedPreReviewExecutableProof accepts an arbitrary syntactically valid candidate.commandDigests[0] because caseRecords are not emitted/recomputed. Thus current canonical PASS can still elevate unverified per-case claims. Execute the active Story cases represented by each mutation intent through the production consumer, emit/recompute verifier-bound case records (or individually signed outcome refs), prove aggregate-root tamper rejection through the loader, and run a second non-B Story through the real capture/loader/pre_review_check path before re-recording affected evidence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-23T03:03:49.855Z",
+      "reviewRound": "2026-07-23T02:59:34.345Z",
+      "reviewRunId": "B-4ec1:RR-011",
+      "_hash": "f32d496064d74b7d3b924cb47dec86ff4b7537516e18f780f58ea8decf323398",
+      "files": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
