@@ -399,10 +399,10 @@ try {
   assert.notEqual(closureOmission.basisDigest, first.basis.basisDigest, 'registered out-of-scope consumer omission changes the signed basis');
   const closureAdapterOmission = structuredClone(first.basis);
   const closureRegistry = closureAdapterOmission.adapterResults.find(item => item.method === 'process_fact_registry')!;
-  closureRegistry.pathRefs = closureRegistry.pathRefs.filter(path => !path.includes('artifact:acceptance-basis.json'));
+  closureRegistry.pathRefs = closureRegistry.pathRefs.filter(path => !path.startsWith('path:process-fact:acceptance_basis_generate->'));
   redigestAdapter(closureRegistry);
   redigestBasis(closureAdapterOmission);
-  assert.ok(!verifyAcceptanceCoverageBasis(closureAdapterOmission).ok, 'omitting registered consumer path from one closure adapter fails disagreement verification');
+  assert.ok(!verifyAcceptanceCoverageBasis(closureAdapterOmission).ok, 'omitting a dispatchable registry path from one closure adapter fails disagreement verification');
   const optimistic = structuredClone(first.basis);
   optimistic.adapterResults[0].coverageClaim = 'partial';
   optimistic.status = 'complete';
@@ -467,6 +467,91 @@ try {
   const invalidRelation = checklist();
   (invalidRelation.items[0].verificationIntent!.happy[0].plannedPathDeclarations![0] as any).relation = 'consumer_to_producer';
   assert.ok(derivePlannedCoveragePaths(invalidRelation, contract(), scopeContract()).diagnostics.some(item => item.code === 'AT_PLANNED_PATH_INVALID'), 'declaration relation drift is rejected');
+
+  const repositoryShapeRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-repository-shape-'));
+  try {
+    write(repositoryShapeRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    write(repositoryShapeRoot, 'packages/main/tsconfig.json', '{}\n');
+    write(repositoryShapeRoot, 'packages/main/src/cli/command-catalog.ts', [
+      'export const MAIN_TOOLS = [',
+      "  { name: 'acceptance_basis' },",
+      "  { name: 'acceptance_basis_generate' },",
+      "  { name: 'acceptance_topology_check' },",
+      "  { name: 'story_advance' },",
+      "  { name: 'topology_critic_receipt_check' },",
+      '];', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/handlers/proofstory.ts', [
+      'export const acceptanceBasisProducer = () => true;',
+      'export function createProofStoryHandlers() {',
+      '  return {',
+      '    acceptance_basis() { return true; },',
+      '    acceptance_basis_generate() { return acceptanceBasisProducer(); },',
+      '    acceptance_topology_check() { return true; },',
+      '    topology_critic_receipt_check() { return true; },',
+      '  };',
+      '}', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/handlers/story-advance.ts', [
+      'export function createStoryAdvanceHandlers() {',
+      '  return { story_advance() { return true; } };',
+      '}', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/handlers/transition-orchestrator.ts', [
+      "import { acceptanceBasisProducer as consumeBasis } from './proofstory.js';",
+      'export const runPreReviewGate = () => consumeBasis();', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/registry.ts', [
+      "import { createProofStoryHandlers } from './handlers/proofstory.js';",
+      "import { createStoryAdvanceHandlers } from './handlers/story-advance.js';",
+      'const registry = { registerBatch: (_handlers: unknown) => undefined };',
+      'const ctx = {};',
+      'registry.registerBatch(createProofStoryHandlers(ctx));',
+      'registry.registerBatch(createStoryAdvanceHandlers(ctx));', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology = true;\n');
+    write(repositoryShapeRoot, 'scripts/verify-process-fact-contract.mjs', 'export const processFactContract = true;\n');
+    write(repositoryShapeRoot, 'packages/main/src/tests/unrelated.ts', [
+      "import { acceptanceBasisProducer } from '../handlers/proofstory.js';",
+      'export const unrelatedTestCall = () => acceptanceBasisProducer();', '',
+    ].join('\n'));
+    write(repositoryShapeRoot, 'packages/main/src/cli-engine.ts', [
+      "import { acceptanceBasisProducer } from './handlers/proofstory.js';",
+      'export const unrelatedCliEngineCall = () => acceptanceBasisProducer();', '',
+    ].join('\n'));
+    const repositoryShapePath = structuredClone(first.basis.plannedPathRecords[0]);
+    repositoryShapePath.producer.expectedFileRef = 'packages/main/src/handlers/proofstory.ts';
+    repositoryShapePath.producer.expectedSymbolOrFact = 'acceptanceBasisProducer';
+    repositoryShapePath.consumers[0].expectedFileRef = 'packages/main/src/handlers/transition-orchestrator.ts';
+    repositoryShapePath.consumers[0].expectedSymbolOrFact = 'runPreReviewGate';
+    repositoryShapePath.outputFactRef = 'process-fact:acceptance_basis_generate';
+    const repositoryShape = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters({
+      supported: true,
+      workspaceRoot: repositoryShapeRoot,
+      storyId: 'B-repository-shape',
+      plannedPathRecords: [repositoryShapePath],
+      scopeRefs: [
+        'scope:file:packages/main/src/handlers/proofstory.ts',
+        'scope:file:packages/main/src/handlers/transition-orchestrator.ts',
+        'scope:file:packages/main/src/tests/unrelated.ts',
+        'scope:file:packages/main/src/cli-engine.ts',
+      ],
+      topologyPathRefs: [
+        'process-fact:acceptance_basis_generate',
+        'process-fact:story_advance',
+        'process-fact:topology_critic_receipt_check',
+      ],
+    }));
+    assert.equal(repositoryShape.status, 'complete', JSON.stringify(repositoryShape, null, 2));
+    for (const fact of ['acceptance_basis_generate', 'story_advance', 'topology_critic_receipt_check']) {
+      assert.ok(repositoryShape.enumeratedPathRefs.some(path => path.startsWith(`path:process-fact:${fact}->`)), `explicit topology fact ${fact} enters registry basis`);
+    }
+    assert.ok(repositoryShape.enumeratedPathRefs.some(path => path.includes('static-call:packages/main/src/handlers/proofstory.ts#acceptanceBasisProducer')
+      && path.includes('consumer:packages/main/src/handlers/transition-orchestrator.ts#consumeBasis')), 'planned proofstory to transition direct edge enters static basis');
+    assert.ok(!repositoryShape.enumeratedPathRefs.some(path => path.includes('/tests/unrelated.ts') || path.includes('/cli-engine.ts')), 'closure-only unrelated calls stay out of topology path refs');
+  } finally {
+    rmSync(repositoryShapeRoot, { recursive: true, force: true });
+  }
 
   const genericRoot = mkdtempSync(join(tmpdir(), 'proofstory-basis-generic-'));
   try {

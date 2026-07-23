@@ -932,8 +932,26 @@ function returnedHandlerKeysFromText(sourceText: string): string[] {
 }
 
 function commandNamesForEntry(entry: ProcessFactRegistryEntry): string[] {
-  const producerCommands = (entry.artifact?.producerCommand ?? '').split('/').filter(value => /^[a-z][a-z0-9_]*$/.test(value));
+  const producerCommands = artifactProducerCommands(entry);
   return stable([...producerCommands, ...(/^[a-z][a-z0-9_]*$/.test(entry.name) ? [entry.name] : [])]);
+}
+
+function artifactProducerCommands(entry: ProcessFactRegistryEntry): string[] {
+  return (entry.artifact?.producerCommand ?? '').split('/').filter(value => /^[a-z][a-z0-9_]*$/.test(value));
+}
+
+function isDispatchableProcessFact(entry: ProcessFactRegistryEntry): boolean {
+  return entry.lifecycle !== undefined && /^[a-z][a-z0-9_]*$/.test(entry.name);
+}
+
+function graphFactoryCommandRegistered(factories: readonly FactoryInventory[], command: string): boolean {
+  return factories.some(factory => factory.registered && factory.commandKeys.includes(command));
+}
+
+function topologyFactNames(input: AcceptanceDiscoveryInput): Set<string> {
+  return new Set((input.topologyPathRefs ?? [])
+    .map(ref => ref.startsWith('process-fact:') ? ref.slice('process-fact:'.length) : ref.startsWith('path:process-fact:') ? ref.slice('path:process-fact:'.length).split('->consumer:')[0] : '')
+    .filter(Boolean));
 }
 
 function sourceSeedFiles(input: AcceptanceDiscoveryInput): string[] {
@@ -960,15 +978,13 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
     'artifact:topology-exclusion-approvals.json', 'artifact:topology-critic-receipt.json']);
   const allowedPhaseControlFacts = (input.phaseBasis ?? 'plan') === 'pre_review'
     ? new Set([...planControlFacts, ...preReviewControlFacts]) : planControlFacts;
-  const topologyFactNames = new Set((input.topologyPathRefs ?? [])
-    .map(ref => ref.startsWith('process-fact:') ? ref.slice('process-fact:'.length) : ref.startsWith('path:process-fact:') ? ref.slice('path:process-fact:'.length).split('->consumer:')[0] : '')
-    .filter(Boolean));
+  const explicitTopologyFactNames = topologyFactNames(input);
   const plannedFactNames = new Set(input.plannedPathRecords.flatMap(record => [
     record.outputFactRef.replace(/^process-fact:/, '').replace(/-/g, '_'),
     record.producer.expectedSymbolOrFact,
     ...record.consumers.map(consumer => consumer.expectedSymbolOrFact),
   ]).filter(value => /^[a-z][a-z0-9_:.-]*$/.test(value)));
-  const relevantFactNames = new Set([...allowedPhaseControlFacts, ...topologyFactNames, ...plannedFactNames]);
+  const relevantFactNames = new Set([...allowedPhaseControlFacts, ...explicitTopologyFactNames, ...plannedFactNames]);
   const factories: FactoryInventory[] = [];
   for (const registryFile of registryFiles) {
     const source = analysisContext.sourceFiles.get(registryFile);
@@ -1004,13 +1020,14 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
     changed = false;
     for (const entry of PROCESS_FACT_REGISTRY) {
       if (phaseControlFacts.has(entry.name)) {
-        if (!allowedPhaseControlFacts.has(entry.name) && !topologyFactNames.has(entry.name)) continue;
+        if (!allowedPhaseControlFacts.has(entry.name) && !explicitTopologyFactNames.has(entry.name)) continue;
       }
       const files = entryFiles(entry).filter(file => !hubs.has(file));
-      const explicitTopologyMatch = topologyFactNames.has(entry.name);
+      const explicitTopologyMatch = explicitTopologyFactNames.has(entry.name);
       const phaseControlMatch = allowedPhaseControlFacts.has(entry.name);
       const plannedMatch = plannedFactNames.has(entry.name)
-        || commandNamesForEntry(entry).some(command => plannedFactNames.has(command));
+        || (['artifact', 'signed-artifact'].includes(entry.kind)
+          && artifactProducerCommands(entry).some(command => plannedFactNames.has(command)));
       const expandedHandlerMatch = input.expandSeedHandlerCommands === true
         && commandNamesForEntry(entry).some(command => inferredHandlerFiles.has(command));
       if (!phaseControlMatch && !explicitTopologyMatch && !plannedMatch && !expandedHandlerMatch) continue;
@@ -1023,7 +1040,9 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   for (const entry of reached) {
     for (const file of entryFiles(entry)) if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
     if (entry.consumerGate) {
-      const explicitConsumer = (entry.consumerSourceRefs ?? []).some(file => existsSync(resolve(root, file)));
+      const dispatchConsumer = isDispatchableProcessFact(entry)
+        && graphFactoryCommandRegistered(factories, entry.name);
+      const explicitConsumer = dispatchConsumer || (entry.consumerSourceRefs ?? []).some(file => existsSync(resolve(root, file)));
       const producerFiles = stable([
         ...(entry.producerSourceRefs ?? []),
         ...commandNamesForEntry(entry).map(command => inferredHandlerFiles.get(command) ?? '').filter(Boolean),
@@ -1101,17 +1120,23 @@ function catalogCommands(context: SourceReadContext): Set<string> {
   catch { return new Set(); }
 }
 
-function staticCallPaths(root: string, graph: BoundedSourceGraph): { paths: string[]; blindSpots: string[] } {
+function staticCallPaths(input: AcceptanceDiscoveryInput, graph: BoundedSourceGraph): { paths: string[]; blindSpots: string[] } {
   const paths: string[] = [];
   const blindSpots: string[] = [];
-  for (const file of graph.closureFiles.filter(value => !value.endsWith('/registry.ts'))) {
-    const absolute = resolve(root, file);
+  const explicitFacts = topologyFactNames(input);
+  const relevantFiles = new Set([
+    ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
+    ...graph.entries.filter(entry => explicitFacts.has(entry.name)).flatMap(sourceFiles),
+    ...graph.factories.filter(factory => factory.commandKeys.some(command => explicitFacts.has(command))).map(factory => factory.sourceFile),
+  ]);
+  for (const file of stable([...relevantFiles]).filter(value => !value.endsWith('/registry.ts'))) {
+    const absolute = resolve(input.workspaceRoot, file);
     if (!existsSync(absolute)) continue;
     const scan = graph.sourceScans.get(file);
     if (!scan) { blindSpots.push(`source file lacks binding analysis context: ${file}`); continue; }
     blindSpots.push(...scan.blindSpots, ...scan.unresolvedImports);
     for (const imported of scan.calledImports) {
-      if (!graph.closureFiles.includes(imported.sourceFile) || /Handlers$/.test(imported.imported)) continue;
+      if (!relevantFiles.has(imported.sourceFile) || /Handlers$/.test(imported.imported)) continue;
       paths.push(`path:static-call:${imported.sourceFile}#${imported.imported}->consumer:${file}#${imported.local}`);
     }
   }
@@ -1187,19 +1212,21 @@ function buildResult(
     } else if (method === 'handler_dispatch_inventory') {
       const commands = catalogCommands(graph.readContext);
       const registeredKeys = new Set(graph.factories.filter(factory => factory.registered).flatMap(factory => factory.commandKeys));
-      const inspectableEntries = graph.entries.filter(entry => commandNamesForEntry(entry).some(command => registeredKeys.has(command) && commands.has(command)));
+      const dispatchableEntries = graph.entries.filter(isDispatchableProcessFact);
+      const inspectableEntries = dispatchableEntries.filter(entry => registeredKeys.has(entry.name) && commands.has(entry.name));
+      const requiredCommands = new Set(dispatchableEntries.map(entry => entry.name));
       pathRefs = inspectableEntries.map(processFactPath);
       blindSpots = stable([
         ...graphBlindSpots,
         ...graph.factories.filter(factory => !factory.registered).map(factory => `unregistered handler factory ${factory.factory}`),
-        ...[...registeredKeys].filter(command => !commands.has(command)).map(command => `registered handler command ${command} has no exact command catalog binding`),
-        ...graph.entries.filter(entry => commandNamesForEntry(entry).length > 0 && !inspectableEntries.includes(entry)).map(entry => `registered process fact ${entry.name} has no exact registered handler/catalog dispatch`),
+        ...[...requiredCommands].filter(command => registeredKeys.has(command) && !commands.has(command)).map(command => `registered handler command ${command} has no exact command catalog binding`),
+        ...dispatchableEntries.filter(entry => !inspectableEntries.includes(entry)).map(entry => `dispatchable process fact ${entry.name} has no exact registered handler/catalog dispatch`),
       ]);
       provenanceRefs = stable(['packages/main/src/cli/command-catalog.ts', 'packages/main/src/registry.ts', ...graph.factories.map(factory => factory.sourceFile)]
         .map(file => sourceProvenance(graph.readContext, file)));
     } else if (method === 'static_call_graph') {
       const inspectableEntries = graph.entries.filter(entry => sourceFiles(entry).every(file => existsSync(resolve(input.workspaceRoot, file))));
-      const staticCalls = staticCallPaths(input.workspaceRoot, graph);
+      const staticCalls = staticCallPaths(input, graph);
       pathRefs = inspectableEntries.map(processFactPath);
       pathRefs.push(...staticCalls.paths);
       if (input.phaseBasis === 'pre_review') pathRefs.push(...actualEndpointPathRefs(input, graph));
@@ -1299,7 +1326,8 @@ export function reconcileAcceptanceDiscoveryResults(results: readonly CoverageAd
   }
   const registryResult = byMethod.get('process_fact_registry')?.[0];
   const dispatchResult = byMethod.get('handler_dispatch_inventory')?.[0];
-  const registryProcessPaths = registryResult?.pathRefs.filter(path => path.startsWith('path:process-fact:')) ?? [];
+  const dispatchablePaths = new Set(PROCESS_FACT_REGISTRY.filter(isDispatchableProcessFact).map(processFactPath));
+  const registryProcessPaths = registryResult?.pathRefs.filter(path => dispatchablePaths.has(path)) ?? [];
   const dispatchProcessPaths = dispatchResult?.pathRefs.filter(path => path.startsWith('path:process-fact:')) ?? [];
   if (registryResult && dispatchResult && !sameSet(registryProcessPaths, dispatchProcessPaths)) diagnostics.push({ code: 'AT_DISCOVERY_DISAGREEMENT', message: 'process-fact and handler/dispatch discovery disagree' });
   const enumeratedPathRefs = stable(results.flatMap(result => result.pathRefs));
