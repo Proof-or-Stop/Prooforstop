@@ -111,6 +111,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   story_create_from_repro: 'gate-evidence',
   acceptance_basis_generate: 'signed-artifact',
   pre_review_check: 'signed-artifact',
+  acceptance_rollout_report: 'signed-artifact',
 };
 
 export const PROCESS_FACT_REQUIRED_SEMANTICS = {
@@ -154,6 +155,9 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   acceptance_basis: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding'],
   pre_review_check: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
   pre_review_check_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
+  acceptance_rollout_report: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
+  acceptance_rollout_report_read: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
+  acceptance_rollout_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
   topology_exclusion_approval_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_set: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
   topology_critic_receipt_check: ['schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'reviewer-lane'],
@@ -193,6 +197,7 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:trusted_closeout_artifact_validation': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
   'runtime:routine_validation_fresh_pass_reuse_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'validation-result', 'verification-policy', 'gate-evidence'],
   'runtime:acceptance_topology_plan_dev_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'gate-evidence'],
+  'runtime:acceptance_rollout_dev_review_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'verification-policy', 'execution-evidence', 'host-verdict', 'gate-evidence'],
   'runtime:topology_critic_authority_verification': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'verification-policy'],
   'runtime:canonical_scope_path_gate': ['runtime-behavior', 'schema-contract', 'normalization-policy', 'freshness-policy', 'gate-evidence'],
   'runtime:ast_semantic_anchor_gate': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
@@ -365,6 +370,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signature: 'Ed25519(canonical current basis/topology/scope/storyFilesHash/closureFilesHash/evidence/cutoff/critic binding)',
     producerCommand: 'pre_review_check',
     consumerGate: 'pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate',
+  },
+  acceptance_rollout_report: {
+    name: 'acceptance-rollout-report.json',
+    path: 'acceptance-rollout-report.json',
+    signed: true,
+    signature: 'Ed25519(canonical verifier-derived report binding frozen membership/source inventory/window/thresholds/verdict/workspace/full-3x2)',
+    producerCommand: 'acceptance_rollout_report',
+    consumerGate: 'acceptance_rollout_report_read, acceptance_rollout_check, and transition-orchestrator DEV to REVIEW rollout gate',
   },
   topology_exclusion_approval_set: {
     name: 'topology-exclusion-approvals.json', path: 'topology-exclusion-approvals.json', signed: true,
@@ -1081,6 +1094,18 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.pre_review_check,
     rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, artifact-kind/runtime-aware planned-to-actual reconciliation, and the gzip-carried canonical machine records emitted only after the bounded production scenario ledger executes. The loader requires every exact current-topology assertion ID, kind, and canonical sourceRef with no missing/extra/duplicate rows; records are assembled by ID rather than positional kind queues, so permutations or swaps cannot reattribute executed outcomes. It also requires distinct mutation target/kind pairs, observed polarity plus clean controls, ordered producer/consumer events, and a mechanically recomputed aggregate root. Both live loading and signed-artifact readback compare proof provenance against the current tracked runner and built target; the fixed runner performs a fresh build before emission. Stale runner/target bytes, stale gitignored dist, arbitrary formatted digests, hard-coded story/counts, arbitrary commands, raw verificationEvidence checkedClaims/actorTrust, and global transcript presence grant no authority. The artifact also binds the strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation.',
+  },
+  {
+    name: 'artifact:acceptance-rollout-report.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'host-verdict', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/proofstory.acceptance_rollout_report',
+    producerSourceRefs: ['scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'packages/main/src/core/acceptance-rollout.ts', 'packages/main/src/handlers/proofstory.ts'],
+    consumerGate: 'acceptance_rollout_report_read, acceptance_rollout_check, and transition-orchestrator DEV to REVIEW rollout gate',
+    consumerSourceRefs: ['packages/main/src/core/acceptance-rollout.ts', 'packages/main/src/handlers/proofstory.ts', 'packages/main/src/handlers/transition-orchestrator.ts', 'scripts/verify-process-fact-contract.mjs'],
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.acceptance_rollout_report,
+    rationale: 'Versioned verifier-owned report freezes every eligible source record in the declared window and deterministically derives membership, metrics, diagnostics, and verdict. The signed receipt binds source inventory, >=3 matched pairs in each arm, every registered seed, zero false pass, 100% omission detection, zero false block, zero mislabeled 3x1, non-positive waiver delta, non-shrinking inventory, supported adapters, genuine full-3x2, runner digest, and current workspace hashes. Rollback changes only flat project mode and preserves this artifact.',
   },
   {
     name: 'artifact:topology-exclusion-approvals.json',

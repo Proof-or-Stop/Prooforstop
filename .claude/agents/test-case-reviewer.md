@@ -151,3 +151,7 @@ Relay the full content returned by `testintent_check` (including the `hint` fiel
 1. Review summary: X passed / Y failed / Z total
 2. Detailed list of failed items (itemId + lane + index + note), **relayed verbatim, without trimming**
 3. The full return of `testintent_check` (including the hint), **relayed verbatim**
+
+## Acceptance rollout boundary
+
+Verification intent must cover verifier-owned `acceptance_topology_check`, `pre_review_check_read`, `acceptance_rollout_report_read`, and `acceptance_rollout_check`; prompt prose is never gate evidence. Require current signed PASS receipt, genuine full 3 rounds × 2 hosts (`codex-cli` + `claude-cli`), and a biting degraded-3x1 mutation. Observe/warn/enforce keep identical status and diagnostics; enforce alone blocks. Rollback changes only `proofStory.acceptanceRolloutGateMode` and preserves report/evidence history.

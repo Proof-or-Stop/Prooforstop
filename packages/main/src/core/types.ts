@@ -521,6 +521,163 @@ export interface PreReviewCheckArtifactV1 {
   signature: string;
 }
 
+export type AcceptanceRolloutClaimClassV1 =
+  | 'user_visible'
+  | 'orchestration'
+  | 'behavior'
+  | 'lifecycle'
+  | 'proof'
+  | 'safety'
+  | 'docs_only'
+  | 'legacy'
+  | 'ordinary';
+
+export type AcceptanceRolloutDefectClassV1 =
+  | 'omission'
+  | 'forgery'
+  | 'freshness'
+  | 'authority'
+  | 'quorum'
+  | 'threshold'
+  | 'control';
+
+export interface AcceptanceRolloutSourceRecordV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_source_record.v1';
+  pairId: string;
+  arm: 'baseline' | 'candidate';
+  storyId: string;
+  completedAt: string;
+  comparableGroup: 'high_assurance';
+  eligible: boolean;
+  adapterProfile: 'codex-cli+claude-cli' | 'unsupported' | 'partial';
+  claimClass: AcceptanceRolloutClaimClassV1;
+  transcriptPresent: boolean;
+  mutationRequired: boolean;
+  mutationBites: boolean;
+  seededDefectId?: string;
+  defectClass: AcceptanceRolloutDefectClassV1;
+  defectPresent: boolean;
+  detected: boolean;
+  shouldBlock: boolean;
+  blocked: boolean;
+  reviewRounds: number;
+  waiverCount: number;
+  checkInventory: string[];
+  costUnits: number;
+  quorum: {
+    class: 'full-3x2' | 'degraded-3x1' | 'ordinary';
+    rounds: number;
+    hosts: Array<'codex-cli' | 'claude-cli'>;
+    providers: Array<'codex' | 'claude'>;
+  };
+  sourceDigest: string;
+}
+
+export interface AcceptanceRolloutCohortInputV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_cohort_input.v1';
+  generatedBy: 'runProofStoryAcceptanceRolloutCohort';
+  evaluationWindow: { start: string; end: string };
+  eligibilityRuleVersion: 'proofstory.acceptance_rollout_eligibility.v1';
+  thresholdVersion: 'proofstory.acceptance_rollout_thresholds.v1';
+  registeredSeedIds: string[];
+  sourceRecords: AcceptanceRolloutSourceRecordV1[];
+  sourceInventoryDigest: string;
+  runnerPath: 'scripts/run-proofstory-acceptance-rollout-cohort.mjs';
+  runnerDigest: string;
+}
+
+export type AcceptanceRolloutDiagnosticCodeV1 =
+  | 'AR_REPORT_MISSING'
+  | 'AR_REPORT_TAMPERED'
+  | 'AR_REPORT_STALE'
+  | 'AR_WINDOW_INVALID'
+  | 'AR_SOURCE_RECORD_INVALID'
+  | 'AR_MEMBERSHIP_DIGEST_MISMATCH'
+  | 'AR_ELIGIBLE_MEMBERSHIP_INCOMPLETE'
+  | 'AR_INELIGIBLE_MEMBER'
+  | 'AR_SAMPLE_COUNT_LT_3'
+  | 'AR_MATCHED_PAIR_MISSING'
+  | 'AR_ADAPTER_UNSUPPORTED'
+  | 'AR_TRANSCRIPT_REQUIRED'
+  | 'AR_MUTATION_REQUIRED'
+  | 'AR_REGISTERED_CAMPAIGN_INCOMPLETE'
+  | 'AR_FALSE_PASS_NONZERO'
+  | 'AR_OMISSION_DETECTION_BELOW_100'
+  | 'AR_FALSE_BLOCK_NONZERO'
+  | 'AR_MISLABELED_3X1_NONZERO'
+  | 'AR_WAIVER_DELTA_POSITIVE'
+  | 'AR_CHECK_INVENTORY_SHRANK'
+  | 'AR_QUORUM_NOT_FULL_3X2';
+
+export interface AcceptanceRolloutMetricsV1 {
+  matchedPairCount: number;
+  baselineSampleCount: number;
+  candidateSampleCount: number;
+  registeredSeedCount: number;
+  detectedSeedCount: number;
+  falsePassCount: number;
+  omissionSeedCount: number;
+  omissionDetectedCount: number;
+  omissionDetectionRate: number;
+  falseBlockCount: number;
+  falseBlockRate: number;
+  mislabeled3x1Count: number;
+  waiverDelta: number;
+  inventoryShrankCount: number;
+  baselineReviewRounds: number;
+  candidateReviewRounds: number;
+  baselineCostUnits: number;
+  candidateCostUnits: number;
+}
+
+export interface AcceptanceRolloutReportV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_report.v1';
+  storyId: string;
+  projectPolicy: 'flat-project';
+  eligibilityRuleVersion: 'proofstory.acceptance_rollout_eligibility.v1';
+  thresholdVersion: 'proofstory.acceptance_rollout_thresholds.v1';
+  evaluationWindow: { start: string; end: string };
+  eligibleMembership: Array<{ pairId: string; baselineStoryId: string; candidateStoryId: string }>;
+  membershipDigest: string;
+  sourceInventoryDigest: string;
+  registeredSeedIds: string[];
+  sourceRecords: AcceptanceRolloutSourceRecordV1[];
+  metrics: AcceptanceRolloutMetricsV1;
+  diagnostics: AcceptanceRolloutDiagnosticCodeV1[];
+  verdict: 'pass' | 'fail';
+  binding: {
+    headHash: string;
+    materialHash: string;
+    storyFilesHash: string;
+    runnerDigest: string;
+  };
+  reportDigest: string;
+}
+
+export interface AcceptanceRolloutReceiptV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_receipt.v1';
+  receiptRef: string;
+  issuer: 'acceptance-rollout-verifier';
+  issuerKeyId: string;
+  signerPublicKey: string;
+  storyId: string;
+  reportDigest: string;
+  membershipDigest: string;
+  sourceInventoryDigest: string;
+  verdict: 'pass' | 'fail';
+  headHash: string;
+  materialHash: string;
+  storyFilesHash: string;
+  issuedAt: string;
+  signature: string;
+}
+
+export interface AcceptanceRolloutArtifactV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_artifact.v1';
+  report: AcceptanceRolloutReportV1;
+  receipt: AcceptanceRolloutReceiptV1;
+}
+
 export interface TopologyActorProvenanceV1 {
   agentId: string;
   sessionId: string;
