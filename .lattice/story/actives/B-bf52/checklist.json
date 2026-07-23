@@ -98,7 +98,41 @@
       "context": "packages/main/src/core/convergence-breaker.ts:476 rewrites digit runs inside identifier tokens, collapsing CHK-001 with CHK-002. Restrict it so digits attached to an identifier survive while free-standing counters such as attempt numbers still collapse.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The convergence-breaker smoke prints a passing check stating that a rejection naming CHK-001 and one naming CHK-002 digest differently, alongside a passing check that two attempts differing only in a free-standing counter still digest identically.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two rejection reasons differing only in an identifier-embedded ordinal (CHK-001 versus CHK-002) produce different digest keys.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Two rejection reasons differing only in free-standing counters and an ISO timestamp still produce one digest key, so genuine retries of one failure keep accumulating.",
+            "type": "logic"
+          },
+          {
+            "desc": "A story id such as B-bf52, whose digits are attached to an identifier, survives normalization, so rejections naming different stories are not conflated.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Restoring the unconditional digit-run rewrite makes the identifier-ordinal distinctness check fail while the free-standing-counter collapse check keeps passing.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
