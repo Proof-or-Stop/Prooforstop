@@ -2,7 +2,7 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-4ec1",
   "mode": "observe",
-  "cutoffAt": "2026-07-23T04:02:23.759Z",
+  "cutoffAt": "2026-07-23T04:03:38.565Z",
   "planBasisDigest": "sha256:731fb90794e7ff63d17292a9e6844e2c88a07ba1067b20361ef354696a200eb6",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
@@ -522,7 +522,7 @@
         "sealDigest": "sha256:73b580b5e93b29502590513870a1fcc8d4731244a8bef25984ec8baebdd7d489"
       },
       "binding": {
-        "headHash": "897e0cdae4145ce41d1e5a4033620bb85185da60",
+        "headHash": "ce01c0b0475286e6273b26c1b6976346dfaca575",
         "materialHash": "84d938afd67051380ff6fd31e36b989ebe057ba0957698ffc8bdf7ae19d2bebe",
         "storyFilesHash": "4a27ad71523e9e79624426445604826755bb1c7bc7bedd993d348da9841fe14a",
         "scopeCheckDigest": "sha256:64f2e83e876182b9c41dc06ccf99d2b70f6afbc486ae2ea2a09428958bb1b0cc",
@@ -530,7 +530,7 @@
         "closureFilesHash": "sha256:c85002dcbc0af0bd7231665debe724e2ed9305fd4ef0e8c1f2287b0c6066f67e"
       },
       "receiptRef": "receipt:coverage-basis:B-4ec1:pre_review:fa4c28187d3e4f85",
-      "basisDigest": "sha256:fb54c23a2ed43cce48288fb9d91f9bad7745baac39dd9a310e5d13aee5d745da"
+      "basisDigest": "sha256:76349c4bddcdbcf1b76115cd748d0ee62b4b976540faba094ef15affe29e0990"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
@@ -540,17 +540,17 @@
       "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
       "storyId": "B-4ec1",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:fb54c23a2ed43cce48288fb9d91f9bad7745baac39dd9a310e5d13aee5d745da",
+      "basisDigest": "sha256:76349c4bddcdbcf1b76115cd748d0ee62b4b976540faba094ef15affe29e0990",
       "topologyDigest": "sha256:878e0e9c9ca9f61af67d0a34e8733e198de6b5a272cf66633daeb101d6f1f33a",
       "scopeCheckDigest": "sha256:64f2e83e876182b9c41dc06ccf99d2b70f6afbc486ae2ea2a09428958bb1b0cc",
       "scopeContractDigest": "sha256:e77e4598b1527db1a4ef35a602508b3759a828fda1c152e20b9dbc7136fb65d1",
-      "headHash": "897e0cdae4145ce41d1e5a4033620bb85185da60",
+      "headHash": "ce01c0b0475286e6273b26c1b6976346dfaca575",
       "materialHash": "84d938afd67051380ff6fd31e36b989ebe057ba0957698ffc8bdf7ae19d2bebe",
       "storyFilesHash": "4a27ad71523e9e79624426445604826755bb1c7bc7bedd993d348da9841fe14a",
       "closureFilesHash": "sha256:c85002dcbc0af0bd7231665debe724e2ed9305fd4ef0e8c1f2287b0c6066f67e",
       "sealDigest": "sha256:73b580b5e93b29502590513870a1fcc8d4731244a8bef25984ec8baebdd7d489",
       "workspaceIdentityDigest": "sha256:1573a738da7a261b742d92156de827cdc9e20c7c849b6246d5662a1a6c8e520d",
-      "signature": "OIGaQCOvWhbutsX2CwrF79e1tSLrMq+p1ZL4UMnBviKc/tsCCV5tUqsjKSSZtOeBVsf+7DTTieS9MgS6G4XKAg=="
+      "signature": "yuDtjxJ6ubwr3/EABOoJ07eSO4+p+13l6SDmSvaUR/j9N5w860Jlz6ujYoAWN3/qslHwyQQmiQDRk2AOMJMVAA=="
     }
   },
   "topologyDigest": "sha256:878e0e9c9ca9f61af67d0a34e8733e198de6b5a272cf66633daeb101d6f1f33a",
@@ -564,32 +564,155 @@
     "storyId": "B-4ec1",
     "producer": "registered-verification-command",
     "verifier": "pre-review-check-command-runner",
-    "commandDigests": [],
+    "commandDigests": [
+      "sha256:dd23ce352e3bb90690f2ed632c2b712105e4355904620c626ba6ec4d8caa344c"
+    ],
     "caseRecordsEncoding": "gzip-base64",
-    "caseRecords": "",
+    "caseRecords": "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",
     "provenance": {
-      "runnerPath": "",
-      "runnerDigest": "",
-      "targetPath": "",
-      "targetDigest": "",
-      "buildCommand": ""
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:4a64c9249cf95e677b3b6c050c6300b0ea9ab0539c7245dc0cb1847b09be7201",
+      "buildCommand": "npm --prefix packages/main run build"
     },
-    "bindingProofs": []
+    "bindingProofs": [
+      {
+        "bindingId": "AB-WAVE3-PRE-REVIEW",
+        "positiveAssertionIds": [
+          "A-POS-1",
+          "A-POS-2",
+          "A-POS-3",
+          "A-POS-4"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "A-MUT-1",
+            "expectedCode": "STABLE",
+            "observedCode": "STABLE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-2",
+            "expectedCode": "PR_TRANSCRIPT_MISSING",
+            "observedCode": "PR_TRANSCRIPT_MISSING",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-3",
+            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-4",
+            "expectedCode": "FAIL_CLOSED",
+            "observedCode": "FAIL_CLOSED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-5",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-6",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-7",
+            "expectedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
+            "observedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-8",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-9",
+            "expectedCode": "ABSENT",
+            "observedCode": "ABSENT",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-10",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-11",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-12",
+            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-13",
+            "expectedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "observedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-14",
+            "expectedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "observedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-15",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-16",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "A-MUT-17",
+            "expectedCode": "PR_MUTATION_DID_NOT_BITE",
+            "observedCode": "PR_MUTATION_DID_NOT_BITE",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "A-TRANSCRIPT-1",
+            "producerRefs": [
+              "P-PRE-REVIEW"
+            ],
+            "consumerRefs": [
+              "C-DEV-REVIEW-GATE"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 12
+          }
+        ]
+      }
+    ]
   },
   "codes": [
     "PR_PLANNED_PATH_UNRESOLVED",
     "PR_ADAPTER_RESULT_INVALID",
     "PR_POSITIVE_EVIDENCE_MISSING",
-    "PR_PRODUCTION_PATH_UNPROVEN",
-    "PR_MUTATION_EVIDENCE_MISSING",
-    "PR_MUTATION_DID_NOT_BITE",
-    "PR_CONTROL_NOT_RESTORED",
-    "PR_TRANSCRIPT_MISSING",
-    "PR_AUTHORITY_INADMISSIBLE",
     "PR_EVIDENCE_STALE"
   ],
   "status": "fail",
-  "issuedAt": "2026-07-23T04:02:23.759Z",
+  "issuedAt": "2026-07-23T04:03:38.565Z",
   "signerPublicKey": "00gcM7H5Amw/DnKQu6nfdIUKn5PpXXjYXeTQE79mpv0=",
-  "signature": "elJnvKuRq/fM2Ls50SJEm/LEUPUBCvqeZDnZsVJhZEY+2PxVCh8n3EGUrsg9revyDOu8uWcxoITpGVOBULxQBg=="
+  "signature": "mQcBvzZABT4B0R1XurwuWYVEZZtpb/75ZI/Ja2nHExKKsrqhBM09VOg51zyOQMuzECb4KeHj156KMQZ0VsXXAw=="
 }
