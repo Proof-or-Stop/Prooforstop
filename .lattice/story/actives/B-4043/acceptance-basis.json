@@ -4,7 +4,7 @@
     "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
     "storyId": "B-4043",
     "phaseBasis": "plan",
-    "status": "partial",
+    "status": "complete",
     "generatedBy": {
       "verifier": "acceptance-coverage-basis-verifier",
       "command": "lattice acceptance_basis_generate",
@@ -31,11 +31,8 @@
           "path:process-fact:live_smoke_transcript->consumer:<audit-only>",
           "path:process-fact:story_advance->consumer:storyMachine phase guards and story_advance preflight gates"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "source file is unreadable or disappeared: packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-          "source file is unreadable or disappeared: scripts/run-proofstory-acceptance-rollout-cohort.mjs"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
           "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
           "source-file:packages/main/src/cli/command-catalog.ts:sha256:42c237f49144fbbaddf5cee447705601f664565d72a3cd00ce00bddea9046465",
@@ -87,7 +84,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:61a83bbe818fc1e7fe96410b92f257a4332524dc06a062467b12673fb1f2d893"
+        "resultDigest": "sha256:f046881e4f6858691d4bdf872fbdb5829ce19dad8ad36d9b495e0e33e415d42a"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -101,11 +98,8 @@
           "path:process-fact:live_smoke_transcript->consumer:<audit-only>",
           "path:process-fact:story_advance->consumer:storyMachine phase guards and story_advance preflight gates"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "source file is unreadable or disappeared: packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-          "source file is unreadable or disappeared: scripts/run-proofstory-acceptance-rollout-cohort.mjs"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
           "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
           "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
@@ -163,7 +157,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:ca57a79a739c86ea42cb7c5de0a438657ffac20249660a35d72b31ad5be615bf"
+        "resultDigest": "sha256:4492148d5373381ed41946b7d7f27f609bc962376f1b370e41ada16e696dda3b"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -226,7 +220,9 @@
         "adapterId": "scope-contract:plan:v1",
         "method": "scope_contract",
         "pathRefs": [
-          "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH"
+          "planned:CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
+          "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
+          "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH"
         ],
         "coverageClaim": "complete_for_scope",
         "blindSpots": [],
@@ -271,7 +267,9 @@
           "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
           "source-file:packages/main/src/core/acceptance-rollout.ts:uninspectable",
           "source-file:packages/main/src/handlers/proofstory.ts:sha256:4ab904e85c67752ababf64e199b5243a4757d61778dc6a80fd705198491012c7",
-          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:37ed08ed744ae904f0797882b966549cd83be1f2d6e601bfe478e0ab6d84ac0a"
+          "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:37ed08ed744ae904f0797882b966549cd83be1f2d6e601bfe478e0ab6d84ac0a",
+          "source-file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts:uninspectable",
+          "source-file:scripts/run-proofstory-acceptance-rollout-cohort.mjs:uninspectable"
         ],
         "asymmetryPolicy": {
           "kind": "exhaustive",
@@ -316,7 +314,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:50b04c2990bc77951ce71ad810ebce3c6922d3680a44bbf62fd9e5f49e6dc4f3"
+        "resultDigest": "sha256:84be10f1fcbcd4110a4d24a72974459933704a15f9aeb42fcd72cf59fb7a2451"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -334,11 +332,8 @@
           "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
           "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "source file is unreadable or disappeared: packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-          "source file is unreadable or disappeared: scripts/run-proofstory-acceptance-rollout-cohort.mjs"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
           "source-file:.claude/agents/lattice-implementer.md:sha256:ec9b36fffd7ce689be4caece562f89b02e541c7d64570fffadc718be4e9c973e",
           "source-file:.claude/agents/lattice-review-concept.md:sha256:af9b40469a0d3bb03e354a1c99182f2a9b5548158e820ea8f3fb26832f5ef394",
@@ -419,7 +414,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:d4263fc95e78bf576c88fc4319cec1939a505f135b49788f263942f28f25fbdb"
+        "resultDigest": "sha256:f09be3b24eec600e8658ceed8037782b0c1bcd8b60b88cc5f342ee0a52ca9374"
       }
     ],
     "scopeRefs": [
@@ -466,7 +461,9 @@
       "artifact:index.json",
       "handler:packages/main/src/handlers/proofstory.ts#acceptance_rollout_report",
       "handler:packages/main/src/handlers/transition-orchestrator.ts#runAcceptanceRolloutGate",
+      "planned:CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
       "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
+      "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH",
       "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
       "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
       "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
@@ -529,9 +526,48 @@
       "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
       "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
       "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
-      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts"
+      "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts",
+      "source_file:packages/main/src/core/acceptance-rollout.ts#deriveAcceptanceRolloutReport",
+      "source_file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#runProofStoryAcceptanceRolloutSmoke",
+      "source_file:scripts/run-proofstory-acceptance-rollout-cohort.mjs#runProofStoryAcceptanceRolloutCohort"
     ],
     "plannedPathRecords": [
+      {
+        "schemaVersion": "proofstory.planned_coverage_path.v1",
+        "plannedPathRef": "planned:CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
+        "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
+        "declarationDigest": "sha256:43b20949ca82faa2a9030ecdfd8416244a73aee4c6992bb191d6fd19f794a721",
+        "producer": {
+          "id": "W4-COHORT-RUNNER-PRODUCER",
+          "role": "producer",
+          "expectedArtifactKind": "source_file",
+          "expectedFileRef": "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "expectedSymbolOrFact": "runProofStoryAcceptanceRolloutCohort",
+          "fileDeclarationRef": "CHK-002:files:create:2"
+        },
+        "consumers": [
+          {
+            "id": "W4-COHORT-REPORT-EVALUATOR",
+            "role": "consumer",
+            "expectedArtifactKind": "source_file",
+            "expectedFileRef": "packages/main/src/core/acceptance-rollout.ts",
+            "expectedSymbolOrFact": "deriveAcceptanceRolloutReport",
+            "fileDeclarationRef": "CHK-002:files:create:0"
+          }
+        ],
+        "outputFactRef": "process-fact:acceptance_rollout_report",
+        "acceptanceBindingRefs": [
+          "acceptance-binding:AB-WAVE4-MEASURED-ROLLOUT"
+        ],
+        "verificationIntentRefs": [
+          "CHK-002:happy:real-cohort-receipt"
+        ],
+        "declarationRefs": [
+          "CHK-002:files:create:0",
+          "CHK-002:files:create:2"
+        ],
+        "plannedPathDigest": "sha256:99c061062780969fc9ec7fb0457a99718efd65d26199ebd0bdfdacccd00d65c5"
+      },
       {
         "schemaVersion": "proofstory.planned_coverage_path.v1",
         "plannedPathRef": "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
@@ -576,6 +612,42 @@
           "CHK-002:files:modify:5"
         ],
         "plannedPathDigest": "sha256:33bf71ec7dc8d7b4df4e8169d75352ee7c0382b68cafc043e9d6cb37dc3f8eec"
+      },
+      {
+        "schemaVersion": "proofstory.planned_coverage_path.v1",
+        "plannedPathRef": "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH",
+        "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH",
+        "declarationDigest": "sha256:c37ae9f1009369cd937eb08ae972efdc48c14adfe38efe258e590a3cb616c052",
+        "producer": {
+          "id": "W4-ROLLOUT-SMOKE-PRODUCER",
+          "role": "producer",
+          "expectedArtifactKind": "source_file",
+          "expectedFileRef": "packages/main/src/core/acceptance-rollout.ts",
+          "expectedSymbolOrFact": "deriveAcceptanceRolloutReport",
+          "fileDeclarationRef": "CHK-002:files:create:0"
+        },
+        "consumers": [
+          {
+            "id": "W4-ROLLOUT-SMOKE-CONSUMER",
+            "role": "consumer",
+            "expectedArtifactKind": "source_file",
+            "expectedFileRef": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+            "expectedSymbolOrFact": "runProofStoryAcceptanceRolloutSmoke",
+            "fileDeclarationRef": "CHK-002:files:create:1"
+          }
+        ],
+        "outputFactRef": "process-fact:acceptance_rollout_report",
+        "acceptanceBindingRefs": [
+          "acceptance-binding:AB-WAVE4-MEASURED-ROLLOUT"
+        ],
+        "verificationIntentRefs": [
+          "CHK-002:happy:real-cohort-receipt"
+        ],
+        "declarationRefs": [
+          "CHK-002:files:create:0",
+          "CHK-002:files:create:1"
+        ],
+        "plannedPathDigest": "sha256:c9ecb311328811fa3b48bbb0f3eafd8df41bc0ef3b52d5e9c5ef8de53f63fc2a"
       }
     ],
     "plannedActualReconciliations": [],
@@ -590,17 +662,12 @@
       "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
       "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
       "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext",
-      "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH"
+      "planned:CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
+      "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
+      "planned:CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH"
     ],
     "excludedPathRefs": [],
-    "blindSpots": [
-      "snapshot-seal:snapshot_missing:inventory:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-      "snapshot-seal:snapshot_missing:inventory:scripts/run-proofstory-acceptance-rollout-cohort.mjs",
-      "snapshot-seal:snapshot_missing:source_file:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-      "snapshot-seal:snapshot_missing:source_file:scripts/run-proofstory-acceptance-rollout-cohort.mjs",
-      "source file is unreadable or disappeared: packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
-      "source file is unreadable or disappeared: scripts/run-proofstory-acceptance-rollout-cohort.mjs"
-    ],
+    "blindSpots": [],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:ce81d329dafff00ff2f1f33de41dd687b9536ab5ac2ba7bdd24bf6759796322d",
@@ -608,60 +675,39 @@
       "sourceSnapshotDigest": "sha256:557eccb112762ca58231eda4e9fb2b0d48f0b172c397af1f973fab0482e6b447",
       "sourceSnapshotCount": 766,
       "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
-      "status": "partial",
-      "issues": [
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "inventory",
-          "canonicalRef": "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
-        },
-        {
-          "code": "snapshot_missing",
-          "targetKind": "source_file",
-          "canonicalRef": "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
-        }
-      ],
-      "sealDigest": "sha256:e2ff7a4246595ef8f01f8b30e58fcd6042777ecba322559b69673cf2caf2cbb8"
+      "status": "complete",
+      "issues": [],
+      "sealDigest": "sha256:5743c6f22baa19d1461b2cfa710b048656f8e3c13af7fb42c6fd27eace12d100"
     },
     "binding": {
-      "headHash": "24ff7ff7299cb7834788450a10bb0118bd993fd2",
+      "headHash": "b8214f1a3d7a9d1bdaa897761d2c74569d07c910",
       "materialHash": "f6e2e2988c7bcfe443e1993d29fda2fecd90e66204f1c4eff51645e47d7d5261",
       "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "scopeCheckDigest": "sha256:0a9a6e3a67d774bb1d922d00f5c9be7cb9ae4f91f9de1c104532ffd2c68f4de9",
+      "scopeCheckDigest": "sha256:95155e876eee448883cec868ca7c192895e5429e6e00ddb726dfd04d02cc2353",
       "scopeContractDigest": "sha256:d2f5e663f3f6bb73d784ddc62336a1f511ad77600cf6c4de8e2cfbf9e0b61385",
-      "closureFilesHash": "sha256:7b45e1fe451573349eb838165e823b6ff89b45d58469857defc73700d35e37f3"
+      "closureFilesHash": "sha256:07032215c87ea333962406d51900e7902398c36d9274b21f8d8b6fcbc3876b8b"
     },
-    "receiptRef": "receipt:coverage-basis:B-4043:plan:35c44e6f34324fb9",
-    "basisDigest": "sha256:cda6dbf9998ea53a23bd62e92375d92b3b39a05823538c83422ee86c8c04465b"
+    "receiptRef": "receipt:coverage-basis:B-4043:plan:5bc2ad6f53278083",
+    "basisDigest": "sha256:d90eec72bc8de0c73e47845d1bfba28e3543b372664598328178e07bbd3c765a"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-4043:plan:35c44e6f34324fb9",
+    "receiptRef": "receipt:coverage-basis:B-4043:plan:5bc2ad6f53278083",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
     "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
     "storyId": "B-4043",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:cda6dbf9998ea53a23bd62e92375d92b3b39a05823538c83422ee86c8c04465b",
-    "topologyDigest": "sha256:f8ee1c2d0413e2d256d3825193c9daf32d88506702c78606e0acf09007951b15",
-    "scopeCheckDigest": "sha256:0a9a6e3a67d774bb1d922d00f5c9be7cb9ae4f91f9de1c104532ffd2c68f4de9",
+    "basisDigest": "sha256:d90eec72bc8de0c73e47845d1bfba28e3543b372664598328178e07bbd3c765a",
+    "topologyDigest": "sha256:dbd3e6b418c142c2436e6d2058d89ba6d42a1fee866acaa3b593e929f9ffac4f",
+    "scopeCheckDigest": "sha256:95155e876eee448883cec868ca7c192895e5429e6e00ddb726dfd04d02cc2353",
     "scopeContractDigest": "sha256:d2f5e663f3f6bb73d784ddc62336a1f511ad77600cf6c4de8e2cfbf9e0b61385",
-    "headHash": "24ff7ff7299cb7834788450a10bb0118bd993fd2",
+    "headHash": "b8214f1a3d7a9d1bdaa897761d2c74569d07c910",
     "materialHash": "f6e2e2988c7bcfe443e1993d29fda2fecd90e66204f1c4eff51645e47d7d5261",
     "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "closureFilesHash": "sha256:7b45e1fe451573349eb838165e823b6ff89b45d58469857defc73700d35e37f3",
-    "sealDigest": "sha256:e2ff7a4246595ef8f01f8b30e58fcd6042777ecba322559b69673cf2caf2cbb8",
+    "closureFilesHash": "sha256:07032215c87ea333962406d51900e7902398c36d9274b21f8d8b6fcbc3876b8b",
+    "sealDigest": "sha256:5743c6f22baa19d1461b2cfa710b048656f8e3c13af7fb42c6fd27eace12d100",
     "workspaceIdentityDigest": "sha256:6e61ba6ab6ff8068c1890049a84394a794f898a20fefcf7f56a8840651960b91",
-    "signature": "dRf1rLBaKleEjGwAlwJ6mmTbjgYVsSnKYuMQBQtCeAjU9Trnqg2YLqnxQ4Hc1f9ybC+Yt+bAImYKJ0wBnB/WAQ=="
+    "signature": "XtwwKhri7ZS1sUftsxOgq7+kWCWB4IJaXuabA6LN8Zx12l3Ka6AauasYvhRZS+biNrdrzLH6NOeObVU8Kb9MDA=="
   }
 }
