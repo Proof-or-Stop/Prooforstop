@@ -38,7 +38,31 @@
       "context": "Program plan W2 area 2: head/material/index/status invariance proof captured by the runner.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The spec section 2 defines the runner four-tuple invariance (head/material/index/status) captured pre AND post in a disposable workspace, naming each of the four measured quantities and the exact pass rule (all four identical pre and post = workspace-untouched proof); a reader can list the four fields and the comparison performed.",
+            "type": "docs"
+          },
+          {
+            "desc": "Section 2 specifies that the RED command executes inside a DISPOSABLE workspace (created, exercised, discarded) isolated from the real story tree, stating how isolation is established and torn down so the reader can confirm the real working tree is never mutated by a RED/GREEN run.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Section 2 specifies runner behavior when the command leaves a dirty index or an untracked file (post status differs from pre) and when the command TIMES OUT before the post-snapshot, stating the concrete verdict (invariance-violation reject vs timeout handling) for each so a reader can trace both to a rule.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Section 2 makes a tampered runner detectable: a record whose post four-tuple does not equal its pre four-tuple, or that omits either snapshot, is REJECTED; the rule is quoted so a reviewer confirms a runner that silently mutated the tree (or skipped the invariance proof) cannot produce a satisfying record.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
