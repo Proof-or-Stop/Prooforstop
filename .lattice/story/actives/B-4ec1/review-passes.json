@@ -88,6 +88,35 @@
         "scanEscalationReason": null
       },
       "_hash": "e3d14bb6afd411766b96b99ea5551dd8bb56364c57156d3d1813baa49bad9441"
+    },
+    {
+      "id": "B-4ec1:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Current exact-assertion proof closes F-022/F-024: production assembly binds by exact ID, kind and canonical sourceRef; missing/extra/duplicate/source-swap fail closed; record permutation preserves canonical attribution; current signed artifact has 22 correctly mapped records, current runner/target provenance, codes=[], plannedActual complete, mutations biting, transcript related and authority admissible. Full diff/residue and promised-but-undelivered checks found no remaining concept blocker.",
+      "createdAt": "2026-07-23T04:35:33.511Z",
+      "reviewRound": "2026-07-23T04:33:12.403Z",
+      "reviewRunId": "B-4ec1:RR-017",
+      "envelopeId": "375dc9f4f984fec667c9c7359d48b24c6d9fee4c67fd45cf8035e0d56c0b9e40",
+      "writerSessionId": "sess-ede8a8408bfe86da4687e36d886f4cf2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/types.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ccc632f0c1304470eb7d5f836aa4a8e32dc008bec9ee13a2b66451c6e3b11875"
     }
   ]
 }
