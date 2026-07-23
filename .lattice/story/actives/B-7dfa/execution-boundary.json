@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7dfa",
+  "allowedCommands": [
+    "codex exec / agy (cross-host spec audit, read-only against the spec text)",
+    "git (branch/commit/diff within the story worktree)",
+    "grep/read of packages/main/src for factual citations (read-only)",
+    "markdown authoring/reading tools",
+    "node bin/lattice.js * (lifecycle commands)"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [],
+  "excludedCommands": [
+    "any write to packages/**or scripts/** source files",
+    "git push to remotes",
+    "npm publish"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-07-23T19:23:16.559Z",
+  "updatedAt": "2026-07-23T19:23:16.559Z",
+  "_hash": "d02f4f84a1b3ca7fa51de2cdf34b9b0393bdd1d564dde08c996ca15c304ff985"
+}
