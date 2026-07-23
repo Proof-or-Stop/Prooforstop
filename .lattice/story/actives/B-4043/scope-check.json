@@ -161,10 +161,12 @@
       "q": "Is Wave 4 promotion required to achieve zero false passes across every registered seeded defect class, not only 100% topology-omission detection, and where is that canonical threshold encoded?",
       "evidence": "Wave 4 exit and Success Metrics require false-pass thresholds, but CHK-003's explicit thresholds name omission detection and false blocks without a general seeded-defect false-pass threshold.",
       "sourcePointers": [
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#15-bounded-implementation-waves",
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#17-success-metrics",
-        ".lattice/story/actives/B-4043/checklist.json#CHK-003"
-      ]
+        "plan.md#CHK-003",
+        "CHK-003",
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "resolution": "Yes. Promotion requires zero false passes across every registered seeded defect class, in addition to 100 percent supported omission detection. The canonical threshold is encoded in the Wave 4 rollout evaluator/policy planned in acceptance-rollout.ts and stated in plan.md CHK-003; incomplete campaigns fail promotion.",
+      "resolvedAt": "2026-07-23T16:45:13.624Z"
     }
   ]
 }
