@@ -935,6 +935,25 @@
         "scanEscalationReason": null
       },
       "_hash": "fae9b6918a5a432c9f3448739fef7d65bb27766d6b0a4caf1cf7d77c7da1e755"
+    },
+    {
+      "id": "B-4ec1:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "F-030 re-review at current HEAD: b8f78335f0 wraps the entire withFreshFixture callback in a supported Codex provider, while withClearedSessionEnvironment removes the expanded transport/session inference set and restores it exactly. The real story-owned fixture regression now explicitly clears all outer identity before entering withFreshFixture; nested unsupported and absent provider cases still temporarily override the fixture provider and retain fail-closed assertions. Independent compiled focused run under `env -i` passed all 43 checks, including the host-independent real fixture delta path and unsupported-provider chain. No remaining quality blocker for F-030.",
+      "createdAt": "2026-07-23T15:57:29.216Z",
+      "reviewRound": "2026-07-23T15:50:51.194Z",
+      "reviewRunId": "B-4ec1:RR-044",
+      "envelopeId": "533b2b83d490dd655c5fa4cabc81996984161f5bd508b9b33173abcf174ceec7",
+      "writerSessionId": "sess-fd86910eff9401fc0fd317fda1a4e604",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "da2f7be7327ccd7621255de944fd717b23402e22afde6c04cb593edc8d5df554"
     }
   ]
 }
