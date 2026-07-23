@@ -6,7 +6,45 @@
       "context": "packages/main/src/core/convergence-breaker.ts:479 truncates the normalized reason to 200 characters before hashing. ProofStory gap lists share a preamble longer than that, so two different gaps hash identically. Hash the full normalized reason, retaining only a large sanity bound to cap CPU on pathological input.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node packages/main/dist/tasks/convergence-breaker-smoke.js prints a passing check stating that two real DEV-gate rejection renders differing only past the former 200-character cut produce different digest keys.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gateFailureDigest applied to two reconstructions of the real DEV-gate rejection render (machine.ts:179 preamble plus renderProofStoryDiagnosticReport), identical for their first 244 normalized characters and differing only in the outstanding gap codes, returns two different keys.",
+            "type": "logic"
+          },
+          {
+            "desc": "The same two rejections routed through bumpGateFailureCount leave maxGateFailureCount at 1, so assessBreaker does not trip, which is the actual operator-visible consequence.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A rejection reason far longer than any realistic gate message still produces a digest, and the retained sanity bound is exercised rather than silently absent.",
+            "type": "logic"
+          },
+          {
+            "desc": "Two reasons that are identical up to the sanity bound and differ only beyond it are documented as collapsing, so the bound's residual behavior is stated rather than assumed away.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Restoring only the fixed-length truncation makes the new smoke assertions fail, proving the check is bound to this change and not to some unrelated property.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
