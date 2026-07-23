@@ -20,7 +20,8 @@
     "scripts/verify-process-fact-contract.mjs",
     "docs/CLI.md",
     "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-    ".lattice/story/actives/B-4ec1/acceptance-basis.json"
+    ".lattice/story/actives/B-4ec1/acceptance-basis.json",
+    "packages/main/src/core/done-required-timeout-budget.ts"
   ],
   "allowedCreate": [
     "packages/main/src/core/pre-review-check.ts",
@@ -31,7 +32,7 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Include the active-story-derived pre-review proof verifier and registered live-smoke producer needed to close F-009/F-012/F-015; Wave 3A selective applicability and Wave 4 telemetry remain excluded.",
+  "scopeChangeReason": "Include the exact registered pre-review live-proof timeout budget producer in the canonical Wave 3 source discovery closure; arbitrary and injected capture commands remain fixed at 60 seconds, and Wave 4 remains excluded.",
   "acknowledgements": [
     {
       "actor": "lattice-implementer",
@@ -170,7 +171,7 @@
     }
   ],
   "createdAt": "2026-07-22T22:41:51.162Z",
-  "updatedAt": "2026-07-23T12:50:36.545Z",
+  "updatedAt": "2026-07-23T12:58:00.472Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
