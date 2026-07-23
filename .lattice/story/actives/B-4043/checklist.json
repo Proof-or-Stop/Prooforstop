@@ -177,7 +177,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "An opt-in enforce attempt passes only with a current qualifying rollout receipt and full 3x2; rollback restores non-blocking mode while preserving the audit trail.",
+      "userSees": "User sees `Acceptance rollout enforcement: PASS mode=enforce receipt=current quorum=full-3x2`; after rollback the UI shows `mode=warn blocking=false historyPreserved=true`.",
       "files": {
         "modify": [
           "packages/main/src/handlers/transition-orchestrator.ts",
