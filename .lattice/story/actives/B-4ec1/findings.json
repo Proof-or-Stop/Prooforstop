@@ -97,7 +97,7 @@
       "desc": "packages/main/src/core/pre-review-check.ts:103 authority-bypass: the gate treats raw verificationEvidence.attestation.checkedClaims plus two unequal actorTrust strings as admissible authority (lines 121-125), with no signed issuer/receipt verification. The focused test proves PASS only by writing those fields directly through StoryStore at packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:111-121; the registered evidence CLI schema does not produce them. Therefore an owner-writable checklist can self-assert production-path/mutation/authority/cutoff, while normal production evidence cannot reach the demonstrated PASS path. Replace this with accepted signed receipt/issuer verification and exercise it through the real registered producer.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-22T23:32:16.432Z",
@@ -105,7 +105,11 @@
       "reviewRunId": "B-4ec1:RR-002",
       "_hash": "490c645c33c6b2acc6f4783384b5dc38a28c49007bdb70b86ba874c628297a53",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed authority bypass: raw checklist checkedClaims/actorTrust no longer confer authority; registered live-smoke transcript plus verifier-owned causal receipt is required; bypass mutations bite and canonical authority=admissible.",
+      "resolvedAt": "2026-07-23T02:18:06.802Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-006",
