@@ -1191,6 +1191,7 @@ try {
   write(root, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures' }, null, 2));
   write(root, 'packages/main/tsconfig.json', '{}\n');
   write(root, 'packages/main/src/acceptance-basis.json', '{"staticSource":true}\n');
+  write(root, `.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":true}\n');
   write(root, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
   write(root, 'packages/main/src/consumer.ts', "import { produceBasis } from './producer.js'; export const verifyBasis = () => produceBasis(); export const invokeBasis=()=>verifyBasis();\n");
   writeCanonicalAcceptanceRegistration(root);
@@ -1203,6 +1204,7 @@ try {
   store.writeProofStoryContract(storyId, contract());
   const cliScopeContract = scopeContract();
   cliScopeContract.allowedModify.push(`.lattice/story/actives/${storyId}/acceptance-basis.json`);
+  cliScopeContract.allowedModify.push(`.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`);
   cliScopeContract.allowedModify.push('packages/main/src/acceptance-basis.json');
   store.writeScopeContract(storyId, cliScopeContract);
   store.writeScopeCheck(storyId, scopeCheck(root));
@@ -1230,6 +1232,10 @@ try {
     artifact.basis.sourceInventoryRefs.includes('source-file:closure:packages/main/src/acceptance-basis.json'),
     'a same-basename static source outside the configured story artifact directory remains in closure',
   );
+  assert.ok(
+    artifact.basis.sourceInventoryRefs.includes(`source-file:closure:.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`),
+    'a nested same-basename file is not confused with the canonical generated root artifact',
+  );
   const firstSemanticDigest = acceptanceCoverageBasisSemanticDigest(artifact.basis);
   const firstClosureFilesHash = artifact.basis.binding.closureFilesHash;
   writeFileSync(
@@ -1246,6 +1252,15 @@ try {
   const stableTopology = run(root, 'acceptance_topology_check', { storyId, json: true });
   assert.doesNotMatch(stableRead, /AT_ADAPTER_RESULT_DIGEST_MISMATCH|AT_CLOSURE_FILES_STALE/);
   assert.doesNotMatch(stableTopology, /AT_ADAPTER_RESULT_DIGEST_MISMATCH|AT_CLOSURE_FILES_STALE/);
+  write(root, `.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":false}\n');
+  assert.match(
+    run(root, 'acceptance_basis', { storyId, json: true }),
+    /basis semantic discovery digest mismatch|snapshot seal digest mismatch|"status": "invalid"/,
+    'nested same-basename content mutation still bites',
+  );
+  write(root, `.lattice/story/actives/${storyId}/evidence/acceptance-basis.json`, '{"nestedEvidence":true}\n');
+  run(root, 'acceptance_basis_generate', { storyId, json: true });
+  artifact = store.readAcceptanceBasis(storyId)!;
   write(root, 'packages/main/src/acceptance-basis.json', '{"staticSource":false}\n');
   assert.match(
     run(root, 'acceptance_basis', { storyId, json: true }),

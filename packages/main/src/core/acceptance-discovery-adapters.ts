@@ -1076,9 +1076,10 @@ function sourceSeedFiles(input: AcceptanceDiscoveryInput, storyArtifactDirectory
     ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
   ]).filter(file => {
     const canonical = file.replace(/\\/g, '/');
+    const basename = canonical.split('/').at(-1) ?? '';
     return !(storyArtifactDirectory
-      && canonical.startsWith(storyArtifactDirectory)
-      && GENERATED_PROOF_ARTIFACT_BASENAMES.has(canonical.split('/').at(-1) ?? ''));
+      && GENERATED_PROOF_ARTIFACT_BASENAMES.has(basename)
+      && canonical === `${storyArtifactDirectory}${basename}`);
   });
 }
 
