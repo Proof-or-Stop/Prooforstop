@@ -545,7 +545,7 @@
       "desc": "concept-cleanup: implementation-status migration incomplete in docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:3,36,1715: the document still declares PROPOSED/AUDIT REQUIRED/NOT IMPLEMENTED, says this is future work and B-4444 does not ship either command, and requires the audit checklist to preserve NOT IMPLEMENTED, while line 1308 now truthfully states Wave 3 commands exist and the registered catalog/handlers/process facts confirm they do. This leaves contradictory canonical status guidance after replacing the prior no-command statement; update the historical B-4444 boundary without claiming the overall plan is unimplemented. severity=critical",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-23T05:34:28.523Z",
@@ -553,7 +553,11 @@
       "reviewRunId": "B-4ec1:RR-021",
       "_hash": "c21784c7d250e3431e3d78d750f35927688039787ea16e16cf7ca8ba68c283fc",
       "signatureTag": "missing|unknown|concept-cleanup-implementation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 0518de72d7: the execution plan now consistently marks Waves 1/1A/2/2A/3 implemented, Wave 3A skipped under flat rollout, and Wave 4 not implemented; the prior PROPOSED/does-not-ship/later-Wave-3 contradictions were removed and diff-check passed.",
+      "resolvedAt": "2026-07-23T13:03:46.267Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
