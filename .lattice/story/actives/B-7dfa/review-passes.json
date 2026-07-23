@@ -95,6 +95,38 @@
         "scanEscalationReason": null
       },
       "_hash": "1dbfd737471588b1d5b26572f70d7b120eaa7191c08f5142be1be06584f177db"
+    },
+    {
+      "id": "B-7dfa:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "R2 re-verify of F-001 fix (commit bdfa261b): delta is confined to §5.3 (lines 1308-1369) plus process bookkeeping — confirmed via git show bdfa261b and section-heading map. §5.3 now binds the dirty filter to isMaterialExcludedPath (evidence-freshness.ts:163-165, applied at :502 — line numbers verified against source) instead of the false resolveMaterialCodePolicy-derivation claim. Repo-wide grep for isMaterialPath returns zero live references (only the historical F-001 finding text in findings.json, which is an audit record, not a residue). resolveMaterialCodePolicy consumer list in the new text (review floor / scope-diff / concept validation) verified against actual importers (review-assurance-floor.ts, scope-diff-pack.ts, validate-concept.ts, plus material-code-policy.ts itself and the smoke test) — accurate. New text is consistent with §2.1.2 (verbatim reuse of currentMaterialHash) and does not reintroduce any contradiction. R1 pass (RP-003) conclusions hold; no concept deletion/replacement introduced this round beyond the already-verified isMaterialPath→isMaterialExcludedPath correction, which has zero residue. No blocker.",
+      "createdAt": "2026-07-23T21:48:11.722Z",
+      "reviewRound": "2026-07-23T21:45:49.984Z",
+      "reviewRunId": "B-7dfa:RR-005",
+      "envelopeId": "9f4d8c67876ef675db196d41efe5d8b4d1ed82aa4da8e16d5c0af7748e27a021",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/findings.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a3a7e882af8bf0fcf8b0b7e735b18d974d126366c83d2729f37255b91a7f9b2e"
     }
   ]
 }
