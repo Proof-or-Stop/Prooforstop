@@ -14,6 +14,26 @@
       "_hash": "5b0cb2f149d50bc115a710f9aae30048a94ef1abc1751d60ee4fc42eab8c920a",
       "signatureTag": "missing|unknown|quality-proof-self",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4043:F-002",
+      "desc": "23-case executable proof is exact by ID/kind/sourceRef but several cases do not semantically exercise the intents they claim: A-POS-1 labels generic producer/read/lifecycle parity as CHK-001 role-guidance; A-POS-2 labels plannedActual completeness as CHK-002 real-cohort receipt; A-POS-3 labels capture-loader loading as CHK-003 bounded thresholds; A-POS-4 labels rollout mode/rollback as CHK-005 canonical docs. Likewise A-MUT-2 does not exercise docs-only/legacy/single-outcome false-block controls and A-MUT-6 does not exercise prompt-command removal/degraded-3x1/prompt-authority. The separate verificationEvidence may cover these behaviors, but the topology live-proof catalog currently attributes unrelated executed records to those intent refs, so pre_review_check PASS does not prove the declared positive/mutation semantics. Replace/rebind these catalog cases to execute the corresponding canonical checks (or split topology assertions so each case has truthful semantics), then recapture the canonical live proof and require a mutation that swaps an intent to a semantically unrelated case to fail.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-23T18:07:16.385Z",
+      "reviewRound": "2026-07-23T18:04:58.804Z",
+      "reviewRunId": "B-4043:RR-004",
+      "_hash": "ce9c0743f465f8646369b552c10e369e8ae5f63ac94eab022c293b3b1ff95e2d",
+      "files": [
+        ".lattice/story/actives/B-4043/proofstory.json",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "scripts/run-proofstory-pre-review-live-proof.mjs"
+      ],
+      "signatureTag": "missing|json|case-executable-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }
