@@ -222,7 +222,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:820-827 and 854-857 require existing source refs to resolve now and occur in the current basis, reserving future paths for verificationIntent-owned planned refs. Production reconciliation at packages/main/src/core/acceptance-coverage-basis.ts:520-524 instead accepts any syntactically valid `basis-path:path:...->...` in an existing source-ref position as a PLAN next-phase forward declaration, while only pre_review rejects a nonexistent path. Document this bounded phase-aware basis-path exception, its allowed positions, and mandatory pre_review resolution (or remove the exception); the current decision contract contradicts the gate.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-07-23T02:20:30.498Z",
@@ -235,7 +235,11 @@
         "packages/main/src/core/acceptance-topology.ts"
       ],
       "signatureTag": "missing|md|code-drift-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed decision docs: strict basis-path forward declarations are documented as a bounded PLAN-only exception in command/producer/consumer positions with PRE_REVIEW exact reconciliation and no Wave3A/4 expansion.",
+      "resolvedAt": "2026-07-23T02:59:53.272Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4ec1:F-012",
