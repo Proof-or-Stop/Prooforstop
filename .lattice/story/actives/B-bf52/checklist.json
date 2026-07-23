@@ -50,8 +50,8 @@
       "id": "CHK-002",
       "title": "Narrow the path normalizer to machine-specific absolute roots only",
       "context": "packages/main/src/core/convergence-breaker.ts:475 rewrites any slash-bearing token, collapsing DEV/REVIEW with DEV/TEST and src/core/alpha.ts with src/core/beta.ts. Restrict it to absolute paths anchored at machine-specific roots so relative repo paths and slash-bearing identifiers stay distinct while host-varying paths still collapse.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-07-23T23:11:11.201Z",
       "endTime": null,
       "userSees": "The convergence-breaker smoke prints passing checks stating that DEV/REVIEW and DEV/TEST digest differently, that two files under a shared first path segment digest differently, and that the same lock path under /Users and under /private/var still digests identically.",
       "files": {
