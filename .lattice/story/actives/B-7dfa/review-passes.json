@@ -127,6 +127,31 @@
         "scanEscalationReason": null
       },
       "_hash": "a3a7e882af8bf0fcf8b0b7e735b18d974d126366c83d2729f37255b91a7f9b2e"
+    },
+    {
+      "id": "B-7dfa:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 fix-verification desk-check, scoped to the F-001 delta only (git show bdfa261b: docs/requirements/decisions/red-evidence-subsystem-spec.md §5.3 Shared classifier + Algorithm step 3, 1598->1607 lines). Verified the new binding is TRUE against current source: isMaterialExcludedPath defined at evidence-freshness.ts:163-165 (isStoryMetadataPath || isMaterialExcludedRuntimeArtifactPath) and applied inside currentMaterialHash at evidence-freshness.ts:502 (if (isMaterialExcludedPath(filePath, metadataRoot)) continue;) -- both citations exact-match, confirming F-001s premise (currentMaterialHash never imports/derives from resolveMaterialCodePolicy) is now correctly stated. Desk-walked SS5.3 step 3 with the new predicate: dirty := any porcelain-v1 -z entry (parsed per SS2.1 item 4s NUL-delimited/R-C-two-path-field rule, unchanged by this diff) names a path with isMaterialExcludedPath(path, metadataRoot)==false -- computable end-to-end: the function name is exact and citation-verified, the porcelain parse it consumes is defined earlier and untouched, and metadataRoot is the same parameter name/convention already established at SS2.1 item 2 (currentMaterialHash(gitCwd, ref=HEAD, metadataRoot=gitCwd)) and reused verbatim elsewhere (line 1109) -- no new undefined variable introduced. Confirmed the self-contradiction the finding raised against SS2.1.2 (\"W2 does not redefine the material hash; it reuses this function verbatim\") is resolved: the rewritten text now states reuse verbatim explicitly and defers any future isMaterialExcludedPath/resolveMaterialCodePolicy unification to a separate reviewed change, removing the prior mandate that would have silently changed a shared primitives global behavior. Checked SS5.4 (edge-state answer table) and SS5.6 (total query algorithm, step 6 \"Run FRESH (SS5.3) on verdictRecords binding\") -- both consume only the abstract freshness/liveMatch/reason output of FRESH(), never referencing isMaterialPath/isMaterialExcludedPath by name, so their consumption of the freshness result is unaffected by the rename. Repo-wide grep confirms zero remaining isMaterialPath references in the spec (clean rename, no orphaned mentions) and zero other sections referencing the shared classifier by name. No blocker.",
+      "createdAt": "2026-07-23T21:48:41.636Z",
+      "reviewRound": "2026-07-23T21:45:49.984Z",
+      "reviewRunId": "B-7dfa:RR-008",
+      "envelopeId": "4bd341216cd0765d2fc677dda468f7ffb2cb987f971abb8efcebdc6fbb3d267e",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-7dfa/background.md",
+          ".lattice/story/actives/B-7dfa/checklist.json",
+          ".lattice/story/actives/B-7dfa/findings.json",
+          ".lattice/story/actives/B-7dfa/plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "22d3feff2fb01ffc6dc2bfe2422d066a080dd46a5f6671f0b056ea3e13975de8"
     }
   ]
 }
