@@ -150,10 +150,12 @@
       "q": "Will CHK-003 verificationIntent require overall false-pass rate 0 across every registered seeded defect and an incomplete-campaign/undetected-non-omission mutation, in addition to omission detection 100%?",
       "evidence": "plan.md CHK-003 now states the correct threshold, but CHK-003 happy/adversarial still enumerate omission detection, false blocks, N=2, 3x1, waivers and inventory without overall false-pass=0 or incomplete registered campaign coverage.",
       "sourcePointers": [
-        ".lattice/story/actives/B-4043/plan.md#CHK-003",
-        ".lattice/story/actives/B-4043/checklist.json#CHK-003:happy:bounded-thresholds",
-        ".lattice/story/actives/B-4043/checklist.json#CHK-003:adversarial:threshold-bypass"
-      ]
+        "CHK-003:happy:bounded-thresholds",
+        "CHK-003:adversarial:threshold-bypass",
+        "commit:39db2b842f"
+      ],
+      "resolution": "The dedicated verification-intent writer updated CHK-003 happy/adversarial to require overall false-pass rate zero across every registered seeded defect class plus 100 percent supported omission detection; incomplete campaigns and missed non-omission defects fail closed.",
+      "resolvedAt": "2026-07-23T16:50:35.733Z"
     }
   ]
 }
