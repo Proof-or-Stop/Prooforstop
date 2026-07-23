@@ -565,6 +565,55 @@
         "scanEscalationReason": null
       },
       "_hash": "b8fcce0f2255d263a0592e076d1f1d360d8418c15a0089591deaab70ace40655"
+    },
+    {
+      "id": "B-4ec1:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Round 9 concept review found no blocker. 88dbd1801d exports one ordered 26-key runtime transport inventory (26 unique), whose independently recomputed JSON digest exactly matches sha256:159db7bb6593c703d112dab8973b5d650c9b43b0c02246cf18a553f7b1aa3c0c. The process-fact verifier keeps an independent exact ordered oracle and recomputes the digest, so production/test inventory shrinkage cannot self-authorize. Table tests cover every ambient key on POSIX and case-insensitive Windows, preserve noncanonical POSIX casing and explicit overlay semantics, and CI/NODE_OPTIONS mutations still invalidate both receipts. F027/F028 are strongly resolved, old 25-key/omitted-role contract residue is absent, and current pre-review remains complete/current/biting/related/admissible PASS.",
+      "createdAt": "2026-07-23T14:40:42.705Z",
+      "reviewRound": "2026-07-23T14:38:33.494Z",
+      "reviewRunId": "B-4ec1:RR-035",
+      "envelopeId": "144f33f9128033ce46e1837825582513a1882ea3efc93e5fb3418463b6dc5d20",
+      "writerSessionId": "sess-6fc343ccc81d24fd320d41f1aaf797c9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "024032034931edc02787c6dfe8543322a0e08545472716758f179f77e8199dc5"
     }
   ]
 }
