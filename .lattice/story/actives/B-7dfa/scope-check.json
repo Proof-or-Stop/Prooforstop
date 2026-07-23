@@ -1,6 +1,6 @@
 {
   "storyId": "B-7dfa",
-  "checkedAt": "2026-07-23T19:52:51.142Z",
+  "checkedAt": "2026-07-23T19:54:33.598Z",
   "features": [
     {
       "feature": "Policy-owned assertion envelope: bounded matcher set with validation rule",
@@ -109,15 +109,15 @@
     },
     {
       "feature": "Gate-consumption query contract defining the W2/W3 boundary (exact read-only query ProofStory gates ask the subsystem + answer shape)",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-005",
+      "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
       "feature": "Legacy-record posture for existing red-evidence.json records (grandfather/migrate/invalidate + compatibility rule)",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-006",
+      "status": "covered",
       "excluded_by": null,
       "source": "description"
     }
@@ -254,13 +254,13 @@
   },
   "summary": {
     "total": 17,
-    "covered": 12,
+    "covered": 14,
     "excluded": 3,
-    "gaps": 2,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "e4db295c13f33ac68bafb333d7fce30bd40a08be2e29938c50667ebcc664fbda",
+  "_hash": "38ac208e4cfb9f3e20f5083ef07c4fe6c53bb90be949ec4687cccaeb08a7ff2c",
   "openQuestions": []
 }
