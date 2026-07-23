@@ -751,6 +751,8 @@ assert.equal(
     assert.equal(report.write.persisted, true);
     assert.equal(report.write.artifactPath, artifactPath(store), 'reports the persisted artifact path');
     assert.equal(report.transcript.status, 'present-fresh', 'after a fresh --write the artifact is present(fresh)');
+    assert.equal(report.readinessRow?.status, 'pass', 'response readiness is rebuilt after persistence instead of retaining the pre-write missing/timeout state');
+    assert.equal(report.readinessRow?.code, 'live_smoke_transcript', 'response consumes the canonical post-write DONE readiness row');
 
     assert.equal(existsSync(artifactPath(store)), true, '--write created the transcript artifact');
     assertOnlyTranscriptArtifactInEvidenceDir(store);
