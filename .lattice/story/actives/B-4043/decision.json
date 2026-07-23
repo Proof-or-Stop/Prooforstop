@@ -1,0 +1,87 @@
+{
+  "principles": [
+    "Verifier-owned evidence, not prompts or callers, decides rollout eligibility.",
+    "Rollout changes blocking only after measured proof; diagnostic semantics remain invariant.",
+    "Rollback is non-destructive and preserves signed history.",
+    "Full 3x2 identity and adapter completeness fail closed."
+  ],
+  "drivers": [
+    "Prevent another late REVIEW omission class without weakening independent review.",
+    "Make warn-to-enforce auditable and reproducible.",
+    "Keep adoption bounded to the existing flat project policy.",
+    "Expose user-visible metrics and stable failure reasons."
+  ],
+  "options": [
+    {
+      "name": "A: Signed rollout report plus explicit flat opt-in",
+      "pros": [
+        "Mechanical current receipt consumption",
+        "Deterministic thresholds and rollback",
+        "No hidden mode flip",
+        "Fits Waves 1-3 architecture"
+      ],
+      "cons": [
+        "Requires real cohort execution",
+        "Adds artifact and registry surface"
+      ]
+    },
+    {
+      "name": "B: Automatically promote after telemetry accumulation",
+      "pros": [
+        "Less operator work",
+        "Continuous rollout"
+      ],
+      "cons": [
+        "Silently changes in-flight behavior",
+        "Harder rollback and audit",
+        "Violates explicit opt-in boundary"
+      ]
+    },
+    {
+      "name": "C: Prompt-only guidance and dashboard",
+      "pros": [
+        "Small implementation"
+      ],
+      "cons": [
+        "Cannot block forged/stale evidence",
+        "No process-fact dual contract",
+        "Does not complete Wave 4"
+      ]
+    }
+  ],
+  "chosen": "A: Signed rollout report plus explicit flat opt-in",
+  "rationale": "Choose an explicit verifier-owned report whose exact signed receipt is consumed by the flat project enforcement gate. It proves measured thresholds without auto-flipping configuration, preserves identical diagnostics across observe/warn/enforce, and supports rollback by changing blocking policy only while retaining all evidence.",
+  "preMortem": [
+    {
+      "scenario": "Caller fabricates a passing cohort or edits aggregate metrics",
+      "trigger": "Report accepts caller verdicts or unbound aggregates",
+      "consequence": "False enforce eligibility",
+      "mitigation": "Derive metrics from registered cohort case records, sign/hash the report and reproduce the projection; reject caller status and mismatched aggregates."
+    },
+    {
+      "scenario": "Degraded 3x1 is counted as authority",
+      "trigger": "Host labels are not bound to signed quorum evidence",
+      "consequence": "Fake independence authorizes enforcement",
+      "mitigation": "Require current full-3x2 receipt with three rounds and two supported providers; stable code for degraded/missing host."
+    },
+    {
+      "scenario": "Fewer review rounds are bought with waivers or weaker checks",
+      "trigger": "Only median rounds are thresholded",
+      "consequence": "Metrics improve while quality regresses",
+      "mitigation": "Require zero positive waiver delta, unchanged check inventory and 100 percent supported seeded omission detection."
+    },
+    {
+      "scenario": "Rollback destroys evidence or changes diagnostic truth",
+      "trigger": "Rollback rewrites/deletes rollout artifacts",
+      "consequence": "Audit history is lost and status becomes mode-dependent",
+      "mitigation": "Rollback changes only config blocking mode; report remains immutable/readable and diagnostics are mode invariant."
+    },
+    {
+      "scenario": "Unsupported adapters are called complete",
+      "trigger": "Missing sufficiency policy defaults optimistically",
+      "consequence": "Omitted paths pass enforcement",
+      "mitigation": "Only registered supported adapter profiles can qualify; disagreement/blind spots yield partial or unsupported and fail promotion."
+    }
+  ],
+  "timestamp": "2026-07-23T16:35:26.393Z"
+}
