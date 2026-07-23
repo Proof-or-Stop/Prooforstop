@@ -1,0 +1,21 @@
+{
+  "storyId": "B-4043",
+  "expected": "User sees `Role guidance contract: PASS` and both `codex` and `claude` rows name the canonical topology, pre-review, rollout-report, full-3x2, and rollback boundaries.",
+  "actual": {
+    "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "node:internal/modules/run_main:122\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: {\n  \"artifact\": {\n    \"schemaVersion\": \"proofstory.acceptance_basis_artifact.v1\",\n    \"basis\": {\n      \"schemaVersion\": \"proofstory.acceptance_coverage_basis.v1\",\n      \"storyId\": \"B-pre-review-smoke\",\n      \"phaseBasis\": \"plan\",\n      \"status\": \"partial\",\n      \"generatedBy\": {\n        \"verifier\": \"acceptance-coverage-basis-verifier\",\n        \"command\": \"lattice acceptance_basis_generate\",\n        \"algorithmVersion\": \"v1\"\n      },\n      \"discoveryProfileRef\": \"profile:typescript-proof-gate:plan:v1\",\n      \"discoveryProfileDigest\": \"sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d\",\n      \"discoveryMethods\": [\n        \"scope_contract\",\n        \"process_fact_registry\",\n        \"handler_dispatch_inventory\",\n        \"static_call_graph\",\n        \"runtime_trace\"\n      ],\n      \"adapterResults\": [\n        {\n          \"schemaVersion\": \"proofstory.coverage_adapter_result.v1\",\n          \"adapterId\": \"handler-dispatch-inventory:plan:v1\",\n          \"method\": \"handler_dispatch_inventory\",\n          \"pathRefs\": [\n            \"path:process-fact:acceptance_basis->consumer:<audit-only>\",\n            \"path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate\",\n            \"path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate\"\n          ],\n          \"coverageClaim\": \"complete_for_scope\",\n          \"blindSpots\": [],\n          \"provenanceRefs\": [\n            \"source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745\",\n            \"source-file:packages/main/src/cli/command-catalog.ts:sha256:7249818cfd578315efece704942bf35a7eb7b287731763e1e8826eb76030207d\",\n            \"source-file:packages/main/src/handlers/proofstory.ts:sha256:7c4f96cd94f8c3c52879512dc3210db11a62412f02365742f236430ab4bf7\n...[truncated 15297 chars]"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-23T17:27:09.743Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "9f836bc8e249445408b06ffae4b57caa920ed760",
+  "materialHash": "8e40494040cb3ae9fae98df4e463544eca7ebbfb764e353715ab15c4ef7b6293"
+}
