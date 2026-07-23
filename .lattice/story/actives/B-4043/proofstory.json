@@ -567,6 +567,34 @@
           {
             "refKind": "existing",
             "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/transition-orchestrator.ts#runAcceptanceRolloutGate->consumer:packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts#runAcceptanceRolloutGate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-check.ts#issuePreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#issuePreReviewCheckArtifact"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-check.ts#loadVerifiedPreReviewExecutableProof->consumer:packages/main/src/handlers/proofstory.ts#loadVerifiedPreReviewExecutableProof"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-check.ts#verifyPreReviewCheckArtifact->consumer:packages/main/src/handlers/proofstory.ts#verifyPreReviewCheckArtifact"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#canonicalPreReviewAssertionSourceRef->consumer:packages/main/src/core/pre-review-check.ts#canonicalPreReviewAssertionSourceRef"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#decodePreReviewCaseRecords->consumer:packages/main/src/core/pre-review-check.ts#decodePreReviewCaseRecords"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
           }
         ]
       }
@@ -575,5 +603,5 @@
   "diagnosticGaps": [],
   "note": "Canonical Story 6 Wave 4 flat measured-rollout acceptance binding. The verification-intent planned declaration owns the new report producer and both CLI/lifecycle consumers; Wave 3A selective applicability is excluded.",
   "createdAt": "2026-07-23T16:46:17.327Z",
-  "updatedAt": "2026-07-23T17:38:29.557Z"
+  "updatedAt": "2026-07-23T17:46:19.995Z"
 }
