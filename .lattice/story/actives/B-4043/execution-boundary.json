@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4043",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git status*",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "Claude CLI",
+    "Codex CLI",
+    "Lattice CLI",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".claude",
+    ".lattice-codex",
+    "AGENTS.md",
+    "docs/CLI.md",
+    "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean*",
+    "git push*",
+    "git reset --hard*",
+    "omx*"
+  ],
+  "excludedTools": [
+    "OMX",
+    "remote publishing"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Only command-generated Story metadata may be changed through Lattice. Long validation/quorum commands are single-instance. No remote push.",
+  "createdAt": "2026-07-23T16:32:25.935Z",
+  "updatedAt": "2026-07-23T16:32:25.935Z",
+  "_hash": "56ef1aba39d9a7c7aa27cb92c3622bda915a91f34b1c883506b6efff48d7f290"
+}
