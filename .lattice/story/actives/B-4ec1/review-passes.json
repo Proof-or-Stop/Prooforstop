@@ -863,6 +863,45 @@
         "scanEscalationReason": null
       },
       "_hash": "8abb2cd0f3cfadaff18a98d133429b8a6e0bb38295927a2d758d91323acd81c8"
+    },
+    {
+      "id": "B-4ec1:RP-022",
+      "agent": "lattice-review-docs",
+      "note": "Fresh docs review after b8f78335f0: exact Step 1 extraction yielded 497 unique changed declarations across the full story diff; three relevant Wave/status documentation sections were compared. The F-030 fix is test-fixture-only: it clears ambient host/session variables, installs explicit provider identity inside fixture boundaries, and preserves production APIs, command schemas, and user-visible semantics, so no product-doc update is required. The previously out-of-scope quorum-submit-smoke.ts path is explicitly covered by scope-ack:9 with DEV-phase reason and b8f78335f081 binding. Wave documentation remains semantically unchanged: Waves 1/1A/2/2A/3 implemented, 3A skipped for flat rollout, Wave 4 not implemented. No promised-but-undelivered blocker found.",
+      "createdAt": "2026-07-23T15:52:33.601Z",
+      "reviewRound": "2026-07-23T15:50:51.194Z",
+      "reviewRunId": "B-4ec1:RR-042",
+      "envelopeId": "471d309fdeee0c0eed950d6f2036c7433294818f775be5977ded61d25cf46d86",
+      "writerSessionId": "sess-4d1c4e3f8b3564df9bcae6e0b05c4890",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "0e480ba8f50a7c159a6d8b5026ca70b9b1aa12a04a7f4716e3dba1a53e0186f9"
     }
   ]
 }
