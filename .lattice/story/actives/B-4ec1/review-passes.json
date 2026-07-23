@@ -148,6 +148,42 @@
         "scanEscalationReason": null
       },
       "_hash": "48cfdb795d02d333646fecfc6ae4633fd3b1755c2e3e8d3fed73f5ffe8bde234"
+    },
+    {
+      "id": "B-4ec1:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed on current REVIEW round: 21/21 must intents have unique passing evidence and no waivers; canonical pre_review_check is PASS with plannedActual complete, 4 positive + 17 mutation + 1 transcript records, current runner/target provenance, biting controls, related transcript and admissible authority. A-MUT-7 maps topology omission to VI-W3-M2-TOPOLOGY-ONLY-OMISSION and A-MUT-15 maps critic re-attestation to VI-W3-M4-CRITIC-REATTESTATION. Focused production smoke passed missing/extra/duplicate/source-swap/permutation and stale runner/target provenance negatives.",
+      "createdAt": "2026-07-23T04:36:38.200Z",
+      "reviewRound": "2026-07-23T04:33:12.403Z",
+      "reviewRunId": "B-4ec1:RR-019",
+      "envelopeId": "66b426ea73ec6355c53b23f7c750e745829bd487ea434253561a3b52573b24e8",
+      "writerSessionId": "sess-6c22471feaa88441d8066e7952bb1f09",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          ".lattice/story/actives/B-4ec1/proofstory.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/pre-review-live-proof.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-pre-review-live-proof.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "82738c5c72bcb66af19686c31ebfce79463b9f49185b3a02b05b36ae9f15bf2d"
     }
   ]
 }
