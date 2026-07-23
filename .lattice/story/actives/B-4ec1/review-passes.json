@@ -532,6 +532,39 @@
       },
       "readDiagnostics": [],
       "_hash": "853be1f87fe9044808db5c43c0bf16622653841fad6777124febbe6ca9074b64"
+    },
+    {
+      "id": "B-4ec1:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 8 coverage PASS: 21/21 must intents have distinct current evidence at material 2e2a6815/storyFiles 8a0fea4c; must gaps=0, waivers=0. Current pre_review_check_read is ok=true with codes=[], complete pre-review basis, plannedActual=complete, executableEvidence=current, mutations=biting, transcript=related, authority=admissible. Commit b11ef96 makes only ambient owner/session/host role keys transport-neutral while retaining PATH/NODE_OPTIONS/CI/locale and explicit command.env overlays as semantic. The focused regression builds two receipts: owner and delivery identities agree, then CI true-to-false is rejected with effective-environment-digest-mismatch[0] and [1], proving both receipts bite. Fresh focused done-required-validation smoke and process-fact contract both passed.",
+      "createdAt": "2026-07-23T14:30:33.773Z",
+      "reviewRound": "2026-07-23T14:27:52.079Z",
+      "reviewRunId": "B-4ec1:RR-031",
+      "envelopeId": "f54770dfa06731c17404db1522aedea0161d1c963eddedfc697c63132cfec0c9",
+      "writerSessionId": "sess-ce45edc08011c552d33b7221e72a5e30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "AGENTS.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b8fcce0f2255d263a0592e076d1f1d360d8418c15a0089591deaab70ace40655"
     }
   ]
 }
