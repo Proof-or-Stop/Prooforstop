@@ -138,10 +138,12 @@
       "q": "What verifier-owned, predeclared eligibility and selection rule freezes baseline/candidate cohort membership so an operator cannot cherry-pick favorable real Stories, and does the minimum N=3 mean three matched pairs or at least three Stories in each arm?",
       "evidence": "CHK-002 says registered real case records and rejects caller verdict/aggregates, but does not make cohort membership/selection non-caller-writable; CHK-003 says only 'at least 3 comparable samples'.",
       "sourcePointers": [
-        ".lattice/story/actives/B-4043/checklist.json#CHK-002",
-        ".lattice/story/actives/B-4043/checklist.json#CHK-003",
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#17-success-metrics"
-      ]
+        "plan.md#CHK-002",
+        "plan.md#CHK-003",
+        "CHK-002:files:create:0"
+      ],
+      "resolution": "The verifier freezes membership as every eligible comparable high-assurance Story/case in the declared evaluation window; caller selection and omissions are rejected. Minimum N means at least three matched baseline/candidate pairs, therefore at least three samples in each arm. This is now explicit in plan.md CHK-002/CHK-003 and bound into the signed report.",
+      "resolvedAt": "2026-07-23T16:45:11.665Z"
     },
     {
       "id": "OQ-B4043-PROMPT-SURFACES",
