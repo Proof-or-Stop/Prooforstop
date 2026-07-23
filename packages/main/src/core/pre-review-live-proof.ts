@@ -109,7 +109,12 @@ export function encodePreReviewCaseRecords(caseRecords: readonly PreReviewCaseRe
 }
 
 export function decodePreReviewCaseRecords(value: string): PreReviewCaseRecordV1[] {
-  return JSON.parse(gunzipSync(Buffer.from(value, 'base64')).toString('utf8')) as PreReviewCaseRecordV1[];
+  const records = JSON.parse(gunzipSync(Buffer.from(value, 'base64')).toString('utf8')) as PreReviewCaseRecordV1[];
+  const semanticMismatch = records.find(record => !preReviewCaseSemanticMatches(record));
+  if (semanticMismatch) {
+    throw new Error(`pre-review decoded record semantic contract mismatch for ${semanticMismatch[0]}`);
+  }
+  return records;
 }
 
 export function buildPreReviewProofFromExecutedCases(input: {

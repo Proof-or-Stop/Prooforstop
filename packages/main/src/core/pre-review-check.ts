@@ -24,7 +24,6 @@ import { evaluateLiveSmokeTranscriptValue } from './live-smoke-transcript-eviden
 import {
   canonicalPreReviewAssertionSourceRef,
   decodePreReviewCaseRecords,
-  preReviewCaseSemanticMatches,
   preReviewExecutableProvenanceIsCurrent,
 } from './pre-review-live-proof.js';
 
@@ -191,8 +190,7 @@ export function loadVerifiedPreReviewExecutableProof(input: {
   const exactKindsAndSources = records.every(record => {
     const expected = assertionsById.get(record[0]);
     return expected?.[0] === record[1]
-      && canonicalPreReviewAssertionSourceRef(expected[1]) === record[9]
-      && preReviewCaseSemanticMatches(record);
+      && canonicalPreReviewAssertionSourceRef(expected[1]) === record[9];
   });
   const distinctMutationTargets = new Set(mutations.map(record => `${record[2]}\0${record[3]}`)).size === mutations.length;
   const outcomesBite = records.every(record => record[5] === record[6] && record[7] === true);

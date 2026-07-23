@@ -17,6 +17,8 @@ import {
   assemblePreReviewCaseRecords,
   buildPreReviewProofFromExecutedCases,
   canonicalPreReviewAssertionSourceRef,
+  decodePreReviewCaseRecords,
+  encodePreReviewCaseRecords,
   preReviewCaseAggregateDigest,
 } from '../core/pre-review-live-proof.js';
 import {
@@ -400,6 +402,10 @@ const semanticRecordTwo = semanticRecords.find(row => row[0] === 'A-POS-2')!;
 Object.assign(semanticRecordOne, ['A-POS-1', 'positive', 'role-guidance:codex-claude-mirrors', 'prompt-contract', semanticRecordOne[4], semanticRecordOne[5], semanticRecordOne[6], semanticRecordOne[7], semanticRecordOne[8], 'intent:CHK-001:happy:role-guidance']);
 Object.assign(semanticRecordTwo, ['A-POS-2', 'positive', 'rollout:verified-cohort-receipt', 'rollout-receipt-verification', semanticRecordTwo[4], semanticRecordTwo[5], semanticRecordTwo[6], semanticRecordTwo[7], semanticRecordTwo[8], 'intent:CHK-002:happy:real-cohort-receipt']);
 assert.doesNotThrow(() => assemblePreReviewCaseRecords(semanticContract, semanticRecords), 'registered semantic control is accepted');
+assert.doesNotThrow(
+  () => decodePreReviewCaseRecords(encodePreReviewCaseRecords(semanticRecords)),
+  'registered semantic control survives the canonical encoded proof boundary',
+);
 const unrelatedSemanticSwap = structuredClone(semanticRecords);
 const unrelatedTarget = unrelatedSemanticSwap.find(row => row[0] === 'A-POS-1')!;
 unrelatedTarget[2] = semanticRecordTwo[2];
@@ -408,6 +414,11 @@ assert.throws(
   () => assemblePreReviewCaseRecords(semanticContract, unrelatedSemanticSwap),
   /semantic contract mismatch for A-POS-1/,
   'retaining assertion ID/sourceRef while swapping to an unrelated executable semantic case fails closed',
+);
+assert.throws(
+  () => decodePreReviewCaseRecords(encodePreReviewCaseRecords(unrelatedSemanticSwap)),
+  /decoded record semantic contract mismatch for A-POS-1/,
+  'encoded proof decoding rejects the same semantic swap before the pre-review verifier consumes it',
 );
 assert.throws(() => assemblePreReviewCaseRecords(expandedContract, [...expandedRecords, structuredClone(expandedRecords[0])]), /duplicate assertion IDs/, 'duplicate executed records fail closed');
 const extraRecord = structuredClone(expandedRecords[0]); extraRecord[0] = 'A-EXTRA';
