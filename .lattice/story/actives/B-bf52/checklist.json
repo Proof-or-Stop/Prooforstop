@@ -293,6 +293,18 @@
           "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec",
           "storyFilesHash": "592e178e8e4d1b71d87a13328d6a1204e6f9c31e61cf1cc35af861e056a76153",
           "timestamp": "2026-07-23T23:20:36.793Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "Revert-proof executed during DEV: restoring the unconditional digit-run rewrite alone fails exactly 'digit-rule -> checklist-ordinal, review-round-ordinal, story-id' (3 of 12) while the free-standing-counter collapse case keeps passing.",
+          "headHash": "55fd02214d8e16442c3b171550f117909287f34e",
+          "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec",
+          "storyFilesHash": "592e178e8e4d1b71d87a13328d6a1204e6f9c31e61cf1cc35af861e056a76153",
+          "timestamp": "2026-07-23T23:20:37.795Z"
         }
       ]
     },
