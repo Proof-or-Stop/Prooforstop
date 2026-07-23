@@ -1,111 +1,118 @@
 {
   "storyId": "B-4043",
-  "checkedAt": "2026-07-23T16:51:33.096Z",
+  "checkedAt": "2026-07-23T16:56:09.170Z",
   "features": [
     {
-      "feature": "Every in-scope Codex/Claude implementer, verification-intent compatibility, topology-critic, concept, quality, coverage, docs and delivery prompt carries lane-appropriate canonical rollout guidance and cannot become authority",
+      "feature": "All in-scope Codex/Claude role prompts carry lane-appropriate canonical rollout guidance without becoming gate authority",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/plan.md#CHK-001; .lattice/story/actives/B-4043/checklist.json CHK-001 files/verificationIntent"
+      "source": "plan.md CHK-001; checklist CHK-001"
     },
     {
-      "feature": "Verifier-owned versioned rollout report derives aggregates and rejects caller membership, verdict and aggregate fields",
+      "feature": "Verifier-owned rollout report rejects caller membership, verdict and aggregate fields",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 happy"
+      "source": "checklist CHK-002 happy"
     },
     {
-      "feature": "Real reproducible cohort freezes verifier-derived eligibility rule, evaluation window and complete eligible membership with at least three matched pairs and at least three cases per arm",
+      "feature": "Real cohort freezes eligibility, window and full membership with at least three matched pairs and three cases per arm",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 happy"
+      "source": "checklist CHK-002 happy/adversarial"
     },
     {
-      "feature": "Cohort mutations reject omitted eligible rows, added ineligible rows, window/membership/order/digest drift and insufficient paired/arm cardinality",
+      "feature": "Cohort mutations reject eligible omission, ineligible addition, window/membership/order/digest drift and insufficient cardinality",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 adversarial"
+      "source": "checklist CHK-002 adversarial"
     },
     {
-      "feature": "Report receipt binds eligibility, full frozen membership, source rows, version, workspace hashes, cost, rounds, waivers, adapters and full-3x2 provenance",
+      "feature": "Report receipt binds membership, records, hashes, cost, rounds, waivers, adapters and full-3x2 provenance",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-002 happy and W4-ROLLOUT-REPORT-GATE-PATH"
+      "source": "checklist CHK-002 happy"
     },
     {
-      "feature": "Docs-only, legacy and ordinary single-outcome controls measure zero supported false blocks without fabricated runtime proof",
+      "feature": "Every created runner/evaluator/smoke producer-consumer path is artifact-kind-correct and mapped into the canonical verification topology",
+      "covered_by": "CHK-002",
+      "status": "gap",
+      "excluded_by": null,
+      "source": "checklist CHK-002 plannedPathDeclarations; acceptance_basis/acceptance_topology_check current diagnostics"
+    },
+    {
+      "feature": "Docs-only, legacy and single-outcome controls prove zero supported false blocks",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-002 edge"
+      "source": "checklist CHK-002 edge"
     },
     {
-      "feature": "Every registered seeded defect class must have overall false-pass rate 0, supported omission detection 100%, and incomplete campaigns or non-omission misses fail closed",
+      "feature": "Every registered seeded defect class has overall false-pass rate 0, omission detection 100%, and incomplete/non-omission misses fail closed",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-003 happy/adversarial"
+      "source": "checklist CHK-003 happy/adversarial"
     },
     {
-      "feature": "Flat thresholds additionally require zero false blocks and mislabeled 3x1, nonpositive waiver delta, nonshrinking checks, supported adapters and at least three matched samples in each arm",
+      "feature": "Flat thresholds also require zero false blocks and mislabeled 3x1, nonpositive waiver delta, nonshrinking checks and supported adapters",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-003"
+      "source": "checklist CHK-003"
     },
     {
-      "feature": "Unknown, partial, unsupported, incomplete-campaign, membership-drift or disagreeing adapters/campaigns fail promotion deterministically",
+      "feature": "Unknown, partial, unsupported, incomplete or disagreeing campaigns fail promotion deterministically",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/plan.md#CHK-003; CHK-003 edge/adversarial"
+      "source": "plan.md CHK-003; checklist CHK-003"
     },
     {
-      "feature": "Opt-in enforce mechanically consumes the exact current signed PASS report receipt at CLI and lifecycle consumers",
+      "feature": "Opt-in enforce consumes the exact current signed PASS report at CLI and lifecycle consumers",
       "covered_by": "CHK-002,CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "CHK-002 W4-ROLLOUT-REPORT-GATE-PATH; .lattice/story/actives/B-4043/checklist.json CHK-004"
+      "source": "W4-ROLLOUT-REPORT-GATE-PATH; checklist CHK-004"
     },
     {
-      "feature": "Enforcement requires genuine current three rounds across two independent supported hosts and degraded 3x1 is never authority",
+      "feature": "Enforcement requires genuine current full three rounds by two independent supported hosts; degraded 3x1 is non-authority",
       "covered_by": "CHK-002,CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/understanding.json; CHK-002/CHK-004"
+      "source": "understanding.json; checklist CHK-002/004"
     },
     {
-      "feature": "Missing, stale, tampered, failing or weakened report/quorum/threshold inputs fail closed at the real consumer with stable codes",
+      "feature": "Missing, stale, tampered, failing or weakened report/quorum/threshold input fails closed at the real consumer",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-004 adversarial"
+      "source": "checklist CHK-004 adversarial"
     },
     {
-      "feature": "Rollback changes blocking policy only and preserves reports, receipts, transitions, diagnostics and evidence history",
+      "feature": "Rollback changes blocking only and preserves all reports, receipts, transitions, diagnostics and history",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-004"
+      "source": "checklist CHK-004"
     },
     {
-      "feature": "Canonical Story 6 plan and CLI docs update only after executable cohort/enforcement/rollback proof, with exact measured results and commands",
+      "feature": "Canonical plan/CLI docs update only after real evidence with exact measured results, commands and authority boundary",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-4043/checklist.json CHK-005"
+      "source": "checklist CHK-005"
     },
     {
-      "feature": "Selective per-Story/per-policy enforcement remains excluded until Wave 3A is implemented",
+      "feature": "Selective per-Story/per-policy enforcement stays excluded until Wave 3A exists",
       "covered_by": "CHK-003,CHK-005",
       "status": "excluded",
-      "excluded_by": "Wave 3A is explicitly skipped for flat rollout and remains mandatory before selective applicability can be claimed.",
-      "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#Wave-3A; CHK-005 excludes"
+      "excluded_by": "Flat Wave 4 explicitly excludes selective applicability; Wave 3A remains mandatory for that claim.",
+      "source": "canonical execution plan Wave 3A; checklist CHK-005 excludes"
     }
   ],
   "readManifest": {
@@ -123,14 +130,26 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 15,
+    "total": 16,
     "covered": 14,
     "excluded": 1,
-    "gaps": 0,
+    "gaps": 1,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "f1f6e141aa03246d337a156ebd7fb724d9dd45be6eb0654713b57699a05f72aa",
-  "openQuestions": []
+  "_hash": "1d9753a6f66a354762af4bd746103d7445474313494d80d33ef855f3da0f6224",
+  "openQuestions": [
+    {
+      "id": "OQ-B4043-PLANNED-PATH-CLOSURE",
+      "q": "Will the owner map both new planned declarations and all four endpoints into the canonical topology, then use artifact-kind-correct executable symbols (a registered process fact only when actually registry-backed; source_file endpoints as real exported callables) before regenerating the basis?",
+      "evidence": "Current acceptance_basis reports both new planned paths and their four endpoints as AT_UNMAPPED_SCOPE_REF; acceptance_topology_check is inconclusive/structuralPass=false. The canonical plan requires process_fact endpoints to resolve through the registry and source_file endpoints to be exported callables. Current declarations name deriveAcceptanceRolloutReport as process_fact and a hyphenated proofstory-acceptance-rollout-smoke source symbol.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-4043/checklist.json#CHK-002:happy:real-cohort-receipt",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:902",
+        "acceptance_basis --storyId=B-4043 --json",
+        "acceptance_topology_check --storyId=B-4043 --json"
+      ]
+    }
+  ]
 }
