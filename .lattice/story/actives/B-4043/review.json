@@ -156,6 +156,24 @@
         }
       ],
       "_hash": "82c763a1f659aa0183a35141bdc3a0e4ea3b3c0a7667e0161a84af2887250af3"
+    },
+    {
+      "timestamp": "2026-07-23T17:24:39.283Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Integrate role guidance with canonical acceptance topology and pre-review commands + Produce verifier-owned before-and-after rollout cohorts and deterministic success metrics are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-4043\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "63abaa3ea47678e33c923e2ef9da3311c73a270ec62d868903476515b73583b4"
     }
   ]
 }
