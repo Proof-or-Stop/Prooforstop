@@ -1,6 +1,6 @@
 {
   "storyId": "B-4ec1",
-  "checkedAt": "2026-07-23T05:20:34.960Z",
+  "checkedAt": "2026-07-23T05:40:10.528Z",
   "features": [
     {
       "feature": "Canonical signed pre_review_check artifact, verifier-owned result codes, persistence, CLI producer and read-only diagnostics",
@@ -66,24 +66,24 @@
       "source": "packages/main/src/core/config.ts; packages/main/src/handlers/transition-orchestrator.ts; packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
     },
     {
-      "feature": "Process-fact registry, level/rationale, command policy, CLI docs and contract verifier agree; no writable acceptance-matrix truth source is introduced",
+      "feature": "Process-fact registry, level/rationale, command policy, CLI docs and execution-plan status agree; no writable acceptance-matrix truth source is introduced",
       "covered_by": "CHK-004 / VI-W3-M4-PROCESS-FACT-FOUR-LAYER and VI-W3-M4-STABLE-GATE-CODES",
       "status": "covered",
       "excluded_by": null,
-      "source": "packages/main/src/core/process-fact-registry.ts; packages/main/src/core/process-fact-levels.ts; packages/main/src/core/command-policy.ts; scripts/verify-process-fact-contract.mjs; docs/CLI.md"
+      "source": "packages/main/src/core/process-fact-registry.ts; packages/main/src/core/process-fact-levels.ts; packages/main/src/core/command-policy.ts; scripts/verify-process-fact-contract.mjs; docs/CLI.md; docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     },
     {
       "feature": "Wave 3A selective applicability profile or migration automation",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicit later-wave boundary in B-4444; VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
+      "excluded_by": "Intentionally skipped for the current flat project-wide rollout; VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
       "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     },
     {
       "feature": "Wave 4 enforcement rollout, telemetry, causal metrics and default-policy promotion",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Explicit later-wave boundary in B-4444; VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
+      "excluded_by": "Explicit future-wave boundary; Wave 4 remains not implemented; VI-W3-M4-NO-LATER-WAVE-LEAKAGE",
       "source": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
     }
   ],
@@ -118,7 +118,7 @@
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-07-23T04:33:12.403Z",
-  "_hash": "ab45628fef293277fb99a9b90dc5a28a914639a7ccba5932572d9e520ba48337",
+  "reviewRound": "2026-07-23T05:31:34.988Z",
+  "_hash": "1bb46ef8ec669c155ada1e17e0ccc617c1921d0fae2d6262684499482adab347",
   "openQuestions": []
 }
