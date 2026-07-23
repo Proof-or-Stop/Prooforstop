@@ -456,7 +456,8 @@ export interface PreReviewBindingProofV1 {
 }
 
 /** Compact, canonical machine record: id, kind, target, mutationKind, operation,
- * expected, observed, controlRestored, and ordered producer/consumer events. */
+ * expected, observed, controlRestored, ordered producer/consumer events, and
+ * the exact topology assertion sourceRef. */
 export type PreReviewCaseRecordV1 = [
   id: string,
   kind: 'positive' | 'mutation' | 'transcript',
@@ -467,6 +468,7 @@ export type PreReviewCaseRecordV1 = [
   observedCode: string,
   controlRestored: boolean,
   events: Array<[event: string, sequence: number]>,
+  assertionSourceRef: string,
 ];
 
 export interface PreReviewExecutableProvenanceV1 {

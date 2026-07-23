@@ -1139,11 +1139,16 @@ command is exactly
 `node scripts/run-proofstory-pre-review-live-proof.mjs`. The tracked runner performs a fresh
 `npm --prefix packages/main run build` before invoking the generated target; the proof binds
 both current runner and freshly-built target digests. The live proof carries gzip-compressed
-canonical machine case records for every required positive, mutation, and transcript ID. The
-loader decompresses them, checks exact current-topology cardinality and distinct mutation
-targets/kinds, validates observed outcomes/control reruns and producer-before-consumer events,
-and mechanically recomputes the aggregate root. A formatted arbitrary digest or stale/overwritten
-`dist` emitter is therefore not executable evidence.
+canonical machine case records for every required positive, mutation, and transcript ID. Each
+executed record carries its exact topology assertion ID, kind, and canonical `sourceRef`; assembly
+matches by ID and rejects missing, extra, duplicate, kind-mismatched, or source-mismatched records
+instead of reassigning a per-kind array position. Permuting records therefore cannot reattribute an
+observed outcome, and swapping two assertion source refs fails closed. The loader also checks
+distinct mutation targets/kinds, validates observed outcomes/control reruns and
+producer-before-consumer events, and mechanically recomputes the aggregate root. Both initial
+loading and signed-artifact readback compare provenance with the current tracked runner and built
+target. A formatted arbitrary digest, stale runner, or stale/overwritten `dist` emitter is therefore
+not executable evidence; a fresh runner build and proof issuance restores admissibility.
 
 The machine records come from the bounded production pre-review scenario suite, not from replaying
 the topology as a data structure. Its ledger binds the four positive paths and the seventeen

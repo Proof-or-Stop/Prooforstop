@@ -5,11 +5,13 @@ import { dirname, isAbsolute, join, resolve } from 'node:path';
 import type {
   AcceptanceBasisArtifactV1,
   ChecklistData,
+  PreReviewCaseRecordV1,
   PreReviewCheckArtifactV1,
   PreReviewCheckCodeV1,
   PreReviewExecutableProofV1,
   PreReviewEvidenceRefV1,
   ProofStoryContractData,
+  TopologySourceRefV1,
   VerificationEvidence,
 } from './types.js';
 import type { AcceptanceTopologyGateMode } from './config.js';
@@ -19,7 +21,7 @@ import { verifyAcceptanceBasisReceipt } from './acceptance-basis-receipt.js';
 import { verifyAcceptanceCoverageBasis } from './acceptance-coverage-basis.js';
 import { latestCausallyValidCloseoutReceipt } from './closeout-trust.js';
 import { evaluateLiveSmokeTranscriptValue } from './live-smoke-transcript-evidence.js';
-import { decodePreReviewCaseRecords } from './pre-review-live-proof.js';
+import { canonicalPreReviewAssertionSourceRef, decodePreReviewCaseRecords, preReviewExecutableProvenanceIsCurrent } from './pre-review-live-proof.js';
 
 const KEY_FILE = 'lattice-pre-review-check-verifier-v1.key';
 const EXECUTABLE_PROOF_PREFIX = 'PROOFSTORY_PRE_REVIEW_PROOF=';
@@ -163,14 +165,27 @@ export function loadVerifiedPreReviewExecutableProof(input: {
     : []) ?? [];
   const recordIds = records.map(record => Array.isArray(record) ? record[0] : '<invalid>');
   const mutations = records.filter(record => Array.isArray(record) && record[1] === 'mutation');
-  const validRecords = records.every(record => Array.isArray(record) && record.length === 9
+  const validRecords = records.every(record => Array.isArray(record) && record.length === 10
     && typeof record[0] === 'string' && ['positive', 'mutation', 'transcript'].includes(record[1])
     && typeof record[2] === 'string' && record[2].length > 0 && typeof record[3] === 'string' && record[3].length > 0
     && typeof record[4] === 'string' && record[4].length > 0 && typeof record[5] === 'string' && record[5].length > 0
     && typeof record[6] === 'string' && record[6].length > 0 && typeof record[7] === 'boolean'
-    && Array.isArray(record[8]) && record[8].every(event => Array.isArray(event) && typeof event[0] === 'string' && Number.isInteger(event[1])));
+    && Array.isArray(record[8]) && record[8].every(event => Array.isArray(event) && typeof event[0] === 'string' && Number.isInteger(event[1]))
+    && typeof record[9] === 'string' && record[9].length > 0);
   const exactIds = JSON.stringify(stable(recordIds)) === JSON.stringify(stable(requiredIds))
     && new Set(recordIds).size === recordIds.length;
+  const assertionRows: Array<[string, [PreReviewCaseRecordV1[1], TopologySourceRefV1]]> =
+    input.contract?.acceptanceBindings.flatMap(binding => {
+    const topology = binding.verificationTopology;
+    return topology ? [...topology.positiveAssertionRefs.map(assertion => [assertion.id, ['positive', assertion.sourceRef]] as [string, ['positive', typeof assertion.sourceRef]]),
+      ...topology.mutationCaseRefs.map(assertion => [assertion.id, ['mutation', assertion.sourceRef]] as [string, ['mutation', typeof assertion.sourceRef]]),
+      ...topology.transcriptAssertionRefs.map(assertion => [assertion.id, ['transcript', assertion.sourceRef]] as [string, ['transcript', typeof assertion.sourceRef]])] : [];
+  }) ?? [];
+  const assertionsById = new Map(assertionRows);
+  const exactKindsAndSources = records.every(record => {
+    const expected = assertionsById.get(record[0]);
+    return expected?.[0] === record[1] && canonicalPreReviewAssertionSourceRef(expected[1]) === record[9];
+  });
   const distinctMutationTargets = new Set(mutations.map(record => `${record[2]}\0${record[3]}`)).size === mutations.length;
   const outcomesBite = records.every(record => record[5] === record[6] && record[7] === true);
   const transcriptEvents = records.filter(record => record[1] === 'transcript').every(record => {
@@ -178,7 +193,7 @@ export function loadVerifiedPreReviewExecutableProof(input: {
     const consumer = record[8].find(event => event[0] === 'consumer-verified')?.[1];
     return Number.isInteger(producer) && Number.isInteger(consumer) && (producer as number) < (consumer as number);
   });
-  if (!validRecords || !exactIds || !distinctMutationTargets || !outcomesBite || !transcriptEvents
+  if (!validRecords || !exactIds || !exactKindsAndSources || !distinctMutationTargets || !outcomesBite || !transcriptEvents
     || candidate.commandDigests[0] !== digest({ schemaVersion: 'proofstory.pre_review_case_aggregate.v1', storyId: input.storyId, caseRecords: records })) return reject(`proof case records/root invalid shape=${validRecords} ids=${exactIds} distinct=${distinctMutationTargets} outcomes=${outcomesBite} transcript=${transcriptEvents}`);
   const recordById = new Map(records.map(record => [record[0], record]));
   const verifiedBindingProofs = input.contract?.acceptanceBindings.filter(binding => binding.verificationTopology).map(binding => {
@@ -202,14 +217,7 @@ export function loadVerifiedPreReviewExecutableProof(input: {
     };
   }) ?? [];
   const provenance = candidate.provenance;
-  const runnerPath = join(canonicalGitCwd, provenance.runnerPath);
-  const targetPath = join(canonicalGitCwd, provenance.targetPath);
-  if (provenance.runnerPath !== 'scripts/run-proofstory-pre-review-live-proof.mjs'
-    || provenance.targetPath !== 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js'
-    || provenance.buildCommand !== 'npm --prefix packages/main run build'
-    || !existsSync(runnerPath) || !existsSync(targetPath)
-    || provenance.runnerDigest !== digest(readFileSync(runnerPath))
-    || provenance.targetDigest !== digest(readFileSync(targetPath))) return reject('proof executable provenance invalid');
+  if (!preReviewExecutableProvenanceIsCurrent(canonicalGitCwd, provenance)) return reject('proof executable provenance invalid');
   return {
     schemaVersion: 'proofstory.pre_review_executable_proof.v1',
     storyId: input.storyId,
@@ -384,6 +392,8 @@ export function verifyPreReviewCheckArtifact(input: PreReviewCheckInput & { arti
   const expectedInput = { ...input, currentArtifact: artifact.preReviewBasisArtifact, executableProof: artifact.executableProof };
   const expected = issuePreReviewCheckArtifact(expectedInput);
   const codes: PreReviewCheckCodeV1[] = [...expected.codes];
+  const executableProvenanceCurrent = preReviewExecutableProvenanceIsCurrent(realpathSync(input.gitCwd), artifact.executableProof?.provenance);
+  if (!executableProvenanceCurrent) codes.push('PR_AUTHORITY_INADMISSIBLE');
   const trusted = trustedPublicKey(input.gitCwd);
   if (!artifact || !trusted || artifact.signerPublicKey !== trusted
     || !verifyCanonical(unsignedArtifact(artifact), artifact.signature, trusted)
@@ -410,7 +420,7 @@ export function verifyPreReviewCheckArtifact(input: PreReviewCheckInput & { arti
     ok, blocking: input.mode === 'enforce' && !ok, codes: ordered,
     plannedActual: input.currentArtifact.basis.plannedActualReconciliations.length === input.currentArtifact.basis.plannedPathRecords.length ? 'complete' : 'incomplete',
     executableEvidence: proof.positives ? 'current' : 'missing', mutations: proof.mutationsBite && proof.controlsRestored ? 'biting' : 'missing',
-    transcript: proof.transcriptsPresent && proof.transcriptsRelated ? 'related' : 'missing', authority: proof.authority ? 'admissible' : 'inadmissible',
+    transcript: proof.transcriptsPresent && proof.transcriptsRelated ? 'related' : 'missing', authority: proof.authority && executableProvenanceCurrent ? 'admissible' : 'inadmissible',
     criticReattestation: input.mode !== 'enforce' ? 'not_required' : input.criticVerification?.ok ? 'current' : 'missing', artifact,
     remediation: remediationFor(ordered),
   };
