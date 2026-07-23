@@ -2,19 +2,20 @@
   "storyId": "B-4ec1",
   "expected": "User sees \"Pre-review check: PASS\" for a signed current verifier-owned artifact, or \"Pre-review check: FAIL code=PR_*\" naming the invalid binding.",
   "actual": {
-    "command": "node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --live-proof",
-    "exitCode": 0,
-    "stdout": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-4ec1\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:e1e7200b410e00cf3e66764cec48616cd48d945b6655953b943a0831a6512845\"],\"bindingProofs\":[{\"bindingId\":\"AB-WAVE3-PRE-REVIEW\",\"positiveAssertionIds\":[\"A-POS-1\",\"A-POS-2\",\"A-POS-3\",\"A-POS-4\"],\"mutationProofs\":[{\"mutationId\":\"A-MUT-1\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-2\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-3\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-4\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-5\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-6\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-7\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-8\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-9\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-10\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-11\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-12\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-13\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-14\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-15\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-16\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true},{\"mutationId\":\"A-MUT-17\",\"expectedCode\":\"AT_UNKNOWN_REF\",\"observedCode\":\"AT_UNKNOWN_REF\",\"controlRestored\":true}],\"transcriptProofs\":[{\"transcriptId\":\"A-TRANSCRIPT-1\",\"producerRefs\":[\"P-PRE-REVIEW\"],\"consumerRefs\":[\"C-DEV-REVIEW-GATE\"],\"producerSequence\":0,\"consumerSequence\":3}]}]}\n"
+    "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+    "exitCode": null,
+    "stdout": "",
+    "stderr": "[capture error] command exceeded 60000ms timeout; process group terminated"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-07-23T02:59:08.669Z",
+  "capturedAtIso": "2026-07-23T03:41:03.181Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "5b4ebaa2d953b8f8b9933a8f98042bd8b59c9806",
-  "materialHash": "ef3dc98dfa7aaf185d7e7661ae9c112f39cda2be7fd8b90cdab1b4ddea169e75"
+  "headHash": "5c89ed0adf326e51561c2e186a2e1063148b2c12",
+  "materialHash": "290796a73dc6c453842393e684c3f9b81dbaa56d395e58c3ad4dc10295e42b5e"
 }
