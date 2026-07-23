@@ -135,10 +135,26 @@
       "phase": "DEV",
       "headHash": "2648914636c13e1d523837eac8d2ee187799dd91",
       "materialHash": "84d938afd67051380ff6fd31e36b989ebe057ba0957698ffc8bdf7ae19d2bebe"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "DONE-required full suite exposed a pre-existing DEV-to-REVIEW smoke that must seed the new verifier-owned acceptance basis without weakening the production gate.",
+      "timestamp": "2026-07-23T05:05:19.990Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "1f450055b0bc122c37eb525f68367f66398a19ba",
+      "materialHash": "fd563784961be1fe1b388cecebec699f423345df123d7c74b051fa54eecfd51f"
     }
   ],
   "createdAt": "2026-07-22T22:41:51.162Z",
-  "updatedAt": "2026-07-23T04:02:09.166Z",
+  "updatedAt": "2026-07-23T05:05:19.990Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -174,6 +190,7 @@
     "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
     "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts",
     "scripts/run-proofstory-pre-review-live-proof.mjs": "scripts/run-proofstory-pre-review-live-proof.mjs",
-    "packages/main/src/tasks/live-smoke-transcript-smoke.ts": "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+    "packages/main/src/tasks/live-smoke-transcript-smoke.ts": "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
   }
 }
