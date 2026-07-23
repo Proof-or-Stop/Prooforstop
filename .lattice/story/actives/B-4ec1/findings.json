@@ -589,7 +589,7 @@
       "desc": "packages/main/src/core/validation-command-environment.ts:9-39 — cross-role session-neutrality is incomplete: the filter removes LATTICE_AGENT but omits the repository-supported LATTICE_ACTIVITY_ROLE consumed by cli-engine.ts for reviewer/intent telemetry. Repro against the built module: effectiveValidationCommandEnvironment with PATH=/bin, CI=true, LATTICE_ACTIVITY_ROLE=main, LATTICE_SESSION_ID=owner and the same input with role=reviewer/session=reviewer produce different digests (c172bb… vs 5a5494…), even though only ambient role/session identity changed. This can still make an owner-produced DONE-required PASS unverifiable by an independent reviewer, contradicting the b11ef96 contract. Add LATTICE_ACTIVITY_ROLE to the narrow case-insensitive transport set and cover POSIX plus Windows casing, cross-session receipt acceptance, overlay-last (explicit command.env LATTICE_ACTIVITY_ROLE must remain semantic), and CI/NODE_OPTIONS mutation rejection.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-23T14:30:51.092Z",
@@ -602,7 +602,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 88dbd1801d: LATTICE_ACTIVITY_ROLE is in the canonical transport set. Cross-session tests cover every key on POSIX and case-insensitive Windows, preserve lowercase POSIX semantics and overlay-last command.env behavior, while CI and NODE_OPTIONS mutations still bite both receipts [0] and [1].",
+      "resolvedAt": "2026-07-23T14:38:48.035Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
