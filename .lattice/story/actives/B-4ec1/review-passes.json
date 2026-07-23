@@ -646,6 +646,58 @@
         "scanEscalationReason": null
       },
       "_hash": "f21862cf67821274186a08f4cc03d90bdfb570935ff21f59f696ae23dc711b57"
+    },
+    {
+      "id": "B-4ec1:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 quality/security re-review confirms F-028 closure with no quality blocker: LATTICE_ACTIVITY_ROLE is in the exact canonical transport list; the list digest recomputes to the declared sha256; POSIX canonical roles and Windows mixed-case roles are session-neutral; differently-cased POSIX keys remain semantic; overlay-last preserves explicit role values; CI and NODE_OPTIONS mutations change digest and fail receipt reuse. Current pre_review_check_read PASS. Independent coverage run RR-033/RP-016 reports build-backed done-required smoke and process-fact contract PASS. Docs lane F-029 is separate and does not invalidate this F-028 quality conclusion.",
+      "createdAt": "2026-07-23T14:42:17.427Z",
+      "reviewRound": "2026-07-23T14:38:33.494Z",
+      "reviewRunId": "B-4ec1:RR-036",
+      "envelopeId": "6e3f67a5c84d4f041439c65d7a1ad20fe2e5670e0bcd9f79a170836683d62330",
+      "writerSessionId": "sess-fd86910eff9401fc0fd317fda1a4e604",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-executor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "51aaef496c2115a41b00da52403420dcec9f4e25070bf57605747897f156e97e"
     }
   ]
 }
