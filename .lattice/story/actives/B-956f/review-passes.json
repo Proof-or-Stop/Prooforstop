@@ -836,6 +836,46 @@
         "scanEscalationReason": "Zero code delta since R11 pass (B-956f:RP-022) confirmed via git diff on prior head; full-diff-vs-main file list re-triaged by name (grep-scanned, not fully re-read) rather than fully re-read, since content is byte-identical to the R11-reviewed tree."
       },
       "_hash": "d3e40263f799776a23a8fa18657969f93c5dc1784cf76b50a927534929a7994f"
+    },
+    {
+      "id": "B-956f:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "R12 workflow-mechanics round, zero code delta since my R11 pass (RP-023, reviewed at merge head 1a101dca7b). Verified: git diff 1a101dca7b..HEAD -- packages/main/src scripts is byte-empty (0 lines); every file touched by the 16 commits since then lives under .lattice/story/actives/B-956f/ (checklist.json evidence-timestamp refresh, review-passes.json/review-runs.json/process-events.jsonl/prompt-envelopes.json bookkeeping growth, acceptance-basis.json + scope-contract.json acknowledged-expansion entry for the NEW acceptance_basis_generate lifecycle gate merged in from topology story B-4ec1 mid-flight, delivery-check.json/done-required-evidence.json/test-evidence.json re-serialization) -- no packages/main/src or scripts/ file changed. git diff main...HEAD --name-only -- packages/main/src scripts still lists exactly the same 18 story-owned files RP-023 already reviewed line-by-line. The machine-computed Incremental Review Basis for this run independently confirms this: reReviewReasonCodes=[ELIGIBLE_NO_MATERIAL_CHANGE, ELIGIBLE_TRUSTED_PRIOR_BINDINGS], changedFiles=[], impactedFiles=[], unresolvedFindings=[] against priorPassRef RP-023/priorReviewRunId RR-034. Ran both required checks directly (no validate/build invoked per instruction, avoiding re-poisoning the convergence window): node packages/main/dist/tasks/language-neutral-gates-smoke.js -> 39/39 PASS; node tmp/w1-red/red-language-degradation.cjs -> 11/11 GREEN, exit 0. All 15 findings (F-001..F-015) in findings.json show status=resolved, none reopened. checklist.json: all 4 CHK items status=done, 12/12 verificationIntent lanes covered with evidence dated 2026-07-23T18:13:31.752Z re-binding to the same head/material/story hashes RP-023 already validated. No quality issues (dead code / type-safety / I/O-isolation / doc-promise-undelivered) to raise -- no source line changed for this reviewer lane to inspect. No blocker.",
+      "createdAt": "2026-07-23T19:09:08.108Z",
+      "reviewRound": "2026-07-23T19:05:42.584Z",
+      "reviewRunId": "B-956f:RR-038",
+      "envelopeId": "7eaf0e5638a4d3174da14ab9cdfc69c9628c7addf3ccd2311e2c936889c84fad",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/findings.json",
+          ".lattice/story/actives/B-956f/index.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          ".lattice/story/actives/B-956f/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-956f/acceptance-basis.json",
+          ".lattice/story/actives/B-956f/delivery-check.json",
+          ".lattice/story/actives/B-956f/done-required-evidence.json",
+          ".lattice/story/actives/B-956f/process-events.jsonl",
+          ".lattice/story/actives/B-956f/scope-contract.json",
+          ".lattice/story/actives/B-956f/test-evidence.json",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "tmp/w1-red/red-language-degradation.cjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "44ed6361d0afd55dcfac351280bc486049057aa7790d76190eec0a3c0246a4d8"
     }
   ]
 }
