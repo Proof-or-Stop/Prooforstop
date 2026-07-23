@@ -138,10 +138,12 @@
       "q": "Will CHK-002 verificationIntent explicitly require the verifier to bind and test the eligibility rule, complete frozen membership, >=3 matched pairs/each arm, and rejection of an omitted eligible row or changed evaluation window?",
       "evidence": "plan.md CHK-002 now states the correct rule, but CHK-002 happy only binds sample identities and caller verdict/aggregates; its adversarial lane does not mutate membership omission/window drift. Plan prose alone cannot require DEV evidence for anti-cherry-pick behavior.",
       "sourcePointers": [
-        ".lattice/story/actives/B-4043/plan.md#CHK-002",
-        ".lattice/story/actives/B-4043/checklist.json#CHK-002:happy:real-cohort-receipt",
-        ".lattice/story/actives/B-4043/checklist.json#CHK-002:adversarial:seeded-defects"
-      ]
+        "CHK-002:happy:real-cohort-receipt",
+        "CHK-002:adversarial:seeded-defects",
+        "commit:48a8397bac"
+      ],
+      "resolution": "The dedicated verification-intent writer updated CHK-002 happy/adversarial so the signed report must bind the eligibility rule, evaluation window, complete frozen membership and at least three matched pairs per arm; eligible-row omission, ineligible injection, window/membership/order/digest drift and N below three all fail deterministically.",
+      "resolvedAt": "2026-07-23T16:50:34.702Z"
     },
     {
       "id": "OQ-B4043-FALSE-PASS-INTENT-BINDING",
