@@ -31,13 +31,8 @@
           "path:process-fact:story_advance->consumer:storyMachine phase guards and story_advance preflight gates",
           "path:process-fact:topology_critic_receipt_check->consumer:<audit-only>"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "typescript parse ambiguity in .lattice/story/actives/B-4ec1/acceptance-basis.json",
-          "typescript parse ambiguity in docs/CLI.md",
-          "typescript parse ambiguity in docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-          "unsupported dynamic import shape in scripts/verify-process-fact-contract.mjs"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
           "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
           "source-file:packages/main/src/cli/command-catalog.ts:sha256:42c237f49144fbbaddf5cee447705601f664565d72a3cd00ce00bddea9046465",
@@ -73,7 +68,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:ebc747cfcacb07a64daedbd61c79aee7db740bb5731253e1fad17f66538b501b"
+        "resultDigest": "sha256:af86588a197f3b2a8bfb0007aa70a4a60ccad04726a475fc00658eb727b60912"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -87,13 +82,8 @@
           "path:process-fact:story_advance->consumer:storyMachine phase guards and story_advance preflight gates",
           "path:process-fact:topology_critic_receipt_check->consumer:<audit-only>"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "typescript parse ambiguity in .lattice/story/actives/B-4ec1/acceptance-basis.json",
-          "typescript parse ambiguity in docs/CLI.md",
-          "typescript parse ambiguity in docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-          "unsupported dynamic import shape in scripts/verify-process-fact-contract.mjs"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
           "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
           "process-fact:acceptance_basis_generate:c705ec303891a791afa607f361da9b178764f8186b88c4336bdd4441d32fe0b9",
@@ -136,7 +126,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:8c27c815d02b54fbd022c8d19019391d1a7c9fb5b82342f13196b770121efc02"
+        "resultDigest": "sha256:cbd6dbe4d4cd3611fae609659e466584b9dda5197fb3023205b52515f119eeb3"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -261,15 +251,10 @@
           "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
           "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
         ],
-        "coverageClaim": "partial",
-        "blindSpots": [
-          "typescript parse ambiguity in .lattice/story/actives/B-4ec1/acceptance-basis.json",
-          "typescript parse ambiguity in docs/CLI.md",
-          "typescript parse ambiguity in docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-          "unsupported dynamic import shape in scripts/verify-process-fact-contract.mjs"
-        ],
+        "coverageClaim": "complete_for_scope",
+        "blindSpots": [],
         "provenanceRefs": [
-          "source-file:.lattice/story/actives/B-4ec1/acceptance-basis.json:sha256:d1e13acf54241640bfeb31fe2e513bf18a9d579d1356ff2bb28664998319ec56",
+          "source-file:.lattice/story/actives/B-4ec1/acceptance-basis.json:sha256:29d33aab802e01db18268ab9f7c2deaaf3703ffbeb17dad0a9946061c200abec",
           "source-file:docs/CLI.md:sha256:f8c554417df6f3a26e6890c10ac2daf539c0c8917e017286f6741419c3df0dc3",
           "source-file:docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:sha256:81b1eca2fa457e1ca237461c21d023456850ebf5d85598a614275ba9840b30d6",
           "source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
@@ -318,7 +303,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:c9f485d6443adfe26cb8dc214f6452c4f137f8ab70f170539e3f1d1401111a7e"
+        "resultDigest": "sha256:b591b92106ff3c4c4baa6b9ea301ca16e52a7d3f187dccdb42a6fd93b902ac41"
       }
     ],
     "scopeRefs": [
@@ -459,17 +444,13 @@
       "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
       "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
       "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
-      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext",
-      "typescript parse ambiguity in .lattice/story/actives/B-4ec1/acceptance-basis.json",
-      "typescript parse ambiguity in docs/CLI.md",
-      "typescript parse ambiguity in docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
-      "unsupported dynamic import shape in scripts/verify-process-fact-contract.mjs"
+      "snapshot-seal:derivation_diagnostic:inventory:AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
     ],
     "snapshotSeal": {
       "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
       "inventoryDirectoryDigest": "sha256:c8d94b5ba37adfc382a7c91922f1bee3eec069e83e259232c797935e5cfb3d4a",
       "inventoryDirectoryCount": 20,
-      "sourceSnapshotDigest": "sha256:35ccfe144b4aa286ef50588182ad05f50e063729a3e262d87701fe34bb0689bc",
+      "sourceSnapshotDigest": "sha256:c9457cb89e054944aaa6ffe9fbd4878fe9b931cc4e25b3317a3b11ea8d7afbc7",
       "sourceSnapshotCount": 749,
       "configSnapshotDigest": "sha256:0ee5353bc6952bfe94d1069b907334faddd661fb9ae33a7ae8c051c177c72090",
       "status": "partial",
@@ -510,37 +491,37 @@
           "canonicalRef": "AT_UNMAPPED_SCOPE_REF:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
         }
       ],
-      "sealDigest": "sha256:24b29477696c309b72a07e849f7b52b757af7b78cfa7accb633948621e7899ee"
+      "sealDigest": "sha256:ad60ec1b016acfd0d0b245d44baa8e00a0026815a819444fbcf27cccfa45d51b"
     },
     "binding": {
-      "headHash": "d323f7b503b791091567809e22db40dcb0250195",
-      "materialHash": "41df2f037e5a9eb65919cbe3e8680b5e6b2a5edf2ce03653ada89e1fb7dbd76b",
-      "storyFilesHash": "ad55696fe0ec991bf6b556ae3a1e87072e20a1339219af8616f4ae02ddbd98c4",
+      "headHash": "db85ded9adf944acdce6ef902444a55f3bb0da8d",
+      "materialHash": "767970aa456c337653ec3b32c58cc97bd5712a420ff00fc6d65b8ac603705052",
+      "storyFilesHash": "a41705b47f15ce9d4460033d3a5a65ae46f4199793ab8065f950f8d6e7d715ed",
       "scopeCheckDigest": "sha256:2262104bb4189cbe7ad0541e0d33e631cdd910785a7ddc519f7f736ac912555f",
       "scopeContractDigest": "sha256:5a2d090b7f101ee4a5797649c646c7303c77152a4ca3262bc1568caf2b4a27a3",
-      "closureFilesHash": "sha256:9ae8c8796df16654f01e6237edd3e97007c132dc35e2893651c79ead6acf57fe"
+      "closureFilesHash": "sha256:8c6250d4aa936aa632bac18421dfde7cae45b6e1b6d20b8c1f33a049e5046240"
     },
-    "receiptRef": "receipt:coverage-basis:B-4ec1:plan:2d3169a241792f43",
-    "basisDigest": "sha256:85938f51634109aa940098ead24c69888da380d68fe42b8ccf5f5fd0ebcdb81d"
+    "receiptRef": "receipt:coverage-basis:B-4ec1:plan:5136b640b5e72b51",
+    "basisDigest": "sha256:9c09c1a111694dd9cd2e6cf364b743d3f1edf6fc1400f5d7f127e277021dbc98"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
-    "receiptRef": "receipt:coverage-basis:B-4ec1:plan:2d3169a241792f43",
+    "receiptRef": "receipt:coverage-basis:B-4ec1:plan:5136b640b5e72b51",
     "issuer": "acceptance-coverage-basis-verifier",
     "issuerKeyId": "sha256:296cf7b2d23ab87226356b1e45ea3a1ec48eee6266df59e0aefea56e1de3c722",
     "signerPublicKey": "xd1c+IbCBeVwFfhaDuRVFXxOCL3kqkMx7weu8ckyaAw=",
     "storyId": "B-4ec1",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:85938f51634109aa940098ead24c69888da380d68fe42b8ccf5f5fd0ebcdb81d",
-    "topologyDigest": "sha256:5cd4b532ad675b9f9a4adbda58b9481cc35d6081bfd62ce3f3973042083885fe",
+    "basisDigest": "sha256:9c09c1a111694dd9cd2e6cf364b743d3f1edf6fc1400f5d7f127e277021dbc98",
+    "topologyDigest": "sha256:8c4b63309b671787b57b916042ccdf851fd7395433e90db33d15a4ac3f70f6dc",
     "scopeCheckDigest": "sha256:2262104bb4189cbe7ad0541e0d33e631cdd910785a7ddc519f7f736ac912555f",
     "scopeContractDigest": "sha256:5a2d090b7f101ee4a5797649c646c7303c77152a4ca3262bc1568caf2b4a27a3",
-    "headHash": "d323f7b503b791091567809e22db40dcb0250195",
-    "materialHash": "41df2f037e5a9eb65919cbe3e8680b5e6b2a5edf2ce03653ada89e1fb7dbd76b",
-    "storyFilesHash": "ad55696fe0ec991bf6b556ae3a1e87072e20a1339219af8616f4ae02ddbd98c4",
-    "closureFilesHash": "sha256:9ae8c8796df16654f01e6237edd3e97007c132dc35e2893651c79ead6acf57fe",
-    "sealDigest": "sha256:24b29477696c309b72a07e849f7b52b757af7b78cfa7accb633948621e7899ee",
+    "headHash": "db85ded9adf944acdce6ef902444a55f3bb0da8d",
+    "materialHash": "767970aa456c337653ec3b32c58cc97bd5712a420ff00fc6d65b8ac603705052",
+    "storyFilesHash": "a41705b47f15ce9d4460033d3a5a65ae46f4199793ab8065f950f8d6e7d715ed",
+    "closureFilesHash": "sha256:8c6250d4aa936aa632bac18421dfde7cae45b6e1b6d20b8c1f33a049e5046240",
+    "sealDigest": "sha256:ad60ec1b016acfd0d0b245d44baa8e00a0026815a819444fbcf27cccfa45d51b",
     "workspaceIdentityDigest": "sha256:1573a738da7a261b742d92156de827cdc9e20c7c849b6246d5662a1a6c8e520d",
-    "signature": "Q6cevnb57fnFq6nwhd6ALe1riboiB92bXCOI7J88twf5q0qbWGXm/vzAP59eShVYgRBhfrNruZzCZuzqcu1sAg=="
+    "signature": "aHOKluvEDGwFh/FkABx02oGLF89IWtRyx4ieIDtqG82hYfH3KU/AYNkP+sxkdXKu9Isdh7IyeRuefM7zrN6IDQ=="
   }
 }
