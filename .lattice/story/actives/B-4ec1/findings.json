@@ -350,6 +350,21 @@
       "_hash": "e77b58b50794e67d9cf2c04e199c1aad16bf2bca6788ca364acbc7002e79378b",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4ec1:F-018",
+      "desc": "packages/main/src/core/pre-review-live-proof.ts:47 F-012 remains semantically unresolved: buildPreReviewLiveProof marks every positive assertion proven by copying its ID after a structural baseline; for every distinct mutation it performs the identical sourceRef-to-unknown edit (lines 51-61), and it fabricates transcript ordering from topology array indexes rather than observed producer/consumer events (lines 63-70). The case aggregate proves these synthetic records were not altered, not that the declared production commands ran or that each declared adverse mutation bit for its specified reason. Thus the current PASS can still label executableEvidence=current/mutations=biting/transcript=related without a real producer-to-consumer execution. Capture command/target/outcome/control/event receipts for each topology case and make the aggregate commit those observed results.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-23T03:02:17.810Z",
+      "reviewRound": "2026-07-23T02:59:34.345Z",
+      "reviewRunId": "B-4ec1:RR-010",
+      "_hash": "2b87616db0736dfdfe07cebe323e92bb9e845f58d842dbb47d3303ec9656440e",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
