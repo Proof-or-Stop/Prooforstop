@@ -145,11 +145,12 @@
       "q": "Will the owner map both new planned declarations and all four endpoints into the canonical topology, then use artifact-kind-correct executable symbols (a registered process fact only when actually registry-backed; source_file endpoints as real exported callables) before regenerating the basis?",
       "evidence": "Current acceptance_basis reports both new planned paths and their four endpoints as AT_UNMAPPED_SCOPE_REF; acceptance_topology_check is inconclusive/structuralPass=false. The canonical plan requires process_fact endpoints to resolve through the registry and source_file endpoints to be exported callables. Current declarations name deriveAcceptanceRolloutReport as process_fact and a hyphenated proofstory-acceptance-rollout-smoke source symbol.",
       "sourcePointers": [
-        ".lattice/story/actives/B-4043/checklist.json#CHK-002:happy:real-cohort-receipt",
-        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md:902",
-        "acceptance_basis --storyId=B-4043 --json",
-        "acceptance_topology_check --storyId=B-4043 --json"
-      ]
+        "commit:199481d951",
+        "proofstory.json#AB-WAVE4-MEASURED-ROLLOUT",
+        "CHK-002:happy:real-cohort-receipt"
+      ],
+      "resolution": "The verification-intent writer corrected all runner/evaluator/smoke endpoints to exported source_file callables, and the ProofStory topology now maps both added declarations, their four endpoints, positive assertion, mutation and transcript refs. No exclusion is used.",
+      "resolvedAt": "2026-07-23T16:58:03.076Z"
     }
   ]
 }

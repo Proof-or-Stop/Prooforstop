@@ -78,6 +78,22 @@
               "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
               "endpointRef": "W4-ROLLOUT-REPORT-PRODUCER"
             }
+          },
+          {
+            "id": "P-W4-COHORT-RUNNER",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
+              "endpointRef": "W4-COHORT-RUNNER-PRODUCER"
+            }
+          },
+          {
+            "id": "P-W4-ROLLOUT-SMOKE",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH",
+              "endpointRef": "W4-ROLLOUT-SMOKE-PRODUCER"
+            }
           }
         ],
         "consumerRefs": [
@@ -101,6 +117,28 @@
             },
             "producerRefs": [
               "P-W4-ROLLOUT-REPORT"
+            ]
+          },
+          {
+            "id": "C-W4-COHORT-REPORT-EVALUATOR",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
+              "endpointRef": "W4-COHORT-REPORT-EVALUATOR"
+            },
+            "producerRefs": [
+              "P-W4-COHORT-RUNNER"
+            ]
+          },
+          {
+            "id": "C-W4-ROLLOUT-SMOKE",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-SMOKE-PATH",
+              "endpointRef": "W4-ROLLOUT-SMOKE-CONSUMER"
+            },
+            "producerRefs": [
+              "P-W4-ROLLOUT-SMOKE"
             ]
           }
         ],
@@ -126,10 +164,14 @@
               "canonicalSourceRef": "intent:CHK-002:happy:real-cohort-receipt"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-REPORT",
+              "P-W4-COHORT-RUNNER",
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
+              "C-W4-ROLLOUT-CLI",
+              "C-W4-COHORT-REPORT-EVALUATOR",
+              "C-W4-ROLLOUT-SMOKE"
             ]
           },
           {
@@ -260,10 +302,14 @@
               "canonicalSourceRef": "intent:CHK-002:adversarial:seeded-defects"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-REPORT",
+              "P-W4-COHORT-RUNNER",
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
+              "C-W4-ROLLOUT-CLI",
+              "C-W4-COHORT-REPORT-EVALUATOR",
+              "C-W4-ROLLOUT-SMOKE"
             ]
           },
           {
@@ -314,10 +360,14 @@
               "canonicalSourceRef": "intent:CHK-002:happy:real-cohort-receipt"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-REPORT",
+              "P-W4-COHORT-RUNNER",
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
+              "C-W4-ROLLOUT-CLI",
+              "C-W4-COHORT-REPORT-EVALUATOR",
+              "C-W4-ROLLOUT-SMOKE"
             ]
           },
           {
@@ -400,18 +450,8 @@
       }
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "scope_ambiguity",
-      "severity": "warn",
-      "artifact": "scope-contract.json",
-      "message": "Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.",
-      "triggeredBy": [
-        "scope_ambiguity"
-      ]
-    }
-  ],
+  "diagnosticGaps": [],
   "note": "Canonical Story 6 Wave 4 flat measured-rollout acceptance binding. The verification-intent planned declaration owns the new report producer and both CLI/lifecycle consumers; Wave 3A selective applicability is excluded.",
   "createdAt": "2026-07-23T16:46:17.327Z",
-  "updatedAt": "2026-07-23T16:47:22.846Z"
+  "updatedAt": "2026-07-23T16:58:02.517Z"
 }
