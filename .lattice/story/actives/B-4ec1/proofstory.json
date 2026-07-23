@@ -465,13 +465,21 @@
           {
             "refKind": "existing",
             "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/pre-review-live-proof.ts#preReviewExecutableProvenanceIsCurrent->consumer:packages/main/src/core/pre-review-check.ts#preReviewExecutableProvenanceIsCurrent"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "process-fact:live_smoke_transcript"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/done-required-timeout-budget.ts#liveSmokeCaptureBudget->consumer:packages/main/src/handlers/live-smoke-transcript.ts#liveSmokeCaptureBudget"
           }
         ]
       }
     }
   ],
   "diagnosticGaps": [],
-  "note": "Wave 3 canonical acceptance contract; no duplicate writable matrix and no later-wave rollout semantics.",
+  "note": "Wave 3 canonical acceptance contract; includes exact live-smoke producer budget dependency; no duplicate writable matrix and no later-wave rollout semantics.",
   "createdAt": "2026-07-22T22:40:14.304Z",
-  "updatedAt": "2026-07-23T04:31:47.850Z"
+  "updatedAt": "2026-07-23T12:50:06.836Z"
 }

@@ -151,10 +151,26 @@
       "phase": "DEV",
       "headHash": "1f450055b0bc122c37eb525f68367f66398a19ba",
       "materialHash": "fd563784961be1fe1b388cecebec699f423345df123d7c74b051fa54eecfd51f"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The exact registered Wave 3 pre-review live-proof command builds and executes bounded scenarios, so its transcript producer needs a dedicated finite budget while arbitrary and injected commands retain the 60-second ceiling.",
+      "timestamp": "2026-07-23T12:50:36.545Z",
+      "paths": [
+        "packages/main/src/core/done-required-timeout-budget.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-required-timeout-budget.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "02f8e8245f16edd234417fb3ecd45e72e3c76330",
+      "materialHash": "0dfcf0bd664b9b2939769edc9912cef2fb8585b8d7be55c5b94900256d0348b9"
     }
   ],
   "createdAt": "2026-07-22T22:41:51.162Z",
-  "updatedAt": "2026-07-23T05:05:19.990Z",
+  "updatedAt": "2026-07-23T12:50:36.545Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -191,6 +207,7 @@
     "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts",
     "scripts/run-proofstory-pre-review-live-proof.mjs": "scripts/run-proofstory-pre-review-live-proof.mjs",
     "packages/main/src/tasks/live-smoke-transcript-smoke.ts": "packages/main/src/tasks/live-smoke-transcript-smoke.ts",
-    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts"
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/core/done-required-timeout-budget.ts": "packages/main/src/core/done-required-timeout-budget.ts"
   }
 }
