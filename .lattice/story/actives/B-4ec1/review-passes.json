@@ -58,6 +58,36 @@
         "scanEscalationReason": null
       },
       "_hash": "028a751636e347a7e7e75613e07cc3531253ed60408fafbfbe249e2acfefae1b"
+    },
+    {
+      "id": "B-4ec1:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Extracted 27 changed exported symbols and compared 8 bounded documentation paragraphs covering strict path grammar, artifact-kind process-fact producer/consumer reconciliation, exact assertion ID/kind/canonical-source binding, runner and built-target provenance freshness at both live load and signed-artifact readback, deterministic PR codes, and Wave 3A/Wave 4 exclusions. The final decision prose and artifact process-fact rationale match the implementation and the two current topology static-call refs fit the documented grammar. Current pre_review_check_read is PASS with codes=[] and complete/current/biting/related/admissible results. No blocker found.",
+      "createdAt": "2026-07-23T04:34:32.171Z",
+      "reviewRound": "2026-07-23T04:33:12.403Z",
+      "reviewRunId": "B-4ec1:RR-020",
+      "envelopeId": "35ad4ee7d407af8e4b60bf8c160aa1435e0dcfda0f603936046ff22f4caa9d2e",
+      "writerSessionId": "sess-2ba46045c62c3f21846eca9fa94eaeb1",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "scripts/run-proofstory-pre-review-live-proof.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3d14bb6afd411766b96b99ea5551dd8bb56364c57156d3d1813baa49bad9441"
     }
   ]
 }
