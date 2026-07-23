@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7dfa",
+  "changes": "Creates docs/requirements/decisions/red-evidence-subsystem-spec.md (1607 lines): the complete decision contract for the trusted RED-evidence subsystem (program Workstream 2). Sections: §0 scope/canon/threat-model with the assurance-tier clause; §1 assertion envelope (literal-line + registered class matchers, quantified floors, adapter-owned nonce linkage, target-binding registry, GREEN predicate + GREEN_v2 mapping table, worked valid/invalid examples, hard spec-level floors); §2 disposable-workspace runner (CLEAN/PRE/POST four-tuples, prep constraints, timeout discipline, streamFrames capture); §3 per-target supersedes chains + operationKey idempotency with pre-run dedupe; §4 owner-gated quarantine/recover + corrected retention; §5 read-only gate-consumption query (total algorithm, tagged errors, FRESH algorithm bound to isMaterialExcludedPath, W2/W3 MUST-NOT boundary); §6 legacy posture via adoption-time migration manifest. No code changed.",
+  "usage": "W2 implementation stories cite the spec section-by-section as acceptance contracts (e.g. 'implement §3.4 operationKey derivation'); W3 wires gates to the §5 query. Read: docs/requirements/decisions/red-evidence-subsystem-spec.md",
+  "expectedOutcome": "A PLAN-reviewed decision spec covering the program plan's five contract areas plus the gate-consumption query contract and the legacy-record posture, precise enough that implementation stories need zero design decisions at the stated assurance tier, and hardened by genuine cross-host audit.",
+  "actualTranscript": "Six-round dual-host audit loop (codex + agy): 75 findings dispositioned (fixed / tier-scoped / superseded by the literal-only matcher decision); terminal verdicts agy APPROVE (unconditional) + codex APPROVE-WITH-CHANGES with all four conditions folded. Formal REVIEW: round 1 codex host-B PASS + quality/concept/test-coverage PASS + docs F-001 (a factual misbinding in §5.3, fixed and verified by its filer in round 2); round 2 all four lanes PASS. 21/21 verificationIntent lanes independently verified TRUE of the document; ~20 src file:line anchors verified; lattice validate 46/46 green.",
+  "outcomeDiff": "No difference — the delivered spec covers every mandated area with the two architecture decisions (literal-only matchers; assurance-tier scoping) recorded as settled, auditor-accepted choices.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The spec targets the practical assurance tier (§0.6): accidental fabrication, workflow drift, and casual gaming; the fully hostile local agent with filesystem/toolchain control is the Tier-C signed-receipt program's adversary. A vetted pattern language beyond literal-line matchers, executable digest-binding as mandatory, and unification of isMaterialExcludedPath with W1's resolveMaterialCodePolicy are each declared separate future reviewed changes. Implementation and gate wiring belong to the W2 implementation stories and W3 respectively.",
+  "pitfalls": "Dual-host spec audits do NOT converge by patching: rounds 1-5 (31/17/11/13/19 findings) each bred fresh findings from the new text. Convergence came from REMOVING unbounded surfaces (rev 6: anchored-regex deleted in favor of literal-only matchers, killing the whole regex-gaming class) plus honest tier-scoping (assurance-tier clause per the S1 pragmatic-close precedent) — after which both hosts approved in one round. Other traps: the spec author wrote to the MAIN checkout instead of the story worktree (canonical copy relocated); a spec's own factual claims about existing code need the same src-anchor verification as code reviews (docs lane caught a §5.3 misbinding all six audit rounds missed); keep summary vocabulary clear of the equivalence-gate shrinkage regex.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 976311
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 48978
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1309050
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 6005109
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1457410
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 44262
+    }
+  },
+  "totalDurationMs": 9841668,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-23T22:00:58.280Z",
+  "updatedAt": "2026-07-23T22:00:58.280Z"
+}
