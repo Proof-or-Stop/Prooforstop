@@ -96,9 +96,9 @@
       "id": "CHK-003",
       "title": "Narrow the numeric normalizer to standalone numbers only",
       "context": "packages/main/src/core/convergence-breaker.ts:476 rewrites digit runs inside identifier tokens, collapsing CHK-001 with CHK-002. Restrict it so digits attached to an identifier survive while free-standing counters such as attempt numbers still collapse.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-23T23:11:43.518Z",
-      "endTime": null,
+      "endTime": "2026-07-23T23:12:11.669Z",
       "userSees": "The convergence-breaker smoke prints a passing check stating that a rejection naming CHK-001 and one naming CHK-002 digest differently, alongside a passing check that two attempts differing only in a free-standing counter still digest identically.",
       "files": {
         "modify": [
