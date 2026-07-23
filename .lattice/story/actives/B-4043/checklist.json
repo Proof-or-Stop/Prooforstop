@@ -189,6 +189,35 @@
         "test": [
           "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:enforce-and-rollback",
+            "desc": "An explicit project-level enforce promotion succeeds only when the gate mechanically verifies a current signed PASS rollout receipt whose cohort satisfies every configured threshold and a current genuine full-3x2 quorum; a tested rollback to warn/observe removes blocking while preserving the report, receipt, prior mode transitions, diagnostics, and evidence history byte-for-byte.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:mode-invariant-diagnostics",
+            "desc": "Observe, warn, and enforce compute the same status, ordered diagnostics, threshold evaluation, and receipt classification; observe/warn remain non-blocking, enforce alone changes admission, and repeated promotion/rollback is deterministic without selective per-Story behavior.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:fail-closed-mutations",
+            "desc": "Clean control PASS → independently target missing/stale/tampered/failing receipt, degraded 3x1, forged host identity, positive waiver delta, weaker inventory, false-block, and omission-detection failures → each real gate consumer must reject with its named code → restoration must return clean PASS; rollback must never delete or rewrite the failed attempts or historical signed artifacts.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
