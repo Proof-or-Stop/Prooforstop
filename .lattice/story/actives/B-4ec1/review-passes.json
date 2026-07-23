@@ -698,6 +698,55 @@
       },
       "readDiagnostics": [],
       "_hash": "51aaef496c2115a41b00da52403420dcec9f4e25070bf57605747897f156e97e"
+    },
+    {
+      "id": "B-4ec1:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Round 10 concept review found no blocker. 77b0595259 changes only focused evidence and process-fact protection: production effective-environment semantics are unchanged, LANG and LC_ALL remain ambient business inputs, and real DONE-required evaluation now requires each locale mutation to invalidate receipts [0] and [1] alongside CI and NODE_OPTIONS. The verifier mechanically requires both locale mutations, the loop, and both mismatch assertions. F029 is strongly resolved without changing the canonical 26-key transport inventory/digest, session-neutrality, POSIX/Windows casing, or explicit overlay-last behavior. Current pre-review remains complete/current/biting/related/admissible PASS.",
+      "createdAt": "2026-07-23T14:51:14.974Z",
+      "reviewRound": "2026-07-23T14:49:16.218Z",
+      "reviewRunId": "B-4ec1:RR-037",
+      "envelopeId": "447e1dc56d646449cedc404b08f8ce23196536b5f1dd13f96ef12bb76c8140fb",
+      "writerSessionId": "sess-6fc343ccc81d24fd320d41f1aaf797c9",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "a7fb398d9815e90e1b7d617aa4572793ee4e3955f36fddd76a2b1893ac566b3d"
+      },
+      "readDiagnostics": [],
+      "_hash": "0b5b3977802f6fbaa4b703dce9f36f65bf0d6e337d4f9fcd32d919b2b449299b"
     }
   ]
 }
