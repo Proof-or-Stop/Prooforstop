@@ -5,7 +5,7 @@
       "desc": "quality-proof-self-attestation: scripts/run-proofstory-acceptance-rollout-cohort.mjs:77 constructs baseline/candidate observations by directly assigning detected, blocked, reviewRounds, costs, and a hard-coded full-3x2 quorum (lines 94-120), while materializeStory only writes and rereads those values (lines 36-74) and never runs acceptance_topology_check/pre_review_check or Codex+Claude review hosts. Consequently acceptance_rollout_report signs caller-authored simulated outcomes, so the claimed real matched cohort, seeded-defect detection, and genuine full-3x2 evidence are promised but undelivered; replace these records with outputs derived from actual gate/host receipts and reject unverified observation fields.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-23T18:06:17.882Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-4043:RR-005",
       "_hash": "5b0cb2f149d50bc115a710f9aae30048a94ef1abc1751d60ee4fc42eab8c920a",
       "signatureTag": "missing|unknown|quality-proof-self",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 8784c2d5d8 and d5cc375a1e: caller-authored observation fields are rejected; 12 production temp-Story records run actual topology/pre-review commands plus signed review runs/passes and production quorum_submit. Observation issuance verifies the quorum metadata commit contains exact six host_verdict rows. Current acceptance_rollout_report is PASS/current/full-3x2 with 6 matched pairs, 3/3 seeds, omission 100%, false pass/block 0.",
+      "resolvedAt": "2026-07-23T19:28:23.938Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4043:F-002",
