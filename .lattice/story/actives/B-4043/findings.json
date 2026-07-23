@@ -65,6 +65,21 @@
       "resolvedAt": "2026-07-23T19:28:43.639Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4043:F-004",
+      "desc": "rollout-production-evidence-still-self-sealed: packages/main/src/core/acceptance-rollout.ts:180 validates caller-provided topologyReport/preReviewReport only by storyId, then lines 217-235 manufacture artifactDigest from those same objects and lines 283-287 hard-code controlRestored=true before signing. The later verifyGateArtifact at lines 340-347 only rechecks that self-digest; it never rereads/verifies the actual acceptance_topology_check output, the signed pre-review artifact, or a committed gate artifact from evidenceGitCwd. Therefore a caller holding any genuine quorum commit can substitute matching-story gate reports (and a claimed restored control), receive a valid observation signature, and drive detected/blocked from self-authored data. The current acceptance_rollout_check PASS proves report freshness/signature but not this missing production provenance. Bind each gate report to verifier-authenticated/committed temp-repo facts and derive controlRestored from an actual post-mutation control receipt; add a pre-seal substitution mutation that must be rejected.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-23T19:30:44.608Z",
+      "reviewRound": "2026-07-23T19:28:11.179Z",
+      "reviewRunId": "B-4043:RR-008",
+      "_hash": "61c86ed08b88dbd10c74d96f36fa7646fe4548ef1362be5a8977fd680c81ffa0",
+      "signatureTag": "missing|unknown|rollout-production-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
