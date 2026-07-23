@@ -1,0 +1,30 @@
+{
+  "task": "Author a PLAN-reviewed, cross-host-audited decision spec for the trusted RED-evidence subsystem so the W2 implementation stories can cite its sections as their acceptance contracts.",
+  "outcome": "A reviewed decision document at docs/requirements/decisions/red-evidence-subsystem-spec.md defining the five program-plan contract areas plus the gate-consumption query contract and legacy-record posture, precise enough (schemas, digests, state transitions, consumption rules) that the implementation stories are mechanical and no code ships in this story.",
+  "facts": [
+    "Current red_evidence_create (packages/main/src/handlers/proofstory.ts:948) records a self-reported failingCommand/observedFailure with no machine-checkable assertion envelope binding WHAT the RED run asserted or proving the target was exercised.",
+    "appendRedEvidence (packages/main/src/core/proofstory.ts:1312) is append-only into .lattice/story/actives/<id>/red-evidence.json with no supersedes-chain integrity, no idempotency key, and no owner-gated quarantine path, so records can be silently replaced and replays can duplicate records.",
+    "The program plan (docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md, Workstream 2) enumerates the five contract areas and sequences a PLAN-reviewed spec story before implementation, then W3 enforcement wiring.",
+    "Retention correction: canonical receipts preserve metadata freshness within a round only; review rounds are per-entry via story.currentReviewRound = now at packages/main/src/handlers/transition-orchestrator.ts:775 (the plan original :663 citation drifted across the S1/W1 merges).",
+    "Product-review advisories require the spec to additionally define the gate-consumption query contract (the W2/W3 boundary: what ProofStory gates ask the subsystem) and the legacy-record posture (grandfather / migrate / invalidate for existing red-evidence.json records)."
+  ],
+  "constraints": [
+    "Deliverable is a decision DOCUMENT only; no implementation source under packages/ or scripts/ (reserved for the W2 implementation stories that cite this spec).",
+    "No new language parsers; no cryptographic receipt signing (explicitly fenced to the separate Tier-C program).",
+    "Contracts must be precise enough (field schemas, digests, state transitions, gate consumption rules) that implementation stories are mechanical, while all code is deferred.",
+    "Sole material file is docs/requirements/decisions/red-evidence-subsystem-spec.md; story lifecycle metadata under .lattice/story/actives/B-7dfa/ is the only other write surface."
+  ],
+  "unknowns": [
+    "The exact minimum-specificity metric for bounded matchers (e.g. minimum anchored-token count vs required file/line anchor) that rejects vacuous patterns without rejecting legitimate RED assertions.",
+    "The chosen legacy-record posture (grandfather vs migrate vs invalidate) and the concrete migration/compatibility rule for records written before the subsystem lands, so in-flight stories are not disrupted mid-program.",
+    "Whether the gate-consumption query resolves against an exact freshness-compatible head or a bounded-staleness window, and the precise answer shape the gate consumes."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/red-evidence-subsystem-spec.md (new; sole material deliverable)",
+    "packages/main/src/core/proofstory.ts:1312 appendRedEvidence (append-only record subsystem the spec governs; not edited this story)",
+    "packages/main/src/handlers/proofstory.ts:948 red_evidence_create (current self-reported surface; not edited this story)",
+    "packages/main/src/handlers/transition-orchestrator.ts:775 story.currentReviewRound = now (retention-claim source of truth; not edited)",
+    ".lattice/story/actives/<id>/red-evidence.json (the record store whose schema/lifecycle the spec defines)"
+  ],
+  "timestamp": "2026-07-23T19:39:52.496Z"
+}
