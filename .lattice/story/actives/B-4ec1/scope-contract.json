@@ -103,10 +103,26 @@
       "phase": "DEV",
       "headHash": "c4bb631515c187a8ef34a910df13f30b0e4c691f",
       "materialHash": "8c44753588c9190c729f080916901ae5d5c293a9eb3bc062c0e0bf2967a7d523"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Wave 3 requires a tracked exact runner that performs a fresh build before producing executable pre-review proof, so the verifier can bind source/build/target provenance and reject overwritten gitignored dist output.",
+      "timestamp": "2026-07-23T03:39:21.032Z",
+      "paths": [
+        "scripts/run-proofstory-pre-review-live-proof.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/run-proofstory-pre-review-live-proof.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "87ccb01dff6caa0ec542d50127e37c2fcd54ef44",
+      "materialHash": "290796a73dc6c453842393e684c3f9b81dbaa56d395e58c3ad4dc10295e42b5e"
     }
   ],
   "createdAt": "2026-07-22T22:41:51.162Z",
-  "updatedAt": "2026-07-23T02:48:44.726Z",
+  "updatedAt": "2026-07-23T03:39:21.032Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -140,6 +156,7 @@
     ".lattice/story/actives/B-4ec1/pre-review-check.json": ".lattice/story/actives/B-4ec1/pre-review-check.json",
     "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
     "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
-    "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts"
+    "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts",
+    "scripts/run-proofstory-pre-review-live-proof.mjs": "scripts/run-proofstory-pre-review-live-proof.mjs"
   }
 }
