@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Integrate role guidance with canonical acceptance topology and pre-review commands",
+      "context": "Prompt guidance must direct roles to verifier-owned acceptance_topology_check and pre_review_check facts while CLI/handler gates remain authoritative; no prompt-only process fact.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "AGENTS.md#流程事实双层契约"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Record measured rollout telemetry and deterministic success metrics",
+      "context": "Measure review rounds, surfaced findings, false-pass seeded defects, false-block cases, evidence closure, degraded quorum labeling, waivers, and end-to-end cost using structured verifier-owned facts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#17-success-metrics"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Define bounded project-level warn-to-enforce admission thresholds",
+      "context": "Resolve Wave 4 policy questions with explicit claim taxonomies, supported adapter sufficiency, minimum sample size, zero mislabeled 3x1, 100% supported omission detection, and fail-closed threshold evaluation. Keep flat project scope; Wave 3A selective applicability remains excluded.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#19-decision-record-and-remaining-wave-4-questions"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement opt-in enforcement and tested rollback without weakening checks",
+      "context": "Promotion must require measured thresholds plus existing full 3x2 high-risk review/quorum; rollback removes blocking without rewriting evidence; demonstrate false-pass/false-block mutations and ensure fewer rounds cannot be bought through waivers.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md#15-implementation-plan"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
