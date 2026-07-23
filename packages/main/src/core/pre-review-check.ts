@@ -149,13 +149,18 @@ export function loadVerifiedPreReviewExecutableProof(input: {
   if (!parsed || typeof parsed !== 'object') return reject('proof is not an object');
   const candidate = parsed as Partial<PreReviewExecutableProofV1>;
   if (candidate.schemaVersion !== 'proofstory.pre_review_executable_proof.v1'
-    || candidate.storyId !== input.storyId || !Array.isArray(candidate.bindingProofs)) return reject('proof schema/story/bindings invalid');
+    || candidate.storyId !== input.storyId || !Array.isArray(candidate.bindingProofs)
+    || !Array.isArray(candidate.commandDigests) || candidate.commandDigests.length === 0
+    || candidate.commandDigests.some(value => typeof value !== 'string' || !/^sha256:[a-f0-9]{64}$/.test(value))) return reject('proof schema/story/bindings/case digests invalid');
   return {
     schemaVersion: 'proofstory.pre_review_executable_proof.v1',
     storyId: input.storyId,
     producer: 'registered-verification-command',
     verifier: 'pre-review-check-command-runner',
-    commandDigests: [digest({ command: transcript.actual.command, stdout: transcript.actual.stdout, receipt: receipt.integrityHash })],
+    commandDigests: stable([
+      ...candidate.commandDigests,
+      digest({ command: transcript.actual.command, stdout: transcript.actual.stdout, receipt: receipt.integrityHash }),
+    ]),
     bindingProofs: candidate.bindingProofs,
   };
 }

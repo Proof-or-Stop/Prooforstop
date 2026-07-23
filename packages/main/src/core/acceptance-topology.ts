@@ -293,8 +293,14 @@ function pushDiagnostic(
 export function isAcceptanceBasisPathSourceRef(value: unknown): value is string {
   if (typeof value !== 'string' || value.length > 8_192 || value !== value.trim()) return false;
   if (/[\x00-\x1f\x7f]/.test(value)) return false;
-  const path = value.slice('basis-path:'.length);
-  return value.startsWith('basis-path:path:') && /^path:.+->.+$/.test(path);
+  const sourceFile = '[A-Za-z0-9_./-]+\\.(?:ts|tsx|mts|cts|js|jsx|mjs|cjs)';
+  const symbol = '[A-Za-z_$][A-Za-z0-9_$]*';
+  const staticCall = new RegExp(`^basis-path:path:static-call:${sourceFile}#${symbol}->consumer:${sourceFile}#${symbol}$`);
+  if (staticCall.test(value)) return true;
+  const factName = '[a-z][a-z0-9_:.-]*';
+  const registryConsumer = '[A-Za-z0-9_ ./():<>,&-]+';
+  return new RegExp(`^basis-path:path:process-fact:${factName}->consumer:${registryConsumer}$`).test(value)
+    || new RegExp(`^basis-path:path:runtime-fact:${factName}->checker:${registryConsumer}$`).test(value);
 }
 
 function isBasisReconciledSourcePosition(path: string): boolean {

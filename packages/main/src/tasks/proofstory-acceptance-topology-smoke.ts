@@ -455,6 +455,7 @@ assert.ok(!basisPathStructuralReport.rows[0].diagnosticCodes.includes('AT_UNKNOW
 for (const malformed of [
   'basis-path:static-call:a#produce->consumer:b#consume',
   'basis-path:path:not-an-edge',
+  'basis-path:path:bogus:x->y',
   'basis-path:path:static-call:a#produce->consumer:b#consume\nforged',
 ]) {
   const malformedTopology = { ...topology, commandRefs: [{ refKind: 'existing' as const, canonicalSourceRef: malformed }] };

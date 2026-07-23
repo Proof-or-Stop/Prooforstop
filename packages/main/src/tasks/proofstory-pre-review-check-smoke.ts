@@ -13,6 +13,7 @@ import { runPreReviewCheckGate } from '../handlers/transition-orchestrator.js';
 import { loadVerifiedPreReviewExecutableProof, PRE_REVIEW_LIVE_PROOF_COMMAND } from '../core/pre-review-check.js';
 import { currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
+import { buildActiveStoryPreReviewLiveProof, buildPreReviewLiveProof } from '../core/pre-review-live-proof.js';
 import type { AcceptanceVerificationTopologyV1, ChecklistData, ProofStoryContractData, ScopeCheckData, ScopeContractData, StoryInfo } from '../core/types.js';
 import type { HandlerContext } from '../handlers/context.js';
 
@@ -22,6 +23,15 @@ const latticeBin = join(repositoryRoot, 'bin/lattice.js');
 const storyId = 'B-pre-review-smoke';
 const baseAt = '2026-07-22T00:00:00.000Z';
 const liveProofMode = process.argv.includes('--live-proof');
+const consumerControlSource = "import { produceFact } from './producer.js'; export const consumeFact=()=>produceFact().fact; export const invokeConsumer=()=>consumeFact();\n";
+
+if (liveProofMode) {
+  const activeStoryId = process.env.LATTICE_ACTIVE_STORY_ID;
+  if (!activeStoryId) throw new Error('--live-proof requires LATTICE_ACTIVE_STORY_ID from live_smoke_transcript');
+  const proof = buildActiveStoryPreReviewLiveProof(process.cwd(), activeStoryId);
+  console.log(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(proof)}`);
+  process.exit(0);
+}
 
 function write(root: string, rel: string, content: string): void {
   mkdirSync(dirname(join(root, rel)), { recursive: true });
@@ -66,12 +76,13 @@ const topology: AcceptanceVerificationTopologyV1 = {
     { refKind: 'existing', canonicalSourceRef: 'process-fact:pre_review_check' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:pre_review_check_read' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:artifact:pre-review-check.json' },
+    { refKind: 'existing', canonicalSourceRef: 'basis-path:path:static-call:packages/main/src/producer.ts#produceFact->consumer:packages/main/src/consumer.ts#produceFact' },
   ],
 };
 function executableProof(story: string, bindingId: string, positiveIds: string[], mutationIds: string[], transcriptIds: string[]) {
   return {
     schemaVersion: 'proofstory.pre_review_executable_proof.v1', storyId: story,
-    producer: 'test-output-is-untrusted-until-canonical-runner-receipt', verifier: 'test-output-is-untrusted-until-pre-review-verifier', commandDigests: [],
+    producer: 'test-output-is-untrusted-until-canonical-runner-receipt', verifier: 'test-output-is-untrusted-until-pre-review-verifier', commandDigests: [`sha256:${'1'.repeat(64)}`],
     bindingProofs: [{
       bindingId, positiveAssertionIds: positiveIds,
       mutationProofs: mutationIds.map((mutationId, index) => ({ mutationId, expectedCode: `PR_MUTATION_${index + 1}_BIT`, observedCode: `PR_MUTATION_${index + 1}_BIT`, controlRestored: true })),
@@ -81,15 +92,9 @@ function executableProof(story: string, bindingId: string, positiveIds: string[]
 }
 const fixtureProof = {
   schemaVersion: 'proofstory.pre_review_executable_proof.v1', storyId,
-  producer: 'test-output-is-untrusted-until-canonical-runner-receipt', verifier: 'test-output-is-untrusted-until-pre-review-verifier', commandDigests: [],
+  producer: 'test-output-is-untrusted-until-canonical-runner-receipt', verifier: 'test-output-is-untrusted-until-pre-review-verifier', commandDigests: [`sha256:${'1'.repeat(64)}`],
   bindingProofs: [{ bindingId: 'AC-PRE', positiveAssertionIds: ['A'], mutationProofs: [{ mutationId: 'M', expectedCode: 'PR_PRODUCTION_PATH_UNPROVEN', observedCode: 'PR_PRODUCTION_PATH_UNPROVEN', controlRestored: true }], transcriptProofs: [{ transcriptId: 'T', producerRefs: ['P'], consumerRefs: ['C'], producerSequence: 0, consumerSequence: 1 }] }],
 };
-const storyProof = executableProof(
-  'B-4ec1', 'AB-WAVE3-PRE-REVIEW',
-  ['A-POS-1', 'A-POS-2', 'A-POS-3', 'A-POS-4'],
-  Array.from({ length: 17 }, (_, index) => `A-MUT-${index + 1}`),
-  ['A-TRANSCRIPT-1'],
-);
 function checklist(): ChecklistData {
   return { items: [{ id: 'CHK-001', title: 'pre review', status: 'done', startTime: baseAt, endTime: baseAt,
     files: { modify: [], create: ['packages/main/src/producer.ts', 'packages/main/src/consumer.ts'], test: [] },
@@ -134,6 +139,7 @@ function writeRegistration(root: string): void {
   write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology=true;\n');
   write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const agentDispatch=true;\n');
   write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck=true;\n');
+  write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCritic=true;\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['pre_review_check','pre_review_check_read','artifact:pre-review-check.json'];\n");
 }
@@ -141,6 +147,24 @@ function writeRegistration(root: string): void {
 function writeLiveProofFixture(root: string, proof: unknown): void {
   write(root, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js', `console.log(${JSON.stringify(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(proof)}`)});\n`);
 }
+
+function writeActiveLiveProofRunner(root: string): void {
+  const moduleUrl = new URL('../core/pre-review-live-proof.js', import.meta.url).href;
+  write(root, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js', [
+    `import { buildActiveStoryPreReviewLiveProof } from ${JSON.stringify(moduleUrl)};`,
+    "const storyId = process.env.LATTICE_ACTIVE_STORY_ID;",
+    "if (!storyId) throw new Error('missing LATTICE_ACTIVE_STORY_ID');",
+    "console.log('PROOFSTORY_PRE_REVIEW_PROOF=' + JSON.stringify(buildActiveStoryPreReviewLiveProof(process.cwd(), storyId)));",
+    '',
+  ].join('\n'));
+}
+
+const secondStoryContract = contract();
+secondStoryContract.storyId = 'B-pre-review-second';
+const secondStoryProof = buildPreReviewLiveProof({ storyId: secondStoryContract.storyId, checklist: checklist(), contract: secondStoryContract, ledger: null });
+assert.equal(secondStoryProof.storyId, 'B-pre-review-second', 'live proof derives story identity from invocation context');
+assert.equal(secondStoryProof.bindingProofs[0].mutationProofs[0].observedCode, 'AT_UNKNOWN_REF', 'live proof records the evaluator-observed mutation outcome');
+assert.ok(secondStoryProof.commandDigests.length >= 3, 'positive, mutation, and transcript case artifacts are digest-bound');
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-pre-review-'));
 const originalCwd = process.cwd();
@@ -151,9 +175,9 @@ try {
   write(root, 'tsconfig.json', '{}\n');
   writeRegistration(root);
   write(root, 'packages/main/src/producer.ts', 'export const produceFact=()=>({fact:true});\n');
-  write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact;\n');
+  write(root, 'packages/main/src/consumer.ts', consumerControlSource);
   write(root, 'emit-proof.mjs', `console.log(${JSON.stringify(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(fixtureProof)}`)});\n`);
-  writeLiveProofFixture(root, fixtureProof);
+  writeActiveLiveProofRunner(root);
   git(root, ['init', '-b', 'main']); git(root, ['config', 'user.name', 'Pre Review Smoke']); git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['add', '.']); git(root, ['commit', '-m', 'seed']); git(root, ['switch', '-c', `story/${storyId}`]);
   process.chdir(root); resetConfigCache();
@@ -211,27 +235,6 @@ try {
     assert.equal(parsed.ok, true, 'exact topology restoration returns the clean control to PASS');
   }
 
-  if (liveProofMode) {
-    const missingTranscriptProof = structuredClone(fixtureProof); missingTranscriptProof.bindingProofs[0].transcriptProofs = [];
-    captureProof(missingTranscriptProof);
-    assert.ok(JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })).codes.includes('PR_TRANSCRIPT_MISSING'));
-    const duplicateMutationProof = structuredClone(fixtureProof); duplicateMutationProof.bindingProofs[0].mutationProofs.push(structuredClone(duplicateMutationProof.bindingProofs[0].mutationProofs[0]));
-    captureProof(duplicateMutationProof);
-    assert.ok(JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })).codes.includes('PR_MUTATION_EVIDENCE_MISSING'));
-    captureProof(fixtureProof);
-    assert.equal(JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })).ok, true);
-    write(root, 'packages/main/src/consumer.ts', 'export const wrongSymbol=()=>false;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'live mutation remove planned consumer']);
-    assert.ok(JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })).codes.includes('PR_PLANNED_PATH_UNRESOLVED'));
-    write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'live restore planned consumer']);
-    captureProof(fixtureProof);
-    assert.equal(JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })).ok, true);
-    const tampered = structuredClone(store.readPreReviewCheck(storyId)!); tampered.signature = 'forged'; store.writePreReviewCheck(storyId, tampered);
-    assert.match(runPreReviewCheckGate({ root, scanRoot: join(root, 'packages/main'), store: new StoryStore(root) } as unknown as HandlerContext, storyId), /PR_ARTIFACT_TAMPERED/);
-    console.log(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(storyProof)}`);
-    console.log('ProofStory pre-review live proof: PASS');
-    break smoke;
-  }
-
   const artifact = store.readPreReviewCheck(storyId)!;
   const artifactMutations: Array<[string, (value: any) => void]> = [
     ['story', value => { value.storyId = 'B-cross-story'; }], ['mode', value => { value.mode = 'enforce'; }],
@@ -258,6 +261,10 @@ try {
   captureProof(duplicateMutationProof);
   const duplicateMutation = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
   assert.ok(duplicateMutation.codes.includes('PR_MUTATION_EVIDENCE_MISSING'), JSON.stringify(duplicateMutation.codes));
+  const wrongObservedOutcome = structuredClone(fixtureProof); wrongObservedOutcome.bindingProofs[0].mutationProofs[0].observedCode = 'FORGED_SAME_ID_OUTCOME';
+  captureProof(wrongObservedOutcome);
+  const wrongObserved = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
+  assert.ok(wrongObserved.codes.includes('PR_MUTATION_DID_NOT_BITE'), 'retaining mutation IDs while tampering the observed outcome bites');
   const missingBindingProof = structuredClone(fixtureProof); missingBindingProof.bindingProofs = [];
   captureProof(missingBindingProof);
   const missingBinding = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true }));
@@ -268,17 +275,38 @@ try {
   write(root, 'packages/main/src/consumer.ts', 'export const wrongSymbol=()=>false;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'mutation remove planned consumer']);
   const unresolved = cli(root, 'pre_review_check', { storyId, json: true });
   assert.match(unresolved, /PR_PLANNED_PATH_UNRESOLVED/, 'removing the declared current consumer makes planned-to-actual reconciliation fail');
-  write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore planned consumer']);
+  write(root, 'packages/main/src/consumer.ts', consumerControlSource); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore planned consumer']);
   parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'source restoration returns clean control to PASS');
-  write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact; const duplicate={consumeFact(){return false;}};\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'mutation ambiguous planned consumer']);
+  write(root, 'packages/main/src/consumer.ts', "import { produceFact } from './producer.js'; export function consumeFact(){return produceFact().fact;} export const consumeFact=()=>produceFact().fact; export const invokeConsumer=()=>consumeFact();\n"); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'mutation ambiguous planned consumer']);
   const ambiguous = cli(root, 'pre_review_check', { storyId, json: true });
   assert.match(ambiguous, /PR_PLANNED_PATH_UNRESOLVED/, 'multiple exact symbol declarations are ambiguous rather than self-certifying actual coverage');
-  write(root, 'packages/main/src/consumer.ts', 'export const consumeFact=(v:{fact:boolean})=>v.fact;\n'); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore unique planned consumer']);
+  write(root, 'packages/main/src/consumer.ts', consumerControlSource); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore unique planned consumer']);
   parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'unique AST-discovered endpoint restoration returns PASS');
+  for (const [label, source] of [
+    ['interface', 'export interface consumeFact { value: boolean }\n'],
+    ['type', 'export type consumeFact = { value: boolean };\n'],
+    ['enum', 'export enum consumeFact { Value }\n'],
+    ['dead const', 'export const consumeFact = 42;\n'],
+    ['nested property', 'export const holder = { consumeFact() { return true; } };\n'],
+    ['unreachable callable', 'export const consumeFact = () => true;\n'],
+  ] as const) {
+    write(root, 'packages/main/src/consumer.ts', source); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', `mutation ${label} is not a runtime consumer`]);
+    assert.match(cli(root, 'pre_review_check', { storyId, json: true }), /PR_PLANNED_PATH_UNRESOLVED/, `${label} name collision cannot satisfy planned actual runtime reachability`);
+  }
+  write(root, 'packages/main/src/consumer.ts', consumerControlSource); git(root, ['add', 'packages/main/src/consumer.ts']); git(root, ['commit', '-m', 'restore callable producer consumer chain']);
+  captureProof(fixtureProof);
+  parsed = JSON.parse(cli(root, 'pre_review_check', { storyId, json: true })); assert.equal(parsed.ok, true, 'registered/exported callable relation restoration returns PASS');
+  const controlKindChecklist = store.readChecklist(storyId);
+  const wrongKindChecklist = structuredClone(controlKindChecklist);
+  wrongKindChecklist.items[0].verificationIntent!.happy[0].plannedPathDeclarations![0].consumers[0].expectedArtifactKind = 'process_fact';
+  store.writeChecklist(storyId, wrongKindChecklist);
+  assert.match(cli(root, 'pre_review_check', { storyId, json: true }), /PR_PLANNED_PATH_UNRESOLVED/, 'artifact-kind mismatch cannot reuse a callable handler name as a process fact');
+  store.writeChecklist(storyId, controlKindChecklist);
+  captureProof(fixtureProof);
 
   const equalCutoff = store.readChecklist(storyId); equalCutoff.items[0].verificationEvidence![0].timestamp = parsed.artifact.cutoffAt; store.writeChecklist(storyId, equalCutoff);
   const cutoff = cli(root, 'pre_review_check_read', { storyId, json: true });
-  assert.match(cutoff, /PR_POSITIVE_EVIDENCE_MISSING|PR_CUTOFF_UNBOUND/, 'evidence at cutoff is excluded (>= fail-closed)');
+  assert.match(cutoff, /PR_ARTIFACT_TAMPERED|PR_POSITIVE_EVIDENCE_MISSING|PR_CUTOFF_UNBOUND/, 'evidence timestamp mutation at the signed cutoff fails closed');
 
   // Flat project mode is the only rollout selector in Wave 3. Rebind the PLAN
   // basis/evidence after config material changes so the mode assertions test
@@ -328,7 +356,6 @@ try {
   assert.match(handlerSource, /evaluatePreReviewCheckForContext/);
   assert.match(consumerSource, /runPreReviewCheckGate/);
   assert.doesNotMatch(handlerSource + consumerSource, /selective_applicability_check|rollout_telemetry/);
-  console.log(`PROOFSTORY_PRE_REVIEW_PROOF=${JSON.stringify(storyProof)}`);
   console.log('ProofStory pre-review check smoke: PASS');
   console.log('  producer/read/lifecycle verifier parity: PASS');
   console.log('  planned→actual + executable/mutation/transcript/authority: PASS');

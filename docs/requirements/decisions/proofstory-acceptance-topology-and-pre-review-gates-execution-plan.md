@@ -855,6 +855,22 @@ actual discovered paths, or admission fails.
     edge or to an exclusion carrying an independently approved decision ref.
 18. Every topology producer/consumer source ref occurs in the current basis;
     topology cannot expand or narrow its own closure universe.
+    Two bounded forward-declaration forms are the only PLAN exceptions. First,
+    the discovery-owned deferred pre-review fact set is exactly
+    `pre_review_check`, `pre_review_check_read`, and
+    `artifact:pre-review-check.json`; this is a closed platform allowlist, not a
+    story-authored prefix or arbitrary future-phase category. Second, an
+    existing source ref may use `basis-path:` only in producer, consumer, or
+    command positions and only for the verifier-producible canonical path
+    grammars `path:process-fact:<fact>->consumer:<consumer>`,
+    `path:runtime-fact:<fact>->checker:<checker>`, or
+    `path:static-call:<source>#<symbol>->consumer:<source>#<symbol>`. Unknown
+    path kinds, free-form edges, and basis paths in positive, mutation, or
+    transcript assertion positions are invalid.
+    PLAN may retain those strict refs before the later-phase path materializes;
+    pre-REVIEW removes that deferral and requires every ref to occur exactly in
+    the current verifier-derived basis. Missing, misspelled, or deleted edges
+    therefore fail closed as outside/unmapped coverage.
 19. A `complete` basis has no unresolved blind spots. Dynamic/reflection/plugin
     paths require an admissible runtime trace or force `partial`/`unsupported`.
 20. The basis digest, scope-artifact digests, current `storyFilesHash`, and
@@ -879,6 +895,13 @@ actual discovered paths, or admission fails.
 25. Every planned path is reconciled to current actual discovery before REVIEW.
     No unresolved planned endpoint can satisfy executable readiness; expansions
     and approved replacements remain subject to topology/basis closure.
+    Endpoint resolution is artifact-kind aware and runtime aware: a handler or
+    dispatch must be registered/reachable, a process fact must resolve through
+    the process-fact registry, and a source endpoint must be an exported
+    callable on a proven producer→consumer relation. A same-named interface,
+    type, enum, dead constant, nested property, or unreachable callable is not
+    an actual endpoint. The relation itself must be witnessed by a bound static
+    call or by the registered process-fact producer/consumer contract.
 26. The registered discovery profile, not the basis payload, determines required
     adapters. Every required adapter has exactly one digest-valid result record.
 27. `discoveryMethods`, aggregate paths, and aggregate blind spots equal the
@@ -1118,6 +1141,14 @@ That bounded mode executes the production producer/read/lifecycle chain and
 the required exact-cardinality, authority, planned→actual, restoration, and
 tamper mutations within the fixed live-smoke safety ceiling. Merely printing a
 proof-shaped JSON line from another command remains inadmissible.
+The fixed argv is necessary but not sufficient: `live_smoke_transcript` injects
+the active story identity into that runner, and the runner reads that story's
+current contract/topology rather than carrying a story ID or case count in its
+source. It executes each binding's positive, mutation, clean-control, and
+producer-before-consumer transcript checks, records evaluator-observed mutation
+codes, and emits canonical per-case digests. The causal receipt binds those
+digests and the captured output; retaining case IDs while changing an observed
+outcome is therefore a failing mutation, not admissible self-report.
 
 | Code | Condition |
 |---|---|

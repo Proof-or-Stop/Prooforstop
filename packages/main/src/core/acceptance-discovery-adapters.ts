@@ -7,6 +7,7 @@ import type {
   CoverageAdapterResultV1,
   CoverageDiscoveryMethodV1,
   PlannedCoveragePathV1,
+  VerificationPlannedPathEndpointV1,
 } from './types.js';
 import { digestCanonicalJson, digestText } from './digest.js';
 import { PROCESS_FACT_REGISTRY, type ProcessFactRegistryEntry } from './process-fact-registry.js';
@@ -1245,38 +1246,111 @@ function staticCallPaths(input: AcceptanceDiscoveryInput, graph: BoundedSourceGr
   return { paths: stable(paths), blindSpots: stable(blindSpots) };
 }
 
-function sourceExactSymbolCount(file: string, text: string, expected: string): number {
-  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, scriptKindFor(file));
+function isExported(node: ts.Node): boolean {
+  return (ts.getCombinedModifierFlags(node as ts.Declaration) & ts.ModifierFlags.Export) !== 0;
+}
+
+function exportedCallableCount(source: ts.SourceFile, expected: string): number {
   let count = 0;
-  const named = (name: ts.PropertyName | ts.BindingName | undefined): boolean => {
-    if (!name) return false;
-    return (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) && name.text === expected;
-  };
-  const visit = (node: ts.Node): void => {
-    if ((ts.isFunctionDeclaration(node) || ts.isClassDeclaration(node) || ts.isInterfaceDeclaration(node)
-      || ts.isTypeAliasDeclaration(node) || ts.isEnumDeclaration(node)) && node.name?.text === expected) count += 1;
-    else if (ts.isVariableDeclaration(node) && named(node.name)) count += 1;
-    else if ((ts.isMethodDeclaration(node) || ts.isMethodSignature(node) || ts.isPropertyDeclaration(node)
-      || ts.isPropertySignature(node) || ts.isPropertyAssignment(node) || ts.isShorthandPropertyAssignment(node)) && named(node.name)) count += 1;
-    ts.forEachChild(node, visit);
-  };
-  visit(source);
+  for (const statement of source.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name?.text === expected && statement.body && isExported(statement)) count += 1;
+    if (!ts.isVariableStatement(statement) || !isExported(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== expected || !declaration.initializer) continue;
+      const initializer = unwrapExpression(declaration.initializer);
+      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) count += 1;
+    }
+  }
   return count;
+}
+
+function sameFileCallableCalls(source: ts.SourceFile, caller: string, callee: string): boolean {
+  let found = false;
+  const inspectBody = (node: ts.Node): void => {
+    if (ts.isCallExpression(node) && ts.isIdentifier(unwrapExpression(node.expression))
+      && (unwrapExpression(node.expression) as ts.Identifier).text === callee) found = true;
+    if (!found) ts.forEachChild(node, inspectBody);
+  };
+  for (const statement of source.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name?.text === caller && statement.body) inspectBody(statement.body);
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== caller || !declaration.initializer) continue;
+      const initializer = unwrapExpression(declaration.initializer);
+      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) inspectBody(initializer.body);
+    }
+  }
+  return found;
+}
+
+function hasSameFileIncomingCall(source: ts.SourceFile, expected: string): boolean {
+  for (const statement of source.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name && statement.name.text !== expected
+      && sameFileCallableCalls(source, statement.name.text, expected)) return true;
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (ts.isIdentifier(declaration.name) && declaration.name.text !== expected
+        && sameFileCallableCalls(source, declaration.name.text, expected)) return true;
+    }
+  }
+  return false;
+}
+
+function registeredHandlerEndpoint(graph: BoundedSourceGraph, endpoint: VerificationPlannedPathEndpointV1): boolean {
+  return graph.factories.some(factory => factory.registered && factory.sourceFile === endpoint.expectedFileRef
+    && factory.commandKeys.includes(endpoint.expectedSymbolOrFact));
+}
+
+function endpointMatchesArtifactKind(graph: BoundedSourceGraph, endpoint: VerificationPlannedPathEndpointV1): boolean {
+  if (endpoint.expectedArtifactKind === 'process_fact') {
+    return graph.entries.some(entry => entry.name === endpoint.expectedSymbolOrFact && sourceFiles(entry).includes(endpoint.expectedFileRef));
+  }
+  const registered = registeredHandlerEndpoint(graph, endpoint);
+  if (endpoint.expectedArtifactKind === 'dispatch') return registered;
+  const source = graph.sourceScans.get(endpoint.expectedFileRef) ? graph.readContext.snapshots.get(endpoint.expectedFileRef) : undefined;
+  if (source === undefined) return false;
+  const parsed = ts.createSourceFile(endpoint.expectedFileRef, source, ts.ScriptTarget.Latest, true, scriptKindFor(endpoint.expectedFileRef));
+  const exported = exportedCallableCount(parsed, endpoint.expectedSymbolOrFact);
+  if (endpoint.expectedArtifactKind === 'handler') return Number(registered) + exported === 1;
+  return exported === 1;
+}
+
+function endpointIsRuntimeReachable(graph: BoundedSourceGraph, endpoint: VerificationPlannedPathEndpointV1): boolean {
+  if (endpoint.expectedArtifactKind === 'process_fact' || registeredHandlerEndpoint(graph, endpoint)) return true;
+  const importedIncoming = [...graph.sourceScans.values()].some(scan => scan.calledImports.some(call =>
+    call.sourceFile === endpoint.expectedFileRef && call.imported === endpoint.expectedSymbolOrFact));
+  if (importedIncoming) return true;
+  const sourceText = graph.readContext.snapshots.get(endpoint.expectedFileRef);
+  if (sourceText === undefined) return false;
+  const source = ts.createSourceFile(endpoint.expectedFileRef, sourceText, ts.ScriptTarget.Latest, true, scriptKindFor(endpoint.expectedFileRef));
+  return hasSameFileIncomingCall(source, endpoint.expectedSymbolOrFact);
+}
+
+function producerConsumerRelation(
+  graph: BoundedSourceGraph,
+  producer: VerificationPlannedPathEndpointV1,
+  consumer: VerificationPlannedPathEndpointV1,
+): boolean {
+  const importedCall = (graph.sourceScans.get(consumer.expectedFileRef)?.calledImports ?? []).some(call =>
+    call.sourceFile === producer.expectedFileRef && call.imported === producer.expectedSymbolOrFact);
+  const source = graph.readContext.snapshots.get(consumer.expectedFileRef) !== undefined
+    ? ts.createSourceFile(consumer.expectedFileRef, graph.readContext.snapshots.get(consumer.expectedFileRef)!, ts.ScriptTarget.Latest, true, scriptKindFor(consumer.expectedFileRef))
+    : undefined;
+  const sameFileCall = producer.expectedFileRef === consumer.expectedFileRef && source
+    ? sameFileCallableCalls(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact) : false;
+  const registryRelation = graph.entries.some(entry => commandNamesForEntry(entry).includes(producer.expectedSymbolOrFact)
+    && (entry.consumerSourceRefs ?? []).includes(consumer.expectedFileRef)
+    && (sourceFiles(entry).includes(producer.expectedFileRef) || registeredHandlerEndpoint(graph, producer)));
+  return importedCall || sameFileCall || registryRelation;
 }
 
 function actualEndpointPathRefs(input: AcceptanceDiscoveryInput, graph: BoundedSourceGraph): string[] {
   const refs: string[] = [];
   for (const record of input.plannedPathRecords) {
-    for (const endpoint of [record.producer, ...record.consumers]) {
-      const actualRef = `actual:${endpoint.expectedArtifactKind}:${endpoint.expectedFileRef}#${endpoint.expectedSymbolOrFact}`;
-      if (endpoint.expectedArtifactKind === 'process_fact') {
-        if (graph.entries.some(entry => entry.name === endpoint.expectedSymbolOrFact
-          && sourceFiles(entry).includes(endpoint.expectedFileRef))) refs.push(actualRef);
-        continue;
-      }
-      const sourceText = graph.readContext.snapshots.get(endpoint.expectedFileRef);
-      if (sourceText !== undefined && sourceExactSymbolCount(endpoint.expectedFileRef, sourceText, endpoint.expectedSymbolOrFact) === 1) refs.push(actualRef);
-    }
+    const endpoints = [record.producer, ...record.consumers];
+    if (!endpoints.every(endpoint => endpointMatchesArtifactKind(graph, endpoint) && endpointIsRuntimeReachable(graph, endpoint))) continue;
+    if (!record.consumers.every(consumer => producerConsumerRelation(graph, record.producer, consumer))) continue;
+    refs.push(...endpoints.map(endpoint => `actual:${endpoint.expectedArtifactKind}:${endpoint.expectedFileRef}#${endpoint.expectedSymbolOrFact}`));
   }
   return stable(refs);
 }

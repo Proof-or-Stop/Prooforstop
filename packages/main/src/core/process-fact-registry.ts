@@ -891,7 +891,7 @@ const COMMAND_PROCESS_FACTS: ProcessFactRegistryEntry[] = PROCESS_FACT_LEVELS
     destructiveRisk: policy?.destructiveRisk,
     producer: entry.owner,
     producerSourceRefs: ['pre_review_check', 'pre_review_check_read'].includes(entry.name)
-      ? ['packages/main/src/core/pre-review-check.ts']
+      ? ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/core/pre-review-live-proof.ts']
       : ['acceptance_basis_generate', 'acceptance_basis', 'acceptance_topology_check'].includes(entry.name)
       ? ['packages/main/src/handlers/proofstory.ts', 'packages/main/src/registry.ts']
       : undefined,
@@ -1076,11 +1076,11 @@ export const PROCESS_FACT_ARTIFACTS = [
     semantics: ['artifact', 'signed-artifact', 'schema-contract', 'verification-policy', 'freshness-policy', 'workspace-binding', 'execution-evidence', 'gate-evidence'],
     level: 'L4',
     producer: 'handlers/proofstory.pre_review_check',
-    producerSourceRefs: ['packages/main/src/core/pre-review-check.ts'],
+    producerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/core/pre-review-live-proof.ts'],
     consumerGate: 'pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate',
     consumerSourceRefs: ['packages/main/src/core/pre-review-check.ts', 'packages/main/src/handlers/transition-orchestrator.ts'],
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.pre_review_check,
-    rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, exact AST-discovered planned-to-actual reconciliation, and per-acceptance-binding positive/mutation/control/transcript rows captured by the registered live_smoke_transcript writer with a causally valid closeout receipt. The captured argv must equal the fixed bounded --live-proof runner command; arbitrary commands, raw verificationEvidence checkedClaims/actorTrust, and global transcript presence grant no authority. The artifact also binds the strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation.',
+    rationale: 'Verifier-owned signed pre-review artifact binds the recomputed current-worktree basis, artifact-kind/runtime-aware planned-to-actual reconciliation, and active-story-derived per-acceptance-binding positive/mutation/control/transcript case digests captured by the registered live_smoke_transcript writer with a causally valid closeout receipt. The argv must equal the fixed bounded --live-proof runner and the receipt must bind its case digests/output; hard-coded story/counts, arbitrary commands, raw verificationEvidence checkedClaims/actorTrust, and global transcript presence grant no authority. The artifact also binds the strict cutoff, topology/scope/story/closure hashes, flat project mode, and enforced independent critic re-attestation.',
   },
   {
     name: 'artifact:topology-exclusion-approvals.json',

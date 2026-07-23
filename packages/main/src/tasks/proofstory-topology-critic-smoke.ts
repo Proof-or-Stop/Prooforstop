@@ -92,7 +92,7 @@ const declaration = {
   schemaVersion: 'proofstory.verification_planned_path_declaration.v1' as const,
   id: 'VPP-CRITIC', relation: 'producer_to_consumer' as const,
   producer: { id: 'EP-P', role: 'producer' as const, expectedArtifactKind: 'handler' as const, expectedFileRef: 'packages/main/src/producer.ts', expectedSymbolOrFact: 'produce', fileDeclarationRef: 'CHK-001:files:create:0' },
-  consumers: [{ id: 'EP-C', role: 'consumer' as const, expectedArtifactKind: 'process_fact' as const, expectedFileRef: 'packages/main/src/consumer.ts', expectedSymbolOrFact: 'consume', fileDeclarationRef: 'CHK-001:files:create:1' }],
+  consumers: [{ id: 'EP-C', role: 'consumer' as const, expectedArtifactKind: 'handler' as const, expectedFileRef: 'packages/main/src/consumer.ts', expectedSymbolOrFact: 'consume', fileDeclarationRef: 'CHK-001:files:create:1' }],
   outputFactRef: 'process-fact:topology-critic',
 };
 
@@ -109,6 +109,7 @@ const topology: AcceptanceVerificationTopologyV1 = {
     { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_topology_check' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:artifact:acceptance-basis.json' },
+    { refKind: 'existing', canonicalSourceRef: 'basis-path:path:static-call:packages/main/src/producer.ts#produce->consumer:packages/main/src/consumer.ts#produce' },
   ],
 };
 
@@ -160,6 +161,7 @@ function writeDiscoveryRegistration(root: string): void {
   write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology=true;\n');
   write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const topologyCriticRole=true;\n');
   write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck=true;\n');
+  write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt=true;\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const topologyConsumer=true;\n');
 }
@@ -180,7 +182,7 @@ smokeSuite: try {
   write(root, 'tsconfig.json', '{}\n');
   writeDiscoveryRegistration(root);
   write(root, 'packages/main/src/producer.ts', 'export const produce=()=>true;\n');
-  write(root, 'packages/main/src/consumer.ts', 'export const consume=()=>true;\n');
+  write(root, 'packages/main/src/consumer.ts', "import {produce} from './producer.js'; export const consume=()=>produce(); export const invokeConsumer=()=>consume();\n");
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.name', 'Independent Reviewer']);
   git(root, ['config', 'user.email', 'reviewer@noreply.local']);

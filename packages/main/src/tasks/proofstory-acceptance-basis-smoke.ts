@@ -123,6 +123,7 @@ const topology: AcceptanceVerificationTopologyV1 = {
     { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_topology_check' },
     { refKind: 'existing', canonicalSourceRef: 'process-fact:artifact:acceptance-basis.json' },
+    { refKind: 'existing', canonicalSourceRef: 'basis-path:path:static-call:packages/main/src/producer.ts#produceBasis->consumer:packages/main/src/consumer.ts#produceBasis' },
   ],
 };
 
@@ -160,6 +161,7 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const agentDispatchRegistry = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const planConsumer = "acceptance_basis_generate";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
@@ -213,7 +215,7 @@ try {
   });
   assert.equal(plannedBeforeCode.basis.status, 'complete', `valid PLAN endpoints are structurally complete before implementation files exist: ${JSON.stringify({ diagnostics: plannedBeforeCode.diagnostics, adapters: plannedBeforeCode.basis.adapterResults, blindSpots: plannedBeforeCode.basis.blindSpots, seal: plannedBeforeCode.basis.snapshotSeal }, null, 2)}`);
   write(pureRoot, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
-  write(pureRoot, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => true;\n');
+  write(pureRoot, 'packages/main/src/consumer.ts', "import { produceBasis } from './producer.js'; export const verifyBasis = () => produceBasis(); export const invokeBasis=()=>verifyBasis();\n");
   const input = {
     storyId, workspaceRoot: pureRoot, checklist: checklist(), contract: contract(), scopeCheck: scopeCheck(pureRoot), scopeContract: scopeContract(),
     headHash: 'head', materialHash: 'material', storyFilesHash: 'story', supported: true,
@@ -1166,7 +1168,7 @@ try {
   write(root, 'lattice.config.json', JSON.stringify({ storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements', scanRoot: 'packages/main', rootDir: 'src', outDir: 'packages/main/dist', testsDir: 'packages/main/tests', fixturesDir: 'packages/main/tests/fixtures' }, null, 2));
   write(root, 'packages/main/tsconfig.json', '{}\n');
   write(root, 'packages/main/src/producer.ts', 'export const produceBasis = () => true;\n');
-  write(root, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => true;\n');
+  write(root, 'packages/main/src/consumer.ts', "import { produceBasis } from './producer.js'; export const verifyBasis = () => produceBasis(); export const invokeBasis=()=>verifyBasis();\n");
   writeCanonicalAcceptanceRegistration(root);
   resetConfigCache();
   const store = new StoryStore(root);
@@ -1366,7 +1368,7 @@ try {
     status: git(root, ['status', '--porcelain']),
   }, legacySnapshot, 'legacy read and failed generation leave no partial artifact, event, or lifecycle mutation');
 
-  write(root, 'packages/main/src/consumer.ts', 'export const verifyBasis = () => false;\n');
+  write(root, 'packages/main/src/consumer.ts', "import { produceBasis } from './producer.js'; export const verifyBasis = () => produceBasis() && false; export const invokeBasis=()=>verifyBasis();\n");
   git(root, ['add', 'packages/main/src/consumer.ts']);
   git(root, ['commit', '-m', 'mutate closure source']);
   const stale = run(root, 'acceptance_basis', { storyId, json: true });
