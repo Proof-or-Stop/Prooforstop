@@ -103,7 +103,13 @@ const topology: AcceptanceVerificationTopologyV1 = {
   positiveAssertionRefs: [{ id: 'A', sourceRef: { refKind: 'existing', canonicalSourceRef: 'intent:INT-1' }, producerRefs: ['P'], consumerRefs: ['C'] }],
   mutationCaseRefs: [{ id: 'M', sourceRef: { refKind: 'existing', canonicalSourceRef: 'intent:INT-1' }, producerRefs: ['P'], consumerRefs: ['C'] }],
   transcriptAssertionRefs: [{ id: 'T', sourceRef: { refKind: 'existing', canonicalSourceRef: 'intent:INT-1' }, producerRefs: ['P'], consumerRefs: ['C'] }],
-  commandRefs: [{ refKind: 'existing', canonicalSourceRef: 'intent:INT-1' }],
+  commandRefs: [
+    { refKind: 'existing', canonicalSourceRef: 'intent:INT-1' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_basis_generate' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:acceptance_topology_check' },
+    { refKind: 'existing', canonicalSourceRef: 'process-fact:artifact:acceptance-basis.json' },
+  ],
 };
 
 function checklist(): ChecklistData {
@@ -131,9 +137,24 @@ function scopeCheck(root: string): ScopeCheckData {
 }
 
 function writeDiscoveryRegistration(root: string): void {
-  write(root, 'packages/main/src/cli/command-catalog.ts', "export const MAIN_TOOLS=[{name:'acceptance_basis'},{name:'acceptance_basis_generate'},{name:'topology_critic_receipt_set'},{name:'topology_critic_receipt_check'}];\n");
-  write(root, 'packages/main/src/registry.ts', "import {createProofStoryHandlers} from './handlers/proofstory.js'; const registry={registerBatch(_:unknown){}}; registry.registerBatch(createProofStoryHandlers({} as any));\n");
-  write(root, 'packages/main/src/handlers/proofstory.ts', "export function createProofStoryHandlers(){return{acceptance_basis(){},acceptance_basis_generate(){},topology_critic_receipt_set(){},topology_critic_receipt_check(){}}}\n");
+  write(root, 'packages/main/src/cli/command-catalog.ts', [
+    'export const MAIN_TOOLS=[',
+    "  {name:'acceptance_basis'},",
+    "  {name:'acceptance_basis_generate'},",
+    "  {name:'acceptance_topology_check'},",
+    "  {name:'topology_critic_receipt_set'},",
+    "  {name:'topology_critic_receipt_check'},",
+    '];',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/registry.ts', [
+    "import {createProofStoryHandlers} from './handlers/proofstory.js';",
+    'const registry={registerBatch(_:unknown){}};',
+    'const ctx={} as any;',
+    'registry.registerBatch(createProofStoryHandlers(ctx));',
+    '',
+  ].join('\n'));
+  write(root, 'packages/main/src/handlers/proofstory.ts', "export function createProofStoryHandlers(){return{acceptance_basis(){},acceptance_basis_generate(){},acceptance_topology_check(){},topology_critic_receipt_set(){},topology_critic_receipt_check(){}}}\n");
   write(root, 'packages/main/src/core/process-fact-registry.ts', "export const facts=['acceptance_basis','acceptance_basis_generate','topology_critic_receipt_set','topology_critic_receipt_check','artifact:acceptance-basis.json'];\n");
   write(root, 'scripts/verify-process-fact-contract.mjs', "export const facts=['acceptance_basis','acceptance_basis_generate','topology_critic_receipt_set','topology_critic_receipt_check','artifact:acceptance-basis.json'];\n");
   write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology=true;\n');

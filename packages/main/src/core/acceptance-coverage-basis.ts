@@ -163,6 +163,26 @@ function topologyPaths(contract: ProofStoryContractData | null): string[] {
   return stable(paths);
 }
 
+function topologyCanonicalRefs(contract: ProofStoryContractData | null): string[] {
+  const refs: string[] = [];
+  for (const binding of contract?.acceptanceBindings ?? []) {
+    const topology = binding.verificationTopology as AcceptanceVerificationTopologyV1 | undefined;
+    if (!topology) continue;
+    for (const node of [
+      ...topology.producerRefs,
+      ...topology.consumerRefs,
+      ...topology.positiveAssertionRefs,
+      ...topology.mutationCaseRefs,
+      ...topology.transcriptAssertionRefs,
+      ...topology.commandRefs,
+    ]) {
+      const value = sourceRefValue(node);
+      if (value?.startsWith('existing:')) refs.push(value.slice('existing:'.length));
+    }
+  }
+  return stable(refs);
+}
+
 function plannedPathRefs(records: readonly PlannedCoveragePathV1[]): string[] {
   return records.map(record => record.plannedPathRef);
 }
@@ -261,6 +281,7 @@ export function deriveAcceptanceCoverageBasis(input: AcceptanceBasisDerivationIn
     storyId: input.storyId,
     plannedPathRecords: planned.records,
     scopeRefs,
+    topologyPathRefs: topologyCanonicalRefs(input.contract),
     phaseBasis: input.phaseBasis ?? 'plan',
     testHooks: input.discoveryTestHooks,
   });

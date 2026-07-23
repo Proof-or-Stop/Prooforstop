@@ -23,6 +23,10 @@ export interface AcceptanceDiscoveryInput {
   storyId: string;
   plannedPathRecords: PlannedCoveragePathV1[];
   scopeRefs: string[];
+  /** Canonical topology refs that require registry closure even across scope. */
+  topologyPathRefs?: string[];
+  /** Compatibility-only helper mode for explicitly requesting a whole seeded handler factory. */
+  expandSeedHandlerCommands?: boolean;
   phaseBasis?: 'plan' | 'pre_review';
   /** Test-only bounded runtime observations; production derives without caller-authored paths. */
   runtimeObservedPathRefs?: string[];
@@ -904,11 +908,27 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
 }
 
 function returnedHandlerKeysFromText(sourceText: string): string[] {
-  const text = executableText(sourceText);
-  const returnIndex = text.indexOf('return {');
-  if (returnIndex < 0) return [];
-  const body = text.slice(returnIndex + 'return {'.length);
-  return stable([...body.matchAll(/^\s+([a-z][a-z0-9_]*)\s*(?:\([^\n]*\)\s*(?::[^\n{]+)?\{|:\s*)/gm)].map(match => match[1]));
+  const source = ts.createSourceFile('handler-factory.ts', sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const keys: string[] = [];
+  const propertyName = (name: ts.PropertyName | undefined): string | null => {
+    if (!name) return null;
+    if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
+    return null;
+  };
+  for (const statement of source.statements) {
+    if (!ts.isFunctionDeclaration(statement) || !statement.name || !/Handlers$/.test(statement.name.text) || !statement.body) continue;
+    for (const bodyStatement of statement.body.statements) {
+      if (!ts.isReturnStatement(bodyStatement) || !bodyStatement.expression) continue;
+      const returned = unwrapExpression(bodyStatement.expression);
+      if (!ts.isObjectLiteralExpression(returned)) continue;
+      for (const property of returned.properties) {
+        if (!ts.isMethodDeclaration(property) && !ts.isPropertyAssignment(property) && !ts.isShorthandPropertyAssignment(property)) continue;
+        const key = propertyName(property.name);
+        if (key && /^[a-z][a-z0-9_]*$/.test(key)) keys.push(key);
+      }
+    }
+  }
+  return stable(keys);
 }
 
 function commandNamesForEntry(entry: ProcessFactRegistryEntry): string[] {
@@ -933,6 +953,22 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const analysisContext = createBindingAnalysisContext(root, stable([...sourceInventory.files, ...seedFiles, ...registryCandidates]), readContext);
   const registryFiles = registryCandidates.filter(file => file === 'packages/main/src/registry.ts'
     || executableText(analysisContext.sourceFiles.get(file)?.text ?? '').includes('registerBatch('));
+  const planControlFacts = new Set(['acceptance_basis', 'acceptance_basis_generate', 'acceptance_topology_check', 'artifact:acceptance-basis.json']);
+  const preReviewControlFacts = new Set(['pre_review_check', 'pre_review_check_read', 'artifact:pre-review-check.json']);
+  const phaseControlFacts = new Set([...planControlFacts, ...preReviewControlFacts, 'acceptance_topology_check',
+    'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'topology_critic_receipt_check',
+    'artifact:topology-exclusion-approvals.json', 'artifact:topology-critic-receipt.json']);
+  const allowedPhaseControlFacts = (input.phaseBasis ?? 'plan') === 'pre_review'
+    ? new Set([...planControlFacts, ...preReviewControlFacts]) : planControlFacts;
+  const topologyFactNames = new Set((input.topologyPathRefs ?? [])
+    .map(ref => ref.startsWith('process-fact:') ? ref.slice('process-fact:'.length) : ref.startsWith('path:process-fact:') ? ref.slice('path:process-fact:'.length).split('->consumer:')[0] : '')
+    .filter(Boolean));
+  const plannedFactNames = new Set(input.plannedPathRecords.flatMap(record => [
+    record.outputFactRef.replace(/^process-fact:/, '').replace(/-/g, '_'),
+    record.producer.expectedSymbolOrFact,
+    ...record.consumers.map(consumer => consumer.expectedSymbolOrFact),
+  ]).filter(value => /^[a-z][a-z0-9_:.-]*$/.test(value)));
+  const relevantFactNames = new Set([...allowedPhaseControlFacts, ...topologyFactNames, ...plannedFactNames]);
   const factories: FactoryInventory[] = [];
   for (const registryFile of registryFiles) {
     const source = analysisContext.sourceFiles.get(registryFile);
@@ -943,15 +979,16 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
     const imports = registryScan.imports;
     const registrations = new Set([...text.matchAll(/registry\.registerBatch\(\s*([A-Za-z_$][\w$]*)\s*\(\s*ctx\s*\)\s*\)/g)].map(match => match[1]));
     for (const imported of imports.filter(item => /Handlers$/.test(item.imported) || /Handlers$/.test(item.local))) {
-      if (!seedFiles.includes(imported.sourceFile)) continue;
       const registered = registrations.has(imported.local);
       const commandKeys = returnedHandlerKeysFromText(analysisContext.sourceFiles.get(imported.sourceFile)?.text ?? '');
+      if (!seedFiles.includes(imported.sourceFile)
+        && input.expandSeedHandlerCommands !== true
+        && !commandKeys.some(command => relevantFactNames.has(command))) continue;
       factories.push({ factory: imported.local, sourceFile: imported.sourceFile, registered, commandKeys });
       if (!registered) blindSpots.push(`handler factory ${imported.local} from ${imported.sourceFile} lacks exact registerBatch(factory(ctx))`);
       if (commandKeys.length === 0) blindSpots.push(`handler factory ${imported.local} from ${imported.sourceFile} has ambiguous or empty returned command object`);
     }
   }
-  const handlerCommands = new Set(factories.flatMap(factory => factory.commandKeys));
   const inferredHandlerFiles = new Map<string, string>();
   for (const factory of factories) for (const command of factory.commandKeys) inferredHandlerFiles.set(command, factory.sourceFile);
   const entryFiles = (entry: ProcessFactRegistryEntry): string[] => stable([
@@ -961,33 +998,28 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const closure = new Set(seedFiles);
   const reached = new Set<ProcessFactRegistryEntry>();
   const hubs = new Set(registryFiles);
-  const boundedUniverse = sourceInventory.files;
-  const sourceScans = new Map(boundedUniverse.map(file => [file, analyzeLocalImportCalls(analysisContext, file)]));
-  blindSpots.push(...[...sourceScans.values()].flatMap(scan => scan.blindSpots));
-  const planControlFacts = new Set(['acceptance_basis', 'acceptance_basis_generate', 'acceptance_topology_check', 'artifact:acceptance-basis.json']);
-  const preReviewControlFacts = new Set(['pre_review_check', 'pre_review_check_read', 'artifact:pre-review-check.json']);
-  const phaseControlFacts = new Set([...planControlFacts, ...preReviewControlFacts, 'acceptance_topology_check',
-    'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'topology_critic_receipt_check',
-    'artifact:topology-exclusion-approvals.json', 'artifact:topology-critic-receipt.json']);
-  const allowedPhaseControlFacts = (input.phaseBasis ?? 'plan') === 'pre_review'
-    ? new Set([...planControlFacts, ...preReviewControlFacts]) : planControlFacts;
+  const sourceScans = new Map<string, LocalImportCallScan>();
   let changed = true;
   while (changed) {
     changed = false;
     for (const entry of PROCESS_FACT_REGISTRY) {
       if (phaseControlFacts.has(entry.name)) {
-        if (!allowedPhaseControlFacts.has(entry.name)) continue;
+        if (!allowedPhaseControlFacts.has(entry.name) && !topologyFactNames.has(entry.name)) continue;
       }
       const files = entryFiles(entry).filter(file => !hubs.has(file));
-      const commandMatch = commandNamesForEntry(entry).some(command => handlerCommands.has(command));
-      if (!commandMatch && !files.some(file => closure.has(file))) continue;
+      const explicitTopologyMatch = topologyFactNames.has(entry.name);
+      const phaseControlMatch = allowedPhaseControlFacts.has(entry.name);
+      const plannedMatch = plannedFactNames.has(entry.name)
+        || commandNamesForEntry(entry).some(command => plannedFactNames.has(command));
+      const expandedHandlerMatch = input.expandSeedHandlerCommands === true
+        && commandNamesForEntry(entry).some(command => inferredHandlerFiles.has(command));
+      if (!phaseControlMatch && !explicitTopologyMatch && !plannedMatch && !expandedHandlerMatch) continue;
       if (!reached.has(entry)) { reached.add(entry); changed = true; }
       for (const file of files) if (!closure.has(file)) { closure.add(file); changed = true; }
     }
-    for (const file of boundedUniverse.filter(file => !hubs.has(file) && !closure.has(file))) {
-      if ((sourceScans.get(file)?.calledImports ?? []).some(item => closure.has(item.sourceFile))) { closure.add(file); changed = true; }
-    }
   }
+  for (const file of closure) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
+  blindSpots.push(...[...sourceScans.values()].flatMap(scan => scan.blindSpots));
   for (const entry of reached) {
     for (const file of entryFiles(entry)) if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
     if (entry.consumerGate) {
@@ -996,12 +1028,11 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
         ...(entry.producerSourceRefs ?? []),
         ...commandNamesForEntry(entry).map(command => inferredHandlerFiles.get(command) ?? '').filter(Boolean),
       ]);
-      const discoveredConsumer = sourceInventory.files.some(file => !hubs.has(file) && !producerFiles.includes(file)
+      const discoveredConsumer = [...closure].some(file => !hubs.has(file) && !producerFiles.includes(file)
         && (sourceScans.get(file)?.calledImports ?? []).some(item => producerFiles.includes(item.sourceFile)));
       if (!explicitConsumer && !discoveredConsumer) blindSpots.push(`process fact ${entry.name} has consumerGate but no resolvable consumer source`);
     }
   }
-  for (const file of closure) if (!sourceScans.has(file)) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
   return {
     seedFiles, sourceInventoryFiles: sourceInventory.files, closureFiles: stable([...closure]), entries: [...reached], factories,
     sourceScans, blindSpots: stable(blindSpots), readContext, directoryFingerprints: sourceInventory.directoryFingerprints,
@@ -1026,7 +1057,7 @@ function registeredProcessFactClosureFromGraph(graph: BoundedSourceGraph): Regis
 }
 
 export function deriveRegisteredProcessFactClosure(workspaceRoot: string, seedRefs: readonly string[]): RegisteredProcessFactClosure {
-  const graph = buildBoundedSourceGraph({ supported: true, workspaceRoot, storyId: '<closure>', plannedPathRecords: [], scopeRefs: seedRefs.map(ref => ref.startsWith('scope:file:') ? ref : `scope:file:${ref}`) });
+  const graph = buildBoundedSourceGraph({ supported: true, workspaceRoot, storyId: '<closure>', plannedPathRecords: [], scopeRefs: seedRefs.map(ref => ref.startsWith('scope:file:') ? ref : `scope:file:${ref}`), expandSeedHandlerCommands: true });
   return registeredProcessFactClosureFromGraph(graph);
 }
 
@@ -1135,6 +1166,13 @@ function buildResult(
   let provenanceRefs: string[] = [];
   if (!unsupported) {
     const graph = prebuiltGraph ?? buildBoundedSourceGraph(input);
+    const plannedFiles = new Set(input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers]
+      .map(endpoint => endpoint.expectedFileRef)));
+    const graphBlindSpots = graph.blindSpots.filter(message => {
+      if ((input.phaseBasis ?? 'plan') !== 'plan' || !/unreadable or disappeared/.test(message)) return true;
+      const file = message.match(/: (.+?)(?: -> .+)?$/)?.[1];
+      return !file || !plannedFiles.has(file);
+    });
     if (method === 'scope_contract') {
       pathRefs = input.plannedPathRecords.map(record => record.plannedPathRef);
       provenanceRefs = stable([
@@ -1144,7 +1182,7 @@ function buildResult(
       ]);
     } else if (method === 'process_fact_registry') {
       pathRefs = graph.entries.map(processFactPath);
-      blindSpots = graph.blindSpots;
+      blindSpots = graphBlindSpots;
       provenanceRefs = stable(graph.entries.flatMap(entry => [`process-fact:${entry.name}:${digestCanonicalJson(entry)}`, ...sourceFiles(entry).map(file => sourceProvenance(graph.readContext, file))]));
     } else if (method === 'handler_dispatch_inventory') {
       const commands = catalogCommands(graph.readContext);
@@ -1152,7 +1190,7 @@ function buildResult(
       const inspectableEntries = graph.entries.filter(entry => commandNamesForEntry(entry).some(command => registeredKeys.has(command) && commands.has(command)));
       pathRefs = inspectableEntries.map(processFactPath);
       blindSpots = stable([
-        ...graph.blindSpots,
+        ...graphBlindSpots,
         ...graph.factories.filter(factory => !factory.registered).map(factory => `unregistered handler factory ${factory.factory}`),
         ...[...registeredKeys].filter(command => !commands.has(command)).map(command => `registered handler command ${command} has no exact command catalog binding`),
         ...graph.entries.filter(entry => commandNamesForEntry(entry).length > 0 && !inspectableEntries.includes(entry)).map(entry => `registered process fact ${entry.name} has no exact registered handler/catalog dispatch`),
@@ -1165,7 +1203,7 @@ function buildResult(
       pathRefs = inspectableEntries.map(processFactPath);
       pathRefs.push(...staticCalls.paths);
       if (input.phaseBasis === 'pre_review') pathRefs.push(...actualEndpointPathRefs(input, graph));
-      blindSpots = stable([...graph.blindSpots, ...staticCalls.blindSpots, ...graph.entries.filter(entry => !inspectableEntries.includes(entry)).map(entry => `static registered source graph is incomplete for ${entry.name}`)]);
+      blindSpots = stable([...graphBlindSpots, ...staticCalls.blindSpots, ...graph.entries.filter(entry => !inspectableEntries.includes(entry)).map(entry => `static registered source graph is incomplete for ${entry.name}`)]);
       provenanceRefs = stable(graph.closureFiles.map(file => sourceProvenance(graph.readContext, file)));
     } else {
       pathRefs = stable(input.runtimeObservedPathRefs ?? []);

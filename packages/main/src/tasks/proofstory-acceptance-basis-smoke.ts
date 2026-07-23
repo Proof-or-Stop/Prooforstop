@@ -472,9 +472,19 @@ try {
   try {
     write(genericRoot, 'tsconfig.json', '{}\n');
     write(genericRoot, 'lattice.config.json', JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
-    write(genericRoot, 'packages/main/src/cli/command-catalog.ts', "export const MAIN_TOOLS = [\n  { name: 'review_run_start' },\n];\n");
+    writeCanonicalAcceptanceRegistration(genericRoot);
+    write(genericRoot, 'packages/main/src/cli/command-catalog.ts', [
+      'export const MAIN_TOOLS = [',
+      "  { name: 'acceptance_basis' },",
+      "  { name: 'acceptance_basis_generate' },",
+      "  { name: 'acceptance_topology_check' },",
+      "  { name: 'review_run_start' },",
+      '];',
+      '',
+    ].join('\n'));
     write(genericRoot, 'packages/main/src/handlers/review-run.ts', [
       'export const emitReviewRunFact = () => true;',
+      "export const unrelatedOptions = { ordinary_object_key: true };",
       'export function createReviewRunHandlers() {',
       '  return {',
       '    review_run_start() { return emitReviewRunFact(); },',
@@ -484,9 +494,11 @@ try {
       '',
     ].join('\n'));
     const genericRegistryControl = [
+      "import { createProofStoryHandlers } from './handlers/proofstory.js';",
       "import { createReviewRunHandlers as makeReviewHandlers } from './handlers/review-run.js';",
       'const registry = { registerBatch: (_handlers: unknown) => undefined };',
       'const ctx = {};',
+      'registry.registerBatch(createProofStoryHandlers(ctx));',
       'registry.registerBatch(makeReviewHandlers(ctx));',
       '',
     ].join('\n');
@@ -497,18 +509,35 @@ try {
       '',
     ].join('\n'));
     write(genericRoot, 'packages/main/src/unrelated.ts', 'export const unrelated = () => true;\n');
+    const genericPlannedPath = structuredClone(first.basis.plannedPathRecords[0]);
+    genericPlannedPath.outputFactRef = 'process-fact:review_run_start';
+    genericPlannedPath.producer.expectedFileRef = 'packages/main/src/handlers/review-run.ts';
+    genericPlannedPath.producer.expectedSymbolOrFact = 'emitReviewRunFact';
+    genericPlannedPath.consumers[0].expectedFileRef = 'packages/main/src/consumers/c2.ts';
+    genericPlannedPath.consumers[0].expectedSymbolOrFact = 'consumeReviewRun';
     const genericInput = {
-      supported: true, workspaceRoot: genericRoot, storyId: 'B-generic', plannedPathRecords: [],
+      supported: true, workspaceRoot: genericRoot, storyId: 'B-generic', plannedPathRecords: [genericPlannedPath],
       scopeRefs: ['scope:file:packages/main/src/handlers/review-run.ts'],
+      topologyPathRefs: ['process-fact:review_run_start'],
+    };
+    const genericInputForConsumer = (consumerFile: string) => {
+      const boundedPath = structuredClone(genericPlannedPath);
+      boundedPath.consumers[0].expectedFileRef = consumerFile;
+      return { ...genericInput, plannedPathRecords: [boundedPath] };
     };
     const genericControl = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
     assert.equal(genericControl.status, 'complete', JSON.stringify(genericControl, null, 2));
     const c2Path = genericControl.enumeratedPathRefs.find(path => path.includes('static-call:packages/main/src/handlers/review-run.ts#emitReviewRunFact') && path.includes('consumer:packages/main/src/consumers/c2.ts#consumeReviewRun'));
-    assert.ok(c2Path, 'empty planned declarations still discover a non-ProofStory handler and its unregistered external C2 consumer');
+    assert.ok(c2Path, 'planned bounded graph discovers its non-ProofStory handler and external C2 consumer');
     assert.ok(genericControl.enumeratedPathRefs.some(path => path.includes('process-fact:review_run_start')), 'generic factory alias resolves the registered review-run command');
-    assert.ok(!genericControl.enumeratedPathRefs.some(path => path.includes('acceptance_basis')), 'bounded graph does not pull the unrelated process registry universe');
-    const closureControl = deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']);
-    assert.ok(closureControl.sourceFileRefs.includes('packages/main/src/consumers/c2.ts'), 'outside-scope C2 is discovered from canonical source-root reverse import/call inventory');
+    assert.ok(!genericControl.enumeratedPathRefs.some(path => path.includes('ordinary_object_key')), 'ordinary object keys do not become handler commands');
+    assert.ok(genericControl.enumeratedPathRefs.some(path => path.includes('acceptance_basis_generate')), 'independent PLAN profile control facts remain in the bounded basis');
+    assert.ok(!genericControl.enumeratedPathRefs.some(path => path.includes('story_create')), 'bounded graph does not pull the unrelated process registry universe');
+    const closureControl = deriveRegisteredProcessFactClosure(genericRoot, [
+      'packages/main/src/handlers/review-run.ts',
+      'packages/main/src/consumers/c2.ts',
+    ]);
+    assert.ok(closureControl.sourceFileRefs.includes('packages/main/src/consumers/c2.ts'), 'explicit bounded C2 seed enters the source closure');
     assert.ok(!closureControl.sourceFileRefs.includes('packages/main/src/unrelated.ts'), 'unrelated source inventory file without a call relation stays outside closure');
     const closureHash = computeClosureFilesHash(genericRoot, [], closureControl.sourceInventoryRefs);
 
@@ -577,9 +606,9 @@ try {
     ]) {
       const consumerFile = `packages/main/src/consumers/c2.${row.extension}`;
       write(genericRoot, consumerFile, `${row.source}\n`);
-      const moduleForm = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+      const moduleForm = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInputForConsumer(consumerFile)));
       assert.equal(moduleForm.status, 'complete', `${row.extension} module form discovers its bound consumer`);
-      assert.ok(deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']).sourceFileRefs.includes(consumerFile), `${row.extension} consumer enters closure`);
+      assert.ok(deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts', consumerFile]).sourceFileRefs.includes(consumerFile), `${row.extension} consumer enters closure`);
       rmSync(join(genericRoot, consumerFile), { force: true });
     }
     for (const row of [
@@ -598,9 +627,9 @@ try {
       const consumerFile = `packages/main/src/consumers/c2.${row.extension}`;
       write(genericRoot, 'packages/main/src/consumers/c2.ts', 'export const inactive = true;\n');
       write(genericRoot, consumerFile, `${row.source}\n`);
-      const result = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
+      const result = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInputForConsumer(consumerFile)));
       assert.equal(result.status, 'complete', `${row.label} discovers a bound consumer`);
-      assert.ok(deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']).sourceFileRefs.includes(consumerFile), `${row.label} enters closure`);
+      assert.ok(deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts', consumerFile]).sourceFileRefs.includes(consumerFile), `${row.label} enters closure`);
       if (consumerFile !== 'packages/main/src/consumers/c2.ts') rmSync(join(genericRoot, consumerFile), { force: true });
     }
     write(genericRoot, 'packages/main/src/consumers/c2.ts', "const target = '../handlers/review-run.js'; export const c2 = async () => (await import(target)).emitReviewRunFact();\n");
@@ -626,7 +655,9 @@ try {
       'export const bridge = () => consume();', '',
     ].join('\n'));
     write(genericRoot, 'packages/main/src/consumers/c2.js', "import { bridge } from '../bridges'; export const c2 = () => bridge();\n");
-    assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput)).status, 'complete', 'extensionless directory index chain is discovered transitively');
+    const chainedInput = genericInputForConsumer('packages/main/src/consumers/c2.js');
+    chainedInput.scopeRefs = [...chainedInput.scopeRefs, 'scope:file:packages/main/src/bridges/index.ts'];
+    assert.equal(reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(chainedInput)).status, 'complete', 'explicit bounded directory index chain is discovered transitively');
     rmSync(join(genericRoot, 'packages/main/src/consumers/c2.js'), { force: true });
     rmSync(join(genericRoot, 'packages/main/src/bridges'), { recursive: true, force: true });
     write(genericRoot, 'packages/main/src/handlers/review-run.tsx', 'export const ambiguous = true;\n');
@@ -645,15 +676,16 @@ try {
     genericBasis.storyId = 'B-generic';
     genericBasis.adapterResults = genericControl.adapterResults;
     genericBasis.discoveryMethods = genericControl.adapterResults.map(item => item.method).sort();
-    genericBasis.enumeratedPathRefs = genericControl.enumeratedPathRefs;
+    genericBasis.enumeratedPathRefs = genericControl.enumeratedPathRefs.filter(path => !path.startsWith('planned:'));
     genericBasis.blindSpots = genericControl.blindSpots;
     genericBasis.plannedPathRecords = [];
     redigestBasis(genericBasis);
     const c2Topology: AcceptanceVerificationTopologyV1 = {
       schemaVersion: 'proofstory.acceptance_topology.v1', producerRefs: [], consumerRefs: [], positiveAssertionRefs: [], mutationCaseRefs: [], transcriptAssertionRefs: [],
-      commandRefs: genericControl.enumeratedPathRefs.map(path => ({ refKind: 'existing' as const, canonicalSourceRef: `basis-path:${path}` })),
+      commandRefs: genericBasis.enumeratedPathRefs.map(path => ({ refKind: 'existing' as const, canonicalSourceRef: `basis-path:${path}` })),
     };
-    assert.equal(reconcileTopologyWithCoverageBasis(contract(c2Topology), genericBasis).length, 0, 'restored generic C2 topology control passes');
+    const genericTopologyDiagnostics = reconcileTopologyWithCoverageBasis(contract(c2Topology), genericBasis);
+    assert.equal(genericTopologyDiagnostics.length, 0, `restored generic C2 topology control passes: ${JSON.stringify(genericTopologyDiagnostics)}`);
     write(genericRoot, 'packages/main/src/consumers/c2.ts', 'export const c2 = () => true;\n');
     const omittedC2 = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
     assert.equal(omittedC2.status, 'partial', 'consumerGate without a resolvable outside-scope consumer fails closed');
@@ -673,7 +705,10 @@ try {
       "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
       'export const c2 = () => consumeReviewRun();', '// content-bound mutation', '',
     ].join('\n'));
-    const mutatedClosure = deriveRegisteredProcessFactClosure(genericRoot, ['packages/main/src/handlers/review-run.ts']);
+    const mutatedClosure = deriveRegisteredProcessFactClosure(genericRoot, [
+      'packages/main/src/handlers/review-run.ts',
+      'packages/main/src/consumers/c2.ts',
+    ]);
     assert.notEqual(computeClosureFilesHash(genericRoot, [], mutatedClosure.sourceInventoryRefs), closureHash, 'outside-scope C2 content mutation stales the closure binding');
 
     write(genericRoot, 'packages/main/src/registry.ts', genericRegistryControl.replace('registry.registerBatch(makeReviewHandlers(ctx));', '// deleted registerBatch(makeReviewHandlers(ctx));'));
