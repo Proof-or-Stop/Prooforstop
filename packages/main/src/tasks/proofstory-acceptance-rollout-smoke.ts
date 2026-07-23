@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { copyFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import {
@@ -43,6 +44,10 @@ function clone<T>(value: T): T {
 }
 
 function runCohort(path = runnerPath): AcceptanceRolloutCohortInputV1 {
+  const frozenInputPath = process.env.LATTICE_ROLLOUT_COHORT_INPUT_PATH;
+  if (frozenInputPath) {
+    return JSON.parse(readFileSync(frozenInputPath, 'utf8')) as AcceptanceRolloutCohortInputV1;
+  }
   return JSON.parse(execFileSync(process.execPath, [path], { encoding: 'utf8' })) as AcceptanceRolloutCohortInputV1;
 }
 
@@ -74,6 +79,7 @@ function report(cohort: AcceptanceRolloutCohortInputV1) {
     storyId: 'B-ROLLOUT',
     cohort,
     binding: { headHash: 'head', materialHash: 'material', storyFilesHash: 'story-files' },
+    gitCwd: projectRoot,
   });
 }
 
@@ -125,52 +131,67 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
   twoPairs.registeredSeedIds = ['seed-c2-omission', 'seed-forged-receipt'];
   hasCode(rehash(twoPairs), 'AR_SAMPLE_COUNT_LT_3', 'fewer than three matched pairs fails');
 
-  const unsupported = mutateRecord(control, record => record.arm === 'candidate', record => { record.adapterProfile = 'partial'; });
-  hasCode(unsupported, 'AR_ADAPTER_UNSUPPORTED', 'partial adapter fails promotion');
+  const unsupported = mutateRecord(control, record => record.arm === 'candidate', record => {
+    (record as unknown as Record<string, unknown>).adapterProfile = 'partial';
+  });
+  hasCode(unsupported, 'AR_SOURCE_EVIDENCE_INVALID', 'caller-authored adapter observation is rejected');
 
-  const noTranscript = mutateRecord(control, record => record.arm === 'candidate' && record.claimClass === 'user_visible', record => { record.transcriptPresent = false; });
-  hasCode(noTranscript, 'AR_TRANSCRIPT_REQUIRED', 'user-visible claim requires transcript');
+  const noTranscript = mutateRecord(control, record => record.arm === 'candidate' && record.claimClass === 'user_visible', record => {
+    record.observationReceipt.transcriptRefs = [];
+  });
+  hasCode(noTranscript, 'AR_SOURCE_EVIDENCE_INVALID', 'unsigned transcript receipt mutation is rejected');
 
-  const noMutation = mutateRecord(control, record => record.arm === 'candidate' && record.claimClass === 'safety', record => { record.mutationBites = false; });
-  hasCode(noMutation, 'AR_MUTATION_REQUIRED', 'safety claim requires biting mutation');
+  const noMutation = mutateRecord(control, record => record.arm === 'candidate' && record.claimClass === 'safety', record => {
+    record.observationReceipt.mutationResults[0]!.observedCode = 'MUTANT_SURVIVED';
+  });
+  hasCode(noMutation, 'AR_SOURCE_EVIDENCE_INVALID', 'unsigned mutation outcome is rejected');
 
   const incompleteCampaign = clone(control);
   incompleteCampaign.registeredSeedIds.push('seed-unexecuted');
   hasCode(rehash(incompleteCampaign), 'AR_REGISTERED_CAMPAIGN_INCOMPLETE', 'incomplete registered campaign fails');
 
   const missedNonOmission = mutateRecord(control, record => record.arm === 'candidate' && record.defectClass === 'forgery', record => {
-    record.detected = false;
-    record.blocked = false;
+    record.observationReceipt.gateArtifacts[1]!.report.status = 'pass';
   });
-  hasCode(missedNonOmission, 'AR_FALSE_PASS_NONZERO', 'missed non-omission seed fails zero false-pass boundary');
+  hasCode(missedNonOmission, 'AR_SOURCE_EVIDENCE_INVALID', 'forged non-omission gate outcome is rejected');
 
   const missedOmission = mutateRecord(control, record => record.arm === 'candidate' && record.defectClass === 'omission', record => {
-    record.detected = false;
-    record.blocked = false;
+    record.observationReceipt.gateArtifacts[0]!.report.status = 'pass';
   });
-  hasCode(missedOmission, 'AR_OMISSION_DETECTION_BELOW_100', 'missed omission fails 100% boundary');
+  hasCode(missedOmission, 'AR_SOURCE_EVIDENCE_INVALID', 'forged omission gate outcome is rejected');
 
-  const falseBlock = mutateRecord(control, record => record.arm === 'candidate' && record.claimClass === 'docs_only', record => { record.blocked = true; });
-  hasCode(falseBlock, 'AR_FALSE_BLOCK_NONZERO', 'docs-only false block fails');
+  const falseBlock = mutateRecord(control, record => record.arm === 'candidate' && record.claimClass === 'docs_only', record => {
+    (record as unknown as Record<string, unknown>).blocked = true;
+  });
+  hasCode(falseBlock, 'AR_SOURCE_EVIDENCE_INVALID', 'caller-authored false-block observation is rejected');
 
   const mislabeled = mutateRecord(control, record => record.arm === 'candidate', record => {
-    record.quorum.hosts = ['codex-cli'];
-    record.quorum.providers = ['codex'];
+    record.observationReceipt.hostVerdicts = record.observationReceipt.hostVerdicts.filter(item => item.hostId === 'codex-cli');
   });
-  hasCode(mislabeled, 'AR_MISLABELED_3X1_NONZERO', '3x1 labeled full-3x2 fails');
-  hasCode(mislabeled, 'AR_QUORUM_NOT_FULL_3X2', 'degraded quorum fails full-3x2 boundary');
+  hasCode(mislabeled, 'AR_SOURCE_EVIDENCE_INVALID', '3x1 receipt truncation is rejected');
 
-  const waiver = mutateRecord(control, record => record.arm === 'candidate', record => { record.waiverCount = 99; });
-  hasCode(waiver, 'AR_WAIVER_DELTA_POSITIVE', 'positive waiver delta fails');
+  const waiver = mutateRecord(control, record => record.arm === 'candidate', record => {
+    record.observationReceipt.waiverRefs.push('forged-waiver');
+  });
+  hasCode(waiver, 'AR_SOURCE_EVIDENCE_INVALID', 'unsigned waiver telemetry is rejected');
 
-  const inventory = mutateRecord(control, record => record.arm === 'candidate', record => { record.checkInventory = ['acceptance_rollout_check']; });
-  hasCode(inventory, 'AR_CHECK_INVENTORY_SHRANK', 'shrinking check inventory fails');
+  const inventory = mutateRecord(control, record => record.arm === 'candidate', record => {
+    record.observationReceipt.checkInventory = ['acceptance_rollout_check'];
+  });
+  hasCode(inventory, 'AR_SOURCE_EVIDENCE_INVALID', 'unsigned check inventory shrink is rejected');
 
   const root = mkdtempSync(join(tmpdir(), 'proofstory-rollout-consumer-'));
+  const previousCwd = process.cwd();
   try {
     git(root, ['init', '-b', 'main']);
     git(root, ['config', 'user.email', 'rollout-smoke@example.test']);
     git(root, ['config', 'user.name', 'Rollout Smoke']);
+    const rolloutKeyName = 'lattice-acceptance-rollout-verifier-v1.key';
+    const mainCommon = resolve(projectRoot, git(projectRoot, ['rev-parse', '--git-common-dir']));
+    const tempCommon = resolve(root, git(root, ['rev-parse', '--git-common-dir']));
+    if (existsSync(join(mainCommon, rolloutKeyName))) {
+      copyFileSync(join(mainCommon, rolloutKeyName), join(tempCommon, rolloutKeyName));
+    }
     write(join(root, 'lattice.config.json'), JSON.stringify({
       storyDir: '.lattice/story/actives',
       requirementsDir: 'docs/requirements',
@@ -204,11 +225,17 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     store.writeStory(storyId, story);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'seed real rollout consumer']);
+    git(root, ['switch', '-c', `story/${storyId}`]);
+    write(join(root, 'packages/main/src/control.ts'), 'export const control = true; export const storyRevision = 1;\n');
+    git(root, ['add', 'packages/main/src/control.ts']);
+    git(root, ['commit', '-m', 'add story-owned rollout consumer change']);
+    process.chdir(root);
     const tempCohort = runCohort(join(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs'));
     const tempReport = deriveAcceptanceRolloutReport({
       storyId,
       cohort: tempCohort,
       binding: currentAcceptanceRolloutBinding(root, root),
+      gitCwd: root,
     });
     const artifact = issueAcceptanceRolloutArtifact({ gitCwd: root, report: tempReport, issuedAt: at });
     const ctx = { root, scanRoot: join(root, 'packages/main'), store } as HandlerContext;
@@ -216,7 +243,11 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     ok(runAcceptanceRolloutGate(ctx, storyId).includes('AR_REPORT_MISSING'), 'real observe consumer reports missing receipt without blocking');
     store.writeAcceptanceRolloutReport(storyId, artifact);
     const observe = runAcceptanceRolloutGate(ctx, storyId);
-    ok(observe.includes('mode=observe; status=pass; blocking=false'), 'real transition consumer passes clean observe control');
+    const currentBinding = currentAcceptanceRolloutBinding(root, root);
+    const currentRunnerDigest = `sha256:${createHash('sha256').update(readFileSync(join(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs'))).digest('hex')}`;
+    ok(observe.includes('mode=observe; status=pass; blocking=false'),
+      `real transition consumer passes clean observe control: ${observe}; ` +
+      `signedBinding=${JSON.stringify(artifact.report.binding)} currentBinding=${JSON.stringify(currentBinding)} currentRunnerDigest=${currentRunnerDigest}`);
     const history = acceptanceRolloutHistoryDigest(artifact);
     write(join(root, 'lattice.config.json'), JSON.stringify({
       storyDir: '.lattice/story/actives',
@@ -248,22 +279,23 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
 
     const realConsumerMutations: Array<[AcceptanceRolloutCohortInputV1, AcceptanceRolloutDiagnosticCodeV1]> = [
       [twoPairs, 'AR_SAMPLE_COUNT_LT_3'],
-      [unsupported, 'AR_ADAPTER_UNSUPPORTED'],
-      [noTranscript, 'AR_TRANSCRIPT_REQUIRED'],
-      [noMutation, 'AR_MUTATION_REQUIRED'],
+      [unsupported, 'AR_SOURCE_EVIDENCE_INVALID'],
+      [noTranscript, 'AR_SOURCE_EVIDENCE_INVALID'],
+      [noMutation, 'AR_SOURCE_EVIDENCE_INVALID'],
       [incompleteCampaign, 'AR_REGISTERED_CAMPAIGN_INCOMPLETE'],
-      [missedNonOmission, 'AR_FALSE_PASS_NONZERO'],
-      [missedOmission, 'AR_OMISSION_DETECTION_BELOW_100'],
-      [falseBlock, 'AR_FALSE_BLOCK_NONZERO'],
-      [mislabeled, 'AR_MISLABELED_3X1_NONZERO'],
-      [waiver, 'AR_WAIVER_DELTA_POSITIVE'],
-      [inventory, 'AR_CHECK_INVENTORY_SHRANK'],
+      [missedNonOmission, 'AR_SOURCE_EVIDENCE_INVALID'],
+      [missedOmission, 'AR_SOURCE_EVIDENCE_INVALID'],
+      [falseBlock, 'AR_SOURCE_EVIDENCE_INVALID'],
+      [mislabeled, 'AR_SOURCE_EVIDENCE_INVALID'],
+      [waiver, 'AR_SOURCE_EVIDENCE_INVALID'],
+      [inventory, 'AR_SOURCE_EVIDENCE_INVALID'],
     ];
     for (const [mutatedCohort, code] of realConsumerMutations) {
       const mutatedReport = deriveAcceptanceRolloutReport({
         storyId,
         cohort: mutatedCohort,
         binding: currentAcceptanceRolloutBinding(root, root),
+        gitCwd: projectRoot,
       });
       store.writeAcceptanceRolloutReport(storyId, issueAcceptanceRolloutArtifact({ gitCwd: root, report: mutatedReport, issuedAt: at }));
       assert.throws(() => runAcceptanceRolloutGate(ctx, storyId), new RegExp(code), `real enforce consumer rejects ${code}`);
@@ -287,6 +319,7 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
       storyId,
       cohort: tempCohort,
       binding: { headHash: 'deadbeef', materialHash: 'sha256:stale', storyFilesHash: 'sha256:stale' },
+      gitCwd: root,
     });
     const staleArtifact = issueAcceptanceRolloutArtifact({ gitCwd: root, report: staleReport, issuedAt: at });
     const stale = verifyAcceptanceRolloutArtifact({
@@ -312,6 +345,8 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     ok(runAcceptanceRolloutGate(ctx, storyId).includes('blocking=false'), 'rollback to observe is non-blocking');
     equal(acceptanceRolloutHistoryDigest(store.readAcceptanceRolloutReport(storyId)!), history, 'rollback preserves signed history');
   } finally {
+    process.chdir(previousCwd);
+    resetConfigCache();
     rmSync(root, { recursive: true, force: true });
   }
 

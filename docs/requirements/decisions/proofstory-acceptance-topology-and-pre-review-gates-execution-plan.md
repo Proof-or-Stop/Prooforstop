@@ -1156,13 +1156,16 @@ target. A formatted arbitrary digest, stale runner, or stale/overwritten `dist` 
 not executable evidence; a fresh runner build and proof issuance restores admissibility.
 
 The machine records come from the bounded production pre-review scenario suite, not from replaying
-the topology as a data structure. Its ledger binds the four positive paths and the seventeen
+the topology as a data structure. Its ledger binds the five positive paths and the seventeen
 adversarial intents to their executed checks: deterministic projection; producer/read/lifecycle
 parity; signed-field tamper; authority replay; planned-to-actual and discovery-state mutations;
 topology omission; adapter/reconciliation tamper; wrong-polarity plus clean rerun; transcript
 cardinality; bypass attempts; equal-cutoff freshness; legacy/config rollback; stable direct versus
 lifecycle codes; critic freshness/replay; the process-fact contract; and the no-later-wave scan.
 The transcript case consumes the producer/consumer events recorded by that execution.
+The canonical inventory is exactly **5 positive / 17 mutation / 1 transcript**; the
+process-fact contract checks this cardinality so documentation cannot silently lag the
+registered executable catalog.
 That bounded mode executes the production producer/read/lifecycle chain and
 the required exact-cardinality, authority, planned→actual, restoration, and
 tamper mutations within the fixed live-smoke safety ceiling. Merely printing a
@@ -1575,9 +1578,12 @@ Stop: review rounds fall only because checks were weakened or waivers increased.
 Implemented contract:
 
 - `runProofStoryAcceptanceRolloutCohort` materializes and reads back real
-  temporary Story artifact trees. The verifier freezes every eligible
-  comparable record in the declared window; callers cannot supply membership,
-  aggregates, thresholds, verdict, adapter identity, or quorum claims.
+  temporary Story artifact trees. Every row runs the production
+  `acceptance_topology_check` and `pre_review_check` paths, then records real
+  reviewer runs/passes and a production `quorum_submit` metadata commit. The
+  verifier checks that commit's exact six `host_verdict` rows before signing the
+  observation. Callers cannot supply detected/blocked outcomes, review-round or
+  usage totals, adapter identity, or quorum claims.
 - `deriveAcceptanceRolloutReport` requires at least three matched baseline /
   candidate pairs in each arm and computes the report from source records. The
   registered measured run contains three seeded defect pairs plus docs-only,
@@ -1710,14 +1716,16 @@ Wave 4 measured flat cohort:
 | Supported omission detection | `1/1` (`100%`) |
 | False blocks | `0` |
 | Mislabeled degraded 3×1 | `0` |
-| Waiver delta | `-6` across the full six-pair cohort |
+| Waiver delta | `0` across the full six-pair cohort |
 | Check inventory shrinkage | `0` |
 | Counted adapter/quorum | `codex-cli + claude-cli`, three rounds, `full-3x2` |
 
 The focused smoke replays membership omission/ineligible/window/digest/N<3,
-incomplete and missed non-omission campaigns, every threshold boundary,
-signature/freshness, degraded 3×1, real transition consumption, exact
-restoration, mode invariance, and non-destructive rollback.
+incomplete campaigns, signed-observation and gate-result tamper, degraded 3×1
+receipt truncation, real transition consumption, exact restoration, mode
+invariance, and non-destructive rollback. The registered cohort separately
+executes omission, forgery, freshness, docs-only, legacy, and ordinary cases
+through the production gate and quorum paths.
 
 ## 18. Risks and pre-mortem
 

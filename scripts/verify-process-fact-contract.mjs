@@ -808,6 +808,8 @@ function assertProofStoryProgressiveBoundary() {
   const acceptanceRolloutText = read('packages/main/src/core/acceptance-rollout.ts');
   const acceptanceRolloutSmokeText = read('packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts');
   const acceptanceRolloutRunnerText = read('scripts/run-proofstory-acceptance-rollout-cohort.mjs');
+  const preReviewScenarioText = read('packages/main/src/tasks/proofstory-pre-review-check-smoke.ts');
+  const acceptancePlanText = read('docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md');
   const rolloutPromptNames = [
     'lattice-implementer',
     'test-case-reviewer',
@@ -849,7 +851,10 @@ function assertProofStoryProgressiveBoundary() {
       && handlerText.includes('evaluateAcceptanceRolloutForContext')
       && acceptanceRolloutText.includes('export function deriveAcceptanceRolloutReport')
       && acceptanceRolloutText.includes('ACCEPTANCE_ROLLOUT_MIN_MATCHED_PAIRS = 3')
-      && acceptanceRolloutText.includes("record.quorum.rounds === 3")
+      && acceptanceRolloutText.includes('issueAcceptanceRolloutObservationFromProduction')
+      && acceptanceRolloutText.includes("quorum.schemaVersion !== 'lattice.quorum_submit.v1'")
+      && acceptanceRolloutText.includes("['cat-file', '-e'")
+      && acceptanceRolloutText.includes('quorum.reviewerPasses.some')
       && acceptanceRolloutText.includes('AR_REGISTERED_CAMPAIGN_INCOMPLETE')
       && acceptanceRolloutText.includes('AR_OMISSION_DETECTION_BELOW_100')
       && acceptanceRolloutText.includes('AR_FALSE_BLOCK_NONZERO')
@@ -862,6 +867,14 @@ function assertProofStoryProgressiveBoundary() {
       && acceptanceRolloutSmokeText.includes('export async function runProofStoryAcceptanceRolloutSmoke')
       && acceptanceRolloutSmokeText.includes('runAcceptanceRolloutGate')
       && acceptanceRolloutSmokeText.includes('mode changes preserve report byte-for-byte')
+      && preReviewScenarioText.includes('Array.from({ length: 5 }')
+      && preReviewScenarioText.includes('Array.from({ length: 17 }')
+      && preReviewScenarioText.includes("['A-TRANSCRIPT-1', 'transcript']")
+      && preReviewScenarioText.includes('LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE')
+      && preReviewScenarioText.includes('scenario execution refuses to spawn the expensive registered cohort runner')
+      && !preReviewScenarioText.includes("execFileSync(process.execPath, [join(repositoryRoot, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs')")
+      && acceptancePlanText.includes('five positive paths and the seventeen')
+      && acceptancePlanText.includes('5 positive / 17 mutation / 1 transcript')
       && transitionOrchestratorText.includes('runAcceptanceRolloutGate')
       && transitionOrchestratorText.includes('if (report.blocking)')
       && configText.includes('acceptanceRolloutGateMode')

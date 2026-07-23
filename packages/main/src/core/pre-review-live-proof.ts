@@ -8,6 +8,28 @@ const RUNNER_PATH = 'scripts/run-proofstory-pre-review-live-proof.mjs';
 const TARGET_PATH = 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js';
 const BUILD_COMMAND = 'npm --prefix packages/main run build';
 
+export const REGISTERED_PRE_REVIEW_SCENARIO_SEMANTICS = new Map<string, {
+  sourceRef: string;
+  target: string;
+  mutationKind: string;
+}>([
+  ['A-POS-1', { sourceRef: 'intent:CHK-001:happy:role-guidance', target: 'role-guidance:codex-claude-mirrors', mutationKind: 'prompt-contract' }],
+  ['A-POS-2', { sourceRef: 'intent:CHK-002:happy:real-cohort-receipt', target: 'rollout:verified-cohort-receipt', mutationKind: 'rollout-receipt-verification' }],
+  ['A-POS-3', { sourceRef: 'intent:CHK-003:happy:bounded-thresholds', target: 'rollout:bounded-threshold-matrix', mutationKind: 'threshold-contract' }],
+  ['A-POS-4', { sourceRef: 'intent:CHK-005:happy:canonical-wave4-status', target: 'docs:canonical-wave4-status', mutationKind: 'docs-contract' }],
+  ['A-MUT-2', { sourceRef: 'intent:CHK-002:edge:false-block-controls', target: 'rollout:false-block-controls', mutationKind: 'docs-legacy-single-outcome-controls' }],
+  ['A-MUT-6', { sourceRef: 'intent:CHK-001:adversarial:prompt-authority', target: 'role-guidance:authority-boundary', mutationKind: 'prompt-contract-mutations' }],
+]);
+
+export function preReviewCaseSemanticMatches(record: PreReviewCaseRecordV1): boolean {
+  const expected = REGISTERED_PRE_REVIEW_SCENARIO_SEMANTICS.get(record[0]);
+  return !expected
+    || !record[9].startsWith('intent:CHK-')
+    || (record[9] === expected.sourceRef
+      && record[2] === expected.target
+      && record[3] === expected.mutationKind);
+}
+
 function digest(value: unknown): string {
   return `sha256:${digestCanonicalJson(value)}`;
 }
@@ -66,6 +88,9 @@ export function assemblePreReviewCaseRecords(
     if (record[1] !== kind) throw new Error(`pre-review executed record kind mismatch for ${assertion.id}`);
     if (record[9] !== canonicalPreReviewAssertionSourceRef(assertion.sourceRef)) {
       throw new Error(`pre-review executed record sourceRef mismatch for ${assertion.id}`);
+    }
+    if (!preReviewCaseSemanticMatches(record)) {
+      throw new Error(`pre-review executed record semantic contract mismatch for ${assertion.id}`);
     }
     return record;
   });

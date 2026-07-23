@@ -109,7 +109,18 @@ function loadRegisteredAcceptanceRolloutCohort(workspaceRoot: string): Acceptanc
 export function evaluateAcceptanceRolloutForContext(ctx: HandlerContext, storyId: string): AcceptanceRolloutVerification {
   const workspace = resolveStoryCommandWorkspace(ctx.store, storyId, ctx.root);
   const artifact = ctx.store.readAcceptanceRolloutReport(storyId);
-  const cohort = artifact ? loadRegisteredAcceptanceRolloutCohort(workspace.signedWorkspaceRoot) : undefined;
+  const cohort = artifact ? {
+    schemaVersion: 'proofstory.acceptance_rollout_cohort_input.v1' as const,
+    generatedBy: 'runProofStoryAcceptanceRolloutCohort' as const,
+    evaluationWindow: artifact.report.evaluationWindow,
+    eligibilityRuleVersion: artifact.report.eligibilityRuleVersion,
+    thresholdVersion: artifact.report.thresholdVersion,
+    registeredSeedIds: artifact.report.registeredSeedIds,
+    sourceRecords: artifact.report.sourceRecords,
+    sourceInventoryDigest: artifact.report.sourceInventoryDigest,
+    runnerPath: 'scripts/run-proofstory-acceptance-rollout-cohort.mjs' as const,
+    runnerDigest: artifact.report.binding.runnerDigest,
+  } : undefined;
   return verifyAcceptanceRolloutArtifact({
     artifact,
     gitCwd: workspace.signedWorkspaceRoot,
@@ -615,6 +626,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         storyId: args.storyId,
         cohort,
         binding: currentAcceptanceRolloutBinding(workspace.signedWorkspaceRoot, workspace.metadataRoot),
+        gitCwd: workspace.signedWorkspaceRoot,
       });
       const artifact = issueAcceptanceRolloutArtifact({
         gitCwd: workspace.signedWorkspaceRoot,

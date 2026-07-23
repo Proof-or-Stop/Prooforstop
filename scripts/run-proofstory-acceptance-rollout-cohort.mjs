@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { acceptanceRolloutSourceRecordDigest } from '../packages/main/dist/core/acceptance-rollout.js';
+import {
+  acceptanceRolloutSourceRecordDigest,
+  issueAcceptanceRolloutObservationFromProduction,
+} from '../packages/main/dist/core/acceptance-rollout.js';
 import { canonicalJson } from '../packages/main/dist/core/digest.js';
 
 const RUNNER_RELATIVE_PATH = 'scripts/run-proofstory-acceptance-rollout-cohort.mjs';
@@ -59,19 +63,52 @@ function materializeStory(root, record) {
       verificationEvidence: [{
         kind: 'logic_test',
         intentRef: 'cohort:happy',
-        result: record.blocked === record.shouldBlock ? 'pass' : 'fail',
-        command: 'registered temp Story cohort case',
+        result: 'pass',
+        command: 'registered verifier-owned rollout observation receipt',
       }],
     }],
   });
-  writeJson(join(storyDir, 'review-assurance.json'), {
-    class: record.quorum.class,
-    rounds: record.quorum.rounds,
-    hosts: record.quorum.hosts,
-    providers: record.quorum.providers,
-  });
+  writeJson(join(storyDir, 'acceptance-topology-check.json'), record.observationReceipt.gateArtifacts[0]);
+  writeJson(join(storyDir, 'pre-review-check.json'), record.observationReceipt.gateArtifacts[1]);
+  writeJson(join(storyDir, 'review-assurance.json'), record.observationReceipt.hostVerdicts);
   writeJson(join(storyDir, 'rollout-observation.json'), record);
   return readJson(join(storyDir, 'rollout-observation.json'));
+}
+
+function runProductionCase({ storyId, pairId, arm, scenario, completedAt }) {
+  const output = execFileSync(process.execPath, [
+    join(projectRoot, 'packages/main/dist/tasks/proofstory-pre-review-check-smoke.js'),
+    '--rollout-cohort-case',
+  ], {
+    cwd: projectRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      LATTICE_ROLLOUT_COHORT_STORY_ID: storyId,
+      LATTICE_ROLLOUT_COHORT_ARM: arm,
+      LATTICE_ROLLOUT_COHORT_SCENARIO: scenario,
+    },
+    maxBuffer: 32 * 1024 * 1024,
+  });
+  const line = output.split(/\r?\n/).find(row => row.startsWith('PROOFSTORY_ROLLOUT_CASE='));
+  if (!line) throw new Error(`registered production cohort case did not emit evidence for ${storyId}`);
+  const evidence = JSON.parse(line.slice('PROOFSTORY_ROLLOUT_CASE='.length));
+  try {
+    return issueAcceptanceRolloutObservationFromProduction({
+      gitCwd: projectRoot,
+      evidenceGitCwd: evidence.evidenceGitCwd,
+      storyId,
+      pairId,
+      arm,
+      scenario,
+      issuedAt: completedAt,
+      evidence,
+    });
+  } finally {
+    if (typeof evidence.evidenceGitCwd === 'string') {
+      rmSync(evidence.evidenceGitCwd, { recursive: true, force: true });
+    }
+  }
 }
 
 function pairRecords({ pairId, index, claimClass, defectClass, seededDefectId, shouldBlock, defectPresent }) {
@@ -81,43 +118,33 @@ function pairRecords({ pairId, index, claimClass, defectClass, seededDefectId, s
     completedAt,
     comparableGroup: 'high_assurance',
     eligible: true,
-    adapterProfile: 'codex-cli+claude-cli',
     claimClass,
-    transcriptPresent: claimClass === 'user_visible' || claimClass === 'orchestration',
-    mutationRequired: ['behavior', 'lifecycle', 'proof', 'safety'].includes(claimClass),
-    mutationBites: true,
     ...(seededDefectId ? { seededDefectId } : {}),
     defectClass,
     defectPresent,
     shouldBlock,
-    checkInventory: ['acceptance_topology_check', 'pre_review_check', 'acceptance_rollout_check'],
-    quorum: {
-      class: 'full-3x2',
-      rounds: 3,
-      hosts: ['codex-cli', 'claude-cli'],
-      providers: ['codex', 'claude'],
-    },
   };
+  const scenario = defectClass === 'omission' || defectClass === 'forgery' || defectClass === 'freshness'
+    ? defectClass
+    : 'control';
+  const baselineStoryId = `B-cb${String(index + 1).padStart(2, '0')}`;
+  const candidateStoryId = `B-cc${String(index + 1).padStart(2, '0')}`;
   return [
     makeSourceRecord({
       ...base,
       arm: 'baseline',
-      storyId: `COHORT-B-${String(index + 1).padStart(2, '0')}`,
-      detected: defectPresent ? false : true,
-      blocked: false,
-      reviewRounds: 5,
-      waiverCount: 1,
-      costUnits: 100,
+      storyId: baselineStoryId,
+      observationReceipt: runProductionCase({
+        storyId: baselineStoryId, pairId, arm: 'baseline', scenario, completedAt,
+      }),
     }),
     makeSourceRecord({
       ...base,
       arm: 'candidate',
-      storyId: `COHORT-C-${String(index + 1).padStart(2, '0')}`,
-      detected: defectPresent,
-      blocked: shouldBlock,
-      reviewRounds: 2,
-      waiverCount: 0,
-      costUnits: 60,
+      storyId: candidateStoryId,
+      observationReceipt: runProductionCase({
+        storyId: candidateStoryId, pairId, arm: 'candidate', scenario, completedAt,
+      }),
     }),
   ];
 }

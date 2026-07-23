@@ -541,6 +541,62 @@ export type AcceptanceRolloutDefectClassV1 =
   | 'threshold'
   | 'control';
 
+export interface AcceptanceRolloutGateArtifactV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_gate_artifact.v1';
+  command: 'acceptance_topology_check' | 'pre_review_check';
+  storyId: string;
+  pairId: string;
+  arm: 'baseline' | 'candidate';
+  report: Record<string, unknown>;
+  artifactDigest: string;
+}
+
+export interface AcceptanceRolloutHostVerdictReceiptV1 {
+  type: 'host_verdict';
+  verdictId: string;
+  runId: string;
+  hostId: 'codex-cli' | 'claude-cli';
+  provider: 'codex' | 'claude';
+  sessionId: string;
+  keyId: string;
+  decision: 'pass' | 'fail' | 'blocked';
+  materialDigest: string;
+  storyFilesHash: string;
+  validationDigest: string;
+  promptDigest: string;
+  timestamp: string;
+}
+
+export interface AcceptanceRolloutObservationReceiptV1 {
+  schemaVersion: 'proofstory.acceptance_rollout_observation_receipt.v1';
+  storyId: string;
+  pairId: string;
+  arm: 'baseline' | 'candidate';
+  gateArtifacts: AcceptanceRolloutGateArtifactV1[];
+  hostVerdicts: AcceptanceRolloutHostVerdictReceiptV1[];
+  quorumReceipt: {
+    schemaVersion: 'lattice.quorum_submit.v1';
+    storyId: string;
+    rounds: number;
+    emittedCount: number;
+    verdictIds: string[];
+    runIds: string[];
+    metadataCommitSha: string;
+    reviewerPasses: Array<{ lane: string; passId: string; reviewRunId?: string }>;
+    assuranceLevel: 'full-3x2' | 'degraded-single-host' | 'ordinary-review';
+  };
+  reviewRoundIds: string[];
+  waiverRefs: string[];
+  usageEvents: Array<{ eventId: string; costUnits: number }>;
+  transcriptRefs: string[];
+  mutationResults: Array<{ mutationId: string; expectedCode: string; observedCode: string; controlRestored: boolean }>;
+  checkInventory: string[];
+  issuedAt: string;
+  issuerKeyId: string;
+  signerPublicKey: string;
+  signature: string;
+}
+
 export interface AcceptanceRolloutSourceRecordV1 {
   schemaVersion: 'proofstory.acceptance_rollout_source_record.v1';
   pairId: string;
@@ -549,27 +605,12 @@ export interface AcceptanceRolloutSourceRecordV1 {
   completedAt: string;
   comparableGroup: 'high_assurance';
   eligible: boolean;
-  adapterProfile: 'codex-cli+claude-cli' | 'unsupported' | 'partial';
   claimClass: AcceptanceRolloutClaimClassV1;
-  transcriptPresent: boolean;
-  mutationRequired: boolean;
-  mutationBites: boolean;
   seededDefectId?: string;
   defectClass: AcceptanceRolloutDefectClassV1;
   defectPresent: boolean;
-  detected: boolean;
   shouldBlock: boolean;
-  blocked: boolean;
-  reviewRounds: number;
-  waiverCount: number;
-  checkInventory: string[];
-  costUnits: number;
-  quorum: {
-    class: 'full-3x2' | 'degraded-3x1' | 'ordinary';
-    rounds: number;
-    hosts: Array<'codex-cli' | 'claude-cli'>;
-    providers: Array<'codex' | 'claude'>;
-  };
+  observationReceipt: AcceptanceRolloutObservationReceiptV1;
   sourceDigest: string;
 }
 
@@ -592,6 +633,7 @@ export type AcceptanceRolloutDiagnosticCodeV1 =
   | 'AR_REPORT_STALE'
   | 'AR_WINDOW_INVALID'
   | 'AR_SOURCE_RECORD_INVALID'
+  | 'AR_SOURCE_EVIDENCE_INVALID'
   | 'AR_MEMBERSHIP_DIGEST_MISMATCH'
   | 'AR_ELIGIBLE_MEMBERSHIP_INCOMPLETE'
   | 'AR_INELIGIBLE_MEMBER'

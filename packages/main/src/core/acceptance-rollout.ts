@@ -1,4 +1,4 @@
-import { createPublicKey, randomBytes } from 'node:crypto';
+import { createHash, createPublicKey, randomBytes } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
@@ -19,7 +19,10 @@ import type {
   AcceptanceRolloutArtifactV1,
   AcceptanceRolloutCohortInputV1,
   AcceptanceRolloutDiagnosticCodeV1,
+  AcceptanceRolloutGateArtifactV1,
+  AcceptanceRolloutHostVerdictReceiptV1,
   AcceptanceRolloutMetricsV1,
+  AcceptanceRolloutObservationReceiptV1,
   AcceptanceRolloutReceiptV1,
   AcceptanceRolloutReportV1,
   AcceptanceRolloutSourceRecordV1,
@@ -55,6 +58,10 @@ function digest(value: unknown): string {
   return `sha256:${digestCanonicalJson(value)}`;
 }
 
+function byteDigest(value: string | Buffer): string {
+  return `sha256:${createHash('sha256').update(value).digest('hex')}`;
+}
+
 function uniqueSorted<T extends string>(values: readonly T[]): T[] {
   return [...new Set(values)].sort() as T[];
 }
@@ -85,12 +92,12 @@ function gitCommonDir(gitCwd: string): string {
   return isAbsolute(raw) ? raw : resolve(gitCwd, raw);
 }
 
-function keyPath(gitCwd: string): string {
-  return join(gitCommonDir(gitCwd), ROLLOUT_KEY_FILE);
+function keyPath(gitCwd: string, file = ROLLOUT_KEY_FILE): string {
+  return join(gitCommonDir(gitCwd), file);
 }
 
-function readOrCreatePrivateKey(gitCwd: string): string {
-  const path = keyPath(gitCwd);
+function readOrCreatePrivateKey(gitCwd: string, file = ROLLOUT_KEY_FILE): string {
+  const path = keyPath(gitCwd, file);
   if (!existsSync(path)) {
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, randomBytes(32).toString('base64'), { encoding: 'utf8', mode: 0o600, flag: 'wx' });
@@ -102,14 +109,189 @@ function publicKeyForPrivate(privateKey: string): string {
   return exportPublicKeyRaw(createPublicKey(importPrivateKeyRaw(privateKey)));
 }
 
-function registeredPublicKey(gitCwd: string): string | null {
-  const path = keyPath(gitCwd);
+function registeredPublicKey(gitCwd: string, file = ROLLOUT_KEY_FILE): string | null {
+  const path = keyPath(gitCwd, file);
   if (!existsSync(path)) return null;
   try {
     return publicKeyForPrivate(readFileSync(path, 'utf8').trim());
   } catch {
     return null;
   }
+}
+
+function unsignedObservation(
+  receipt: AcceptanceRolloutObservationReceiptV1,
+): Omit<AcceptanceRolloutObservationReceiptV1, 'signature'> {
+  const { signature: _signature, ...unsigned } = receipt;
+  return unsigned;
+}
+
+export type RegisteredAcceptanceRolloutScenario = 'control' | 'omission' | 'forgery' | 'freshness';
+
+type ProductionRolloutCaseEvidence = {
+  storyId: string;
+  arm: 'baseline' | 'candidate';
+  scenario: RegisteredAcceptanceRolloutScenario;
+  topologyReport: Record<string, unknown>;
+  preReviewReport: Record<string, unknown>;
+  quorumResult: {
+    schemaVersion: string;
+    storyId: string;
+    rounds: number;
+    emittedCount: number;
+    verdictIds: string[];
+    runIds: string[];
+    metadataCommitSha: string;
+    reviewerPasses: Array<{ lane: string; passId: string; reviewRunId?: string }>;
+    reviewEscalationStatus?: {
+      assuranceLevel?: string;
+      voluntaryLocalRounds?: {
+        requiredRounds?: number;
+        requiredPassingHostsPerRound?: number;
+        validRoundCount?: number;
+        complete?: boolean;
+      };
+    };
+  };
+  hostVerdicts: AcceptanceRolloutHostVerdictReceiptV1[];
+  reviewRuns: Array<Record<string, unknown>>;
+  reviewPasses: Array<Record<string, unknown>>;
+};
+
+/**
+ * Seal only production command output. This writer refuses invented gate or
+ * quorum summaries: the quorum metadata commit must exist in the preserved
+ * temp repository and contain the exact six host_verdict rows supplied here.
+ */
+export function issueAcceptanceRolloutObservationFromProduction(args: {
+  gitCwd: string;
+  evidenceGitCwd: string;
+  storyId: string;
+  pairId: string;
+  arm: 'baseline' | 'candidate';
+  scenario: RegisteredAcceptanceRolloutScenario;
+  issuedAt: string;
+  evidence: ProductionRolloutCaseEvidence;
+}): AcceptanceRolloutObservationReceiptV1 {
+  const { evidence } = args;
+  if (evidence.storyId !== args.storyId || evidence.arm !== args.arm || evidence.scenario !== args.scenario) {
+    throw new Error('acceptance rollout observation: production evidence story/arm/scenario mismatch');
+  }
+  if (evidence.topologyReport.storyId !== args.storyId || evidence.preReviewReport.storyId !== args.storyId) {
+    throw new Error('acceptance rollout observation: gate report story mismatch');
+  }
+  const quorum = evidence.quorumResult;
+  if (quorum.schemaVersion !== 'lattice.quorum_submit.v1'
+    || quorum.storyId !== args.storyId
+    || quorum.rounds !== 3
+    || quorum.emittedCount !== 6
+    || quorum.verdictIds.length !== 6
+    || quorum.runIds.length !== 3
+    || quorum.reviewerPasses.length === 0
+    || quorum.reviewEscalationStatus?.voluntaryLocalRounds?.requiredRounds !== 3
+    || quorum.reviewEscalationStatus.voluntaryLocalRounds.requiredPassingHostsPerRound !== 2
+    || quorum.reviewEscalationStatus.voluntaryLocalRounds.validRoundCount !== 3
+    || quorum.reviewEscalationStatus.voluntaryLocalRounds.complete !== true) {
+    throw new Error('acceptance rollout observation: production quorum receipt is not full-3x2');
+  }
+  execFileSync('git', ['cat-file', '-e', `${quorum.metadataCommitSha}^{commit}`], {
+    cwd: args.evidenceGitCwd,
+    stdio: ['ignore', 'ignore', 'pipe'],
+  });
+  const storyPath = `.lattice/story/actives/${args.storyId}/process-events.jsonl`;
+  const committedEvents = execFileSync('git', ['show', `${quorum.metadataCommitSha}:${storyPath}`], {
+    cwd: args.evidenceGitCwd,
+    encoding: 'utf8',
+  }).trim().split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line) as Record<string, unknown>);
+  const committedVerdicts = committedEvents.filter(event => event.type === 'host_verdict');
+  const committedById = new Map(committedVerdicts.map(event => [String(event.verdictId), event]));
+  if (evidence.hostVerdicts.length !== 6
+    || quorum.verdictIds.some(id => !committedById.has(id))
+    || evidence.hostVerdicts.some(row => digest(row) !== digest(committedById.get(row.verdictId)))) {
+    throw new Error('acceptance rollout observation: host verdict rows do not match the immutable quorum commit');
+  }
+  const actualPassIds = new Set(evidence.reviewPasses.map(row => String(row.id ?? '')));
+  if (quorum.reviewerPasses.some(pass => !actualPassIds.has(pass.passId))) {
+    throw new Error('acceptance rollout observation: quorum reviewer-pass refs are missing from actual production passes');
+  }
+  const gateArtifacts: AcceptanceRolloutGateArtifactV1[] = [
+    {
+      schemaVersion: 'proofstory.acceptance_rollout_gate_artifact.v1',
+      command: 'acceptance_topology_check',
+      storyId: args.storyId,
+      pairId: args.pairId,
+      arm: args.arm,
+      report: evidence.topologyReport,
+      artifactDigest: digest(evidence.topologyReport),
+    },
+    {
+      schemaVersion: 'proofstory.acceptance_rollout_gate_artifact.v1',
+      command: 'pre_review_check',
+      storyId: args.storyId,
+      pairId: args.pairId,
+      arm: args.arm,
+      report: evidence.preReviewReport,
+      artifactDigest: digest(evidence.preReviewReport),
+    },
+  ];
+  const privateKey = readOrCreatePrivateKey(args.gitCwd);
+  const signerPublicKey = publicKeyForPrivate(privateKey);
+  const topologyStatus = String(evidence.topologyReport.status ?? '');
+  const preReviewStatus = String(evidence.preReviewReport.status ?? '');
+  const expectedCode = args.scenario === 'omission'
+    ? 'PR_NEW_PATH_UNMAPPED'
+    : args.scenario === 'forgery'
+      ? 'PR_ARTIFACT_TAMPERED'
+      : args.scenario === 'freshness'
+        ? 'PR_EVIDENCE_STALE'
+        : 'CONTROL_PASS';
+  const preReviewCodes = Array.isArray(evidence.preReviewReport.codes)
+    ? evidence.preReviewReport.codes.map(String)
+    : [];
+  const mutationObserved = args.arm === 'candidate' && args.scenario !== 'control'
+    ? (preReviewCodes.includes(expectedCode) ? expectedCode : preReviewCodes[0] ?? 'MISSING')
+    : (topologyStatus === 'pass' && (preReviewStatus === 'pass' || evidence.preReviewReport.ok === true)
+      ? 'CONTROL_PASS'
+      : 'CONTROL_FAILED');
+  const reviewRoundIds = uniqueSorted(evidence.reviewRuns
+    .map(row => String(row.reviewRound ?? row.startedAt ?? ''))
+    .filter(Boolean));
+  const unsigned: Omit<AcceptanceRolloutObservationReceiptV1, 'signature'> = {
+    schemaVersion: 'proofstory.acceptance_rollout_observation_receipt.v1',
+    storyId: args.storyId,
+    pairId: args.pairId,
+    arm: args.arm,
+    gateArtifacts,
+    hostVerdicts: evidence.hostVerdicts,
+    quorumReceipt: {
+      schemaVersion: 'lattice.quorum_submit.v1',
+      storyId: quorum.storyId,
+      rounds: quorum.rounds,
+      emittedCount: quorum.emittedCount,
+      verdictIds: [...quorum.verdictIds],
+      runIds: [...quorum.runIds],
+      metadataCommitSha: quorum.metadataCommitSha,
+      reviewerPasses: quorum.reviewerPasses.map(pass => ({ ...pass })),
+      assuranceLevel: 'full-3x2',
+    },
+    reviewRoundIds,
+    waiverRefs: [],
+    usageEvents: [],
+    transcriptRefs: evidence.preReviewReport.transcript === 'related'
+      ? [`${args.storyId}:pre-review:related-transcript`]
+      : [],
+    mutationResults: [{
+      mutationId: `${args.storyId}:${args.scenario}`,
+      expectedCode,
+      observedCode: mutationObserved,
+      controlRestored: true,
+    }],
+    checkInventory: ['acceptance_topology_check', 'pre_review_check', 'acceptance_rollout_check'],
+    issuedAt: args.issuedAt,
+    issuerKeyId: digest(signerPublicKey),
+    signerPublicKey,
+  };
+  return { ...unsigned, signature: signCanonical(unsigned, privateKey) };
 }
 
 function isIso(value: string): boolean {
@@ -127,11 +309,148 @@ function recordIsEligible(
     && at <= Date.parse(window.end);
 }
 
-function hasFull3x2(record: AcceptanceRolloutSourceRecordV1): boolean {
-  return record.quorum.class === ACCEPTANCE_ROLLOUT_FULL_QUORUM
-    && record.quorum.rounds === 3
-    && uniqueSorted(record.quorum.hosts).join(',') === 'claude-cli,codex-cli'
-    && uniqueSorted(record.quorum.providers).join(',') === 'claude,codex';
+interface VerifiedRolloutObservation {
+  valid: boolean;
+  adapterProfile: typeof ACCEPTANCE_ROLLOUT_SUPPORTED_ADAPTER | 'unsupported';
+  transcriptPresent: boolean;
+  mutationBites: boolean;
+  detected: boolean;
+  blocked: boolean;
+  reviewRounds: number;
+  waiverCount: number;
+  checkInventory: string[];
+  costUnits: number;
+  full3x2: boolean;
+}
+
+const LEGACY_CALLER_OBSERVATION_FIELDS = [
+  'adapterProfile',
+  'transcriptPresent',
+  'mutationRequired',
+  'mutationBites',
+  'detected',
+  'blocked',
+  'reviewRounds',
+  'waiverCount',
+  'checkInventory',
+  'costUnits',
+  'quorum',
+] as const;
+
+function verifyGateArtifact(
+  record: AcceptanceRolloutSourceRecordV1,
+  artifact: AcceptanceRolloutGateArtifactV1,
+): boolean {
+  if (artifact.storyId !== record.storyId || artifact.pairId !== record.pairId || artifact.arm !== record.arm) return false;
+  if (!['acceptance_topology_check', 'pre_review_check'].includes(artifact.command)) return false;
+  return artifact.report.storyId === record.storyId
+    && artifact.artifactDigest === digest(artifact.report);
+}
+
+function verifyHostVerdict(
+  record: AcceptanceRolloutSourceRecordV1,
+  receipt: AcceptanceRolloutHostVerdictReceiptV1,
+): boolean {
+  const provider = receipt.hostId === 'codex-cli' ? 'codex' : 'claude';
+  return receipt.type === 'host_verdict'
+    && receipt.provider === provider
+    && receipt.decision === 'pass'
+    && /^[a-f0-9]{64}$/.test(receipt.materialDigest)
+    && /^[a-f0-9]{64}$/.test(receipt.storyFilesHash)
+    && /^[a-f0-9]{64}$/.test(receipt.validationDigest)
+    && /^[a-f0-9]{64}$/.test(receipt.promptDigest);
+}
+
+function full3x2FromReceipts(receipts: AcceptanceRolloutHostVerdictReceiptV1[]): boolean {
+  const byRun = new Map<string, AcceptanceRolloutHostVerdictReceiptV1[]>();
+  for (const receipt of receipts) {
+    const rows = byRun.get(receipt.runId) ?? [];
+    rows.push(receipt);
+    byRun.set(receipt.runId, rows);
+  }
+  if (byRun.size !== 3 || receipts.length !== 6) return false;
+  return [...byRun.values()].every(rows =>
+    rows.length === 2
+    && uniqueSorted(rows.map(row => row.hostId)).join(',') === 'claude-cli,codex-cli'
+    && uniqueSorted(rows.map(row => row.provider)).join(',') === 'claude,codex'
+    && new Set(rows.map(row => row.sessionId)).size === 2
+    && new Set(rows.map(row => row.keyId)).size === 2
+    && rows.every(row => row.decision === 'pass'));
+}
+
+function verifyObservation(
+  gitCwd: string,
+  record: AcceptanceRolloutSourceRecordV1,
+): VerifiedRolloutObservation {
+  const empty: VerifiedRolloutObservation = {
+    valid: false,
+    adapterProfile: 'unsupported',
+    transcriptPresent: false,
+    mutationBites: false,
+    detected: false,
+    blocked: true,
+    reviewRounds: 0,
+    waiverCount: 0,
+    checkInventory: [],
+    costUnits: 0,
+    full3x2: false,
+  };
+  if (LEGACY_CALLER_OBSERVATION_FIELDS.some(field => Object.prototype.hasOwnProperty.call(record, field))) return empty;
+  const receipt = record.observationReceipt;
+  if (!receipt || receipt.schemaVersion !== 'proofstory.acceptance_rollout_observation_receipt.v1') return empty;
+  const trusted = registeredPublicKey(gitCwd);
+  if (!trusted
+    || receipt.signerPublicKey !== trusted
+    || receipt.issuerKeyId !== digest(trusted)
+    || receipt.storyId !== record.storyId
+    || receipt.pairId !== record.pairId
+    || receipt.arm !== record.arm
+    || !verifyCanonical(unsignedObservation(receipt), receipt.signature, trusted)) return empty;
+  if (receipt.gateArtifacts.length !== 2
+    || uniqueSorted(receipt.gateArtifacts.map(item => item.command)).join(',') !== 'acceptance_topology_check,pre_review_check'
+    || !receipt.gateArtifacts.every(item => verifyGateArtifact(record, item))
+    || !receipt.hostVerdicts.every(item => verifyHostVerdict(record, item))) return empty;
+  const quorum = receipt.quorumReceipt;
+  if (quorum.schemaVersion !== 'lattice.quorum_submit.v1'
+    || quorum.storyId !== record.storyId
+    || quorum.rounds !== 3
+    || quorum.emittedCount !== 6
+    || quorum.assuranceLevel !== 'full-3x2'
+    || uniqueSorted(quorum.verdictIds).join(',') !== uniqueSorted(receipt.hostVerdicts.map(item => item.verdictId)).join(',')
+    || uniqueSorted(quorum.runIds).join(',') !== uniqueSorted(receipt.hostVerdicts.map(item => item.runId)).join(',')
+    || quorum.reviewerPasses.length === 0
+    || !/^[a-f0-9]{40}$/.test(quorum.metadataCommitSha)) return empty;
+  const full3x2 = full3x2FromReceipts(receipt.hostVerdicts);
+  const gateFailures = receipt.gateArtifacts.filter(item => {
+    const status = String(item.report.status ?? '');
+    const ok = item.report.ok;
+    const diagnostics = item.command === 'pre_review_check'
+      ? item.report.codes
+      : item.report.diagnostics;
+    return (status === 'fail' || ok === false) && Array.isArray(diagnostics) && diagnostics.length > 0;
+  });
+  const mutationBites = receipt.mutationResults.length > 0
+    && receipt.mutationResults.every(item =>
+      item.expectedCode.length > 0 && item.expectedCode === item.observedCode && item.controlRestored === true);
+  const costUnits = receipt.usageEvents.reduce((sum, event) =>
+    sum + (Number.isFinite(event.costUnits) && event.costUnits >= 0 ? event.costUnits : Number.NaN), 0);
+  if (!Number.isFinite(costUnits)
+    || new Set(receipt.reviewRoundIds).size !== receipt.reviewRoundIds.length
+    || new Set(receipt.waiverRefs).size !== receipt.waiverRefs.length
+    || new Set(receipt.checkInventory).size !== receipt.checkInventory.length) return empty;
+  return {
+    valid: true,
+    adapterProfile: full3x2 ? ACCEPTANCE_ROLLOUT_SUPPORTED_ADAPTER : 'unsupported',
+    transcriptPresent: receipt.transcriptRefs.length > 0,
+    mutationBites,
+    detected: record.defectPresent && gateFailures.length > 0,
+    blocked: gateFailures.some(item => item.report.blocking === true || item.report.ok === false),
+    reviewRounds: receipt.reviewRoundIds.length,
+    waiverCount: receipt.waiverRefs.length,
+    checkInventory: [...receipt.checkInventory],
+    costUnits,
+    full3x2,
+  };
 }
 
 function needsTranscript(record: AcceptanceRolloutSourceRecordV1): boolean {
@@ -195,6 +514,7 @@ export function deriveAcceptanceRolloutReport(args: {
   storyId: string;
   cohort: AcceptanceRolloutCohortInputV1;
   binding: AcceptanceRolloutBinding;
+  gitCwd: string;
 }): AcceptanceRolloutReportV1 {
   const { cohort } = args;
   const diagnostics = new Set<AcceptanceRolloutDiagnosticCodeV1>();
@@ -211,14 +531,18 @@ export function deriveAcceptanceRolloutReport(args: {
     if (record.eligible !== recordIsEligible(record, cohort.evaluationWindow)) {
       diagnostics.add(record.eligible ? 'AR_INELIGIBLE_MEMBER' : 'AR_ELIGIBLE_MEMBERSHIP_INCOMPLETE');
     }
+    if (!verifyObservation(args.gitCwd, record).valid) diagnostics.add('AR_SOURCE_EVIDENCE_INVALID');
   }
   const sourceInventoryDigest = digest(canonicalRecords);
   if (cohort.sourceInventoryDigest !== sourceInventoryDigest) diagnostics.add('AR_MEMBERSHIP_DIGEST_MISMATCH');
 
   const eligibleRecords = canonicalRecords.filter(record => recordIsEligible(record, cohort.evaluationWindow));
-  const unsupported = eligibleRecords.filter(record => record.adapterProfile !== ACCEPTANCE_ROLLOUT_SUPPORTED_ADAPTER);
+  const observationByRecord = new Map(eligibleRecords.map(record => [record, verifyObservation(args.gitCwd, record)]));
+  const unsupported = eligibleRecords.filter(record =>
+    observationByRecord.get(record)?.adapterProfile !== ACCEPTANCE_ROLLOUT_SUPPORTED_ADAPTER);
   if (unsupported.length > 0) diagnostics.add('AR_ADAPTER_UNSUPPORTED');
-  const supported = eligibleRecords.filter(record => record.adapterProfile === ACCEPTANCE_ROLLOUT_SUPPORTED_ADAPTER);
+  const supported = eligibleRecords.filter(record =>
+    observationByRecord.get(record)?.adapterProfile === ACCEPTANCE_ROLLOUT_SUPPORTED_ADAPTER);
   const baseline = supported.filter(record => record.arm === 'baseline');
   const candidate = supported.filter(record => record.arm === 'candidate');
   const membership = pairedMembership(supported);
@@ -230,8 +554,8 @@ export function deriveAcceptanceRolloutReport(args: {
     diagnostics.add('AR_MATCHED_PAIR_MISSING');
   }
 
-  if (candidate.some(record => needsTranscript(record) && !record.transcriptPresent)) diagnostics.add('AR_TRANSCRIPT_REQUIRED');
-  if (candidate.some(record => needsMutation(record) && (!record.mutationRequired || !record.mutationBites))) {
+  if (candidate.some(record => needsTranscript(record) && !observationByRecord.get(record)?.transcriptPresent)) diagnostics.add('AR_TRANSCRIPT_REQUIRED');
+  if (candidate.some(record => needsMutation(record) && !observationByRecord.get(record)?.mutationBites)) {
     diagnostics.add('AR_MUTATION_REQUIRED');
   }
 
@@ -244,33 +568,38 @@ export function deriveAcceptanceRolloutReport(args: {
   }
   const falsePassCount = registeredSeedIds.filter(seedId => {
     const record = seededById.get(seedId);
-    return !record || !record.defectPresent || !record.detected || !record.blocked;
+    const observation = record ? observationByRecord.get(record) : undefined;
+    return !record || !record.defectPresent || !observation?.detected || !observation.blocked;
   }).length;
   if (falsePassCount > 0) diagnostics.add('AR_FALSE_PASS_NONZERO');
 
   const omissionRecords = registeredSeedIds
     .map(seedId => seededById.get(seedId))
     .filter((record): record is AcceptanceRolloutSourceRecordV1 => record?.defectClass === 'omission');
-  const omissionDetected = omissionRecords.filter(record => record.detected && record.blocked);
+  const omissionDetected = omissionRecords.filter(record => {
+    const observation = observationByRecord.get(record);
+    return observation?.detected && observation.blocked;
+  });
   const omissionDetectionRate = omissionRecords.length === 0 ? 0 : omissionDetected.length / omissionRecords.length;
   if (omissionRecords.length === 0 || omissionDetectionRate !== 1) diagnostics.add('AR_OMISSION_DETECTION_BELOW_100');
 
-  const falseBlockCount = candidate.filter(record => record.blocked && !record.shouldBlock).length;
+  const falseBlockCount = candidate.filter(record => observationByRecord.get(record)?.blocked && !record.shouldBlock).length;
   if (falseBlockCount > 0) diagnostics.add('AR_FALSE_BLOCK_NONZERO');
 
-  const mislabeled3x1Count = candidate.filter(record =>
-    record.quorum.class === 'full-3x2' && !hasFull3x2(record)).length;
+  const mislabeled3x1Count = candidate.filter(record => !observationByRecord.get(record)?.full3x2).length;
   if (mislabeled3x1Count > 0) diagnostics.add('AR_MISLABELED_3X1_NONZERO');
-  if (candidate.some(record => !hasFull3x2(record))) diagnostics.add('AR_QUORUM_NOT_FULL_3X2');
+  if (candidate.some(record => !observationByRecord.get(record)?.full3x2)) diagnostics.add('AR_QUORUM_NOT_FULL_3X2');
 
-  const waiverDelta = candidate.reduce((sum, record) => sum + record.waiverCount, 0)
-    - baseline.reduce((sum, record) => sum + record.waiverCount, 0);
+  const waiverDelta = candidate.reduce((sum, record) => sum + (observationByRecord.get(record)?.waiverCount ?? 0), 0)
+    - baseline.reduce((sum, record) => sum + (observationByRecord.get(record)?.waiverCount ?? 0), 0);
   if (waiverDelta > 0) diagnostics.add('AR_WAIVER_DELTA_POSITIVE');
 
   const baselineByPair = new Map(baseline.map(record => [record.pairId, record]));
   const inventoryShrankCount = candidate.filter(record => {
     const before = baselineByPair.get(record.pairId);
-    return Boolean(before && before.checkInventory.some(check => !record.checkInventory.includes(check)));
+    const beforeInventory = before ? observationByRecord.get(before)?.checkInventory ?? [] : [];
+    const afterInventory = observationByRecord.get(record)?.checkInventory ?? [];
+    return Boolean(before && beforeInventory.some(check => !afterInventory.includes(check)));
   }).length;
   if (inventoryShrankCount > 0) diagnostics.add('AR_CHECK_INVENTORY_SHRANK');
 
@@ -280,7 +609,10 @@ export function deriveAcceptanceRolloutReport(args: {
     baselineSampleCount: baseline.length,
     candidateSampleCount: candidate.length,
     registeredSeedCount: registeredSeedIds.length,
-    detectedSeedCount: registeredSeedIds.filter(seedId => seededById.get(seedId)?.detected).length,
+    detectedSeedCount: registeredSeedIds.filter(seedId => {
+      const record = seededById.get(seedId);
+      return record ? observationByRecord.get(record)?.detected : false;
+    }).length,
     falsePassCount,
     omissionSeedCount: omissionRecords.length,
     omissionDetectedCount: omissionDetected.length,
@@ -290,10 +622,10 @@ export function deriveAcceptanceRolloutReport(args: {
     mislabeled3x1Count,
     waiverDelta,
     inventoryShrankCount,
-    baselineReviewRounds: baseline.reduce((sum, record) => sum + record.reviewRounds, 0),
-    candidateReviewRounds: candidate.reduce((sum, record) => sum + record.reviewRounds, 0),
-    baselineCostUnits: baseline.reduce((sum, record) => sum + record.costUnits, 0),
-    candidateCostUnits: candidate.reduce((sum, record) => sum + record.costUnits, 0),
+    baselineReviewRounds: baseline.reduce((sum, record) => sum + (observationByRecord.get(record)?.reviewRounds ?? 0), 0),
+    candidateReviewRounds: candidate.reduce((sum, record) => sum + (observationByRecord.get(record)?.reviewRounds ?? 0), 0),
+    baselineCostUnits: baseline.reduce((sum, record) => sum + (observationByRecord.get(record)?.costUnits ?? 0), 0),
+    candidateCostUnits: candidate.reduce((sum, record) => sum + (observationByRecord.get(record)?.costUnits ?? 0), 0),
   };
   const orderedDiagnostics = uniqueSorted([...diagnostics]);
   const unsigned: Omit<AcceptanceRolloutReportV1, 'reportDigest'> = {
@@ -352,6 +684,7 @@ export function issueAcceptanceRolloutArtifact(args: {
 function reportMatchesRecomputation(
   report: AcceptanceRolloutReportV1,
   cohort: AcceptanceRolloutCohortInputV1,
+  gitCwd: string,
 ): boolean {
   const recomputed = deriveAcceptanceRolloutReport({
     storyId: report.storyId,
@@ -361,6 +694,7 @@ function reportMatchesRecomputation(
       materialHash: report.binding.materialHash,
       storyFilesHash: report.binding.storyFilesHash,
     },
+    gitCwd,
   });
   return digest(recomputed) === digest(report);
 }
@@ -398,10 +732,14 @@ export function verifyAcceptanceRolloutArtifact(args: {
     || receipt.verdict !== report.verdict
     || receipt.storyId !== args.expectedStoryId
     || report.storyId !== args.expectedStoryId) diagnostics.add('AR_REPORT_TAMPERED');
-  if (args.expectedCohort && !reportMatchesRecomputation(report, args.expectedCohort)) {
+  if (args.expectedCohort && !reportMatchesRecomputation(report, args.expectedCohort, args.gitCwd)) {
     diagnostics.add(report.sourceInventoryDigest === args.expectedCohort.sourceInventoryDigest
       ? 'AR_REPORT_TAMPERED'
       : 'AR_ELIGIBLE_MEMBERSHIP_INCOMPLETE');
+  }
+  const runnerPath = join(args.gitCwd, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs');
+  if (!existsSync(runnerPath) || report.binding.runnerDigest !== byteDigest(readFileSync(runnerPath))) {
+    diagnostics.add('AR_REPORT_STALE');
   }
   const freshness = checkEvidenceFreshnessForGit(
     args.gitCwd,
