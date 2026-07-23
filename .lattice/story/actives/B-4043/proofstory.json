@@ -67,26 +67,10 @@
         "M5"
       ],
       "acceptanceClaim": "A verifier-frozen real cohort produces a current signed report meeting zero false-pass/false-block, supported adapter, waiver, inventory and full-3x2 thresholds; the flat lifecycle consumer enforces only that receipt, rollback preserves history, roles point to canonical facts, and docs state the exact measured boundary.",
-      "note": "Three verifier-declared paths model only statically provable production edges: report derivation to CLI/smoke, artifact verifier to shared evaluator, and shared evaluator to lifecycle gate. The cohort subprocess boundary remains covered by executable proof.",
+      "note": "The planned topology retains the one mechanically reconciled production edge from the shared rollout evaluator to the lifecycle gate. CLI/report/helper paths are exhaustively mapped by verifier-derived process-fact and basis-path command references; executable proof covers all assertions.",
       "verificationTopology": {
         "schemaVersion": "proofstory.acceptance_topology.v1",
         "producerRefs": [
-          {
-            "id": "P-W4-ROLLOUT-REPORT",
-            "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
-              "endpointRef": "W4-ROLLOUT-REPORT-PRODUCER"
-            }
-          },
-          {
-            "id": "P-W4-COHORT-RUNNER",
-            "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
-              "endpointRef": "W4-COHORT-RUNNER-PRODUCER"
-            }
-          },
           {
             "id": "P-W4-ROLLOUT-SMOKE",
             "sourceRef": {
@@ -97,39 +81,6 @@
           }
         ],
         "consumerRefs": [
-          {
-            "id": "C-W4-ROLLOUT-CLI",
-            "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
-              "endpointRef": "W4-ROLLOUT-CLI-CONSUMER"
-            },
-            "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
-            ]
-          },
-          {
-            "id": "C-W4-ROLLOUT-SMOKE",
-            "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-ROLLOUT-REPORT-GATE-PATH",
-              "endpointRef": "W4-ROLLOUT-SMOKE-CONSUMER"
-            },
-            "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
-            ]
-          },
-          {
-            "id": "C-W4-COHORT-REPORT-EVALUATOR",
-            "sourceRef": {
-              "refKind": "planned",
-              "plannedPathDeclarationRef": "CHK-002:happy:real-cohort-receipt:W4-COHORT-RUNNER-REPORT-PATH",
-              "endpointRef": "W4-COHORT-REPORT-EVALUATOR"
-            },
-            "producerRefs": [
-              "P-W4-COHORT-RUNNER"
-            ]
-          },
           {
             "id": "C-W4-ROLLOUT-LIFECYCLE",
             "sourceRef": {
@@ -150,10 +101,9 @@
               "canonicalSourceRef": "intent:CHK-001:happy:role-guidance"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI",
               "C-W4-ROLLOUT-LIFECYCLE"
             ]
           },
@@ -164,10 +114,10 @@
               "canonicalSourceRef": "intent:CHK-002:happy:real-cohort-receipt"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
+              "C-W4-ROLLOUT-LIFECYCLE"
             ]
           },
           {
@@ -177,7 +127,7 @@
               "canonicalSourceRef": "intent:CHK-003:happy:bounded-thresholds"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -190,10 +140,10 @@
               "canonicalSourceRef": "intent:CHK-005:happy:canonical-wave4-status"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
+              "C-W4-ROLLOUT-LIFECYCLE"
             ]
           },
           {
@@ -203,7 +153,7 @@
               "canonicalSourceRef": "intent:CHK-004:happy:enforce-and-rollback"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -218,10 +168,9 @@
               "canonicalSourceRef": "intent:CHK-001:edge:mirror-mode"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI",
               "C-W4-ROLLOUT-LIFECYCLE"
             ]
           },
@@ -232,10 +181,10 @@
               "canonicalSourceRef": "intent:CHK-002:edge:false-block-controls"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
+              "C-W4-ROLLOUT-LIFECYCLE"
             ]
           },
           {
@@ -245,7 +194,7 @@
               "canonicalSourceRef": "intent:CHK-003:edge:inconclusive-boundary"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -258,7 +207,7 @@
               "canonicalSourceRef": "intent:CHK-004:edge:mode-invariant-diagnostics"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -271,10 +220,10 @@
               "canonicalSourceRef": "intent:CHK-005:edge:authority-and-exclusions"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
+              "C-W4-ROLLOUT-LIFECYCLE"
             ]
           },
           {
@@ -284,10 +233,9 @@
               "canonicalSourceRef": "intent:CHK-001:adversarial:prompt-authority"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI",
               "C-W4-ROLLOUT-LIFECYCLE"
             ]
           },
@@ -298,10 +246,10 @@
               "canonicalSourceRef": "intent:CHK-002:adversarial:seeded-defects"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
+              "C-W4-ROLLOUT-LIFECYCLE"
             ]
           },
           {
@@ -311,7 +259,7 @@
               "canonicalSourceRef": "intent:CHK-003:adversarial:threshold-bypass"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -324,7 +272,7 @@
               "canonicalSourceRef": "intent:CHK-004:adversarial:fail-closed-mutations"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -337,10 +285,10 @@
               "canonicalSourceRef": "intent:CHK-005:adversarial:no-status-overclaim"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
+              "C-W4-ROLLOUT-LIFECYCLE"
             ]
           },
           {
@@ -350,7 +298,7 @@
               "canonicalSourceRef": "intent:CHK-004:adversarial:fail-closed-mutations"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -363,7 +311,7 @@
               "canonicalSourceRef": "intent:CHK-004:adversarial:fail-closed-mutations"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -376,7 +324,7 @@
               "canonicalSourceRef": "intent:CHK-004:edge:mode-invariant-diagnostics"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -389,7 +337,7 @@
               "canonicalSourceRef": "intent:CHK-003:adversarial:threshold-bypass"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -402,7 +350,7 @@
               "canonicalSourceRef": "intent:CHK-004:adversarial:fail-closed-mutations"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -415,10 +363,9 @@
               "canonicalSourceRef": "intent:CHK-001:adversarial:prompt-authority"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI",
               "C-W4-ROLLOUT-LIFECYCLE"
             ]
           },
@@ -429,10 +376,10 @@
               "canonicalSourceRef": "intent:CHK-005:edge:authority-and-exclusions"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
-              "C-W4-ROLLOUT-CLI"
+              "C-W4-ROLLOUT-LIFECYCLE"
             ]
           }
         ],
@@ -444,7 +391,7 @@
               "canonicalSourceRef": "intent:CHK-004:happy:enforce-and-rollback"
             },
             "producerRefs": [
-              "P-W4-ROLLOUT-REPORT"
+              "P-W4-ROLLOUT-SMOKE"
             ],
             "consumerRefs": [
               "C-W4-ROLLOUT-LIFECYCLE"
@@ -589,7 +536,7 @@
     }
   ],
   "diagnosticGaps": [],
-  "note": "Canonical Story 6 Wave 4 flat measured-rollout acceptance binding. Planned paths bind statically provable production edges; executable proof covers the subprocess cohort boundary; Wave 3A selective applicability is excluded.",
+  "note": "Canonical Story 6 Wave 4 flat measured-rollout acceptance binding. One statically reconciled lifecycle edge anchors the topology; exhaustive basis paths and executable proof cover CLI/report/helper behavior; Wave 3A selective applicability is excluded.",
   "createdAt": "2026-07-23T16:46:17.327Z",
-  "updatedAt": "2026-07-23T17:53:05.160Z"
+  "updatedAt": "2026-07-23T17:57:29.012Z"
 }
