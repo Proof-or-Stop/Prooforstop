@@ -797,6 +797,45 @@
         "scanEscalationReason": null
       },
       "_hash": "a0b9fdfb3c427d881e13dc750a7109fb5c2ffa7cb893c01c1e0e3dbeb04f3a72"
+    },
+    {
+      "id": "B-956f:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "R12 workflow-mechanics round (ZERO code delta since R11). Verified: git log 12402c828..HEAD (R11 head -> current HEAD) shows only 10 lattice-metadata commits (validate/review_pass_set/quorum/test-transition/delivery_check_set/done_required_validate/REVIEW-phase-transition receipts); git diff 12402c828..HEAD restricted to packages/main/src and scripts is EMPTY (confirmed twice, zero output). review_run_start itself independently confirmed this: incremental basis reReviewReasonCodes=[ELIGIBLE_NO_MATERIAL_CHANGE, ELIGIBLE_TRUSTED_PRIOR_BINDINGS] against priorPassRef B-956f:RP-022 (my R11 pass). Direct smoke run (no suite/validate invocation): node packages/main/dist/tasks/language-neutral-gates-smoke.js -> 39/39 pass (12 verificationIntent lanes + 27 fix-round/production-wiring/wrapper-root checks), matching R11 evidence exactly (headHash 040b2f8/materialHash 6dad08d unchanged across the checklist verificationEvidence). Re-ran the concept-residue grep sweep against current tree (not cached from memory): classifyReviewAssuranceFloorPath has exactly one definition (review-assurance-floor.ts:492) plus its own smoke-test call sites, no duplicate/orphaned old-signature call sites; isPackageOrRuntimeConfigPath and hasExtension( (old TS-only whitelist helpers named in RP-001) return zero matches repo-wide; materialCode config field is consumed in config.ts confirming no doc-promise-undelivered regression. Full diff vs main (18 files, +3852/-128 in src+scripts) is unchanged from prior rounds -- no new concept deletion/replacement introduced this round since there is no diff delta at all. No blocker.",
+      "createdAt": "2026-07-23T19:08:12.890Z",
+      "reviewRound": "2026-07-23T19:05:42.584Z",
+      "reviewRunId": "B-956f:RR-037",
+      "envelopeId": "8811ba349d803e67f175a8e5e7a5d045bd2c6daf146834008d216ca468571dae",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-956f/background.md",
+          ".lattice/story/actives/B-956f/checklist.json",
+          ".lattice/story/actives/B-956f/plan.md",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/material-code-policy.ts",
+          "packages/main/src/core/review-assurance-floor.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/scope-diff-pack.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/story-review.ts",
+          "packages/main/src/handlers/validate-concept.ts",
+          "packages/main/src/tasks/language-neutral-gates-smoke.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": "Zero code delta since R11 pass (B-956f:RP-022) confirmed via git diff on prior head; full-diff-vs-main file list re-triaged by name (grep-scanned, not fully re-read) rather than fully re-read, since content is byte-identical to the R11-reviewed tree."
+      },
+      "_hash": "d3e40263f799776a23a8fa18657969f93c5dc1784cf76b50a927534929a7994f"
     }
   ]
 }
