@@ -1,17 +1,17 @@
 {
   "storyId": "B-4ec1",
-  "changes": "实现 Story 6 Wave 3 可执行 pre-review 硬门禁：以 coverage basis 和 acceptance topology 为输入，校验生产者、消费者、mutation、transcript、authority 与 source closure 的完整和新鲜绑定。",
-  "usage": "在 DEV 进入 REVIEW 前运行 acceptance_topology_check 与 pre_review_check；只有当前工作树的结构、真实执行证据、咬住的 mutation 和相关 transcript 全部有效时才允许推进。",
-  "expectedOutcome": "缺少或陈旧的 acceptance 链路在 REVIEW 前被机械阻断，完整且当前的证据链可以稳定通过，并保留 legacy 与 rollout 边界。",
-  "actualTranscript": "当前 pre_review_check 返回 PASS、codes 为空；21/21 must intents 有当前证据；Round 7 四 reviewer lane 通过，Claude CLI 与 Codex CLI 完成 3 rounds × 2 hosts；TEST validate PASS；DONE-required build 与根 npm test 均 exit 0。",
-  "outcomeDiff": "预期与实际一致：门禁对完整真实证据放行，对 omission、伪造、陈旧、near-miss 和 transcript/source-closure 变异 fail-closed。",
+  "changes": "Implemented the Story 6 Wave 3 executable pre-review gate, binding coverage basis and acceptance topology to producer, consumer, mutation, transcript, authority, source-closure, and cross-session validation identity evidence.",
+  "usage": "Before advancing DEV to REVIEW, run acceptance_topology_check and pre_review_check. Progress is allowed only when current structural and executable evidence, biting mutations, and a related transcript all pass.",
+  "expectedOutcome": "Missing, stale, or session-bound acceptance evidence is mechanically blocked before REVIEW, while a complete current proof chain passes without weakening legacy or rollout boundaries.",
+  "actualTranscript": "The current pre_review_check reports PASS with no codes; 21 of 21 required intents are current; four Round 10 reviewer lanes passed; Claude CLI and Codex CLI recorded three rounds each; focused build and mutation tests passed.",
+  "outcomeDiff": "Expected and observed outcomes match: complete evidence passes, while omission, forgery, stale bindings, transport-session drift, near-miss commands, and semantic environment mutations fail closed.",
   "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Wave 3A 按 flat rollout 明确跳过；Wave 4 强制 rollout 尚未在本 story 实现。",
-  "pitfalls": "canonical live-proof 命令有精确的加长超时预算；任何附加参数、空白变体、环境注入或 shell 组合仍使用默认短预算，避免扩大执行豁免。",
+  "limitations": "Wave 3A remains intentionally skipped under the flat rollout, and Wave 4 enforcement is outside this story.",
+  "pitfalls": "Only the exact canonical live-proof command receives the extended timeout. Extra arguments, whitespace variants, environment injection, and shell composition retain the shorter default budget.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -26,19 +26,19 @@
       "durationMs": 27641890
     },
     "DEV": {
-      "count": 23,
-      "durationMs": 22120393
+      "count": 26,
+      "durationMs": 23932745
     },
     "REVIEW": {
-      "count": 7,
-      "durationMs": 4689768
+      "count": 10,
+      "durationMs": 5614605
     },
     "TEST": {
       "count": 2,
-      "durationMs": 1589822
+      "durationMs": 1900625
     }
   },
-  "totalDurationMs": 56238826,
+  "totalDurationMs": 59286818,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-07-23T14:05:34.450Z",
-  "updatedAt": "2026-07-23T14:05:34.450Z"
+  "updatedAt": "2026-07-23T14:56:22.442Z"
 }
