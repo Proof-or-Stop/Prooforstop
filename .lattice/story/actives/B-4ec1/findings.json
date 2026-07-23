@@ -273,6 +273,25 @@
       "_hash": "34693971907e863e41fc5d2b119a7ec91fa762ef76072ad4dfb41137a42c2ecb",
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4ec1:F-015",
+      "desc": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts:71-92,214-230,331 and packages/main/src/core/pre-review-check.ts:115-160 — current evidence for VI-W3-M3-REAL-PROOF-CHAIN, VI-W3-M3-MUTATION-POLARITY-RESTORE, VI-W3-M3-BYPASS-CAMPAIGN and VI-W3-M4-STABLE-GATE-CODES is not valid executable proof. The sole canonical live-proof command emits a literal B-4ec1 proof whose 17 mutation rows are generated as expectedCode===observedCode/controlRestored=true without executing those Story mutations; loadVerifiedPreReviewExecutableProof verifies argv/receipt then upgrades the emitted bindingProofs to trusted producer/verifier authority. The focused smoke therefore PASSes while fabricated mutation outcomes remain admissible, and another Story cannot receive a matching proof. Replace this with active-Story-derived command/result/control artifacts, prove a second non-B-4ec1 Story through the same production path, and add a mutation that changes an observed result while IDs remain unchanged; evidence for the affected must intents must be rerun, not merely rebound.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-23T02:22:50.924Z",
+      "reviewRound": "2026-07-23T02:17:50.645Z",
+      "reviewRunId": "B-4ec1:RR-008",
+      "_hash": "be0e640725b9ac61f97cb161d2db2641eb7fc2a211fb5eb87badae92cbb53ec3",
+      "files": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
