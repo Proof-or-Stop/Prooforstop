@@ -954,6 +954,36 @@
         "scanEscalationReason": null
       },
       "_hash": "da2f7be7327ccd7621255de944fd717b23402e22afde6c04cb593edc8d5df554"
+    },
+    {
+      "id": "B-4ec1:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh-round coverage PASS after F030. The retained single compiled quorum-submit-smoke instance ran under env -i with only PATH/HOME/TMPDIR and no outer Codex, Claude, or Lattice identity, exited 0, and reported quorum_submit smoke passed (43 checks). Static review confirms all 43 checks execute through controlled fixture identity; nested unsupported/absent provider cases re-clear inherited identity, then fail closed at dispatch, cannot create a trusted review run or satisfy REVIEW, and persist zero dispatch provenance, review runs, or prompt envelopes. Current checklist has 21/21 passing evidence, zero failures and zero waivers, all bound to current storyFilesHash/materialHash. pre_review_check_read reports PASS, codes none.",
+      "createdAt": "2026-07-23T15:58:01.337Z",
+      "reviewRound": "2026-07-23T15:50:51.194Z",
+      "reviewRunId": "B-4ec1:RR-043",
+      "envelopeId": "adcb1fe5ebd64479aa5f04d37606759a6e5695b3219ad7fc73c7dcdd3e2fea55",
+      "writerSessionId": "sess-ce45edc08011c552d33b7221e72a5e30",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4ec1/background.md",
+          ".lattice/story/actives/B-4ec1/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4ec1/checklist.json",
+          "AGENTS.md",
+          "docs/CLI.md",
+          "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/testing-completeness.md",
+          "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a9ce88ce8cd106748ff14f84bb7e05b61229c8dbb6cb25ee933daac8d0dc6eff"
     }
   ]
 }
