@@ -244,6 +244,35 @@
         "test": [
           "scripts/run-proofstory-acceptance-rollout-cohort.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:happy:canonical-wave4-status",
+            "desc": "Only after the real cohort and enforcement/rollback verification pass, docs checks prove the canonical Story 6 plan and CLI guide consistently replace Wave 4 NOT IMPLEMENTED with the exact demonstrated flat-rollout status, thresholds, measured cohort results, reproducible commands, receipt/quorum authority boundary, and rollback procedure.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:edge:authority-and-exclusions",
+            "desc": "Canonical documentation explicitly keeps Wave 3A selective per-Story/per-policy applicability unimplemented and excluded, describes partial/unsupported adapters and degraded 3x1 as non-authority, and does not promote local full-3x2 evidence into production/public authority.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:adversarial:no-status-overclaim",
+            "desc": "A docs/contract audit must fail if Wave 4 status is advanced without the current signed rollout receipt, if quoted metrics/thresholds/commands disagree with verifier output, if rollback history is described as deletable, if Wave 3A is implied implemented, or if any stale NOT IMPLEMENTED/overbroad authority claim contradicts the canonical status.",
+            "type": "docs",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     }
   ]
