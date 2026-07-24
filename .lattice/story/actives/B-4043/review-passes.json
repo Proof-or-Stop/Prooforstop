@@ -930,6 +930,35 @@
         "scanEscalationReason": null
       },
       "_hash": "42773c251c0243f27aee24fb21c0aec9eb478a1b4c34d5545f75b058f98f9f54"
+    },
+    {
+      "id": "B-4043:RP-030",
+      "agent": "lattice-review-quality",
+      "note": "Re-binding round for RP-025 invalidation (F-012 scope-contract correction only; scopeContractHash 22c5c2a714d1->c361df48ac38). git diff 0b09a8bc4f..HEAD --name-only shows only .lattice metadata changed, no production or test source. Re-confirmed at head: (1) all execFileSync(git,...) call sites in acceptance-rollout.ts route through hardenedGitArgs(); (2) proofstory-acceptance-rollout-smoke default-mode assertion suite remains wired into the DONE-required npm test chain. scope-contract.json now carries the F-012 CORRECTION acknowledgement (47->49). No blocker.",
+      "createdAt": "2026-07-24T19:37:15.091Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-043",
+      "envelopeId": "c782e8daaa354964c80cf7f0f9b2ba2dca036030b83a15514f14c5633fa246b0",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/review-runs.json",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4aa0019a393d70f792484b47852e76db57ff11944e42fe25a9d1cb5437e2ccd6"
     }
   ]
 }
