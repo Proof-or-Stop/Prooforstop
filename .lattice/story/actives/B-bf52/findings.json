@@ -43,7 +43,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:510 — the digit-rule lookbehind/lookahead `(?<![\\w-])...(?![\\w-])` excludes a preceding/following ASCII hyphen unconditionally, which also matches a minus sign, so a negative number is treated as identifier-attached and survives instead of collapsing. Verified: normalize(\"retry budget -5 remaining\") vs normalize(\"retry budget -19 remaining\") do NOT collapse (stay distinct), unlike the documented free-standing-counter behavior in the surrounding comment (attempt 41, 3>=2, 0/4 lanes all correctly collapse). This under-collapses an incidental numeric difference, i.e. it is a live instance of the exact risk plan.md #4 calls out as the change's central danger (\"the change makes the breaker fire less often ... a stuck agent [could] regain an unbounded retry loop\"), for a token shape (negative numbers) the CHK-004 must-still-collapse lane never tests.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T00:00:03.499Z",
@@ -51,7 +51,11 @@
       "reviewRunId": "B-bf52:RR-002",
       "_hash": "ce7d515dfd0b73191bf71a43ac6a5a28d48b07612425b3775d38a418d2627097",
       "signatureTag": "edge|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The sign is now consumed by the match (-?\\d+(?:\\.\\d+)?) instead of being excluded by a lookbehind that could not distinguish a minus sign from an identifier hyphen, so 'retry budget -5 remaining' and 'retry budget -19 remaining' collapse to one key again. Guarded by must-still-collapse case 'negative-counter' (guard: digit-rule) asserting keys=1 counter=2 and that assessBreaker trips with gate-repeat 2>=2. Revert-proof: restoring the round-1 form fails this case together with dotted-version-requirement and leaves the other 18 passing.",
+      "resolvedAt": "2026-07-24T00:33:30.084Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-004",
