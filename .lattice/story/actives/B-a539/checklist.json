@@ -72,6 +72,17 @@
           "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
           "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
           "timestamp": "2026-07-24T18:00:49.601Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"print the surviving entry and its keys\"",
+          "result": "pass",
+          "note": "The surviving entry declares only command, args and focus: no shell, cwd, env, timeoutMs or optional field, exactly as both pre-edit entries did, so execution identity is unchanged and arguments, timeout, execution context and fail-closed behaviour are preserved. The runner confirms it: the validate progress record spawned it as node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js timeoutMs=270000, the same default timeout other untimed entries receive, and it exited code=0 in 2488ms.",
+          "headHash": "7bae19b39f4d36ea26c2b36fdb2d856fd411c9b6",
+          "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
+          "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
+          "timestamp": "2026-07-24T18:01:13.731Z"
         }
       ]
     },
