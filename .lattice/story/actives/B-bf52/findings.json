@@ -439,7 +439,7 @@
       "desc": "cross-host (codex-cli host-B round 4), recorded by the main agent: the attached-hash rule requires an a-f letter to prove a run is a digest, which leaves an unbounded retry hole for all-decimal digest prefixes. codex brute-forced deriveLocalSessionId over ppid values and found real examples sess-0378592327422727 and sess-1686256634242425 whose rejection renderings produce DISTINCT keys. Probability (10/16)^16, about 1 in 2815 derived sessions, so not merely theoretical: such a caller can evade accumulation indefinitely.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-24T02:37:36.144Z",
@@ -449,7 +449,9 @@
         "packages/main/src/core/convergence-breaker.ts"
       ],
       "signatureTag": "edge|ts|cross-host-codex",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T03:30:15.880Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-bf52:F-025",
