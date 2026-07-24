@@ -350,6 +350,23 @@
       ],
       "signatureTag": "edge|ts|cross-host-codex",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-021",
+      "desc": "cross-host (codex-cli host-B round 3), recorded by the main agent: matrix case identifier-attached-long-decimal is tagged solely hex-rule-overreach but also depends on the number rule staying narrow. Restoring the former unconditional digit rewrite makes it fail alongside the four correctly-tagged digit-rule-overreach cases, so the matrix invariant that guardedBy names the rule whose mutation makes a case fail is untrue for this case and can send a maintainer to the wrong rule.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T02:02:50.672Z",
+      "reviewRound": "2026-07-24T01:43:51.293Z",
+      "_hash": "fae4075a9449172091cf59aff68b8624b0936c578f8fffb5105ed26735e8694e",
+      "files": [
+        "packages/main/src/tasks/convergence-breaker-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
