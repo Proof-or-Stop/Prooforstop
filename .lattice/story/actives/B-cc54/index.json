@@ -4,7 +4,7 @@
   "title": "Stop the ineffective-remedy loop when a gate blocks with an identical reason repeatedly",
   "description": "An unattended orchestration can retry a remedy that is structurally incapable of clearing the gate that blocked it, looping until it is killed. Forensics on the B-4043 burn show 54 re-review rounds against 61 identical gate refusals over 3.4 days. Nothing in the gate layer notices that the same gate is refusing for the same reason, so the loop is invisible and unbounded. This story adds a repeat-block breaker that hard-stops the loop and names the precondition that is actually unmet.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "gate",
@@ -147,6 +147,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-24T02:00:28.057Z",
+      "branch": "story/B-cc54",
+      "user": "Harmonygo",
+      "sessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-24T02:14:03.650Z",
       "branch": "story/B-cc54",
       "user": "Harmonygo",
       "sessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
