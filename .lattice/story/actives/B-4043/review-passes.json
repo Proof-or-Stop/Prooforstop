@@ -269,6 +269,36 @@
         "scanEscalationReason": null
       },
       "_hash": "bd7313757c0a4d25a40fdb1fbc8d8e8d8b130f059e759f0a6a80fb95fe7f7d0a"
+    },
+    {
+      "id": "B-4043:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept/residue re-check post F-006/F-007 fixes (head 485fe96->15f0afa). hardenedGitArgs(): all 7 execFileSync(git,...) call sites in acceptance-rollout.ts (gitCommonDir, gitOutput, assertCommitExists, assertAncestor, replayProductionGateState checkout, restore-branch checkout, git show) go through the wrapper; no residue of the earlier inline [...GIT_UNTRUSTED_REPO_ARGS, ...] form (diff of 51e28272aa->b2f7d5fa5b shows a clean refactor), no double-hardening. verify-process-fact-contract.mjs literal check acceptanceRolloutText.includes(cat-file, -e) still matches; ran the contract script live -> PASS. Rebuilt packages/main (tsc) and diffed pre-build vs post-build dist/core/acceptance-rollout.js: byte-identical, so no stale/neutered dist residue. Ran the actual default proofstory-acceptance-rollout-smoke.js live: PASS (57 assertions), confirming the post-checkout-hook regression guard and the rest of the F-007 gate-registered suite genuinely pass at HEAD. Exactly one acceptance-rollout-report.json artifact (regenerated in place across 7 commits, no stale duplicate); acceptance_rollout_check reports receipt=current, quorum=full-3x2, promotionEligible=true. Scope: lattice.config.json/package.json/smoke-manifest.json diffs are narrow and match their stated acknowledgement reasons; scope-contract.json allowedModify/allowedCreate arrays are unchanged by these acks -- widening is only via the acknowledgements[] audit list, confirmed as the designed OR-mechanism in scope-contract.ts, not a silent edit to the base scope arrays. No blocker found this round.",
+      "createdAt": "2026-07-24T15:18:53.082Z",
+      "reviewRound": "2026-07-24T14:57:57.391Z",
+      "reviewRunId": "B-4043:RR-016",
+      "envelopeId": "5480c1f66bbd4d444b3999224a36493ace027cc1cde9b6da2bba9560160ef60d",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/smoke-manifest.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "73f27fa77092e50aa364288e3aef76911e1182148fd0a21bc23f9c8e2a218a89"
     }
   ]
 }
