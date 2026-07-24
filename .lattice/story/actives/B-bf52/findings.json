@@ -908,6 +908,23 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-24T11:34:40.014Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-bf52:F-048",
+      "desc": "cross-host (codex-cli host-B final round), recorded by the main agent: the token-start guard is still WORSE THAN MAIN for two real shapes in embedded test-evidence output. A slash-joined test name, Cannot enter DONE: test fail: scenario/bug-2 still red versus scenario/bug-5, digests differently on this branch and collapses on main, because a slash is neither a word character nor a hyphen and so passes the negative lookbehind. A doubled label, BUG-BUG-2 versus BUG-BUG-5, does the same because the whole-token match begins at the first allowlisted prefix. Arbitrary failed-test output routinely carries slash-separated test names, so the same underlying failure can mint a fresh key on every retry and evade the brake. Main-agent-validated fix, 20 direction cases: replace the negative lookbehind with a POSITIVE token-start assertion (string start, whitespace, or one of quote, paren, bracket, comma, colon) and add a negative lookahead rejecting a doubled allowlisted prefix.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T11:58:21.250Z",
+      "reviewRound": "2026-07-24T11:13:41.302Z",
+      "_hash": "e32c008629378f1b0fbe0a7ba9108bdcf3fcb0c3cdd89011f551a4f36b9e8fc4",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "signatureTag": "edge|ts|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
