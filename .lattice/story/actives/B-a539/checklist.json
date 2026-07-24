@@ -119,7 +119,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node bin/lattice.js validate --json",
+          "result": "pass",
+          "note": "Invocation record from a real unfocused validate run in this worktree. The runner announced \"running 47 configured validate.command(s)\" (was 48) and its per-command record contains exactly one invocation of the smoke: \"command 12/47 started configured validate.commands[11]: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js timeoutMs=270000\" followed by \"command 12/47 ended configured validate.commands[11]: code=0 elapsedMs=2488\". Exactly one start line and one end line reference that script, and it passed. NOTE: the surrounding run did not finish - an unrelated command (delivery-check-freshness-smoke.js) hit its 270s timeout and the run then hit the global 900s cap, under a host load average of ~371 caused by other concurrent sessions. That abort is unrelated to this change and does not affect the exactly-once count, which is established by the per-command record above.",
+          "headHash": "8d7cd294343c3111eb3a4cb1a89ded9e61525a95",
+          "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
+          "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
+          "timestamp": "2026-07-24T18:01:32.339Z"
+        }
+      ]
     }
   ]
 }
