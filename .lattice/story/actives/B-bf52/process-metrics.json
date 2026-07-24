@@ -1,13 +1,13 @@
 {
   "storyId": "B-bf52",
-  "generatedAt": "2026-07-24T00:48:45.782Z",
+  "generatedAt": "2026-07-24T00:53:54.733Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 4,
     "reviewRounds": 1,
-    "findings": 11,
+    "findings": 12,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -27,7 +27,7 @@
       },
       "metrics": {
         "findingCoverageRatio": {
-          "value": 1,
+          "value": 0.5,
           "unit": "ratio",
           "confidence": "medium",
           "sources": [
@@ -299,7 +299,7 @@
     },
     "reviewDiscipline": {
       "effective": {
-        "value": true,
+        "value": false,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -318,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 11,
+          "value": 12,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -326,7 +326,7 @@
           ]
         },
         "criticalResolvedBeforeTest": {
-          "value": true,
+          "value": false,
           "unit": "bool",
           "confidence": "high",
           "sources": [

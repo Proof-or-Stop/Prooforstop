@@ -202,6 +202,21 @@
       "_hash": "f4a9fa433dae106daaaceef546b9b262bff1a82e45a40d1981cd80dc74f15a5e",
       "signatureTag": "missing|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-012",
+      "desc": "checklist.json:74-83 CHK-001:edge:0 verificationEvidence still cites the weak Case 'sanity-bound' shape-check (smoke.ts:603-606, assert.match(...,/^story_advance\\/[0-9a-f]{12}$/)) as proof the retained sanity bound 'is exercised rather than silently absent' -- this is the exact F-001 defect recurring at the same intent id after the fix. The F-001 fix added the real load-bearing proof as matrix case 'sanity-bound-is-applied' (smoke.ts:446-458, guardedBy sanity-bound), but the evidence record attached to CHK-001:edge:0 was never updated to cite it. Verified empirically: removed .slice(0, MAX_REASON_CHARS) from boundReasonForDigest (convergence-breaker.ts:497), rebuilt, reran the smoke -- the cited shape-check still PASSED unchanged (a well-formed digest exists regardless of the bound), while sanity-bound-is-applied and beyond-sanity-bound failed exactly as designed (localization: sanity-bound -> beyond-sanity-bound, sanity-bound-is-applied; all other 18 cases still passed). So CHK-001:edge:0 currently has zero evidence proving its own claimed property; the real proof exists in the code but is filed under CHK-001:edge:1 instead.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T00:53:54.705Z",
+      "reviewRound": "2026-07-24T00:33:06.504Z",
+      "reviewRunId": "B-bf52:RR-006",
+      "_hash": "26223d132d83117e13697c11f257fa16b4d09b44e6296148f5b9ae1da4eb9519",
+      "signatureTag": "edge|unknown|checklist-json-edge",
+      "signatureTagSource": "auto"
     }
   ]
 }
