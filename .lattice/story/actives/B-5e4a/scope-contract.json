@@ -1,0 +1,46 @@
+{
+  "storyId": "B-5e4a",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/lifecycle-registry-contract.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "packages/main/src/validate.ts",
+    "packages/main/package.json",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "tmp/b5e4a-red"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/lifecycle-registry-contract.ts",
+    "tmp/b5e4a-red"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/proofstory.ts"
+  ],
+  "scopeChangeReason": "Re-set to fix path canonicalization: tmp/b5e4a-red now exists at repo root so the red-harness scratch dir canonicalizes to repo-root instead of packages/main/src/tmp. Scope otherwise identical to the previous revision.",
+  "acknowledgements": [],
+  "createdAt": "2026-07-24T00:22:11.932Z",
+  "updatedAt": "2026-07-24T00:22:50.075Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/lifecycle-registry-contract.ts": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md": "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "packages/main/src/validate.ts": "packages/main/src/validate.ts",
+    "packages/main/package.json": "packages/main/package.json",
+    "package.json": "package.json",
+    "packages/main/src/tmp/b5e4a-red": "tmp/b5e4a-red/",
+    "packages/main/src/core/scope-path-classifier.ts": "packages/main/src/core/scope-path-classifier.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    "tmp/b5e4a-red": "tmp/b5e4a-red/"
+  }
+}

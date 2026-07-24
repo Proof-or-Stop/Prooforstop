@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-5e4a",
+  "sourceText": "In the proofbound repo, acceptance-basis.json is missing from the lifecycle-artifact filename registry, so every story that runs the PLAN-phase acceptance_basis_generate gate hits a blocking OUT_OF_SCOPE scope violation on its own generated metadata and must run scope_contract_acknowledge by hand to proceed. Reproduced twice: B-956f (2026-07-23) and B-bf52 (2026-07-24). Fix: add acceptance-basis.json to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES. Check whether the acceptance-topology story added any other artifact filenames that are likewise unregistered. Follow the Lattice story workflow; the change needs a smoke assertion that the new filename classifies as lifecycle_artifact, and the smoke should ideally assert the registry covers every filename the lifecycle actually writes, so the next new artifact cannot silently regress the same way.",
+  "normalizedOutcome": "Stories that run acceptance_basis_generate (and the other acceptance-topology steps) no longer hit blocking OUT_OF_SCOPE violations on framework-generated story metadata; a validate-wired smoke fails with a named filename if any StoryStore top-level artifact is ever unregistered again.",
+  "acceptanceClaim": "classifyLifecycleArtifact returns kind=lifecycle for .lattice/story/actives/<id>/acceptance-basis.json (and the three other acceptance-topology filenames), and the registry-coverage invariant runs green in the validate path while failing with a named filename when a registry entry is removed.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:e4608de509ce3e2daa2049a08bea80962fd970e0814fb4e3d709311680385be9",
+  "createdAt": "2026-07-24T00:20:50.477Z",
+  "updatedAt": "2026-07-24T00:20:50.477Z"
+}

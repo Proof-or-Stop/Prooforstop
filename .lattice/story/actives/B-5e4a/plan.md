@@ -21,8 +21,10 @@
 
 **Owner**: lattice-implementer
 **DependsOn**: CHK-001
-**Files**:
-- Modify: packages/main/src/tasks/lifecycle-registry-contract.ts (preferred home — it already does named-divergence cross-checks; a new sibling task file is acceptable if the contract file is a poor fit, e.g. because it has no fs access pattern)
+**Files** (per OQ-1 resolution — evidence split across the doc-canonical script and the registry contract):
+- Modify: packages/main/src/tasks/lifecycle-registry-contract.ts (runtime invariant home — it already does named-divergence cross-checks)
+- Modify: scripts/verify-process-fact-contract.mjs (doc-canonical source-level assertion: the four new filenames are present in the LATTICE_LIFECYCLE_ARTIFACT_FILENAMES initializer, in the script's existing extractConstInitializer style)
+- Modify: docs/requirements/decisions/lifecycle-artifact-scope.md (add one bullet to the #Verification evidence inventory naming the new registry-contract evidence)
 - Modify: packages/main/src/validate.ts or the npm script wiring only if a new task file is created and needs wiring (check how lifecycle-registry-contract is currently wired first — likely `npm run test:*` script in packages/main/package.json)
 
 **Verify**:
@@ -36,4 +38,6 @@
 
 **DoneWhen**:
 - The invariant is wired into the same execution path sibling contract checks use (visible in `lattice validate` or `npm run test:*` consumed by validate)
+- `npm run test:process-fact-contract` passes with the new source-level assertion in place
+- The lifecycle-artifact-scope.md #Verification inventory names the new registry-contract evidence
 - Positive and negative evidence recorded via `verification_evidence_add` for all must intents of CHK-001 and CHK-002
