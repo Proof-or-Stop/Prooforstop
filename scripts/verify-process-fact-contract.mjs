@@ -2126,6 +2126,25 @@ function assertCloseoutTrustBoundary() {
   for (const token of ['same attempt', 'materialHash', 'storyFilesHash', 'reviewRound', 'first completed identity per lane', 'ReviewPass.createdAt', 'reviewRunId/pass id tie-breakers', 'independent of run start order', 'completed before TEST entry', 'at or after TEST entry', 'fail-closed']) {
     assert(reattestationBoundaryFact?.rationale.includes(token), `${processFactRegistryPath}: reviewer re-attestation boundary rationale missing ${token}`);
   }
+  const validationTerminalFact = registry.get('runtime:closeout_validation_terminal');
+  assert(validationTerminalFact?.level === 'L4', `${processFactRegistryPath}: validation terminal convergence fact must remain L4`);
+  assert(validationTerminalFact?.consumerGate === 'done_prepare convergence acceptance', `${processFactRegistryPath}: validation terminal convergence fact must identify the done_prepare consumer`);
+  for (const token of ['commandSetHash', 'materialHash', 'storyFilesHash', 'unchangedSuiteExecutions', 'at or after TEST entry', 'commandExecutions > 0', 'reviewWindowSuiteExecutions', 'never-blocking']) {
+    assert(validationTerminalFact?.rationale.includes(token), `${processFactRegistryPath}: validation terminal rationale missing phase-anchored duplicate-suite token ${token}`);
+  }
+  // B-f824 cross-host MAJOR: the TEST-boundary suite-execution split is gate
+  // semantics, not an implementation detail. Anchor it mechanically: the derive
+  // must split blocking executed duplicates at the current TEST entry, and the
+  // blocking assert must never consume the whole-window telemetry counter
+  // (blocking on it recreated the B-956f closeout deadlock). The negative check
+  // is AST-scoped so a comment mentioning the counter cannot satisfy or trip it.
+  const donePrepareHandlerText = read('packages/main/src/handlers/done-prepare.ts');
+  assert(donePrepareHandlerText.includes('event.timestamp >= facts.testEntryAt'), 'packages/main/src/handlers/done-prepare.ts: convergence derive must anchor blocking duplicate-suite counting at the current TEST entry (event.timestamp >= facts.testEntryAt)');
+  const donePrepareConvergenceSf = parseSourceFile('packages/main/src/handlers/done-prepare.ts');
+  const convergenceAssertFn = findFunctionDeclaration(donePrepareConvergenceSf, 'assertDonePreparePassConvergence');
+  assert(convergenceAssertFn && convergenceAssertFn.body, 'packages/main/src/handlers/done-prepare.ts: assertDonePreparePassConvergence function declaration must exist');
+  assert(convergenceAssertFn?.body && subtreeReferencesProperty(convergenceAssertFn.body, 'unchangedSuiteExecutions'), 'packages/main/src/handlers/done-prepare.ts: convergence blocking assert must keep post-TEST duplicate-suite executions (unchangedSuiteExecutions) fail-closed');
+  assert(convergenceAssertFn?.body && !subtreeReferencesProperty(convergenceAssertFn.body, 'reviewWindowSuiteExecutions'), 'packages/main/src/handlers/done-prepare.ts: reviewWindowSuiteExecutions must remain observable never-blocking telemetry; the convergence blocking assert must not consume it (whole-window blocking recreated the B-956f DONE deadlock)');
   assert(read(processFactRegistryPath).includes('...PROCESS_FACT_CLOSEOUT_TELEMETRY'), `${processFactRegistryPath}: durable closeout convergence facts must be included in the final registry`);
 
   const autoCommitText = read('packages/main/src/core/auto-commit-metadata.ts');
