@@ -71,7 +71,7 @@
       "desc": "rollout-production-evidence-still-self-sealed: packages/main/src/core/acceptance-rollout.ts:180 validates caller-provided topologyReport/preReviewReport only by storyId, then lines 217-235 manufacture artifactDigest from those same objects and lines 283-287 hard-code controlRestored=true before signing. The later verifyGateArtifact at lines 340-347 only rechecks that self-digest; it never rereads/verifies the actual acceptance_topology_check output, the signed pre-review artifact, or a committed gate artifact from evidenceGitCwd. Therefore a caller holding any genuine quorum commit can substitute matching-story gate reports (and a claimed restored control), receive a valid observation signature, and drive detected/blocked from self-authored data. The current acceptance_rollout_check PASS proves report freshness/signature but not this missing production provenance. Bind each gate report to verifier-authenticated/committed temp-repo facts and derive controlRestored from an actual post-mutation control receipt; add a pre-seal substitution mutation that must be rejected.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-23T19:30:44.608Z",
@@ -79,7 +79,11 @@
       "reviewRunId": "B-4043:RR-008",
       "_hash": "61c86ed08b88dbd10c74d96f36fa7646fe4548ef1362be5a8977fd680c81ffa0",
       "signatureTag": "missing|unknown|rollout-production-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The three code requirements were already implemented and I verified each: (1) gate reports are bound to verifier-authenticated facts - replayProductionGateState checks out the evidence commit and re-runs acceptance_topology_check and pre_review_check_read using the VERIFIER's own CLI (cliRoot = args.gitCwd, never the evidence repo, so a preserved repo cannot forge the replay), and assertCallerReportMatches rejects any caller report whose digest differs from that replay; (2) controlRestored is derived, not hard-coded - acceptance-rollout.ts:413 sets it from productionGatePassed(restoredState); (3) the pre-seal substitution mutation exists and is rejected. The REAL remaining gap was that none of this ran in any gate: neither the default smoke nor its --issuer-mutations mode was referenced by smoke-manifest.json or validate.commands. Proven by RED: with assertCallerReportMatches disabled the default smoke still printed PASS (57 assertions) because the substitution case sits behind --issuer-mutations and nothing passed that flag; the same neutered build under --issuer-mutations fails with 'Missing expected exception'; restoring the defence returns PASS (6 assertions). Fixed by registering the 26s mutation mode in validate.commands and the 574s full run in smoke-manifest (verified selectable: run-all-smokes --select proofstory-acceptance-rollout -> PASS 573.8s), plus a bin/ symlink in the fixture without which the replay died with MODULE_NOT_FOUND before reaching the substitution assertion.",
+      "resolvedAt": "2026-07-24T11:58:58.918Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4043:F-005",
