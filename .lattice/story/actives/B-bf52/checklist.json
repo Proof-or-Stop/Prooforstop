@@ -64,11 +64,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "'must-differ signal-less-long-rejection [guard: signals-conditional-prefix]' drives the real bumpGateFailureCount and asserts the counter consequence; mutation M10 (prefix cut made unconditional) fails exactly that case. Recorded by case name and guard tag, no hand-written totals, and as a WHOLE SET — partial re-recording left sibling notes self-contradicting once before (F-045/F-046/F-047).",
-          "headHash": "38a7d221055880f581c5293dfeba43ffb73e0b12",
-          "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
-          "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
-          "timestamp": "2026-07-24T12:17:09.281Z"
+          "note": "'must-differ signal-less-long-rejection [guard: signals-conditional-prefix]' drives the real bumpGateFailureCount and asserts the counter consequence, not the hash alone. Recorded by case name and guard tag, no hand-written totals, as a WHOLE SET against the current matrix; the command names the suite that actually demonstrates the claim.",
+          "headHash": "548335cc3e3ef93bfae08b9e093e30ad8c7deb53",
+          "materialHash": "8b0c8e4289e9b824438d9eff678b27bffd2ed6f3c5781eae8c3f167355b99ac4",
+          "storyFilesHash": "6105d78916a6ed11d42dd5f31a80c51145171805ccbee6711036cb9cb0fa3a1f",
+          "timestamp": "2026-07-24T13:12:28.334Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
