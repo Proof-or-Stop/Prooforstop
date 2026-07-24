@@ -20,9 +20,26 @@
     "packages/main/src/handlers/transition-effects.ts"
   ],
   "scopeChangeReason": "Scope extension after the spike and an empirical self-reproduction: a repeat-block breaker already exists in core/convergence-breaker.ts (B-bbaf), so the defect is not a missing mechanism but a too-coarse dedup key — gateFailureDigest hashes only the first 200 normalized characters, which for ProofStory gate failures is an invariant header, collapsing distinct blockers onto one key and freezing legitimate progress. The fix therefore lands in convergence-breaker.ts rather than in a brand-new module.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Verifier-generated lifecycle artifact, not author-written code. acceptance_basis_generate is required by the pre_review_check gate and writes this file itself (every field is verifier-derived and refused as CLI input). It is not covered by the scope classifier's lifecycle-artifact filename list, so it fails closed as an unknown path — the same classifier gap B-12a1 closed for the ProofStory intent artifacts, with acceptance-basis.json apparently missed. Acknowledging rather than widening this story's contract, since the real fix belongs in the classifier and is out of scope here.",
+      "timestamp": "2026-07-24T00:20:55.985Z",
+      "paths": [
+        ".lattice/story/actives/B-cc54/acceptance-basis.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-cc54/acceptance-basis.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2574f8096a6260bfb24ac8ebe702044efbdcf35a",
+      "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d"
+    }
+  ],
   "createdAt": "2026-07-23T23:43:37.515Z",
-  "updatedAt": "2026-07-23T23:55:33.220Z",
+  "updatedAt": "2026-07-24T00:20:55.985Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -33,6 +50,7 @@
     "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
     "packages/main/src/core/review-convergence.ts": "packages/main/src/core/review-convergence.ts",
     "packages/main/src/handlers/transition-effects.ts": "packages/main/src/handlers/transition-effects.ts",
-    "packages/main/src/core/convergence-breaker.ts": "packages/main/src/core/convergence-breaker.ts"
+    "packages/main/src/core/convergence-breaker.ts": "packages/main/src/core/convergence-breaker.ts",
+    ".lattice/story/actives/B-cc54/acceptance-basis.json": ".lattice/story/actives/B-cc54/acceptance-basis.json"
   }
 }
