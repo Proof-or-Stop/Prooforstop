@@ -308,6 +308,51 @@ function chk004(): void {
 
   // CHK-004:adversarial:2 — empty command and reason still produce a valid key.
   assert.match(gateFailureDigest('', ''), /^\/[0-9a-f]{12}$/, 'CHK-004:adversarial:2 empty inputs still key safely');
+
+  // F-002 regression: a stuck loop whose reason carries a VARYING ordinary
+  // bracketed word must keep ONE key. An earlier draft accepted any bracketed
+  // lowercase word, so [note]/[info]/[todo] minted a fresh key per attempt and
+  // the loop escaped the brake entirely.
+  const plain = ['[note]', '[info]', '[todo]', '[warn]'].map(w => `${BANNER}tail ${w}`);
+  const plainKeys = new Set(plain.map(digest));
+  assert.equal(
+    plainKeys.size, 1,
+    'F-002: ordinary bracketed words must not widen the key, or a real loop escapes the brake',
+  );
+  withDir((dir) => {
+    for (const r of plain) bumpGateFailureCount(dir, CMD, r);
+    assert.ok(
+      maxGateFailureCount(readGateFailureCounts(dir)) >= THRESHOLD,
+      'F-002: such a loop must still reach the trip threshold',
+    );
+  });
+  // ...while real multi-word reason codes stay distinguishable.
+  assert.notEqual(
+    digest(`${BANNER}tail [missing_scope_boundary]`),
+    digest(`${BANNER}tail [missing_execution_boundary]`),
+    'F-002: genuine reason codes must remain distinguishable',
+  );
+
+  // F-003: why a reason body cannot impersonate a signal list. Extraction is
+  // content-based over the WHOLE reason, so prose that merely mentions a signal
+  // token genuinely carries that signal — there is no "forged" set distinct from
+  // the extracted one, which is why no working exploit exists. The JSON encoding
+  // of (prefix, signals) is defence-in-depth on top of that, making the boundary
+  // structural rather than delimiter-based; it is deliberately NOT asserted to
+  // change any observable key, because it does not.
+  assert.equal(
+    digest(`${BANNER}tail signals:missing_scope_boundary`),
+    digest(`${BANNER}tail [missing_scope_boundary]`),
+    'F-003: prose mentioning a signal token carries that signal, so it cannot forge a different set',
+  );
+  // The encoding must still separate a changed prefix from a changed signal set.
+  // The prefix delta has to land inside the first 200 chars to be observable,
+  // so these fixtures are deliberately short rather than banner-based.
+  assert.notEqual(
+    digest('alpha gate refused [missing_scope_boundary]'),
+    digest('bravo gate refused [missing_scope_boundary]'),
+    'F-003: the same signal set under a different prefix must key differently',
+  );
 }
 
 // ── CHK-005: fire / no-fire / reset ──────────────────────────────────────────

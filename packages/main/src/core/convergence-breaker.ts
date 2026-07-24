@@ -494,7 +494,16 @@ export function readGateFailureCounts(storyDir: string): GateFailureCounts {
 export function extractGateBlockSignals(normalizedReason: string): string[] {
   const signals = new Set<string>();
   // Bracketed reason codes: [missing_scope_boundary], [init_check_tampered], ...
-  for (const m of normalizedReason.matchAll(/\[([a-z][a-z0-9_]{3,})\]/g)) signals.add(m[1]);
+  //
+  // F-002: the bracket pattern MUST require at least one underscore. An earlier
+  // draft accepted any bracketed lowercase word, which silently admitted ordinary
+  // annotations like [note] / [info] / [todo] / [warn]. A genuinely stuck loop
+  // whose reason text carried a VARYING plain word would then get a fresh key on
+  // every attempt and escape the brake entirely — reintroducing exactly the
+  // unbounded loop this module exists to stop. Real reason codes are multi-word
+  // snake_case, so the underscore requirement is what actually makes the
+  // vocabulary bounded rather than merely claiming it is.
+  for (const m of normalizedReason.matchAll(/\[([a-z][a-z0-9]*(?:_[a-z0-9]+)+)\]/g)) signals.add(m[1]);
   // Diagnostic gap ids: "- missing_acceptance_binding [warn; proofstory.json]"
   for (const m of normalizedReason.matchAll(/\b((?:missing|invalid|stale|unreadable|tampered)_[a-z0-9_]+)/g)) {
     signals.add(m[1]);
@@ -517,7 +526,13 @@ export function gateFailureDigest(command: string, reason: string): string {
   // keeps the historical prefix-only key, so existing behaviour is unchanged.
   const signals = extractGateBlockSignals(normalized);
   const prefix = normalized.slice(0, 200);
-  const basis = signals.length > 0 ? `${prefix} signals:${signals.join(',')}` : prefix;
+  // F-003: encode the parts unambiguously instead of concatenating them with a
+  // literal " signals:" delimiter. Concatenation only resisted forgery by accident
+  // (a reason containing the delimiter text also fed its own extraction); a JSON
+  // encoding makes the boundary structural, so no reason body can impersonate a
+  // signal list. A reason with no signals still hashes the bare prefix, keeping
+  // the historical key byte-identical.
+  const basis = signals.length > 0 ? JSON.stringify([prefix, signals]) : prefix;
   const h = createHash('sha1').update(`${command}\n${basis}`).digest('hex').slice(0, 12);
   return `${command}/${h}`;
 }
