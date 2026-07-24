@@ -5,7 +5,7 @@
       "desc": "CHK-001:edge:0 evidence cites the 'sanity-bound' case at packages/main/src/tasks/convergence-breaker-smoke.ts:442-448 as proof that the retained sanity bound 'is exercised rather than silently absent,' but that case only asserts TRANSCRIPT.length > 200_000 and that the digest matches /^story_advance\\/[0-9a-f]{12}$/ -- a well-formed-digest check that passes identically whether or not the .slice(0, MAX_REASON_CHARS) bound exists in convergence-breaker.ts:483-485. Verified empirically: removed the .slice(0, MAX_REASON_CHARS) call from convergence-breaker.ts, rebuilt, and ran this exact assertion pair in isolation against the bound-removed build -- it still PASSED. The bound-removed build IS caught, but by a different case: 'must-still-collapse beyond-sanity-bound' (smoke.ts:337-341, MUST_COLLAPSE lane), which is the evidence cited for the separate intent CHK-001:edge:1, not for edge:0. So CHK-001:edge:0 has no valid evidence of its own claimed property; that property is established elsewhere under a different intentRef. This is an evidence note that restates the intent rather than an assertion that proves it. Net risk is low (the bound is genuinely tested by edge:1), but the edge:0 evidence record itself does not cover what it claims.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-23T23:59:12.844Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-bf52:RR-001",
       "_hash": "03a6f48a0704dfc00fbf59e8be77afe2fb04201c68d9688d687fe45727b078b6",
       "signatureTag": "missing|unknown|edge-evidence-cites",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the tautological sanity-bound assertion. MAX_REASON_CHARS is now exported from convergence-breaker.ts and the smoke asserts gateFailureDigest(cmd, TRANSCRIPT) === gateFailureDigest(cmd, TRANSCRIPT.slice(0, MAX_REASON_CHARS)) as matrix case 'sanity-bound-is-applied'. Revert-proof against the built dist: deleting .slice(0, MAX_REASON_CHARS) fails exactly sanity-bound/sanity-bound-is-applied and sanity-bound/beyond-sanity-bound, 18 other cases still passing — the old well-formed-digest check passed under that same deletion. The no-throw shape check is retained but explicitly labelled a shape check, not evidence the bound exists.",
+      "resolvedAt": "2026-07-24T00:33:28.626Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-002",
