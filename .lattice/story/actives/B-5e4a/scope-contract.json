@@ -8,7 +8,8 @@
     "docs/requirements/decisions/lifecycle-artifact-scope.md",
     "packages/main/src/validate.ts",
     "packages/main/package.json",
-    "package.json"
+    "package.json",
+    "lattice.config.json"
   ],
   "allowedCreate": [
     "tmp/b5e4a-red"
@@ -23,7 +24,7 @@
     "packages/main/src/core/store.ts",
     "packages/main/src/handlers/proofstory.ts"
   ],
-  "scopeChangeReason": "Re-set to fix path canonicalization: tmp/b5e4a-red now exists at repo root so the red-harness scratch dir canonicalizes to repo-root instead of packages/main/src/tmp. Scope otherwise identical to the previous revision.",
+  "scopeChangeReason": "DEV discovery: lattice validate is wired via lattice.config.json validate.commands (sibling contract smokes are node dist/tasks/<name>.js entries there), not via package.json scripts. CHK-002 userSees requires the new invariant to run inside lattice validate, so lattice.config.json joins allowedModify for that one wiring line. Everything else unchanged.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -43,7 +44,7 @@
     }
   ],
   "createdAt": "2026-07-24T00:22:11.932Z",
-  "updatedAt": "2026-07-24T00:25:13.110Z",
+  "updatedAt": "2026-07-24T00:55:34.734Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -59,6 +60,7 @@
     "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
     "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
     "tmp/b5e4a-red": "tmp/b5e4a-red/",
-    ".lattice/story/actives/B-5e4a/acceptance-basis.json": ".lattice/story/actives/B-5e4a/acceptance-basis.json"
+    ".lattice/story/actives/B-5e4a/acceptance-basis.json": ".lattice/story/actives/B-5e4a/acceptance-basis.json",
+    "lattice.config.json": "lattice.config.json"
   }
 }

@@ -176,6 +176,18 @@
           "materialHash": "739aa0487652ba3c6bf63c980a0e17eb452c63a1be0f3744f359a4ab442f4a3f",
           "storyFilesHash": "14be72c034d3378813b6ac7cec9acae3a951f3d1f228a686b9e47e55fa540b64",
           "timestamp": "2026-07-24T00:53:55.391Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "lattice.config.json",
+          "command": "node bin/lattice.js validate --json",
+          "result": "pass",
+          "note": "lattice validate now runs the invariant as validate.commands[36] (node packages/main/dist/tasks/lifecycle-registry-contract.js, wired by commit b034a4b686 adjacent to the sibling contract smokes). Full validate exit 0, allPass true, 47/47 commands; the command output confirms: 48 StoryStore top-level artifact filenames derived (floor 40) and registered-or-exempted, 0 divergences, and the four newly registered filenames classify as lifecycle_artifact.",
+          "headHash": "b034a4b68660b1a47a5088495532e86bf05851f2",
+          "materialHash": "364ef34a22903fc10443f2c11fc683366e98882b72c79cb5cfb69990f746aca7",
+          "storyFilesHash": "05e8b1fe2d3dd8379285fe736e195645176fa66561d7846681cb9c765908c545",
+          "timestamp": "2026-07-24T01:11:04.654Z"
         }
       ]
     }
