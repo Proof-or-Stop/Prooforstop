@@ -104,8 +104,8 @@
       ],
       "signatureTag": "missing|md|code-drift-docs",
       "signatureTagSource": "auto",
-      "resolvedReason": "Verified fixed: the example disclaimer now reads 'illustrative, abridged shape of the implemented canonical schema and command', and the header marks Waves 1/1A/2/2A/3/4 IMPLEMENTED with Wave 4 as IMPLEMENTED - FLAT PROJECT BOUNDARY. Swept the whole document for the same stale pattern; the three remaining 'does not claim' hits are legitimate boundary statements (selective applicability, planned-path-not-yet-existing, PLAN-safe example), not stale existence disclaimers.",
-      "resolvedAt": "2026-07-24T11:58:57.987Z",
+      "resolvedReason": "CORRECTED RECORD (the docs lane caught an inaccuracy in my first resolution text and it is fixed here rather than left standing). The substantive fix is verified: the disclaimer now reads 'The example is an illustrative, abridged shape of the implemented canonical schema and command; omitted fields and values remain governed by the runtime schema and verifier', the stale 'only a target shape / not a claim it exists' phrasing has zero hits, the header marks WAVES 1/1A/2/2A/3/4 IMPLEMENTED and Wave 4 as IMPLEMENTED - FLAT PROJECT BOUNDARY. My earlier text said 'three remaining does-not-claim hits'; that count was wrong. There are TWO (lines 41 and 759). The miscount came from a grep whose pattern also matched 'not yet exist' at line 388, which I then reported as if it were a third 'does not claim' occurrence. Both real occurrences are legitimate boundary statements, not stale existence disclaimers, which is the conclusion the docs lane independently confirmed.",
+      "resolvedAt": "2026-07-24T12:55:52.661Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     }
