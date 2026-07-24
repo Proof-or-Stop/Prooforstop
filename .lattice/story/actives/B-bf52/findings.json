@@ -1102,6 +1102,23 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-24T15:32:25.559Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-bf52:F-058",
+      "desc": "cross-host (codex-cli host-B), and it is not another leak — it is the PROOF that CHK-003 is not achievable from message text alone. A bare token bug-2 in embedded evidence.output, interpolated verbatim into a story_advance DONE rejection at machine.ts:1190, is textually IDENTICAL to a bare artifact ordinal. Concrete: not ok 1 - bug-2 reproducer still red versus the bug-5 sibling digest apart on the branch and collapse on main. Recognising a real BUG ordinal necessarily recognises a third-party TAP or parameterized-test label of the same shape, because they are the same string; no refinement of the pattern can separate them. codex also noted leading zeros now differ where main collapses. Consistent with every earlier exclusion decision on this story — rr-, rp-, rl- and i- were all excluded because for a brake, over-recognising is the dangerous direction — the honest resolution is to DROP the substantive-id allowlist entirely rather than fix it again. C3 is therefore NOT DELIVERED, and the story reduces to C2 and C4, the path-rule narrowing, which has no such ambiguity because a token-start absolute path is structurally distinguishable from a slash-bearing identifier. Main-agent-validated, 13 direction cases. Achieving C3 would require the digest to consult story state to know which ordinals actually exist for this story, which is a different design and a separate story.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T15:42:02.641Z",
+      "reviewRound": "2026-07-24T15:31:45.642Z",
+      "_hash": "254927b13185c4502dbe1d183ca84d31de755cc99cb4d8215663285567b76ba9",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "signatureTag": "edge|ts|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
