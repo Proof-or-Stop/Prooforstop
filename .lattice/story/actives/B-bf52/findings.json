@@ -952,7 +952,7 @@
       "desc": ".lattice/story/actives/B-bf52/checklist.json:394 CHK-004:edge:1 evidence command is bound to node packages/main/dist/tasks/gate-repeat-block-smoke.js, but CHK-004:edge:1's own verificationIntent (\"The pre-existing assertions in this smoke, including the reset-clears-counter case, keep passing unchanged alongside the new matrix\") is entirely about convergence-breaker-smoke.ts's OWN pre-existing assertions (resetGateFailureCounts exercised at convergence-breaker-smoke.ts:196/1823/1828). gate-repeat-block-smoke.js contains no reset-clears-counter case; running it demonstrates nothing about that claim. The note additionally asserts the completeness guard is BIDIRECTIONAL, which is convergence-breaker-smoke.ts section 7c content (line 1357+), entirely absent from gate-repeat-block-smoke.ts. The note's first sentence (B-cc54's suite is byte-unmodified... exits 0) is independently true (reproduced: git diff main -- packages/main/src/tasks/gate-repeat-block-smoke.ts is empty, and the script exits 0), but that specific check requires a git-diff comparison the recorded command alone does not perform, and it is not what CHK-004:edge:1's own verificationIntent asks for. Same evidence-binding defect class as F-049, and the same class the story's own F-045/F-046/F-047 findings already resolved for other notes in earlier rounds.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T12:34:24.239Z",
@@ -960,7 +960,9 @@
       "reviewRunId": "B-bf52:RR-028",
       "_hash": "57579ed9a3bb9e271e9ecfa15a356de1d3a53b075735736b928d33f2d2a781ed",
       "signatureTag": "edge|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T12:35:53.290Z",
+      "resolutionType": "fixed"
     }
   ]
 }
