@@ -300,11 +300,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Twenty revert-proofs re-derived from scratch on an isolated copy of the built normalizer, none carried forward: dropping the head anchor fails four cases; the tail anchor six; the doubled-prefix lookahead one; the qualifier one; making the qualifier repeatable one; disabling the leading-punctuation strip two; disabling the trailing strip six. The two strips are NOT independent and that is recorded rather than implied. Emptying the allowlist and making the placeholder index decimal both fail the same eleven cases and are indistinguishable by case name — stated as such, because that claim previously had no case behind it. Recorded by case name and guard tag, no hand-written totals, as a WHOLE SET against the current matrix; the command names the suite that actually demonstrates the claim.",
-          "headHash": "b0f1da2cef650a9ee278e7589af55c6534ebfcb5",
-          "materialHash": "8b0c8e4289e9b824438d9eff678b27bffd2ed6f3c5781eae8c3f167355b99ac4",
-          "storyFilesHash": "6105d78916a6ed11d42dd5f31a80c51145171805ccbee6711036cb9cb0fa3a1f",
-          "timestamp": "2026-07-24T13:12:40.411Z"
+          "note": "Revert-proofs re-derived from scratch on isolated copies of the built normalizer and run twice, byte-identical across both runs; none carried forward. Named mutations include dropping the id head anchor, dropping the tail anchor, disabling the balanced wrapper peel, disabling the sentence-punctuation strip, dropping the balance requirement itself, reversing the strip order, emptying the allowlist, making the placeholder alphabet decimal, and adding each excluded prefix. Two subsets came out larger than predicted and are recorded as measured rather than as expected. Recorded by case name and guard tag as a WHOLE SET, with no hand-written totals: every figure a reader might want comes from a command in this record, not from prose.",
+          "headHash": "fd7ec448a239153a42e4b5ae06d48d32c36cf2b5",
+          "materialHash": "3d129e3a66d2e32ba51014a555c6adb4d3157b22cd8f48bc5bc31a64db4cc651",
+          "storyFilesHash": "b5fdff5c16814c9a4a384d26c71f4c7add63a3a4d9cfe22478c1c73ca9206b31",
+          "timestamp": "2026-07-24T14:14:52.302Z"
         }
       ]
     },
