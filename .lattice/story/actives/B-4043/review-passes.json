@@ -877,6 +877,31 @@
         "scanEscalationReason": null
       },
       "_hash": "633051306ddcc488d0a7ddf33ad29cf7c7b51d90f46ce65c01b948e2f4b60cb1"
+    },
+    {
+      "id": "B-4043:RP-028",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-binding round after F-012 docs fix (scope-contract acknowledgement corrected stale 47->49 command figure). Verified via git diff that no production code, test code, checklist.json, or verificationEvidence entries changed since prior pass RP-024; only the scope-contract.json acknowledgement was appended and findings.json gained the F-012 resolved entry. All 16 checklist evidence notes remain byte-identical and still carry the corrected figure (49). CHK-004:adversarial:fail-closed-mutations still binds the default-mode command with no override flags. No blocker: test coverage review passed.",
+      "createdAt": "2026-07-24T19:26:29.270Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-044",
+      "envelopeId": "b0eee0d0740a2397a776e6ea11549baa0832fe9062be23236ad5cda7a0fea422",
+      "writerSessionId": "b4043-review-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          ".lattice/story/actives/B-4043/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "792a81f5abf24defbe32441ecc46e243e54d6b02b5a41dff75878a3f7fa24c1b"
     }
   ]
 }
