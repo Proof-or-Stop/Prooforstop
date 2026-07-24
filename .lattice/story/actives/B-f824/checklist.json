@@ -101,9 +101,9 @@
       "id": "CHK-003",
       "title": "Update downstream smoke assertions and process-fact documentation to the split semantics",
       "context": "Strict convergence-line regexes exist in done-prepare-merge-rerun-smoke.ts:333 and :496, done-prepare-auto-closeout-smoke.ts:367 and :1211, done-prepare-closure-heartbeat-smoke.ts:672 and :687, plus flow-stability-smoke convergence cases around :4593 and :4666. Verify scripts/verify-process-fact-contract.mjs and the runtime:closeout_validation_terminal entry in packages/main/src/core/process-fact-registry.ts still describe reality; run npm run test:process-fact-contract and lattice validate.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-24T00:57:31.619Z",
       "userSees": "npm run test:process-fact-contract prints PASS and node bin/lattice.js validate --json reports allPass true with the done-prepare merge-rerun, auto-closeout, closure-heartbeat and flow-stability smokes all green against the new convergence line shape",
       "verificationIntent": {
         "happy": [
