@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-5e4a:F-001",
+      "desc": "packages/main/src/tasks/lifecycle-registry-contract.ts:264-266 STORYSTORE_TOP_LEVEL_ARTIFACT_CALL_RE only matches literal filenames passed to .readJson/.writeJson/.appendJsonl helper calls. packages/main/src/core/store.ts:1000/1021/1028 writes the top-level story artifact review-loops.jsonl via join(this.storyDir(storyId), REVIEW_LOOP_FILENAME) + appendFileSync/writeFileSync (a constant reference, not through the readJson/writeJson helper, and there is no appendJsonl method in store.ts despite the regex naming it) -- so review-loops.jsonl is invisible to the derivation and is NOT in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES. Verified live: classifyLifecycleArtifact(\".lattice/story/actives/B-5e4a/review-loops.jsonl\") returns null, the exact same OUT_OF_SCOPE misclassification bug class this story exists to close, and it is invisible to the new coverage smoke (PASS, 0 divergences, 48/48). This contradicts the smoke comment at lifecycle-registry-contract.ts:~248 (\"closes the B-956f / B-bf52 regression class mechanically ... a new StoryStore top-level artifact write without a registry entry fails this contract\") and the CHK-002 DoneWhen promise -- the mechanism only covers one write-call shape, not all StoryStore write paths.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T01:16:16.362Z",
+      "reviewRound": "2026-07-24T01:11:20.454Z",
+      "reviewRunId": "B-5e4a:RR-002",
+      "_hash": "3d740b8aa4001db454b55e06402057960093ed9f5f99e600a7364284e0acd672",
+      "files": [
+        "packages/main/src/tasks/lifecycle-registry-contract.ts",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/core/review-loop.ts",
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
