@@ -1,0 +1,33 @@
+{
+  "passes": [
+    {
+      "id": "B-f824:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Symbols extracted (Step 1): deriveDonePreparePassConvergence, assertDonePreparePassConvergence, donePrepareJsonResult, DonePrepareJsonResult, renderPass (~5 changed export/const symbols in done-prepare.ts). Paragraphs compared (Step 2/3): 1 paragraph in docs/requirements/decisions/done-prepare-automation-execution-plan.md (lines 731-736) referencing these symbols/behavior; rg confirms no other doc under docs/, README.md, or CLAUDE.md mentions unchangedSuiteExecutions, reviewWindowSuiteExecutions, postTestReviewerReattestations, or the derive/assert function names. No blockers found: prose matches code exactly on the >= facts.testEntryAt boundary, per-group max(0, postTestExecuted.length-1), contradictory-reused-in-any-phase blocking, reviewWindowSuiteExecutions observable-only (never asserted), and render-line position after unchangedSuiteExecutions. Sibling docs workflow-convergence-failure-remediation-execution-plan.md and done-prepare-heartbeat-review-assurance-ux-execution-plan.md have zero diff and no now-contradicted suite-execution claims. npm run test:process-fact-contract passes; process-fact-registry.ts runtime:closeout_validation_terminal rationale remains accurate; tsc --noEmit clean.",
+      "createdAt": "2026-07-24T01:02:35.932Z",
+      "reviewRound": "2026-07-24T00:58:56.071Z",
+      "reviewRunId": "B-f824:RR-004",
+      "envelopeId": "31f9c34a540d7f7289a6dd95c9bb71ca465620bb4dfd5690a078744e18a9f02f",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f803778010e231b42de82b5c7e5685d5cf51934473ae97c5f527c37fed9916e7"
+    }
+  ]
+}
