@@ -2991,6 +2991,14 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
+  { name: 'quorum_prune', description: 'Official B-bf52 recovery: list (dry-run by default) and, with apply:true, remove duplicate host_verdict events on the same runId + host/session/key identity from the committed process-events.jsonl. Apply writes a timestamped byte-identical backup before rewriting and commits through the same lifecycle-metadata transaction quorum_submit uses.', schema: {
+    storyId: z.string().describe('Canonical Story id'),
+    runIds: z.array(z.string()).optional().describe('Optional runId filter; only duplicates on these runIds are pruned, others are left untouched'),
+    apply: z.boolean().optional().describe('Actually back up, rewrite, and commit; default false = dry-run that only lists what would be removed'),
+    keep: z.enum(['newest-material', 'oldest-material']).optional().describe('Which duplicate survives per group; default newest-material keeps the later (newer-material) event, oldest-material keeps the earlier'),
+    json: z.boolean().optional().describe('Output JSON'),
+    format: z.enum(['text', 'json']).optional().describe('Output format'),
+  }},
   { name: 'cross_host_review', description: 'Auto-run Codex as an independent read-only reviewer over the current materialHash-bound change, record a structured host-B verdict alongside the caller-authored host-A findings, and surface host-A/host-B disagreements (crypto-deferred M1; no signatures)', schema: {
     storyId: z.string().describe('Canonical Story id'),
     policy: z.string().optional().describe('Optional dispatch policy name governing the read-only Codex subprocess'),

@@ -471,22 +471,59 @@ export function createQuorumSubmitHandlers(ctx: HandlerContext, testHooks: Quoru
         || bindingsA.validationDigest;
       const note = normalizeString(args.note) || 'quorum_submit local voluntary floor quorum after current signed reviewer passes';
 
-      // Guard: refuse to re-submit a quorum for a runId that already carries a verdict at the
-      // SAME materialDigest. This prevents silently piling duplicate verdicts onto an already-
-      // populated runId, while still allowing a fresh quorum after the material changes (a
-      // different materialDigest does not collide).
+      // Guard: refuse to re-submit a quorum for a runId that already carries a verdict the
+      // floor would still count at evaluation time. Two collision branches:
+      //   (a) SAME materialDigest — an exact-material duplicate would pile redundant verdicts
+      //       onto an already-populated runId. Existing message preserved.
+      //   (b) STALE materialDigest but matching storyFilesHash — a drift-accept collision. The
+      //       review-escalation floor rewrites such stale-material verdicts to the current
+      //       material (eventsWithStoryFilesHashDowngrade, core/review-escalation.ts:948-969)
+      //       whenever storyFilesHash is unchanged, which is the normal effect of `git merge
+      //       main` (materialHash moves, story-owned diff does not). If we accepted the
+      //       re-submit here, the old + new verdicts would share the deterministic runIds and
+      //       host/session/key identities and every round would then collapse as "duplicate
+      //       host/session/key identity" — the B-bf52 poisoning.
+      //
+      // LOCKSTEP: branch (b) mirrors eventsWithStoryFilesHashDowngrade EXACTLY, including its
+      // lack of an EMPTY_STORY_FILES_HASH no-signal exclusion (OQ-1 resolution). A committed
+      // event with a blank/absent storyFilesHash is treated as no-signal and never collides on
+      // this branch, matching the floor. If a future floor-hardening story adds the
+      // EMPTY_STORY_FILES_HASH exclusion (or otherwise changes the drift-accept predicate) to
+      // the floor, THIS guard MUST be updated in the same story to keep producer/consumer
+      // parity; otherwise the guard would over-block resubmissions the floor would no longer
+      // drift-accept. review_escalation_status reveals any such mismatch.
       const storyRel = quorumStoryRel(gitCwd, ctx, storyId);
       const plannedRunIds = new Set<string>();
       for (let round = 1; round <= rounds; round += 1) plannedRunIds.add(`${storyId}-q-r${round}`);
-      const duplicateRunIds = [...new Set(
-        committedHostVerdictEvents(gitCwd, storyRel)
-          .filter(event => event.type === 'host_verdict'
-            && plannedRunIds.has(normalizeString(event.runId))
-            && event.materialDigest === materialDigest)
+      const committedForGuard = committedHostVerdictEvents(gitCwd, storyRel)
+        .filter(event => event.type === 'host_verdict' && plannedRunIds.has(normalizeString(event.runId)));
+      const sameMaterialRunIds = [...new Set(
+        committedForGuard
+          .filter(event => event.materialDigest === materialDigest)
           .map(event => normalizeString(event.runId)),
       )].sort();
-      if (duplicateRunIds.length > 0) {
-        throw new Error(`quorum_submit refuses: verdicts already exist for runId(s) ${duplicateRunIds.join(', ')} at the current material (${materialDigest}); re-submitting would duplicate the quorum. Re-run only after the material changes (a new commit), or use a fresh review round.`);
+      if (sameMaterialRunIds.length > 0) {
+        throw new Error(`quorum_submit refuses: verdicts already exist for runId(s) ${sameMaterialRunIds.join(', ')} at the current material (${materialDigest}); re-submitting would duplicate the quorum. Re-run only after the material changes (a new commit), or use a fresh review round.`);
+      }
+      const driftAcceptEvents = committedForGuard.filter((event) => {
+        const eventMaterial = normalizeString(event.materialDigest);
+        const eventStoryFilesHash = normalizeString(event.storyFilesHash);
+        return eventMaterial !== ''
+          && eventMaterial !== materialDigest
+          && eventStoryFilesHash !== ''
+          && eventStoryFilesHash === storyFilesHash;
+      });
+      if (driftAcceptEvents.length > 0) {
+        const driftRunIds = [...new Set(driftAcceptEvents.map(event => normalizeString(event.runId)))].sort();
+        const standingMaterials = [...new Set(driftAcceptEvents.map(event => normalizeString(event.materialDigest)))].sort();
+        throw new Error(
+          `quorum_submit refuses: the standing quorum on runId(s) ${driftRunIds.join(', ')} at the older material(s) `
+          + `${standingMaterials.join(', ')} still drift-accepts because storyFilesHash is unchanged `
+          + `(${storyFilesHash}); the review-escalation floor rewrites those verdicts to the current material, so `
+          + `nothing needs resubmitting. A re-submit would poison the rounds as duplicate host/session/key identity. `
+          + `Check review_escalation_status to confirm the standing quorum, and note that a fresh quorum becomes `
+          + `possible only when the story-owned files change (storyFilesHash moves), not merely the whole-tree material.`,
+        );
       }
 
       assertCleanQuorumBaseline(gitCwd);

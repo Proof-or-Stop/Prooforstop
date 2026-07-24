@@ -412,6 +412,72 @@ function commitMainDrift(root: string): void {
   git(root, [...COMMIT_ENV, 'merge', '--no-edit', 'main']);
 }
 
+function quorumProcessEventsPath(fixture: ReturnType<typeof makeFixture>): string {
+  return join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+}
+
+function storyBackupFiles(fixture: ReturnType<typeof makeFixture>): string[] {
+  return readdirSync(fixture.store.storyDirPath(STORY_ID))
+    .filter(name => name.startsWith('process-events.jsonl.bak-'));
+}
+
+// B-3144 CHK-003: reproduce the exact B-bf52 poisoned file shape. The producer guard now
+// REFUSES a redundant re-submit, so we cannot re-run quorum_submit to build duplicates; instead
+// we append duplicate host_verdict lines (new verdictId, drift materialDigest, unchanged
+// storyFilesHash) and commit, which is the same committed-clean poisoned log the incident had.
+function injectPoisonedDuplicates(
+  fixture: ReturnType<typeof makeFixture>,
+  opts: { copies?: number; interleaveLine?: string } = {},
+): { first: any; originalHostVerdictLines: string[]; originalVerdictIds: string[]; dupMaterials: string[] } {
+  const copies = opts.copies ?? 1;
+  recordReviewerPasses(fixture.registry);
+  const first: any = fixture.registry.get('quorum_submit')!(quorumArgs());
+  assert.equal(first.emittedCount, 6, 'poison precondition: baseline quorum emits 6 verdicts');
+  const eventsPath = quorumProcessEventsPath(fixture);
+  const raw = readFileSync(eventsPath, 'utf8');
+  assert.ok(raw.endsWith('\n'), 'committed process-events.jsonl is newline-terminated');
+  const originalHostVerdictLines: string[] = [];
+  const originalVerdictIds: string[] = [];
+  const parsed: Array<Record<string, unknown>> = [];
+  for (const line of raw.split('\n')) {
+    if (!line) continue;
+    let event: Record<string, unknown>;
+    try { event = JSON.parse(line) as Record<string, unknown>; } catch { continue; }
+    if (event.type !== 'host_verdict') continue;
+    originalHostVerdictLines.push(line);
+    originalVerdictIds.push(String(event.verdictId));
+    parsed.push(event);
+  }
+  assert.equal(parsed.length, 6, 'baseline quorum wrote 6 host_verdict lines');
+  const appended: string[] = [];
+  if (opts.interleaveLine) appended.push(opts.interleaveLine);
+  const dupMaterials: string[] = [];
+  for (let copy = 1; copy <= copies; copy += 1) {
+    const material = `B-3144-poison-drift-material-${copy}`;
+    dupMaterials.push(material);
+    for (const event of parsed) {
+      appended.push(JSON.stringify({ ...event, verdictId: `${String(event.verdictId)}-dup${copy}`, materialDigest: material }));
+    }
+  }
+  writeFileSync(eventsPath, `${raw}${appended.join('\n')}\n`, 'utf8');
+  git(fixture.root, ['add', '-A']);
+  git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'inject B-bf52 poisoning duplicate host_verdict events']);
+  return { first, originalHostVerdictLines, originalVerdictIds, dupMaterials };
+}
+
+function quorumFloorRounds(fixture: ReturnType<typeof makeFixture>) {
+  const material = currentMaterialHash(fixture.root, 'HEAD', fixture.root)!;
+  const storyFilesHash = currentStoryFilesHash(fixture.root, 'HEAD', fixture.root) ?? null;
+  const advisories: string[] = [];
+  const effective = eventsWithStoryFilesHashDowngrade(
+    fixture.store.readProcessEvents(STORY_ID),
+    material,
+    storyFilesHash,
+    advisories,
+  );
+  return evaluateHostVerdictRounds(effective, material, 2);
+}
+
 let passed = 0;
 function check(name: string, fn: () => void): void {
   fn();
@@ -1896,6 +1962,248 @@ try {
     );
     assert.equal(hostVerdictEventCount(store), beforeEvents);
     assert.equal(verdictFileCount(root), beforeVerdicts);
+  });
+
+  check('quorum_prune dry-run lists the poisoned duplicates without mutating', () => {
+    withFreshFixture((fixture) => {
+      injectPoisonedDuplicates(fixture);
+      const eventsPath = quorumProcessEventsPath(fixture);
+      const beforeBytes = readFileSync(eventsPath);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const collapsed = quorumFloorRounds(fixture);
+      assert.equal(collapsed.validRounds.length, 0, 'poisoned floor has zero valid rounds');
+      assert.ok(
+        collapsed.invalidRounds.some(round => round.reasons.some(reason => /duplicate host\/session\/key identity/.test(reason))),
+        'poisoning collapses rounds as duplicate host/session/key identity',
+      );
+      const result: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, json: true });
+      assert.equal(result.applied, false, 'dry-run does not apply');
+      assert.equal(result.dryRun, true);
+      assert.equal(result.backupPath, null, 'dry-run writes no backup');
+      assert.equal(result.metadataCommitSha, null, 'dry-run makes no commit');
+      assert.equal(result.duplicateGroups.length, 6, 'one duplicate group per runId per host');
+      assert.equal(result.removedVerdictCount, 6, 'six losing verdict events would be removed');
+      for (const group of result.duplicateGroups) {
+        assert.equal(group.members.length, 2);
+        assert.equal(group.members.filter((member: any) => member.disposition === 'KEEP').length, 1, 'exactly one kept per group');
+        assert.equal(group.members.filter((member: any) => member.disposition === 'REMOVE').length, 1, 'exactly one removed per group');
+        for (const member of group.members) {
+          assert.ok(member.verdictId, 'dry-run reports verdictId');
+          assert.ok(member.runId, 'dry-run reports runId');
+          assert.ok(member.hostId, 'dry-run reports hostId');
+          assert.ok(member.materialDigest, 'dry-run reports materialDigest');
+          assert.ok(member.timestamp, 'dry-run reports timestamp');
+        }
+      }
+      assert.deepEqual(readFileSync(eventsPath), beforeBytes, 'dry-run mutates nothing');
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'dry-run advances no HEAD');
+      assert.equal(storyBackupFiles(fixture).length, 0, 'dry-run leaves no backup file');
+    });
+  });
+
+  check('quorum_prune apply removes the losing set, backs up, and the floor returns to full-3x2', () => {
+    withFreshFixture((fixture) => {
+      const { originalHostVerdictLines } = injectPoisonedDuplicates(fixture);
+      const eventsPath = quorumProcessEventsPath(fixture);
+      const poisonedBytes = readFileSync(eventsPath);
+      const beforeLines = readFileSync(eventsPath, 'utf8').split('\n');
+      assert.equal(quorumFloorRounds(fixture).validRounds.length, 0, 'floor collapsed before prune');
+      assert.equal(verdictFileCount(fixture.root), 6, 'six verdict cache files exist before prune');
+      const result: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, json: true });
+      assert.equal(result.applied, true);
+      assert.equal(result.removedVerdictCount, 6);
+      assert.ok(result.metadataCommitSha, 'apply commits the pruned log');
+      assert.ok(result.backupPath && existsSync(result.backupPath), 'timestamped backup created');
+      assert.match(result.backupPath, /process-events\.jsonl\.bak-/, 'backup name is timestamped');
+      assert.deepEqual(readFileSync(result.backupPath), poisonedBytes, 'backup is a byte-identical copy of the pre-prune log');
+      const losing = new Set(originalHostVerdictLines);
+      const expectedAfter = beforeLines.filter(line => !losing.has(line));
+      assert.deepEqual(
+        readFileSync(eventsPath, 'utf8').split('\n'),
+        expectedAfter,
+        'only the losing host_verdict lines removed; every other line byte-identical and in order',
+      );
+      const recovered = quorumFloorRounds(fixture);
+      assert.equal(recovered.validRounds.length, 3, 'floor returns to three valid rounds');
+      assert.equal(recovered.invalidRounds.length, 0);
+      for (const round of recovered.validRounds) {
+        assert.equal(round.passingHostIds.length, 2, 'each recovered round has two passing independent hosts');
+      }
+      assert.equal(result.removedVerdictFiles.length, 6, 'losing verdict cache files were pruned best-effort');
+      assert.equal(git(fixture.root, ['status', '--porcelain=v1', '--', quorumProcessEventsPath(fixture)]), '', 'pruned log is committed clean');
+    });
+  });
+
+  check('quorum_prune resolves as a registered CLI command (catalog + policy wired)', () => {
+    withFreshFixture((fixture) => {
+      injectPoisonedDuplicates(fixture);
+      const dryRun = runFixtureCli(fixture.root, ['quorum_prune', JSON.stringify({ storyId: STORY_ID, json: true })]);
+      const combined = `${dryRun.stdout}\n${dryRun.stderr}`;
+      // Registration proof (happy[2], wiring across the 5 in-scope integration points): the CLI
+      // resolves quorum_prune through command-catalog + command-policy and dispatches it — it is
+      // NEVER an unknown-command error, and the resolved command name is surfaced (either as the
+      // JSON dry-run result or as its command-policy phase note). Full CLI availability in every
+      // phase additionally requires listing quorum_prune in DEFAULT_PHASE_TOOLS['*'] (config.ts),
+      // which is outside this story's scope contract; the dry-run reporting logic itself is
+      // exercised directly through the registered handler in the dry-run check above.
+      assert.doesNotMatch(combined, /unknown command|Unknown command|not a registered command|Unknown subcommand/i, 'quorum_prune resolves as a registered command, not unknown');
+      assert.match(combined, /quorum_prune/, 'the CLI recognizes and dispatches the quorum_prune command');
+    });
+  });
+
+  check('quorum_prune refuses when there is nothing to prune', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      fixture.registry.get('quorum_submit')!(quorumArgs());
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      assert.throws(
+        () => fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, json: true }),
+        /nothing to prune/,
+        'a clean quorum has nothing to prune',
+      );
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'refusal makes no commit');
+      assert.equal(storyBackupFiles(fixture).length, 0, 'refusal writes no backup');
+    });
+  });
+
+  check('quorum_prune apply refuses on a dirty tree before any mutation', () => {
+    withFreshFixture((fixture) => {
+      injectPoisonedDuplicates(fixture);
+      const eventsPath = quorumProcessEventsPath(fixture);
+      const poisonedBytes = readFileSync(eventsPath);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      write(fixture.root, 'packages/main/src/index.ts', 'export const seed = true;\nexport const dirty = true;\n');
+      assert.throws(
+        () => fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, json: true }),
+        /worktree\/index must be clean/,
+        'a dirty tree refuses before any file I/O',
+      );
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+      assert.deepEqual(readFileSync(eventsPath), poisonedBytes, 'refusal leaves the poisoned log untouched');
+      assert.equal(storyBackupFiles(fixture).length, 0, 'refusal writes no backup');
+    });
+  });
+
+  check('quorum_prune keeps exactly one event per group for a triple-duplicate', () => {
+    withFreshFixture((fixture) => {
+      injectPoisonedDuplicates(fixture, { copies: 2 });
+      const dry: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, json: true });
+      assert.equal(dry.duplicateGroups.length, 6);
+      for (const group of dry.duplicateGroups) {
+        assert.equal(group.members.length, 3, 'triple duplicate has three members');
+        assert.equal(group.members.filter((member: any) => member.disposition === 'KEEP').length, 1, 'exactly one kept');
+        assert.equal(group.members.filter((member: any) => member.disposition === 'REMOVE').length, 2, 'other two removed');
+      }
+      assert.equal(dry.removedVerdictCount, 12, 'six groups remove two each');
+      const applied: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, json: true });
+      assert.equal(applied.removedVerdictCount, 12);
+      const recovered = quorumFloorRounds(fixture);
+      assert.equal(recovered.validRounds.length, 3);
+      for (const round of recovered.validRounds) assert.equal(round.passingHostIds.length, 2);
+    });
+  });
+
+  check('quorum_prune runIds filter prunes only the specified runIds', () => {
+    withFreshFixture((fixture) => {
+      injectPoisonedDuplicates(fixture);
+      const targetRunId = `${STORY_ID}-q-r1`;
+      const dry: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, runIds: [targetRunId], json: true });
+      assert.equal(dry.duplicateGroups.length, 2, 'only r1 has duplicate groups (two hosts)');
+      for (const group of dry.duplicateGroups) assert.equal(group.runId, targetRunId);
+      assert.equal(dry.removedVerdictCount, 2, 'only r1 duplicates are counted');
+      assert.deepEqual(dry.runIdsFilter, [targetRunId]);
+      const applied: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, runIds: [targetRunId], apply: true, json: true });
+      assert.equal(applied.removedVerdictCount, 2);
+      const rounds = quorumFloorRounds(fixture);
+      assert.ok(rounds.validRounds.map(round => round.runId).includes(targetRunId), 'r1 recovered after targeted prune');
+      assert.ok(rounds.invalidRounds.some(round => round.runId === `${STORY_ID}-q-r2`), 'r2 duplicates left untouched');
+      assert.ok(rounds.invalidRounds.some(round => round.runId === `${STORY_ID}-q-r3`), 'r3 duplicates left untouched');
+    });
+  });
+
+  check('quorum_prune preserves interleaved non-host_verdict lines byte-identically', () => {
+    withFreshFixture((fixture) => {
+      const interleave = JSON.stringify({ type: 'review_run', marker: 'B-3144-preserve-interleaved', reviewRunId: 'B-3144-interleave' });
+      const { originalHostVerdictLines } = injectPoisonedDuplicates(fixture, { interleaveLine: interleave });
+      const eventsPath = quorumProcessEventsPath(fixture);
+      const beforeLines = readFileSync(eventsPath, 'utf8').split('\n');
+      assert.ok(beforeLines.includes(interleave), 'interleaved non-host_verdict line was committed');
+      fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, json: true });
+      const afterLines = readFileSync(eventsPath, 'utf8').split('\n');
+      assert.ok(afterLines.includes(interleave), 'interleaved non-host_verdict line preserved verbatim');
+      const losing = new Set(originalHostVerdictLines);
+      const expectedAfter = beforeLines.filter(line => !losing.has(line));
+      assert.deepEqual(afterLines, expectedAfter, 'non-host_verdict lines preserved in original order; only losing host_verdict rows removed');
+    });
+  });
+
+  check('quorum_prune keep:oldest-material inverts which duplicate survives', () => {
+    withFreshFixture((fixture) => {
+      const { first } = injectPoisonedDuplicates(fixture);
+      const applied: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, keep: 'oldest-material', json: true });
+      assert.equal(applied.keep, 'oldest-material');
+      assert.equal(applied.removedVerdictCount, 6);
+      const survivors = fixture.store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict');
+      assert.equal(survivors.length, 6, 'one surviving verdict per host per round');
+      for (const survivor of survivors) {
+        assert.equal(survivor.materialDigest, first.materialDigest, 'oldest-material keeps the earlier (older-material) verdict, not the drift copy');
+      }
+      const recovered = quorumFloorRounds(fixture);
+      assert.equal(recovered.validRounds.length, 3);
+      for (const round of recovered.validRounds) assert.equal(round.passingHostIds.length, 2);
+    });
+  });
+
+  check('quorum_prune refuses an uncommitted process-events file', () => {
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      fixture.registry.get('quorum_submit')!(quorumArgs());
+      const eventsPath = quorumProcessEventsPath(fixture);
+      const raw = readFileSync(eventsPath, 'utf8');
+      const dupLines = raw.split('\n').filter(Boolean).flatMap((line) => {
+        let event: Record<string, unknown>;
+        try { event = JSON.parse(line) as Record<string, unknown>; } catch { return []; }
+        return event.type === 'host_verdict'
+          ? [JSON.stringify({ ...event, verdictId: `${String(event.verdictId)}-dup`, materialDigest: 'B-3144-uncommitted-drift' })]
+          : [];
+      });
+      writeFileSync(eventsPath, `${raw}${dupLines.join('\n')}\n`, 'utf8');
+      const beforeBytes = readFileSync(eventsPath);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      assert.throws(
+        () => fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, json: true }),
+        /uncommitted changes|prune only operates on the committed/,
+        'an uncommitted events file refuses before any mutation',
+      );
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+      assert.deepEqual(readFileSync(eventsPath), beforeBytes, 'refusal leaves the uncommitted file untouched');
+      assert.equal(storyBackupFiles(fixture).length, 0, 'refusal writes no backup');
+    });
+  });
+
+  check('quorum_prune never overwrites a previous run backup', () => {
+    withFreshFixture((fixture) => {
+      injectPoisonedDuplicates(fixture);
+      const firstPrune: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, json: true });
+      assert.ok(firstPrune.backupPath && existsSync(firstPrune.backupPath));
+      const firstBackupBytes = readFileSync(firstPrune.backupPath);
+      const eventsPath = quorumProcessEventsPath(fixture);
+      const raw = readFileSync(eventsPath, 'utf8');
+      const dupLines = raw.split('\n').filter(Boolean).flatMap((line) => {
+        let event: Record<string, unknown>;
+        try { event = JSON.parse(line) as Record<string, unknown>; } catch { return []; }
+        return event.type === 'host_verdict'
+          ? [JSON.stringify({ ...event, verdictId: `${String(event.verdictId)}-dup2`, materialDigest: 'B-3144-second-drift' })]
+          : [];
+      });
+      writeFileSync(eventsPath, `${raw}${dupLines.join('\n')}\n`, 'utf8');
+      git(fixture.root, ['add', '-A']);
+      git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 're-poison after first prune']);
+      const secondPrune: any = fixture.registry.get('quorum_prune')!({ storyId: STORY_ID, apply: true, json: true });
+      assert.ok(secondPrune.backupPath && existsSync(secondPrune.backupPath));
+      assert.notEqual(secondPrune.backupPath, firstPrune.backupPath, 'second prune uses a distinct backup path');
+      assert.deepEqual(readFileSync(firstPrune.backupPath), firstBackupBytes, 'the earlier backup is not overwritten');
+    });
   });
 
   console.log(`\n✓ quorum_submit smoke passed (${passed} checks)`);

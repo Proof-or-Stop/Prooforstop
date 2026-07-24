@@ -6,7 +6,8 @@
     "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/handlers/lattice-cli.ts",
     "packages/main/src/core/process-fact-levels.ts",
-    "packages/main/src/core/command-policy.ts"
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts"
   ],
   "allowedCreate": [
     "packages/main/src/handlers/quorum-prune.ts"
@@ -17,9 +18,26 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Mandatory 6th wiring point for the new quorum_prune command: DEFAULT_PHASE_TOOLS[*] must include quorum_prune (one-line addition next to quorum_submit) or the command is refused in every phase and test:process-fact-contract fails with 7 policy/default-phase drift assertions. Discovered by the dispatched implementer, who stopped fail-closed instead of editing the out-of-scope file.",
+      "timestamp": "2026-07-24T22:00:35.329Z",
+      "paths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a4211826b3b4154cae3160ab526a1172bc471de4",
+      "materialHash": "ca5cdd778eae450c4299f3ee5ce72131d6f7a27c8045b4c1172f063bf2f8af45"
+    }
+  ],
   "createdAt": "2026-07-24T20:12:00.926Z",
-  "updatedAt": "2026-07-24T20:39:34.697Z",
+  "updatedAt": "2026-07-24T22:00:36.504Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -28,6 +46,7 @@
     "packages/main/src/handlers/lattice-cli.ts": "packages/main/src/handlers/lattice-cli.ts",
     "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
     "packages/main/src/handlers/quorum-prune.ts": "packages/main/src/handlers/quorum-prune.ts",
     "packages/main/src/tasks/quorum-submit-smoke.ts": "packages/main/src/tasks/quorum-submit-smoke.ts"
   }
