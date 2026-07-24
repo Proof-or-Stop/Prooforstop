@@ -208,11 +208,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Two revert-proofs, one per direction: M1 (path rule widened to main's form) fails exactly 'phase-pair', 'in-repo-file-path' and 'signal-less-long-rejection'; M2 (path rule deleted) fails exactly the three path-rule-collapse cases plus 'bcc54-cross-vendor-noise'. Recorded by case name and guard tag, no hand-written totals, and as a WHOLE SET — partial re-recording left sibling notes self-contradicting once before (F-045/F-046/F-047).",
-          "headHash": "15677258240e449931a1d4f236daed09aa888638",
-          "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
-          "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
-          "timestamp": "2026-07-24T12:17:25.803Z"
+          "note": "Two revert-proofs, one per direction, re-derived from scratch after the whole-token change: widening the path rule to main's slash-anywhere form fails the path-rule-overreach cases, and deleting the path rule fails the path-rule-collapse cases. No subset was carried forward from an earlier round. Recorded by case name and guard tag, no hand-written totals, as a WHOLE SET against the current matrix; the command names the suite that actually demonstrates the claim.",
+          "headHash": "f262ff4035a89f499c762d6782c72c9341bdb1ba",
+          "materialHash": "8b0c8e4289e9b824438d9eff678b27bffd2ed6f3c5781eae8c3f167355b99ac4",
+          "storyFilesHash": "6105d78916a6ed11d42dd5f31a80c51145171805ccbee6711036cb9cb0fa3a1f",
+          "timestamp": "2026-07-24T13:12:36.590Z"
         }
       ]
     },
