@@ -205,14 +205,14 @@
         {
           "intentRef": "CHK-002:adversarial:0",
           "kind": "logic_test",
-          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
-          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "file": "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "command": "node packages/main/tests/red/red-s3-differential-probe.mjs \"$COMPARE_DIST\"",
           "result": "pass",
-          "note": "Two revert-proofs, one per direction, re-derived from scratch: widening the path rule to main's slash-anywhere form fails the path-rule-overreach cases; deleting it fails the path-rule-collapse cases. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure comes from a command named here.",
-          "headHash": "42f88ba9223b4756bf231017a3142fca65e0fe8a",
-          "materialHash": "6b05d1d4b46c8a7c5f48dfbacd792a42018d5934b460055f9b8d3b5addeac3ef",
-          "storyFilesHash": "4900645b650299878a3cc0b9214456421808927fa96e7f97a450b12becfcbfbc",
-          "timestamp": "2026-07-24T15:33:23.699Z"
+          "note": "Two revert-proofs, one per direction. Widening the path rule back to main's slash-anywhere form is the delivered feature's own red proof, and it exposed a structural gap the probe had: when a regression makes the branch AGREE with the comparison, a two-sided comparison scores a truthful but useless zero on both existing bars, so a third bar was added that fails on exactly that shape. Measured: the widened rule now produces four violations of it and none of the other two.",
+          "headHash": "09eea90e40efe9b6f2bd892158c1204959fab907",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:37.279Z"
         }
       ]
     },
