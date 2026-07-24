@@ -154,6 +154,21 @@
       "_hash": "14c4c26ff9f84f9bea4811dbfef5d722c9d2e99a4137dd0a27abc57c283b0b9e",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-cc54:F-009",
+      "desc": "packages/main/src/core/convergence-breaker.ts:515 the pre-existing F-002 inline comment (\"the underscore requirement is what actually makes the vocabulary bounded rather than merely claiming it is\") still asserts the mechanism has a bounded VOCABULARY, directly contradicting the new F-005 docstring 8 lines above it (line 495: \"What is bounded is the FORM, not an enumerable set\"). The F-005 fix corrected the function-level docstring but left this older, contradictory phrase untouched in the same file -- a reader hits two adjacent comments making opposite claims about the same mechanism. (Related to F-008: the diagnostic-gap regex actually DOES have an enumerable 5-word prefix vocabulary, so neither comment is fully accurate -- the bracket-pattern is form-bounded as the new docstring says, the diagnostic-gap pattern is vocabulary-bounded as the old comment says, and the new docstring wrongly generalizes the bracket-pattern claim to the whole function.)",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-07-24T01:34:57.102Z",
+      "reviewRound": "2026-07-24T01:15:47.893Z",
+      "reviewRunId": "B-cc54:RR-009",
+      "_hash": "e18bc05ad267d7e207980ba56c9ebb86db2387f37c8da4477e5220956e557b9b",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
