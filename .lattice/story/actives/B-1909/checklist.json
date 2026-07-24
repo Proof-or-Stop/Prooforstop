@@ -99,7 +99,30 @@
       "context": "proofstory_contract_set keeps allowedPhases ['PLAN'] (core/command-policy.ts:420). Add a separate writer that appends a binding-level withdrawal record {bindingId, disposition: 'withdrawn', decisionRef} beside the frozen acceptanceBindings in .lattice/story/actives/<id>/proofstory.json. The original binding object must be preserved byte-for-byte; proofstory_contract_get renders original plus disposition, and the effective-binding projection excludes withdrawn bindings from acceptance evaluation.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The decision writer appends {bindingId,disposition:withdrawn,decisionRef} to proofstory.json and proofstory_contract_get shows the disposition, invoked from DEV and from REVIEW with no PLAN return",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The effective-binding projection excludes withdrawn bindings while the original ProofStoryAcceptanceBinding object is preserved byte-for-byte",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "proofstory_contract_set still refuses to run outside PLAN and cannot be used to write a withdrawal (freeze intact)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
