@@ -85,7 +85,31 @@
       "context": "Strict convergence-line regexes exist in done-prepare-merge-rerun-smoke.ts:333 and :496, done-prepare-auto-closeout-smoke.ts:367 and :1211, done-prepare-closure-heartbeat-smoke.ts:672 and :687, plus flow-stability-smoke convergence cases around :4593 and :4666. Verify scripts/verify-process-fact-contract.mjs and the runtime:closeout_validation_terminal entry in packages/main/src/core/process-fact-registry.ts still describe reality; run npm run test:process-fact-contract and lattice validate.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "npm run test:process-fact-contract prints PASS and node bin/lattice.js validate --json reports allPass true with the done-prepare merge-rerun, auto-closeout, closure-heartbeat and flow-stability smokes all green against the new convergence line shape",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All strict convergence-line regexes in done-prepare-merge-rerun-smoke, done-prepare-auto-closeout-smoke, done-prepare-closure-heartbeat-smoke match the new render shape and their suites pass under lattice validate",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg over packages/main/src for convergence: metadataRollbacks= finds no leftover matcher expecting the old line shape",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "npm run test:process-fact-contract confirms the runtime:closeout_validation_terminal registry entry still matches emitted event fields after the semantics change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
