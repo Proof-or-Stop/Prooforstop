@@ -300,11 +300,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Three re-derived revert-proofs. Widening the digit rule back to the unconditional form fails EXACTLY {checklist-ordinal, finding-ordinal, review-run-ordinal} with B-cc54's suite still exit 0. Adding b- to the allowlist fails EXACTLY {bcc54-story-id-digits} here AND CHK-002:adversarial:2 in B-cc54's suite (exit 1), so the boundedness of the allowlist is falsifiable in both repositories of truth at once.",
-          "headHash": "97a4972a7b20131769236781bad1bc28698719c5",
-          "materialHash": "1af14fb2ac5e5281132b81e8b2c2c266b0aec1673f6911c1108b21676547800c",
-          "storyFilesHash": "92e7fa3e31df6b732cfdafe7c0a8c27e33bb60bbbadcd3eb6f5a17b077f58948",
-          "timestamp": "2026-07-24T03:29:54.035Z"
+          "note": "Revert-proofs by named mutation: M7 (allowlist emptied) fails the substantive-id cases; M8 (b- added) fails 'bcc54-story-id-digits' here and CHK-002:adversarial:2 in B-cc54's suite, so the allowlist's boundedness is falsifiable in both suites at once; M9 (rr-/rp-/rl- added) fails the review-bookkeeping cases; M13 (numeric placeholder index) fails the allowlist and whole-token cases by corrupting the protection encoding. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
+          "headHash": "d540dfa425dc3a4a776407d096a7cc67a1249661",
+          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
+          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
+          "timestamp": "2026-07-24T10:15:51.588Z"
         }
       ]
     },
