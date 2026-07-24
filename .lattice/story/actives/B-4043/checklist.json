@@ -72,38 +72,41 @@
         {
           "intentRef": "CHK-001:happy:role-guidance",
           "kind": "integration_test",
+          "verdict": "success",
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Current HEAD process-fact and mirrored role-guidance contract PASS; canonical 5/17/1 inventory and frozen-scenario no-respawn assertions pass.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         },
         {
           "intentRef": "CHK-001:edge:mirror-mode",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
-          "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
+          "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
           "result": "pass",
-          "note": "Current HEAD proof scenarios PASS with exact Codex/Claude guidance parity and 23 semantic records; no cohort runner child spawned.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         },
         {
           "intentRef": "CHK-001:adversarial:prompt-authority",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
-          "command": "LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
+          "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
           "result": "pass",
-          "note": "Command-removal, degraded-3x1, prompt-authority and semantic-swap mutants all bite; clean control passes.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         }
       ]
     },
@@ -196,38 +199,41 @@
         {
           "intentRef": "CHK-002:happy:real-cohort-receipt",
           "kind": "integration_test",
+          "verdict": "success",
           "file": "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
           "command": "node scripts/run-proofstory-acceptance-rollout-cohort.mjs > /tmp/b4043-cohort-r4-final.json",
           "result": "pass",
-          "note": "Current implementation produced 12 signed production records; each case ran real gates and production review/quorum path. Frozen SHA-256 8484895bd5cd0da77c78038462795b5bb0ee0d732911087617584239c39336da.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         },
         {
           "intentRef": "CHK-002:edge:false-block-controls",
           "kind": "integration_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "57-assertion frozen smoke PASS; docs-only, legacy and ordinary controls yield falseBlockCount=0.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         },
         {
           "intentRef": "CHK-002:adversarial:seeded-defects",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "57-assertion frozen smoke rejects caller observation fields, forged receipts, membership/digest drift and degraded quorum; omission, forgery and freshness seeds use exact production diagnostics.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         }
       ]
     },
@@ -287,38 +293,41 @@
         {
           "intentRef": "CHK-003:happy:bounded-thresholds",
           "kind": "manual_transcript",
+          "verdict": "success",
           "file": "packages/main/src/core/acceptance-rollout.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Verifier-derived metrics PASS: 6 pairs, 3/3 seeds, omission 100%, false pass/block and mislabeled 3x1 zero, nonpositive waiver delta and no inventory shrink.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         },
         {
           "intentRef": "CHK-003:edge:inconclusive-boundary",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Focused smoke preserves fail-closed diagnostics for unsupported/incomplete evidence and current signed receipt semantics.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         },
         {
           "intentRef": "CHK-003:adversarial:threshold-bypass",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "N<3, missed campaigns, false block, omission drop, 3x1, waiver and inventory mutants all fail with stable AR_* diagnostics.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         }
       ]
     },
@@ -380,38 +389,41 @@
         {
           "intentRef": "CHK-004:happy:enforce-and-rollback",
           "kind": "integration_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Real transition consumer accepts current signed full-3x2 report; observe/warn/enforce and rollback preservation checks PASS.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         },
         {
           "intentRef": "CHK-004:edge:mode-invariant-diagnostics",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Mode-invariant status/diagnostics and enforce-only blocking PASS on current HEAD.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         },
         {
           "intentRef": "CHK-004:adversarial:fail-closed-mutations",
           "kind": "logic_test",
+          "verdict": "success",
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Tampered/stale/missing receipt and forged/degraded host evidence fail closed; exact restoration passes.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         }
       ]
     },
@@ -473,38 +485,41 @@
         {
           "intentRef": "CHK-005:happy:canonical-wave4-status",
           "kind": "docs_check",
+          "verdict": "success",
           "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Canonical docs now state five positive paths and exact 5 positive / 17 mutation / 1 transcript inventory; contract PASS.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         },
         {
           "intentRef": "CHK-005:edge:authority-and-exclusions",
           "kind": "docs_check",
+          "verdict": "success",
           "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Docs retain flat/local boundary, unsupported/degraded exclusions and production receipt authority distinction; contract PASS.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         },
         {
           "intentRef": "CHK-005:adversarial:no-status-overclaim",
           "kind": "docs_check",
+          "verdict": "success",
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Static contract rejects stale cardinality and direct cohort respawn from proof-scenarios; Wave 4 status remains bounded to measured flat rollout.",
-          "headHash": "7feb8114aad52f4f89274bff159594e19035845d",
-          "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8",
-          "storyFilesHash": "01a9be9a3945d7e1a5823b46143976f035472c94d01c9e8de5d6b1b51885a6b9",
-          "timestamp": "2026-07-23T19:56:11.728Z"
+          "note": "Re-captured after merging main (484 commits) and regenerating the verifier-owned rollout report. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0 ('Process fact contract verified'); run-proofstory-acceptance-rollout-cohort.mjs exit 0 (the merge changed sourceInventoryDigest and sourceRecords, so this is a real re-measurement of the post-merge corpus); pre-review-check-smoke --proof-scenarios exit 0 emitting 23 scenario records (17 mutation, 5 positive, 1 transcript) each bound to its intent ref with observed == expected; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "4ccc1f1f65cae55aa23c943481ea14284c77fdc9",
+          "materialHash": "02b2de36aa0ab66bae2146e96a0d15d2e0413aeb62c893691942137f11308bf1",
+          "storyFilesHash": "aba2fa633455fa78a8828e24fd79d05e851329e8fa90fcd5a753373865df8773",
+          "timestamp": "2026-07-24T12:50:59.859Z"
         }
       ]
     }
