@@ -4,33 +4,414 @@
       "id": "CHK-001",
       "title": "Remove the fixed-length truncation so late-diverging rejection reasons keep distinct digests",
       "context": "packages/main/src/core/convergence-breaker.ts:479 truncates the normalized reason to 200 characters before hashing. ProofStory gap lists share a preamble longer than that, so two different gaps hash identically. Hash the full normalized reason, retaining only a large sanity bound to cap CPU on pathological input.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-23T23:10:31.859Z",
+      "endTime": "2026-07-23T23:11:10.511Z",
+      "userSees": "node packages/main/dist/tasks/convergence-breaker-smoke.js prints a passing check stating that two real DEV-gate rejection renders differing only past the former 200-character cut produce different digest keys.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "gateFailureDigest applied to two reconstructions of the real DEV-gate rejection render (machine.ts:179 preamble plus renderProofStoryDiagnosticReport), identical for their first 244 normalized characters and differing only in the outstanding gap codes, returns two different keys.",
+            "type": "logic"
+          },
+          {
+            "desc": "The same two rejections routed through bumpGateFailureCount leave maxGateFailureCount at 1, so assessBreaker does not trip, which is the actual operator-visible consequence.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A rejection reason far longer than any realistic gate message still produces a digest, and the retained sanity bound is exercised rather than silently absent.",
+            "type": "logic"
+          },
+          {
+            "desc": "Two reasons that are identical up to the sanity bound and differ only beyond it are documented as collapsing, so the bound's residual behavior is stated rather than assumed away.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Restoring only the fixed-length truncation makes the new smoke assertions fail, proving the check is bound to this change and not to some unrelated property.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "PARTIALLY DELIVERED, and recorded as such. The C1 class was fixed on main by B-cc54, whose prefix and signals-fold this branch adopts untouched; this story did not make that outcome true. What it does deliver is bounded and named: 'must-differ signal-less-long-rejection [guard: signals-conditional-prefix]' widens the prefix when a rejection yields no signals, so a late-diverging signal-less reason keeps a distinct key.",
+          "headHash": "2a0715b2684dc9b3523a536b3ad8f69e477093a6",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:25.022Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "That case drives the real bumpGateFailureCount and asserts the counter consequence; restoring an unconditional prefix cut fails exactly it.",
+          "headHash": "f3fc81990d5c18be6f3dbf5d4dcf8e2736b80e38",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:26.352Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "'must-still-collapse blocking-finding-cited-path-past-window [guard: prefix-window-residual]' pins the residual: a substantive value past the prefix window collapses, as main does. The fixture was REBUILT on a cited in-repo path this round because the previous one collapsed on the digit rule at every window and so could no longer measure the cut — recorded as a rebuild rather than restated. Measured bound: a cut of 592 fails only this case with B-cc54 green, and 593 fails it and breaks B-cc54, which is what makes 592 the widest legal value a measurement rather than an assertion.",
+          "headHash": "6b49f6e9600e9cab2ad2f71cf81c841c6efa06d1",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:27.622Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "The residual from the other side: 'must-differ blocking-finding-cited-path-within-window [guard: path-rule-overreach]' asserts the within-window pair distinct.",
+          "headHash": "573a79ea1f11a3277f01db47690f0de579789a68",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:28.916Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "'must-differ proofstory-gap-signal-set [guard: signals-fold]' guards B-cc54's mechanism: identical prefixes with different non-empty signal sets must digest differently; collapsing basis to prefix alone fails exactly that case.",
+          "headHash": "a3836fdd0d169ed564d884f4b63c786a6ad905c0",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:30.433Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Narrow the path normalizer to machine-specific absolute roots only",
       "context": "packages/main/src/core/convergence-breaker.ts:475 rewrites any slash-bearing token, collapsing DEV/REVIEW with DEV/TEST and src/core/alpha.ts with src/core/beta.ts. Restrict it to absolute paths anchored at machine-specific roots so relative repo paths and slash-bearing identifiers stay distinct while host-varying paths still collapse.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-23T23:11:11.201Z",
+      "endTime": "2026-07-23T23:11:42.656Z",
+      "userSees": "The convergence-breaker smoke prints passing checks stating that DEV/REVIEW and DEV/TEST digest differently, that two files under a shared first path segment digest differently, and that the same lock path under /Users and under /private/var still digests identically.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two rejection reasons differing only in a slash-bearing identifier (the phase pair DEV/REVIEW versus DEV/TEST) produce different digest keys.",
+            "type": "logic"
+          },
+          {
+            "desc": "Two rejection reasons naming different repo-relative files under a shared first segment (src/core/alpha.ts versus src/core/beta.ts) produce different digest keys.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The same logical lock path rendered under a machine-specific root (/Users/... versus /private/var/...) still produces one digest key, so host-varying paths keep collapsing.",
+            "type": "logic"
+          },
+          {
+            "desc": "A path that begins at a machine-specific root but continues into repo-relative segments is normalized once, without leaving a partially-rewritten remainder that could differ per host.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Restoring the greedy slash-anchored regex makes the new distinctness checks fail while the machine-path collapse check keeps passing, proving both directions are independently bound to this change.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "DELIVERED. 'must-differ phase-pair [guard: path-rule-overreach]' asserts DEV/REVIEW and DEV/TEST digest differently, printing both compared values literally.",
+          "headHash": "1bb973db62ee3591cd8edd605fee1f7379930f7e",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:31.800Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "DELIVERED. 'must-differ in-repo-file-path [guard: path-rule-overreach]' asserts two files under a shared first segment digest differently.",
+          "headHash": "bb938614e9754118664a640058631360b33e8df6",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:33.142Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "'must-still-collapse machine-absolute-path' and 'delimiter-attached-absolute-path' [guard: path-rule-collapse] assert host-varying absolute paths still share one key and still trip the brake.",
+          "headHash": "f8484c6d790747bfb0e6757e7ac9acfebd02025e",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:34.460Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "'must-still-collapse machine-path-into-repo-relative-segments [guard: path-rule-collapse]' asserts a path from a machine root into repo-relative segments is consumed in one match.",
+          "headHash": "a2b859427e116bd836821101d62777cfa70ff9f4",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:35.886Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "command": "node packages/main/tests/red/red-s3-differential-probe.mjs \"$COMPARE_DIST\"",
+          "result": "pass",
+          "note": "Two revert-proofs, one per direction. Widening the path rule back to main's slash-anywhere form is the delivered feature's own red proof, and it exposed a structural gap the probe had: when a regression makes the branch AGREE with the comparison, a two-sided comparison scores a truthful but useless zero on both existing bars, so a third bar was added that fails on exactly that shape. Measured: the widened rule now produces four violations of it and none of the other two.",
+          "headHash": "09eea90e40efe9b6f2bd892158c1204959fab907",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:37.279Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Narrow the numeric normalizer to standalone numbers only",
       "context": "packages/main/src/core/convergence-breaker.ts:476 rewrites digit runs inside identifier tokens, collapsing CHK-001 with CHK-002. Restrict it so digits attached to an identifier survive while free-standing counters such as attempt numbers still collapse.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-23T23:11:43.518Z",
+      "endTime": "2026-07-24T17:42:19.461Z",
+      "userSees": "The convergence-breaker smoke prints a passing check stating that a rejection naming CHK-001 and one naming CHK-002 digest differently, alongside a passing check that two attempts differing only in a free-standing counter still digest identically.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two rejection reasons differing only in an identifier-embedded ordinal (CHK-001 versus CHK-002) produce different digest keys.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Two rejection reasons differing only in free-standing counters and an ISO timestamp still produce one digest key, so genuine retries of one failure keep accumulating.",
+            "type": "logic"
+          },
+          {
+            "desc": "A story id such as B-bf52, whose digits are attached to an identifier, survives normalization, so rejections naming different stories are not conflated.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Restoring the unconditional digit-run rewrite makes the identifier-ordinal distinctness check fail while the free-standing-counter collapse check keeps passing.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "NOT DELIVERED, and the frozen contract is FALSE as shipped — stated here because the field cannot be edited and must not be quietly left standing. CHK-003's userSees says 'a rejection naming CHK-001 and one naming CHK-002 digest differently'. Against the shipped code that exact pair is a MUST-STILL-COLLAPSE case. The item asked for something that is not achievable from message text alone, and that is proven rather than estimated: evidence.output is interpolated verbatim into a story_advance DONE rejection at core/machine.ts:1190, so a third-party TAP label such as bug-2 is the SAME STRING as a real artifact ordinal, and any rule recognising one recognises the other. Eight successive recognition rules were each broken by cross-host review on a different shape before the eighth showed they were eight measurements of one impossibility. Consistent with every exclusion decision on this story, the tie breaks toward collapse because over-recognising is the dangerous direction for a brake. The withdrawal is machine-checked, not merely described: 'must-still-collapse checklist-ordinal' and 'unfixed-bug-ordinal' [guard: digit-rule-collapse] assert the OPPOSITE of this item, beside 'embedded-test-output-third-party-label' built from the reported pair. The operator confirmed the scope shrinkage and scope-shrinkage-decision.json records CHK-003 as removed with this reasoning.",
+          "headHash": "96d530af5d88b17dd3e9596f295e46af189b57bb",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T17:35:50.231Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "'must-still-collapse bare-attempt-ordinal [guard: digit-rule-collapse]' asserts two attempts differing only in a free-standing counter still share one key and still trip the brake, which matches the frozen userSees and is now the behaviour for every bare ordinal.",
+          "headHash": "1c42ebeecb454e0c44205c425fe2db56157db7d1",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:39.833Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "NOT DELIVERED, cited against the case that actually tests it. This intent asked that a story id such as B-bf52, whose digits attach to an identifier, survive normalization so rejections naming different stories are not conflated. The case that tests exactly that is 'must-still-collapse bcc54-story-id-digits [guard: digit-rule-collapse]', which digests b-1234 and b-5678 to one key and so asserts the OPPOSITE of the intent — confirming the not-delivered verdict directly. An earlier version of this note cited 'review-loop-ordinal' and 'init-check-issue-ordinal' instead; those hold the story id CONSTANT and vary only a bookkeeping suffix, so they proved nothing about this intent. The verdict was right and the citation was wrong, which is the same defect class as F-049 and F-050 on this story. The underlying reason is the one recorded for CHK-003 throughout: a bare ordinal in a rejection is textually identical to a third-party label, so recognising story ids is not achievable from message text alone, and for a brake the tie breaks toward collapse.",
+          "headHash": "ac95142660513f06b60c55100eb1327a3546c031",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T17:36:21.286Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "NOT DELIVERED, and the canonical record is truthful in four places while one FROZEN artifact remains stale for a reason the lifecycle imposes rather than a choice. Truthful: plan.md records the withdrawal and its proof; every CHK-003 evidence note states NOT DELIVERED; the operator-confirmed scope-shrinkage-decision.json lists CHK-003 as removed; and the suite asserts the opposite of this item via must-still-collapse checklist-ordinal, unfixed-bug-ordinal and bcc54-story-id-digits. Stale and uncorrectable here: the ProofStory acceptance binding still says identifier-embedded ordinals stay distinct, because proofstory_contract_set has allowedPhases PLAN only, verified at packages/main/src/core/command-policy.ts:420 — the contract is frozen pre-DEV by design. The checklist status field likewise has no withdrawn value and the success flag does not persist on the item. Cross-host review filed this as F-062 and it is resolved partially_mitigated, not fixed, with the gap raised as a separate workflow task. The underlying reason for the withdrawal is unchanged: a bare ordinal in a rejection is textually identical to a third-party label, so recognition is not achievable from message text alone, and for a brake the tie breaks toward collapse.",
+          "headHash": "d048d9a2d0f52dd198bc3f8834cbd4ec50114b5b",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T17:43:57.699Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Extend the convergence-breaker smoke with a substantive-versus-incidental digest matrix",
       "context": "packages/main/src/tasks/convergence-breaker-smoke.ts:180-182 asserts distinct reasons do not accumulate but uses fixtures too short and too plain to reach any collapse rule. Add the four must-differ cases (long-preamble ProofStory gaps, phase pair, checklist ids, in-repo file paths) and the three must-still-collapse cases (timestamps and attempt counters, machine-specific absolute paths, hex digests), each driving the real bumpGateFailureCount and maxGateFailureCount path so the counter consequence is proven, not just the hash.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-07-23T23:12:12.460Z",
+      "endTime": "2026-07-23T23:18:32.700Z",
+      "userSees": "npm run test:convergence-breaker exits zero and its output lists the must-differ and must-still-collapse digest cases by name, each reporting the resulting gate-failure counter value rather than only the hash.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every must-differ case drives the real bumpGateFailureCount path twice and then asserts maxGateFailureCount is 1, proving the counter consequence rather than only the hash inequality.",
+            "type": "logic"
+          },
+          {
+            "desc": "npm run test:convergence-breaker exits zero from a clean build, so the matrix is reachable through the root full test suite that gates DONE.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Every must-still-collapse case drives bumpGateFailureCount twice and asserts maxGateFailureCount reaches 2 and assessBreaker still trips, proving the breaker keeps catching a genuine repeat.",
+            "type": "logic"
+          },
+          {
+            "desc": "The pre-existing assertions in this smoke, including the reset-clears-counter case, keep passing unchanged alongside the new matrix.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Each of the three normalizer changes reverted individually causes a named subset of the matrix to fail and leaves the rest passing, so the matrix localizes which rule regressed instead of failing as one opaque block.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "Every must-differ case prints keys=2 counter=1 breaker=proceed, each driving the real bumpGateFailureCount twice and reading back maxGateFailureCount and assessBreaker. The closing banner derives its inventory from the case arrays.",
+          "headHash": "4bac2feeb9234b962e8b9dec5a6392f5617f9085",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:43.680Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm run test:convergence-breaker",
+          "result": "pass",
+          "note": "Ran from a clean build and exited zero, confirming the matrix is reachable through the root npm test chain that lattice.config.json lists as a doneRequiredCommand.",
+          "headHash": "8d358ab8fdc25a15fcbb91bf0f4f10564c1889e9",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:44.934Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "Every must-still-collapse case prints keys=1 counter=2 breaker=trips, proving the brake still catches a genuine repeat across machine paths, both B-cc54 fixtures, the third-party label, the withdrawn-recognition ordinals, the review-bookkeeping ids, the window residual, bare attempt ordinals, lease heartbeat ages, lane counts, hex ids and ISO timestamps.",
+          "headHash": "77898e59ae35148426717cf3f3a2091e0db51222",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:46.153Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
+          "result": "pass",
+          "note": "The pre-existing assertions still pass alongside the matrix. The bidirectional completeness guard was DELETED with the allowlist it policed, rather than left guarding a set that no longer exists. The separate B-cc54 boundary claim is verified by its own command, node packages/main/dist/tasks/gate-repeat-block-smoke.js exiting 0 with git diff main on that path empty.",
+          "headHash": "5b55ae80371c9caf7a4ffe09e6458ca66f096d7f",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:47.507Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "command": "node packages/main/tests/red/red-s3-differential-probe.mjs \"$COMPARE_DIST\"",
+          "result": "pass",
+          "note": "Localization rows were re-derived from scratch a final time, and one claim written by the implementer was DISPROVED by its own measurement and corrected — deleting the digit rule fails ten of the collapse cases rather than eleven, and does not fail the ISO case because the ISO rule still collapses that pair alone. The probe is committed and runnable, SKIPs cleanly with no comparison build, and is verified red-on-defect for what remains: widening the path rule makes it exit non-zero. Its header records that it missed three real regressions during this story and was extended by each, because a guard that cannot express the defect is not a guard.",
+          "headHash": "26d9707eac1dd7b30f9e9f1f8d5da36860b86dbf",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:48.799Z"
+        }
+      ]
     }
   ]
 }

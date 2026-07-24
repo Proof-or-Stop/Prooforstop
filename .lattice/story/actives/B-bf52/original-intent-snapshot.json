@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-bf52",
+  "sourceText": "Operator directive for the repro-first program: the convergence breaker keeps freezing stories that are making genuine incremental progress across different gate rejections, and each unfreeze costs an interactive human TTY acknowledgement. Fix the highest-friction known workflow bug with a deliberately narrow change before driving the remaining program stories through the same gates.",
+  "normalizedOutcome": "A story that fixes one gate gap and then hits a different gate gap keeps its gate-failure counter at 1 per distinct failure and is no longer frozen, so no interactive human TTY acknowledgement is needed to continue, while two genuine retries of the same failure still accumulate to 2 and still trip the breaker.",
+  "acceptanceClaim": "gateFailureDigest produces one counter key per substantively distinct gate rejection and one shared key per incidentally-different retry of the same rejection, proven in both directions by a smoke matrix that asserts the resulting gate-failure counter value.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:2dd1ebf8e7f2c0c8e9960c689111952296617a6e488e886b9e3463a7217320bf",
+  "createdAt": "2026-07-23T22:58:38.757Z",
+  "updatedAt": "2026-07-23T22:58:38.757Z"
+}
