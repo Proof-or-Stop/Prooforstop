@@ -1,0 +1,56 @@
+{
+  "storyId": "B-f824",
+  "changes": "deriveDonePreparePassConvergence in packages/main/src/handlers/done-prepare.ts now splits suite-execution counting: the blocking unchangedSuiteExecutions counter counts per identity group only duplicate executed validation terminals timestamped at or after the current TEST entry plus contradictory reused terminals with commandExecutions greater than zero in any phase, while a new reviewWindowSuiteExecutions field records whole-window per-group duplicates as observable never-blocking telemetry rendered in the convergence line and parsed into JSON with backward tolerance for old transcripts. flow-stability-smoke gained Cases A-D replaying the B-956f review-window poisoning shape; the three downstream done-prepare smokes were updated to the new line shape; the B-c163 convergence contract prose in done-prepare-automation-execution-plan.md now describes the split.",
+  "usage": "Run node bin/lattice.js done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate during closeout: reviewer lanes may independently execute lattice validate --story during REVIEW on unchanged material and the convergence invariant no longer fails DONE for those executions; the PASS transcript convergence line now shows unchangedSuiteExecutions=N reviewWindowSuiteExecutions=M.",
+  "expectedOutcome": "A closing whose REVIEW window contains reviewer-driven executed validates on unchanged material reaches DONE prepare: PASS without a ceremony re-review bounce, while two post-TEST duplicate executed terminals in one group or any reused terminal claiming executions still throw done_prepare convergence invariant failed.",
+  "actualTranscript": "Registered red-evidence command replaying the B-956f round 18:10:20 window through compiled derive plus assert flipped from exit 1 (convergence invariant failed unchangedSuiteExecutions:1) pre-fix to GREEN exit 0 post-fix printing unchangedSuiteExecutions:0 reviewWindowSuiteExecutions:1 successfulCloseout:1; npm --prefix packages/main run test:flow-stability-smoke passes with Cases A-D; full node bin/lattice.js validate --json allPass=true across all 46 configured commands.",
+  "outcomeDiff": "No difference: expected pass and fail boundaries both reproduce exactly as specified in the acceptance claim.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered for the acceptance claim of this story; the single-slot PASS receipt store in test-evidence.json is a separate artifact owned by its own future task and its eviction behavior is documented in the decision record",
+  "pitfalls": "Two pitfalls worth knowing: (1) the smoke repro had to compile against pre-fix types, so its first version read the new field through an erase-to-Record cast; the quality reviewer flagged this as F-001 and the fix (typed optional-chain access) required a DEV bounce because finding_resolve and implementer dispatch are REVIEW-phase-gated, costing one incremental re-review round for all four lanes. (2) main receives commits from parallel sessions continuously, so done_prepare mergeMain can pass and doneClosure still report the branch behind main moments later; just re-run done_prepare and keep the summary and delivery artifacts ready before the final attempt to shorten the exposure window.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 347732
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 83963
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1276223
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 2244405
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 3808088
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1974685
+    }
+  },
+  "totalDurationMs": 9735661,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-07-24T02:37:18.025Z",
+  "updatedAt": "2026-07-24T02:37:18.025Z"
+}

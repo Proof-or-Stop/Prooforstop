@@ -1,0 +1,64 @@
+{
+  "storyId": "B-5e4a",
+  "checkedAt": "2026-07-24T03:03:53.757Z",
+  "headHash": "243a4fe27769604d31ebfacdca81c9f03ba2863a",
+  "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+  "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+  "reviewRound": "2026-07-24T02:10:02.005Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md#Verification",
+      "promise": "New #Verification bullet naming packages/main/src/tasks/lifecycle-registry-contract.ts as home of the runtime classification assertion (acceptance-topology filenames classify kind=lifecycle) and the StoryStore write-set coverage invariant (every top-level filename derived from core/store.ts is registered or in a named exemption, named divergence per missing filename)",
+      "verifiedBy": "diff/read (rebound to current HEAD 243a4fe277)",
+      "evidence": "git diff main...HEAD on docs/requirements/decisions/lifecycle-artifact-scope.md still shows exactly this bullet at lines 171-177 (re-read at current tree). Cross-read against packages/main/src/tasks/lifecycle-registry-contract.ts confirms checkAcceptanceTopologyArtifactClassification() and checkStoryStoreTopLevelArtifactCoverage() implement precisely what the bullet describes."
+    },
+    {
+      "docPath": "packages/main/src/core/lifecycle-registry.ts#LATTICE_LIFECYCLE_ARTIFACT_FILENAMES",
+      "promise": "The four acceptance-topology artifact filenames (acceptance-basis.json, pre-review-check.json, topology-critic-receipt.json, topology-exclusion-approvals.json) classify as kind=lifecycle under an active story dir",
+      "verifiedBy": "diff/grep + non-destructive real-machine run (re-executed at current HEAD)",
+      "evidence": "diff shows all four filenames added to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES with an origin comment (unchanged since the merge). Re-ran node tmp/b5e4a-red/red-registry-coverage.mjs after npm --prefix packages/main run build at current tree -> 8/8 PASS, exit 0, including all four classify-as-lifecycle assertions and all four negative (closed-set) controls (random.json, mangled authority-receipt-refs basename, path traversal, non-canonical storyId) staying null."
+    },
+    {
+      "docPath": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+      "promise": "The StoryStore coverage invariant fails loudly with named filenames when an artifact is unregistered and unexempted, rather than passing vacuously",
+      "verifiedBy": "read/static-verification + non-destructive real-machine run (re-executed at current HEAD)",
+      "evidence": "checkStoryStoreTopLevelArtifactCoverage() computes a missing list via set-difference against LATTICE_LIFECYCLE_ARTIFACT_FILENAMES and STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS, then calls record() once per missing filename naming it explicitly; a below-floor derived-set size also fails loudly by name instead of passing vacuously. Re-ran npm --prefix packages/main run test:lifecycle-registry-contract at current tree -> PASS, 49 derived, 0 divergences. Did not re-execute the destructive bite-test (temporarily deleting a registry filename and restoring it) myself since that requires mutating source, out of scope for a review-only role; relying instead on the story's own recorded verificationEvidence transcripts for CHK-002:edge:0 (two bite-test runs: pre-F-001-fix removing acceptance-basis.json -> two named divergences, post-fix removing review-loops.jsonl -> two named divergences naming it, each followed by byte-identical restore and a green re-run) plus the resolved finding records B-5e4a:F-001 (high, resolved, resolvedBy B-5e4a:F-001@e3b2af8 -- review-loops.jsonl derivation blind spot closed) and B-5e4a:F-002 (medium, resolved, resolvedBy B-5e4a:F-002@f99744a -- unscoped parameter-name collision hardened via isEnclosingCallableParameter), which independently corroborate the fail-loud-not-silent mechanism was adversarially probed and fixed, not just self-reported."
+    },
+    {
+      "docPath": "packages/main/src/tasks/lifecycle-registry-contract.ts#STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS",
+      "promise": "The exemption list contains exactly authority-receipt-refs.json, with a rationale comment (dead writeLegacyReceiptRefs path, Authority future-capability domain)",
+      "verifiedBy": "read (re-read at current HEAD)",
+      "evidence": "STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS is a Set with exactly one entry, authority-receipt-refs.json, with the exact rationale comment ('dead writeLegacyReceiptRefs path, Authority future-capability domain, register it when its write path goes live'). The re-run of test:lifecycle-registry-contract at current tree still passes with 0 divergences, which includes the stale-exemption guard (fails if the exemption were no longer derived from store.ts, or were now redundantly registered) -- confirming the single exemption is still live and necessary."
+    },
+    {
+      "docPath": "lattice.config.json#validate.commands",
+      "promise": "The new registry-coverage contract is wired live into lattice validate",
+      "verifiedBy": "diff/grep + non-destructive real-machine run (re-executed at current HEAD, post main-merge)",
+      "evidence": "git diff main...HEAD on lattice.config.json at current HEAD shows exactly one added line: node packages/main/dist/tasks/lifecycle-registry-contract.js in validate.commands, between gate-strength-contract-smoke and product-capability-release-smoke -- this story's own delivered wiring line is unchanged in substance by the main merge (the merge only interleaved a sibling story's own validate command line elsewhere in the same array, which is identical on both sides of main...HEAD and therefore does not appear in this story's diff). Re-ran npm --prefix packages/main run test:lifecycle-registry-contract at current tree -> PASS, 49 StoryStore top-level artifact filenames derived (floor 40), 0 divergences."
+    },
+    {
+      "docPath": "scripts/verify-process-fact-contract.mjs",
+      "promise": "A doc-canonical source-level assertion (assertAcceptanceTopologyLifecycleFilenameContract) independently confirms the four acceptance-topology filenames are present in the LATTICE_LIFECYCLE_ARTIFACT_FILENAMES initializer, wired into assertProcessFactCommandInventory",
+      "verifiedBy": "diff/grep + non-destructive real-machine run (re-executed at current HEAD)",
+      "evidence": "diff still shows assertAcceptanceTopologyLifecycleFilenameContract() (uses extractConstInitializer + per-filename regex against the initializer) and the call site inside assertProcessFactCommandInventory(). Re-ran npm run test:process-fact-contract at current tree -> completes with final line 'Process fact contract verified', no failures reported."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Re-executed at current HEAD 243a4fe277 (materialHash e9642ce...53, post main-merge): rebuilt via npm --prefix packages/main run build, then ran node tmp/b5e4a-red/red-registry-coverage.mjs: 8/8 assertions hold, exit 0 -- all four acceptance-topology filenames classify kind=lifecycle under .lattice/story/actives/B-5e4a/, and all four negative controls (unregistered basename, mangled authority-receipt-refs name, traversal path, non-canonical storyId) still classify null, matching the CHK-001 happy/edge/adversarial verificationIntent. Result identical in substance to the pre-merge run; the merge did not touch lifecycle-registry.ts's own content."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Re-executed at current HEAD 243a4fe277: npm --prefix packages/main run test:lifecycle-registry-contract -> PASS, 49 StoryStore top-level artifact filenames derived (floor 40, storyDir join-site pass surfaces review-loops.jsonl), registered-or-exempted, 0 divergences. Also re-ran npm run test:process-fact-contract -> passes with the B-5e4a source-level assertion active, final line 'Process fact contract verified'. Confirmed docs/requirements/decisions/lifecycle-artifact-scope.md #Verification bullet still names lifecycle-registry-contract.ts as promised, matching implemented checks read directly from source. Confirmed lattice.config.json still wires the contract task as a validate command (one net new line vs main, unrelated sibling-story config content elsewhere in the file is identical on both sides post-merge). Confirmed the exemption constant still contains exactly authority-receipt-refs.json with its rationale comment. Did NOT re-execute the destructive bite-test (deleting a registry filename, observing named divergence, restoring) myself -- that requires mutating source, out of scope for this review-only role. Instead cite the story's own recorded verificationEvidence transcript for CHK-002:edge:0 (two live bite-test runs, each producing named divergences and a byte-identical restore) plus the independently-recorded resolved findings B-5e4a:F-001 and B-5e4a:F-002, which document adversarial probing of exactly this mechanism (a real derivation blind spot and a real false-negative parameter-collision gap) both fixed and re-verified by the story's own review loop, as corroborating evidence that the fail-loud-not-silent claim holds under adversarial pressure, not only under self-report."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-verified all six docs/code promises against the current post-main-merge tree (materialHash e9642ce...53): red-harness 8/8, lifecycle-registry-contract 49/49 derived with 0 divergences, process-fact-contract green. The prior delivery-check bound to materialHash 3bcaf5... was stale only because main was merged into the story branch; the story's own delivered content (registry additions, contract checks, config wiring, docs bullet, exemption list) is unchanged in substance, confirmed by re-running every non-destructive check plus reading the diff/grep evidence fresh. No TODO/FIXME/HACK found in the story-owned diff. The destructive bite-test sub-claim (registry filename removal fails loudly by name) was not re-executed live in this review-only pass; it is corroborated by the story's own recorded verificationEvidence transcripts and by resolved adversarial findings F-001/F-002 rather than by a fresh mutation."
+  },
+  "_hash": "b371b36d55b880dc4bd1d005c0ada11e2fc3ad1590623d7bc2c5f82571f13c8b"
+}

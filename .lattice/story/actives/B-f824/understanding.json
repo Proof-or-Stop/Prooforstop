@@ -1,0 +1,33 @@
+{
+  "task": "The done_prepare convergence invariant counts reviewer-driven suite executions inside the REVIEW window as closeout thrash, so legitimate independent reviewer validates plus one receipt eviction permanently poison DONE for the current round.",
+  "outcome": "A B-956f-shaped window (pre-TEST reviewer executed terminals plus one post-TEST closeout executed terminal in the same identity group) passes done_prepare convergence; two post-TEST duplicate executed terminals in one group, or any reused terminal with commandExecutions greater than zero, still hard-fail; review-window redundancy stays visible via a new observable telemetry field rendered in the convergence line.",
+  "facts": [
+    "deriveDonePreparePassConvergence (packages/main/src/handlers/done-prepare.ts:1579) groups validation_terminal events by (commandSetHash, materialHash, storyFilesHash) and adds max(0, executed-1) plus all contradictory reused terminals to unchangedSuiteExecutions; assertDonePreparePassConvergence (:1628) requires 0.",
+    "The window is [last matching REVIEW entry, now) with no upper bound; events are append-only, so a poisoned round can only recover by bouncing DEV->REVIEW to move the anchor (observed on B-956f 2026-07-23 19:05).",
+    "B-956f real telemetry: executed cmdSet=34090591 at 18:25:19 REVIEW (reviewer lane), executed cmdSet=15aa0ab1 at 18:36:10 REVIEW (second lane, evicted the single-slot receipt in test-evidence.json), executed cmdSet=34090591 at 19:02:20 TEST (closeout validate, reuse refused due to evicted receipt) -> unchangedSuiteExecutions=1.",
+    "Replaying those events through the real derive+assert functions reproduces the exact failure (standalone repro executed 2026-07-24).",
+    "The same derivation already splits reviewer re-attestations into observable (reviewerReattestations) versus blocking (postTestReviewerReattestations, boundary = currentTestEntry.timestamp, comparison >=); facts.testEntryAt already carries that boundary.",
+    "The invariant was introduced by B-10b0 (commit d952808c92, 2026-07-17) to prove unchanged validation reuses PASS evidence; no doc under docs/requirements/decisions mentions unchangedSuiteExecutions, so no spec pins the current counting.",
+    "recordValidationTerminal (verifier.ts:754) writes no caller attribution; phase and timestamps are framework-written.",
+    "Downstream strict regexes on the convergence render line: done-prepare-merge-rerun-smoke.ts:333,:496; done-prepare-auto-closeout-smoke.ts:367,:1211; done-prepare-closure-heartbeat-smoke.ts:672,:687; transcript JSON parser regex at done-prepare.ts:1077-1097; flow-stability-smoke.ts convergence cases around :4400-:4900."
+  ],
+  "constraints": [
+    "Reviewer independent verification during REVIEW must never block DONE (review policy mandate).",
+    "Closeout anti-thrash teeth must be preserved: duplicate post-TEST executions on unchanged material and contradictory reused terminals must keep failing.",
+    "No self-declared caller-attribution fields on validation_terminal: EXP-001 proved caller identity is not mechanically distinguishable; only framework-written facts (phase transitions, timestamps) may gate.",
+    "Keep unchangedSuiteExecutions as the blocking field name so assert/JSON consumers keep a stable contract; additive new field for observable telemetry.",
+    "npm run test:process-fact-contract must stay green; runtime:closeout_validation_terminal registry entry must still describe reality.",
+    "All commits and story metadata in English (english-artifacts gate)."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+    "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+    "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-07-24T00:02:27.793Z"
+}

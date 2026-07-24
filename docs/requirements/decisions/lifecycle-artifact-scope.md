@@ -168,6 +168,13 @@ Mechanical evidence lives in:
   files in the retired hidden Proofbound tree and nearby non-transcript evidence
   files, includes the INIT scope anti-expansion artifact filenames, and rejects
   ordinary product source files when scope is unacknowledged.
+- `packages/main/src/tasks/lifecycle-registry-contract.ts` — home of the
+  runtime classification assertion (the acceptance-topology artifact filenames
+  classify as `kind='lifecycle'` under an active story dir) and the StoryStore
+  write-set coverage invariant: every top-level story artifact filename derived
+  from `core/store.ts` must be registered in
+  `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES` or listed in a named exemption
+  constant (registered-or-exempted, named divergence per missing filename).
 - `packages/main/src/tasks/gap-log-smoke.ts` — asserts the independent B-META
   receipt chain, current-artifact binding, public-forgery rejection, and
   fail-closed refusal to extend an altered history.

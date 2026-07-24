@@ -1,0 +1,20 @@
+{
+  "storyId": "B-5e4a",
+  "expected": "node repro: classifyLifecycleArtifact(.lattice/story/actives/B-bf52/acceptance-basis.json) returns kind=lifecycle instead of null; scope classifier output shows category=lifecycle_artifact rule=lifecycle_artifact allowed=true for the same path",
+  "actual": {
+    "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+    "exitCode": 0,
+    "stdout": "PASS classify acceptance-basis.json → kind=lifecycle\nPASS classify pre-review-check.json → kind=lifecycle\nPASS classify topology-critic-receipt.json → kind=lifecycle\nPASS classify topology-exclusion-approvals.json → kind=lifecycle\nPASS control .lattice/story/actives/B-5e4a/random.json → null\nPASS control .lattice/story/actives/B-5e4a/authority-receipt-refs.json.rename-me → null\nPASS control .lattice/story/actives/../../../etc/acceptance-basis.json → null\nPASS control .lattice/story/actives/not-a-story-id/acceptance-basis.json → null\n8/8 assertions hold\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-07-24T03:09:13.785Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "753923f5ad48298519cdba8fc0d8773175575020",
+  "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153"
+}

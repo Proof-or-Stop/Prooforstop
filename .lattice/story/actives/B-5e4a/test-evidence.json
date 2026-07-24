@@ -1,0 +1,960 @@
+{
+  "command": "lattice validate --story=B-5e4a --json",
+  "output": "{\"provider\":\"lattice-verifier-reused\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Validation PASS reused (trusted-story-metadata-descendant); commandExecutions=0\",\"details\":[\"disposition=reused existingEvidenceBasis=fresh lineage=trusted-story-metadata-descendant\",\"identityDigest=bfe077836418df2b34d09dbf3d39a44addbb0217b5f3689cdc8cd9fa1dcffd78\",\"commandExecutions=0\",\"Verification intent coverage: 8/8 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/logic] covered via logic_test (tmp/b5e4a-red/red-registry-coverage.mjs) — classifyLifecycleArtifact returns kind=lifecycle for .lattice/story/actives/<id>/acceptance-basis.json and the other three topology filenames; classifyScopePath returns category=lifecycle_artifact allowed=true\",\"  ✓ CHK-001:edge:0 [edge/must/logic] covered via logic_test (tmp/b5e4a-red/red-registry-coverage.mjs) — An unregistered basename in the same story dir (e.g. random.json) still classifies null / out_of_scope — the closed set stays closed\",\"  ✓ CHK-001:edge:1 [edge/should/logic] covered via manual_transcript — The four filenames under a legacy docs/story/<id>/ prefix still classify as legacy-metadata, unchanged\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/logic] covered via logic_test (tmp/b5e4a-red/red-registry-coverage.mjs) — A crafted path like .lattice/story/actives/../../etc/acceptance-basis.json or a non-canonical storyId does not classify as lifecycle (path traversal / id checks unchanged)\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via integration_test (lattice.config.json) — lattice validate runs the new smoke green; smoke asserts all four new filenames classify lifecycle_artifact and the derived StoryStore top-level write set is fully covered\",\"  ✓ CHK-002:edge:0 [edge/must/logic] covered via logic_test (packages/main/src/tasks/lifecycle-registry-contract.ts) — Deliberately removing one filename from the registry (temporary local mutation) makes the smoke fail with a message naming that filename\",\"  ✓ CHK-002:edge:1 [edge/must/logic] covered via logic_test (packages/main/src/tasks/lifecycle-registry-contract.ts) — The derivation returns at least the known minimum count of writers so an empty/shrunken source scan fails loudly instead of passing vacuously\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/logic] covered via logic_test (packages/main/src/tasks/lifecycle-registry-contract.ts) — The exemption list only admits the named legacy receipt-refs filename; adding any other unregistered write to store.ts fails the smoke\"],\"warnings\":[],\"timestamp\":\"2026-07-24T03:09:27.723Z\",\"commands\":[],\"disposition\":\"reused\",\"commandExecutions\":0,\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":8,\"reason\":\"verificationIntent entries present (8)\"},\"verificationCoverage\":{\"total\":8,\"required\":7,\"covered\":8,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"classifyLifecycleArtifact returns kind=lifecycle for .lattice/story/actives/<id>/acceptance-basis.json and the other three topology filenames; classifyScopePath returns category=lifecycle_artifact allowed=true\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"logic_test\",\"file\":\"tmp/b5e4a-red/red-registry-coverage.mjs\",\"command\":\"node tmp/b5e4a-red/red-registry-coverage.mjs\",\"result\":\"pass\",\"note\":\"Re-run at HEAD 27103e76b1 (post F-001/F-002 fixes): 8/8 assertions hold — classifyLifecycleArtifact returns kind=lifecycle for all four acceptance-topology filenames under .lattice/story/actives/B-5e4a/. Baseline red (4/8, exit 1) recorded as red evidence at d8db64c.\",\"headHash\":\"d50da84b88b8f8163047ae333c9ed8b0a08cedf0\",\"materialHash\":\"e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153\",\"storyFilesHash\":\"1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212\",\"timestamp\":\"2026-07-24T02:38:38.568Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"An unregistered basename in the same story dir (e.g. random.json) still classifies null / out_of_scope — the closed set stays closed\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"logic_test\",\"file\":\"tmp/b5e4a-red/red-registry-coverage.mjs\",\"command\":\"node tmp/b5e4a-red/red-registry-coverage.mjs\",\"result\":\"pass\",\"note\":\"Re-run at HEAD 27103e76b1: negative controls hold — random.json and an unregistered basename variant in the same story dir still classify null; the closed set stays closed after registering the four filenames plus review-loops.jsonl (F-001).\",\"headHash\":\"d50da84b88b8f8163047ae333c9ed8b0a08cedf0\",\"materialHash\":\"e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153\",\"storyFilesHash\":\"1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212\",\"timestamp\":\"2026-07-24T02:38:38.568Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"The four filenames under a legacy docs/story/<id>/ prefix still classify as legacy-metadata, unchanged\",\"type\":\"logic\",\"priority\":\"should\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node -e classifyLifecycleArtifact(docs/story/B-0000/<name>) for all four filenames\",\"result\":\"pass\",\"note\":\"Re-run at HEAD 27103e76b1: all four filenames under the legacy docs/story/<id>/ prefix classify as legacy-metadata — legacy behavior unchanged by the registry additions.\",\"headHash\":\"d50da84b88b8f8163047ae333c9ed8b0a08cedf0\",\"materialHash\":\"e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153\",\"storyFilesHash\":\"1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212\",\"timestamp\":\"2026-07-24T02:38:38.568Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"A crafted path like .lattice/story/actives/../../etc/acceptance-basis.json or a non-canonical storyId does not classify as lifecycle (path traversal / id checks unchanged)\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"tmp/b5e4a-red/red-registry-coverage.mjs\",\"command\":\"node tmp/b5e4a-red/red-registry-coverage.mjs\",\"result\":\"pass\",\"note\":\"Re-run at HEAD 27103e76b1: adversarial controls hold — traversal path (.lattice/story/actives/../../../etc/acceptance-basis.json) and non-canonical story id still classify null; path traversal and id checks unchanged.\",\"headHash\":\"d50da84b88b8f8163047ae333c9ed8b0a08cedf0\",\"materialHash\":\"e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153\",\"storyFilesHash\":\"1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212\",\"timestamp\":\"2026-07-24T02:38:38.568Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"lattice validate runs the new smoke green; smoke asserts all four new filenames classify lifecycle_artifact and the derived StoryStore top-level write set is fully covered\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"integration_test\",\"file\":\"lattice.config.json\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"Re-run at HEAD 27103e76b1: PASS — 49 StoryStore top-level artifact filenames derived (floor 40; storyDir join-site pass: review-loops.jsonl) and registered-or-exempted, 0 divergences. Wired as validate.commands[36] (commit b034a4b686); full lattice validate ran green with it at the CHK-002 wiring step (allPass true, 47/47).\",\"headHash\":\"d50da84b88b8f8163047ae333c9ed8b0a08cedf0\",\"materialHash\":\"e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153\",\"storyFilesHash\":\"1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212\",\"timestamp\":\"2026-07-24T02:38:38.568Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"Deliberately removing one filename from the registry (temporary local mutation) makes the smoke fail with a message naming that filename\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"npm run test:lifecycle-registry-contract (bite test: remove a registry filename from dist copy)\",\"result\":\"pass\",\"note\":\"Bite tests at both the pre-F-001 tree (acceptance-basis.json removal → two named divergences, byte-identical restore via cmp, re-run green) and post-F-001 (review-loops.jsonl removal → two named divergences naming it, restore, green). Removal of any registered derived filename fails loudly naming that filename.\",\"headHash\":\"d50da84b88b8f8163047ae333c9ed8b0a08cedf0\",\"materialHash\":\"e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153\",\"storyFilesHash\":\"1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212\",\"timestamp\":\"2026-07-24T02:38:38.568Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"The derivation returns at least the known minimum count of writers so an empty/shrunken source scan fails loudly instead of passing vacuously\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"Re-run at HEAD 27103e76b1: output asserts 49 filenames derived against floor 40; a shrunken/empty derivation fails loudly with a derivation-is-broken message instead of passing vacuously (floor unchanged at 40 after the count moved 48→49 with the F-001 join-site pass).\",\"headHash\":\"d50da84b88b8f8163047ae333c9ed8b0a08cedf0\",\"materialHash\":\"e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153\",\"storyFilesHash\":\"1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212\",\"timestamp\":\"2026-07-24T02:38:38.568Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"The exemption list only admits the named legacy receipt-refs filename; adding any other unregistered write to store.ts fails the smoke\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"logic_test\",\"file\":\"packages/main/src/tasks/lifecycle-registry-contract.ts\",\"command\":\"npm --prefix packages/main run test:lifecycle-registry-contract\",\"result\":\"pass\",\"note\":\"Exemption list admits exactly authority-receipt-refs.json (dead writeLegacyReceiptRefs path, Authority domain, commented). Any other unregistered top-level write fails: demonstrated by the review-loops.jsonl divergence pre-F-001-fix, the storystore-coverage bite tests, and the F-002 adversarial scratch probe where an unresolvable identifier at a storyDir join site emits the named blind-spot divergence (isEnclosingCallableParameter scoped check, commit f99744a8b7).\",\"headHash\":\"d50da84b88b8f8163047ae333c9ed8b0a08cedf0\",\"materialHash\":\"e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153\",\"storyFilesHash\":\"1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212\",\"timestamp\":\"2026-07-24T02:38:38.568Z\"}}]},\"reuse\":{\"lineage\":\"trusted-story-metadata-descendant\",\"existingEvidenceBasis\":\"fresh\",\"refusalReasons\":[],\"identityDigest\":\"bfe077836418df2b34d09dbf3d39a44addbb0217b5f3689cdc8cd9fa1dcffd78\"}}",
+  "result": "PASS",
+  "timestamp": "2026-07-24T03:09:27.935Z",
+  "headHash": "7b98bb41601df4ef7d42c3e59232ae5443179deb",
+  "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+  "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+  "verificationCoverage": {
+    "total": 8,
+    "required": 7,
+    "covered": 8,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "classifyLifecycleArtifact returns kind=lifecycle for .lattice/story/actives/<id>/acceptance-basis.json and the other three topology filenames; classifyScopePath returns category=lifecycle_artifact allowed=true",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
+          "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1 (post F-001/F-002 fixes): 8/8 assertions hold — classifyLifecycleArtifact returns kind=lifecycle for all four acceptance-topology filenames under .lattice/story/actives/B-5e4a/. Baseline red (4/8, exit 1) recorded as red evidence at d8db64c.",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "An unregistered basename in the same story dir (e.g. random.json) still classifies null / out_of_scope — the closed set stays closed",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
+          "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1: negative controls hold — random.json and an unregistered basename variant in the same story dir still classify null; the closed set stays closed after registering the four filenames plus review-loops.jsonl (F-001).",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "The four filenames under a legacy docs/story/<id>/ prefix still classify as legacy-metadata, unchanged",
+        "type": "logic",
+        "priority": "should",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node -e classifyLifecycleArtifact(docs/story/B-0000/<name>) for all four filenames",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1: all four filenames under the legacy docs/story/<id>/ prefix classify as legacy-metadata — legacy behavior unchanged by the registry additions.",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "A crafted path like .lattice/story/actives/../../etc/acceptance-basis.json or a non-canonical storyId does not classify as lifecycle (path traversal / id checks unchanged)",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "tmp/b5e4a-red/red-registry-coverage.mjs",
+          "command": "node tmp/b5e4a-red/red-registry-coverage.mjs",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1: adversarial controls hold — traversal path (.lattice/story/actives/../../../etc/acceptance-basis.json) and non-canonical story id still classify null; path traversal and id checks unchanged.",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "lattice validate runs the new smoke green; smoke asserts all four new filenames classify lifecycle_artifact and the derived StoryStore top-level write set is fully covered",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "lattice.config.json",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1: PASS — 49 StoryStore top-level artifact filenames derived (floor 40; storyDir join-site pass: review-loops.jsonl) and registered-or-exempted, 0 divergences. Wired as validate.commands[36] (commit b034a4b686); full lattice validate ran green with it at the CHK-002 wiring step (allPass true, 47/47).",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "Deliberately removing one filename from the registry (temporary local mutation) makes the smoke fail with a message naming that filename",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm run test:lifecycle-registry-contract (bite test: remove a registry filename from dist copy)",
+          "result": "pass",
+          "note": "Bite tests at both the pre-F-001 tree (acceptance-basis.json removal → two named divergences, byte-identical restore via cmp, re-run green) and post-F-001 (review-loops.jsonl removal → two named divergences naming it, restore, green). Removal of any registered derived filename fails loudly naming that filename.",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "The derivation returns at least the known minimum count of writers so an empty/shrunken source scan fails loudly instead of passing vacuously",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "Re-run at HEAD 27103e76b1: output asserts 49 filenames derived against floor 40; a shrunken/empty derivation fails loudly with a derivation-is-broken message instead of passing vacuously (floor unchanged at 40 after the count moved 48→49 with the F-001 join-site pass).",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "The exemption list only admits the named legacy receipt-refs filename; adding any other unregistered write to store.ts fails the smoke",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "Exemption list admits exactly authority-receipt-refs.json (dead writeLegacyReceiptRefs path, Authority domain, commented). Any other unregistered top-level write fails: demonstrated by the review-loops.jsonl divergence pre-F-001-fix, the storystore-coverage bite tests, and the F-002 adversarial scratch probe where an unresolvable identifier at a storyDir join site emits the named blind-spot divergence (isEnclosingCallableParameter scoped check, commit f99744a8b7).",
+          "headHash": "d50da84b88b8f8163047ae333c9ed8b0a08cedf0",
+          "materialHash": "e9642ce138c0a09dc260148b0ad94a95b2ae79167ad5bd2275df71cbdf498153",
+          "storyFilesHash": "1c29d00cbacb2f6ec71869b454a6cd84e413f76d7500ad3d7b5aa8f9b58bb212",
+          "timestamp": "2026-07-24T02:38:38.568Z"
+        }
+      }
+    ]
+  },
+  "commandExecution": {
+    "schema": "lattice.routine-validation-command-execution",
+    "version": 1,
+    "status": "PASS",
+    "complete": true,
+    "commandCount": 48,
+    "requiredFailureCount": 0,
+    "optionalFailureCount": 0
+  },
+  "disposition": "reused",
+  "routineValidationIdentity": {
+    "schema": "lattice.routine-validation-identity",
+    "version": 1,
+    "source": {
+      "kind": "configured",
+      "inputDigest": "653b3e1d6f1094e895e6da9656442f5e33abc72d888cdbe544f9e8ed4b3d08dc",
+      "entrypointDigest": null
+    },
+    "commands": [
+      {
+        "label": "configured validate.commands[0]",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 290000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[1]",
+        "command": "node",
+        "args": [
+          "packages/main/tests/milestone-status.test.mjs"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[2]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[3]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/production-test-seam-guard.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[4]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[5]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-list-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[6]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/review-pass-discard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[7]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-window-data-loss-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[8]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-command-timeout-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[9]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-progress-heartbeat-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[10]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/validate-focused-full-layering-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[11]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/main-sync-readiness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[12]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[13]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[14]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/delivery-check-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[15]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-validation-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[16]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-freshness-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[17]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/done-required-head-drift-proof.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[18]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/artifact-release-ledger-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[19]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/version-bump-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[20]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[21]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-gate-config-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[22]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-wave-advisory-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[23]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[24]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[25]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[26]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-verifier-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[27]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-critic-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[28]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/adversarial-review-round-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[29]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/material-hash-large-tree-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[30]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[31]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/init-preflight-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[32]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/english-early-check-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[33]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/quorum-submit-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 600000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[34]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/receipt-bundle-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[35]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-strength-contract-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[36]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/lifecycle-registry-contract.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[37]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[38]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/product-capability-release-red-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[39]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/playbook-capability-lineage-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[40]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-invariants-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[41]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/story-files-hash-batch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[42]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-release-backfill-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[43]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-exposure-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[44]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/capability-candidate-promotion-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[45]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 270000,
+        "optional": false,
+        "focus": [
+          "fast"
+        ],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[46]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/experience-pack-arm-switch-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 180000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      },
+      {
+        "label": "configured validate.commands[47]",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/gate-repeat-block-smoke.js"
+        ],
+        "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-5e4a",
+        "shell": false,
+        "timeoutMs": 120000,
+        "optional": false,
+        "focus": [],
+        "effectiveEnvironmentDigest": "a4199653bf15f9e6f7e32e411eca32a7ab07432f8598c9fc261f3a18fb448051",
+        "executableDigest": "5c79f8e198fd2456ea6660aaa6be218f9f44747f2306c7d0f5f97b087b2f2dfc",
+        "shellExecutableDigest": null
+      }
+    ],
+    "invocation": {
+      "full": null,
+      "focus": null,
+      "profile": "strict"
+    },
+    "verificationPolicyDigest": "b6b422199b9cdc5bb9ff27024003d29f6e913a1350829e04011b9723ee9132a4",
+    "runtime": {
+      "platform": "darwin",
+      "arch": "arm64",
+      "node": "v22.13.0"
+    },
+    "digest": "bfe077836418df2b34d09dbf3d39a44addbb0217b5f3689cdc8cd9fa1dcffd78"
+  }
+}

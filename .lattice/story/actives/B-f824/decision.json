@@ -1,0 +1,88 @@
+{
+  "principles": [
+    "Gates consume mechanically trustworthy framework-written facts, never self-declared caller identity",
+    "Reviewer independent verification is review policy and must never block DONE",
+    "Closeout anti-thrash guarantees keep their teeth: redundant closeout-side executions and contradictory records still fail fast",
+    "Smallest semantic change that removes the permanent deadlock; root-cause eviction fix deferred to a follow-up"
+  ],
+  "drivers": [
+    "B-956f closing was permanently poisoned and needed a ceremony DEV->REVIEW bounce that contradicts the reviewer mandate",
+    "EXP-001: caller identity (main agent vs subagent, reviewer vs closeout CLI invocation) is not mechanically distinguishable",
+    "Single-slot receipt eviction in test-evidence.json makes forced re-execution of an already-executed identity routine, not exceptional",
+    "The same derivation already models observable-vs-blocking via reviewerReattestations vs postTestReviewerReattestations with the TEST-entry boundary"
+  ],
+  "options": [
+    {
+      "name": "A-phase-anchored-split",
+      "pros": [
+        "Uses only framework-written facts (facts.testEntryAt, event timestamps) already collected",
+        "Mirrors the proven reviewerReattestations/postTestReviewerReattestations pattern in the same function",
+        "No event schema change, no new trust surface, surgical diff",
+        "Keeps blocking teeth exactly where the closeout path owns the state machine (at or after TEST entry)"
+      ],
+      "cons": [
+        "Pre-TEST redundant executions become observable-only, slightly weakening waste detection",
+        "Does not fix the receipt-eviction root cause; wasteful re-executions still happen"
+      ]
+    },
+    {
+      "name": "B-writer-attribution-field",
+      "pros": [
+        "Directly expresses closeout-vs-reviewer intent per event"
+      ],
+      "cons": [
+        "Attribution is self-declared by the caller; EXP-001 proved callers are not mechanically distinguishable, so the field is forgeable and cannot gate",
+        "Requires event schema change plus backfill/compat handling for historical events"
+      ]
+    },
+    {
+      "name": "C-n-per-lane-allowance",
+      "pros": [
+        "Trivial diff"
+      ],
+      "cons": [
+        "Lane identity is not recorded on validation_terminal events, so per-lane counting is not implementable from durable facts",
+        "An arbitrary N weakens the invariant globally including the closeout path"
+      ]
+    },
+    {
+      "name": "D-multi-slot-receipt-store",
+      "pros": [
+        "Fixes the eviction root cause: reuse would succeed per identity and forced re-executions disappear"
+      ],
+      "cons": [
+        "test-evidence.json is consumed by DONE gate, freshness classification, drift handling, refresh_stale and dashboards; wide blast radius",
+        "Does not by itself unblock the invariant when a reviewer intentionally re-executes; still needs counting semantics decided"
+      ]
+    }
+  ],
+  "chosen": "A-phase-anchored-split",
+  "rationale": "Option A removes the deadlock using only framework-written facts already flowing through the derivation, mirrors an established observable-vs-blocking precedent in the very same function, changes no schemas, and preserves the closeout anti-thrash guarantee where the closeout path is the only legitimate executor (at or after TEST entry). Option B is forgeable per EXP-001, option C is not implementable from durable facts, and option D is the correct follow-up root-cause fix but has a blast radius disproportionate to unblocking DONE; A plus a follow-up story for D is the safest sequencing.",
+  "preMortem": [
+    {
+      "scenario": "A reviewer executes the suite during TEST before done_prepare runs, consuming the one allowed post-TEST execution for its group",
+      "trigger": "Post-TEST reviewer validate on an evicted receipt executes instead of reusing",
+      "consequence": "done_prepare validate then either reuses (PASS, correct) or re-executes (blocked with unchangedSuiteExecutions=1), so the gate stays mechanically sound but the block message may confuse the operator",
+      "mitigation": "Keep the blocked output rendering both counters so the operator sees reviewWindowSuiteExecutions vs blocking count; post-TEST reviewer re-attestation via review passes is already independently blocking"
+    },
+    {
+      "scenario": "Strict convergence-line regexes in sibling smokes silently drift from the new render format",
+      "trigger": "Adding reviewWindowSuiteExecutions to the rendered convergence line",
+      "consequence": "done-prepare-merge-rerun, auto-closeout, closure-heartbeat smokes fail or, worse, stop matching and stop asserting",
+      "mitigation": "CHK-003 enumerates every regex via rg 'convergence: metadataRollbacks=' and updates them; lattice validate runs all listed smokes"
+    },
+    {
+      "scenario": "donePrepareJsonResult transcript parser falls out of sync and JSON consumers read absent convergence",
+      "trigger": "Render line changes while the parse regex at done-prepare.ts:1077 keeps the old shape",
+      "consequence": "JSON output silently loses the convergence block, breaking downstream telemetry",
+      "mitigation": "Update the parse regex in the same commit and extend the existing flow-stability donePrepareJsonResult assertion to the new line shape"
+    },
+    {
+      "scenario": "Pre-TEST churn loops (DEV->REVIEW thrash re-executing the suite) are no longer blocked by this invariant",
+      "trigger": "Reclassifying pre-TEST duplicates as observable telemetry",
+      "consequence": "A pathological loop could burn suite executions without tripping this particular assert",
+      "mitigation": "metadataRollbacks still blocks REVIEW/TEST->DEV rollbacks on unchanged material, the convergence breaker consumes repeated lifecycle operations independently, and the new telemetry field keeps the redundancy visible in every PASS transcript"
+    }
+  ],
+  "timestamp": "2026-07-24T00:02:28.275Z"
+}

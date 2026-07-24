@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a539",
+  "allowedCommands": [
+    "git",
+    "lattice validate",
+    "lattice validate --focus=fast",
+    "lattice validate --json",
+    "node",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "lattice.config.json"
+  ],
+  "excludedCommands": [
+    "git push",
+    "npm publish"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "packages/main/dist",
+    "packages/main/src",
+    "packages/utils/src"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Single-file config edit. Only lattice.config.json validate.commands may be modified; the validate runner implementation and the smoke script stay untouched. Verification is read-only via validate invocation records.",
+  "createdAt": "2026-07-24T17:31:46.026Z",
+  "updatedAt": "2026-07-24T17:31:46.026Z",
+  "_hash": "c01e0ec5717f9310aed27fee27cdb79a1204534da53ff567095148c42373f3d3"
+}

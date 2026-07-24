@@ -698,6 +698,54 @@ function hasDiffEnumerationBlockingBranch(body) {
   return ok;
 }
 
+/** True when a subtree contains a real binary `<x>.timestamp >= facts.testEntryAt` comparison (F-002: a comment cannot satisfy this — comments are not AST nodes). */
+function hasTestEntryAnchoredComparison(body) {
+  let ok = false;
+  const walk = (n) => {
+    if (ok) return;
+    if (ts.isBinaryExpression(n)
+        && n.operatorToken.kind === ts.SyntaxKind.GreaterThanEqualsToken
+        && ts.isPropertyAccessExpression(n.left) && n.left.name.text === 'timestamp'
+        && ts.isPropertyAccessExpression(n.right) && n.right.name.text === 'testEntryAt'
+        && ts.isIdentifier(n.right.expression) && n.right.expression.text === 'facts') {
+      ok = true;
+      return;
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(body);
+  return ok;
+}
+
+/** True when a subtree contains a ThrowStatement. */
+function subtreeThrows(node) {
+  let found = false;
+  const walk = (n) => {
+    if (found) return;
+    if (ts.isThrowStatement(n)) { found = true; return; }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return found;
+}
+
+/** True when a function body contains an `if` whose CONDITION references the given property and whose then-branch throws (F-003: adapts hasDiffEnumerationBlockingBranch; a dead-code reference outside the throwing branch cannot satisfy this). */
+function hasPropertyGuardedThrowingBranch(body, propName) {
+  let ok = false;
+  const walk = (n) => {
+    if (ok) return;
+    if (ts.isIfStatement(n)
+        && subtreeReferencesProperty(n.expression, propName)
+        && subtreeThrows(n.thenStatement)) {
+      ok = true;
+      return;
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(body);
+  return ok;
+}
+
 /** True when a function body contains an object-literal property with the given name. */
 function bodyHasObjectPropertyNamed(body, propName) {
   let found = false;
@@ -2126,6 +2174,28 @@ function assertCloseoutTrustBoundary() {
   for (const token of ['same attempt', 'materialHash', 'storyFilesHash', 'reviewRound', 'first completed identity per lane', 'ReviewPass.createdAt', 'reviewRunId/pass id tie-breakers', 'independent of run start order', 'completed before TEST entry', 'at or after TEST entry', 'fail-closed']) {
     assert(reattestationBoundaryFact?.rationale.includes(token), `${processFactRegistryPath}: reviewer re-attestation boundary rationale missing ${token}`);
   }
+  const validationTerminalFact = registry.get('runtime:closeout_validation_terminal');
+  assert(validationTerminalFact?.level === 'L4', `${processFactRegistryPath}: validation terminal convergence fact must remain L4`);
+  assert(validationTerminalFact?.consumerGate === 'done_prepare convergence acceptance', `${processFactRegistryPath}: validation terminal convergence fact must identify the done_prepare consumer`);
+  for (const token of ['commandSetHash', 'materialHash', 'storyFilesHash', 'unchangedSuiteExecutions', 'at or after TEST entry', 'commandExecutions > 0', 'reviewWindowSuiteExecutions', 'never-blocking']) {
+    assert(validationTerminalFact?.rationale.includes(token), `${processFactRegistryPath}: validation terminal rationale missing phase-anchored duplicate-suite token ${token}`);
+  }
+  // B-f824 cross-host MAJOR: the TEST-boundary suite-execution split is gate
+  // semantics, not an implementation detail. Anchor it mechanically: the derive
+  // must split blocking executed duplicates at the current TEST entry, and the
+  // blocking assert must never consume the whole-window telemetry counter
+  // (blocking on it recreated the B-956f closeout deadlock). All checks are
+  // AST-scoped (comments are not AST nodes): a comment cannot satisfy the
+  // positive anchors or trip the negative one, and F-003 additionally requires
+  // the blocking counter in a real throwing if-condition, not dead code.
+  const donePrepareConvergenceSf = parseSourceFile('packages/main/src/handlers/done-prepare.ts');
+  const convergenceDeriveFn = findFunctionDeclaration(donePrepareConvergenceSf, 'deriveDonePreparePassConvergence');
+  assert(convergenceDeriveFn && convergenceDeriveFn.body, 'packages/main/src/handlers/done-prepare.ts: deriveDonePreparePassConvergence function declaration must exist');
+  assert(convergenceDeriveFn?.body && hasTestEntryAnchoredComparison(convergenceDeriveFn.body), 'packages/main/src/handlers/done-prepare.ts: convergence derive must anchor blocking duplicate-suite counting at the current TEST entry (a real `<event>.timestamp >= facts.testEntryAt` comparison inside deriveDonePreparePassConvergence; a comment cannot satisfy this)');
+  const convergenceAssertFn = findFunctionDeclaration(donePrepareConvergenceSf, 'assertDonePreparePassConvergence');
+  assert(convergenceAssertFn && convergenceAssertFn.body, 'packages/main/src/handlers/done-prepare.ts: assertDonePreparePassConvergence function declaration must exist');
+  assert(convergenceAssertFn?.body && hasPropertyGuardedThrowingBranch(convergenceAssertFn.body, 'unchangedSuiteExecutions'), 'packages/main/src/handlers/done-prepare.ts: convergence blocking assert must keep post-TEST duplicate-suite executions fail-closed via an if-condition referencing unchangedSuiteExecutions whose then-branch throws (a dead-code reference cannot satisfy this)');
+  assert(convergenceAssertFn?.body && !subtreeReferencesProperty(convergenceAssertFn.body, 'reviewWindowSuiteExecutions'), 'packages/main/src/handlers/done-prepare.ts: reviewWindowSuiteExecutions must remain observable never-blocking telemetry; the convergence blocking assert must not consume it (whole-window blocking recreated the B-956f DONE deadlock)');
   assert(read(processFactRegistryPath).includes('...PROCESS_FACT_CLOSEOUT_TELEMETRY'), `${processFactRegistryPath}: durable closeout convergence facts must be included in the final registry`);
 
   const autoCommitText = read('packages/main/src/core/auto-commit-metadata.ts');
@@ -4093,6 +4163,31 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   const oracleText = read('packages/main/src/core/done-oracle.ts');
   assert(oracleText.includes("id: 'done-required-validation'"), 'packages/main/src/core/done-oracle.ts: DONE checklist must contain separate done-required-validation row');
   assert(oracleText.includes('evaluateDoneRequiredEvidence'), 'packages/main/src/core/done-oracle.ts: DONE checklist must consume done-required evaluator');
+}
+
+function assertAcceptanceTopologyLifecycleFilenameContract() {
+  // B-5e4a CHK-002: the four acceptance-topology StoryStore artifact filenames
+  // must stay registered in the classifier's closed set. Runtime classification
+  // + the StoryStore write-set coverage invariant live in
+  // packages/main/src/tasks/lifecycle-registry-contract.ts; this is the
+  // doc-canonical source-level projection of the same fact.
+  const lifecycleRegistryText = read(lifecycleRegistryPath);
+  const artifactFilenamesInitializer = extractConstInitializer(
+    lifecycleRegistryText,
+    'LATTICE_LIFECYCLE_ARTIFACT_FILENAMES',
+    lifecycleRegistryPath,
+  );
+  for (const fileName of [
+    'acceptance-basis.json',
+    'pre-review-check.json',
+    'topology-critic-receipt.json',
+    'topology-exclusion-approvals.json',
+  ]) {
+    assert(
+      new RegExp(`['"]${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(artifactFilenamesInitializer),
+      `${lifecycleRegistryPath}: LATTICE_LIFECYCLE_ARTIFACT_FILENAMES must include '${fileName}' (acceptance-topology StoryStore artifact; B-5e4a)`,
+    );
+  }
 }
 
 function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
@@ -6066,6 +6161,7 @@ function assertProcessFactCommandInventory() {
   assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
+  assertAcceptanceTopologyLifecycleFilenameContract();
   assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
 

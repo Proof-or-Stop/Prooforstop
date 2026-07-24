@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-a539",
+  "checkedAt": "2026-07-24T17:31:51.331Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "4dbca9c7953926e6066f6e528486d62367026de53bf4463385c6bcd41674b1c2",
+  "executionBoundaryHash": "c01e0ec5717f9310aed27fee27cdb79a1204534da53ff567095148c42373f3d3",
+  "freshnessHash": "861d02a9a32f0fe8f87523315e01686453f26fd2c596cc7a087f21ded14380fd",
+  "effectiveExcludedKeywords": [
+    "Adding, removing or retiming any other validate command",
+    "Any change to the validate runner implementation in packages/main/src",
+    "Authority",
+    "Changing focus tags, timeouts or fail-closed behaviour of remaining commands",
+    "Changing the reviewer-scan-budget-guard-smoke script itself",
+    "customerKeyRef",
+    "Layer4",
+    "Removing same-script entries that differ in meaningful execution parameters",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Adding, removing or retiming any other validate command",
+      "source": "scopeBoundary.excluded",
+      "text": "Adding, removing or retiming any other validate command",
+      "excluded": true
+    },
+    {
+      "keyword": "Any change to the validate runner implementation in packages/main/src",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to the validate runner implementation in packages/main/src",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing focus tags, timeouts or fail-closed behaviour of remaining commands",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing focus tags, timeouts or fail-closed behaviour of remaining commands",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the reviewer-scan-budget-guard-smoke script itself",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the reviewer-scan-budget-guard-smoke script itself",
+      "excluded": true
+    },
+    {
+      "keyword": "Removing same-script entries that differ in meaningful execution parameters",
+      "source": "scopeBoundary.excluded",
+      "text": "Removing same-script entries that differ in meaningful execution parameters",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "ae715b1a76a463db948198642bc0d00d53dad9ba25f883cd4b494fdbbcebc570"
+}

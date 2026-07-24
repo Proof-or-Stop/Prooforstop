@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-5e4a",
+  "id": "IC-20260724002158",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The request is a narrow registry-coverage fix: add the missing acceptance-topology artifact filenames to the closed set LATTICE_LIFECYCLE_ARTIFACT_FILENAMES and add a mechanical coverage invariant, and nothing else. It is NOT a request to loosen or open the scope classifier (the closed-set narrow-trust policy from B-b9d0 stays), NOT a request to change gate evidence semantics or artifact signature checking (registration is provenance-only), NOT a request to auto-register every filename store.ts mentions (the dead Authority-domain legacy receipt-refs filename is deliberately excluded and exempted by name), and NOT a request to extend coverage to capsule subdirectory relative paths. The narrower reading is chosen because the reproduced defect is purely a missing-entry omission in a registry that the acceptance-topology work forgot to update, and because a broader reading that opened the classifier would remove the trust boundary the scope gate exists to enforce.",
+  "acceptedInterpretationHash": "sha256:60c7b49f05dd89d3e4928255c187339ec53eb9b6026992101a26f8c3f1b4775f",
+  "notes": "High-assurance work requires an independent collision result. The competing interpretation considered and rejected: a story about framework metadata being blocked by its own scope gate could be read as asking to make the gate more permissive for story-dir files generally. The scope boundary recorded at INIT excludes exactly that, and the coverage smoke keeps the set closed while making omissions loud instead of silent.",
+  "createdAt": "2026-07-24T00:21:58.547Z",
+  "updatedAt": "2026-07-24T00:21:58.547Z"
+}

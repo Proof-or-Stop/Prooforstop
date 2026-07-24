@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Delete the duplicate bare-string validate.commands entry and keep the focus-tagged object",
+      "context": "lattice.config.json validate.commands index 4 (bare string) duplicates index 12 (object with focus:[fast]). commandFromString in packages/main/src/handlers/verifier.ts parses the bare string into an identical command/args pair with no shell, so the two entries share one execution identity apart from the focus selection tag. Keep index 12: unfocused runs execute every configured command, and only focus-tagged commands survive validate --focus=fast.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "grep -c reviewer-scan-budget-guard-smoke lattice.config.json prints 1",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove from validate invocation records that the smoke runs exactly once and rescan for other duplicates",
+      "context": "Verify against the runner's own invocation record (validate --json command results), not just a zero exit code. Also rescan validate.commands for any other pair with identical full execution identity, and confirm that same-script pairs differing in meaningful execution parameters are left untouched.",
+      "relatedDocs": [
+        "CLAUDE.md"
+      ],
+      "userSees": "The validate --json command records contain exactly one entry for reviewer-scan-budget-guard-smoke.js and the duplicate scan reports no remaining full-identity duplicates",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

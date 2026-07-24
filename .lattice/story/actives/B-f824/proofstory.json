@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-f824",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:8b57d9b8b6ca106783b2083ea1714177a58815e62496d73cea175ca267944b19",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "The acceptance claim (B-956f-shaped window passes, two post-TEST duplicates still throw) is proven by the CHK-001 smoke repro cases and the CHK-002 derivation split; red evidence RED command flips green on the same acceptance target."
+    },
+    {
+      "id": "AB-002",
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:1",
+        "CHK-002:edge:1",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "Downstream contract integrity: convergence line render/parse consistency, sibling smoke regex updates, and the B-c163 convergence contract prose in the three decisions docs all track the phase-anchored split."
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Wave 1 observe-only bindings for the convergence review-window split; updated for CHK-004 (decisions docs prose).",
+  "createdAt": "2026-07-24T00:09:58.753Z",
+  "updatedAt": "2026-07-24T00:16:11.346Z"
+}
