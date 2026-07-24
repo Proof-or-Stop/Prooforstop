@@ -765,7 +765,7 @@
       "desc": "checklist.json CHK-002:adversarial:0 verificationEvidence note (re-recorded this round, timestamp 2026-07-24T03:29:50Z) claims: 'widening the path rule back to the greedy any-slash form fails EXACTLY {phase-pair, in-repo-file-path} and leaves the other 13 cases passing'. This is wrong on two counts. First, the arithmetic doesn't match the current matrix: 2 failing + 13 passing = 15, but the matrix has 18 cases total (per the smoke's own PASS summary '7 must-differ + 11 must-still-collapse'), so the note is stale, carried over from an earlier/smaller matrix revision and never re-verified. Second, re-verified directly: reverting `.replace(/(?:^|(?<=[\\s\"'(\\[:=,]))\\/[^\\s\"')\\]]*/g, '#')` (convergence-breaker.ts:632) to the old greedy `.replace(/\\/[^\\s\"']+/g, '#')`, rebuilding, and running the smoke shows 3 of 18 cases fail, not 2: {phase-pair, in-repo-file-path, signal-less-long-rejection}. The third case fails because its scopeGateBlock fixture embeds a repo-relative path ('packages/main/src/core/alpha.ts' vs '.../beta.ts') containing a mid-token slash that the greedy pre-CHK-002 rule also eats, collapsing both sides to the same 'packages#' remainder -- a real cross-dependency between the CHK-001/F-031 signals-conditional-prefix fix and the CHK-002 path-narrowing fix that the evidence note misses entirely. B-cc54's gate-repeat-block-smoke does stay exit 0 under this revert as claimed. Same stale/miscounted-evidence defect class as F-001/F-012/F-013/F-017/F-018/F-028 and last round's bcc54-cross-vendor-noise claim, recurring again in this round's re-recorded evidence.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T04:21:15.631Z",
@@ -778,7 +778,9 @@
         "packages/main/src/core/convergence-breaker.ts"
       ],
       "signatureTag": "adversarial|json|checklist-json-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T10:16:12.734Z",
+      "resolutionType": "fixed"
     }
   ]
 }
