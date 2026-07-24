@@ -52,11 +52,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "NOT DELIVERED AS ORIGINALLY WRITTEN, recorded as such: the C1 class was fixed on main by B-cc54, whose prefix and signals-fold this branch adopts untouched. What this story delivers of the item is bounded and named: 'must-differ signal-less-long-rejection [guard: signals-conditional-prefix]' widens the prefix when a rejection yields no signals. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure comes from a command named here.",
-          "headHash": "103def9d7f28e4680c78215922818908db88e2bc",
-          "materialHash": "6b05d1d4b46c8a7c5f48dfbacd792a42018d5934b460055f9b8d3b5addeac3ef",
-          "storyFilesHash": "4900645b650299878a3cc0b9214456421808927fa96e7f97a450b12becfcbfbc",
-          "timestamp": "2026-07-24T15:33:09.880Z"
+          "note": "PARTIALLY DELIVERED, and recorded as such. The C1 class was fixed on main by B-cc54, whose prefix and signals-fold this branch adopts untouched; this story did not make that outcome true. What it does deliver is bounded and named: 'must-differ signal-less-long-rejection [guard: signals-conditional-prefix]' widens the prefix when a rejection yields no signals, so a late-diverging signal-less reason keeps a distinct key.",
+          "headHash": "2a0715b2684dc9b3523a536b3ad8f69e477093a6",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:25.022Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
