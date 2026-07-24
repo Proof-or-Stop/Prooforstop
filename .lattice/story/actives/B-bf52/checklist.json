@@ -405,11 +405,11 @@
           "file": "packages/main/tests/red/red-s3-differential-probe.mjs",
           "command": "node packages/main/tests/red/red-s3-differential-probe.mjs \"$COMPARE_DIST\"",
           "result": "pass",
-          "note": "The comparison-against-main claim is now a COMMITTED, RUNNABLE artifact rather than prose: this command digests every pair on the branch and on a comparison build and exits non-zero if the branch collapses what the comparison distinguishes or distinguishes an ordinal that is not retry-stable. With no comparison build it SKIPs that lane cleanly and still reports cost. It is verified red-on-defect: restoring the unconditional punctuation strip in an isolated copy makes it exit non-zero on exactly the unmatched-wrapper rows, which the previous version of this probe could not express — it passed while that regression existed, the same defect class as an evidence note that restates instead of proves. Cost is reported by the probe as a RATIO with its own warning that machine-dependent milliseconds should not be quoted; the balanced-strip change was measured not to be what costs. Recorded by case name and guard tag as a WHOLE SET, with no hand-written totals: every figure a reader might want comes from a command in this record, not from prose.",
-          "headHash": "1574ff1fcc35a3dec67e8eb11d96ebb50bbe71f8",
-          "materialHash": "3d129e3a66d2e32ba51014a555c6adb4d3157b22cd8f48bc5bc31a64db4cc651",
-          "storyFilesHash": "b5fdff5c16814c9a4a384d26c71f4c7add63a3a4d9cfe22478c1c73ca9206b31",
-          "timestamp": "2026-07-24T14:14:57.719Z"
+          "note": "The comparison-against-main claim is a COMMITTED, RUNNABLE artifact: this command digests every pair on the branch and on a comparison build and exits non-zero if the branch collapses what the comparison distinguishes or distinguishes an ordinal that is not retry-stable; with no comparison build it SKIPs that lane cleanly and still reports cost. It is verified red-on-defect for the class it previously could not express: restoring the deleted punctuation reduction in an isolated copy makes it exit non-zero on exactly the manufactured-by-reduction rows and move nothing else. The probe header records that it passed TWICE during live regressions and that each miss added the missing vector, because a guard that cannot express the defect is not a guard. Cost is reported as a RATIO with the probe's own warning that machine-dependent milliseconds should not be quoted. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure a reader might want comes from a command named in this record.",
+          "headHash": "f67a1c53b749fad3431634729e73df169349d909",
+          "materialHash": "04e3b65f7d2bf8f6f16b6329bae8762e015f22ee1e19469c67094113c320fbb9",
+          "storyFilesHash": "a18a754f123d1044a15c9adc6178f2088d19a4955de1bb0b4fe638188a8c584c",
+          "timestamp": "2026-07-24T14:52:43.125Z"
         }
       ]
     }
