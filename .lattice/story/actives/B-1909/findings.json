@@ -88,7 +88,7 @@
       "desc": "concept-incompleteness: packages/main/src/dashboard.ts:111 (checklistDone = cl.items.filter(i => i.status === 'done').length) and the checklistDone/checklistTotal progress bar rendered at dashboard.ts:217-218 were not migrated to isDeliveredChecklistStatus/isTerminalChecklistStatus (core/checklist-status.ts) added by this story. dashboard.ts is outside the storys enumerated ~24 status===done sites / touchpoints (core+handlers only), but it is a real done consumer (the lattice serve Dashboard active-story progress bar). A withdrawn item is correctly excluded from checklistDone (not overcounted as delivered) but checklistTotal still includes it and there is no withdrawn bucket, so a story with a legitimately withdrawn item can never show 100% progress on this bar -- it silently buckets withdrawn as still-outstanding/pending forever, the exact half-migrated pattern CHK-002 was meant to eliminate everywhere.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-24T22:12:59.087Z",
@@ -96,7 +96,11 @@
       "reviewRunId": "B-1909:RR-004",
       "_hash": "b639f998ce65fb25ba6e7a374e3cf7a40487fc12cb926a383bb03c28bab430ef",
       "signatureTag": "missing|unknown|concept-incompleteness-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ac756995e7: dashboard.ts migrated to isDeliveredChecklistStatus/isWithdrawnChecklistStatus; added checklistWithdrawn bucket; progress bar fills on terminal (done+withdrawn)/total so a withdrawn item reaches 100%, with a dim (+N withdrawn) label.",
+      "resolvedAt": "2026-07-24T22:38:24.448Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1909:F-006",
