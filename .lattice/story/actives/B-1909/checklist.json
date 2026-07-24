@@ -37,7 +37,30 @@
       "context": "24 sites match status === 'done' under packages/main/src/core and handlers. Load-bearing ones: core/machine.ts:355 DEV to REVIEW every-item-done gate, core/artifact-contract.ts:133, handlers/checklist.ts:82 counts, handlers/story-query.ts:568, handlers/hints.ts:70, handlers/session.ts:435, core/milestone-status.ts:456,560. Withdrawn must satisfy 'no longer outstanding' for phase advancement while never incrementing delivered or completed-success counts, and must render as WITHDRAWN, never as DONE, in checklist_get, story_get, session_brief and any export.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "checklistAllDoneGuard treats withdrawn as terminal so DEV->REVIEW advances when every item is done-or-withdrawn",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "delivered/completed counts (checklist.ts:82, story-query:568, hints:70, session:435, milestone-status) exclude withdrawn from delivered totals",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No renderer (checklist_get, story_get, session_brief, exports) ever prints a withdrawn item as DONE",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
