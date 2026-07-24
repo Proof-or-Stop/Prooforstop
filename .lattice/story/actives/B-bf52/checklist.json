@@ -393,11 +393,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "B-cc54's suite is byte-unmodified by this story (git diff main on that path is empty) and exits 0. The completeness guard is now BIDIRECTIONAL: it fails naming an UNCLASSIFIED prefix when a scanned producer has no entry, and naming a NO PRODUCER entry when the allowlist or exclusion list carries a prefix nothing emits — the drift that produced this story's own enumeration errors is now caught by the suite instead of by the next review round. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
-          "headHash": "5258fe1937e2e43e42109510c04b34729f69aa90",
-          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
-          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
-          "timestamp": "2026-07-24T10:15:54.959Z"
+          "note": "B-cc54's suite is byte-unmodified by this story (git diff main on that path is empty) and exits 0. The completeness guard is BIDIRECTIONAL: it fails naming an UNCLASSIFIED prefix when a scanned producer has no entry, and naming a NO PRODUCER entry when a declared prefix has no producer, so the enumeration drift that caused this story's own errors is now caught by the suite rather than by the next review round. Recorded by case name and guard tag with no hand-written totals: every earlier re-recording drifted because it counted, and the partial re-recording before this one left sibling notes contradicting their own item (F-045/F-046/F-047). This set was written whole, against the matrix as the suite prints it.",
+          "headHash": "dd63a6188f243d4dc3a1a7cba3dbdf8803d58578",
+          "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
+          "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
+          "timestamp": "2026-07-24T11:34:23.847Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
