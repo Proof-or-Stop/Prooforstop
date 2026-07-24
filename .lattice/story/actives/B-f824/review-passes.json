@@ -561,6 +561,29 @@
         "scanEscalationReason": null
       },
       "_hash": "91a270636a464b96d457f1a34f70199a1eb408d2b292eb047df49f63438cb061"
+    },
+    {
+      "id": "B-f824:RP-021",
+      "agent": "lattice-review-docs",
+      "note": "Round 6 incremental (isFirstPass=false, scopeChanged=true, changedFiles=[packages/main/src/core/process-fact-registry.ts, scripts/verify-process-fact-contract.mjs], no docs/ files changed since RP-018). Diff-symbol extraction on the two changed files yields only script-local identifiers with 0 README/CLAUDE.md/docs hits (expected: internal verify-script vars, not documented API). Directly diffed 3 surfaces per dispatch: registry rationale (process-fact-registry.ts:1399), doc-of-record (done-prepare-automation-execution-plan.md:736, unchanged this round), and implementation (done-prepare.ts deriveDonePreparePassConvergence/assertDonePreparePassConvergence/renderPass). All agree on TEST-entry boundary (>= facts.testEntryAt), contradictory-reused-any-phase blocking, reviewWindowSuiteExecutions framed identically as observable/never-blocking telemetry, and render position (reviewWindowSuiteExecutions renders immediately after unchangedSuiteExecutions). npm run test:process-fact-contract run live: PASS. No doc-code-drift, no doc-promise-undelivered. No blocker.",
+      "createdAt": "2026-07-24T03:59:10.942Z",
+      "reviewRound": "2026-07-24T03:56:43.801Z",
+      "reviewRunId": "B-f824:RR-023",
+      "envelopeId": "dcf56aee3e0e28a425b534b0261b4b1156a63bcd31bcea924970f54d3431a567",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3f5173ad48749792471db7b2d8be4acb5e5fc463afb0ce8b873e930d1d0b7e7c"
     }
   ]
 }
