@@ -392,6 +392,35 @@
         "scanEscalationReason": null
       },
       "_hash": "bd367ca534708fa780562899d9b39edfd40360214ed2877a2a36056ae9b91b2d"
+    },
+    {
+      "id": "B-4043:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Fresh-round re-review confirming metadata-only delta since my last bound commit (RR-022 head eea676c57c -> current head f11ff8f4eb): git diff shows only .lattice story metadata (checklist.json evidence entries, findings.json resolution text, index.json, process-events/metrics, prompt-envelopes, review-passes, review-runs) touched; zero diff on docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md and on .lattice/story/actives/B-4043/acceptance-rollout-report.json. Re-cross-checked the doc Wave-4 measured-results table (section 17) against the current signed report.report.metrics: matchedPairCount=6 (3 baseline+3 candidate), registeredSeedCount/detectedSeedCount=3/3 (100%), falsePassCount=0, omissionDetectionRate=1 (1/1, 100%), falseBlockCount=0, mislabeled3x1Count=0, waiverDelta=0, inventoryShrankCount=0, and the docs-only/legacy/ordinary control-pair breakdown (1 each per arm) all match sourceRecords pairIds PAIR-DOCS/PAIR-LEGACY/PAIR-ORDINARY vs seeded PAIR-FORGERY/PAIR-FRESHNESS/PAIR-OMISSION -- table unchanged and still accurate. Checked the specific concern in this round: checklist.json diff shows CHK-004:adversarial:fail-closed-mutations restored to the default-mode command, and a new custom ref CHK-004:hardening:issuance-replay-integrity added bound to --issuer-mutations; grepped all of .lattice/story/actives/B-4043 and docs/ for issuance-replay-integrity -- it only appears in findings.json resolution text, review-passes.json (quality-lane note), and checklist.json itself, all of which explicitly and correctly label it as a custom ref that is NOT one of the 15 frozen verificationIntent ids and attribute it to F-004/F-006 REVIEW-introduced hardening rather than the original planned intent set. plan.md and understanding.json (Wave 4 planned scope) are unchanged since RR-022 and contain no mention of issuer-mutations/issuance-replay-integrity, so the planned-intent vs REVIEW-hardening distinction is not blurred anywhere in the written record. Verified the '15 frozen verificationIntent ids' claim itself: checklist.json CHK-001..CHK-005 each carry exactly 3 verificationIntent entries (happy/edge/adversarial) = 15 total. No doc-code drift possible this round (no production/test source changed). Pass, 0 findings.",
+      "createdAt": "2026-07-24T16:05:51.465Z",
+      "reviewRound": "2026-07-24T16:02:56.249Z",
+      "reviewRunId": "B-4043:RR-026",
+      "envelopeId": "0fbaa08e4e53c850e950c7257ecb4107957a9bc9acf141f3b8dfba5a03ce1417",
+      "writerSessionId": "b4043-review-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/original-intent-snapshot.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/understanding.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          "docs/CLI.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "90c22aff6aa5fe0d631d2dc1f4d52855f5eb1f7f042b46e02997e70534d8a5b6"
     }
   ]
 }
