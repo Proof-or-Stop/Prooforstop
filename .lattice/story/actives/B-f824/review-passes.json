@@ -254,6 +254,35 @@
         "scanEscalationReason": null
       },
       "_hash": "fcdfb14f534d0b022a8a20f9a6ebfb0caa791ba5f2ae458907de3f1394c44289"
+    },
+    {
+      "id": "B-f824:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Round-3 re-attestation (post-main-merge, digests moved but no story-owned file changed). 8 changed files since round-2 pass (RP-005/RR-007) all trace to sibling B-cc54 merge + lifecycle metadata, zero overlap with B-f824 scope. done-prepare-automation-execution-plan.md has zero commits since priorHeadHash (byte-identical to round-2 state). rg for unchangedSuiteExecutions|reviewWindowSuiteExecutions across docs/ still returns exactly one hit in that same file, still describing the phase-anchored two-counter split matching CHK-002/CHK-004. Diffed merged convergence-breaker.ts change (B-cc54 gateFailureDigest/extractGateBlockSignals) and confirmed unrelated to done_prepare convergence counters -- no new or contradicting doc claim. No drift found; no finding registered.",
+      "createdAt": "2026-07-24T02:58:11.900Z",
+      "reviewRound": "2026-07-24T02:56:15.005Z",
+      "reviewRunId": "B-f824:RR-011",
+      "envelopeId": "e5f63a7ca26b176d28cbfce62208144064be43de0b5ce85b1fcc3faf57c0aa53",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/convergence-breaker.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "05d115362ae3cc4060652883ce1a387f52b339e75169c8b622bca4b172d3d2f4"
     }
   ]
 }
