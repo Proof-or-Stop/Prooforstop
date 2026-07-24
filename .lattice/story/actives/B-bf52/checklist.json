@@ -52,11 +52,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'must-differ dev-gate-one-gap-differs [guard: truncation-removal]' reconstructs the real DEV-gate render twice, identical through its header and differing only in the outstanding gap, and reports keys=2. Header length re-measured after F-018: the machine.ts:179 preamble plus the report's six header lines normalize to 257 characters, reaching 433 by the first gap row in a two-trigger report; the earlier figure 244 was wrong because the fixture abbreviated the ledger thresholdState as (within) instead of the real within_threshold (types.ts:2529), exactly 10 characters short. Re-recorded against the round-4 matrix (30 cases).",
-          "headHash": "8e06bc84c06044a94c547aa5b14389947db2a8b5",
-          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
-          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
-          "timestamp": "2026-07-24T02:31:09.059Z"
+          "note": "NOT DELIVERED BY THIS STORY, and recorded as such rather than claimed. The C1 class this intent targets was fixed on main by story B-cc54 (v0.3.231), which keeps the 200-character prefix and folds structurally-extracted gap-id signals into the hash basis. This branch adopted main's version wholesale at merge commit 2d12079855 and changed neither the truncation nor the basis. Verified: the RED harness run against main's own build reports C1a and C1b PASSING, so the user-visible outcome is true on main today.",
+          "headHash": "50b98f71d4880f2e760302d1fb49c0a24a441020",
+          "materialHash": "1af14fb2ac5e5281132b81e8b2c2c266b0aec1673f6911c1108b21676547800c",
+          "storyFilesHash": "92e7fa3e31df6b732cfdafe7c0a8c27e33bb60bbbadcd3eb6f5a17b077f58948",
+          "timestamp": "2026-07-24T03:29:43.963Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
