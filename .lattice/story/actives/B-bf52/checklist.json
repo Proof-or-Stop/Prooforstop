@@ -208,11 +208,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Two revert-proofs, one per direction. Mutation M1 (path rule widened to main's form) fails the path-rule-overreach cases plus, by a real cross-dependency, 'signal-less-long-rejection' and 'init-check-issue-ordinal-past-window'. Mutation M2 (path rule deleted) fails the path-rule-collapse cases plus 'bcc54-cross-vendor-noise'. Subsets are named in the suite output rather than counted here. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
-          "headHash": "c79f5580ca87a478ba309ff2b0e0a03441bfa6e5",
-          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
-          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
-          "timestamp": "2026-07-24T10:15:48.330Z"
+          "note": "Two revert-proofs, one per direction, both re-derived after the round-8 fixes changed the subsets. M1 (path rule widened to main's form) fails exactly 'phase-pair', 'in-repo-file-path' and 'signal-less-long-rejection'; the cross-dependency on a past-window case that an earlier note claimed is gone with the rebuilt fixture, and the case name it used no longer exists. M2 (path rule deleted) fails exactly the three path-rule-collapse cases plus 'bcc54-cross-vendor-noise'. Recorded by case name and guard tag with no hand-written totals: every earlier re-recording drifted because it counted, and the partial re-recording before this one left sibling notes contradicting their own item (F-045/F-046/F-047). This set was written whole, against the matrix as the suite prints it.",
+          "headHash": "026595c215126a7929b0d00ec0dbdbdbbe631739",
+          "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
+          "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
+          "timestamp": "2026-07-24T11:34:16.910Z"
         }
       ]
     },
