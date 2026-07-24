@@ -348,8 +348,8 @@
       "signatureTag": "edge|ts|cross-host-codex",
       "signatureTagSource": "auto",
       "resolvedReason": "Confirmed real and accepted as a residual, recorded in plan.md section 4.3 rather than fixed. RR-002 and RR-003 do keep separate keys, so a host that starts a new reviewer run between attempts never accumulates a gate-repeat count for that rejection. It is not fixable in the direction this story must fail: an identifier-attached PURE-DECIMAL suffix is syntactically indistinguishable from CHK-002, so any rule that collapses RR-002 also collapses CHK-002 and reintroduces the false freeze this story exists to remove. The findings observation that the counter reset does not mitigate it is CONFIRMED, not disputed: cli-engine.ts:1405 resets only on a SUCCESSFUL story_advance, deliberately scoped so a trivial mutation cannot clear the counter. The un-caught runaway is bounded by the burn-alert system, which watches spend rather than message text; the false freeze it replaces is bounded only by an interactive human TTY acknowledgement.",
-      "resolvedAt": "2026-07-24T02:32:26.142Z",
-      "resolutionType": "accepted_risk",
+      "resolvedAt": "2026-07-24T04:03:43.403Z",
+      "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
     {
