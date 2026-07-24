@@ -405,11 +405,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Fourteen re-derived revert-proofs across ten guard groups, every guard tag re-derived from scratch after the round-4 policy change (none survived unchanged). The number-rule-removal group makes the policy decision itself revertible and therefore falsifiable: reintroducing the deleted rule fails exactly its six cases. Guard tags were split into overreach/collapse pairs for path, digit and hash precisely because single tags mis-localized -- cross-host codex caught the path and attached-decimal conflations, and the implementer caught two more (hex-id mis-tagged as digit-rule; two lock fixtures varying pid as well as age, now holding pid constant).",
-          "headHash": "f99ac8eb8c1c7dfe9f6cbb05595905a8e54de707",
-          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
-          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
-          "timestamp": "2026-07-24T02:31:31.372Z"
+          "note": "Revert-proofs across the two changed rules plus the allowlist boundedness, each failing a named subset and leaving the rest passing, re-derived from scratch after the reconciliation invalidated every earlier subset. The matrix is deliberately small: the final change is two .replace lines against main, and every case guards one of them or guards B-cc54's contract against this story.",
+          "headHash": "f44107678d7385ff53d9271b46ba1abb3e33b954",
+          "materialHash": "1af14fb2ac5e5281132b81e8b2c2c266b0aec1673f6911c1108b21676547800c",
+          "storyFilesHash": "92e7fa3e31df6b732cfdafe7c0a8c27e33bb60bbbadcd3eb6f5a17b077f58948",
+          "timestamp": "2026-07-24T03:29:58.018Z"
         }
       ]
     }
