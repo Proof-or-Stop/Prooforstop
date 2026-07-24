@@ -1,0 +1,37 @@
+{
+  "passes": [
+    {
+      "id": "B-5e4a:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check: diff is purely additive (four filenames added to closed-set LATTICE_LIFECYCLE_ARTIFACT_FILENAMES, new coverage-invariant smoke in lifecycle-registry-contract.ts, doc-canonical assertion in verify-process-fact-contract.mjs, and wiring of a pre-existing-but-unwired npm script test:lifecycle-registry-contract into lattice.config.json checks). No concept word/symbol deleted or replaced en masse; non-trivial deletions are limited to checklist status/phase field updates and a one-line log-message edit. Confirmed test:lifecycle-registry-contract pre-existed on main package.json but was absent from main lattice.config.json checks list, so CHK-002 wiring gap is real. No blocker.",
+      "createdAt": "2026-07-24T01:13:30.574Z",
+      "reviewRound": "2026-07-24T01:11:20.454Z",
+      "reviewRunId": "B-5e4a:RR-001",
+      "envelopeId": "f8802e3e7773704153c18724f68ad9b216c8ac03da9432ef03045e3ffc898921",
+      "writerSessionId": "sess-f338f502db8708aa1297c4e6bf991416",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-5e4a/background.md",
+          ".lattice/story/actives/B-5e4a/plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "lattice.config.json",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5e4a/acceptance-basis.json",
+          ".lattice/story/actives/B-5e4a/checklist.json",
+          ".lattice/story/actives/B-5e4a/decision.json",
+          ".lattice/story/actives/B-5e4a/scope-check.json",
+          ".lattice/story/actives/B-5e4a/understanding.json",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8c9ff03af940ddf03877c12671f08d8c4655e77f7683d4f125e7d7515eff4241"
+    }
+  ]
+}
