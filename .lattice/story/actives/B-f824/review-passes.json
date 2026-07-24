@@ -315,6 +315,37 @@
         "scanEscalationReason": null
       },
       "_hash": "99fa5468b8bfa5a17c37cb0e0962d85f4fa44ccd550396eebbbdfca276ddd65a"
+    },
+    {
+      "id": "B-f824:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Re-attestation round 4 (rebind to fresh review basis). Zero material changes since RP-008; only story metadata drifted.",
+      "createdAt": "2026-07-24T03:11:23.278Z",
+      "reviewRound": "2026-07-24T03:10:13.213Z",
+      "reviewRunId": "B-f824:RR-014",
+      "envelopeId": "2ff413fca240bd28617c8da5d8f9fbeab0f5c279a791b15b1a628867ce721fef",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f824/closeout-write-receipts.jsonl",
+          ".lattice/story/actives/B-f824/index.json",
+          ".lattice/story/actives/B-f824/process-events.jsonl",
+          ".lattice/story/actives/B-f824/process-metrics.json",
+          ".lattice/story/actives/B-f824/prompt-envelopes.json",
+          ".lattice/story/actives/B-f824/review-passes.json",
+          ".lattice/story/actives/B-f824/review-runs.json",
+          ".lattice/story/actives/B-f824/test-evidence.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "eff88fc84c4cae1787eb6ceb66567fa3ac06c4b9dd4c43fb64811640bfcfc679"
     }
   ]
 }
