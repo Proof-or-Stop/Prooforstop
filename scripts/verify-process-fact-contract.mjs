@@ -4095,6 +4095,31 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
   assert(oracleText.includes('evaluateDoneRequiredEvidence'), 'packages/main/src/core/done-oracle.ts: DONE checklist must consume done-required evaluator');
 }
 
+function assertAcceptanceTopologyLifecycleFilenameContract() {
+  // B-5e4a CHK-002: the four acceptance-topology StoryStore artifact filenames
+  // must stay registered in the classifier's closed set. Runtime classification
+  // + the StoryStore write-set coverage invariant live in
+  // packages/main/src/tasks/lifecycle-registry-contract.ts; this is the
+  // doc-canonical source-level projection of the same fact.
+  const lifecycleRegistryText = read(lifecycleRegistryPath);
+  const artifactFilenamesInitializer = extractConstInitializer(
+    lifecycleRegistryText,
+    'LATTICE_LIFECYCLE_ARTIFACT_FILENAMES',
+    lifecycleRegistryPath,
+  );
+  for (const fileName of [
+    'acceptance-basis.json',
+    'pre-review-check.json',
+    'topology-critic-receipt.json',
+    'topology-exclusion-approvals.json',
+  ]) {
+    assert(
+      new RegExp(`['"]${fileName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}['"]`).test(artifactFilenamesInitializer),
+      `${lifecycleRegistryPath}: LATTICE_LIFECYCLE_ARTIFACT_FILENAMES must include '${fileName}' (acceptance-topology StoryStore artifact; B-5e4a)`,
+    );
+  }
+}
+
 function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName) {
   for (const commandName of requiredDecisionDocQuorumReadOnlyCommands) {
     assert(cliToolNameSet.has(commandName), `CLI schema: required decision-doc quorum read command missing from MAIN_TOOLS: ${commandName}`);
@@ -6066,6 +6091,7 @@ function assertProcessFactCommandInventory() {
   assertReviewLoopCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
+  assertAcceptanceTopologyLifecycleFilenameContract();
   assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
 

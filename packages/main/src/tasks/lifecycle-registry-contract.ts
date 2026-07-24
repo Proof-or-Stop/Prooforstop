@@ -21,12 +21,22 @@
  *   RESOLVED effective command set, never raw literal tables (preMortem #1).
  * @changes
  *   - [CHK-002] Add lifecycle registry consistency contract
+ *   - [B-5e4a CHK-002] Add acceptance-topology artifact classification check +
+ *     StoryStore top-level artifact filename coverage invariant
+ *   - [B-5e4a F-002] Scope the helper-parameter classification of unresolved
+ *     storyDir join-site identifiers to the enclosing callable's parameter
+ *     list (whole-source parameter search silently skipped coincidental names)
  */
+import { existsSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   COMMAND_LIFECYCLE_PHASES,
+  LATTICE_LIFECYCLE_ARTIFACT_FILENAMES,
   LIFECYCLE_ORACLE_ARTIFACT_REFS,
   LIFECYCLE_PHASE_ARTIFACTS,
   LIFECYCLE_TRANSITIONS,
+  classifyLifecycleArtifact,
   isLifecycleArtifact,
   lifecycleArtifactsByPhase,
   lifecycleArtifactsByTransition,
@@ -220,10 +230,377 @@ function checkArtifactReferences(): void {
   }
 }
 
+/**
+ * Cross-check 5 (B-5e4a CHK-002): the four acceptance-topology StoryStore
+ * artifact filenames — plus the review-loops.jsonl REVIEW loop ledger
+ * (B-5e4a F-001) — must classify via classifyLifecycleArtifact as
+ * kind='lifecycle' under an active story dir. This is the runtime projection of
+ * the B-5e4a registration (registry membership alone is not enough — the
+ * classifier's prefix + storyId + closed-set pipeline must accept the full
+ * path).
+ */
+const CLASSIFICATION_CROSS_CHECK_FILENAMES = [
+  'acceptance-basis.json',
+  'pre-review-check.json',
+  'topology-critic-receipt.json',
+  'topology-exclusion-approvals.json',
+  // REVIEW loop ledger written via join(this.storyDir(...), REVIEW_LOOP_FILENAME)
+  // in store.ts; B-5e4a F-001.
+  'review-loops.jsonl',
+] as const;
+
+function checkAcceptanceTopologyArtifactClassification(): void {
+  for (const fileName of CLASSIFICATION_CROSS_CHECK_FILENAMES) {
+    const path = `.lattice/story/actives/B-5e4a/${fileName}`;
+    const classification = classifyLifecycleArtifact(path);
+    if (!classification || classification.kind !== 'lifecycle') {
+      record(
+        'acceptance-topology-classification',
+        `${fileName} does not classify as kind='lifecycle' under .lattice/story/actives/<storyId>/ — ` +
+        `classifyLifecycleArtifact('${path}') returned ${classification ? `kind='${classification.kind}'` : 'null'} ` +
+        `(is ${fileName} missing from LATTICE_LIFECYCLE_ARTIFACT_FILENAMES?)`,
+      );
+    }
+  }
+}
+
+/**
+ * Cross-check 6 (B-5e4a CHK-002): StoryStore top-level artifact filename
+ * coverage invariant. Derives, from packages/main/src/core/store.ts SOURCE,
+ * every top-level story artifact filename reachable through TWO write/read
+ * shapes:
+ *   1. single-segment filename literals (no slash) passed to the
+ *      readJson/writeJson-style story-dir helpers, and
+ *   2. `join(this.storyDir(<arg>), <X>)` sites (B-5e4a F-001), where <X> is a
+ *      string literal or an identifier resolved to one (store.ts const, or a
+ *      const followed through store.ts's relative import — e.g.
+ *      REVIEW_LOOP_FILENAME → './review-loop.js' → 'review-loops.jsonl').
+ * Each derived filename must be either registered in
+ * LATTICE_LIFECYCLE_ARTIFACT_FILENAMES or listed in the named exemption
+ * constant below. This closes the B-956f / B-bf52 regression class
+ * mechanically: a new StoryStore top-level artifact write without a registry
+ * entry fails this contract with a named divergence instead of surfacing later
+ * as an OUT_OF_SCOPE scope violation.
+ */
+const STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS: ReadonlySet<string> = new Set([
+  // dead writeLegacyReceiptRefs path, Authority future-capability domain,
+  // register it when its write path goes live.
+  'authority-receipt-refs.json',
+]);
+
+/**
+ * Sanity floor for the derived set. store.ts currently references ~49 distinct
+ * top-level filenames through the two derivation passes (helper literals +
+ * storyDir join sites); a derivation yielding fewer than this floor means an
+ * extraction regex or a call shape drifted, and the check must fail loudly
+ * rather than report vacuous coverage.
+ */
+const STORYSTORE_DERIVED_SET_FLOOR = 40;
+
+/**
+ * Pass 1: matches a story-dir helper call whose second argument is a
+ * single-segment filename literal, e.g.:
+ *   this.readJson<StoryInfo>(storyId, 'index.json')
+ *   this.writeJson(storyId, 'scope-check.json', data)
+ * Capsule/nested writes use template literals with a directory prefix
+ * (`${CAPSULE_DIR_NAME}/...`) and therefore never match; type-position string
+ * unions do not match the helper-call shape either. join(this.storyDir(...))
+ * sites are covered by pass 2 (STORYSTORE_STORYDIR_JOIN_SITE_RE, B-5e4a F-001).
+ */
+const STORYSTORE_TOP_LEVEL_ARTIFACT_CALL_RE =
+  /\.(?:readJson|writeJson)\w*(?:<[^(]*?>)?\(\s*[A-Za-z_$][\w$]*\s*,\s*'([a-z0-9-]+\.(?:json|jsonl|md))'/g;
+
+/**
+ * Pass 2 (B-5e4a F-001): matches a `join(this.storyDir(<arg>), <X>)` site in
+ * store.ts where <X> is a single-quoted string literal (capture group 1) or an
+ * identifier (capture group 2). store.ts writes some top-level story artifacts
+ * — e.g. the review-loops.jsonl REVIEW loop ledger, via appendFileSync /
+ * writeFileSync — through this path shape instead of the readJson/writeJson
+ * helpers, so pass 1 alone cannot see them.
+ */
+const STORYSTORE_STORYDIR_JOIN_SITE_RE =
+  /\bjoin\(\s*this\.storyDir\(\s*[A-Za-z_$][\w$]*\s*\)\s*,\s*(?:'([^']*)'|([A-Za-z_$][\w$]*))/g;
+
+/**
+ * Domain filter for pass 2: only resolved values shaped like a top-level story
+ * artifact filename belong to this coverage check. Directory names (e.g.
+ * CAPSULE_DIR_NAME → 'capsule') and slash-containing relative paths live in
+ * other classifier domains and are correctly filtered out here.
+ */
+const TOP_LEVEL_ARTIFACT_FILENAME_RE = /^[a-z0-9][a-z0-9-]*\.(?:json|jsonl|md)$/;
+
+/** Escapes an identifier for safe interpolation into a RegExp (`$` in idents). */
+function escapeIdentForRegExp(ident: string): string {
+  return ident.replace(/\$/g, '\\$');
+}
+
+/** Resolves `const <IDENT> = '<literal>'` within the given source, or null. */
+function resolveConstLiteral(source: string, ident: string): string | null {
+  const re = new RegExp(String.raw`\bconst\s+${escapeIdentForRegExp(ident)}\b\s*=\s*'([^']*)'`);
+  const match = source.match(re);
+  return match ? match[1] : null;
+}
+
+/**
+ * Follows store.ts's named-import statement for `ident` to its relative module
+ * (e.g. './review-loop.js' → src/core/review-loop.ts, which ships alongside
+ * dist) and resolves `const <original name> = '<literal>'` there. Handles
+ * `X as Y` aliasing; returns null when the identifier is not imported from a
+ * resolvable relative module or the module declares no such const literal.
+ */
+function resolveImportedLiteral(storeSource: string, storeDir: string, ident: string): string | null {
+  const importRe = /import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+'(\.[^']*)'/g;
+  for (const importMatch of storeSource.matchAll(importRe)) {
+    const clause = importMatch[1];
+    const moduleRel = importMatch[2];
+    for (const rawName of clause.split(',')) {
+      const name = rawName.trim().replace(/^type\s+/, '');
+      if (!name) continue;
+      const aliasMatch = name.match(/^([A-Za-z_$][\w$]*)\s+as\s+([A-Za-z_$][\w$]*)$/);
+      const localName = aliasMatch ? aliasMatch[2] : name;
+      if (localName !== ident) continue;
+      const sourceName = aliasMatch ? aliasMatch[1] : name;
+      const modulePath = join(storeDir, moduleRel).replace(/\.js$/, '.ts');
+      if (!existsSync(modulePath)) return null;
+      return resolveConstLiteral(readFileSync(modulePath, 'utf-8'), sourceName);
+    }
+  }
+  return null;
+}
+
+/** Keywords whose `(...)` group before a `{` is a control clause, not a callable's parameter list. */
+const NON_CALLABLE_PAREN_KEYWORDS = new Set([
+  'if', 'for', 'while', 'switch', 'catch', 'return', 'else', 'do', 'typeof', 'await',
+]);
+
+/**
+ * Backward-scans from `fromIndex` (exclusive) for the nearest UNMATCHED `{` —
+ * i.e. the opener of the block that lexically encloses `fromIndex`. Balanced
+ * `{...}` pairs encountered on the way (earlier sibling blocks, object/template
+ * interpolations) cancel out via the depth counter. Returns -1 at top level.
+ */
+function findEnclosingBraceOpen(source: string, fromIndex: number): number {
+  let depth = 0;
+  for (let i = fromIndex - 1; i >= 0; i--) {
+    const ch = source[i];
+    if (ch === '}') depth++;
+    else if (ch === '{') {
+      if (depth === 0) return i;
+      depth--;
+    }
+  }
+  return -1;
+}
+
+/** Backward-scans from the `)` at `closeIndex` to its balanced matching `(`, or -1. */
+function findMatchingParenOpen(source: string, closeIndex: number): number {
+  let depth = 0;
+  for (let i = closeIndex; i >= 0; i--) {
+    const ch = source[i];
+    if (ch === ')') depth++;
+    else if (ch === '(') {
+      depth--;
+      if (depth === 0) return i;
+    }
+  }
+  return -1;
+}
+
+/**
+ * If the `{` at `braceIndex` opens a CALLABLE body (method / function / arrow),
+ * returns the raw text of that callable's parameter list (the content between
+ * its parens); otherwise null. A callable body opener is `(<params>)` followed
+ * only by an optional return-type annotation and/or `=>` before the `{`, where
+ * the token before `(` is a method/function name (optionally generic, e.g.
+ * `readJson<T>(...)`) — control clauses (`if (...) {` etc.) are rejected so the
+ * enclosing-scope walker keeps ascending past them.
+ */
+function callableParamListForBodyOpen(source: string, braceIndex: number): string | null {
+  const before = source.slice(0, braceIndex);
+  const headerMatch = before.match(/\)\s*(?::\s*[\w$.<>[\]|&\s]*)?(?:=>\s*)?$/);
+  if (!headerMatch || headerMatch.index === undefined) return null;
+  const closeParen = headerMatch.index;
+  const openParen = findMatchingParenOpen(source, closeParen);
+  if (openParen === -1) return null;
+  // Token before `(`: skip an optional generic group (`<T>`), then read the
+  // identifier. Bare arrow param lists (`(x) => {`) have no leading identifier
+  // and are accepted as callables.
+  let cursor = openParen - 1;
+  while (cursor >= 0 && /\s/.test(source[cursor])) cursor--;
+  if (source[cursor] === '>') {
+    let angleDepth = 0;
+    while (cursor >= 0) {
+      if (source[cursor] === '>') angleDepth++;
+      else if (source[cursor] === '<') {
+        angleDepth--;
+        if (angleDepth === 0) {
+          cursor--;
+          break;
+        }
+      }
+      cursor--;
+    }
+    while (cursor >= 0 && /\s/.test(source[cursor])) cursor--;
+  }
+  let nameEnd = cursor + 1;
+  while (cursor >= 0 && /[\w$]/.test(source[cursor])) cursor--;
+  const name = source.slice(cursor + 1, nameEnd);
+  if (name && NON_CALLABLE_PAREN_KEYWORDS.has(name)) return null;
+  return source.slice(openParen + 1, closeParen);
+}
+
+/**
+ * True when the join-site identifier is declared as a typed string PARAMETER of
+ * the callable (method/function) that lexically ENCLOSES that join site — e.g.
+ * `file` inside `storyFilePath(storyId: string, file: string)`. Such sites are
+ * generic helper plumbing — the concrete filenames flow in from call sites,
+ * which pass 1 covers for the readJson/writeJson helpers — not a per-artifact
+ * derivation blind spot.
+ *
+ * SCOPED rule (B-5e4a F-002): the classification walks up the enclosing blocks
+ * from the join site itself and inspects ONLY the parameter lists of callables
+ * that lexically enclose that site (innermost method plus any outer callables,
+ * for sites inside nested callbacks — those parameters are in scope via
+ * closure). A whole-source search would silently skip a local variable whose
+ * name merely coincides with a typed parameter declared elsewhere in store.ts
+ * (e.g. a `const file = someCall()` join site) — exactly the derivation blind
+ * spot this pass exists to fail loudly on. Any ambiguity (no enclosing
+ * callable found, lexical walker confused) classifies as NOT a helper
+ * parameter, so the fail direction is always the named divergence.
+ */
+function isEnclosingCallableParameter(source: string, ident: string, siteIndex: number): boolean {
+  const paramRe = new RegExp(String.raw`[(,]\s*${escapeIdentForRegExp(ident)}\s*:\s*string\b`);
+  let cursor = siteIndex;
+  while (true) {
+    const braceOpen = findEnclosingBraceOpen(source, cursor);
+    if (braceOpen === -1) return false;
+    const paramList = callableParamListForBodyOpen(source, braceOpen);
+    if (paramList !== null && paramRe.test(`(${paramList}`)) return true;
+    // Non-callable block (if/for/try/object literal) or a callable that does
+    // not declare `ident`: keep ascending — an outer enclosing callable may.
+    cursor = braceOpen;
+  }
+}
+
+/**
+ * Pass 2 derivation: resolves every `join(this.storyDir(...), <X>)` site to a
+ * filename. Resolution order: inline literal → store.ts const literal →
+ * imported const literal → typed string parameter of the callable enclosing
+ * THAT site (scoped, B-5e4a F-002). An identifier that resolves to none of
+ * these is a derivation blind spot and fails loudly with a named divergence —
+ * never skipped silently (B-5e4a F-001).
+ */
+function deriveStoryDirJoinFilenames(source: string, storeDir: string): Set<string> {
+  const derived = new Set<string>();
+  for (const match of source.matchAll(STORYSTORE_STORYDIR_JOIN_SITE_RE)) {
+    const literal = match[1];
+    const ident = match[2];
+    let resolved: string | null = null;
+    if (literal !== undefined) {
+      resolved = literal;
+    } else {
+      resolved = resolveConstLiteral(source, ident) ?? resolveImportedLiteral(source, storeDir, ident);
+      if (resolved === null) {
+        if (isEnclosingCallableParameter(source, ident, match.index ?? 0)) continue;
+        record(
+          'storystore-coverage',
+          `join(this.storyDir(...), ${ident}) site in store.ts: identifier ${ident} cannot be resolved to a ` +
+          `string literal (not a store.ts const, not a const behind a resolvable relative import, not a typed ` +
+          `string parameter of the enclosing method) — derivation blind spot; coverage was NOT verified for this site`,
+        );
+        continue;
+      }
+    }
+    if (TOP_LEVEL_ARTIFACT_FILENAME_RE.test(resolved)) derived.add(resolved);
+  }
+  return derived;
+}
+
+function resolveStoryStoreSourcePath(): string {
+  const here = dirname(fileURLToPath(import.meta.url));
+  // dist/tasks → dist → packages/main (runtime) and src/tasks → src →
+  // packages/main (tsx). The TypeScript SOURCE ships alongside dist, so both
+  // execution modes resolve the same file.
+  const packageRoot = join(here, '..', '..');
+  return join(packageRoot, 'src', 'core', 'store.ts');
+}
+
+function deriveStoryStoreTopLevelFilenames(source: string): Set<string> {
+  const derived = new Set<string>();
+  for (const match of source.matchAll(STORYSTORE_TOP_LEVEL_ARTIFACT_CALL_RE)) {
+    derived.add(match[1]);
+  }
+  return derived;
+}
+
+interface StoryStoreCoverageResult {
+  /** Merged derived-set size across both passes (0 when the derivation itself is broken). */
+  derivedCount: number;
+  /** Filenames contributed by the storyDir join-site pass (pass 2), sorted. */
+  joinSiteFilenames: readonly string[];
+}
+
+function checkStoryStoreTopLevelArtifactCoverage(): StoryStoreCoverageResult {
+  const storePath = resolveStoryStoreSourcePath();
+  if (!existsSync(storePath)) {
+    record(
+      'storystore-coverage',
+      `cannot locate StoryStore source at ${storePath} — the derivation is broken; coverage was NOT verified`,
+    );
+    return { derivedCount: 0, joinSiteFilenames: [] };
+  }
+  const source = readFileSync(storePath, 'utf-8');
+  const derived = deriveStoryStoreTopLevelFilenames(source);
+  const joinDerived = deriveStoryDirJoinFilenames(source, dirname(storePath));
+  for (const fileName of joinDerived) derived.add(fileName);
+  const joinSiteFilenames = [...joinDerived].sort();
+  if (derived.size < STORYSTORE_DERIVED_SET_FLOOR) {
+    record(
+      'storystore-coverage',
+      `derived StoryStore top-level artifact set has only ${derived.size} entries, below the sanity floor of ` +
+      `${STORYSTORE_DERIVED_SET_FLOOR} — the derivation is broken (extraction regex or store.ts call shape drifted); ` +
+      `coverage was NOT verified`,
+    );
+    return { derivedCount: derived.size, joinSiteFilenames };
+  }
+  const missing = [...derived]
+    .filter((fileName) =>
+      !LATTICE_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName) &&
+      !STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS.has(fileName))
+    .sort();
+  for (const fileName of missing) {
+    record(
+      'storystore-coverage',
+      `StoryStore reads/writes top-level story artifact ${fileName} but it is neither in ` +
+      `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES nor in STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS — register it in ` +
+      `packages/main/src/core/lifecycle-registry.ts or add a justified named exemption`,
+    );
+  }
+  // Stale-exemption guard: every exemption must still be derived from store.ts
+  // and must not be silently double-listed in the registry.
+  for (const fileName of STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS) {
+    if (!derived.has(fileName)) {
+      record(
+        'storystore-coverage',
+        `exemption ${fileName} is no longer derived from StoryStore — remove the stale exemption`,
+      );
+    }
+    if (LATTICE_LIFECYCLE_ARTIFACT_FILENAMES.has(fileName)) {
+      record(
+        'storystore-coverage',
+        `exemption ${fileName} is now registered in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES — remove the redundant exemption`,
+      );
+    }
+  }
+  return { derivedCount: derived.size, joinSiteFilenames };
+}
+
 function main(): void {
   checkCommandDimension();
   checkProcessFactLifecycle();
   checkArtifactReferences();
+  checkAcceptanceTopologyArtifactClassification();
+  const storyStoreCoverage = checkStoryStoreTopLevelArtifactCoverage();
 
   if (divergences.length > 0) {
     console.error('lifecycle-registry consistency: FAIL');
@@ -239,7 +616,10 @@ function main(): void {
   const phaseCount = Object.keys(artifactsByPhase).length;
   console.log(
     `lifecycle-registry consistency: PASS — command-policy / DEFAULT_PHASE_TOOLS / process-fact lifecycle consistent with registry, ` +
-    `${phaseCount} phases projected, 0 divergences`,
+    `${phaseCount} phases projected, ${storyStoreCoverage.derivedCount} StoryStore top-level artifact filenames derived ` +
+    `(floor ${STORYSTORE_DERIVED_SET_FLOOR}; storyDir join-site pass: ` +
+    `${storyStoreCoverage.joinSiteFilenames.length > 0 ? storyStoreCoverage.joinSiteFilenames.join(', ') : 'none'}) ` +
+    `and registered-or-exempted, 0 divergences`,
   );
 }
 
