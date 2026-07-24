@@ -573,9 +573,9 @@
       "id": "CHK-005",
       "title": "Smoke coverage for fire, no-fire and reset",
       "context": "Cover three cases: breaker fires at the threshold on identical repeated blocks; breaker does NOT fire when the block reason changes between attempts; counter resets after the gate passes. Register the smoke in the validate command set.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-24T00:18:57.275Z",
       "verificationIntent": {
         "happy": [
           {
@@ -616,7 +616,113 @@
           }
         ]
       },
-      "userSees": "Running 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' prints all four ok lines then 'gate-repeat-block-smoke: PASS' and exits 0."
+      "userSees": "Running 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' prints all four ok lines then 'gate-repeat-block-smoke: PASS' and exits 0.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:57.495Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:57.707Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:57.940Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:58.160Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:58.372Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:58.598Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:58.809Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk005() group: fire on identical, no-fire on distinct, reset on progress, plus the exact B-cc54 collision regression guard.",
+          "headHash": "432c8c2d048122da8bf0b17729ad4f0f98d9c21a",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:59.016Z"
+        }
+      ]
     }
   ]
 }
