@@ -50,7 +50,30 @@
       "userSees": "The validate --json command records contain exactly one entry for reviewer-scan-budget-guard-smoke.js and the duplicate scan reports no remaining full-identity duplicates",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A real lattice validate run reports exactly one command result for reviewer-scan-budget-guard-smoke.js in its invocation record, and that result passes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A full-identity duplicate scan over all validate.commands entries reports zero remaining duplicate groups.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The same-script scan is reported separately from the full-identity scan, so any pair sharing a script path but differing in meaningful execution parameters is surfaced and deliberately preserved rather than removed.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
