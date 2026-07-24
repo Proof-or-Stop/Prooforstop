@@ -10,7 +10,35 @@
       "userSees": "grep -c reviewer-scan-budget-guard-smoke lattice.config.json prints 1",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After the edit, lattice.config.json parses and validate.commands contains exactly one entry whose command line references reviewer-scan-budget-guard-smoke.js, and it is the object carrying focus:[fast].",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The surviving entry keeps the identical execution identity: command node, the same single script arg, and no shell, cwd, env, timeoutMs or optional field, so no argument, timeout, execution context or fail-closed behaviour changes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Every other validate.commands entry is byte-identical before and after the edit, and the list length drops by exactly one.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The removal does not drop the smoke from the fast focus set: filtering validate.commands by focus fast still selects reviewer-scan-budget-guard-smoke.js after the edit.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
