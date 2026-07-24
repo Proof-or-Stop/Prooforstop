@@ -2,6 +2,10 @@
   "storyId": "B-5e4a",
   "changes": "packages/main/src/core/lifecycle-registry.ts: five filenames added to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (four acceptance-topology + review-loops.jsonl). packages/main/src/tasks/lifecycle-registry-contract.ts: classification cross-check for the registered filenames plus two-pass StoryStore top-level write derivation (helper-literal pass, storyDir join-site pass with scoped identifier resolution via isEnclosingCallableParameter), floor 40, named divergences, named exemption constant. scripts/verify-process-fact-contract.mjs: source-level assertion that the four filenames stay in the registry initializer. lattice.config.json: contract task wired as a validate command. docs/requirements/decisions/lifecycle-artifact-scope.md: one Verification-inventory bullet. tmp/b5e4a-red/red-registry-coverage.mjs: red/green harness with closed-set adversarial controls.",
   "usage": "No operator action needed: acceptance_basis_generate and the other topology steps now classify their own artifacts as lifecycle_artifact and pass the scope gate without manual scope_contract_acknowledge. When adding a new StoryStore top-level artifact, register its filename in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES; lattice validate fails with a named divergence if you forget.",
+  "expectedOutcome": "Stories running the PLAN-phase acceptance topology steps (acceptance_basis_generate, pre_review_check, topology critic) no longer hit blocking OUT_OF_SCOPE scope violations on their own framework-generated metadata, and any future unregistered StoryStore top-level artifact write fails lattice validate loudly with a named filename instead of silently regressing.",
+  "actualTranscript": "Live pre-fix reproduction in this story: acceptance_basis_generate wrote .lattice/story/actives/B-5e4a/acceptance-basis.json and scope_contract_check reported OUT_OF_SCOPE category=unknown rule=out_of_scope detail=No lifecycle/runtime registry entry and no scope-contract path pattern matched (acknowledged once as the final documented workaround, recorded as red evidence: harness 4/8 exit 1 at baseline d8db64c). Post-fix at current HEAD: node tmp/b5e4a-red/red-registry-coverage.mjs gives 8/8 assertions hold; npm --prefix packages/main run test:lifecycle-registry-contract gives PASS, 49 StoryStore top-level artifact filenames derived (floor 40; storyDir join-site pass: review-loops.jsonl), 0 divergences; npm run test:process-fact-contract gives Process fact contract verified; full lattice validate --story=B-5e4a --json gives status pass, allPass, coverage 8/8, missingRequired 0. Bite tests: removing acceptance-basis.json or review-loops.jsonl from the registry fails the contract with two named divergences each; byte-identical restore re-runs green.",
+  "outcomeDiff": "Delivered exactly the expected outcome plus one widening found by review: reviewer finding F-001 showed the coverage derivation missed join-shape writes, so review-loops.jsonl was also registered and the invariant gained a second derivation pass with scoped identifier resolution (F-002 hardened). The count moved from four registered filenames to five, and the derivation from one pass to two; no promised behavior was reduced.",
+  "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
@@ -31,10 +35,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 928374
+      "durationMs": 2282222
     }
   },
-  "totalDurationMs": 9986081,
+  "totalDurationMs": 11339929,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -47,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-07-24T02:38:39.326Z",
-  "updatedAt": "2026-07-24T02:38:39.326Z"
+  "updatedAt": "2026-07-24T03:01:13.174Z"
 }
