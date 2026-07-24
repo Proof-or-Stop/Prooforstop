@@ -510,7 +510,11 @@ function boundReasonForDigest(reason: string): string {
  * substantively different rejections keep separate keys. The normalization is
  * deliberately narrow and each rule's exact scope is load-bearing (B-bf52):
  *
- *  - `0x…` values, hex ids/hashes of 7+ digits and ISO-8601 timestamps → `#`.
+ *  - `0x…` values, FREE-STANDING hex ids/hashes of 7+ digits and ISO-8601
+ *    timestamps → `#`. The hex rule carries the same identifier-attachment
+ *    protection as the number rule below, because decimal digits are a SUBSET
+ *    of hex digits: without it, `session-1234567` and `worker-1721775600` are
+ *    eaten by this earlier rule before the number rule ever sees them (F-014).
  *  - ABSOLUTE paths only, and only at a token start (string start, or after
  *    whitespace, quote, paren, bracket, `:`, `=` or `,`): POSIX `/…` and Windows
  *    `c:\…`. A relative repo path (`src/core/alpha.ts`) and a mid-token slash
@@ -520,10 +524,13 @@ function boundReasonForDigest(reason: string): string {
  *    `2h`, `1.5ms`, `12kb`) → `#`. Heartbeat and lock-contention ages are pure
  *    wall-clock noise that changes on essentially every retry, so leaving them
  *    in would mint a fresh key per retry and the breaker would never fire.
- *  - STANDALONE numbers only (`attempt 41`, `pid 4821`, `3>=2`, `-19`, `3.5`)
- *    → `#`. A digit run attached to an identifier by a word character, a hyphen
- *    or a dot (`CHK-001`, `B-bf52`, `round-2`, `v0.3.229`) is part of that
- *    identifier's NAME and is deliberately preserved.
+ *  - STANDALONE numbers only (`attempt 41`, `pid 4821`, `3>=2`, `-19`, `3.5`,
+ *    and the same at the end of a sentence: `exceeded 19.`) → `#`. A digit run
+ *    attached to an identifier by a word character or a hyphen (`CHK-001`,
+ *    `B-bf52`, `round-2`) is part of that identifier's NAME and is preserved,
+ *    and so is a digit run whose dot is INTERNAL to a longer numeric sequence
+ *    (`v0.3.229`, `1.2.3`) — but a dot that merely ENDS a sentence is not a
+ *    protective character (F-015).
  *
  * Both directions are load-bearing and both are guarded case-by-case in
  * tasks/convergence-breaker-smoke.ts: widening a rule re-introduces the false
@@ -535,7 +542,18 @@ export function gateFailureDigest(command: string, reason: string): string {
   const normalized = boundReasonForDigest(reason)
     .toLowerCase()
     .replace(/0x[0-9a-f]+/g, '#')
-    .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
+    // B-bf52 F-014: the identifier-attachment protection is NOT optional here.
+    // `0-9` is a subset of `0-9a-f`, so a bare `\b` boundary let this rule
+    // consume any identifier-attached decimal run of 7+ digits BEFORE the
+    // number rule below could protect it: `session-1234567` vs `session-7654321`
+    // and `worker-1721775600` vs `worker-1721775601` (epoch-suffixed ids) both
+    // collapsed, i.e. two DIFFERENT identifiers read as one gate failing twice —
+    // exactly the false freeze this contract exists to prevent, and silently
+    // contradicting the CHK-003 promise that identifier digits survive. The
+    // lookarounds mirror the number rule's, minus the dot: a hash is still
+    // collapsed when it is introduced by `=`/`:`/quote/space or followed by a
+    // file extension.
+    .replace(/(?<![\w-])[0-9a-f]{7,}(?![\w-])/g, '#') // free-standing hex ids / hashes
     .replace(/\d{4}-\d{2}-\d{2}t[\d:.]+z?/g, '#') // ISO timestamps
     // B-bf52 CHK-002: an absolute path is machine-specific, so it must still
     // collapse — but ONLY when it is a path. The former rule anchored on any
@@ -564,21 +582,34 @@ export function gateFailureDigest(command: string, reason: string): string {
     // or a held lock mints a NEW key on essentially every retry, the repeat
     // count never reaches 2, and the breaker never fires for exactly the stuck
     // runaway it exists to stop. Runs BEFORE the number rule so the digits are
-    // consumed together with their unit.
-    .replace(/(?<![\w.-])-?\d+(?:\.\d+)?(?:ms|s|m|h|d|kb|mb|gb|b)(?![\w.-])/g, '#') // durations / sizes
+    // consumed together with their unit. The dot is handled by the same
+    // targeted lookarounds as the number rule (F-015): `heartbeat 45s.` at the
+    // end of a sentence must still collapse.
+    .replace(/(?<![\w-])(?<!\d\.)-?\d+(?:\.\d+)?(?:ms|s|m|h|d|kb|mb|gb|b)(?![\w-])(?!\.\d)/g, '#') // durations / sizes
     // B-bf52 CHK-003: a free-standing counter is incidental, but a digit run
     // ATTACHED to an identifier is part of that identifier's name. The former
     // unconditional rule rewrote both, so `CHK-001` and `CHK-002` — two
     // different checklist items — both became `chk-#`. This one matches only a
-    // standalone number, i.e. one not preceded or followed by a word character,
-    // a hyphen or a dot, so `attempt 41`, `3>=2`, `0/4 lanes` and `pid 4821`
-    // still collapse while `CHK-001`, `round-2`, story ids and dotted versions
-    // survive (F-002: `v0.3.229` and `v0.3.230` are different requirements, and
-    // without `.` in the protection set both became `v#.#.#`). The sign is
-    // consumed by the match rather than excluded by the lookbehind (F-003):
-    // treating a leading `-` as an identifier hyphen left `-5` and `-19`
-    // distinct, so a countdown in a rejection message never collapsed.
-    .replace(/(?<![\w.-])-?\d+(?:\.\d+)?(?![\w.-])/g, '#')     // free-standing numbers only
+    // standalone number, i.e. one not preceded or followed by a word character
+    // or a hyphen, so `attempt 41`, `3>=2`, `0/4 lanes` and `pid 4821` still
+    // collapse while `CHK-001`, `round-2` and story ids survive.
+    //
+    // The dot is deliberately NOT a member of the protection set (F-015). It is
+    // protective only when it sits BETWEEN digits, which is what the two
+    // targeted lookarounds express: `(?<!\d\.)` refuses to start a match on the
+    // tail of a dotted sequence and `(?!\.\d)` refuses to end one just before
+    // its continuation, so `v0.3.229` and `v0.3.230` stay whole (F-002: they are
+    // different version REQUIREMENTS, and the earlier unconditional rule made
+    // both `v#.#.#`) while a sentence-final period stays plain punctuation, so
+    // `exceeded 5.` and `exceeded 19.` collapse as the free-standing counters
+    // they are. Putting `.` in the character class did both jobs at once and so
+    // re-introduced the F-007 under-collapse — a livelock minting a fresh key
+    // per retry — for every message ending a bare number at a full stop.
+    //
+    // The sign is consumed by the match rather than excluded by the lookbehind
+    // (F-003): treating a leading `-` as an identifier hyphen left `-5` and
+    // `-19` distinct, so a countdown in a rejection message never collapsed.
+    .replace(/(?<![\w-])(?<!\d\.)-?\d+(?:\.\d+)?(?![\w-])(?!\.\d)/g, '#') // free-standing numbers only
     .replace(/\s+/g, ' ')
     .trim();
   const h = createHash('sha1').update(`${command}\n${normalized}`).digest('hex').slice(0, 12);

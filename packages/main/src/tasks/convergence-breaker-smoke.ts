@@ -162,7 +162,11 @@ const HEALTHY: BreakerCounters = {
 {
   const dir = mkdtempSync(join(tmpdir(), 'cbreaker-'));
   try {
-    // Same command + reason that differs only in volatile ids/numbers => same digest.
+    // Same command + reason that differs only in volatile ids/numbers => same
+    // digest. B-bf52 F-010: this pair is silent (no console output), so the
+    // free-standing-counter half of CHK-003's userSees is PRINTED by matrix case
+    // `timestamp-and-attempt-counter` in section 7b, which compares these same
+    // two strings and echoes both literal values.
     const d1 = gateFailureDigest('story_advance', 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)');
     const d2 = gateFailureDigest('story_advance', 'gate BLOCKED for B-bbaf at 2026-07-14T09:59:59Z (attempt 41)');
     assert.equal(d1, d2, 'digest collapses volatile ids/timestamps/numbers to the same key');
@@ -222,10 +226,29 @@ const HEALTHY: BreakerCounters = {
 // `guardedBy` names the one normalizer rule each case — in BOTH lanes — is bound
 // to. Reverting that rule alone must fail exactly the cases naming it and leave
 // the rest passing, so a regression localizes to the rule that caused it rather
-// than failing as one opaque block. The four rules are the sanity bound
-// (`truncation-removal` for dropping the old 200-char cut, `sanity-bound` for
-// retaining the 16,384 one), the path rules (`path-rule`, `windows-path-rule`),
-// the duration rule and the number rule (`digit-rule`).
+// than failing as one opaque block.
+//
+// A tag therefore names a rule AND the direction in which that case depends on
+// it, because the two directions have OPPOSITE reverts (found in review round 2
+// by cross-host codex, which observed that `path-rule` conflated them: deleting
+// the POSIX path rule fails only the three collapse cases, while `phase-pair`
+// and `in-repo-file-path` depend on that rule being NARROW, not on it existing,
+// and keep passing):
+//
+//   *-collapse / sanity-bound / windows-path-rule / duration-rule
+//                       the case fails if the rule is DELETED or narrowed;
+//   *-overreach / truncation-removal
+//                       the case fails if the rule is WIDENED back to the form
+//                       this story replaced (the 200-char cut, the slash-
+//                       anchored path rule, the `\b` hex rule, the
+//                       unconditional `/\d+/g`).
+//
+// The five rule groups are the sanity bound (`truncation-removal` for dropping
+// the old 200-char cut, `sanity-bound` for retaining the 16,384 one), the path
+// rules (`path-rule-overreach` / `path-rule-collapse`, plus `windows-path-rule`),
+// the hex rule (`hex-rule-overreach` / `hex-rule-collapse`), the duration rule
+// (`duration-rule`) and the number rule (`digit-rule-overreach` /
+// `digit-rule-collapse`).
 {
   const CMD = 'story_advance';
 
@@ -274,12 +297,17 @@ const HEALTHY: BreakerCounters = {
   // Reproduced from their build sites, not invented: the volatile heartbeat age
   // is rendered by formatLeaseAge / formatLockAge as a digit run WELDED to a
   // unit letter (`45s`, `8m`, `2h`), which the standalone-number rule cannot
-  // see. Each pair below varies ONLY that age (and the holder pid where the real
-  // message carries one), so it is the same failure retried — which is exactly
-  // the runaway the breaker must catch.
+  // see. Each pair below varies ONLY that age, so it is the same failure retried
+  // — which is exactly the runaway the breaker must catch — and each case
+  // therefore localizes to the duration rule alone.
+  // F-011: `storyScopedMutating` is verbatim, not a paraphrase —
+  // formatNonOwnerError interpolates `ctx.ownershipClass`, and story_advance's
+  // real class is `storyScopedMutating` (core/command-policy.ts:152, one of the
+  // five OwnershipClass values at :66-71). The former `mutating` is not a member
+  // of that enum and never appears in a rendered message.
   const leaseNonOwner = (age: string): string => // core/story-owner-lease.ts:616-640
     `B-bf52 is owned by Proofbound session main-agent-s2s1-stable-f93ff408f3, heartbeat ${age} ago ` +
-    `(owner cwd: /Users/jek/Documents/Work/proofbound/.worktrees/B-bf52). "story_advance" is an owner-gated mutating command, ` +
+    `(owner cwd: /Users/jek/Documents/Work/proofbound/.worktrees/B-bf52). "story_advance" is an owner-gated storyScopedMutating command, ` +
     `so this session (worker-s2s1) cannot run it. The owner lease is still ACTIVE. ` +
     `Use read-only commands, wait for the owner, or rerun with --forceTakeover to seize the active lease (a deliberate human override).`;
   const activeLeaseTakeover = (age: string): string => // cli/ownership-gate.ts:301-306
@@ -300,11 +328,14 @@ const HEALTHY: BreakerCounters = {
   type GuardRule =
     | 'truncation-removal'
     | 'sanity-bound'
-    | 'path-rule'
+    | 'path-rule-overreach'
+    | 'path-rule-collapse'
     | 'windows-path-rule'
     | 'duration-rule'
-    | 'digit-rule'
-    | 'hex-rule';
+    | 'digit-rule-overreach'
+    | 'digit-rule-collapse'
+    | 'hex-rule-overreach'
+    | 'hex-rule-collapse';
   interface DigestCase { name: string; a: string; b: string; guardedBy: GuardRule }
 
   const MUST_DIFFER: DigestCase[] = [
@@ -321,43 +352,66 @@ const HEALTHY: BreakerCounters = {
       b: devGateRejection('B-d877', [GAP_RED]),
     },
     {
+      // Depends on the path rule being NARROW (token-start anchored), not on it
+      // existing: deleting the rule leaves this pair passing.
       name: 'phase-pair',
-      guardedBy: 'path-rule',
+      guardedBy: 'path-rule-overreach',
       a: 'transition refused: phase DEV/REVIEW is blocked by an unmet gate',
       b: 'transition refused: phase DEV/TEST is blocked by an unmet gate',
     },
     {
       name: 'in-repo-file-path',
-      guardedBy: 'path-rule',
+      guardedBy: 'path-rule-overreach',
       a: 'scope violation: story touched src/core/alpha.ts outside its contract',
       b: 'scope violation: story touched src/core/beta.ts outside its contract',
     },
     {
       name: 'checklist-ordinal',
-      guardedBy: 'digit-rule',
+      guardedBy: 'digit-rule-overreach',
       a: 'verification gap: missing evidence coverage for CHK-001',
       b: 'verification gap: missing evidence coverage for CHK-002',
     },
     {
       name: 'review-round-ordinal',
-      guardedBy: 'digit-rule',
+      guardedBy: 'digit-rule-overreach',
       a: 'review run binding is stale: it was recorded against round-1',
       b: 'review run binding is stale: it was recorded against round-2',
     },
     {
       name: 'story-id',
-      guardedBy: 'digit-rule',
+      guardedBy: 'digit-rule-overreach',
       a: 'gate BLOCKED: story B-bf52 has no current red evidence record',
       b: 'gate BLOCKED: story B-bf53 has no current red evidence record',
     },
     {
       // F-002: two different version REQUIREMENTS. The digits are attached to
-      // their identifier by dots, so the protection set must cover `.` as well
-      // as word chars and hyphens — otherwise both collapse to `v#.#.#`.
+      // their identifier by dots, so a dot BETWEEN digits must be protective —
+      // otherwise both collapse to `v#.#.#`.
       name: 'dotted-version-requirement',
-      guardedBy: 'digit-rule',
+      guardedBy: 'digit-rule-overreach',
       a: 'gate BLOCKED: this workspace requires lattice-cli v0.3.229 or newer',
       b: 'gate BLOCKED: this workspace requires lattice-cli v0.3.230 or newer',
+    },
+    {
+      // F-014: decimal digits are a SUBSET of hex digits, so a 7+-digit
+      // identifier suffix is eaten by the (earlier) hex rule before the number
+      // rule can protect it. These are two different workers — an epoch-suffixed
+      // id is the common real shape, and `session-1234567` vs `session-7654321`
+      // behaves identically — so collapsing them reads two distinct failures as
+      // one gate failing twice, i.e. the false freeze this story exists to kill.
+      // The 7 is the hex rule's own threshold: the same pair with a 6-digit
+      // suffix was already correct, which is why no earlier case caught this.
+      //
+      // Tagged to the hex rule because that rule alone isolates it: widening the
+      // hex rule back to `\b` fails THIS CASE AND NOTHING ELSE. Note it also
+      // fails if the NUMBER rule is widened to `/\d+/g`, so it appears in that
+      // subset too — both lookbehinds are necessary for identifier digits to
+      // survive, and neither is sufficient. That is a same-direction overlap,
+      // not the opposite-direction conflation the split tags exist to prevent.
+      name: 'identifier-attached-long-decimal',
+      guardedBy: 'hex-rule-overreach',
+      a: 'gate BLOCKED: story lease is held by worker-1721775600, heartbeat is live',
+      b: 'gate BLOCKED: story lease is held by worker-1721775601, heartbeat is live',
     },
   ];
 
@@ -378,30 +432,65 @@ const HEALTHY: BreakerCounters = {
       b: activeLeaseTakeover('13s'),
     },
     {
-      // A lock-contention pair: the holder pid is a standalone number (already
-      // collapsed), but the age is digit+unit and needs the duration rule.
+      // A lock-contention pair: the age is digit+unit and needs the duration
+      // rule. The holder pid is held CONSTANT so this case localizes to that one
+      // rule — it is the same holder retried, which is the real shape of lock
+      // contention. (Round 2 varied the pid too, which made the case depend on
+      // the number rule as well: deleting the number rule failed it, so the
+      // `duration-rule` tag over-claimed. A pid is a free-standing number and is
+      // already guarded by the digit-rule-collapse cases.)
       name: 'main-write-lock-contention',
       guardedBy: 'duration-rule',
       a: mainWriteLockHeld('8m', 48213),
-      b: mainWriteLockHeld('9m', 48297),
+      b: mainWriteLockHeld('9m', 48213),
     },
     {
       name: 'validation-lock-contention',
       guardedBy: 'duration-rule',
       a: validationLockHeld('2h', 51044),
-      b: validationLockHeld('3h', 51099),
+      b: validationLockHeld('3h', 51044),
+    },
+    {
+      // F-015: a duration that ends a sentence. The F-002 fix put `.` in the
+      // protection set, which also made a full stop protective and left `45s.`
+      // and `46s.` distinct — the same never-accumulating livelock F-007 fixed
+      // for units, re-opened for the ordinary English sentence-final form.
+      name: 'sentence-final-duration',
+      guardedBy: 'duration-rule',
+      a: 'story_advance refused: the owner lease is still ACTIVE, last heartbeat 45s.',
+      b: 'story_advance refused: the owner lease is still ACTIVE, last heartbeat 46s.',
     },
     {
       // F-003: a countdown is incidental, and its leading minus is a SIGN, not
       // the hyphen of an identifier.
       name: 'negative-counter',
-      guardedBy: 'digit-rule',
+      guardedBy: 'digit-rule-collapse',
       a: 'gate BLOCKED: retry budget -5 remaining before the gate refuses',
       b: 'gate BLOCKED: retry budget -19 remaining before the gate refuses',
     },
     {
+      // F-010: the free-standing attempt counter named by CHK-003's userSees —
+      // two attempts at the same gate, differing only in an ISO timestamp and a
+      // retry ordinal, must stay ONE key so genuine retries keep accumulating.
+      // Section 7 above asserts this same pair, but silently; this case is the
+      // one that PRINTS both literal values, which is what CHK-003 promises an
+      // operator can read off the console.
+      name: 'timestamp-and-attempt-counter',
+      guardedBy: 'digit-rule-collapse',
+      a: 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)',
+      b: 'gate BLOCKED for B-bbaf at 2026-07-14T09:59:59Z (attempt 41)',
+    },
+    {
+      // F-015, the number-rule half: the same sentence-final full stop applied
+      // to a bare counter.
+      name: 'sentence-final-counter',
+      guardedBy: 'digit-rule-collapse',
+      a: 'gate BLOCKED: retry count exceeded 5.',
+      b: 'gate BLOCKED: retry count exceeded 19.',
+    },
+    {
       name: 'machine-absolute-path',
-      guardedBy: 'path-rule',
+      guardedBy: 'path-rule-collapse',
       a: 'validation lock held at /Users/jek/Documents/Work/proofbound/.lattice/locks/validate',
       b: 'validation lock held at /private/var/folders/zz/T/lattice-abc/.lattice/locks/validate',
     },
@@ -409,7 +498,7 @@ const HEALTHY: BreakerCounters = {
       // A machine-specific root that continues into repo-relative segments must
       // be normalized in ONE match, leaving no per-host remainder behind.
       name: 'machine-path-into-repo-relative-segments',
-      guardedBy: 'path-rule',
+      guardedBy: 'path-rule-collapse',
       a: 'ENOENT reading "/Users/jek/Documents/Work/proofbound/packages/main/src/core/machine.ts"',
       b: 'ENOENT reading "/private/var/folders/zz/T/wt-9c1/packages/main/src/core/machine.ts"',
     },
@@ -417,7 +506,7 @@ const HEALTHY: BreakerCounters = {
       // F-006/F-009: a path introduced by `=` (or `:` / `,`) with no separating
       // space is still a machine-specific path.
       name: 'delimiter-attached-absolute-path',
-      guardedBy: 'path-rule',
+      guardedBy: 'path-rule-collapse',
       a: 'story lock cwd=/Users/jek/Documents/Work/proofbound/.worktrees/B-bf52 is held elsewhere',
       b: 'story lock cwd=/private/var/folders/zz/T/wt-9c1/.worktrees/B-bf52 is held elsewhere',
     },
@@ -430,10 +519,11 @@ const HEALTHY: BreakerCounters = {
       b: 'ENOENT reading "C:\\Users\\other\\proofbound\\packages\\main\\src\\core\\machine.ts"',
     },
     {
-      // Guarded by the (unchanged) 7+-hex-digit rule, NOT by the number rule:
-      // these ids collapse before the digit rules ever see them.
+      // Guarded by the 7+-hex-digit rule EXISTING, NOT by the number rule:
+      // these ids collapse before the digit rules ever see them. The opposite
+      // dependence on the same rule is `identifier-attached-long-decimal`.
       name: 'hex-id',
-      guardedBy: 'hex-rule',
+      guardedBy: 'hex-rule-collapse',
       a: 'material digest mismatch a1b2c3d4e5f6789',
       b: 'material digest mismatch f6e5d4c3b2a1987',
     },
@@ -824,4 +914,4 @@ const HEALTHY: BreakerCounters = {
   }
 }
 
-console.log('PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, B-bf52 digest matrix (8 must-differ counter=1 + 12 must-still-collapse counter=2 breaker-trips, incl. the four real lease/lock heartbeat-age messages, negative counters, windows + delimiter-attached paths and the applied sanity bound), thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block + takeover-block, no-spurious-reset, canonical-id guard rejection');
+console.log('PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, B-bf52 digest matrix (9 must-differ counter=1 + 15 must-still-collapse counter=2 breaker-trips, incl. the four real lease/lock heartbeat-age messages, identifier-attached long decimals, sentence-final counters and durations, the free-standing attempt counter, negative counters, windows + delimiter-attached paths and the applied sanity bound), thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block + takeover-block, no-spurious-reset, canonical-id guard rejection');

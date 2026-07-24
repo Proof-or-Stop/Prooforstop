@@ -48,9 +48,27 @@ roots and behaves identically on macOS and Linux. A mid-token slash (`DEV/REVIEW
 and `/tmp/...`, still collapse to one token. Measured: all eight direction cases satisfied.
 
 **Digit rule (CHK-003).** Match only a *standalone* number — not preceded or followed by a word
-character, a hyphen or a dot, with a leading sign consumed by the match. Free-standing counters
+character or a hyphen, with a leading sign consumed by the match. Free-standing counters
 (`attempt 41`, `3>=2`, `0/4 lanes`, `pid 4821`, `-19`) still collapse; identifier-embedded ordinals
-(`CHK-001`, story ids, `round-2`, dotted versions such as `v0.3.229`) survive.
+(`CHK-001`, story ids, `round-2`) survive.
+
+The dot is deliberately *not* a member of that protection set. It is protective only when it sits
+**between digits**, which two targeted lookarounds express: `(?<!\d\.)` refuses to start a match on
+the tail of a dotted numeric sequence and `(?!\.\d)` refuses to end one immediately before its
+continuation. So `v0.3.229` and `v0.3.230` stay whole — they are different version *requirements*
+(F-002) — while a period that merely ends a sentence stays plain punctuation and `exceeded 5.` and
+`exceeded 19.` collapse as the free-standing counters they are. Putting `.` in the character class
+did both jobs at once and so re-opened the F-007 under-collapse (a livelock minting a fresh key per
+retry) for every message ending a bare number or duration at a full stop; that is F-015, found in
+review round 2, and the duration rule carries the identical pair of lookarounds for the same reason.
+
+**Hex rule (F-014).** The pre-existing `0x…` / 7+-hex-digit rule runs *before* the digit rule and had
+only a bare `\b` boundary. Decimal digits are a subset of hex digits, so any identifier-attached
+decimal run of 7 or more characters — `session-1234567`, an epoch-suffixed `worker-1721775600` — was
+consumed there before the digit rule could protect it, silently breaking the CHK-003 contract above
+at exactly the point where a numeric id gets long enough to matter. The rule now carries the same
+identifier-attachment lookarounds (minus the dot, so a hash followed by a file extension still
+collapses).
 
 **This section previously asserted the opposite of the truth and that claim is retracted.** It read:
 "Confirmed no production rejection message embeds a volatile counter attached to an identifier: the
@@ -78,10 +96,12 @@ independently by cross-host codex; recorded as F-007).
 **Duration rule (F-007), the answer.** A separate rule matching a standalone number *plus a unit
 suffix* (`ms|s|m|h|d|kb|mb|gb|b`) runs immediately **before** the digit rule, so the digits are
 consumed together with their unit and the four messages above collapse again. It is deliberately
-narrow — the same protection set (`[\w.-]`) guards both ends, so `B-bf52`, `CHK-001` and `v0.3.229`
-are untouched. All four real message shapes are fixtures in the CHK-004 must-still-collapse lane,
-tagged `duration-rule`; deleting the rule fails exactly those four cases and leaves the other sixteen
-passing.
+narrow — it carries the same identifier-attachment lookarounds as the digit rule, so `B-bf52`,
+`CHK-001` and `v0.3.229` are untouched. All four real message shapes are fixtures in the CHK-004
+must-still-collapse lane, tagged `duration-rule`, alongside `sentence-final-duration` (F-015);
+deleting the rule fails exactly those five cases and leaves the other nineteen passing. Each of the
+four real-message fixtures varies **only** the age — the holder pid is held constant, so the case
+localizes to this rule alone rather than also depending on the digit rule.
 
 **Matrix (CHK-004).** The existing distinctness guard at
 packages/main/src/tasks/convergence-breaker-smoke.ts:180-182 uses `reason ALPHA` / `reason BETA` —
@@ -96,12 +116,22 @@ must-still-collapse cases assert it reaches 2 and `assessBreaker` still trips.
 The change makes the breaker fire *less* often. Left unguarded that would let a stuck agent regain an
 unbounded retry loop — the mechanism's whole purpose. F-007 is the proof that this risk is real and
 not theoretical: the first cut of the digit rule did exactly that to four live lease/lock contention
-messages. CHK-004's must-still-collapse lane is the guard: the four real lease/lock heartbeat-age
-messages, negative counters, machine-specific absolute paths (POSIX, Windows and delimiter-attached),
-hex ids and the applied sanity bound each still produce one key, accumulate to 2, and trip
-`assessBreaker`. Each of the four rule changes — sanity bound, path rules, duration rule, digit rule —
+messages, and F-015 re-opened the same class for the sentence-final form (`heartbeat 45s.`,
+`exceeded 19.`). CHK-004's must-still-collapse lane is the guard: the four real lease/lock
+heartbeat-age messages, sentence-final durations and counters, the free-standing attempt counter
+named by CHK-003 (F-010), negative counters, machine-specific absolute paths (POSIX, Windows and
+delimiter-attached), hex ids and the applied sanity bound each still produce one key, accumulate to
+2, and trip `assessBreaker`. The must-differ lane guards the opposite risk, and F-014 is now part of
+it: two identifiers whose digit suffix reaches the hex rule's 7-character threshold
+(`worker-1721775600` / `…601`) must keep separate keys.
+
+Each of the five rule groups — sanity bound, path rules, hex rule, duration rule, digit rule —
 reverted individually must fail a *named subset* of the matrix and leave the rest passing, so a
-regression localizes to the rule that caused it.
+regression localizes to the rule that caused it. A guard tag therefore names a rule *and* the
+direction of the dependence (`*-collapse` fails when the rule is deleted, `*-overreach` fails when it
+is widened back), because the two directions have opposite reverts: deleting the POSIX path rule
+fails only the three `path-rule-collapse` cases, while `phase-pair` and `in-repo-file-path` depend on
+that rule being narrow and keep passing (round-2 cross-host finding).
 
 Accepted effect, no migration: stories holding `gate-failure-counts.json` entries keyed by the old
 digest will not match the new key, so an accumulated count appears to reset. `resetGateFailureCounts`
