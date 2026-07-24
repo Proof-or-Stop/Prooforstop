@@ -218,7 +218,7 @@
       "desc": ".lattice/story/actives/B-4043/checklist.json:79 (and identically in all 16 verificationEvidence entries, e.g. lines 92,105,206,219,232,...): the note claims lattice validate was run in a provider-less environment and passed all 47 configured commands with 0 failures, and that this run is what caught the lifecycle-registry-contract and --issuer-mutations defects. Verified against the exact bound headHash (15035619f8b366c0489b2ebd8680b213284fd912, matching the top-level materialHash/storyFilesHash on every entry): lattice.config.json validate.commands at that commit has 49 entries, not 47 (git show 15035619:lattice.config.json -> len==49; live `lattice validate --json` in a fresh detached worktree at the same commit prints running 49 configured validate.command(s)). The 47 count only matches an EARLIER B-4043 commit (b8e28971d0, before merging main into the story branch); the merge (dea20debc9, an ancestor of 15035619) added exactly two more commands: node packages/main/dist/tasks/lifecycle-registry-contract.js and node packages/main/dist/tasks/gate-repeat-block-smoke.js. This is directly self-contradictory: lifecycle-registry-contract.js -- one of the two defects the note says this validate run caught -- is not even among the 47 commands the note claims were run; it only exists in the 49-command set. So the specific gate-level claim (\"a full lattice validate run... passes all 47 configured commands\") was not actually re-executed against the current head; it is stale text carried over from an earlier state of lattice.config.json, reused verbatim across all 16 evidence entries in this final re-capture round. This is exactly the self-report-trap pattern this story has been asked to guard against (F-009/F-010 history).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T18:36:15.186Z",
@@ -226,7 +226,11 @@
       "reviewRunId": "B-4043:RR-036",
       "_hash": "9824097057a2956fe483469d62832c33d1f60706fa0309783e0ea5bdbe605da0",
       "signatureTag": "missing|unknown|lattice-story-actives",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted in full; the finding is exactly right and the error was mine. The note on all 16 evidence entries said the full validate run covered 47 commands. I verified the reviewer's claim myself: the bound commit 15035619f8 carries 49 validate.commands, and my own captured log of the run I actually performed records 'running 49 configured validate' with 0 failures. So the run was real, but I wrote the count from memory of an earlier pre-merge run at b8e28971d0 instead of reading the output I had just produced. The reviewer also identified why 47 could not be true: lifecycle-registry-contract, one of the two defects that run caught, only entered the command set after the main merge, so it is absent from any 47-command state. Fixed by re-capturing all 16 entries with the verified figure of 49 and an explicit correction paragraph recording what the note previously claimed and why it was wrong. Worth stating plainly: this is a case of doing the real work and then mis-stating it, which is harder to catch than skipping the work, and it was caught only because the reviewer tested the number's internal consistency rather than accepting it.",
+      "resolvedAt": "2026-07-24T18:39:29.695Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
