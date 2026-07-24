@@ -269,7 +269,10 @@
       "_hash": "6c0c3d0065a9cf73d07a95792d2b7ca04f5ad0272ba049441c78134ffe043244",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto",
-      "resolvedAt": "2026-07-24T01:44:10.145Z"
+      "resolvedAt": "2026-07-24T02:32:31.777Z",
+      "resolvedReason": "Split by the round-4 policy, so recorded as partially mitigated rather than fixed or superseded. DURATION HALF — RETAINED AND STILL FIXED: heartbeat 45s. and 46s. collapse, the duration rule keeps its (?<!\\d\\.) and (?!\\.\\d) lookarounds, and must-still-collapse case sentence-final-duration guards it; this half has a real producer, formatLeaseAge. NUMBER HALF — SUPERSEDED: exceeded 5. and exceeded 19. no longer collapse, because honouring that requires the general free-standing-number rule that collapsed the F-020 shapes, and no producer emits a bare sentence-final ordinal into a gate rejection. The fixture is converted to must-differ case sentence-final-counter-now-distinct rather than deleted, so the re-decision is visible in the matrix. Consequence recorded honestly in plan.md section 5: the RED harness tmp/s3-red/red-s3-digest-collapse.mjs now reports 7/8 exit 1, because its K1 assertion bundles an ISO-timestamp claim (still true) with an attempt-counter claim (re-decided). K1 was NOT edited to pass; a comment above it explains why, and both halves are re-asserted separately and correctly in the smoke as iso-timestamp-only and attempt-counter-now-distinct. All five defect classes C1a, C1b, C2, C3 and C4 pass.",
+      "resolutionType": "partially_mitigated",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-016",
