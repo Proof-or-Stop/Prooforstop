@@ -286,6 +286,32 @@
         "scanEscalationReason": null
       },
       "_hash": "fabbe1cc74e781848b75571d4eb4c751dcc0d369cdc44bd77dc6cdc799a9b626"
+    },
+    {
+      "id": "B-5e4a:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 rebind: no story code/doc changed since RP-006; only merge-of-main drift (lattice.config.json picked up a sibling gate-repeat-block-smoke.js validate line, plus unrelated sibling files convergence-breaker.ts/lattice-brand.ts/gate-repeat-block-smoke.ts/package*.json that never touch this story diff). Step1 symbol extraction on git diff main...HEAD yielded 60+ internal helper symbols in lifecycle-registry-contract.ts, zero README/CLAUDE.md hits (fallback 2, no doc reference expected for private implementation names). The one doc paragraph this story touches, lifecycle-artifact-scope.md #Verification, was re-read in full and still accurately describes lifecycle-registry-contract.ts (runtime classification of the 4 acceptance-topology filenames + StoryStore write-set coverage invariant with named STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS exemption) matching the code 1:1. lifecycle-registry.ts registration comment matches the doc language. No doc-code drift introduced by the merge.",
+      "createdAt": "2026-07-24T03:08:13.327Z",
+      "reviewRound": "2026-07-24T03:04:59.168Z",
+      "reviewRunId": "B-5e4a:RR-013",
+      "envelopeId": "2ba44d9afb4cb94f224f5cd5526f543f69634a04765e7ba17a84e139928304a3",
+      "writerSessionId": "sess-f338f502db8708aa1297c4e6bf991416",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/lifecycle-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "deeab931c13013adbe7470743f5fc021e4bd00c9e40dcde175a85eb8007a2575"
     }
   ]
 }
