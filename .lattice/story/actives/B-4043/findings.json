@@ -176,7 +176,7 @@
       "desc": "checklist.json CHK-004:adversarial:fail-closed-mutations evidence entry (rebound to `node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations`) is a convenience-label mismatch, not a genuine discharge: the intent text literally enumerates missing/stale/tampered/failing receipt, degraded 3x1, forged host identity, positive waiver delta, weaker inventory, false-block, and omission-detection failures each rejected by the real gate consumer with restoration to clean PASS -- and that exact battery (the realConsumerMutations loop at proofstory-acceptance-rollout-smoke.ts:371-390, calling runAcceptanceRolloutGate on each mutated report/tampered signature/stale report, then restoring) exists ONLY in the default-mode suite, confirmed by live re-run (PASS, 57 assertions). The --issuer-mutations suite (proofstory-acceptance-rollout-smoke.ts:102-172) instead exercises substituted caller pre-review report / missing restoration commit / forged restoration commit inside issueAcceptanceRolloutObservationFromProduction -- a disjoint adversarial surface over the production evidence-issuance path, not the enforce-mode gate consumer, and none of its 7 assertions (confirmed live PASS) match any of the receipt/quorum/waiver/inventory/false-block/omission codes named in the intent. The finding_resolve note for F-008 itself concedes \"that intent enumerates rollout-gate consumer rejections (receipt/quorum/waiver/inventory/false-block/omission codes), not git-hook execution during replay\" -- correctly excluding the 7th (hook) assertion from the claim -- but then asserts the other 6 assertions discharge the intent \"on its own terms\", which is false: none of substituted-caller-report/missing-restoration-commit/forged-restoration-commit is a receipt/quorum/waiver/inventory/false-block/omission mutation, and none invoke runAcceptanceRolloutGate. Net effect of the rebind: CHK-004:adversarial:fail-closed-mutations (the only verificationEvidence entry for that intentRef) now has ZERO evidence binding for its own literal enumeration -- the realConsumerMutations loop that does discharge it remains attached only to CHK-004:happy:enforce-and-rollback and CHK-004:edge:mode-invariant-diagnostics, not the adversarial ref. This is the same convenience-labelling defect class F-008/the resolvedReason explicitly warns against (citing a prior F-010), now recurring in the fix itself.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-24T15:47:28.611Z",
@@ -184,7 +184,11 @@
       "reviewRunId": "B-4043:RR-019",
       "_hash": "939add0ea75752cd9acb242e3da193171689142ddb9f7b9326fd18d7e1006b76",
       "signatureTag": "missing|unknown|checklist-json-adversarial",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Accepted; the concept and test-coverage lanes reached this independently and both are right. My F-008 fix REPLACED rather than added, and it removed the only binding that exercised this intent's own text: the enumerated battery (receipt/quorum/waiver/inventory/false-block/omission codes rejected by the real gate consumer) is the realConsumerMutations loop calling runAcceptanceRolloutGate, which exists only in the default-mode suite, while --issuer-mutations is a mutually exclusive branch that never reaches runAcceptanceRolloutGate or deriveAcceptanceRolloutReport. In trying to avoid convenience-labelling I did something worse and broke a correct binding. Fixed by restoring CHK-004:adversarial:fail-closed-mutations to the default-mode command (verified live: exit 0, PASS 57 assertions), and by recording the issuer suite under a separate custom ref CHK-004:hardening:issuance-replay-integrity that is explicitly NOT one of the 15 frozen intents, because no frozen intent enumerates issuance-path integrity — that work came from the F-004/F-006 review findings.",
+      "resolvedAt": "2026-07-24T15:50:13.305Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-4043:F-010",
