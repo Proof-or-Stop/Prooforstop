@@ -5,9 +5,9 @@
       "title": "Register the four missing acceptance-topology artifact filenames in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES",
       "context": "packages/main/src/core/lifecycle-registry.ts line ~599. Add acceptance-basis.json, pre-review-check.json, topology-critic-receipt.json, topology-exclusion-approvals.json with a comment noting their acceptance-topology origin. Registration is provenance-only; no gate evidence semantics change. The unregistered legacy receipt-refs filename is explicitly out of scope (see scope-boundary excludedScope).",
       "userSees": "node repro: classifyLifecycleArtifact(.lattice/story/actives/B-bf52/acceptance-basis.json) returns kind=lifecycle instead of null; scope classifier output shows category=lifecycle_artifact rule=lifecycle_artifact allowed=true for the same path",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-07-24T00:26:01.087Z",
-      "endTime": null,
+      "endTime": "2026-07-24T00:26:44.821Z",
       "verificationIntent": {
         "happy": [
           {
