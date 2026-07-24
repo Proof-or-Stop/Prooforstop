@@ -165,6 +165,29 @@
         "scanEscalationReason": null
       },
       "_hash": "7f5b23c65b4a8ee63ea9f0fad95fe46294f268012f0038cdf681bb7b418cd5bd"
+    },
+    {
+      "id": "B-f824:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 incremental re-attestation (stale due to materialHash drift from RP-002). review_incremental_context confirmed the only material change since round-1 pass is commit 931085db, touching exactly packages/main/src/tasks/flow-stability-smoke.ts (impacts CHK-001/CHK-002 intent refs). git show 931085db confirms a pure typed optional-chain refactor of three assertion LHS expressions (reviewWindowSuiteExecutions access), asserted values (1, 1, 0) unchanged, no assertions added/removed. Re-ran npm --prefix packages/main run test:flow-stability-smoke: PASS. checklist_get confirms all 4 checklist items done with full must-intent coverage: CHK-001 4/4 passing, CHK-002 5/5 passing, CHK-003 3/3 passing, CHK-004 3/3 passing, 0 failing, 0 waivers. No coverage gap introduced. No blocker.",
+      "createdAt": "2026-07-24T01:53:13.268Z",
+      "reviewRound": "2026-07-24T01:43:23.466Z",
+      "reviewRunId": "B-f824:RR-008",
+      "envelopeId": "ced7c1c5ce01e0a27bfbfe2d7ce89dc427a793e9d943cf4b130e362867167064",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0cda95346b2179ddf6e789b33a7878685a40b4f393cdbcaa30a5b7201ff84853"
     }
   ]
 }
