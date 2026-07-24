@@ -24,6 +24,34 @@
         "scanEscalationReason": null
       },
       "_hash": "e1e8e6b88dc61648e7f1f2227d1a7f4477ca0e617a76e85c4714584af7791fae"
+    },
+    {
+      "id": "B-cc54:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Independently re-reproduced both fixes. F-002: reverted only the bracket regex to the old any-word pattern (rebuilt with tsc), ran gate-repeat-block-smoke.js -> clean build, exit 1, fails exactly at the F-002 assertion (4 distinct keys instead of 1 for varying plain bracketed words); restored the underscore-requiring pattern, rebuilt, re-ran -> exit 0, all 5 CHK groups PASS, git diff on convergence-breaker.ts empty after restore. Grepped every bracketed reason code actually emitted in core/machine.ts and handlers/ (missing_scope_boundary, execution_boundary, excluded_keyword, repeat_discarded_direction, scope_freeze_check family, init_check family, delivery_check family, unverified_promise, stale_closeout_review, english_artifact_cjk_authoring, etc.) -- every real reason code is multi-word snake_case, so the underscore requirement excludes none of them while excluding note/info/todo/warn-style annotations. F-003: confirmed the basis branch (JSON.stringify vs plain prefix) is byte-identical to the historical prefix-only key on the no-signal path (same variable, unconditioned by the encoding change). Verified the two new F-003 assertions are non-vacuous (prose containing literal delimiter-like text is itself picked up by the content-based extractGateBlockSignals regex, so it cannot diverge from the bracket form; same signal set under a different prefix still keys differently) -- they correctly demonstrate no working forgery exists under either encoding, matching the resolvedReason's honest no-observable-key-change claim rather than overclaiming a difference. Also ran convergence-breaker-smoke.js (unrelated pre-existing smoke) and confirmed it still PASSes, and verified gate-repeat-block-smoke.js is now wired into lattice.config.json quickValidate. Checked findings.json: F-001 through F-004 all resolved with resolutionType fixed; checklist CHK-001 through CHK-005 all done. No new findings.",
+      "createdAt": "2026-07-24T00:51:17.729Z",
+      "reviewRound": "2026-07-24T00:46:18.241Z",
+      "reviewRunId": "B-cc54:RR-005",
+      "envelopeId": "cc5e364fd1f4a2244997e2c8e830302a16ff946642cb4d0f3f274b8ae5f1e3fe",
+      "writerSessionId": "sess-8ec86660d98993dc00c4b035d686ea63",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-cc54/findings.json",
+          ".lattice/story/actives/B-cc54/red-evidence.json",
+          "lattice.config.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-cc54/background.md",
+          ".lattice/story/actives/B-cc54/checklist.json",
+          ".lattice/story/actives/B-cc54/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1cc66d330cc709bbd9e021ecf7ceee5fb33f8ab8d3be348f77a9cfd867e5940e"
     }
   ]
 }
