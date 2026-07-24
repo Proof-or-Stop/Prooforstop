@@ -639,6 +639,27 @@
         "scanEscalationReason": null
       },
       "_hash": "cfea84b7c8ff53aa65372c886cd3ac5dabfae306a30502b2af0c0b5f5c01198c"
+    },
+    {
+      "id": "B-f824:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 (final). Incremental context confirms the only story-owned change since RP-020 is scripts/verify-process-fact-contract.mjs (592304c309), fixing F-002/F-003. Verified via git show: no concept was deleted or replaced (existing checks were tightened to AST-scoped equivalents, old naive .includes check fully removed not left dead), so no residue scan applies. Cross-checked the two new helpers against their implementation targets in done-prepare.ts: hasTestEntryAnchoredComparison matches the real BinaryExpression event.timestamp >= facts.testEntryAt inside deriveDonePreparePassConvergence; hasPropertyGuardedThrowingBranch matches the IfStatement in assertDonePreparePassConvergence whose condition references unchangedSuiteExecutions and whose then-branch throws. Both helpers defined once, used exactly once at intended call sites. npm run test:process-fact-contract passes. finding_list shows F-001/F-002/F-003 all resolved, zero open blockers. No blocker.",
+      "createdAt": "2026-07-24T04:07:51.769Z",
+      "reviewRound": "2026-07-24T04:05:51.059Z",
+      "reviewRunId": "B-f824:RR-026",
+      "envelopeId": "6dee09f93251af266639745965b98b25c5b8212c89776e0621d4ea7f62bcc43a",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "41938feb3b285ed5904eb14f1b3bb9e456cd9a895a33c120608270a3ebb5e95e"
     }
   ]
 }
