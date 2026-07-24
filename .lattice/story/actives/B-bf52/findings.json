@@ -811,6 +811,21 @@
       "_hash": "11d134de3ee60c454c2c4ec9c1b68498c557815de08d85ddca106eca64fe34da",
       "signatureTag": "adversarial|unknown|convergence-breaker-accepted",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-043",
+      "desc": "convergence-breaker.ts:641-652 SUBSTANTIVE_ID_TOKEN_RE over-matches inside ordinary HYPHEN-JOINED compound words, worse than main. The docstring at 641-645 claims the leading \\b plus mandatory hyphen keep i-/f- from matching inside ordinary words, citing multi-2/anti-3/ref-012/wifi-5 as proof -- but those examples are all FUSED words (no hyphen before the letter). Any hyphen-joined compound (e.g. scenario-i-2, worker-f-3, step-sep-4, de-bug-2, over-req-3, re-chk-5 -- reproduced for all six allowlisted prefixes, not just the single-letter ones) DOES have a \\b right before the letter, since a hyphen is a non-word char, so the whole-token regex swallows it and its digit survives unnormalized. Demonstrated on the built dist: normalizeGateReason(\"step-i-2\") returns \"step-i-2\" unchanged (bare-digit rule never runs), and two DONE-gate rejections embedding raw evidence.output text (machine.ts:1190 `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`, an unbounded raw test-runner/log text source) that differ ONLY in an embedded compound-word ordinal -- .../scenario-i-2.test.ts vs .../scenario-i-5.test.ts -- digest DIFFERENTLY on this branch (story_advance/30f0b1379734 vs story_advance/671f6afcaaf4) while an equivalent computation using mains normalizer (blanket /\\d+/g digit strip, no allowlist) digests IDENTICALLY. That is exactly the regression the review bar forbids: this branch fails to collapse a genuine incidental-digit repeat that main WOULD have collapsed, so the breaker never trips on that class of retry. Not the accepted enumeration residual (this is a matching-mechanism defect, not a missing prefix).",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-24T10:47:40.102Z",
+      "reviewRound": "2026-07-24T10:14:30.812Z",
+      "reviewRunId": "B-bf52:RR-023",
+      "_hash": "7d119c140db4f3b07be1277cf8285d30a20c6d707f6a610fb04184e293c200c6",
+      "signatureTag": "edge|unknown|convergence-breaker-substantive",
+      "signatureTagSource": "auto"
     }
   ]
 }
