@@ -67,11 +67,11 @@
           "kind": "manual_transcript",
           "command": "node -e \"filter validate.commands by focus includes fast\"",
           "result": "pass",
-          "note": "Filtering post-edit validate.commands for entries whose focus array includes fast still yields the reviewer-scan-budget-guard-smoke.js entry, so the removal did not drop the smoke from the fast focus set that filterFocusedConfiguredCommands (verifier.ts:184) selects.",
-          "headHash": "5100ed634a6826bc75474d375b2db8884d15ca6e",
-          "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
-          "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
-          "timestamp": "2026-07-24T18:00:49.601Z"
+          "note": "Re-attested post-merge. Filtering current validate.commands for entries whose focus includes fast still yields the reviewer-scan-budget-guard-smoke.js entry, so the smoke remains in the fast focus set.",
+          "headHash": "3f54ab9585837cc5de9987ddd5d20a4cc9ba82b5",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:01:47.302Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
