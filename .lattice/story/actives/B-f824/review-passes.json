@@ -60,6 +60,35 @@
         "scanEscalationReason": null
       },
       "_hash": "58fb91f628d18054644e26064a73d9d53da5f7419500f707b6f75915159fc8a0"
+    },
+    {
+      "id": "B-f824:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round (unchangedSuiteExecutions field name kept, semantics split not renamed; reviewWindowSuiteExecutions is a net-new observable field). Grepped unchangedSuiteExecutions/reviewWindowSuiteExecutions across entire repo (excl node_modules/dist/.git): only 5 consumers exist and all 5 are updated consistently with the phase-anchored split -- no stale regex/assertion still expects the old unconditional whole-window-blocking line shape. Verified assertDonePreparePassConvergence deliberately excludes reviewWindowSuiteExecutions from its throw condition. Verified >= facts.testEntryAt boundary matches the same convention already used by postTestReviewerIdentityIds. Checked all 3 CHK-004-named decisions docs: only done-prepare-automation-execution-plan.md was touched (correctly, doc-of-record); the other two have zero diff and never actually contained the old unqualified-blocking sentence verbatim on main, so no residual stale claim exists in them. process-fact-registry.ts runtime:closeout_validation_terminal description remains generic and does not assert now-false unconditional-blocking semantics. Ran npm run test:process-fact-contract -> PASS. No residue found; no findings registered.",
+      "createdAt": "2026-07-24T01:14:15.917Z",
+      "reviewRound": "2026-07-24T00:58:56.071Z",
+      "reviewRunId": "B-f824:RR-001",
+      "envelopeId": "2e84a5b100687ac299c427210a7d7773bae47cd5a47aed80b292fdeef641d548",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c7cd4c1a0b83b807f3dbce1e30a6da75763b8bce5390cc2b1789eea9026dce5e"
     }
   ]
 }
