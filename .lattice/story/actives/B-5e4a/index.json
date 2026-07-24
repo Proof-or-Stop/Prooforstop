@@ -4,7 +4,7 @@
   "title": "Register acceptance-topology artifact filenames in the lifecycle scope registry",
   "description": "Every story that runs the PLAN-phase acceptance_basis_generate step hits a blocking OUT_OF_SCOPE scope violation on its own generated metadata (.lattice/story/actives/<id>/acceptance-basis.json) and must run scope_contract_acknowledge by hand to proceed. Reproduced on B-956f (2026-07-23) and B-bf52 (2026-07-24). Root cause: LATTICE_LIFECYCLE_ARTIFACT_FILENAMES in packages/main/src/core/lifecycle-registry.ts is a closed set and was never updated when the acceptance-topology work added new top-level story artifacts. Four acceptance-topology filenames written by StoryStore into story-dir top level are unregistered and classify NULL -> out_of_scope: acceptance-basis.json (writeAcceptanceBasis, live via handlers/proofstory.ts:524), pre-review-check.json (writePreReviewCheck, live), topology-critic-receipt.json (writeTopologyCriticReceipt, live), topology-exclusion-approvals.json (writeTopologyExclusionApprovals, live). One additional legacy receipt-refs filename is also unregistered but is deliberately excluded from this story (dead write path in a future-capability domain; named precisely in the scope-boundary excludedScope) and the coverage smoke exempts it explicitly. Sibling artifacts written by the same machinery (proofstory.json, red-evidence.json, intent-collision.json, original-intent-snapshot.json) classify as lifecycle_artifact and pass. Registration is provenance-only classification; gate evidence is still checked separately, so adding filenames does not weaken evidence checks. Fix: add the four filenames to the registry, plus a coverage invariant smoke that mechanically derives every top-level story artifact filename StoryStore writes and asserts each is registered or explicitly exempted, so the next new artifact cannot silently regress the same way (B-12a1 previously patched ten filenames by hand; this closes the class).",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "lifecycle-registry",
@@ -93,6 +93,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-07-24T02:10:02.005Z",
+      "branch": "story/B-5e4a",
+      "user": "Harmonygo",
+      "sessionId": "sess-f338f502db8708aa1297c4e6bf991416",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-07-24T02:23:10.952Z",
       "branch": "story/B-5e4a",
       "user": "Harmonygo",
       "sessionId": "sess-f338f502db8708aa1297c4e6bf991416",
