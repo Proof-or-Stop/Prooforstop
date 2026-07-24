@@ -7,7 +7,10 @@
     "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
     "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
     "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
-    "packages/main/src/core/process-fact-registry.ts"
+    "packages/main/src/core/process-fact-registry.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -19,10 +22,10 @@
     "packages/main/src/handlers/verifier.ts",
     "packages/main/src/core/closeout-trust.ts"
   ],
-  "scopeChangeReason": "Correctness fix bounded to the convergence derivation and its direct consumers; validation_terminal emission (verifier.ts) and receipt storage (closeout-trust.ts) are explicitly deferred to the multi-slot receipt follow-up story.",
+  "scopeChangeReason": "PLAN round 2 scope reviewer gap: the B-c163 convergence contract prose in three decisions docs must track the phase-anchored split (CHK-004 added); everything else unchanged.",
   "acknowledgements": [],
   "createdAt": "2026-07-24T00:07:50.762Z",
-  "updatedAt": "2026-07-24T00:07:50.762Z",
+  "updatedAt": "2026-07-24T00:15:35.555Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -34,6 +37,9 @@
     "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
     "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
     "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
-    "packages/main/src/core/closeout-trust.ts": "packages/main/src/core/closeout-trust.ts"
+    "packages/main/src/core/closeout-trust.ts": "packages/main/src/core/closeout-trust.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md": "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+    "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md": "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
   }
 }

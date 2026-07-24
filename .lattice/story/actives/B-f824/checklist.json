@@ -140,6 +140,65 @@
           "scripts/verify-process-fact-contract.mjs"
         ]
       }
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update the B-c163 convergence contract prose in the three decisions docs to the phase-anchored split",
+      "context": "Scope reviewer gap (PLAN round 2): the sentence repeated unchanged-suite execution ... constraints remain independently blocking is duplicated verbatim in docs/requirements/decisions/done-prepare-automation-execution-plan.md, workflow-convergence-failure-remediation-execution-plan.md, and done-prepare-heartbeat-review-assurance-ux-execution-plan.md, and after this story it would describe stale unconditionally-blocking behavior. Rewrite that contract prose in all three files so it states: unchangedSuiteExecutions blocks only on per-group duplicate executed terminals at or after the current TEST entry plus contradictory reused terminals with commandExecutions greater than zero, while reviewWindowSuiteExecutions records whole-window per-group duplicates as observable non-blocking telemetry. The done-prepare-automation doc is the doc-of-record that already documents the sibling reviewerReattestations/postTestReviewerReattestations split this story mirrors.",
+      "relatedDocs": [
+        "requirements/decisions/done-prepare-automation-execution-plan.md",
+        "requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+        "requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+      ],
+      "userSees": "rg -n \"remain independently blocking\" docs/requirements/decisions/ returns only prose consistent with the phase-anchored split, and all three updated docs name reviewWindowSuiteExecutions as observable telemetry",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All three decisions docs describe the phase-anchored split for unchangedSuiteExecutions and name reviewWindowSuiteExecutions as observable telemetry",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "rg across docs/requirements/decisions finds no remaining claim that repeated unchanged-suite execution blocks unconditionally in any phase",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "docs-drift preflight and story_review scope re-check accept the updated prose without introducing contradictions with the reviewerReattestations split documentation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-07-24T00:13:57.544Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope reviewer found the canonical decisions prose would go stale after the counting split; docs-of-record must track the implemented contract",
+      "addedTitle": "Update the B-c163 convergence contract prose in the three decisions docs to the phase-anchored split",
+      "addedContext": "Scope reviewer gap (PLAN round 2): the sentence repeated unchanged-suite execution ... constraints remain independently blocking is duplicated verbatim in docs/requirements/decisions/done-prepare-automation-execution-plan.md, workflow-convergence-failure-remediation-execution-plan.md, and done-prepare-heartbeat-review-assurance-ux-execution-plan.md, and after this story it would describe stale unconditionally-blocking behavior. Rewrite that contract prose in all three files so it states: unchangedSuiteExecutions blocks only on per-group duplicate executed terminals at or after the current TEST entry plus contradictory reused terminals with commandExecutions greater than zero, while reviewWindowSuiteExecutions records whole-window per-group duplicates as observable non-blocking telemetry. The done-prepare-automation doc is the doc-of-record that already documents the sibling reviewerReattestations/postTestReviewerReattestations split this story mirrors."
     }
   ]
 }

@@ -53,21 +53,25 @@
     {
       "id": "AB-002",
       "checklistRefs": [
-        "CHK-003"
+        "CHK-003",
+        "CHK-004"
       ],
       "verificationIntentRefs": [
         "CHK-002:happy:1",
         "CHK-002:edge:1",
         "CHK-003:happy:0",
         "CHK-003:edge:0",
-        "CHK-003:adversarial:0"
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
       ],
       "milestoneIds": [],
-      "note": "Downstream contract integrity: convergence line render/parse consistency and sibling smoke regex updates keep the whole validate suite green under the new semantics."
+      "note": "Downstream contract integrity: convergence line render/parse consistency, sibling smoke regex updates, and the B-c163 convergence contract prose in the three decisions docs all track the phase-anchored split."
     }
   ],
   "diagnosticGaps": [],
-  "note": "Wave 1 observe-only bindings for the convergence review-window split.",
+  "note": "Wave 1 observe-only bindings for the convergence review-window split; updated for CHK-004 (decisions docs prose).",
   "createdAt": "2026-07-24T00:09:58.753Z",
-  "updatedAt": "2026-07-24T00:09:58.753Z"
+  "updatedAt": "2026-07-24T00:16:11.346Z"
 }

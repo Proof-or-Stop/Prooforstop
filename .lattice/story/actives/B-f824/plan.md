@@ -86,3 +86,27 @@ reviewer re-attestation is already split (observable vs blocking, boundary =
 - No smoke asserts the observable field to 0 in scenarios where reviewer-driven
   executions are part of the fixture (they assert the blocking field instead).
 - Registry prose (if touched) describes phase-anchored split counting.
+
+## CHK-004: Update the B-c163 convergence contract prose in the three decisions docs to the phase-anchored split
+
+**Owner**: lattice-implementer
+**DependsOn**: CHK-002
+**Files**:
+- Modify: docs/requirements/decisions/done-prepare-automation-execution-plan.md,
+  docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md,
+  docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md
+
+**Verify**:
+- `rg -n "remain independently blocking" docs/requirements/decisions/` shows only prose
+  consistent with the phase-anchored split (or updated wording).
+- `rg -ln "reviewWindowSuiteExecutions" docs/requirements/decisions/` lists all three docs.
+- docs-drift preflight stays green.
+
+**DoneWhen**:
+- Each of the three docs states: `unchangedSuiteExecutions` blocks only on per-group
+  duplicate executed terminals at or after the current TEST entry plus contradictory
+  reused terminals with `commandExecutions > 0`; `reviewWindowSuiteExecutions` records
+  whole-window per-group duplicates as observable, non-blocking telemetry.
+- The rewritten prose stays consistent with the sibling
+  reviewerReattestations/postTestReviewerReattestations split documentation
+  in the same docs (no contradictions introduced).
