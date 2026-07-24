@@ -405,11 +405,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "A differential probe against a freshly built main covers 26 pairs from immutable worktree copies: zero pairs where the branch collapses what main distinguishes, zero where it distinguishes an ordinal that is not retry-stable. Every rule mutation localizes to its own tag group, and the measured-overlaps block in the suite records the table; its first draft mis-attributed two cases and was corrected against measurement before commit. Recorded by case name and guard tag, no hand-written totals, and as a WHOLE SET — partial re-recording left sibling notes self-contradicting once before (F-045/F-046/F-047).",
-          "headHash": "c40a7fe89061ae418e8c3e7d35302eefd3b06ecc",
-          "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
-          "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
-          "timestamp": "2026-07-24T12:17:43.599Z"
+          "note": "A 35-pair differential probe against a freshly built main reports zero pairs where the branch collapses what main distinguishes, zero distinctions on an ordinal that is not retry-stable, and thirteen improvements over main. A three-way probe against the pre-fix commit shows the four welded-tail shapes DIFFER there and COLLAPSE now, so the fix is red-proven, not asserted. Cost measured rather than assumed: 0.328 ms per gate rejection on a 16,384-character reason, 2.39 times main, on a path that runs once per rejection. Recorded by case name and guard tag, no hand-written totals, as a WHOLE SET against the current matrix; the command names the suite that actually demonstrates the claim.",
+          "headHash": "7fe171dde3fd63df06d165351000932bb96bf962",
+          "materialHash": "8b0c8e4289e9b824438d9eff678b27bffd2ed6f3c5781eae8c3f167355b99ac4",
+          "storyFilesHash": "6105d78916a6ed11d42dd5f31a80c51145171805ccbee6711036cb9cb0fa3a1f",
+          "timestamp": "2026-07-24T13:12:45.370Z"
         }
       ]
     }
