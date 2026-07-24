@@ -62,7 +62,7 @@
       "desc": "CHK-002:edge:0 evidence overclaims: intent names 5 call sites (checklist.ts:82, story-query.ts:568, hints.ts:70, session.ts:435, milestone-status.ts) that must exclude withdrawn from delivered counts. Cited evidence (withdrawn-disposition-smoke.ts) only exercises checklist.ts (checklist_get slim + summarizeChecklist). grep confirms story-query.ts, hints.ts, session.ts, milestone-status.ts are never touched by either smoke task, though git diff shows each carries its OWN independently modified counting/rendering implementation (duplicated, not delegating to checklist.ts summarizeChecklist). Passing the checklist.ts test does not prove correctness for the other 4 named, load-bearing sites; no test anywhere in repo touches them.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T22:12:56.704Z",
@@ -77,7 +77,11 @@
         "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
       ],
       "signatureTag": "missing|ts|edge-evidence-overclaims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "c865b13ba6: withdrawn-disposition-smoke now exercises story_list (checklist 1/2 +1w), hints decorateResult all-terminal advancement, and buildMilestoneStatusReport (withdrawn subObjective terminal, checklist=complete) with a non-terminal CONTROL differential — the previously-untested count consumers are now covered.",
+      "resolvedAt": "2026-07-24T22:38:22.900Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1909:F-005",
