@@ -48,6 +48,37 @@
         "scanEscalationReason": null
       },
       "_hash": "0cf4394c7a1062703698b4c59352256beb9bced1c65572d256bbeb8bc6a57eff"
+    },
+    {
+      "id": "B-1909:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 re-verification: read git show c865b13ba6, updated smokes, and relevant handler/core sources; built + ran both smoke npm scripts (both PASS). All 4 prior gaps (F-004/F-006/F-008/F-009) genuinely closed via real handler calls with assertions verified against actual source strings/fields; F-007 root cause also fixed in core/proofstory.ts (union + immutable decisionId) with a direct regression test. No new overclaims found. Verdict: PASS.",
+      "createdAt": "2026-07-24T22:42:02.108Z",
+      "reviewRound": "2026-07-24T21:58:22.162Z",
+      "reviewRunId": "B-1909:RR-007",
+      "envelopeId": "c56ee00d3f05ff795bba240ebcae2058de068709c8d030c594de5d558d212b09",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8a4012e9612e4015ca7d684ab27c5fdfcd97c9a159a5b765f86549186b1c019d"
     }
   ]
 }
