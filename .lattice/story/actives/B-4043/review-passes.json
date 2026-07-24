@@ -806,6 +806,39 @@
         "scanEscalationReason": null
       },
       "_hash": "ab1269eb315e1529c40a8d0ae977c73f68a6ac1dfd4ad13e99262ce98b9ea8ce"
+    },
+    {
+      "id": "B-4043:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Fresh-round re-review confirmed: diff between prior reviewed head (51484ca32f, RR-032/RP-022) and current head (45be26eefa) touches only .lattice/story/actives/B-4043/{checklist.json,findings.json,index.json,process-events.jsonl,process-metrics.json,prompt-envelopes.json,review-passes.json,review-runs.json} zero bytes changed under packages/, scripts/, docs/. checklist.json diff is exactly the 16 verificationEvidence note/headHash/timestamp fields (no command/file/result changes): each note now states 49 configured validate commands (verified against the bound headHash) plus an explicit correction paragraph noting the prior 47 figure was carried over from pre-merge commit b8e28971d0 and was self-contradictory. findings.json shows F-011 filed by lattice-review-test-coverage and resolved with a truthful first-person correction matching the story description. No second bad figure surfaced. Re-checked residue items at current head: hardenedGitArgs still wraps every git execFileSync call in acceptance-rollout.ts (8/8 sites); acceptance-rollout-report.json has exactly one entry in lifecycle-registry.ts and one artifact-descriptor entry in process-fact-registry.ts; npm run build reproduces packages/main/dist with zero git diff (not stale/neutered); scope-contract.json allowedModify list still governs the touched source paths from earlier rounds and no file outside .lattice story-metadata was touched this round, so no undeclared scope widening. No concept deletion/replacement occurred in this note-only round, so no residue grep applies. No blocker.",
+      "createdAt": "2026-07-24T19:19:27.513Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-039",
+      "envelopeId": "20b4b5bf01e2c26c45c25613554db69e5ef12903fe6666178a755eeb9dea5596",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/review-runs.json",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          ".lattice/story/actives/B-4043/process-metrics.json",
+          ".lattice/story/actives/B-4043/prompt-envelopes.json",
+          ".lattice/story/actives/B-4043/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "489f55bbc56b72372faeabe5ae1108779e454c7a9397dd8e93deaf9d260221e2"
     }
   ]
 }
