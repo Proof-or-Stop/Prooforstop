@@ -146,10 +146,26 @@
       "phase": "DEV",
       "headHash": "51e28272aa280a59261f3f612e5863469fd0754a",
       "materialHash": "d9de76b61f9381d325d9c8a0a29ff10c184250ae55c239acfe875e01e009adc9"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Registering this story's own new artifact. lifecycle-registry-contract failed with 1 divergence: StoryStore reads and writes acceptance-rollout-report.json, a top-level story artifact introduced by THIS story, but the filename was neither in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES nor in the named-exemption list, so the contract required it be registered. The edit is a single additive line placed next to its siblings acceptance-basis.json and pre-review-check.json; no existing entry is altered and no exemption is used. Verified: lifecycle-registry-contract now reports 0 divergences, and a full lattice validate run under a provider-less environment passes all 47 configured commands with 0 failures. This surfaced only under validate, not when running the smokes by hand.",
+      "timestamp": "2026-07-24T17:55:59.937Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "cf3365b7da15cd1644d95d75cb86110954ab8281",
+      "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3"
     }
   ],
   "createdAt": "2026-07-23T16:52:35.523Z",
-  "updatedAt": "2026-07-24T14:31:12.594Z",
+  "updatedAt": "2026-07-24T17:55:59.938Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -196,6 +212,7 @@
     "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
     "lattice.config.json": "lattice.config.json",
     "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json",
-    "package.json": "package.json"
+    "package.json": "package.json",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts"
   }
 }
