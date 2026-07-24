@@ -1672,6 +1672,67 @@ try {
     });
   });
 
+  check('blank storyFilesHash on committed legacy verdicts is no-signal for the drift branch', () => {
+    // CHK-002:edge:0 (OQ-1): legacy verdict events written before storyFilesHash existed carry
+    // no drift-accept claim, so the guard must not fabricate a collision from a blank field —
+    // the resubmission proceeds exactly as it did pre-fix.
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const handler = fixture.registry.get('quorum_submit')!;
+      const first: any = handler(quorumArgs());
+      assert.equal(first.emittedCount, 6);
+      const eventsPath = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+      const legacyLines = readFileSync(eventsPath, 'utf8').split('\n').map((line) => {
+        if (!line.trim()) return line;
+        const row = JSON.parse(line);
+        if (row.type === 'host_verdict') delete row.storyFilesHash;
+        return JSON.stringify(row);
+      }).join('\n');
+      writeFileSync(eventsPath, legacyLines, 'utf8');
+      git(fixture.root, ['add', '-A']);
+      git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'strip storyFilesHash to simulate legacy verdicts']);
+      commitMainDrift(fixture.root);
+      recordReviewerPasses(fixture.registry);
+      const second: any = handler(quorumArgs());
+      assert.equal(second.emittedCount, 6, 'legacy no-signal verdicts do not collide on the drift branch');
+    });
+  });
+
+  check('a second main drift does not circumvent the drift-accept refusal', () => {
+    // CHK-002:adversarial:0: merging main twice moves the material again but the story-owned
+    // diff is still untouched, so the standing quorum still drift-accepts and the guard must
+    // keep refusing.
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const handler = fixture.registry.get('quorum_submit')!;
+      handler(quorumArgs());
+      commitMainDrift(fixture.root);
+      recordReviewerPasses(fixture.registry);
+      assert.throws(() => handler(quorumArgs()), /drift-accept/i, 'first drift refuses');
+      commitMainDrift(fixture.root);
+      recordReviewerPasses(fixture.registry);
+      assert.throws(() => handler(quorumArgs()), /drift-accept/i, 'second drift still refuses');
+      assert.equal(hostVerdictEventCount(fixture.store), 6, 'still exactly the original six verdicts');
+    });
+  });
+
+  check('a story-owned file change after main drift makes the re-quorum genuine again', () => {
+    // CHK-002:adversarial:1 boundary: once the story-owned diff itself changes (storyFilesHash
+    // moves), the old verdicts no longer drift-accept and a fresh quorum is legitimate even
+    // though a main drift also happened.
+    withFreshFixture((fixture) => {
+      recordReviewerPasses(fixture.registry);
+      const handler = fixture.registry.get('quorum_submit')!;
+      const first: any = handler(quorumArgs());
+      commitMainDrift(fixture.root);
+      commitMaterialChange(fixture.root);
+      recordReviewerPasses(fixture.registry);
+      const second: any = handler(quorumArgs());
+      assert.equal(second.emittedCount, 6, 'fresh quorum allowed once storyFilesHash moves');
+      assert.notEqual(second.storyFilesHash, first.storyFilesHash, 'storyFilesHash genuinely moved');
+    });
+  });
+
   check('refuses pre-existing user dirt before writing any verdict', () => {
     withFreshFixture((fixture) => {
       recordReviewerPasses(fixture.registry);
