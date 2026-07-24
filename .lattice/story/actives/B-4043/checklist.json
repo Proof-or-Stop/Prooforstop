@@ -76,11 +76,11 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         },
         {
           "intentRef": "CHK-001:edge:mirror-mode",
@@ -89,11 +89,11 @@
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         },
         {
           "intentRef": "CHK-001:adversarial:prompt-authority",
@@ -102,11 +102,11 @@
           "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
           "command": "LATTICE_ACTIVE_STORY_ID=B-4043 LATTICE_ACCEPTANCE_ROLLOUT_COHORT_FILE=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --proof-scenarios",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         }
       ]
     },
@@ -203,11 +203,11 @@
           "file": "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
           "command": "node scripts/run-proofstory-acceptance-rollout-cohort.mjs > /tmp/b4043-cohort-r4-final.json",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         },
         {
           "intentRef": "CHK-002:edge:false-block-controls",
@@ -216,11 +216,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         },
         {
           "intentRef": "CHK-002:adversarial:seeded-defects",
@@ -229,11 +229,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         }
       ]
     },
@@ -297,11 +297,11 @@
           "file": "packages/main/src/core/acceptance-rollout.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         },
         {
           "intentRef": "CHK-003:edge:inconclusive-boundary",
@@ -310,11 +310,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         },
         {
           "intentRef": "CHK-003:adversarial:threshold-bypass",
@@ -323,11 +323,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         }
       ]
     },
@@ -393,11 +393,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         },
         {
           "intentRef": "CHK-004:edge:mode-invariant-diagnostics",
@@ -406,11 +406,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         },
         {
           "intentRef": "CHK-004:adversarial:fail-closed-mutations",
@@ -419,11 +419,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "LATTICE_ROLLOUT_COHORT_INPUT_PATH=/tmp/b4043-cohort-r4-final.json node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js",
           "result": "pass",
-          "note": "RESTORED after F-009/F-010. My F-008 fix rebound this ref to --issuer-mutations, which was wrong and two lanes independently proved it: this intent enumerates rejections by the REAL GATE CONSUMER (missing/stale/tampered/failing receipt, degraded 3x1, forged host identity, waiver delta, weaker inventory, false-block, omission-detection), and that battery is the realConsumerMutations loop calling runAcceptanceRolloutGate, which lives ONLY in the default-mode suite. --issuer-mutations is a mutually exclusive branch that never reaches runAcceptanceRolloutGate or deriveAcceptanceRolloutReport, so the rebind left this intent with zero evidence exercising its own text. The default-mode command is restored here; verified live at this head: exit 0, PASS (57 assertions).",
-          "headHash": "ede920999cbaf014f953c22af56fa0e726551533",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T15:49:51.858Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         },
         {
           "intentRef": "CHK-004:hardening:issuance-replay-integrity",
@@ -432,11 +432,11 @@
           "file": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js --issuer-mutations",
           "result": "pass",
-          "note": "Custom hardening ref, deliberately NOT one of the 15 frozen verificationIntent ids (answers F-008 without the mislabelling that caused F-009/F-010). The issuance-path hardening this binds was introduced by REVIEW findings, not by the original intent set: F-004 required the signed observation to bind replayed production facts rather than caller-supplied reports, and F-006 required the replay not to execute code from the caller-supplied evidence repository. No frozen intent enumerates issuance-path integrity, so rather than force it onto one, it is recorded under its own ref. Command verified live at this head: exit 0, PASS (7 assertions) covering substituted caller report, missing restoration commit, forged restoration commit, and the post-checkout hook regression. Enforcement is independent of this ledger entry: --issuer-mutations is registered in lattice.config.json validate.commands, confirmed gate-reachable by the quality lane.",
-          "headHash": "a2f73fa050b219b42bf73fcef25ee5b7e052b9e9",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T15:49:53.017Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         }
       ]
     },
@@ -502,11 +502,11 @@
           "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         },
         {
           "intentRef": "CHK-005:edge:authority-and-exclusions",
@@ -515,11 +515,11 @@
           "file": "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         },
         {
           "intentRef": "CHK-005:adversarial:no-status-overclaim",
@@ -528,11 +528,11 @@
           "file": "scripts/verify-process-fact-contract.mjs",
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
-          "note": "Re-captured at the final code state, after the F-006 git hardening and F-007 gate registration. Every command was actually re-run at this head, not re-stamped: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 emitting the 23 scenario records (17 mutation, 5 positive, 1 transcript); proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); the --issuer-mutations mode exit 0 PASS (7 assertions, including the new post-checkout hook regression). acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none, regenerated after the code froze.",
-          "headHash": "1c2409b8b307ee8a64567829c807e966c23e1f94",
-          "materialHash": "1ffed9952d690ede3967ed902ab59e2f811c73ea8c055e1397e5be97ac18d106",
-          "storyFilesHash": "a080679b91e0ad6de38e4160a3a3d54dba7fedb18365cfd7ecb7dd7421e63873",
-          "timestamp": "2026-07-24T14:58:01.772Z"
+          "note": "Re-captured at the final code state, after registering acceptance-rollout-report.json in the lifecycle registry and pinning the session host provider in the pre-review fixture. Every command was actually re-run at this head: verify-process-fact-contract.mjs exit 0; run-proofstory-acceptance-rollout-cohort.mjs exit 0; pre-review-check-smoke --proof-scenarios exit 0 with the 23 scenario records; proofstory-acceptance-rollout-smoke exit 0 PASS (57 assertions); --issuer-mutations exit 0 PASS (7 assertions). Crucially this round the whole suite was also proven under `lattice validate`: a full run in a provider-less environment passes all 47 configured commands with 0 failures, which is what caught two defects that running the smokes by hand had hidden. acceptance_rollout_check is PASS promotionEligible=true receipt=current codes=none.",
+          "headHash": "15035619f8b366c0489b2ebd8680b213284fd912",
+          "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+          "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+          "timestamp": "2026-07-24T18:01:06.098Z"
         }
       ]
     }
