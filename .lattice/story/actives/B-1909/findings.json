@@ -180,7 +180,7 @@
       "desc": "CHK-003:happy:0 partial gap: intent requires buildScopeShrinkageDecision to persist evidenceRefs (in addition to decisionId/withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs) and scope_shrinkage_decision_get to return them. evidenceRefs is a real optional field on BuildScopeShrinkageDecisionArgs/ScopeShrinkageDecisionData (core/proofstory.ts ~1306,1328,1367) but is never passed as an arg nor asserted in either smoke (grep evidenceRefs across both smoke files: zero hits). The evidence note is honest about what it does test (does not claim evidenceRefs) but the must-intent is only partially covered. Low severity because evidenceRefs is optional audit-only metadata with no gating consumer.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T22:13:40.557Z",
@@ -192,7 +192,11 @@
         "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-partial-intent",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "c865b13ba6: floor smoke passes evidenceRefs:[B-bf52:F-062] and asserts scope_shrinkage_decision_get returns them.",
+      "resolvedAt": "2026-07-24T22:38:32.225Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
