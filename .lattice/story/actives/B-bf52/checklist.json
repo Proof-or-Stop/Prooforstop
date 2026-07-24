@@ -172,11 +172,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'must-differ in-repo-file-path [guard: path-rule-overreach]' asserts two files under a shared first segment give keys=2 counter=1 breaker=proceed.",
-          "headHash": "c71e4a9c482ca459d04897c42f8db7b539e2941b",
-          "materialHash": "1af14fb2ac5e5281132b81e8b2c2c266b0aec1673f6911c1108b21676547800c",
-          "storyFilesHash": "92e7fa3e31df6b732cfdafe7c0a8c27e33bb60bbbadcd3eb6f5a17b077f58948",
-          "timestamp": "2026-07-24T03:29:48.659Z"
+          "note": "Case 'must-differ in-repo-file-path [guard: path-rule-overreach]' asserts two files under a shared first segment digest differently. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
+          "headHash": "192e4aa12fe6bf01aa0717551e368a38e5c97394",
+          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
+          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
+          "timestamp": "2026-07-24T10:15:45.866Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
