@@ -984,6 +984,23 @@
       "resolvedAt": "2026-07-24T13:11:42.310Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-bf52:F-052",
+      "desc": "cross-host (codex-cli host-B) and verified worse than main: the optional qualifier accepts ANY label, not only a story id, so a raw test-output token such as timeout:bug-2 versus timeout:bug-5 inside a real Cannot enter DONE rejection is protected as if it were an artifact id and the two digest differently, while main collapses them. It also falsifies the source comment claiming the whole-token shape structurally cannot protect a non-id. Root cause is mine: the qualifier was added to rescue the composite storyId:F-NNN render and is itself an unbounded enumeration inside a form whose entire justification was having no enumeration to leak. Main-agent-validated fix, 35 direction cases: DELETE the qualifier outright. A token is then protected only when, after stripping wrapping punctuation, it IS an artifact id, with zero interior structure. Cost, symmetric and honest: every colon-joined composite now ties with main rather than beating it — the prefix form storyId:F-NNN, the suffix form CHK-001:happy:0 already accepted as verification-intent-ref-lane-suffix, and the forged form timeout:bug-2. Bare ids in every real delimiter position stay protected.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T13:19:00.831Z",
+      "reviewRound": "2026-07-24T13:11:36.910Z",
+      "_hash": "dedca293a81e6c0eff5e1412175f102e0ba63cf9b9403cedd5aab04f20eda08d",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "signatureTag": "edge|ts|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
