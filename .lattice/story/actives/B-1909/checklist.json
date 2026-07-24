@@ -65,6 +65,18 @@
           "materialHash": "e10e2caf4e96ebb45d0bf8164a5dcff6a509103143dda3978ee99f3c98f30326",
           "storyFilesHash": "0d0b66187ce444b6837df05f33b1b67e7dbacb60572492a2dde3f3687cd014fb",
           "timestamp": "2026-07-24T21:37:29.154Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/withdrawn-disposition-smoke.ts",
+          "command": "node packages/main/dist/tasks/withdrawn-disposition-smoke.js",
+          "result": "pass",
+          "note": "Direct checklist_update status=withdrawn throws matching /scope_shrinkage_decision_set/ and the item stays done (no write).",
+          "headHash": "28b29d94db152ecdde863ea866d6eb4c14f5a221",
+          "materialHash": "e10e2caf4e96ebb45d0bf8164a5dcff6a509103143dda3978ee99f3c98f30326",
+          "storyFilesHash": "0d0b66187ce444b6837df05f33b1b67e7dbacb60572492a2dde3f3687cd014fb",
+          "timestamp": "2026-07-24T21:37:33.566Z"
         }
       ]
     },
