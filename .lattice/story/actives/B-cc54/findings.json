@@ -123,7 +123,7 @@
       "desc": "packages/main/src/tasks/gate-repeat-block-smoke.ts lines 312-355: the four F-002/F-003 regression assertions added inside chk004() (\"F-002: ordinary bracketed words must not widen the key\", \"F-002: such a loop must still reach the trip threshold\", \"F-002: genuine reason codes must remain distinguishable\", \"F-003: prose mentioning a signal token carries that signal...\", \"F-003: the same signal set under a different prefix must key differently\") carry no CHK-xxx:lane:n intentRef and have no corresponding entry in any checklist item verificationIntent (grepped checklist.json for F-002/F-003/underscore/bracket: zero hits). I independently verified both are meaningful, non-tautological regression guards -- reverting the bracket regex to accept any lowercase bracketed word reproduces exactly the F-002 assertion failure (4 !== 1), and the F-003 assertions correctly exercise the bare-word signal-extraction path vs the bracket path and the prefix/signal encoding boundary. But because they are orphan assertions with no verificationIntent backing, this review lane (and any future one) cannot track or protect them from silent deletion, and they are invisible to the intent/evidence coverage ledger entirely. Recommend adding a short intent ref (e.g. under CHK-002 or a new CHK-006) so F-002/F-003 stay in the coverage ledger.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-07-24T01:12:39.121Z",
@@ -134,7 +134,11 @@
         "packages/main/src/tasks/gate-repeat-block-smoke.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The four regression assertions are now labelled with the intent refs they genuinely discharge — CHK-002:adversarial:2 for desirable-collision preservation (ordinary bracketed words are simply another token class of that intent), CHK-002:happy:0 for key separation, CHK-004:happy:0 for the threshold — so they are visible to the coverage ledger. New intents were deliberately NOT fabricated: verificationIntent is frozen from DEV, and verification_intent_repair is an explicit legacy backfill, not a licence to invent intent after the fact.",
+      "resolvedAt": "2026-07-24T01:27:35.398Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
