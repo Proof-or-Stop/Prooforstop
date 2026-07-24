@@ -1025,6 +1025,23 @@
       "resolvedAt": "2026-07-24T14:13:54.374Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-bf52:F-054",
+      "desc": "cross-host (codex-cli host-B) and verified worse than main: the unconditional trailing sentence-punctuation strip manufactures an id from a non-id. In a real Cannot enter DONE rejection carrying raw TAP output, not ok 1 - bug-2: reproducer still red versus the bug-5: sibling digest differently on the branch and collapse on main, because the strip turns the arbitrary subtest name bug-2: into bug-2. It also falsifies the source comment claiming the reduction cannot turn a non-id into an id. This is the SEVENTH leak and all seven are in the same place: the reduction step. Enumerating safer punctuation does not close it — the same manufacture works with a trailing comma in a list of test names. Main-agent-validated fixed point, 23 direction cases: remove the reduction ENTIRELY. A token is protected only when the whitespace-delimited token IS EXACTLY an artifact id. With no reduction there is no way to manufacture one. Bounded, honest cost: only BARE ids beat main; wrapped, comma-listed and sentence-final ids now tie with main rather than beating it.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T14:20:45.309Z",
+      "reviewRound": "2026-07-24T14:13:41.739Z",
+      "_hash": "2edaf523e4db848feb220fe66e81be249da74da997974b4004080cabd873b999",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts"
+      ],
+      "signatureTag": "edge|ts|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
