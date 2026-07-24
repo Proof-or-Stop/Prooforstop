@@ -231,6 +231,26 @@
       "resolvedAt": "2026-07-24T18:39:29.695Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4043:F-012",
+      "desc": ".lattice/story/actives/B-4043/scope-contract.json:152 (DEV-phase scope-acknowledgement entry, timestamp 2026-07-24T17:55:59.937Z, actor main-agent, describing the lifecycle-registry.ts registration): repeats verbatim the same false claim F-011 already found and resolved elsewhere in this story -- \"a full lattice validate run under a provider-less environment passes all 47 configured commands with 0 failures\" -- for the identical event (registering acceptance-rollout-report.json in lifecycle-registry.ts / clearing the lifecycle-registry-contract divergence). The F-011 fix round re-captured all 16 checklist.json verificationEvidence notes with the corrected figure (49) plus an explicit correction paragraph, and findings.json:F-011 records the resolution, but scope-contract.json itself was never touched (git diff 51484ca32f..45be26eefa -- .lattice/story/actives/B-4043/scope-contract.json is empty) and still asserts the same self-contradictory count: lifecycle-registry-contract only entered the validate set after the main merge, so it cannot be among any 47-command run, exactly as F-011 already established. The story's written record therefore still contains an uncorrected instance of the same misstatement about what that validate run covered, alongside the one place (checklist.json) where it was fixed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-07-24T19:18:32.057Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-038",
+      "_hash": "fdf44c13a54d5e19f89015189019c2c300d296ec0502820554d8581bada4bb1b",
+      "files": [
+        ".lattice/story/actives/B-4043/scope-contract.json",
+        ".lattice/story/actives/B-4043/findings.json",
+        ".lattice/story/actives/B-4043/checklist.json"
+      ],
+      "signatureTag": "missing|json|lattice-story-actives",
+      "signatureTagSource": "auto"
     }
   ]
 }
