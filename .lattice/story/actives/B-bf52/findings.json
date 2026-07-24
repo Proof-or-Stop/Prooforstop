@@ -270,6 +270,21 @@
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-24T01:44:10.145Z"
+    },
+    {
+      "id": "B-bf52:F-016",
+      "desc": "packages/main/src/core/convergence-breaker.ts:556 vs :588/:612 — the round-3 F-014 fix gave the hex rule identifier-attachment lookarounds (?<![\\w-])...(?![\\w-]) but NOT the dot-adjacency lookarounds (?<!\\d\\.)/(?!\\.\\d) that the round-3 F-015 fix gave the duration rule (:588) and number rule (:612). Since the hex rule runs first and decimal digits are a subset of hex digits, a FREE-STANDING (non-identifier-attached) decimal number or duration whose integer part is >=7 digits gets its integer part eaten by the hex rule alone, before the duration/number rule ever sees the full digits+fraction (or digits+unit) shape as one token — splitting one logical value into two # tokens instead of one. This makes the normalized SHAPE depend on whether the integer part crosses the hex rule's 7-digit threshold, so two otherwise-identical incidental-noise messages straddling that boundary fail to collapse into the same digest. Verified empirically against the freshly rebuilt dist (packages/main/dist/core/convergence-breaker.js) at HEAD 68f2fabbe9 (round-3 commit ba2ac008e5): gateFailureDigest(\"story_advance\",\"heartbeat 123456.5ms ago\") !== gateFailureDigest(\"story_advance\",\"heartbeat 1234567.5ms ago\") (DISTINCT — both are pure wall-clock noise per the duration rule's own stated purpose and should collapse), while gateFailureDigest of two 7+-digit fractional durations against EACH OTHER, and two <7-digit fractional durations against EACH OTHER, both correctly COLLAPSE — isolating the defect to exactly the digit-count-crossing case. Same effect on the plain number rule: \"attempt 41.5 failed\" vs \"attempt 1234567.5 failed\" is DISTINCT. This is the identical failure class F-007/F-015 were filed to fix (a genuine retry sequence silently mints a fresh key and the repeat counter never reaches 2, so assessBreaker never trips gate-repeat for that pair) but for the newly-introduced hex/duration-number lookaround asymmetry, and none of the 24 CHK-004 matrix cases exercise a free-standing decimal with a >=7-digit integer part (the only hex-adjacent must-differ case, identifier-attached-long-decimal, is hyphen-attached with no fractional dot). Fix: give the hex rule the same (?<!\\d\\.)/(?!\\.\\d) lookarounds as the duration/number rules, or otherwise ensure it does not consume a digit run immediately followed by .digit.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T01:57:09.792Z",
+      "reviewRound": "2026-07-24T01:43:51.293Z",
+      "reviewRunId": "B-bf52:RR-014",
+      "_hash": "c5c1bb2be45c78db7f53baeea7ada90ef82de2af8dba948bf92ca5fa03adc2e5",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
