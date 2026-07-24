@@ -1144,7 +1144,7 @@
       "desc": "checklist.json CHK-003 userSees (frozen field) still says: \"a rejection naming CHK-001 and one naming CHK-002 digest differently\". As of round 15 (finding F-058) this is literally false: packages/main/src/tasks/convergence-breaker-smoke.ts:816-820 has that exact pair (\"CHK-001\" vs \"CHK-002\") as matrix case 'checklist-ordinal', tagged guardedBy digit-rule-collapse, in the MUST_COLLAPSE lane -- i.e. the smoke now prints a passing check that they digest IDENTICALLY, the opposite of what userSees promises. Verified directly: node packages/main/dist/tasks/convergence-breaker-smoke.js prints \"must-still-collapse checklist-ordinal ... keys=1 counter=2 breaker=trips -> the two values DIGEST IDENTICALLY\" for exactly this pair. This is a recurrence, not a new class: finding F-027 (round 4, resolved 2026-07-24T03:30Z) caught the identical userSees clause being false against round-4's (later-reverted) design and recommended the userSees field be updated; between round 5 (F-026) and round 14 the free-standing-number-rule reversal happened to make the clause literally true again by coincidence, then round 15 (F-058, resolved 2026-07-24T16:08Z, ~12h after F-027 was closed) deleted the identifier-recognition rule for good, making the clause false again -- and the userSees field was never revisited after that second reversal. The second clause of the same userSees sentence (\"two attempts differing only in a free-standing counter still digest identically\") IS currently true (bare-attempt-ordinal collapses, verified) and needs no change. Fix: update CHK-003.userSees to describe the round-15 outcome -- e.g. that CHK-001-vs-CHK-002 (and any other artifact ordinal) now digests IDENTICALLY alongside bare counters, both for the documented reason that recognising one is textually indistinguishable from recognising the other (F-058) -- rather than asserting the withdrawn behavior as current fact.",
       "severity": "medium",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-24T17:33:56.423Z",
@@ -1152,7 +1152,9 @@
       "reviewRunId": "B-bf52:RR-033",
       "_hash": "e558ed270180cc7b9bd57e7fadc95a7d9906b3b2567a23b174cf844d317a926f",
       "signatureTag": "happy|unknown|checklist-json-usersees",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T17:35:52.599Z",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-bf52:F-061",
