@@ -256,7 +256,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:568 and :581 -- the widened [\\w.-] protection set added by this round (F-002/F-007) makes the duration rules and the number rules trailing lookahead (?![\\w.-]) treat a literal sentence-ending period (no preceding space) as a protected identifier character, so a standalone counter or duration immediately followed by . fails to normalize. Verified against the built module: gateFailureDigest(cmd,Retry count exceeded 5.) !== gateFailureDigest(cmd,Retry count exceeded 19.) (DISTINCT -- should collapse, both are free-standing counters differing only in incidental value) and the same holds for the duration rule (heartbeat 45s. vs heartbeat 46s. stay DISTINCT while heartbeat 45s  vs heartbeat 46s  with a trailing space correctly COLLAPSE). This contradicts the functions own documented contract (:521-526, STANDALONE numbers only... -> #, with no punctuation caveat) and CHK-003s edge-case intent (free-standing counters... still produce one digest key, so genuine retries of one failure keep accumulating). It reintroduces the same under-collapse class that F-007 fixed for units (a livelock that never accumulates because every retry mints a fresh key), for any rejection message that happens to end a bare number/duration right before a period with no separating space -- a common English sentence-final construction. Not covered by the smoke matrix: the closest fixture (negative-counter, MUST_COLLAPSE) uses -5 remaining before the gate refuses (trailing space), never a trailing period.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T00:58:41.672Z",
@@ -264,7 +264,8 @@
       "reviewRunId": "B-bf52:RR-009",
       "_hash": "6c0c3d0065a9cf73d07a95792d2b7ca04f5ad0272ba049441c78134ffe043244",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T01:44:10.145Z"
     }
   ]
 }
