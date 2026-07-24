@@ -88,7 +88,7 @@ function unsignedReceipt(receipt: AcceptanceRolloutReceiptV1): Omit<AcceptanceRo
 }
 
 function gitCommonDir(gitCwd: string): string {
-  const raw = execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'rev-parse', '--git-common-dir'], { cwd: gitCwd, encoding: 'utf8' }).trim();
+  const raw = execFileSync('git', hardenedGitArgs(['rev-parse', '--git-common-dir']), { cwd: gitCwd, encoding: 'utf8' }).trim();
   return isAbsolute(raw) ? raw : resolve(gitCwd, raw);
 }
 
@@ -190,15 +190,25 @@ const GIT_UNTRUSTED_REPO_ARGS = [
   '-c', 'diff.external=',
 ];
 
+/**
+ * Prepend the hardening to a git argument list. Call sites keep their literal
+ * subcommand array (`['cat-file', '-e', ...]`) so the process-fact contract can
+ * still see which git verbs this module relies on, while every invocation is
+ * hardened in one place.
+ */
+function hardenedGitArgs(args: readonly string[]): string[] {
+  return [...GIT_UNTRUSTED_REPO_ARGS, ...args];
+}
+
 function gitOutput(cwd: string, args: string[]): string {
-  return execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, ...args], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  return execFileSync('git', hardenedGitArgs(args), { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 }
 
 function assertCommitExists(cwd: string, commitSha: string, label: string): void {
   if (!/^[a-f0-9]{40}$/.test(commitSha)) {
     throw new Error(`acceptance rollout observation: ${label} commit is missing or malformed`);
   }
-  execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'cat-file', '-e', `${commitSha}^{commit}`], {
+  execFileSync('git', hardenedGitArgs(['cat-file', '-e', `${commitSha}^{commit}`]), {
     cwd,
     stdio: ['ignore', 'ignore', 'pipe'],
   });
@@ -206,7 +216,7 @@ function assertCommitExists(cwd: string, commitSha: string, label: string): void
 
 function assertAncestor(cwd: string, ancestor: string, descendant: string, label: string): void {
   try {
-    execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'merge-base', '--is-ancestor', ancestor, descendant], {
+    execFileSync('git', hardenedGitArgs(['merge-base', '--is-ancestor', ancestor, descendant]), {
       cwd,
       stdio: ['ignore', 'ignore', 'pipe'],
     });
@@ -221,7 +231,7 @@ function replayProductionGateState(args: {
   storyId: string;
   commitSha: string;
 }): { topologyReport: Record<string, unknown>; preReviewReport: Record<string, unknown> } {
-  execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'checkout', '--quiet', '--force', '-B', `story/${args.storyId}`, args.commitSha], {
+  execFileSync('git', hardenedGitArgs(['checkout', '--quiet', '--force', '-B', `story/${args.storyId}`, args.commitSha]), {
     cwd: args.evidenceGitCwd,
     stdio: ['ignore', 'ignore', 'pipe'],
   });
@@ -336,7 +346,7 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
       commitSha: evidence.restorationCommitSha,
     });
   } finally {
-    execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'checkout', '--quiet', '--force', '-B', originalBranch, originalHead], {
+    execFileSync('git', hardenedGitArgs(['checkout', '--quiet', '--force', '-B', originalBranch, originalHead]), {
       cwd: args.evidenceGitCwd,
       stdio: ['ignore', 'ignore', 'pipe'],
     });
@@ -349,7 +359,7 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
     throw new Error('acceptance rollout observation: restored control did not rerun PASS');
   }
   const storyPath = `.lattice/story/actives/${args.storyId}/process-events.jsonl`;
-  const committedEvents = execFileSync('git', [...GIT_UNTRUSTED_REPO_ARGS, 'show', `${quorum.metadataCommitSha}:${storyPath}`], {
+  const committedEvents = execFileSync('git', hardenedGitArgs(['show', `${quorum.metadataCommitSha}:${storyPath}`]), {
     cwd: args.evidenceGitCwd,
     encoding: 'utf8',
   }).trim().split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line) as Record<string, unknown>);
