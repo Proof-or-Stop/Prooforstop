@@ -145,6 +145,43 @@
         "scanEscalationReason": null
       },
       "_hash": "c2198de4f9d6fb9b284dd64d68bf661ee8df68d5383e37cd703efe8f729160ed"
+    },
+    {
+      "id": "B-bf52:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion residual scan for the F-058 withdrawal (commit 280a5440b4, measured from an immutable git worktree add --detach copy; packages/ and docs/ are byte-identical between that commit and current HEAD 7c2b91b781, confirmed via git diff). Concepts withdrawn: SUBSTANTIVE_ID_PREFIXES / listSubstantiveIdPrefixes / buildSubstantiveIdRe / SUBSTANTIVE_ID_RE, the placeholder encode/decode (TOKEN_PLACEHOLDER_ALPHABET/TOKEN_SENTINEL*/encodeTokenIndex/decodeTokenIndex), protectSubstantiveIds (whole-token walk), the punctuation-strip/balanced-wrapper history, the doubled-prefix lookahead, the colon-composite qualifier, and the bidirectional completeness guard (smoke.ts section 7c). Repo-wide grep (packages/, docs/, .lattice/, lattice.config.json, package.json, templates/agents/) for every identifier and for prose terms (whole-token, balanced-wrapper, doubled-prefix, bidirectional completeness guard, substantive-id, placeholder) finds zero live code/export/import references and zero doc/comment describing the apparatus as present-tense current behavior. All surviving hits are inside convergence-breaker.ts/convergence-breaker-smoke.ts/red-s3-differential-probe.mjs retrospective comment blocks explicitly headed as retirement history (e.g. THE ROUND-15 RETIREMENT REGISTER), plus historical findings.json/review-passes.json ledger entries recording past rounds — both are the disclosed/expected historical-retrospective case, not current-state claims. Guard tags: the live GuardRule union in convergence-breaker-smoke.ts has exactly 8 members (path-rule-overreach, path-rule-collapse, prefix-window-residual, digit-rule-collapse, iso-or-digit-rule-collapse, hex-rule-collapse, signals-conditional-prefix, signals-fold), all declared and all used on the 21 live matrix cases (5 must-differ + 16 must-still-collapse); none of the 11 retired tags (substantive-id-allowlist, allowlist-boundedness, substantive-id-token-head-exact, substantive-id-token-tail-exact, substantive-id-pure-ordinal-body, substantive-id-no-reduction, substantive-id-colon-composite-cost, retired-prefix-not-allowlisted, review-bookkeeping-not-allowlisted, pinned-behaviour-documentation, and the section-7c completeness-guard label itself) appear as an active guardedBy value or an orphaned declaration. Exports of convergence-breaker.ts checked directly: no listSubstantiveIdPrefixes or other apparatus export remains, and no other src file imports one. Story artifacts under .lattice/story/actives/B-bf52/ checked (checklist.json, plan.md, background.md, proofstory.json, scope-shrinkage-decision.json, scope-check.json, understanding.json, original-intent-snapshot.json, intent-collision.json, red-evidence.json, review.json): all current (non-findings-ledger) artifacts correctly state the withdrawal, with the one disclosed exception already recorded by the story as partially_mitigated (F-062): proofstory.json AB-003 still asserts identifier-embedded ordinals stay distinct, because proofstory_contract_set is PLAN-only per command-policy.ts:420 and cannot be corrected from REVIEW — not re-filed per instruction. No other story artifact found making a current claim the code no longer supports (the C3/C4 label swap between background.md and scope-check.json vs plan.md is a pre-existing cosmetic INIT-vs-plan naming inconsistency already surfaced non-blocking by a prior reviewer in review-passes.json, and is unrelated to the substantive-id apparatus withdrawal). Empirically re-verified from the live worktree (byte-identical src to the immutable copy): npm run test:convergence-breaker PASS (5 must-differ + 16 must-still-collapse, matrix banner matches source), red-s3-digest-collapse.mjs 10/10 PASS, red-s3-differential-probe.mjs PASS (BAR 3 4/4, SKIPs cleanly with no comparison build). No blocker.",
+      "createdAt": "2026-07-24T18:25:41.727Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-038",
+      "envelopeId": "2a7a6f2925be922efc3d3abb7e0b9a83fe73f292810ad7666aebcc136ad25113",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/findings.json",
+          ".lattice/story/actives/B-bf52/index.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/proofstory.json",
+          ".lattice/story/actives/B-bf52/scope-shrinkage-decision.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf52/review-passes.json",
+          ".lattice/story/actives/B-bf52/scope-check.json",
+          "docs/",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2da144136547fa362ae90d0e705233530ff8f7ad7f9f7e13b9b2f0d395369c4e"
     }
   ]
 }
