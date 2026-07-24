@@ -79,6 +79,38 @@
         "scanEscalationReason": null
       },
       "_hash": "8a4012e9612e4015ca7d684ab27c5fdfcd97c9a159a5b765f86549186b1c019d"
+    },
+    {
+      "id": "B-1909:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh-round re-bind after main-merge convergence (post RP-003). Reconfirmed packages/main/src/tasks/withdrawn-disposition-smoke.ts and scope-shrinkage-withdrawal-floor-smoke.ts are byte-identical to the previously-approved commit c865b13ba6 (git diff empty); rebuilt and ran both npm run test:withdrawn-disposition-smoke and npm run test:scope-shrinkage-withdrawal-floor-smoke, both PASS. All prior findings F-004/F-006/F-007/F-008/F-009 remain resolved with genuine, independently-verified fixes. Verdict: PASS.",
+      "createdAt": "2026-07-24T23:17:05.137Z",
+      "reviewRound": "2026-07-24T23:16:02.119Z",
+      "reviewRunId": "B-1909:RR-011",
+      "envelopeId": "0bef59d7161896994e2ee84063e79d382be0d9287e72bcf40fef9cc88eed491b",
+      "writerSessionId": "sess-32e2f7886094f22396339aaa9709bfa6",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/milestone-status.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/hints.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/session.ts",
+          "packages/main/src/handlers/story-query.ts",
+          "packages/main/src/tasks/scope-shrinkage-withdrawal-floor-smoke.ts",
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "packages/main/src/core/checklist-status.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "599863d19ec6df5308733bff3f5877e2ac85605d42e7c189dad32ef6c9c8fd44"
     }
   ]
 }
