@@ -62,7 +62,7 @@
       "desc": "packages/main/src/core/convergence-breaker.ts:463-468 — the function's top JSDoc still states the error message is \"normalized to strip volatile tokens (hashes, ids, timestamps, bare numbers, paths)\" unqualified. This is now inaccurate: CHK-002 narrowed path-stripping to token-start absolute paths only (relative repo paths and mid-token slashes like DEV/REVIEW are deliberately left untouched), and CHK-003 narrowed number-stripping to standalone numbers only (identifier-attached digits like CHK-001 are deliberately preserved). A maintainer reading only this doc comment would believe ALL paths and ALL bare numbers are still stripped, which is precisely the kind of doc/implementation mismatch this story's own root cause (an over-broad implementation vs. a narrower intended contract) illustrates. The doc comment should name the narrower rule (token-start absolute paths; standalone digit runs) so a future edit does not re-widen the regex believing it is restoring documented behavior.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T00:00:21.357Z",
@@ -70,7 +70,11 @@
       "reviewRunId": "B-bf52:RR-002",
       "_hash": "d2c228e4190a55babc38da9986edc6f783286c522afe0b43e8f4e483f3212fcb",
       "signatureTag": "missing|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The gateFailureDigest JSDoc was rewritten from the unqualified 'bare numbers, paths' claim to a per-rule description of what the normalizer actually does: hex/0x/ISO tokens; absolute paths ONLY at a token start (POSIX and Windows) with relative repo paths and mid-token slashes explicitly named as deliberately untouched; durations/sizes with a unit suffix; and standalone numbers only, with identifier-attached digits (CHK-001, B-bf52, round-2, v0.3.229) explicitly named as deliberately preserved. It also states that widening re-introduces the false freeze and that narrowing the duration/number rule re-introduces the livelock, and points at the smoke as the case-by-case guard. The retained sanity bound got its own exported doc comment.",
+      "resolvedAt": "2026-07-24T00:33:30.796Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-bf52:F-005",
