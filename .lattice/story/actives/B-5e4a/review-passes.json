@@ -149,6 +149,31 @@
         "scanEscalationReason": null
       },
       "_hash": "00afb28256836eb70610b88fa19cf7d96c588946b78a0b14f831522252f45474"
+    },
+    {
+      "id": "B-5e4a:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Incremental re-review (RR-010) of fix commits e3b2af8743 + f99744a8b7 (lifecycle-registry.ts + lifecycle-registry-contract.ts). No new exported symbols; renamed/added functions (isStoreHelperParameter -> isEnclosingCallableParameter, ACCEPTANCE_TOPOLOGY_ARTIFACT_FILENAMES -> CLASSIFICATION_CROSS_CHECK_FILENAMES) are module-private. lifecycle-artifact-scope.md #Verification bullet describing the coverage invariant generically (derived from core/store.ts, registered-or-exempted, named divergence) remains accurate for the extended two-pass derivation. Grepped README*.md/CLAUDE.md/docs/**/*.md for isStoreHelperParameter, ACCEPTANCE_TOPOLOGY_ARTIFACT_FILENAMES, STORYSTORE_DERIVED_SET_FLOOR: zero hits outside source. No blocker.",
+      "createdAt": "2026-07-24T02:12:29.061Z",
+      "reviewRound": "2026-07-24T02:10:02.005Z",
+      "reviewRunId": "B-5e4a:RR-010",
+      "envelopeId": "b857582bc78aa53ea60db494a673ef69bdb16809eb860bfa055b53c872ee644e",
+      "writerSessionId": "sess-f338f502db8708aa1297c4e6bf991416",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-5e4a/plan.md",
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "52e2785a2075981e058c5c3ea724a5328ff5cdd6e9290f60856ec52202f6e9aa"
     }
   ]
 }
