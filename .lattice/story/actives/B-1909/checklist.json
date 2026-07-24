@@ -84,9 +84,9 @@
       "id": "CHK-002",
       "title": "Make every done consumer treat withdrawn as terminal but not delivered",
       "context": "24 sites match status === 'done' under packages/main/src/core and handlers. Load-bearing ones: core/machine.ts:355 DEV to REVIEW every-item-done gate, core/artifact-contract.ts:133, handlers/checklist.ts:82 counts, handlers/story-query.ts:568, handlers/hints.ts:70, handlers/session.ts:435, core/milestone-status.ts:456,560. Withdrawn must satisfy 'no longer outstanding' for phase advancement while never incrementing delivered or completed-success counts, and must render as WITHDRAWN, never as DONE, in checklist_get, story_get, session_brief and any export.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-24T21:44:45.987Z",
       "verificationIntent": {
         "happy": [
           {
