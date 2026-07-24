@@ -391,13 +391,13 @@
           "intentRef": "CHK-004:edge:1",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
-          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "B-cc54's suite is byte-unmodified (git diff main on that path is empty) and exits 0. The completeness guard is BIDIRECTIONAL — it names an UNCLASSIFIED prefix when a scanned producer has no entry, and a NO PRODUCER entry when a declared prefix has none — so enumeration drift is caught by the suite rather than by the next review round. Recorded by case name and guard tag, no hand-written totals, and as a WHOLE SET — partial re-recording left sibling notes self-contradicting once before (F-045/F-046/F-047).",
-          "headHash": "94da693df76eef10c67a4db5f10974bfb8d566d4",
+          "note": "Case coverage in this suite: the pre-existing assertions still pass alongside the matrix, including the reset-clears-counter case, and the section-7c completeness guard is BIDIRECTIONAL — it names an UNCLASSIFIED prefix when a scanned producer has no entry, and a NO PRODUCER entry when a declared prefix has none, so enumeration drift is caught by the suite rather than by the next review round. Command rebound after F-050: those claims live in this suite. The separate B-cc54 boundary claim is verified by its own command, 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' exiting 0 with 'git diff main -- packages/main/src/tasks/gate-repeat-block-smoke.ts' empty, reported by every reviewer lane this round.",
+          "headHash": "d4864129ca35d3a9217a919a416600dd1cb5f3b2",
           "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
           "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
-          "timestamp": "2026-07-24T12:17:41.868Z"
+          "timestamp": "2026-07-24T12:35:45.229Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
