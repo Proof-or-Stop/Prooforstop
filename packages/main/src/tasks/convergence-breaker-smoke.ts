@@ -290,6 +290,11 @@ const HEALTHY: BreakerCounters = {
 //   substantive-id-allowlist the case fails if the rule is reverted to the WIDER
 //                            form main has — the slash-anywhere path rule, or
 //                            `/\d+/g` with no allowlist;
+//   substantive-id-token-start-overstrict
+//                            the case fails if the token-start assertion is
+//                            NARROWED (delimiters dropped from its class), and is
+//                            the inverse revert of `substantive-id-token-start`
+//                            on the same leading guard;
 //   allowlist-boundedness    the case fails if the allowlist GROWS past the
 //                            lifecycle-artifact vocabulary (adding `b-` is the
 //                            concrete mistake it stops), and is the inverse
@@ -314,6 +319,33 @@ const HEALTHY: BreakerCounters = {
 //                             and `signal-less-long-rejection`;
 //   ISO rule deleted ALONE    fails NOTHING (it is redundant with the digit rule
 //                             for a pure-digit timestamp — see `iso-timestamp-only`);
+//   the EXACT pre-F-048 regex
+//   (`(?<![\w-])` leading guard
+//   AND no lookahead)         fails exactly `embedded-test-output-slash-joined-names`
+//                             and `embedded-test-output-doubled-prefix` — the two
+//                             cases added in round 9, and nothing else. That is
+//                             the F-048 red proof;
+//   leading guard ALONE
+//   reverted to `(?<![\w-])`  fails exactly `embedded-test-output-slash-joined-names`.
+//                             NOT the doubled-prefix case, because the
+//                             `(?!(?:<stems>)-)` lookahead still rejects
+//                             `BUG-BUG-2` on its own. The two halves of the F-048
+//                             fix are therefore separately pinned, which is why
+//                             the row above and this one differ;
+//   doubled-prefix lookahead
+//   DROPPED alone             fails exactly `embedded-test-output-doubled-prefix`
+//                             — the other half;
+//   leading guard reverted
+//   to `\b`                   fails BOTH of those AND
+//                             `embedded-test-output-hyphen-compounds` (F-043);
+//   token-start class
+//   NARROWED to `^|\s`        fails exactly
+//                             `open-blocking-finding-delimiter-attached-id`, the
+//                             over-strict direction;
+//   trailing `\b` DROPPED     fails exactly
+//                             `embedded-test-output-digit-letter-tail` — and
+//                             before that case existed it failed NOTHING, which
+//                             is why it exists;
 //   allowlist EMPTIED         fails the four substantive-id must-differ cases
 //                             (`checklist-ordinal`, `finding-ordinal`,
 //                             `unfixed-bug-ordinal`,
@@ -458,6 +490,67 @@ let digestMatrixSummary = '';
     `  at: tests/red/scenario-${fOrd}.test.ts:41:7`,
   ].join('\n');
 
+  // ── The same DONE rejection, two shapes the NEGATIVE guard still admitted ───
+  // F-048, cross-host codex round 9, and the reason the leading guard is now a
+  // POSITIVE token-start assertion. `(?<![\w-])` enumerated the characters that
+  // must not precede an allowlisted stem, and an enumeration only ever covers
+  // what it lists:
+  //
+  //   (a) a SLASH is neither a word character nor a hyphen, so `scenario/bug-2`
+  //       walked straight through the lookbehind and was protected as an id;
+  //   (b) the whole-token match begins at the FIRST allowlisted prefix it finds,
+  //       so a DOUBLED prefix — `BUG-BUG-2` — satisfied the lookbehind at the head
+  //       of the token and was protected too.
+  //
+  // Neither is an artifact id, and main collapses both (it rewrites every ordinal
+  // to `#`), so both were strictly WORSE THAN MAIN — the one direction this story
+  // is not allowed to be. Slash-separated test names are routine in failed-test
+  // output, which core/machine.ts:1190 embeds RAW into `Cannot enter DONE: test
+  // ${evidence.result}: ${evidence.output}`, so the same underlying failure minted
+  // a fresh key on every retry and evaded the brake entirely.
+  //
+  // Both fixtures use that same real producer and vary ONLY the embedded ordinal.
+  const doneTestFailureSlashName = (ord: string): string => [
+    'Cannot enter DONE: test FAIL: # tests 2',
+    '# pass 0',
+    '# fail 2',
+    `not ok 1 - scenario/bug-${ord} still red`,
+    `not ok 2 - suite/req-${ord} binding`,
+    `  at: tests/red/scenario/bug-${ord}.test.ts:41:7`,
+  ].join('\n');
+
+  const doneTestFailureDoubledPrefix = (ord: string): string => [
+    'Cannot enter DONE: test FAIL: # tests 1',
+    '# pass 0',
+    '# fail 1',
+    `not ok 1 - BUG-BUG-${ord} reproducer still red`,
+  ].join('\n');
+
+  // The TOKEN-END half of the same guard, same producer. `bug-2x` starts at a
+  // real token start and carries an allowlisted prefix, so only the TRAILING
+  // `\b` stops the ordinal being protected as though the whole label were an id.
+  // Measured: with the trailing `\b` removed, nothing else in this matrix
+  // noticed — so the claim that it is load-bearing had no case behind it, and
+  // this is that case. Same worse-than-main direction as the two above.
+  const doneTestFailureDigitLetterTail = (ord: string): string => [
+    'Cannot enter DONE: test FAIL: # tests 1',
+    '# pass 0',
+    '# fail 1',
+    `not ok 1 - bug-${ord}x reproducer still red`,
+  ].join('\n');
+
+  // ── The real REVIEW→TEST open-blocking-finding rejection (F-048, inverse) ──
+  // core/machine.ts:753 renders `${blocking.length} open blocking finding(s):
+  // ${id} [${severity}] ${desc}` and core/machine.ts:1181 wraps it as
+  // `Cannot enter TEST: ${message} [${code}]`. handlers/finding.ts:552 mints the
+  // id as `${storyId}:F-${NNN}`, so a finding id reaches the digest COLON-
+  // ATTACHED, with no whitespace in front of it — which is exactly the shape the
+  // new POSITIVE token-start assertion has to keep admitting. Everything except
+  // the finding ordinal is held constant so the case isolates that one position.
+  const openBlockingFinding = (findingOrdinal: string): string =>
+    `Cannot enter TEST: 1 open blocking finding(s): B-bf52:${findingOrdinal} [high] ` +
+    `the leading guard on the substantive-id token admits a non-id [review_finding_blocking]`;
+
   // ── The real INIT_CHECK reviewer-issue rejection (F-034, and the F-033 pair) ─
   // core/machine.ts:1042-1046, composed as it renders. `${issue.id}` is the
   // reviewer's self-assigned id, whose declared shape is `I-1` (the init_check_set
@@ -567,14 +660,38 @@ let digestMatrixSummary = '';
     // though `sep-` is allowlisted. The simple-id cases above do NOT fail under
     // that revert, which is why this tag is separate from the allowlist tag.
     | 'substantive-id-whole-token'
-    // F-043: fails if the leading guard on SUBSTANTIVE_ID_TOKEN_RE is reverted
-    // from `(?<![\w-])` to `\b` — the revert under which a HYPHEN-JOINED compound
-    // such as `de-bug-2` keeps a protected-looking tail, because the hyphen is
-    // itself a non-word character and so CREATES the boundary `\b` asks for. It
-    // is the one direction in which this story was measurably WORSE than main
-    // (main collapses those compounds), and it is separate from the whole-token
-    // tag: prefix-before-digits and `\b`-vs-`(?<![\w-])` are different reverts.
+    // F-043 / F-048: fails if the leading guard on SUBSTANTIVE_ID_TOKEN_RE is
+    // weakened from the POSITIVE token-start assertion back to either NEGATIVE
+    // form. Under `\b`, a HYPHEN-JOINED compound such as `de-bug-2` keeps a
+    // protected-looking tail, because the hyphen is itself a non-word character
+    // and so CREATES the boundary `\b` asks for. Under `(?<![\w-])`, a SLASH-
+    // JOINED name (`scenario/bug-2`) and a DOUBLED prefix (`BUG-BUG-2`) do the
+    // same, because a slash is neither a word character nor a hyphen and the
+    // whole-token match starts at the FIRST allowlisted prefix it finds. All
+    // three are directions in which this story was measurably WORSE than main
+    // (main collapses every one of them), and all three are separate from the
+    // whole-token tag: prefix-before-digits and the leading-guard family are
+    // different reverts.
     | 'substantive-id-token-start'
+    // F-048, the INVERSE direction on the SAME rule, and the new guard's own
+    // risk: a POSITIVE assertion can be too STRICT as easily as a negative one
+    // was too loose. Narrow the token-start class to `^|\s` — dropping the
+    // opening delimiters — and a real, colon-attached finding id
+    // (`B-bf52:F-012`, minted by handlers/finding.ts:552 and rendered by
+    // core/machine.ts:753) stops being protected, so two genuinely different
+    // blocking findings collapse onto one key and a story that fixes one and is
+    // then blocked by the next reads as a repeat. This tag is to
+    // `substantive-id-token-start` what `path-rule-overreach` is to
+    // `path-rule-collapse`.
+    | 'substantive-id-token-start-overstrict'
+    // F-048, the TOKEN-END half of the same whole-token guard. Fails if the
+    // TRAILING `\b` on SUBSTANTIVE_ID_TOKEN_RE is dropped, under which a
+    // digits-then-letter tail (`bug-2x`) is protected as though the whole label
+    // were an artifact id. Separate from the token-start tags because it is a
+    // separate mutation: measurement showed that removing the trailing `\b`
+    // failed NOTHING in this matrix, so the claim that it was load-bearing had no
+    // case behind it until this one.
+    | 'substantive-id-token-end'
     | 'allowlist-boundedness'
     // F-033, the ACCEPTED residual: fails if the 200-character prefix cut on the
     // signals branch is WIDENED. It is the direction B-cc54's
@@ -722,6 +839,25 @@ let digestMatrixSummary = '';
       a: PROOFSTORY_COLLISION_GAP,
       b: PROOFSTORY_RED_GAP,
     },
+    {
+      // F-048, the OVER-STRICT direction on the new positive token-start
+      // assertion. The real REVIEW→TEST rejection (core/machine.ts:753 wrapped by
+      // :1181) names the blocking finding by the id handlers/finding.ts:552 mints
+      // as `${storyId}:F-${NNN}`, so the ordinal arrives COLON-ATTACHED with no
+      // whitespace before it. Resolving F-012 and then being blocked by F-013 is a
+      // reviewer round making progress, not one gate failing twice.
+      //
+      // It is here because the fix for F-048 replaced a NEGATIVE leading guard
+      // with a POSITIVE one, and a positive assertion fails in the opposite
+      // direction: anchor it at `^|\s` alone and this real id loses its
+      // protection. The two collapse-lane token-start cases pin the loose
+      // direction; this pins the strict one, so the delimiter class cannot drift
+      // either way unnoticed.
+      name: 'open-blocking-finding-delimiter-attached-id',
+      guardedBy: 'substantive-id-token-start-overstrict',
+      a: openBlockingFinding('F-012'),
+      b: openBlockingFinding('F-013'),
+    },
   ];
 
   const MUST_COLLAPSE: DigestCase[] = [
@@ -852,6 +988,58 @@ let digestMatrixSummary = '';
       guardedBy: 'substantive-id-token-start',
       a: doneTestFailure('f-2', 'bug-2', 'req-3'),
       b: doneTestFailure('f-5', 'bug-7', 'req-9'),
+    },
+    {
+      // F-048 (a), the SLASH-JOINED shape, and the one that made the leak
+      // routine rather than theoretical. Same producer as the case above —
+      // core/machine.ts:1190 embeds RAW test output — but the ordinal is welded
+      // into a PATH SEGMENT (`scenario/bug-2`, `suite/req-2`,
+      // `tests/red/scenario/bug-2.test.ts`). A slash is neither a word character
+      // nor a hyphen, so `(?<![\w-])` admitted every one of them and two runs of
+      // the SAME failing suite keyed apart on nothing but the embedded number;
+      // main collapses them. Slash-separated test names are ordinary output, so
+      // this was the shape most likely to be hit in practice.
+      //
+      // Fails the moment the leading guard is weakened from the positive
+      // token-start assertion back to `(?<![\w-])` (or to `\b`).
+      name: 'embedded-test-output-slash-joined-names',
+      guardedBy: 'substantive-id-token-start',
+      a: doneTestFailureSlashName('2'),
+      b: doneTestFailureSlashName('5'),
+    },
+    {
+      // F-048 (b), the DOUBLED-PREFIX shape. Same producer again. The whole-token
+      // match begins at the FIRST allowlisted prefix it finds, so `BUG-BUG-2`
+      // presented an allowlisted stem at a position the negative lookbehind was
+      // happy with and the label was protected as though the whole thing were an
+      // artifact id. It is not one — no producer mints `BUG-BUG-N` — and main
+      // collapses it, so this was the same worse-than-main direction reached by a
+      // different route, which is why it needs its own case rather than riding on
+      // the slash one.
+      //
+      // Fails the moment the `(?!(?:<stems>)-)` lookahead is dropped or the
+      // leading guard is weakened back to `(?<![\w-])`.
+      name: 'embedded-test-output-doubled-prefix',
+      guardedBy: 'substantive-id-token-start',
+      a: doneTestFailureDoubledPrefix('2'),
+      b: doneTestFailureDoubledPrefix('5'),
+    },
+    {
+      // F-048, the TOKEN-END half. Same producer again. `bug-2x` clears the
+      // token-START assertion honestly — it begins at a real token start with a
+      // real allowlisted prefix — so the only thing between it and being
+      // protected as an artifact id is the TRAILING `\b`, which refuses a match
+      // that would stop mid-token at a digit followed by a letter.
+      //
+      // It is here because mutation testing said it had to be: removing the
+      // trailing `\b` failed NOTHING in this matrix, so a comment in
+      // core/convergence-breaker.ts calling it load-bearing was an unbacked
+      // claim. It is backed now. Fails the moment the trailing `\b` is dropped,
+      // and nothing else in this matrix does.
+      name: 'embedded-test-output-digit-letter-tail',
+      guardedBy: 'substantive-id-token-end',
+      a: doneTestFailureDigitLetterTail('2'),
+      b: doneTestFailureDigitLetterTail('5'),
     },
     {
       // F-033, the ACCEPTED residual, pinned in its own direction.

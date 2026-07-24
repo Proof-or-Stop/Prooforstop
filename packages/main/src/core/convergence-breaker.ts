@@ -662,22 +662,54 @@ export function listSubstantiveIdPrefixes(): string[] {
  *
  * Built FROM the set so the two cannot drift apart.
  *
- * THE LEADING GUARD IS `(?<![\w-])`, NOT `\b` (F-043, review round 8). A word
- * boundary keeps the short members (`f-`, `req-`) from matching inside ordinary
- * words — `ref-012` and `wifi-5` have a word character before the stem, so no
- * boundary exists there — but it does NOT protect HYPHEN-JOINED compounds,
- * because a hyphen is itself a non-word character and therefore CREATES the very
- * boundary `\b` is looking for. Under `\b`, `scenario-f-2` / `scenario-f-5`,
- * `de-bug-2` / `de-bug-7` and `over-req-3` / `over-req-9` each kept an
- * ALLOWLISTED-looking tail and stayed distinct, which is strictly worse than
- * main: main rewrites every ordinal to `#` and collapses all three. The reachable
- * path is core/machine.ts:1190, `Cannot enter DONE: test ${evidence.result}:
- * ${evidence.output}`, which embeds raw test output — so a repeated test failure
- * whose only difference was such an embedded ordinal (a numbered test-case name,
- * a debug label) minted a fresh key on every retry and the brake never tripped.
- * Requiring that the stem be preceded by neither a word character NOR a hyphen
- * means only a token that STARTS with an allowlisted prefix is protected, which
- * is what "whole token" was supposed to mean all along.
+ * THE LEADING GUARD IS A POSITIVE TOKEN-START ASSERTION, NOT `\b` AND NOT
+ * `(?<![\w-])` (F-043 round 8, then F-048 round 9). Both earlier guards were
+ * NEGATIVE — they named characters that must NOT precede the stem — and a
+ * negative guard is only ever as good as the enumeration behind it, so each
+ * revision left a different set of characters silently admitting a non-id.
+ *
+ * `\b` was the first: a word boundary keeps the short members (`f-`, `req-`) out
+ * of ordinary words — `ref-012` and `wifi-5` have a word character before the
+ * stem, so no boundary exists there — but it does NOT protect HYPHEN-JOINED
+ * compounds, because a hyphen is itself a non-word character and therefore
+ * CREATES the very boundary `\b` is looking for. Under `\b`, `scenario-f-2` /
+ * `scenario-f-5`, `de-bug-2` / `de-bug-7` and `over-req-3` / `over-req-9` each
+ * kept an ALLOWLISTED-looking tail and stayed distinct.
+ *
+ * `(?<![\w-])` closed those two characters and no more. A SLASH is neither a word
+ * character nor a hyphen, so `scenario/bug-2` and `scenario/bug-5` walked
+ * straight through it and stayed distinct; and because the whole-token match
+ * begins at the FIRST allowlisted prefix it finds, `BUG-BUG-2` and `BUG-BUG-5`
+ * did too, the doubled prefix satisfying the lookbehind at the head of the token.
+ *
+ * Both leaks are strictly WORSE THAN MAIN, which rewrites every ordinal to `#`
+ * and collapses all of these. The reachable path is core/machine.ts, `Cannot
+ * enter DONE: test ${evidence.result}: ${evidence.output}`, which embeds raw test
+ * output — and slash-separated test names are routine in failed-test output, so
+ * the same underlying failure minted a fresh key on every retry and evaded the
+ * brake entirely.
+ *
+ * The guard is therefore stated POSITIVELY, which is what the enumeration should
+ * have been all along: a genuine artifact id appears at the START of the reason,
+ * or after WHITESPACE, or after an OPENING DELIMITER (quote, paren, bracket,
+ * comma, colon) — it is never welded into a path segment or into another label —
+ * and it never IMMEDIATELY REPEATS another artifact prefix, which is what the
+ * `(?!(?:<stems>)-)` lookahead rejects. Anything else is prose or third-party
+ * text and must normalize away like any other ordinal.
+ *
+ * The residual runs in the SAFE direction: a real id introduced by some
+ * character outside that delimiter set (`id=CHK-001`, say) is not protected and
+ * its ordinal collapses, which makes the breaker fire EARLIER — never later, and
+ * never worse than main, which collapses it too.
+ *
+ * The TRAILING `\b` is kept, and deliberately: it is what stops a digits-then-
+ * letter tail such as `bug-2x` / `bug-5x` from being protected as though the
+ * whole thing were an id — the same worse-than-main direction as above, reached
+ * from the other end of the token. That claim was UNBACKED when first written
+ * (removing the trailing `\b` failed nothing in the suite), so the
+ * `embedded-test-output-digit-letter-tail` case in
+ * tasks/convergence-breaker-smoke.ts was added to back it and is now the standing
+ * guard on this half.
  *
  * EMPTY-ALLOWLIST SAFETY (F-041). If the set is ever emptied, the alternation
  * body is the empty string and `(?:)` matches EVERYWHERE, so the pattern degrades
@@ -693,7 +725,11 @@ function buildSubstantiveIdTokenRe(prefixes: Iterable<string>): RegExp {
     .filter((s) => s.length > 0)
     .sort((a, b) => b.length - a.length || a.localeCompare(b));
   if (stems.length === 0) return /(?!)/g;
-  return new RegExp(`(?<![\\w-])(?:${stems.join('|')})-[a-z0-9-]*\\d\\b`, 'g');
+  const alt = stems.join('|');
+  // Token START, stated positively: string start, whitespace, or an opening
+  // delimiter — then an allowlisted prefix that does NOT immediately repeat
+  // another allowlisted prefix.
+  return new RegExp(`(?:^|(?<=[\\s"'(\\[,:]))(?:${alt})-(?!(?:${alt})-)[a-z0-9-]*\\d\\b`, 'g');
 }
 const SUBSTANTIVE_ID_TOKEN_RE = buildSubstantiveIdTokenRe(SUBSTANTIVE_ID_PREFIXES);
 
