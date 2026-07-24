@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-f824",
+  "sourceText": "In proofbound, done_prepare convergence invariant (done-prepare.ts:1595-1625, assertDonePreparePassConvergence :1628) counts validation_terminal events in the [last REVIEW-entry to now] window grouped by (commandSetHash, materialHash, storyFilesHash): more than one executed terminal per group hard-fails DONE with convergence invariant failed {unchangedSuiteExecutions:1,...}. Observed on B-956f closing (2026-07-23): two REVIEW-round reviewer lanes each legitimately ran lattice validate --story on the unchanged merged tree (independent verification is the review policy), plus done_prepare own internal re-execution, poisoning the window permanently - the only recovery is bouncing to a fresh REVIEW round with strict no-lane-may-execute-the-suite discipline, which contradicts the reviewers independent-verification mandate. Design a fix as a proper Lattice story: e.g. (a) count only executions ATTRIBUTED to the closeout path (done_prepare/done_required_validate writers), not reviewer-attributed validates; or (b) make reviewer validates prefer reuse-with-receipt; or (c) allow N-per-lane executions within a review window. Reproduce first with the flow-stability-smoke patterns (it already asserts this invariant at flow-stability-smoke.ts:4593,4666). Follow-up user confirmation: proceed until fully resolved and DONE.",
+  "normalizedOutcome": "A story closing whose REVIEW window contains legitimate reviewer-driven validate executions on unchanged material reaches DONE prepare: PASS without a ceremony re-review bounce, while duplicate closeout-side suite executions and contradictory reused terminals still hard-fail the convergence invariant.",
+  "acceptanceClaim": "Replaying the B-956f-shaped window (pre-TEST reviewer executed terminals plus one post-TEST closeout executed duplicate in the same identity group) through deriveDonePreparePassConvergence and assertDonePreparePassConvergence does not throw, and a window with two post-TEST executed duplicates in one group still throws done_prepare convergence invariant failed.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:8b57d9b8b6ca106783b2083ea1714177a58815e62496d73cea175ca267944b19",
+  "createdAt": "2026-07-24T00:06:24.183Z",
+  "updatedAt": "2026-07-24T00:06:24.183Z"
+}
