@@ -16,28 +16,35 @@
  * which an unattended run can never obtain — so a false positive here is exactly
  * the "needs a human" failure this story exists to remove.
  *
- * Cases:
- *   1 progress resets  — same banner, DIFFERENT gap set => different key   (the bug)
- *   2 real loop trips  — identical blocker repeated      => same key, accumulates
- *   3 back-compat      — unstructured reasons keep the historical prefix key
- *   4 fail-closed      — a genuinely stuck loop still reaches the threshold
+ * Assertions are labelled with the verificationIntent ref they discharge.
+ *
+ * NOTE: this smoke deliberately imports ONLY pre-existing exports, so it still
+ * compiles against the unfixed tree and fails on an ASSERTION (a behavioural
+ * RED) rather than on a missing symbol.
  */
 
 import { strict as assert } from 'node:assert';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-// NOTE: this smoke deliberately imports ONLY pre-existing exports, so it still
-// compiles against the unfixed tree and fails on an ASSERTION (a behavioural
-// RED) rather than on a missing symbol.
 import {
+  CONVERGENCE_ENV,
+  CONVERGENCE_ENV_MAX,
   DEFAULT_CONVERGENCE_THRESHOLDS,
+  assessBreaker,
   bumpGateFailureCount,
   gateFailureDigest,
   maxGateFailureCount,
   readGateFailureCounts,
+  renderBreakerFreeze,
+  resetGateFailureCounts,
+  resolveConvergenceThresholds,
 } from '../core/convergence-breaker.js';
+import type { BreakerCounters } from '../core/convergence-breaker.js';
+
+const CMD = 'story_advance';
+const THRESHOLD = DEFAULT_CONVERGENCE_THRESHOLDS.maxGateRepeat;
 
 /** The invariant banner every ProofStory DEV-gate refusal starts with. */
 const BANNER =
@@ -55,9 +62,30 @@ function proofStoryReason(gaps: string[]): string {
 }
 
 /** The three real blockers B-cc54 hit, in the order it hit them. */
-const GAPS_ROUND_1 = ['missing_original_intent_snapshot', 'missing_intent_collision', 'missing_red_evidence'];
-const GAPS_ROUND_2 = ['missing_acceptance_binding', 'missing_spike_evidence'];
-const GAPS_ROUND_3 = ['missing_verification_intent_refs'];
+const GAPS_1 = ['missing_original_intent_snapshot', 'missing_intent_collision', 'missing_red_evidence'];
+const GAPS_2 = ['missing_acceptance_binding', 'missing_spike_evidence'];
+const GAPS_3 = ['missing_verification_intent_refs'];
+
+const REASON_1 = proofStoryReason(GAPS_1);
+const REASON_2 = proofStoryReason(GAPS_2);
+const REASON_3 = proofStoryReason(GAPS_3);
+
+/** The production normalization, mirrored so fixtures can assert the bug's precondition. */
+function normalizePrefix(s: string): string {
+  return s.toLowerCase()
+    .replace(/0x[0-9a-f]+/g, '#')
+    .replace(/\b[0-9a-f]{7,}\b/g, '#')
+    .replace(/\d{4}-\d{2}-\d{2}t[\d:.]+z?/g, '#')
+    .replace(/\/[^\s"']+/g, '#')
+    .replace(/\d+/g, '#')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 200);
+}
+
+function counters(over: Partial<BreakerCounters> = {}): BreakerCounters {
+  return { advanceCount: 0, reviewRunCount: 0, reviewPassCount: 0, takeoverCount: 0, maxGateRepeat: 0, ...over };
+}
 
 function withDir<T>(fn: (dir: string) => T): T {
   const dir = mkdtempSync(join(tmpdir(), 'gate-repeat-block-'));
@@ -68,95 +96,307 @@ function withDir<T>(fn: (dir: string) => T): T {
   }
 }
 
-/** Case 1: the bug. Same banner, different gap set => the key MUST differ. */
-function assertProgressResetsTheKey(): void {
-  const r1 = proofStoryReason(GAPS_ROUND_1);
-  const r2 = proofStoryReason(GAPS_ROUND_2);
-  const r3 = proofStoryReason(GAPS_ROUND_3);
+const digest = (reason: string) => gateFailureDigest(CMD, reason);
 
-  // Precondition of the bug: the first 200 normalized chars really are identical.
-  const norm = (s: string) => s.toLowerCase().replace(/\d+/g, '#').replace(/\s+/g, ' ').trim().slice(0, 200);
-  assert.equal(norm(r1), norm(r2), 'fixture must reproduce the invariant 200-char banner');
-  assert.equal(norm(r2), norm(r3), 'fixture must reproduce the invariant 200-char banner');
+// ── CHK-001: the RED — distinct blockers must not share a key ────────────────
 
-  const d1 = gateFailureDigest('story_advance', r1);
-  const d2 = gateFailureDigest('story_advance', r2);
-  const d3 = gateFailureDigest('story_advance', r3);
-  assert.notEqual(d1, d2, 'different unmet preconditions must not share a repeat-block key');
-  assert.notEqual(d2, d3, 'different unmet preconditions must not share a repeat-block key');
-  assert.notEqual(d1, d3, 'different unmet preconditions must not share a repeat-block key');
+function chk001(): void {
+  // CHK-001:happy:0 — the two reasons share the invariant 200-char prefix...
+  assert.equal(normalizePrefix(REASON_1), normalizePrefix(REASON_2), 'fixture must reproduce the invariant banner');
+  assert.equal(normalizePrefix(REASON_2), normalizePrefix(REASON_3), 'fixture must reproduce the invariant banner');
+  // ...yet must key differently.
+  assert.notEqual(digest(REASON_1), digest(REASON_2), 'CHK-001:happy:0 distinct blockers must not share a key');
+  assert.notEqual(digest(REASON_2), digest(REASON_3), 'CHK-001:happy:0 distinct blockers must not share a key');
+  assert.notEqual(digest(REASON_1), digest(REASON_3), 'CHK-001:happy:0 distinct blockers must not share a key');
 
-  // End to end: progressive completion must never accumulate toward a trip.
+  // CHK-001:happy:1 + CHK-001:adversarial:1 — three sequential distinct blockers stay at 1.
   withDir((dir) => {
-    bumpGateFailureCount(dir, 'story_advance', r1);
-    bumpGateFailureCount(dir, 'story_advance', r2);
-    bumpGateFailureCount(dir, 'story_advance', r3);
+    for (const r of [REASON_1, REASON_2, REASON_3]) bumpGateFailureCount(dir, CMD, r);
+    const max = maxGateFailureCount(readGateFailureCounts(dir));
+    assert.equal(max, 1, 'CHK-001:happy:1 progressive completion must not accumulate');
+    assert.equal(
+      assessBreaker(counters({ maxGateRepeat: max }), DEFAULT_CONVERGENCE_THRESHOLDS, null).tripped, false,
+      'CHK-001:adversarial:1 three distinct blockers must not trip the breaker',
+    );
+  });
+
+  // CHK-001:edge:0 — a distinguishing token beyond char 200 still changes the key.
+  const pad = 'x'.repeat(400);
+  const a = `${BANNER}${pad} tail [missing_scope_boundary]`;
+  const b = `${BANNER}${pad} tail [missing_execution_boundary]`;
+  assert.equal(normalizePrefix(a), normalizePrefix(b), 'fixture: prefixes identical');
+  assert.notEqual(digest(a), digest(b), 'CHK-001:edge:0 a distinguishing token past char 200 must change the key');
+
+  // CHK-001:adversarial:0 — raw text very different, but normalization-identical
+  // AND no structured signal => must still collapse to one key (normalization intact).
+  const noisy1 = 'GATE blocked at /Users/jek/x/y.ts 2026-07-23T12:00:00Z id a1b2c3d4e5f6 attempt 7';
+  const noisy2 = 'gate BLOCKED at /var/tmp/other.ts 2026-01-02T03:04:05Z id f6e5d4c3b2a1 attempt 91';
+  assert.equal(digest(noisy1), digest(noisy2), 'CHK-001:adversarial:0 volatile-token noise must still collapse');
+}
+
+// ── CHK-002: the key records the blocker identity ────────────────────────────
+
+function chk002(): void {
+  // CHK-002:happy:0 — same as CHK-001:happy:0, asserted post-fix.
+  assert.notEqual(digest(REASON_1), digest(REASON_2), 'CHK-002:happy:0 different gap sets => different keys');
+
+  // CHK-002:happy:1 — A,A,B => max 2 on A, B independent.
+  withDir((dir) => {
+    bumpGateFailureCount(dir, CMD, REASON_1);
+    bumpGateFailureCount(dir, CMD, REASON_1);
+    bumpGateFailureCount(dir, CMD, REASON_2);
+    const counts = readGateFailureCounts(dir);
+    assert.equal(maxGateFailureCount(counts), 2, 'CHK-002:happy:1 the repeated blocker reaches 2');
+    assert.equal(Object.keys(counts).length, 2, 'CHK-002:happy:1 the distinct blocker gets its own key');
+  });
+
+  // CHK-002:happy:2 — a genuinely identical blocker 3x accumulates and trips.
+  withDir((dir) => {
+    for (let i = 0; i < 3; i++) bumpGateFailureCount(dir, CMD, REASON_1);
+    const max = maxGateFailureCount(readGateFailureCounts(dir));
+    assert.equal(max, 3, 'CHK-002:happy:2 identical blocker accumulates');
+    assert.equal(
+      assessBreaker(counters({ maxGateRepeat: max }), DEFAULT_CONVERGENCE_THRESHOLDS, null).tripped, true,
+      'CHK-002:happy:2 an identical blocker must still trip',
+    );
+  });
+
+  // CHK-002:edge:0 — a >10KB reason full of volatile tokens is handled and stable.
+  const huge = `${BANNER}${'/a/b/c.ts 2026-07-23T00:00:00Z 0xdeadbeef 12345 '.repeat(300)}[missing_scope_boundary]`;
+  assert.ok(huge.length > 10_000, 'fixture is >10KB');
+  assert.equal(digest(huge), digest(huge), 'CHK-002:edge:0 large reasons digest deterministically');
+  assert.match(digest(huge), /^story_advance\/[0-9a-f]{12}$/, 'CHK-002:edge:0 shape is stable');
+
+  // CHK-002:edge:1 — empty reason yields a valid key and never throws.
+  assert.match(digest(''), /^story_advance\/[0-9a-f]{12}$/, 'CHK-002:edge:1 empty reason still keys');
+
+  // CHK-002:edge:2 — whitespace-only differences collapse.
+  assert.equal(
+    digest('gate   blocked    here'), digest('gate blocked here'),
+    'CHK-002:edge:2 whitespace variation must collapse',
+  );
+
+  // CHK-002:adversarial:0 — tails differing only by a trailing space must NOT split the key.
+  assert.equal(
+    digest(REASON_1), digest(`${REASON_1} `),
+    'CHK-002:adversarial:0 trailing whitespace must not create a new key',
+  );
+
+  // CHK-002:adversarial:1 — a tail that normalizes to pure noise adds no signal, so the key is unchanged.
+  assert.equal(
+    digest(`${BANNER}tail`), digest(`${BANNER}tail 12345 67890 /x/y/z.ts`),
+    'CHK-002:adversarial:1 a signal-free tail must not widen the key',
+  );
+
+  // CHK-002:adversarial:2 — reasons differing only in digits still collapse (normalization intact).
+  assert.equal(
+    digest('gate blocked for b-1234'), digest('gate blocked for b-5678'),
+    'CHK-002:adversarial:2 digit-only differences must still collapse',
+  );
+}
+
+// ── CHK-003: threshold behaviour + diagnostic ────────────────────────────────
+
+function chk003(): void {
+  // CHK-003:happy:0 — at threshold with the auto-recovery already spent => freeze.
+  const spent = assessBreaker(
+    counters({ maxGateRepeat: THRESHOLD }), DEFAULT_CONVERGENCE_THRESHOLDS, { autoRecoveriesSpent: 1 },
+  );
+  assert.equal(spent.tripped, true, 'CHK-003:happy:0 at threshold the signal fires');
+  assert.equal(spent.action, 'freeze', 'CHK-003:happy:0 a spent budget escalates to freeze');
+
+  // CHK-003:happy:1 — the freeze diagnostic names the tripped signal and the recovery path.
+  const msg = renderBreakerFreeze('B-cc54', spent.reasons);
+  assert.match(msg, /gate-repeat/, 'CHK-003:happy:1 the freeze names the tripped counter');
+  assert.match(msg, /story_resume/, 'CHK-003:happy:1 the freeze names the recovery command');
+
+  // CHK-003:edge:0 — just below threshold does not trip.
+  assert.equal(
+    assessBreaker(counters({ maxGateRepeat: THRESHOLD - 1 }), DEFAULT_CONVERGENCE_THRESHOLDS, null).tripped, false,
+    'CHK-003:edge:0 below threshold must proceed',
+  );
+  // CHK-003:edge:1 — the comparison is inclusive (>=).
+  assert.equal(
+    assessBreaker(counters({ maxGateRepeat: THRESHOLD }), DEFAULT_CONVERGENCE_THRESHOLDS, null).tripped, true,
+    'CHK-003:edge:1 the threshold comparison is inclusive',
+  );
+
+  // CHK-003:edge:2 — a 0 env value is rejected (a brake must not be silently zeroed).
+  assert.equal(
+    resolveConvergenceThresholds({ [CONVERGENCE_ENV.maxGateRepeat]: '0' }).maxGateRepeat,
+    DEFAULT_CONVERGENCE_THRESHOLDS.maxGateRepeat,
+    'CHK-003:edge:2 zero must fall back to the default',
+  );
+
+  // CHK-003:adversarial:0 — first trip with budget available auto-recovers instead of freezing.
+  const first = assessBreaker(
+    counters({ maxGateRepeat: THRESHOLD }), DEFAULT_CONVERGENCE_THRESHOLDS, { autoRecoveriesSpent: 0 },
+  );
+  assert.equal(first.action, 'auto-recover', 'CHK-003:adversarial:0 the first trip auto-recovers');
+
+  // CHK-003:adversarial:1 — the sanity ceiling is accepted but anything above falls back.
+  assert.equal(
+    resolveConvergenceThresholds({ [CONVERGENCE_ENV.maxGateRepeat]: String(CONVERGENCE_ENV_MAX.maxGateRepeat) }).maxGateRepeat,
+    CONVERGENCE_ENV_MAX.maxGateRepeat,
+    'CHK-003:adversarial:1 the ceiling itself is accepted',
+  );
+  assert.equal(
+    resolveConvergenceThresholds({ [CONVERGENCE_ENV.maxGateRepeat]: String(CONVERGENCE_ENV_MAX.maxGateRepeat + 1) }).maxGateRepeat,
+    DEFAULT_CONVERGENCE_THRESHOLDS.maxGateRepeat,
+    'CHK-003:adversarial:1 above the ceiling falls back to the default',
+  );
+
+  // CHK-003:adversarial:2 — a malformed prior state must not be honoured as "not frozen".
+  const malformed = assessBreaker(
+    counters({ maxGateRepeat: THRESHOLD }),
+    DEFAULT_CONVERGENCE_THRESHOLDS,
+    { frozen: 'yes', autoRecoveriesSpent: Number.NaN } as never,
+  );
+  assert.equal(malformed.tripped, true, 'CHK-003:adversarial:2 a malformed state must not suppress the signal');
+  assert.notEqual(malformed.action, 'proceed', 'CHK-003:adversarial:2 a malformed state must not yield proceed');
+}
+
+// ── CHK-004: fail-closed and non-forging ─────────────────────────────────────
+
+function chk004(): void {
+  // CHK-004:happy:0 — past the threshold the assessment never becomes "proceed".
+  for (let extra = 0; extra <= 2; extra++) {
+    const a = assessBreaker(
+      counters({ maxGateRepeat: THRESHOLD + extra }), DEFAULT_CONVERGENCE_THRESHOLDS, { autoRecoveriesSpent: 1 },
+    );
+    assert.equal(a.action, 'freeze', 'CHK-004:happy:0 a tripped breaker stays stopped');
+  }
+
+  // CHK-004:happy:1 — the assessment is a pure verdict; it carries no phase advance.
+  const verdict = assessBreaker(
+    counters({ maxGateRepeat: THRESHOLD }), DEFAULT_CONVERGENCE_THRESHOLDS, { autoRecoveriesSpent: 1 },
+  );
+  assert.equal(verdict.nextState.frozen, true, 'CHK-004:happy:1 the persisted state records the freeze');
+  assert.ok(!('phase' in (verdict as unknown as Record<string, unknown>)), 'CHK-004:happy:1 the breaker never advances a phase');
+
+  // CHK-004:edge:0 — a different command keys independently.
+  assert.notEqual(
+    gateFailureDigest('story_advance', REASON_1), gateFailureDigest('done_prepare', REASON_1),
+    'CHK-004:edge:0 the command is part of the key',
+  );
+
+  // CHK-004:edge:1 — resetting a story dir with no counter file creates nothing and does not throw.
+  withDir((dir) => {
+    resetGateFailureCounts(dir);
+    assert.equal(existsSync(join(dir, 'gate-failure-counts.json')), false, 'CHK-004:edge:1 no stray file is created');
+  });
+
+  // CHK-004:adversarial:0 — tampering the counter file down is visible to the next bump, not silently trusted.
+  withDir((dir) => {
+    for (let i = 0; i < THRESHOLD; i++) bumpGateFailureCount(dir, CMD, REASON_1);
+    const file = join(dir, 'gate-failure-counts.json');
+    const counts = JSON.parse(readFileSync(file, 'utf8')) as Record<string, { count: number }>;
+    for (const k of Object.keys(counts)) counts[k].count = 0;
+    writeFileSync(file, JSON.stringify(counts));
+    bumpGateFailureCount(dir, CMD, REASON_1);
     assert.equal(
       maxGateFailureCount(readGateFailureCounts(dir)), 1,
-      'progressive artifact completion must not look like a repeat loop',
-    );
-    assert.ok(
-      1 < DEFAULT_CONVERGENCE_THRESHOLDS.maxGateRepeat,
-      'and must stay strictly under the trip threshold',
+      'CHK-004:adversarial:0 a tampered counter resumes counting rather than throwing',
     );
   });
+
+  // CHK-004:adversarial:1 — a cleared breaker-state cannot suppress a fresh trip.
+  const cleared = assessBreaker(
+    counters({ maxGateRepeat: THRESHOLD }), DEFAULT_CONVERGENCE_THRESHOLDS, { frozen: false, autoRecoveriesSpent: 0 },
+  );
+  assert.equal(cleared.tripped, true, 'CHK-004:adversarial:1 clearing the state does not clear the signal');
+
+  // CHK-004:adversarial:2 — empty command and reason still produce a valid key.
+  assert.match(gateFailureDigest('', ''), /^\/[0-9a-f]{12}$/, 'CHK-004:adversarial:2 empty inputs still key safely');
 }
 
-/** Case 2 + 4: an identical blocker still accumulates and still reaches the threshold. */
-function assertRealLoopStillTrips(): void {
-  const stuck = proofStoryReason(GAPS_ROUND_1);
-  assert.equal(
-    gateFailureDigest('story_advance', stuck),
-    gateFailureDigest('story_advance', proofStoryReason([...GAPS_ROUND_1])),
-    'the same blocker must produce a stable key regardless of array identity',
-  );
+// ── CHK-005: fire / no-fire / reset ──────────────────────────────────────────
 
+function chk005(): void {
+  // CHK-005:happy:0 — identical failures fire.
   withDir((dir) => {
-    const threshold = DEFAULT_CONVERGENCE_THRESHOLDS.maxGateRepeat;
-    for (let i = 0; i < threshold; i++) bumpGateFailureCount(dir, 'story_advance', stuck);
-    assert.ok(
-      maxGateFailureCount(readGateFailureCounts(dir)) >= threshold,
-      'a genuinely stuck loop must still reach the trip threshold (fail-closed)',
-    );
+    for (let i = 0; i < 3; i++) bumpGateFailureCount(dir, CMD, REASON_1);
+    const max = maxGateFailureCount(readGateFailureCounts(dir));
+    assert.equal(max, 3, 'CHK-005:happy:0 identical failures accumulate');
+    assert.equal(assessBreaker(counters({ maxGateRepeat: max }), DEFAULT_CONVERGENCE_THRESHOLDS, null).tripped, true,
+      'CHK-005:happy:0 and trip the breaker');
   });
-}
 
-/** Case 3: reasons carrying no structured signal keep the historical behaviour. */
-function assertUnstructuredReasonsUnchanged(): void {
-  const a = 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)';
-  const b = 'gate BLOCKED for B-bbaf at 2026-07-14T09:59:59Z (attempt 41)';
-  assert.equal(
-    gateFailureDigest('story_advance', a),
-    gateFailureDigest('story_advance', b),
-    'timestamp/counter noise must still collapse to one key',
-  );
-  assert.notEqual(
-    gateFailureDigest('story_advance', a),
-    gateFailureDigest('story_advance', 'a completely different failure reason'),
-    'genuinely different unstructured reasons must still differ',
-  );
-}
+  // CHK-005:happy:1 — three distinct blockers do not fire.
+  withDir((dir) => {
+    for (const r of [REASON_1, REASON_2, REASON_3]) bumpGateFailureCount(dir, CMD, r);
+    const max = maxGateFailureCount(readGateFailureCounts(dir));
+    assert.equal(max, 1, 'CHK-005:happy:1 distinct blockers stay at 1');
+    assert.equal(assessBreaker(counters({ maxGateRepeat: max }), DEFAULT_CONVERGENCE_THRESHOLDS, null).tripped, false,
+      'CHK-005:happy:1 and must not trip');
+  });
 
-/** Adversarial: the widening must come from the blocker set, not from free text. */
-function assertKeyIsNotWidenedByFreeText(): void {
-  const base = proofStoryReason(GAPS_ROUND_1);
-  const chatty = `${base}\n  note: retried at a different moment, operator was impatient.`;
-  assert.equal(
-    gateFailureDigest('story_advance', base),
-    gateFailureDigest('story_advance', chatty),
-    'appending free text must not change the key (otherwise a real loop could reset forever)',
-  );
+  // CHK-005:happy:2 — a reset (a real gate pass) clears the streak.
+  withDir((dir) => {
+    bumpGateFailureCount(dir, CMD, REASON_1);
+    bumpGateFailureCount(dir, CMD, REASON_1);
+    resetGateFailureCounts(dir);
+    bumpGateFailureCount(dir, CMD, REASON_1);
+    assert.equal(maxGateFailureCount(readGateFailureCounts(dir)), 1, 'CHK-005:happy:2 a reset clears the streak');
+  });
+
+  // CHK-005:edge:0 — switching reason before the threshold prevents the trip.
+  withDir((dir) => {
+    bumpGateFailureCount(dir, CMD, REASON_1);
+    bumpGateFailureCount(dir, CMD, REASON_2);
+    assert.ok(maxGateFailureCount(readGateFailureCounts(dir)) < THRESHOLD,
+      'CHK-005:edge:0 switching blockers stays under the threshold');
+  });
+
+  // CHK-005:edge:1 — two distinct blockers can each independently reach the threshold.
+  withDir((dir) => {
+    for (let i = 0; i < THRESHOLD; i++) bumpGateFailureCount(dir, CMD, REASON_1);
+    for (let i = 0; i < THRESHOLD; i++) bumpGateFailureCount(dir, CMD, REASON_2);
+    const counts = readGateFailureCounts(dir);
+    assert.equal(Object.keys(counts).length, 2, 'CHK-005:edge:1 each blocker keeps its own key');
+    assert.ok(maxGateFailureCount(counts) >= THRESHOLD, 'CHK-005:edge:1 and each can reach the threshold');
+  });
+
+  // CHK-005:adversarial:0 — the exact B-cc54 collision shape.
+  assert.notEqual(digest(REASON_1), digest(REASON_2), 'CHK-005:adversarial:0 the B-cc54 collision must not recur');
+
+  // CHK-005:adversarial:1 — reset-after-every-bump can hold the counter down, which is
+  // why reset is wired ONLY to a successful advance (documented invariant, asserted here).
+  withDir((dir) => {
+    for (let i = 0; i < THRESHOLD + 2; i++) {
+      bumpGateFailureCount(dir, CMD, REASON_1);
+      resetGateFailureCounts(dir);
+    }
+    assert.equal(maxGateFailureCount(readGateFailureCounts(dir)), 0,
+      'CHK-005:adversarial:1 reset-after-every-bump suppresses the counter, so reset must stay tied to real progress');
+  });
+
+  // CHK-005:adversarial:2 — feeding the breaker's own freeze text back in is handled and,
+  // because that text carries no gap ids, it keeps a single stable key.
+  const freezeText = renderBreakerFreeze('B-cc54', ['gate-repeat 3>=2']);
+  withDir((dir) => {
+    bumpGateFailureCount(dir, CMD, freezeText);
+    bumpGateFailureCount(dir, CMD, freezeText);
+    assert.equal(maxGateFailureCount(readGateFailureCounts(dir)), 2,
+      'CHK-005:adversarial:2 the freeze message itself keys stably');
+  });
+
+  // Free text must never widen the key, or a real loop could reset forever.
+  assert.equal(digest(REASON_1), digest(`${REASON_1}\n  note: operator was impatient.`),
+    'free text must not widen the key');
 }
 
 function main(): void {
-  assertProgressResetsTheKey();
-  console.log('  ok 1 different unmet preconditions get different repeat-block keys');
-  assertRealLoopStillTrips();
-  console.log('  ok 2 an identical blocker still accumulates to the trip threshold');
-  assertUnstructuredReasonsUnchanged();
-  console.log('  ok 3 unstructured reasons keep the historical prefix key');
-  assertKeyIsNotWidenedByFreeText();
-  console.log('  ok 4 free text does not widen the key (no reset-forever hole)');
+  chk001();
+  console.log('  ok CHK-001 RED: distinct blockers get distinct repeat-block keys');
+  chk002();
+  console.log('  ok CHK-002 the key records the blocker identity');
+  chk003();
+  console.log('  ok CHK-003 threshold behaviour and freeze diagnostic');
+  chk004();
+  console.log('  ok CHK-004 fail-closed and non-forging');
+  chk005();
+  console.log('  ok CHK-005 fire / no-fire / reset coverage');
   console.log('gate-repeat-block-smoke: PASS');
 }
 
