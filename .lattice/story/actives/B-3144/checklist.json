@@ -14,7 +14,39 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Submit rounds=3 quorum at M1, commitMainDrift (materialHash changes, storyFilesHash unchanged), call quorum_submit again -> on unfixed code the second submit is accepted and evaluateHostVerdictRounds reports all rounds invalid (duplicate host/session/key identity); RED test asserts the second submit must be REFUSED -> fails on current main, passes after fix; WHY: proves the poisoning scenario is real and the repro is un-gameable",
+            "type": "cli"
+          },
+          {
+            "desc": "Assert currentStoryFilesHash(root) before commitMainDrift === currentStoryFilesHash(root) after commitMainDrift inside the RED check -> equality holds; WHY: the repro invariant (storyFilesHash stability across main-merge) must be asserted in-test so the fixture cannot silently degrade into a shape that does not match the real B-bf52 incident",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "commitMainDrift helper writes only to a non-story-diff file (main-drift.ts) and merges main -> assert zero story-owned file blobs changed (storyFilesHash equality is necessary but not sufficient; the helper must also not touch any story-diff file that would mask the predicate gap); WHY: if the helper accidentally touches a story file the RED repro shape diverges from the real incident",
+            "type": "cli"
+          },
+          {
+            "desc": "Existing green check allows a fresh quorum after a material change (commitMaterialChange edits index.ts, storyFilesHash changes) -> still passes after RED test is added with no regression; WHY: confirms the RED test addition does not break the existing same-material-refusal and fresh-quorum-allowed checks",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "RED test must assert BOTH the poisoning path (second submit accepted, no throw) AND the consequence (floor collapse: validRoundCount === 0, invalidRounds contain duplicate host/session/key identity) on unfixed code -> a test that fails for any other reason (e.g. unrelated throw, wrong assertion target) is not a valid RED repro; WHY: prevents gaming by writing a test that fails incidentally while the actual poisoning path is untested",
+            "type": "cli"
+          },
+          {
+            "desc": "RED test must write no leftover state that poisons subsequent checks in the same smoke run -> use withFreshFixture isolation or equivalent teardown, capture hostVerdictEventCount and verdictFileCount before/after; WHY: RED repro that corrupts shared fixture state causes cascading false failures in the test suite",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
