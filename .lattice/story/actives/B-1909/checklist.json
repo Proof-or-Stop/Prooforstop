@@ -192,7 +192,30 @@
       "context": "Register under packages/main/src/tasks/ and validate.commands, following the existing proofstory smoke tasks. Positive direction: after a scope_shrinkage_decision_set removing CHK-nnn, checklist_get and proofstory_contract_get both report that item and its binding as withdrawn, from DEV and from REVIEW, with no PLAN return. Negative direction: done still means delivered; withdrawn is excluded from delivered/completed counts; withdrawn without a valid decisionRef is refused; a decision not citing the item is refused; mismatched decision ids across the two layers are refused; the original binding survives withdrawal unmodified; and withdrawing all core bindings does not yield a pass.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Positive smoke: after scope_shrinkage_decision_set removing CHK-nnn, checklist_get and proofstory_contract_get both report that item and its binding as withdrawn, from DEV and from REVIEW",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Negative smoke: done still counts as delivered, withdrawn is excluded from delivered/completed counts, and the original binding survives withdrawal unmodified",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Negative smoke: withdrawn without a valid decisionRef is refused, a decision not citing the item is refused, mismatched decision ids are refused, and withdrawing all core bindings does not yield a pass",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
