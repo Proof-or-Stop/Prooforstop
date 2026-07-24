@@ -228,6 +228,45 @@
         "scanEscalationReason": null
       },
       "_hash": "62bbbbc6e01717b7302363f85a59bca26e0a9ed36a855b0d284cb9d682e2c8c6"
+    },
+    {
+      "id": "B-bf52:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Post-merge re-confirmation of the F-058 substantive-id-apparatus concept-deletion residual scan (prior lattice-review-concept pass was RR-038). Independently re-ran the scan against POST-MERGE HEAD 81c65554 (merge: raise quorum-submit-smoke validate budget 600s->1200s, parent c15e6dc8 = main tip). Verified starting point myself rather than trusting the dispatch narrative: git diff 280a5440b4 (the F-058 withdrawal commit) vs HEAD is EMPTY for packages/main/src/core/convergence-breaker.ts and packages/main/src/tasks/convergence-breaker-smoke.ts -- those two files are byte-identical, so the reviewable surface for concept-residue purposes has not moved. Note for the record: the claim that only a config change intervened understates the story-branch history (there are 39 own-branch commits after 280a5440b4 including two further REVIEW rounds with finding_add/finding_resolve/verification_evidence_add churn before this merge) but none of that churn touched the two source files, so it does not change this scan's conclusion. Repo-wide grep (excluding node_modules/dist/.git) for SUBSTANTIVE_ID_PREFIXES, listSubstantiveIdPrefixes, buildSubstantiveIdRe, SUBSTANTIVE_ID_RE, protectSubstantiveIds, TOKEN_PLACEHOLDER_ALPHABET, TOKEN_SENTINEL prefix, encodeTokenIndex, decodeTokenIndex, and all 10 retired guard tags (substantive-id-allowlist, allowlist-boundedness, substantive-id-token-head-exact, substantive-id-token-tail-exact, substantive-id-pure-ordinal-body, substantive-id-no-reduction, substantive-id-colon-composite-cost, retired-prefix-not-allowlisted, review-bookkeeping-not-allowlisted, pinned-behaviour-documentation): zero hits outside .lattice story ledger files (historical records) and outside the labelled ROUND-15 RETIREMENT REGISTER comment block at convergence-breaker-smoke.ts lines 292-340 plus two explanatory inline comments at lines 843 and 862 -- none are live guardedBy field values or exports; convergence-breaker.ts itself has zero hits of any withdrawn term. Specifically checked the files merged in from main-side stories B-5e4a/B-f824/B-a539 -- lattice-brand.ts, lifecycle-registry.ts, process-fact-registry.ts, done-prepare.ts plus three done-prepare smoke files, flow-stability-smoke.ts, lifecycle-registry-contract.ts, verify-process-fact-contract.mjs -- for gateFailureDigest, normalizeGateReason, all 8 live guard tags, and any withdrawn substantive-id or token-placeholder identifier: zero hits, zero imports of convergence-breaker, no registry entry naming a deleted task. Confirmed the live GuardRule union in convergence-breaker-smoke.ts has exactly 8 members -- path-rule-overreach, path-rule-collapse, prefix-window-residual, digit-rule-collapse, iso-or-digit-rule-collapse, hex-rule-collapse, signals-conditional-prefix, signals-fold -- all declared and all used at least once across the 21 live matrix cases (5 must-differ plus 16 must-still-collapse); tsc build succeeded clean, which structurally rules out any guardedBy value outside the union. Rebuilt dist via npm run build then ran npm run test:convergence-breaker (exit 0, PASS, 5 must-differ + 16 must-still-collapse) and both tests/red probes: red-s3-digest-collapse.mjs (10/10 PASS, exit 0) and red-s3-differential-probe.mjs (4/4 BAR-3 delivered classes distinguished, PASS, exit 0; differential lane SKIPs cleanly with no comparison build, as documented). No concept residue found. No blocker.",
+      "createdAt": "2026-07-24T19:24:00.165Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-041",
+      "envelopeId": "d5be661a1a3d88ca33fd37ce1cad6381c8ad2489b580fe42f8d91f8931e8d8b7",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/review-passes.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/review-runs.json",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+          "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+          "packages/main/src/tasks/done-prepare-merge-rerun-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "1760b58918116266f4b8365a78756c448c1e742e0698d4ad16f708067b30bed0"
     }
   ]
 }
