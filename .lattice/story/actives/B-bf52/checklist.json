@@ -405,11 +405,11 @@
           "file": "packages/main/tests/red/red-s3-differential-probe.mjs",
           "command": "node packages/main/tests/red/red-s3-differential-probe.mjs \"$COMPARE_DIST\"",
           "result": "pass",
-          "note": "The comparison-against-main claim is a COMMITTED, RUNNABLE artifact: this command digests every pair on the branch and on a comparison build and exits non-zero if the branch collapses what the comparison distinguishes or distinguishes an ordinal that is not retry-stable; with no comparison build it SKIPs that lane and still reports cost. Red-on-defect was re-verified in three parts this round, one of which REPRODUCES the probe's own third miss: the previous matrix against the defective build exits zero while the current matrix against that same build exits non-zero on exactly the permissive-body and retired-prefix rows. The header records the running count of misses, because a guard that cannot express the defect is not a guard and the count is the evidence. Cost is reported as a RATIO with the probe's own warning against quoting machine-dependent milliseconds. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure comes from a command named here.",
-          "headHash": "80c47355dbc79b3ad46b5d459710324ed217020b",
-          "materialHash": "6b05d1d4b46c8a7c5f48dfbacd792a42018d5934b460055f9b8d3b5addeac3ef",
-          "storyFilesHash": "4900645b650299878a3cc0b9214456421808927fa96e7f97a450b12becfcbfbc",
-          "timestamp": "2026-07-24T15:33:38.077Z"
+          "note": "Localization rows were re-derived from scratch a final time, and one claim written by the implementer was DISPROVED by its own measurement and corrected — deleting the digit rule fails ten of the collapse cases rather than eleven, and does not fail the ISO case because the ISO rule still collapses that pair alone. The probe is committed and runnable, SKIPs cleanly with no comparison build, and is verified red-on-defect for what remains: widening the path rule makes it exit non-zero. Its header records that it missed three real regressions during this story and was extended by each, because a guard that cannot express the defect is not a guard.",
+          "headHash": "26d9707eac1dd7b30f9e9f1f8d5da36860b86dbf",
+          "materialHash": "f4528b6ac8b62a6eb2af50c1ca647fadaecb8bd306af1b3a2ab88dac13e86f64",
+          "storyFilesHash": "9ae69c165aa471284308beffe6e4e2b6f392955d7dc97c09f05a1b407172934b",
+          "timestamp": "2026-07-24T16:09:48.799Z"
         }
       ]
     }
