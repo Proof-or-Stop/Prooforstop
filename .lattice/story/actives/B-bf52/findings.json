@@ -555,7 +555,7 @@
       "desc": "cross-host (codex-cli host-B round 5), recorded by the main agent: putting RR- in the allowlist knowingly reintroduces the inverse-risk hole codex filed in round 3. \"Cannot enter TEST: review pass RP-001 bound reviewRunId B-bf52:RR-002 is stale\" and the RR-003 variant now digest differently, and starting another reviewer run does NOT repair stale evidence, so a host repeating review_run_start then story_advance mints a fresh key indefinitely and the breaker never trips. Worse, the matrix case review-run-ordinal asserts that unsafe behaviour AS DESIRED. RR- and RP- name review bookkeeping that changes on retry, not the artifact that must be fixed, so they do not belong in an allowlist whose stated criterion is naming WHICH artifact failed.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-07-24T03:36:30.403Z",
@@ -566,7 +566,9 @@
         "packages/main/src/tasks/convergence-breaker-smoke.ts"
       ],
       "signatureTag": "edge|ts|cross-host-codex",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "rr-/rp- removed from SUBSTANTIVE_ID_PREFIXES in core/convergence-breaker.ts; review bookkeeping changes on retry and does not name the artifact to fix, and starting another reviewer run does not repair stale evidence. The unsafe must-differ review-run-ordinal case is replaced by a must-collapse stale-review-run-evidence case (guard review-bookkeeping-not-allowlisted) whose comment records it previously asserted the unsafe direction. Verified: RR-002/RR-003 stale renderings collapse; revert-proof re-adding rr-/rp- fails only that case (1/18).",
+      "resolvedAt": "2026-07-24T04:03:52.446Z"
     },
     {
       "id": "B-bf52:F-031",
