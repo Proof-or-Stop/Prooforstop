@@ -203,7 +203,21 @@ function git(root: string, args: string[]): string {
 function cli(root: string, command: string, args: Record<string, unknown>, allowFail = false, agent = 'lattice-implementer', sessionId = 'sess-pre-review-smoke'): string {
   try {
     return execFileSync(process.execPath, [latticeBin, '--root', root, command, JSON.stringify(args)], {
-      cwd: root, env: { ...process.env, LATTICE_SESSION_ID: sessionId, LATTICE_AGENT: agent }, encoding: 'utf8',
+      cwd: root,
+      env: {
+        ...process.env,
+        LATTICE_SESSION_ID: sessionId,
+        LATTICE_AGENT: agent,
+        // Full-envelope reviewer dispatch requires a known session host provider.
+        // Without this the smoke inherits whatever the caller happened to have:
+        // it passes from an interactive shell that already exports one, and fails
+        // under `lattice validate`, whose child environment has none, with
+        // 'unsupported session host provider "absent"'. Pin it so the fixture does
+        // not depend on the caller's environment.
+        LATTICE_OWNER_SESSION_ADAPTER_PROVIDER:
+          process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER ?? 'claude-code',
+      },
+      encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
   } catch (error) {
