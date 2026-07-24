@@ -139,7 +139,45 @@
         "test": [
           "packages/main/src/tasks/lifecycle-registry-contract.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm run test:lifecycle-registry-contract (after removing acceptance-basis.json from dist registry copy)",
+          "result": "pass",
+          "note": "Main-agent bite test (independent of implementer): removed acceptance-basis.json from the built dist registry, contract task FAILED exit 1 with two named divergences ([acceptance-topology-classification] ... acceptance-basis.json ... returned null; [storystore-coverage] ... acceptance-basis.json ... neither in LATTICE_LIFECYCLE_ARTIFACT_FILENAMES nor in STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS). Restored byte-identical (cmp), re-run PASS with 48 filenames derived, 0 divergences.",
+          "headHash": "91a500fca5605fe1727a74dd4b81cd6a34fb30ae",
+          "materialHash": "739aa0487652ba3c6bf63c980a0e17eb452c63a1be0f3744f359a4ab442f4a3f",
+          "storyFilesHash": "14be72c034d3378813b6ac7cec9acae3a951f3d1f228a686b9e47e55fa540b64",
+          "timestamp": "2026-07-24T00:53:55.391Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "Green output states: 48 StoryStore top-level artifact filenames derived (floor 40) and registered-or-exempted. The floor assertion fails loudly with a derivation-is-broken message when the derived set shrinks below 40, so an empty/shrunken source scan cannot pass vacuously.",
+          "headHash": "91a500fca5605fe1727a74dd4b81cd6a34fb30ae",
+          "materialHash": "739aa0487652ba3c6bf63c980a0e17eb452c63a1be0f3744f359a4ab442f4a3f",
+          "storyFilesHash": "14be72c034d3378813b6ac7cec9acae3a951f3d1f228a686b9e47e55fa540b64",
+          "timestamp": "2026-07-24T00:53:55.391Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-registry-contract.ts",
+          "command": "npm --prefix packages/main run test:lifecycle-registry-contract",
+          "result": "pass",
+          "note": "STORYSTORE_TOP_LEVEL_FILENAME_EXEMPTIONS contains exactly authority-receipt-refs.json (with the dead-writeLegacyReceiptRefs / Authority-domain comment); the coverage check emits a named divergence for any derived filename outside registry+exemptions — demonstrated by the bite test where an unregistered filename produced the [storystore-coverage] divergence naming it. Stale/redundant-exemption guards also fail if the exemption list drifts.",
+          "headHash": "91a500fca5605fe1727a74dd4b81cd6a34fb30ae",
+          "materialHash": "739aa0487652ba3c6bf63c980a0e17eb452c63a1be0f3744f359a4ab442f4a3f",
+          "storyFilesHash": "14be72c034d3378813b6ac7cec9acae3a951f3d1f228a686b9e47e55fa540b64",
+          "timestamp": "2026-07-24T00:53:55.391Z"
+        }
+      ]
     }
   ]
 }
