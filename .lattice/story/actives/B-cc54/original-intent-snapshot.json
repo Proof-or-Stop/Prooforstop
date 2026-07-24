@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-cc54",
+  "sourceText": "User request (translated from Chinese, 2026-07-23/24): investigate why story B-4043 burned so many tokens and ran for hours, determine whether it is an infinite loop and what the bug is; then write the forensics up as a Lattice story in proofbound and fix it. The user additionally rejected human-in-the-loop remediation: 'do not make the human confirm everything and carry the blame; when you find a problem you should handle it promptly — is there a solution that does not need a human?' Finally: 'agreed, solve all of it, all the way to DONE.'",
+  "normalizedOutcome": "An unattended run that keeps hitting the same gate refusal is stopped automatically instead of looping and burning tokens, and the stop tells the operator which precondition is actually unmet so the run can self-correct without a human adjudicating.",
+  "acceptanceClaim": "When a phase gate refuses the same story with an identical block reason code N consecutive times, the transition is hard-stopped with a diagnostic naming the unmet precondition, while no gate is ever auto-satisfied and no finding attribution is rewritten.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:5418bbeaf04fcd5f3e11c90f9823f903402dbf3ad35760dba177a1e9a929056e",
+  "createdAt": "2026-07-23T23:39:52.397Z",
+  "updatedAt": "2026-07-23T23:39:52.397Z"
+}
