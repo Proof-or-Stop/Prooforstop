@@ -369,11 +369,11 @@
           "kind": "manual_transcript",
           "command": "npm run test:convergence-breaker",
           "result": "pass",
-          "note": "Ran from a clean build in the worktree and exited zero, confirming the matrix is reachable through the root npm test chain that lattice.config.json lists as a doneRequiredCommand. Recorded by case name and guard tag with no hand-written totals: every earlier re-recording drifted because it counted, and the partial re-recording before this one left sibling notes contradicting their own item (F-045/F-046/F-047). This set was written whole, against the matrix as the suite prints it.",
-          "headHash": "31d2558d36ff7df4802a246597b654677e269601",
-          "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
-          "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
-          "timestamp": "2026-07-24T11:34:22.131Z"
+          "note": "Ran from a clean build in the worktree and exited zero, confirming the matrix is reachable through the root npm test chain that lattice.config.json lists as a doneRequiredCommand. Recorded by case name and guard tag, no hand-written totals, and as a WHOLE SET — partial re-recording left sibling notes self-contradicting once before (F-045/F-046/F-047).",
+          "headHash": "d8a42b4578e154e760b7e17173d45c08143ed2cb",
+          "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
+          "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
+          "timestamp": "2026-07-24T12:17:38.150Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
