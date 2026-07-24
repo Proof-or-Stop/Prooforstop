@@ -182,6 +182,34 @@
         "scanEscalationReason": null
       },
       "_hash": "2da144136547fa362ae90d0e705233530ff8f7ad7f9f7e13b9b2f0d395369c4e"
+    },
+    {
+      "id": "B-bf52:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Code-quality lane on the shipped diff (normalizeGateReason extraction + signals-conditional prefix in convergence-breaker.ts; convergence-breaker-smoke.ts matrix; the two red/ probes). Measured from an immutable git worktree add --detach 280a5440b4 copy plus a second detached copy of main for differential/mutation checks (shared worktree left untouched, no stash used). (1) Dead code/orphans: none. normalizeGateReason has exactly one production caller (gateFailureDigest, same file, line ~653) plus test callers in convergence-breaker-smoke.ts -- confirmed by grep across the whole src tree; the export is honestly self-documented in its own doc comment as existing so a test can check a fixture precondition against the real chain, not silently test-only. All imports in the touched files are used (checked each by count); no as-any or empty catches were introduced. tsc -p packages/main/tsconfig.json compiles clean. (2) The two regexes: readable, well-commented; the token-start lookbehind class is documented with its rationale. Backtracking is linear -- verified empirically against adversarial inputs (2M-char slash run, 200k short tokens) with no slowdown. (3) convergence-breaker-smoke.ts: every fixture builder (leaseNonOwner, scopeGateBlock, doneTestFailureBareToken, initCheckBlockingIssues, openReviewLoop, blockingFindingsCitingPath, proofStoryDevGateBlock, etc.) is used by at least one case; every GuardRule tag in the type union has at least one guardedBy usage (checked all 8 tags); the retirement-register comment correctly describes removed mechanisms in the past tense with no orphaned code left behind (grepped for substantive-id/whole-token/placeholder -- only appear inside the historical comment). Ran the compiled smoke: PASS, 5 must-differ + 16 must-still-collapse cases. (4) Both red/ files: read in full, ran both (10/10 and PASS respectively). Independently reproduced the differential probe own documented claims by mutating a detached copy dist back to main wider path regex: got exactly the claimed 4 BAR-3 violations / 0 BAR-1 / 0 BAR-2, and separately confirmed BAR-1 is honestly self-disclosed as vacuous against a plain-main comparison build (its own printed CAVEAT). Noted real fixture-literal duplication (about 16 shared string literals) across the two red/ files and the smoke matrix with no shared fixtures module, but no regression risk found and it matches this codebase established pattern of deliberately-independent, unshared verification artifacts (per the CC54-duplication rationale already in smoke.ts); not filed as it does not cross the correctness/maintainability bar on its own. (5) Type safety/IO isolation: touched functions are pure string transforms, no I/O; pre-existing fail-open catch blocks elsewhere in the file are untouched by this diff and are the documented module design. No CLAUDE.md/README changes in this diff, so no doc-promise-undelivered risk. No blocking findings from this lane.",
+      "createdAt": "2026-07-24T18:30:52.198Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-037",
+      "envelopeId": "6126c0a115d44dfcf70e6627597857864eacbbd27be52c64830c6ed04f1759dd",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/checklist.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf52/findings.json",
+          ".lattice/story/actives/B-bf52/index.json",
+          ".lattice/story/actives/B-bf52/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "71df9635e946c125f4c9c89c68bbd922b2745a5b09ab79e21da8aea00dd9546c"
     }
   ]
 }
