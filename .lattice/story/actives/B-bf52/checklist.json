@@ -358,11 +358,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "All 9 must-differ cases print 'keys=2 counter=1 breaker=proceed', each having driven the real bumpGateFailureCount twice and read back maxGateFailureCount and assessBreaker, so the counter consequence is proven rather than hash inequality alone. Count re-recorded after F-013 (was 7 before round 3).",
-          "headHash": "77d62d0b912aa1b8b217d2e9e1ac02ef4304acf3",
-          "materialHash": "141ee128297a1b39d0d7c500d91e3749d3f669f7972d0f087448eeab7b4e4669",
-          "storyFilesHash": "e48aaadbe0ec5ef7803bf1a2110557edbef925bde55d4e876b1bd0c75283f2c9",
-          "timestamp": "2026-07-24T01:43:34.151Z"
+          "note": "All 15 must-differ cases print 'keys=2 counter=1 breaker=proceed', each having driven the real bumpGateFailureCount twice and read back maxGateFailureCount and assessBreaker, so the counter consequence is proven rather than hash inequality alone. Count re-recorded for the round-4 matrix (was 9 in round 3).",
+          "headHash": "063a16a7b9ed675fa5977fd090eea1af782f180c",
+          "materialHash": "11a5f96a79aea531c78be7865508869dc002a02d1de5b0b1861e5d1a143db82f",
+          "storyFilesHash": "4ea224f07fca3afe0e1b8de801c4c41c08260ae9b9098e967cb8965de031d453",
+          "timestamp": "2026-07-24T02:31:25.821Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
