@@ -39,6 +39,21 @@
  * while pinning it to a mechanism this story does not supply, and a later change
  * to B-cc54's design would then fail in a file that has no authority over it.
  *
+ * ── The BOUNDED piece of the CHK-001 class this story DOES deliver (C1c) ──────
+ *
+ * B-cc54's signals fold only supplies distinctness when the reason CARRIES a
+ * structured signal. A rejection that carries NONE — no bracketed reason code, no
+ * bulleted snake_case gap id, no missing_/invalid_/stale_ token — falls back to
+ * the 200-character prefix alone, so two such rejections that are byte-identical
+ * for 200 characters and only then name the offending path still collapse under
+ * main. That is a real shape (a scope-gate refusal whose invariant advice
+ * precedes the path). B-bf52 F-031 delivers exactly this bounded piece: the
+ * prefix cut is made SIGNALS-CONDITIONAL, so a signal-less reason is bounded at
+ * 16,384 characters instead of 200 and its late divergence reaches the hash,
+ * while a signal-bearing reason keeps B-cc54's 200-char prefix untouched. C1c
+ * asserts that piece and does NOT overlap B-cc54's contract, because its fixtures
+ * extract ZERO signals — the branch B-cc54's mechanism never reaches.
+ *
  * What remains is the three normalizer-OVERREACH classes B-cc54 does not touch
  * and which still collapsed against main immediately before this story's change:
  *
@@ -95,6 +110,24 @@ console.log(`S3 RED — gateFailureDigest must distinguish substantive gate fail
 
 // (C1a and C1b removed — see the ownership note in the header. That class is
 // delivered and guarded by B-cc54, not by this story.)
+
+// C1c: the SIGNAL-LESS piece of the CHK-001 class this story delivers (F-031).
+// Both reasons carry NO structured signal and are identical for their first 200
+// normalized characters, diverging only in the trailing path — so B-cc54's
+// signals fold cannot tell them apart and only the signals-conditional prefix
+// can. This FAILS against a build of main (unconditional 200-char cut collapses
+// them) and passes here. The body is the real scope-gate advice
+// (nextActionForViolation, core/scope-contract.ts) so no bracketed reason code,
+// bulleted gap id, or missing_/invalid_/stale_ token is present.
+const scopeGateBlock = (path) =>
+  'Cannot enter TEST: the scope gate is blocking for B-bf52. The story scope contract is in enforce mode, so every changed path must be '
+  + 'declared by the contract, covered by a shared classifier rule, or carry an explicit acknowledgement that a reviewer can see. '
+  + 'Run scope_contract_acknowledge with a reviewer-visible reason, add the path to the contract, or revert it. Blocking path: ' + path;
+differ(
+  'C1c signal-less long rejections diverging past char 200 are distinct',
+  scopeGateBlock('packages/main/src/core/alpha.ts'),
+  scopeGateBlock('packages/main/src/core/beta.ts'),
+);
 
 // C2: different transition targets are different failures.
 differ(

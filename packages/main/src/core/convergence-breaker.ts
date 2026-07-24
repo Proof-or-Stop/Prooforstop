@@ -553,12 +553,31 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
  * every other digit run is incidental.
  *
  * That is decidable, because this repo mints its lifecycle artifact ids from a
- * fixed vocabulary: CHK-001 (checklist item), F-012 (finding), RP-004 (review
- * pass), RR-002 (review run), AB-003 (acceptance basis), OQ-001 (open question),
- * INIT-002 (init check), REQ-005 (requirement). Two gate refusals naming
- * DIFFERENT members of that vocabulary are two different failures; a story that
- * clears CHK-001 and then trips on CHK-002 is making progress, and counting that
- * as one gate failing twice is the false freeze this story exists to kill.
+ * fixed vocabulary: CHK-001 (checklist item), F-012 (finding), BUG-001 (bug
+ * report), AB-003 (acceptance basis), OQ-001 (open question), INIT-002 (init
+ * check), REQ-005 (requirement). Two gate refusals naming DIFFERENT members of
+ * that vocabulary are two different failures; a story that clears CHK-001 and
+ * then trips on CHK-002 is making progress, and counting that as one gate
+ * failing twice is the false freeze this story exists to kill. `bug-` is here
+ * for the same reason and with the same kind of evidence: machine.ts:1195
+ * renders `Cannot enter DONE: 1 unfixed bug(s): BUG-001`, so fixing BUG-001 and
+ * then being blocked by BUG-002 is progress that would otherwise read as one
+ * repeated failure (F-029, cross-host codex round 5).
+ *
+ * WHAT IS DELIBERATELY NOT HERE, AND WHY (F-030, cross-host codex round 5). The
+ * criterion above is "names WHICH artifact must be FIXED". Review BOOKKEEPING
+ * ids — `RR-` (review run) and `RP-` (review pass) — fail it: they name the
+ * bookkeeping record that changes on retry, not the artifact at fault. An
+ * earlier draft of this story listed them, which reintroduced the inverse-risk
+ * hole: "review evidence ... bound reviewRunId B-x:RR-002 is stale" and its
+ * RR-003 variant would key differently, and since starting another reviewer run
+ * does NOT repair stale evidence (see staleMaterialHint in core/review-run.ts —
+ * the fix is to return to DEV), a host repeating review_run_start then
+ * story_advance would mint a fresh key on every attempt and the breaker would
+ * never trip. That is the unbounded retry loop this module exists to stop, so
+ * `rr-`/`rp-` are excluded and the `review-run-ordinal` collapse case in
+ * tasks/convergence-breaker-smoke.ts is the standing guard against re-adding
+ * them.
  *
  * This is the same kind of structured, repo-specific knowledge extractGateBlockSignals
  * already relies on (B-cc54 reads bracketed reason codes and bulleted gap ids by
@@ -568,12 +587,35 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
  * Keep this set SMALL and evidence-backed. Every prefix added here is a prefix
  * whose ordinals stop collapsing, which makes the breaker fire LESS often; the
  * `bcc54-story-id-digits` case in tasks/convergence-breaker-smoke.ts is the
- * standing guard that `b-` never joins it.
+ * standing guard that `b-` never joins it, and the completeness guard in the
+ * same file (section 7c) is the standing guard that a MISSING prefix — the F-029
+ * failure mode — is detected rather than waiting to be noticed by a reviewer.
  */
-const SUBSTANTIVE_ID_PREFIXES = new Set(['chk-', 'f-', 'rp-', 'rr-', 'ab-', 'oq-', 'init-', 'req-']);
+const SUBSTANTIVE_ID_PREFIXES = new Set(['chk-', 'f-', 'bug-', 'ab-', 'oq-', 'init-', 'req-']);
 
-export function gateFailureDigest(command: string, reason: string): string {
-  const normalized = String(reason ?? '')
+/**
+ * The allowlist, exported READ-ONLY so the completeness guard in
+ * tasks/convergence-breaker-smoke.ts can reconcile it against the artifact-id
+ * prefixes production source actually emits. A copy is returned so no caller can
+ * widen the live set (which would make the breaker fire less often) at runtime.
+ */
+export function listSubstantiveIdPrefixes(): string[] {
+  return [...SUBSTANTIVE_ID_PREFIXES].sort();
+}
+
+/**
+ * The volatile-token normalization applied to a gate reason before it is keyed.
+ *
+ * Extracted (behaviour-identical, same rule order) so a test can assert a
+ * fixture's PRECONDITION — "these two reasons share their first 200 normalized
+ * characters and only then diverge" — against the REAL rule chain. The
+ * alternative, a hand-mirrored copy of the chain inside the smoke (which
+ * tasks/gate-repeat-block-smoke.ts carries as `normalizePrefix`), can drift out
+ * of sync with production silently and then attest to a precondition that no
+ * longer holds.
+ */
+export function normalizeGateReason(reason: string): string {
+  return String(reason ?? '')
     .toLowerCase()
     .replace(/0x[0-9a-f]+/g, '#')
     .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
@@ -600,17 +642,43 @@ export function gateFailureDigest(command: string, reason: string): string {
     ))
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+export function gateFailureDigest(command: string, reason: string): string {
+  const normalized = normalizeGateReason(reason);
   // B-cc54: scan the WHOLE normalized reason for structured blocker identity,
   // then key on prefix + that identity. A reason carrying no structured signal
-  // keeps the historical prefix-only key, so existing behaviour is unchanged.
+  // keeps the prefix-only key shape (see the signals-conditional cut below for
+  // the one thing B-bf52 changed about it).
   const signals = extractGateBlockSignals(normalized);
-  const prefix = normalized.slice(0, 200);
+  // B-bf52 CHK-001 (F-031): the truncation is SIGNALS-CONDITIONAL.
+  //
+  // The 200-character cut only causes harm when there is NO structured signal to
+  // carry distinctness: two signal-less rejections that are byte-identical for
+  // their first 200 characters and then diverge — a real shape, e.g. a scope-gate
+  // refusal whose invariant advice precedes the offending path — collapse onto
+  // one key, so fixing one and tripping on the next reads as one repeated
+  // failure. Where signals DO exist, B-cc54's mechanism already supplies
+  // distinctness from the whole reason, so B-cc54's 200-character prefix is
+  // preserved EXACTLY in that case and every key it produces is byte-identical
+  // to before this change.
+  //
+  // Removing the truncation outright is NOT the fix, measured: with
+  // `prefix = normalized` (both branches) tasks/gate-repeat-block-smoke.ts exits
+  // 1 on CHK-002:adversarial:1, which appends a noise tail past the banner and
+  // requires the key to be UNCHANGED. That reason carries signals, so it is the
+  // signals branch that must keep the cut; only the signal-less branch may relax
+  // it. The 16,384-character bound is a sanity ceiling on that branch alone, so a
+  // pathological embedded transcript is still cheap to hash.
+  const prefix = signals.length > 0 ? normalized.slice(0, 200) : normalized.slice(0, 16_384);
   // F-003: encode the parts unambiguously instead of concatenating them with a
   // literal " signals:" delimiter. Concatenation only resisted forgery by accident
   // (a reason containing the delimiter text also fed its own extraction); a JSON
   // encoding makes the boundary structural, so no reason body can impersonate a
-  // signal list. A reason with no signals still hashes the bare prefix, keeping
-  // the historical key byte-identical.
+  // signal list. A reason with no signals still hashes the BARE prefix (no JSON
+  // envelope), so the two branches remain structurally distinguishable; what the
+  // signal-less branch changed above is only HOW MUCH of the reason that bare
+  // prefix covers.
   const basis = signals.length > 0 ? JSON.stringify([prefix, signals]) : prefix;
   const h = createHash('sha1').update(`${command}\n${basis}`).digest('hex').slice(0, 12);
   return `${command}/${h}`;

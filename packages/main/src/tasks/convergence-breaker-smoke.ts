@@ -12,9 +12,10 @@
  * against a throwaway temp story dir.
  */
 import { strict as assert } from 'node:assert';
-import { mkdtempSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, existsSync, rmSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   assessBreaker,
   resolveConvergenceThresholds,
@@ -22,6 +23,9 @@ import {
   resumeBreakerState,
   isInteractiveAckAllowed,
   gateFailureDigest,
+  normalizeGateReason,
+  extractGateBlockSignals,
+  listSubstantiveIdPrefixes,
   bumpGateFailureCount,
   resetGateFailureCounts,
   readGateFailureCounts,
@@ -331,6 +335,106 @@ const HEALTHY: BreakerCounters = {
   const CC54_STORY_A = 'gate blocked for b-1234';
   const CC54_STORY_B = 'gate blocked for b-5678';
 
+  // ── The real REVIEW→TEST stale-evidence rejection ──────────────────────────
+  // core/review-run.ts:1442 renders `${kind} ${id} bound reviewRunId ${runId} is
+  // stale: ${reason}. ${staleMaterialHint(...)}`; core/machine.ts:1181 wraps the
+  // verdict as `Cannot enter TEST: ${message} [${code}]`. Composed here as it
+  // renders, hint text verbatim from staleMaterialHint (core/review-run.ts:830).
+  const staleReviewEvidence = (runOrdinal: string): string =>
+    `Cannot enter TEST: pass B-bf52:RP-001 bound reviewRunId B-bf52:${runOrdinal} is stale: HEAD moved since the run was started. ` +
+    `→ The reviewRunId's HEAD/materialHash is stale and cannot be fixed by repeatedly running review_run_start within the same REVIEW round; ` +
+    `first return to DEV to fix and commit, then run lattice story_advance '{"storyId":"B-bf52","phase":"REVIEW"}' to enter a new currentReviewRound, ` +
+    `and subsequently run lattice review_run_start '{"storyId":"B-bf52","agent":"lattice-review-code"}' [review_evidence_invalid]`;
+
+  // ── A real SIGNAL-LESS scope-gate rejection (F-031 / CHK-001) ──────────────
+  // The advice sentence is verbatim from nextActionForViolation
+  // (core/scope-contract.ts:308) and the enforce-mode framing from
+  // violationStatus above it. Deliberately carries NO bracketed reason code, no
+  // bulleted snake_case gap id and no missing_/invalid_/stale_ inline token, so
+  // extractGateBlockSignals returns [] and the length cut alone decides the key.
+  // The offending path is LAST, past character 200, which is what makes the two
+  // variants collapse under an unconditional 200-character prefix.
+  const scopeGateBlock = (path: string): string =>
+    `Cannot enter TEST: the scope gate is blocking for B-bf52. The story scope contract is in enforce mode, so every changed path must be ` +
+    `declared by the contract, covered by a shared classifier rule, or carry an explicit acknowledgement that a reviewer can see. ` +
+    `Run scope_contract_acknowledge with a reviewer-visible reason, add the path to the contract, or revert it. Blocking path: ${path}`;
+
+  // ── The real ProofStory DEV-gate rejection (signals fold) ──────────────────
+  // Preamble verbatim from core/machine.ts:179, body in the exact shape
+  // renderProofStoryDiagnosticReport emits (core/proofstory.ts:1890-1920), with
+  // trigger codes/messages from proofstory.ts:712-743 and gap codes/messages
+  // from proofstory.ts:1127-1141. Only the ONE gap line varies, which is what a
+  // story clearing one precondition at a time actually produces.
+  const proofStoryDevGateBlock = (gapCode: string, gapArtifact: string, gapMessage: string): string => [
+    'Cannot enter DEV: ProofStory DEV gate is enforce and required intent artifacts are incomplete.',
+    'ProofStory diagnostics for B-bf52',
+    'Mode: enforce',
+    'Status: fail',
+    'Blocking: yes',
+    'Hardening level: high_assurance',
+    'Ledger: missing, 0/5 milestone threshold (within_threshold)',
+    'Trigger reasons (3):',
+    '  - high_assurance_risk: High-risk or gate/security wording selects high-assurance intent hardening.',
+    '  - collision_required_high_assurance: High-assurance work requires an independent intent-collision result.',
+    '  - red_evidence_required: Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.',
+    'Diagnostic gaps (1):',
+    `  - ${gapCode} [warn; ${gapArtifact}]: ${gapMessage}`,
+  ].join('\n');
+  const PROOFSTORY_COLLISION_GAP = proofStoryDevGateBlock(
+    'missing_intent_collision', 'intent-collision.json',
+    'Intent collision is triggered but no pass decision with acceptedInterpretation is present.',
+  );
+  const PROOFSTORY_RED_GAP = proofStoryDevGateBlock(
+    'missing_red_evidence', 'red-evidence.json',
+    'Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.',
+  );
+
+  // ── Fixture PRECONDITIONS, asserted against the REAL normalizer ────────────
+  // A matrix case only proves what its fixtures actually exercise. The
+  // `bcc54-cross-vendor-noise` case was described (in an earlier draft of this
+  // story's evidence) as this story's guard against regressing B-cc54's signals
+  // FOLD; it is not, and the test-coverage lane demonstrated it by collapsing
+  // `basis` to `prefix` alone, rebuilding, and watching the entire matrix still
+  // pass — extractGateBlockSignals returns [] for BOTH noise fixtures, so that
+  // case never reaches the fold at all. These assertions exist so the same
+  // mistake cannot be made silently again: each fixture pair states, mechanically,
+  // WHICH mechanism it is positioned to exercise.
+  const norm200 = (s: string): string => normalizeGateReason(s).slice(0, 200);
+  {
+    // signals fold: identical 200-char normalized prefixes, DIFFERENT non-empty signal sets.
+    const sigA = extractGateBlockSignals(normalizeGateReason(PROOFSTORY_COLLISION_GAP));
+    const sigB = extractGateBlockSignals(normalizeGateReason(PROOFSTORY_RED_GAP));
+    assert.equal(
+      norm200(PROOFSTORY_COLLISION_GAP), norm200(PROOFSTORY_RED_GAP),
+      'signals-fold fixture: the two DEV-gate rejections must share their first 200 normalized characters, or the case proves nothing about the fold',
+    );
+    assert.ok(sigA.length > 0 && sigB.length > 0, 'signals-fold fixture: both reasons must extract a NON-EMPTY signal set');
+    assert.notDeepEqual(sigA, sigB, 'signals-fold fixture: the two signal sets must differ');
+    assert.ok(sigA.includes('missing_intent_collision'), 'signals-fold fixture: gap code A is extracted');
+    assert.ok(sigB.includes('missing_red_evidence'), 'signals-fold fixture: gap code B is extracted');
+    console.log(
+      `  fixture-precondition signals-fold: shared 200-char prefix, signals A=[${sigA.join(',')}] B=[${sigB.join(',')}]`,
+    );
+  }
+  {
+    // signal-less long rejection: NO signals on either side, divergence past char 200.
+    const a = normalizeGateReason(scopeGateBlock('packages/main/src/core/alpha.ts'));
+    const b = normalizeGateReason(scopeGateBlock('packages/main/src/core/beta.ts'));
+    assert.deepEqual(extractGateBlockSignals(a), [], 'signal-less fixture: reason A must extract NO signals');
+    assert.deepEqual(extractGateBlockSignals(b), [], 'signal-less fixture: reason B must extract NO signals');
+    let i = 0;
+    while (i < Math.min(a.length, b.length) && a[i] === b[i]) i += 1;
+    assert.ok(i > 200, `signal-less fixture: the two reasons must diverge PAST character 200 (diverged at ${i}) or the 200-char cut was never the cause`);
+    console.log(`  fixture-precondition signal-less: no signals on either side, normalized divergence at char ${i} (length ${a.length})`);
+  }
+  {
+    // stale-review-evidence pair: the RR- ordinal is the ONLY difference.
+    const a = staleReviewEvidence('RR-002');
+    const b = staleReviewEvidence('RR-003');
+    assert.equal(a.replace('RR-002', 'RR-00X'), b.replace('RR-003', 'RR-00X'), 'stale-evidence fixture: the pair must differ ONLY in the review-run ordinal');
+    console.log('  fixture-precondition stale-evidence: the pair differs only in the RR- ordinal');
+  }
+
   type GuardRule =
     | 'path-rule-overreach'
     | 'path-rule-collapse'
@@ -338,7 +442,18 @@ const HEALTHY: BreakerCounters = {
     | 'allowlist-boundedness'
     | 'digit-rule-collapse'
     | 'iso-timestamp-rule'
-    | 'hex-rule-collapse';
+    | 'hex-rule-collapse'
+    // F-031: fails if the signals-conditional prefix is reverted to an
+    // unconditional 200-char cut (the signal-less pair then collapses).
+    | 'signals-conditional-prefix'
+    // Test-coverage lane: fails if the (prefix, signals) fold is collapsed to
+    // `prefix` alone — the ONLY case that genuinely exercises B-cc54's C1
+    // mechanism from inside this suite (the noise pair does not).
+    | 'signals-fold'
+    // F-030: fails if `rr-`/`rp-` are added to SUBSTANTIVE_ID_PREFIXES — the
+    // inverse-risk direction, in which the stale-evidence retry stops collapsing
+    // and the breaker never trips on an unbounded review_run_start loop.
+    | 'review-bookkeeping-not-allowlisted';
   interface DigestCase { name: string; a: string; b: string; guardedBy: GuardRule }
 
   const MUST_DIFFER: DigestCase[] = [
@@ -380,12 +495,55 @@ const HEALTHY: BreakerCounters = {
       b: 'review blocker: finding F-013 is still open and unresolved',
     },
     {
-      // Two different review runs. Re-binding evidence from RR-002 to RR-003 is
-      // a different rejection, not the same one retried.
-      name: 'review-run-ordinal',
+      // Two different open bugs (F-029). The producer is core/machine.ts:1195,
+      // `Cannot enter DONE: ${n} unfixed bug(s): ${ids}`, quoted here as it
+      // renders. Under `/\d+/g` both became `bug-#`, so fixing BUG-001 and then
+      // being blocked by BUG-002 — substantive progress — read as one gate
+      // failing twice. `BUG-` was MISSING from the first draft of the allowlist,
+      // which is why section 7c now reconciles the allowlist against the
+      // artifact-id prefixes production source actually emits.
+      name: 'unfixed-bug-ordinal',
       guardedBy: 'substantive-id-allowlist',
-      a: 'review pass is bound to review run RR-002, not the current run',
-      b: 'review pass is bound to review run RR-003, not the current run',
+      a: 'Cannot enter DONE: 1 unfixed bug(s): BUG-001',
+      b: 'Cannot enter DONE: 1 unfixed bug(s): BUG-002',
+    },
+    {
+      // F-031 / CHK-001: a SIGNAL-LESS rejection that is byte-identical for its
+      // first 200 normalized characters and only then names the offending path.
+      // The body is the real scope-gate advice (nextActionForViolation in
+      // core/scope-contract.ts) and carries no bracketed reason code, no bulleted
+      // snake_case gap id and no missing_/invalid_/stale_ token, so
+      // extractGateBlockSignals returns NOTHING and B-cc54's structural mechanism
+      // supplies no distinctness at all — the 200-character cut alone decided the
+      // key, and two different out-of-contract paths collapsed onto it.
+      //
+      // This case fails if the truncation is reverted to an unconditional
+      // `slice(0, 200)`. It is the INVERSE revert of B-cc54's
+      // CHK-002:adversarial:1, which requires the signals branch to KEEP the cut,
+      // so the two together pin the conditional in both directions.
+      name: 'signal-less-long-rejection',
+      guardedBy: 'signals-conditional-prefix',
+      a: scopeGateBlock('packages/main/src/core/alpha.ts'),
+      b: scopeGateBlock('packages/main/src/core/beta.ts'),
+    },
+    {
+      // B-cc54's C1 mechanism, exercised for real. Both reasons carry signals and
+      // share their first 200 normalized characters (asserted above as a fixture
+      // precondition), so the 200-char prefix is IDENTICAL and ONLY the folded
+      // signal set can tell them apart: this case fails the moment `basis`
+      // collapses to `prefix` alone.
+      //
+      // It exists because the test-coverage lane disproved the claim that
+      // `bcc54-cross-vendor-noise` guarded this — that pair extracts an EMPTY
+      // signal set on both sides, so it never reaches the fold, and the whole
+      // matrix stayed green while the fold was disabled. A story clearing
+      // missing_intent_collision and then tripping on missing_red_evidence is the
+      // real sequence (it is what B-cc54 itself hit), and reading it as one gate
+      // failing twice is the false freeze both stories exist to kill.
+      name: 'proofstory-gap-signal-set',
+      guardedBy: 'signals-fold',
+      a: PROOFSTORY_COLLISION_GAP,
+      b: PROOFSTORY_RED_GAP,
     },
   ];
 
@@ -434,6 +592,25 @@ const HEALTHY: BreakerCounters = {
       guardedBy: 'allowlist-boundedness',
       a: CC54_STORY_A,
       b: CC54_STORY_B,
+    },
+    {
+      // F-030, the inverse-risk guard. This case PREVIOUSLY lived in the
+      // must-differ lane as `review-run-ordinal`, asserting that two stale-
+      // evidence rejections differing only in their RR- ordinal must key
+      // DIFFERENTLY — i.e. it asserted the UNSAFE direction as desired. Cross-host
+      // codex (round 5) showed why that is wrong: "review evidence ... bound
+      // reviewRunId B-bf52:RR-002 is stale" is NOT repaired by starting another
+      // reviewer run (staleMaterialHint says the fix is to return to DEV), so if
+      // RR-002 and RR-003 keyed apart, a host repeating review_run_start then
+      // story_advance would mint a fresh key on every attempt and the breaker
+      // would never trip on that unbounded loop. `rr-`/`rp-` were therefore
+      // REMOVED from SUBSTANTIVE_ID_PREFIXES, and this pair must now COLLAPSE so
+      // the retry accumulates and the breaker still fires. It fails the moment
+      // `rr-` (or `rp-`) is re-added to the allowlist.
+      name: 'stale-review-run-evidence',
+      guardedBy: 'review-bookkeeping-not-allowlisted',
+      a: staleReviewEvidence('RR-002'),
+      b: staleReviewEvidence('RR-003'),
     },
     {
       // A bare ordinal carries no artifact prefix, so it is noise. This is the
@@ -629,11 +806,15 @@ const HEALTHY: BreakerCounters = {
   }
 
   // A pathological oversize reason must not throw and must still key. This is a
-  // SHAPE check only, and is deliberately not presented as evidence about any
-  // length bound: main's design keeps the 200-character normalized prefix (a
-  // round-4 draft of this story replaced it with a 16,384-character sanity bound,
-  // which is reverted — B-cc54's suite depends on the prefix, and the signals
-  // folded into the hash basis are what supply distinctness past it).
+  // SHAPE check only. F-031 made the prefix cut SIGNALS-CONDITIONAL: a reason
+  // that carries structured signals keeps B-cc54's 200-character prefix exactly,
+  // and a signal-less reason is bounded at 16,384 characters — a sanity ceiling
+  // so a pathological transcript stays cheap to hash, NOT a distinctness claim.
+  // TRANSCRIPT carries no signal, so it exercises the 16,384 branch.
+  assert.deepEqual(
+    extractGateBlockSignals(normalizeGateReason(TRANSCRIPT)), [],
+    'the oversize fixture must be signal-less so it exercises the 16,384 sanity-bound branch',
+  );
   assert.match(
     gateFailureDigest(CMD, TRANSCRIPT), /^story_advance\/[0-9a-f]{12}$/,
     'a pathological oversize reason still produces a well-formed digest and does not throw',
@@ -641,6 +822,154 @@ const HEALTHY: BreakerCounters = {
   console.log(
     `  oversize-reason     ${TRANSCRIPT.length}-char reason digests to ` +
     `${gateFailureDigest(CMD, TRANSCRIPT)} without throwing`,
+  );
+}
+
+// ── 7c. B-bf52 F-029: the allowlist's own completeness guard ──────────────────
+//
+// The allowlist SUBSTANTIVE_ID_PREFIXES is hand-written, and F-029 is the proof
+// that a hand-written enumeration cannot see its own gaps: `bug-` was missing,
+// so `Cannot enter DONE: 1 unfixed bug(s): BUG-001` and its BUG-002 variant
+// collapsed, and fixing one bug then being blocked by the next read as one
+// repeated failure. One more entry does not fix the CLASS; a guard that makes
+// the gap DETECTABLE does.
+//
+// This guard scans production source (core + handlers) for the artifact-id
+// ordinal shapes the finding names — `PREFIX-${…}` id-MINT templates (the
+// authoritative producers of every id that can appear, interpolated, in a
+// runtime rejection) and, additionally, literal `PREFIX-<digit>` ordinals that
+// appear INSIDE a story_advance-reachable rejection literal (one carrying a
+// transition-guard rejection marker). Every discovered prefix must be classified
+// as EITHER substantive (in the live allowlist) OR a member of an explicit,
+// commented exclusion category below. A prefix in NEITHER fails this guard,
+// naming itself — so the next time a producer like machine.ts:1195 introduces a
+// gate-reachable ordinal, the suite refuses to stay green until someone decides.
+{
+  const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
+  const SCAN_DIRS = ['src/core', 'src/handlers'];
+
+  // Explicit, commented exclusion categories. The reason lives with the category.
+  //
+  // (a) F-030: review BOOKKEEPING ids. `rr-`/`rp-` change on retry and name the
+  // review record, NOT the artifact that must be fixed; allowlisting them
+  // reintroduces the never-tripping stale-evidence loop (guarded, in the inverse
+  // direction, by the must-collapse `stale-review-run-evidence` case above).
+  const EXCLUDED_REVIEW_BOOKKEEPING = new Set(['rr-', 'rp-']);
+  // (b) The story-id prefix itself is not an artifact ordinal; it must normalize
+  // like any other bare id (guarded by the must-collapse `bcc54-story-id-digits`).
+  const EXCLUDED_STORY_ID = new Set(['b-']);
+  // (c) Ids minted by subsystems whose records are NEVER emitted by a
+  // story_advance transition-guard rejection: playbook / learning / capability /
+  // handoff / autopilot / dispatch / cluster / planner / grill / review-loop /
+  // review-escalation / test-run / session-label producers. If any of these ever
+  // starts appearing in a transition-guard rejection whose ordinal marks progress
+  // (clear one, hit the next), it must MOVE to the allowlist with its own
+  // must-differ case — this guard is exactly what will force that decision.
+  const EXCLUDED_NON_GATE_SUBSYSTEM = new Set([
+    'ap-', 'ar-', 'auto-', 'cl-', 'd-', 'ddp-', 'done-', 'gq-', 'grill-', 'hp-',
+    'override-', 'pba-', 'pbd-', 'pbh-', 'pbls-', 'pbo-', 'pbp-', 'pbs-',
+    'pbsrc-', 'pcr-', 'pol-', 'ref-', 'rhp-', 'rl-', 's-', 'sep-', 'src-',
+    'tea-', 'test-', 'timer-',
+  ]);
+
+  const allowlist = new Set(listSubstantiveIdPrefixes());
+  const isClassified = (p: string): boolean =>
+    allowlist.has(p) || EXCLUDED_REVIEW_BOOKKEEPING.has(p) ||
+    EXCLUDED_STORY_ID.has(p) || EXCLUDED_NON_GATE_SUBSYSTEM.has(p);
+
+  // Comment-aware tokenizer: yields string + template literal bodies, skipping
+  // comments so a prefix mentioned only in prose does not count as a producer.
+  const scanLiterals = (src: string): string[] => {
+    const out: string[] = [];
+    let i = 0;
+    const n = src.length;
+    while (i < n) {
+      const c = src[i];
+      if (c === '/' && src[i + 1] === '/') { while (i < n && src[i] !== '\n') i += 1; continue; }
+      if (c === '/' && src[i + 1] === '*') { i += 2; while (i < n && !(src[i] === '*' && src[i + 1] === '/')) i += 1; i += 2; continue; }
+      if (c === "'" || c === '"' || c === '`') {
+        const q = c;
+        const start = ++i;
+        while (i < n) {
+          if (src[i] === '\\') { i += 2; continue; }
+          if (src[i] === q) break;
+          if (q !== '`' && src[i] === '\n') break;
+          i += 1;
+        }
+        out.push(src.slice(start, i));
+        i += 1;
+        continue;
+      }
+      i += 1;
+    }
+    return out;
+  };
+
+  const listTsFiles = (dir: string): string[] => {
+    const acc: string[] = [];
+    const walk = (d: string): void => {
+      for (const entry of readdirSync(d).sort()) {
+        const p = join(d, entry);
+        if (statSync(p).isDirectory()) walk(p);
+        else if (p.endsWith('.ts')) acc.push(p);
+      }
+    };
+    walk(dir);
+    return acc;
+  };
+
+  // The mint shape the finding names: a prefix immediately followed by `-${`.
+  const MINT_RE = /(?:^|[^A-Za-z0-9_])([A-Z]{1,10})-\$\{/g;
+  // The literal-ordinal shape, restricted to rejection text so the scan targets
+  // "story_advance-reachable rejection text" and not the baseline/doc fixtures.
+  const LITERAL_ORDINAL_RE = /(?:^|[^A-Za-z0-9_])([A-Z]{1,10})-\d/g;
+  // Markers a story_advance transition guard (core/machine.ts) or the gates it
+  // calls actually emit. A literal carrying one is treated as rejection text.
+  const REJECTION_MARKER = /cannot enter|unfixed bug|is stale|bound reviewrunid|not the (?:current|latest) run|still open|proposal\(s\) are still pending|checklist item\(s\) not done|scope gate is blocking/i;
+
+  const discovered = new Map<string, string>(); // prefix -> first "file: snippet"
+  let fileCount = 0;
+  for (const rel of SCAN_DIRS) {
+    for (const file of listTsFiles(join(packageRoot, rel))) {
+      fileCount += 1;
+      const src = readFileSync(file, 'utf8');
+      const shortName = file.slice(packageRoot.length + 1);
+      for (const body of scanLiterals(src)) {
+        const isRejection = REJECTION_MARKER.test(body);
+        const record = (m: RegExpMatchArray): void => {
+          const prefix = `${m[1].toLowerCase()}-`;
+          if (!discovered.has(prefix)) {
+            discovered.set(prefix, `${shortName}: «${body.slice(Math.max(0, (m.index ?? 0) - 30), (m.index ?? 0) + 30).replace(/\s+/g, ' ')}»`);
+          }
+        };
+        for (const m of body.matchAll(MINT_RE)) record(m);
+        if (isRejection) for (const m of body.matchAll(LITERAL_ORDINAL_RE)) record(m);
+      }
+    }
+  }
+
+  // The guard must actually be scanning something, and must have SEEN the real
+  // F-029 producer prefix `bug-` (test-story.ts mints `BUG-${…}`) and the two
+  // deliberately-excluded review-bookkeeping prefixes — otherwise a broken
+  // tokenizer could pass this section vacuously.
+  assert.ok(fileCount > 100, `completeness scan must cover the source tree (saw ${fileCount} files)`);
+  for (const anchor of ['bug-', 'rr-', 'rp-', 'chk-', 'f-']) {
+    assert.ok(discovered.has(anchor), `completeness scan must discover the ${anchor} producer, or it is not scanning the real id-mint sites`);
+  }
+
+  const unclassified = [...discovered.entries()].filter(([p]) => !isClassified(p)).sort();
+  if (unclassified.length > 0) {
+    assert.fail(
+      `B-bf52 completeness guard: ${unclassified.length} artifact-id prefix(es) appear in a story_advance-reachable ` +
+      `producer but are neither in SUBSTANTIVE_ID_PREFIXES nor in an explicit exclusion category. ` +
+      `Decide each one: allowlist it (with a must-differ matrix case) if its ordinal names WHICH artifact the gate ` +
+      `refused on, or add it to an exclusion category with a reason. Offending: ` +
+      unclassified.map(([p, where]) => `${p} (${where})`).join(' ;; '),
+    );
+  }
+  console.log(
+    `  completeness-guard  scanned ${fileCount} files, ${discovered.size} id-prefix producers, ` +
+    `all classified (${allowlist.size} substantive, ${EXCLUDED_REVIEW_BOOKKEEPING.size + EXCLUDED_STORY_ID.size + EXCLUDED_NON_GATE_SUBSYSTEM.size} excluded)`,
   );
 }
 
@@ -857,4 +1186,4 @@ const HEALTHY: BreakerCounters = {
   }
 }
 
-console.log('PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, B-bf52 digest matrix reconciled with B-cc54 (5 must-differ counter=1 + 10 must-still-collapse counter=2 breaker-trips: the C2/C3/C4 normalizer-overreach classes this story owns — slash-bearing phase pairs, in-repo relative file paths, and the checklist/finding/review-run ordinals separated by the SUBSTANTIVE_ID_PREFIXES allowlist — against machine-absolute + delimiter-attached POSIX paths, free-standing hex ids, ISO timestamps, a welded lease heartbeat age, embedded lane counts, a bare attempt ordinal, and B-cc54\'s own cross-vendor noise and story-id-digit fixtures quoted verbatim so the allowlist cannot be widened past that vocabulary from inside this suite), thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block + takeover-block, no-spurious-reset, canonical-id guard rejection');
+console.log('PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, B-bf52 digest matrix reconciled with B-cc54 (7 must-differ counter=1 + 11 must-still-collapse counter=2 breaker-trips: the C2/C3/C4 normalizer-overreach classes this story owns — slash-bearing phase pairs, in-repo relative file paths, and the checklist/finding/BUG ordinals separated by the SUBSTANTIVE_ID_PREFIXES allowlist (F-029) — plus the F-031 signals-conditional prefix (a signal-less long rejection keeps distinct keys) and the test-coverage-lane signals FOLD case (two DEV-gate rejections sharing a 200-char prefix but differing only in their extracted gap-code set, the only case that genuinely exercises B-cc54\'s C1 mechanism), against machine-absolute + delimiter-attached POSIX paths, free-standing hex ids, ISO timestamps, a welded lease heartbeat age, embedded lane counts, a bare attempt ordinal, the F-030 stale-review-run-evidence pair that must collapse so an unbounded review_run_start loop still trips, and B-cc54\'s own cross-vendor noise and story-id-digit fixtures quoted verbatim so the allowlist cannot be widened past that vocabulary from inside this suite) + the F-029 completeness guard scanning core/handlers id-mint sites so a missing allowlist prefix fails loudly, thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block + takeover-block, no-spurious-reset, canonical-id guard rejection');
