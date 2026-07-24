@@ -549,6 +549,24 @@
       ],
       "signatureTag": "edge|ts|cross-host-codex",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-030",
+      "desc": "cross-host (codex-cli host-B round 5), recorded by the main agent: putting RR- in the allowlist knowingly reintroduces the inverse-risk hole codex filed in round 3. \"Cannot enter TEST: review pass RP-001 bound reviewRunId B-bf52:RR-002 is stale\" and the RR-003 variant now digest differently, and starting another reviewer run does NOT repair stale evidence, so a host repeating review_run_start then story_advance mints a fresh key indefinitely and the breaker never trips. Worse, the matrix case review-run-ordinal asserts that unsafe behaviour AS DESIRED. RR- and RP- name review bookkeeping that changes on retry, not the artifact that must be fixed, so they do not belong in an allowlist whose stated criterion is naming WHICH artifact failed.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main-agent",
+      "createdAt": "2026-07-24T03:36:30.403Z",
+      "reviewRound": "2026-07-24T02:32:11.264Z",
+      "_hash": "6ee1cd59f264c34d7df3b98f8b0026c036c379cc7f312daaa79a1203e4976fa6",
+      "files": [
+        "packages/main/src/core/convergence-breaker.ts",
+        "packages/main/src/tasks/convergence-breaker-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|cross-host-codex",
+      "signatureTagSource": "auto"
     }
   ]
 }
