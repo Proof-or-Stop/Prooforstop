@@ -393,11 +393,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
           "result": "pass",
-          "note": "B-cc54's suite is byte-unmodified by this story (git diff main on that path is empty) and exits 0. The completeness guard is BIDIRECTIONAL: it fails naming an UNCLASSIFIED prefix when a scanned producer has no entry, and naming a NO PRODUCER entry when a declared prefix has no producer, so the enumeration drift that caused this story's own errors is now caught by the suite rather than by the next review round. Recorded by case name and guard tag with no hand-written totals: every earlier re-recording drifted because it counted, and the partial re-recording before this one left sibling notes contradicting their own item (F-045/F-046/F-047). This set was written whole, against the matrix as the suite prints it.",
-          "headHash": "dd63a6188f243d4dc3a1a7cba3dbdf8803d58578",
-          "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
-          "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
-          "timestamp": "2026-07-24T11:34:23.847Z"
+          "note": "B-cc54's suite is byte-unmodified (git diff main on that path is empty) and exits 0. The completeness guard is BIDIRECTIONAL — it names an UNCLASSIFIED prefix when a scanned producer has no entry, and a NO PRODUCER entry when a declared prefix has none — so enumeration drift is caught by the suite rather than by the next review round. Recorded by case name and guard tag, no hand-written totals, and as a WHOLE SET — partial re-recording left sibling notes self-contradicting once before (F-045/F-046/F-047).",
+          "headHash": "94da693df76eef10c67a4db5f10974bfb8d566d4",
+          "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
+          "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
+          "timestamp": "2026-07-24T12:17:41.868Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
