@@ -39,20 +39,39 @@
         "CHK-002",
         "CHK-003"
       ],
-      "verificationIntentRefs": [],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
+        "CHK-002:edge:2",
+        "CHK-002:adversarial:0",
+        "CHK-002:adversarial:1",
+        "CHK-002:adversarial:2",
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:happy:2",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:edge:2",
+        "CHK-003:edge:3",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1",
+        "CHK-003:adversarial:2",
+        "CHK-003:adversarial:3"
+      ],
       "milestoneIds": [],
       "note": "The smoke suite delivers the acceptance claim end to end: CHK-001 RED repro (refusal asserted, poisoning forensics on pre-fix code), CHK-002 guard predicate alignment (refusal branch), CHK-003 quorum_prune dry-run/apply recovery restoring full-3x2."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "acceptance_binding_missing_verification_intent_refs",
-      "severity": "warn",
-      "artifact": "proofstory.json",
-      "message": "AB-001 has no verificationIntentRefs."
-    }
-  ],
-  "note": "B-3144 acceptance binding: snapshot acceptanceClaim covered by the three checklist items via quorum-submit-smoke.",
+  "diagnosticGaps": [],
+  "note": "B-3144 acceptance binding: snapshot acceptanceClaim covered by the three checklist items and their test-intent verificationIntent refs.",
   "createdAt": "2026-07-24T20:23:03.448Z",
-  "updatedAt": "2026-07-24T20:23:03.448Z"
+  "updatedAt": "2026-07-24T20:29:50.544Z"
 }
