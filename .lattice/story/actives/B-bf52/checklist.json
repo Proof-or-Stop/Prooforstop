@@ -393,11 +393,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case coverage in this suite: the pre-existing assertions still pass alongside the matrix, including the reset-clears-counter case, and the section-7c completeness guard is BIDIRECTIONAL — it names an UNCLASSIFIED prefix when a scanned producer has no entry, and a NO PRODUCER entry when a declared prefix has none, so enumeration drift is caught by the suite rather than by the next review round. Command rebound after F-050: those claims live in this suite. The separate B-cc54 boundary claim is verified by its own command, 'node packages/main/dist/tasks/gate-repeat-block-smoke.js' exiting 0 with 'git diff main -- packages/main/src/tasks/gate-repeat-block-smoke.ts' empty, reported by every reviewer lane this round.",
-          "headHash": "d4864129ca35d3a9217a919a416600dd1cb5f3b2",
-          "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
-          "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
-          "timestamp": "2026-07-24T12:35:45.229Z"
+          "note": "The pre-existing assertions still pass alongside the matrix, and the section-7c completeness guard is BIDIRECTIONAL — it names an UNCLASSIFIED prefix when a scanned producer has no entry and a NO PRODUCER entry when a declared prefix has none — so enumeration drift is caught by the suite rather than by the next review round. The separate B-cc54 boundary claim is verified by its own command, node packages/main/dist/tasks/gate-repeat-block-smoke.js exiting 0 with git diff main on that path empty. Recorded by case name and guard tag, no hand-written totals, as a WHOLE SET against the current matrix; the command names the suite that actually demonstrates the claim.",
+          "headHash": "80363eec03b99c502f4e891fabdc512baa2fe229",
+          "materialHash": "8b0c8e4289e9b824438d9eff678b27bffd2ed6f3c5781eae8c3f167355b99ac4",
+          "storyFilesHash": "6105d78916a6ed11d42dd5f31a80c51145171805ccbee6711036cb9cb0fa3a1f",
+          "timestamp": "2026-07-24T13:12:44.353Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
