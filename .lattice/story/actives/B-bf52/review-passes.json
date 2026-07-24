@@ -77,6 +77,39 @@
         "scanEscalationReason": null
       },
       "_hash": "728f623bbfc895fcecc5871006bbc0a49f72c7bcfe4f73f28515f3f2a0f59d9e"
+    },
+    {
+      "id": "B-bf52:RP-004",
+      "agent": "lattice-review-behavior",
+      "note": "Verified F-059/F-060 fixes and F-062 partially_mitigated resolution are honest. plan.md Sections 2-4 correctly state C2/C4 delivered (token-start path rule), C1 partially delivered by signals-conditional prefix (C1 core fixed on main by B-cc54), C3 withdrawn with the machine.ts:1190 evidence.output-interpolation proof; no stale allowlist-delivers-C3 claim remains (grep confirms allowlist/SUBSTANTIVE_ID only survive as retrospective comments at convergence-breaker.ts:576/583). All four CHK-003 verificationEvidence notes state NOT DELIVERED with the same proof and cite the correct must-still-collapse cases (checklist-ordinal, unfixed-bug-ordinal, bcc54-story-id-digits). scope-shrinkage-decision.json is operator-confirmed (userConfirmed:true, approvedBy jek) and lists CHK-003 removed with matching reasoning. Read command-policy.ts:420 directly: proofstory_contract_set is allowedPhases:[PLAN] only, confirming AB-003 cannot be corrected from DEV/REVIEW; also read handlers/checklist.ts:561-776 directly and confirmed checklist_update.status enum is pending|in_progress|done (no withdrawn value) and args.success only feeds an appendProcessEvent audit-log entry, never a persisted field on the item itself -- so the claimed tooling gaps are real, not a convenient excuse, and no unused correction route exists (no other diagnosticGaps writer). partially_mitigated therefore reads as the honest resolution type: the load-bearing, mutable records (plan.md, all CHK-003 evidence, scope-shrinkage-decision.json) are fully corrected and consistent with the shipped code, while the one still-stale place (frozen AB-003 acceptance-binding note) is disclosed at the point a reader would meet it rather than silently left standing. Re-verified shipped behavior from a rebuild at HEAD 280a5440b4-equivalent (no code diff since): node dist/tasks/convergence-breaker-smoke.js PASS (checklist-ordinal case now must-still-collapse, matching the withdrawal), node dist/tasks/gate-repeat-block-smoke.js PASS (B-cc54 suite, byte-unmodified vs main), tests/red/red-s3-digest-collapse.mjs PASS on this branch and correctly FAILS 3/10 (C1c/C2/C4, exactly the delivered classes) against a freshly built main worktree (local main tip bb3312e34d, packages/main built clean), tests/red/red-s3-differential-probe.mjs run against that same fresh-main comparison build: PASS, 4/4 delivered classes branch-finer, 13/13 volatile/withdrawn classes tie (including CHK-NNN and BUG-NNN ordinals), 0 BAR1/BAR2 violations, cost ratio 1.66x measured. One non-blocking observation not filed as a finding: background.md Key Insights section labels the greedy-path-overreach class C3 and the digit/identifier-ordinal class C4, while plan.md (and checklist CHK-003, which is the digit rule) label them the opposite way around; each document is internally self-consistent and neither makes a false claim about delivered behavior, so this is a cosmetic label swap between an INIT-time narrative doc and the later plan, not a doc-promise-undelivered defect -- flagged to the coordinator for awareness only. No blocking issues found.",
+      "createdAt": "2026-07-24T18:06:55.619Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-035",
+      "envelopeId": "8da7ee77e87a5eff156b3c902c3f301af1d3ed52c457e035eee9b63cc95fe033",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/findings.json",
+          ".lattice/story/actives/B-bf52/index.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/proofstory.json",
+          ".lattice/story/actives/B-bf52/scope-shrinkage-decision.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/convergence-breaker-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "cb3877d44a6e66b263f734f2eec87868f8c6772002aac95e90607cc197c3fda7"
     }
   ]
 }
