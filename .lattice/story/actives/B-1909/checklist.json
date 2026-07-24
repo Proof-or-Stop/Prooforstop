@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add withdrawn as a terminal checklist disposition through schema, CLI validation and persistence",
       "context": "packages/main/src/core/types.ts:691 ChecklistItem, handlers/checklist.ts:564 status union, cli/command-catalog.ts:435 z.enum(['pending','in_progress','done']). Item gains status 'withdrawn' plus a decisionRef naming the authorizing scope-shrinkage decision. The item keeps its original title/context/userSees/verificationIntent verbatim; withdrawal is a disposition, not a rewrite of what was planned. Also decide the fate of the currently-dead --success flag rather than leaving it documented but unpersisted.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-24T21:44:40.833Z",
       "verificationIntent": {
         "happy": [
           {
