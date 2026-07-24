@@ -284,6 +284,17 @@
             "priority": "must"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/validate.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/withdrawn-disposition-smoke.ts"
+        ]
       }
     }
   ]
