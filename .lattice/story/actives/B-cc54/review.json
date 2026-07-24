@@ -138,6 +138,62 @@
         }
       ],
       "_hash": "ffdaa7b8056d87d5a2c35735c604028e08eb3e203e5fa1c846ffbc25baab7ba1"
+    },
+    {
+      "timestamp": "2026-07-24T00:39:33.378Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when RED: reproduce an unbounded repeat-block loop against a phase gate + Record consecutive identical gate blocks per story are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether the existing advisory convergence signal (review-convergence.ts) already covered this — resolved by the spike: it keys on a finding-count trend, not refusal identity, and is advisory-only."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (none) does not match the current review round (2026-07-24T00:21:09.115Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "42778289fe31d43d835b5bd192fcc28fe645a4903a125a659fc0d40211ae6ef6"
+    },
+    {
+      "timestamp": "2026-07-24T00:39:39.415Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when RED: reproduce an unbounded repeat-block loop against a phase gate + Record consecutive identical gate blocks per story are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Whether the existing advisory convergence signal (review-convergence.ts) already covered this — resolved by the spike: it keys on a finding-count trend, not refusal identity, and is advisory-only."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (none) does not match the current review round (2026-07-24T00:21:09.115Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "615f1456b220e41f814aa542bcab7ca529e13daa55795f777b660cec8faeb079"
     }
   ]
 }
