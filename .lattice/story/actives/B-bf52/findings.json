@@ -178,7 +178,7 @@
       "desc": "packages/main/src/tasks/convergence-breaker-smoke.ts:161-198 (section 7, unchanged by the F-008 fix) — CHK-003 userSees promises the smoke prints \"a passing check stating that a rejection naming CHK-001 and one naming CHK-002 digest differently, ALONGSIDE a passing check that two attempts differing only in a free-standing counter still digest identically.\" The F-008 fix added literal-value printing (runCase/previewLines) only to the new section-7b MUST_DIFFER/MUST_COLLAPSE matrix, which covers the CHK-001-vs-CHK-002 half (case checklist-ordinal, prints both strings literally) but NOT the free-standing-counter half: that claim is grounded in the pre-existing section-7 assertion at lines 166-175 (gate BLOCKED for B-bbaf at ...(attempt 3) vs ...(attempt 41)), which has no console.log at all — verified by running node packages/main/dist/tasks/convergence-breaker-smoke.js and grepping the full output for the word attempt: zero matches. The only trace in the printed output is the terse final-summary fragment gate-repeat digest/reset, which states neither attempt, free-standing counter, nor digest identically. So CHK-003 second half is still exactly the F-008 defect (userSees describes a passing check whose content is not literally on screen) that the round-2 fix was supposed to close story-wide; it closed CHK-001/CHK-002/CHK-003-first-half but left this one clause unaddressed.",
       "severity": "medium",
       "category": "happy",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-behavior",
       "createdAt": "2026-07-24T00:48:23.237Z",
@@ -186,7 +186,8 @@
       "reviewRunId": "B-bf52:RR-008",
       "_hash": "09ade5a35434832c0211c7ecabb12495985211f158c80d7c8c4f583bebf5ae25",
       "signatureTag": "happy|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-07-24T01:44:06.933Z"
     },
     {
       "id": "B-bf52:F-011",
