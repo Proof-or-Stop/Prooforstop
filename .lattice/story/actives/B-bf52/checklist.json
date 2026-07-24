@@ -52,11 +52,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "NOT DELIVERED AS ORIGINALLY WRITTEN, and recorded as such. The C1 class was fixed on main by story B-cc54, which keeps the 200-character prefix and folds structurally-extracted gap-id signals into the hash basis; this branch adopted main's version wholesale and does not change the truncation. What this story DOES deliver of the item is bounded: case 'must-differ signal-less-long-rejection [guard: signals-conditional-prefix]' — when a rejection yields NO signals, the prefix widens so a late-diverging reason keeps a distinct key. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
-          "headHash": "b50489fb0f7d9782eb421861220d2d289bfddd9b",
-          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
-          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
-          "timestamp": "2026-07-24T10:15:40.835Z"
+          "note": "NOT DELIVERED AS ORIGINALLY WRITTEN, recorded as such. The C1 class was fixed on main by story B-cc54, which keeps the 200-character prefix and folds structurally-extracted gap-id signals into the hash basis; this branch adopted main's version and does not change the truncation. What this story delivers of the item is bounded and named: 'must-differ signal-less-long-rejection [guard: signals-conditional-prefix]' — when a rejection yields no signals the prefix widens, so a late-diverging reason keeps a distinct key. Recorded by case name and guard tag with no hand-written totals: every earlier re-recording drifted because it counted, and the partial re-recording before this one left sibling notes contradicting their own item (F-045/F-046/F-047). This set was written whole, against the matrix as the suite prints it.",
+          "headHash": "80275816d5252d9dfb98675d29df0dacaa1509e8",
+          "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
+          "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
+          "timestamp": "2026-07-24T11:34:07.142Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
