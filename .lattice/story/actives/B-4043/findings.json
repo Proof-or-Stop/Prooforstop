@@ -123,6 +123,21 @@
       "_hash": "8b8e7bf1aa0beb06de3fc3cf004888ee2ab16a5fad5f6f2e9dd89a2f6259a5dd",
       "signatureTag": "adversarial|unknown|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-4043:F-007",
+      "desc": "lattice.config.json validate.commands (lines 48-98) only registers `proofstory-acceptance-rollout-smoke.js --issuer-mutations` (line 97). The default/unflagged mode (57 assertions covering AR_SAMPLE_COUNT_LT_3, AR_ADAPTER_UNSUPPORTED, false-block/false-pass/mislabeled-3x1/waiver/inventory checks, and the full observe/warn/enforce + rollback simulation at proofstory-acceptance-rollout-smoke.ts:242-413) is registered ONLY in packages/main/smoke-manifest.json (entry name: proofstory-acceptance-rollout, line 264). smoke-manifest.json is read exclusively by packages/main/src/tasks/run-all-smokes.ts, which is invoked only via `npm run test:all` / `npm run test:smokes-full` -- verified by grep that neither script name appears anywhere in lattice.config.json (validate.commands or doneRequiredCommands), and doneRequiredCommands's \"root full test suite\" runs plain `npm test` (package.json line 15), whose long explicit chain also does not name proofstory-acceptance-rollout-smoke. So neither `lattice validate` nor the DONE-required build proof ever executes the default-mode smoke; only a human manually running `npm run test:all` would catch a regression in the threshold/adapter/mode-invariance/rollback logic that CHK-002/CHK-003/CHK-004 require. The F-004 resolvedReason states \"Fixed by registering ... the 574s full run in smoke-manifest\" as if this closes the same gate-enforcement gap as the validate.commands registration, but smoke-manifest.json registration alone has no effect on any automatic lifecycle gate -- it only supplies a name/timeout override for humans running run-all-smokes.js directly. Only the specific F-004 substitution regression (via --issuer-mutations) is actually gate-enforced; the rest of Wave 4's promotion logic is not.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T14:00:25.667Z",
+      "reviewRound": "2026-07-24T12:39:14.385Z",
+      "reviewRunId": "B-4043:RR-011",
+      "_hash": "090e3c8de6804009577a1c296fae87176667ec7d091543a5f213c39be31f980b",
+      "signatureTag": "missing|unknown|lattice-config-json",
+      "signatureTagSource": "auto"
     }
   ]
 }
