@@ -540,51 +540,64 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
   return [...signals].sort();
 }
 
+/**
+ * B-bf52 C3: the bounded vocabulary of id prefixes whose ORDINAL is substantive.
+ *
+ * The digit rule cannot decide "substantive vs volatile" syntactically — nothing
+ * in the SHAPE of `b-1234` distinguishes it from `CHK-001`, and an earlier draft
+ * of this story that tried to draw the line syntactically (identifier-attached
+ * digits are substantive) is exactly what put it in conflict with B-cc54, whose
+ * CHK-002:adversarial:2 requires `gate blocked for b-1234` and `... b-5678` to
+ * keep ONE key. So the line is drawn SEMANTICALLY instead: an ordinal is
+ * substantive when it names WHICH lifecycle artifact the gate refused on, and
+ * every other digit run is incidental.
+ *
+ * That is decidable, because this repo mints its lifecycle artifact ids from a
+ * fixed vocabulary: CHK-001 (checklist item), F-012 (finding), RP-004 (review
+ * pass), RR-002 (review run), AB-003 (acceptance basis), OQ-001 (open question),
+ * INIT-002 (init check), REQ-005 (requirement). Two gate refusals naming
+ * DIFFERENT members of that vocabulary are two different failures; a story that
+ * clears CHK-001 and then trips on CHK-002 is making progress, and counting that
+ * as one gate failing twice is the false freeze this story exists to kill.
+ *
+ * This is the same kind of structured, repo-specific knowledge extractGateBlockSignals
+ * already relies on (B-cc54 reads bracketed reason codes and bulleted gap ids by
+ * their emitted FORM). It is not a guess about free text: an unrecognised prefix
+ * — including the story-id prefix `b-` — normalizes exactly as main always did.
+ *
+ * Keep this set SMALL and evidence-backed. Every prefix added here is a prefix
+ * whose ordinals stop collapsing, which makes the breaker fire LESS often; the
+ * `bcc54-story-id-digits` case in tasks/convergence-breaker-smoke.ts is the
+ * standing guard that `b-` never joins it.
+ */
+const SUBSTANTIVE_ID_PREFIXES = new Set(['chk-', 'f-', 'rp-', 'rr-', 'ab-', 'oq-', 'init-', 'req-']);
+
 export function gateFailureDigest(command: string, reason: string): string {
   const normalized = String(reason ?? '')
     .toLowerCase()
     .replace(/0x[0-9a-f]+/g, '#')
-    // Hex ids / hashes, with an identifier-attachment guard and a dot-adjacency
-    // guard. B-bf52 F-014: `\b` treats `-` as a boundary, so the 7+-hex rule bit
-    // the suffix out of an identifier like `worker-1721775600` (decimal digits are
-    // a SUBSET of hex digits), collapsing two different workers onto one key.
-    // F-016: `(?!\.\d)` stops the rule eating the integer part of a decimal
-    // duration whose integer part happens to be 7+ digits (`1234567.5ms`), which
-    // otherwise split one duration rendering across two keys at an arbitrary
-    // length threshold.
-    .replace(/(?<![\w-])(?<!\d\.)[0-9a-f]{7,}(?![\w-])(?!\.\d)/g, '#')
+    .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
     .replace(/\d{4}-\d{2}-\d{2}t[\d:.]+z?/g, '#') // ISO timestamps
-    // B-bf52 F-006: the Windows drive-letter form carries no forward slash, so it
-    // needs its own rule or a per-user root never collapses on a Windows host.
-    .replace(/(?:^|(?<=[\s"'(\[:=,]))[a-z]:\\[^\s"')\]]*/g, '#')
-    // Machine-absolute POSIX paths, anchored at TOKEN START. B-bf52 C2/C4: the
+    // Machine-absolute POSIX paths, anchored at TOKEN START (B-bf52 C2/C4). The
     // former `\/[^\s"']+` rewrote from ANY slash anywhere in a token, so it ate
     // the tail of every slash-bearing identifier — `DEV/REVIEW` and `DEV/TEST`
     // both became `dev#`, and `src/core/alpha.ts` and `src/core/beta.ts` both
-    // became `src#`. Anchoring to a token start (or a delimiter that really does
-    // introduce a path: quote, paren, bracket, colon, equals, comma — F-006/F-009)
-    // keeps machine-specific roots collapsing while leaving relative in-repo paths
-    // and slash-joined identifiers intact.
+    // became `src#`, so a story that fixed one phase target or one file and then
+    // tripped on another read as one gate failing twice. Anchoring to a token
+    // start (or to a delimiter that really does introduce a path: quote, paren,
+    // bracket, colon, equals, comma) keeps per-machine roots collapsing while
+    // leaving relative in-repo paths and slash-joined identifiers intact.
     .replace(/(?:^|(?<=[\s"'(\[:=,]))\/[^\s"')\]]*/g, '#')
-    // B-bf52 F-007: durations and sizes, BEFORE the number rule. formatLeaseAge /
-    // formatLockAge render a heartbeat age as a digit run WELDED to a unit letter
-    // (`45s`, `8m`, `2h`), which the standalone-number rule below cannot see — its
-    // `(?![\w-])` lookahead is exactly what the unit letter trips. Without this
-    // rule, narrowing the number rule would stop the real lease/lock contention
-    // messages from ever accumulating, so a genuine livelock would never fire the
-    // breaker.
-    .replace(/(?<![\w-])(?<!\d\.)-?\d+(?:\.\d+)?(?:ms|s|m|h|d|kb|mb|gb|b)(?![\w-])(?!\.\d)/g, '#')
-    // Standalone numbers. B-bf52 C3: the former unconditional `\d+` ran INSIDE
-    // identifier tokens, so `CHK-001` and `CHK-002` both became `chk-#` and two
-    // different unmet checklist items counted as one gate failing twice. The
-    // lookarounds restrict the rule to a number that stands alone as its own
-    // token: `(?<![\w-])`/`(?![\w-])` protect identifier-attached digits
-    // (`chk-001`, `round-2`, `b-bf52`), and `(?<!\d\.)`/`(?!\.\d)` protect dotted
-    // version components (F-002, `v0.3.229`). The leading `-?` keeps a countdown's
-    // SIGN with the number so `-5` and `-19` still collapse (F-003), and the
-    // absent trailing-dot protection keeps a sentence-final `exceeded 5.` and
-    // `exceeded 19.` collapsing (F-015).
-    .replace(/(?<![\w-])(?<!\d\.)-?\d+(?:\.\d+)?(?![\w-])(?!\.\d)/g, '#')
+    // Digit runs (B-bf52 C3). Identical to main's `/\d+/g` EXCEPT that an ordinal
+    // carrying a lifecycle-artifact prefix keeps its value: `chk-001` and
+    // `chk-002` name two different checklist items, not one gate failing twice.
+    // Everything else still normalizes exactly as before — a bare `attempt 3`, a
+    // welded `45s` heartbeat age (the digits have no prefix, so `45` becomes `#`
+    // and the unit letter is untouched), `0/4 lanes`, and any unrecognised
+    // prefix including the story-id prefix `b-`.
+    .replace(/([a-z]+-)?\d+/g, (m: string, prefix: string | undefined) => (
+      prefix && SUBSTANTIVE_ID_PREFIXES.has(prefix) ? m : `${prefix ?? ''}#`
+    ))
     .replace(/\s+/g, ' ')
     .trim();
   // B-cc54: scan the WHOLE normalized reason for structured blocker identity,
