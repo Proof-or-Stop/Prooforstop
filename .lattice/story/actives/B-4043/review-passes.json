@@ -743,6 +743,41 @@
         "scanEscalationReason": null
       },
       "_hash": "79b967b9bfecea695548fba695c5181701576acb89d94388c4afb2d797434601"
+    },
+    {
+      "id": "B-4043:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review of F-011 remediation: verified the corrected 49-command figure live at current head (git show + config diff confirm lifecycle-registry-contract absent at 47-count commit b8e28971d0, present at 49-count HEAD via main merge b034a4b686); re-ran verify-process-fact-contract.mjs (exit0), proofstory-acceptance-rollout-smoke.js default (57 assertions PASS) and --issuer-mutations (7 assertions PASS), run-proofstory-acceptance-rollout-cohort.mjs (exit0), and pre-review-check-smoke --proof-scenarios end-to-end producing exactly 23 unique scenario records all biting=true, plus live acceptance_rollout_check (PASS promotionEligible=true receipt=current codes=none) matching the note verbatim. All 16 verificationEvidence entries share one consistent fresh headHash/materialHash/storyFilesHash and the only commits since that capture are metadata-only (confirmed via git diff, no material files touched). The commit that applied the fix (c412f97385) diffs cleanly to only note text/headHash/timestamp across all 16 entries - no other evidence content changed. CHK-004:adversarial:fail-closed-mutations still binds the default-mode smoke command, and source review confirms that command path covers tampered/stale receipt, waiver-delta, omission-detection and mislabeled-3x1 fail-closed assertions. The correction paragraph accurately and non-minimally states what was previously claimed (47), why it was wrong (stale memory of pre-merge commit, never re-checked against the actual run output), and the internal contradiction (lifecycle-registry-contract absent from any 47 state); finding_resolve resolvedReason likewise states this plainly without softening it. No stale or unverified factual claims found elsewhere in the note. F-011 remediation is correct and complete; no new blocker.",
+      "createdAt": "2026-07-24T19:14:45.609Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-037",
+      "envelopeId": "740c49fe779530cbeb57cd6eccaddbdc6ff29cc43c0dfc675699cb2890c024ac",
+      "writerSessionId": "b4043-review-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/index.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/process-events.jsonl",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "lattice.config.json",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "scripts/run-proofstory-acceptance-rollout-cohort.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "97e5f8b3c0277121ddbeb300f77f2261acc3babfe1ad57cc1ac3b29e5d1173ce"
     }
   ]
 }
