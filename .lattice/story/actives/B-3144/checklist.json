@@ -131,7 +131,59 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inject duplicate host_verdict events on the same runId + host/session/key identity into committed process-events.jsonl (simulating B-bf52 poisoning), run quorum_prune with dryRun:true -> output lists the exact duplicate verdict events (verdictId, runId, host, materialDigest, timestamp) and which set would be removed vs which survives; WHY: validates the discovery and reporting logic",
+            "type": "cli"
+          },
+          {
+            "desc": "Run quorum_prune with apply:true on the poisoned fixture -> backup file created alongside process-events.jsonl with timestamp in name, duplicates removed from jsonl, metadata committed; then evaluateReviewEscalation returns full-3x2 assurance level (validRoundCount >= 3); WHY: end-to-end recovery path verification",
+            "type": "cli"
+          },
+          {
+            "desc": "quorum_prune is registered in command-catalog.ts, lattice-cli.ts, and command-policy.ts and is accessible via the CLI (lattice quorum_prune --storyId=... --dryRun) -> command dispatches without unknown-command error; WHY: wiring verification across all 5 integration points",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No duplicate host_verdict events found for any runId -> quorum_prune refuses with a clear nothing-to-prune message and writes no backup, no mutation, no commit; WHY: prevents accidental mutation when quorum state is clean",
+            "type": "cli"
+          },
+          {
+            "desc": "Working tree is dirty (uncommitted changes in tracked files) -> quorum_prune refuses before any file I/O with pre-dirty refusal message; WHY: dirty-tree guard prevents interleaving with uncommitted work",
+            "type": "cli"
+          },
+          {
+            "desc": "Triple-duplicate (3 host_verdict events for same runId + identity) -> keeps exactly 1 event per group (the one matching keep selector, default newest-material) and removes the other 2; WHY: handles more-than-double duplication gracefully",
+            "type": "cli"
+          },
+          {
+            "desc": "runIds filter is provided -> only duplicates on the specified runIds are pruned, other runId duplicates are left untouched; WHY: selective pruning for targeted recovery",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "process-events.jsonl contains interleaved non-host_verdict events (e.g. review_run, review_pass) between host_verdict duplicates -> all non-host_verdict events are preserved unmodified in the rewritten file, in their original order; WHY: pruning must only remove host_verdict duplicates, never corrupt other event types or reorder the log",
+            "type": "cli"
+          },
+          {
+            "desc": "Run quorum_prune with keep:oldest-material -> removes the newer-material duplicates instead of the default newest-material ones; verify the surviving events have the older materialDigest; WHY: exercises the selector inversion and proves it is not hardcoded",
+            "type": "cli"
+          },
+          {
+            "desc": "Process-events.jsonl exists but is untracked or only staged (not committed) -> quorum_prune refuses with a message about uncommitted events file; WHY: the command must only operate on committed state to avoid rewriting in-flight data",
+            "type": "cli"
+          },
+          {
+            "desc": "Backup file from a previous quorum_prune run already exists at the timestamped path -> the new backup uses a distinct timestamp or otherwise does not overwrite the previous backup; WHY: prevents loss of earlier recovery evidence if pruning is run multiple times",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
