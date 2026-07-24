@@ -340,10 +340,10 @@
       "evidence": "milestone-triggered-gate-mode-default-decision.md: '`doneGateMode` resolves via loadConfig(root).proofStory?.doneGateMode ?? 'observe' ... enforce remains strictly opt-in'; milestone-status-done-gate-reconciliation.md: 'the report's blocking is mode === 'enforce' && gaps.length > 0 ... a NON-BLOCKING diagnostic under the default observe mode and only blocks under enforce'. CHK-006's own context places the new floor 'relative to the existing DONE intent-equivalence path in core/proofstory.ts:1514 and 1864' -- the same function these two decision docs describe as observe/enforce-gated for its diagnostic gaps -- but neither CHK-006's context nor its verificationIntent mentions doneGateMode, observe, or enforce at all.",
       "sourcePointers": [
         "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
-        "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
-        ".lattice/story/actives/B-1909/checklist.json#CHK-006",
-        ".lattice/story/actives/B-1909/decision.json#principles[4]"
-      ]
+        "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md#L46-L48"
+      ],
+      "resolution": "The empty-scope floor must NOT be a diagnostic gap that inherits doneGateMode. Per milestone-triggered-gate-mode-default-decision.md, doneGateMode stays observe by default and evaluateDoneIntentEquivalence gaps only block under opt-in enforce, so a floor placed only there would be advisory by default — the exact silent pass this story prevents. Resolution: the floor is enforced at WRITE time in the sole applier (scope_shrinkage_decision_set), which HARD-REFUSES applying a binding withdrawal that would empty the effective (non-withdrawn) acceptance-binding set unless an explicit full-withdrawal re-approval field is recorded on the confirmed decision. This is independent of doneGateMode and does not flip that default. The empty_scope_after_withdrawal DONE diagnostic gap remains ONLY as defense-in-depth (visible under observe, blocking under enforce), never the sole line. CHK-006 context and verificationIntent are updated to say the guarantee lives at the write-time refusal, not the DONE gate.",
+      "resolvedAt": "2026-07-24T19:59:39.943Z"
     },
     {
       "id": "OQ-2",
