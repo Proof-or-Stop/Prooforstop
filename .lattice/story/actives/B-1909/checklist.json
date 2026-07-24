@@ -1,0 +1,60 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add withdrawn as a terminal checklist disposition through schema, CLI validation and persistence",
+      "context": "packages/main/src/core/types.ts:691 ChecklistItem, handlers/checklist.ts:564 status union, cli/command-catalog.ts:435 z.enum(['pending','in_progress','done']). Item gains status 'withdrawn' plus a decisionRef naming the authorizing scope-shrinkage decision. The item keeps its original title/context/userSees/verificationIntent verbatim; withdrawal is a disposition, not a rewrite of what was planned. Also decide the fate of the currently-dead --success flag rather than leaving it documented but unpersisted.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make every done consumer treat withdrawn as terminal but not delivered",
+      "context": "24 sites match status === 'done' under packages/main/src/core and handlers. Load-bearing ones: core/machine.ts:355 DEV to REVIEW every-item-done gate, core/artifact-contract.ts:133, handlers/checklist.ts:82 counts, handlers/story-query.ts:568, handlers/hints.ts:70, handlers/session.ts:435, core/milestone-status.ts:456,560. Withdrawn must satisfy 'no longer outstanding' for phase advancement while never incrementing delivered or completed-success counts, and must render as WITHDRAWN, never as DONE, in checklist_get, story_get, session_brief and any export.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Extend the scope-shrinkage decision into the single authorizing record both layers cite",
+      "context": "core/proofstory.ts:162-169 BuildScopeShrinkageDecisionArgs and 1285-1310 buildScopeShrinkageDecision currently carry only removedMilestoneIds, reason, approvedBy, userConfirmed. Add a stable decisionId, withdrawnChecklistItemRefs, withdrawnAcceptanceBindingRefs and evidenceRefs (for example the finding id that proved undeliverability). Existing decisions without these fields must keep loading; B-bf52's own decision.json is the compatibility fixture.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add an append-only acceptance-binding withdrawal readable from DEV and REVIEW without returning to PLAN",
+      "context": "proofstory_contract_set keeps allowedPhases ['PLAN'] (core/command-policy.ts:420). Add a separate writer that appends a binding-level withdrawal record {bindingId, disposition: 'withdrawn', decisionRef} beside the frozen acceptanceBindings in .lattice/story/actives/<id>/proofstory.json. The original binding object must be preserved byte-for-byte; proofstory_contract_get renders original plus disposition, and the effective-binding projection excludes withdrawn bindings from acceptance evaluation.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Validate withdrawal authority and cross-layer consistency in both directions",
+      "context": "Refuse status withdrawn with no decisionRef, or with a decisionRef naming a decision that does not exist, is not confirmed/userConfirmed, or does not list that item in withdrawnChecklistItemRefs. Refuse a binding withdrawal that is not authorized by the same kind of decision, and refuse the two layers citing different decision ids for the same shrinkage. Per CLAUDE.md Handler coding convention, enforce at Zod, at handler entry, and at every consuming gate, and test the internal-call path that bypasses Zod. Withdrawal authority follows the scope-shrinkage decision's existing approval, so a DEV agent cannot unilaterally withdraw a binding.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Guard against empty-scope success when core bindings are withdrawn",
+      "context": "The highest-value test in the request: a story must not obtain a formal PASS by withdrawing every requirement that proved hard. Define the minimum delivery floor (at least one non-withdrawn acceptance binding with real evidence) and where it is evaluated relative to the existing DONE intent-equivalence path in core/proofstory.ts:1514 and 1864, which already skip confirmed-shrinkage milestone ids. Full withdrawal must require explicit re-approval rather than passing silently.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Add a smoke covering both directions of the recorded acceptance",
+      "context": "Register under packages/main/src/tasks/ and validate.commands, following the existing proofstory smoke tasks. Positive direction: after a scope_shrinkage_decision_set removing CHK-nnn, checklist_get and proofstory_contract_get both report that item and its binding as withdrawn, from DEV and from REVIEW, with no PLAN return. Negative direction: done still means delivered; withdrawn is excluded from delivered/completed counts; withdrawn without a valid decisionRef is refused; a decision not citing the item is refused; mismatched decision ids across the two layers are refused; the original binding survives withdrawal unmodified; and withdrawing all core bindings does not yield a pass.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
