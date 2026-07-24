@@ -300,11 +300,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Revert-proofs by named mutation, each re-derived from source with the mutation anchor asserted to apply: M7 (allowlist emptied) fails checklist-ordinal, finding-ordinal, unfixed-bug-ordinal and scope-extension-proposal-ordinal — an earlier note described M7's effect wrongly, because before the empty-allowlist safety the corrupted regex aborted an earlier assertion and named no case at all. M8 (b- added) fails bcc54-story-id-digits here and CHK-002:adversarial:2 in B-cc54's suite. M9 (rr-/rp-/rl- added) fails the review-bookkeeping cases. M14 (i- re-added) fails init-check-issue-ordinal. M15 (token-start guard weakened back to a word boundary) fails embedded-test-output-hyphen-compounds. M13 (numeric placeholder alphabet) fails the same four as M7. M5b (ISO and digit rules both deleted) aborts at a section-7 assertion BEFORE the matrix and names no matrix case — recorded as it actually behaves, not as a named-subset proof.",
-          "headHash": "1f40ebe3439b278fe975fa9a5b5de52337c0e9b6",
+          "note": "Revert-proofs by named mutation, each re-derived from source with the anchor asserted to apply. M7 (allowlist emptied) fails exactly 'checklist-ordinal', 'finding-ordinal', 'unfixed-bug-ordinal' and 'scope-extension-proposal-ordinal'; before the empty-allowlist safety this mutation aborted an earlier assertion and named no case at all. M8 (b- added) fails 'bcc54-story-id-digits' here and CHK-002:adversarial:2 in B-cc54's suite. M9 (rr-/rp-/rl- added) fails the review-bookkeeping cases. M14 (i- re-added) fails exactly 'init-check-issue-ordinal'. M15 (token-start guard weakened to a word boundary) fails exactly 'embedded-test-output-hyphen-compounds'. M13 (numeric placeholder alphabet) fails the same four as M7. M5b (ISO and digit rules both deleted) aborts at a section-7 assertion BEFORE the matrix and names no matrix case — recorded as it behaves, not as a named-subset proof. Recorded by case name and guard tag with no hand-written totals: every earlier re-recording drifted because it counted, and the partial re-recording before this one left sibling notes contradicting their own item (F-045/F-046/F-047). This set was written whole, against the matrix as the suite prints it.",
+          "headHash": "5a37a3e1af474ba928e3b9e49892f0bef232c397",
           "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
           "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
-          "timestamp": "2026-07-24T11:13:37.230Z"
+          "timestamp": "2026-07-24T11:34:20.420Z"
         }
       ]
     },
