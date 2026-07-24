@@ -288,11 +288,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "'must-differ scope-extension-proposal-ordinal [guard: substantive-id-whole-token]' asserts a compound artifact id keeps its trailing ordinal distinct; mutation M6 fails exactly that case. Three cases pin the converse under review-bookkeeping-not-allowlisted — 'stale-review-run-evidence', 'review-loop-ordinal' and 'init-check-issue-ordinal' — because each of those ids is re-minted or retyped on retry, so collapsing is the fail-safe direction for a brake. 'must-still-collapse embedded-test-output-hyphen-compounds [guard: substantive-id-token-start]' guards the regression where a hyphen-joined compound such as de-bug-2 survived normalization because a hyphen creates the very word boundary the old guard relied on. Recorded by case name and guard tag with no hand-written totals: every earlier re-recording drifted because it counted, and the partial re-recording before this one left sibling notes contradicting their own item (F-045/F-046/F-047). This set was written whole, against the matrix as the suite prints it.",
-          "headHash": "5734108a628d13a6fd171790faafc34da8688e9d",
-          "materialHash": "47ace27d26cd72e39727bd697f9b33da988389e1be5cc4d909c33301ae2cee6e",
-          "storyFilesHash": "96256585bbb33a4c7d55fc6d22f2ba5f1ddff93ef9cb2468217fae342ebb5483",
-          "timestamp": "2026-07-24T11:34:19.565Z"
+          "note": "'must-differ scope-extension-proposal-ordinal [guard: substantive-id-whole-token]' asserts a compound artifact id keeps its trailing ordinal; M6 fails exactly that case. Three review-bookkeeping cases pin the converse — 'stale-review-run-evidence', 'review-loop-ordinal', 'init-check-issue-ordinal' — because each id is re-minted or retyped on retry. Four cases guard the token boundary against real embedded test output: 'embedded-test-output-hyphen-compounds', 'embedded-test-output-slash-joined-names' and 'embedded-test-output-doubled-prefix' [guard: substantive-id-token-start], plus 'embedded-test-output-digit-letter-tail' [guard: substantive-id-token-end]. Recorded by case name and guard tag, no hand-written totals, and as a WHOLE SET — partial re-recording left sibling notes self-contradicting once before (F-045/F-046/F-047).",
+          "headHash": "3216147a30ee03ea8a7a3fda4b5667c83334de3f",
+          "materialHash": "4f5d4eb264a8411da3dd832ed8951c3c3337e35377d207da67c845c34d0fc732",
+          "storyFilesHash": "5af9af2ddc7b49cce5aae58176b541c893dee979c5b7832026511bbd86ca232b",
+          "timestamp": "2026-07-24T12:17:31.217Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
