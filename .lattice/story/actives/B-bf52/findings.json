@@ -187,6 +187,21 @@
       "_hash": "09ade5a35434832c0211c7ecabb12495985211f158c80d7c8c4f583bebf5ae25",
       "signatureTag": "happy|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-011",
+      "desc": "packages/main/src/tasks/convergence-breaker-smoke.ts:280-284 — the leaseNonOwner fixture (labelled by the surrounding comment at line 273-279 as Real production rejection messages ... Reproduced from their build sites, not invented) renders the ownership class as the literal word mutating: an owner-gated mutating command. The real formatNonOwnerError (core/story-owner-lease.ts:637) interpolates ctx.ownershipClass verbatim, and story_advance actual ownershipClass per core/command-policy.ts:152 is storyScopedMutating, one of exactly five valid OwnershipClass enum values (readOnly/storyScopedMutating/reviewerWrite/mainSharedMutating/dangerousMutating per core/command-policy.ts:66-71) — mutating is not a member of that enum and never appears in a real rendered message. This does not affect the digest assertion under test (guardedBy duration-rule only exercises the heartbeat-age token), so the case still validly proves what it claims, but it is a factual deviation from the real string this fixture is presented as reproducing verbatim, and could mislead a future reader into believing mutating is a real ownershipClass value. Fix: use storyScopedMutating to match the real rendered text exactly.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-24T00:48:45.750Z",
+      "reviewRound": "2026-07-24T00:33:06.504Z",
+      "reviewRunId": "B-bf52:RR-008",
+      "_hash": "f4a9fa433dae106daaaceef546b9b262bff1a82e45a40d1981cd80dc74f15a5e",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
