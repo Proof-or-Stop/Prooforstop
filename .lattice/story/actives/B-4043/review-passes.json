@@ -902,6 +902,34 @@
         "scanEscalationReason": null
       },
       "_hash": "792a81f5abf24defbe32441ecc46e243e54d6b02b5a41dff75878a3f7fa24c1b"
+    },
+    {
+      "id": "B-4043:RP-029",
+      "agent": "lattice-review-concept",
+      "note": "Re-binding round (post-F-012 correction). Verified via git diff that the only change since my prior reviewed head (45be26eefa, RP-026) is: scope-contract.json gains one appended acknowledgement (index 6, REVIEW phase) for the same lifecycle-registry.ts path already acknowledged at index 5, containing the corrected 49-configured-commands figure and an explicit CORRECTION per F-012 paragraph; index 5s original wrong text is left in place, consistent with scope_contract_acknowledge being append-only (confirmed at packages/main/src/handlers/scope-contract.ts:426). findings.json gains the resolved F-012 entry. No production source, test source, docs, rollout report, or evidence command changed; zero bytes touched under packages/, scripts/, docs/. Re-confirmed standing residue checks at current head 25a912f: hardenedGitArgs still wraps all 8/8 git execFileSync call sites in acceptance-rollout.ts; acceptance-rollout-report.json still has exactly one lifecycle-registry.ts entry and one artifact-descriptor pair in process-fact-registry.ts (no duplicates); npm run build reproduces dist with zero git diff (not stale); scope-contract.json acknowledgements cover only the already-diffed source paths (activity-policy.ts, lifecycle-registry.ts, pre-review-check.ts, pre-review-live-proof.ts, lattice.config.json, smoke-manifest.json, package.json) with no undeclared widening -- the new acknowledgement re-targets an already-covered path, not a new one. No concept deletion/replacement occurred this round (text-only correction of an acknowledgement reason string), so no residue grep applies. No blocker.",
+      "createdAt": "2026-07-24T19:26:54.124Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-042",
+      "envelopeId": "19edbb4fe9b919629aa221980d5d35fa43c179f001183fdc29feb477ba6aed7d",
+      "writerSessionId": "b4043-review-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/scope-contract.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "42773c251c0243f27aee24fb21c0aec9eb478a1b4c34d5545f75b058f98f9f54"
     }
   ]
 }
