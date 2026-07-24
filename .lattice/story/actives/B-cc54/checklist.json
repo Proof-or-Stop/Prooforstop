@@ -108,9 +108,9 @@
       "id": "CHK-002",
       "title": "Record consecutive identical gate blocks per story",
       "context": "Add a repeat-block ledger keyed on (storyId, gate, digest of the block reason). Increment on an identical consecutive block; reset when the gate passes or the block reason changes, so a genuinely progressing review is never penalised.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-07-24T00:18:47.673Z",
       "verificationIntent": {
         "happy": [
           {
@@ -155,7 +155,126 @@
           }
         ]
       },
-      "userSees": "Running the smoke prints '  ok 1 different unmet preconditions get different repeat-block keys'."
+      "userSees": "Running the smoke prints '  ok 1 different unmet preconditions get different repeat-block keys'.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
+          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:47.882Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
+          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:48.146Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
+          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:48.351Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
+          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:48.551Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
+          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:48.744Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
+          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:48.942Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
+          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:49.146Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
+          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:49.349Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "command": "node packages/main/dist/tasks/gate-repeat-block-smoke.js",
+          "result": "pass",
+          "note": "Discharged by the chk002() group: distinct gap sets key differently while volatile-token, whitespace and digit-only deltas still collapse.",
+          "headHash": "5fe28276c860bf7e683852b73aff1b1143b7905d",
+          "materialHash": "c0a5b0d9869322ac381e1ed3713c0804a1f1a8a983c3097a945f2000a61b9b1d",
+          "storyFilesHash": "2afeb068541f8843233c394017800308cf7856fea0ca6516fe1e7e9e9c975fa7",
+          "timestamp": "2026-07-24T00:18:49.551Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
