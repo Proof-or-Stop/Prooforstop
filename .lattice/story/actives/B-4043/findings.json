@@ -108,6 +108,21 @@
       "resolvedAt": "2026-07-24T12:55:52.661Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4043:F-006",
+      "desc": "packages/main/src/core/acceptance-rollout.ts:196 (replayProductionGateState) runs `git checkout --quiet --force -B story/<id> <commitSha>` with cwd=args.evidenceGitCwd and never neutralizes git hooks (no `-c core.hooksPath=`, no GIT_CONFIG_NOSYSTEM, no --no-verify). Empirically verified in a throwaway repo: a plain `git checkout --quiet --force -B <branch> <sha>` (byte-identical to this call) executes .git/hooks/post-checkout when present. evidenceGitCwd is a caller-supplied path threaded straight through from issueAcceptanceRolloutObservationFromProduction(args.evidenceGitCwd) (line ~298/304) into this checkout, and the caller (whoever constructs the observation/evidence, i.e. exactly the threat actor the original F-004 finding was about) fully controls that directory including its .git/hooks. A hostile post-checkout hook in the preserved/attacker-supplied evidence repo can execute arbitrary code in the verifier process at the moment of replay (before the subsequent bin/lattice.js acceptance_topology_check/pre_review_check_read calls read files from that same directory), e.g. rewriting story artifacts in evidenceGitCwd so the verifier's own re-run reads forged content. This means cliRoot correctly resolving to the verifier's own trusted CLI (the fix's stated defense) does not fully close the self-sealed-evidence gap: the untrusted evidenceGitCwd still gets code-execution privilege over the replay via git hooks, which the resolvedReason for F-004 does not address or mention. Fix: checkout with hooks disabled (e.g. `git -c core.hooksPath=/dev/null checkout ...` or clone into a hookless bare/worktree) before reading any file from evidenceGitCwd.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-07-24T14:00:11.161Z",
+      "reviewRound": "2026-07-24T12:39:14.385Z",
+      "reviewRunId": "B-4043:RR-011",
+      "_hash": "8b8e7bf1aa0beb06de3fc3cf004888ee2ab16a5fad5f6f2e9dd89a2f6259a5dd",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
