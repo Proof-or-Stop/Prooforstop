@@ -264,6 +264,14 @@ export async function runProofStoryAcceptanceRolloutSmoke(): Promise<void> {
     cpSync(runnerPath, join(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs'));
     mkdirSync(join(root, 'packages/main'), { recursive: true });
     symlinkSync(join(projectRoot, 'packages/main/dist'), join(root, 'packages/main/dist'), 'dir');
+    // The verifier replays the production gate commands with ITS OWN trusted CLI
+    // (replayProductionGateState resolves `<cliRoot>/bin/lattice.js`, and cliRoot is
+    // the verifier project — never the evidence repo, so a preserved repo cannot
+    // forge the replay with a doctored CLI). This fixture stands in for that
+    // verifier project, so it needs the same bin/ bootstrap a real Lattice-managed
+    // repo has; without it the replay fails with MODULE_NOT_FOUND instead of
+    // exercising the substitution defence.
+    symlinkSync(join(projectRoot, 'bin'), join(root, 'bin'), 'dir');
     write(join(root, 'packages/main/src/control.ts'), 'export const control = true;\n');
     const store = new StoryStore(root);
     const storyId = 'B-REAL';

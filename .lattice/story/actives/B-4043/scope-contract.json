@@ -112,10 +112,28 @@
         "REGISTERED_PRE_REVIEW_SCENARIO_SEMANTICS",
         "decodePreReviewCaseRecords"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Gate registration for this story's own proof. Verified during takeover that neither proofstory-acceptance-rollout-smoke (57 assertions, proves the production gate replay) nor its --issuer-mutations mode (6 assertions, proves the pre-seal substitution defence F-004 requires) was referenced by smoke-manifest.json or validate.commands, so both ran in NO gate and a regression would pass unnoticed. Proven by RED: with assertCallerReportMatches disabled the default smoke still printed PASS (57 assertions) because the substitution case lives behind --issuer-mutations, which nothing invoked; running that mode against the same neutered build fails with 'Missing expected exception', and restoring the defence returns PASS (6 assertions). Registering the fast mode (26s) in validate.commands and the heavy one (574s) in smoke-manifest is the minimum that makes F-004's mutation requirement actually enforced. No check is weakened and no story-owned source is touched.",
+      "timestamp": "2026-07-24T11:55:59.296Z",
+      "paths": [
+        "lattice.config.json",
+        "packages/main/smoke-manifest.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "lattice.config.json",
+        "packages/main/smoke-manifest.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "e05ed5a389ab11796764e8fb4d4ef1a64636b13e",
+      "materialHash": "cb1a68c08ba613bcc640cb2e33796d008942cfbdb38ab60dea65f545a1d597c8"
     }
   ],
   "createdAt": "2026-07-23T16:52:35.523Z",
-  "updatedAt": "2026-07-23T19:26:47.071Z",
+  "updatedAt": "2026-07-24T11:55:59.296Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -159,6 +177,8 @@
     ".lattice/story/actives/B-4043/acceptance-rollout-report.json": ".lattice/story/actives/B-4043/acceptance-rollout-report.json",
     ".lattice/story/actives/B-4043/pre-review-check.json": ".lattice/story/actives/B-4043/pre-review-check.json",
     "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
-    "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts"
+    "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
+    "lattice.config.json": "lattice.config.json",
+    "packages/main/smoke-manifest.json": "packages/main/smoke-manifest.json"
   }
 }
