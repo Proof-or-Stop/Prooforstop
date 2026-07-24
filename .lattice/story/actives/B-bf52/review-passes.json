@@ -307,6 +307,36 @@
         "scanEscalationReason": null
       },
       "_hash": "5d509bdf60b7e4c15035d79a2626f17f22320be0a78e0a8b7224577d926bb625"
+    },
+    {
+      "id": "B-bf52:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Post-merge confirmation of RP-007 (code-quality lane), not a re-audit. (1) git diff 280a5440b4..HEAD over the two story-scoped files (packages/main/src/core/convergence-breaker.ts, packages/main/src/tasks/convergence-breaker-smoke.ts) is empty -- confirmed. Independently confirmed via merge-base(main,HEAD)=c15e6dc864 that git diff main...HEAD restricted to src/tests/scripts/docs touches exactly 4 files: convergence-breaker.ts, convergence-breaker-smoke.ts, red-s3-digest-collapse.mjs, red-s3-differential-probe.mjs -- the story delivered surface and nothing more. CORRECTION to the dispatch framing: the merge did NOT bring in only one config change / nine files -- diffing the main side of the merge (branch-point b1564a58..c15e6dc864) touches 77 files: full lifecycle bookkeeping for three other stories (B-5e4a, B-a539, B-f824) plus 10 real source/script files (lifecycle-registry.ts, process-fact-registry.ts, done-prepare.ts + 3 done-prepare smoke files, new flow-stability-smoke.ts, lifecycle-registry-contract.ts, new scripts/verify-process-fact-contract.mjs) plus version-bump/package.json/lattice.config.json churn. This does not change my conclusion, but the conclusion is reached independently, not by taking the characterization at face value: (a) grepped the touched files -- none import normalizeGateReason or gateFailureDigest; (b) convergence-breaker.ts's one real cross-file dependency is isCanonicalStoryId from lifecycle-registry.ts (line 37) -- diffed lifecycle-registry.ts across the merge and confirmed the only change is 6 new entries appended to LATTICE_LIFECYCLE_ARTIFACT_FILENAMES (provenance registration for B-5e4a); isCanonicalStoryId itself is untouched; (c) diffed the full export list of convergence-breaker.ts between the merged main tip and HEAD: the only difference is normalizeGateReason ADDED (this story's own delivery), nothing removed, so no merged file can be importing something this story deleted. (2) npx tsc -p packages/main/tsconfig.json --noEmit exits 0, clean. npm run build exits 0. (3) normalizeGateReason: grepped the whole src/tests/dist tree -- exactly one production caller (gateFailureDigest, same file) plus test callers in convergence-breaker-smoke.ts; merge added/removed none. (4) gate-repeat-block-smoke.ts: git diff --quiet c15e6dc864 81c655543d over both the .ts source and the compiled dist/tasks/gate-repeat-block-smoke.js exits 0 -- byte-identical to main, confirmed. (5) Re-ran both suites and both committed probes from the freshly rebuilt dist: node packages/main/dist/tasks/convergence-breaker-smoke.js PASS (5 must-differ + 16 must-still-collapse); node packages/main/dist/tasks/gate-repeat-block-smoke.js PASS (5/5 checks); node packages/main/tests/red/red-s3-digest-collapse.mjs 10/10 PASS; node packages/main/tests/red/red-s3-differential-probe.mjs PASS (4/4 BAR-3 classes distinguished, differential lane cleanly SKIPped with no comparison build supplied, as documented). (6) background.md vs plan.md C3/C4 ordering: confirmed real -- background.md labels the greedy-path-collapse (alpha.ts/beta.ts) as C3 and the digit-in-identifier collapse (CHK-001/CHK-002) as C4; plan.md and the shipped code's own F-058 comment block use the opposite assignment (C3=digit/ordinal-undeliverable, C4=greedy-path-delivered). AGREE this is cosmetic, not a finding: both documents are internally self-consistent, background.md's claims describe the original pre-fix bug taxonomy at INIT time (still an accurate historical description, not a claim about current shipped behaviour), and the authoritative account for anyone maintaining this code -- the shipped F-058 comment in convergence-breaker.ts itself, plan.md, and the checklist context text -- is unanimous and uses plain-English cause/effect descriptions rather than bare letters, so no implementation or verification step was ever gated on the swapped label. background.md is INIT-frozen and not part of this diff. No dead code, no as-any, no empty catch blocks introduced in the four delivered files (grepped). No blocking findings from this lane on this confirmation pass.",
+      "createdAt": "2026-07-24T19:26:24.664Z",
+      "reviewRound": "2026-07-24T17:43:07.804Z",
+      "reviewRunId": "B-bf52:RR-042",
+      "envelopeId": "0d01feb4fae59cf3a517360461728c714f6e6570752712f23cc3f2130f524b66",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "scanEscalationReason": "Story-scoped code files confirmed byte-identical to the immutable RP-007 base (git diff 280a5440b4..HEAD empty) rather than re-read line-by-line; this pass instead diffed the merge itself, checked the one real cross-file dependency edge, re-ran the full compiled suites/probes from a fresh build, and diffed exported symbols -- a merge-safety confirmation, not a fresh content audit."
+      },
+      "_hash": "3edcf588cb5474323036f9989770daf7634553f8ea80807d8105e5c6a4b6dd25"
     }
   ]
 }
