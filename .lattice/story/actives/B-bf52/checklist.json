@@ -300,11 +300,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Revert-proofs re-derived from scratch on isolated copies of the built normalizer and run twice, byte-identical across both runs; none carried forward. Named mutations include dropping the id head anchor, dropping the tail anchor, disabling the balanced wrapper peel, disabling the sentence-punctuation strip, dropping the balance requirement itself, reversing the strip order, emptying the allowlist, making the placeholder alphabet decimal, and adding each excluded prefix. Two subsets came out larger than predicted and are recorded as measured rather than as expected. Recorded by case name and guard tag as a WHOLE SET, with no hand-written totals: every figure a reader might want comes from a command in this record, not from prose.",
-          "headHash": "fd7ec448a239153a42e4b5ae06d48d32c36cf2b5",
-          "materialHash": "3d129e3a66d2e32ba51014a555c6adb4d3157b22cd8f48bc5bc31a64db4cc651",
-          "storyFilesHash": "b5fdff5c16814c9a4a384d26c71f4c7add63a3a4d9cfe22478c1c73ca9206b31",
-          "timestamp": "2026-07-24T14:14:52.302Z"
+          "note": "Revert-proofs re-derived from scratch against the current case set, none carried forward, covering the id head and tail anchors, the doubled-prefix lookahead, restoring the sentence strip, restoring the balanced peel, restoring the round-12 reduction in full, emptying the allowlist, making the placeholder alphabet decimal, and adding each excluded prefix. Several subsets changed size against the previous round and are recorded as measured, including two honest weakenings: one window case now normalizes identically so no legal window reaches it, and 'review-loop-ordinal' needs three simultaneous mutations to fail rather than one. Recorded by case name and guard tag as a WHOLE SET, no hand-written totals; every figure a reader might want comes from a command named in this record.",
+          "headHash": "45d9d55c99566dbbd52280b008e7342823cad30a",
+          "materialHash": "04e3b65f7d2bf8f6f16b6329bae8762e015f22ee1e19469c67094113c320fbb9",
+          "storyFilesHash": "a18a754f123d1044a15c9adc6178f2088d19a4955de1bb0b4fe638188a8c584c",
+          "timestamp": "2026-07-24T14:52:37.865Z"
         }
       ]
     },
