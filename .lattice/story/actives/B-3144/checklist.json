@@ -64,7 +64,47 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Submit rounds=3 quorum at M1, commitMainDrift (materialHash changes, storyFilesHash unchanged), call quorum_submit again -> second submit throws refusal with message containing drift-accept explanation and naming the standing valid quorum; WHY: core fix verification that the guard now matches the floor drift-accept predicate",
+            "type": "cli"
+          },
+          {
+            "desc": "Submit rounds=3 quorum at M1, commitMaterialChange (edits story-diff file index.ts, storyFilesHash changes), call quorum_submit again -> submit succeeds, emits 6 new verdicts; WHY: genuine new material must not be blocked by the widened guard",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Committed host_verdict event has empty or missing storyFilesHash field -> guard treats as non-colliding on the drift-accept branch (falls through to materialDigest-only check, which also does not match after commitMainDrift) -> second submit is allowed; WHY: legacy events without storyFilesHash must not trigger false-positive collision via normalizeString matching empty-to-empty",
+            "type": "cli"
+          },
+          {
+            "desc": "Same materialDigest exact match (no drift, no commitMainDrift) -> guard still refuses with existing same-material message unchanged; WHY: regression check that the original guard branch is preserved alongside the new drift-accept branch",
+            "type": "cli"
+          },
+          {
+            "desc": "Refusal message on drift-accept branch contains the standing quorum information (runIds, materialDigest of standing verdicts) and points at review_escalation_status; WHY: the message must teach the caller that nothing is missing so they do not attempt workarounds",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two sequential commitMainDrift calls (double merge-main, two different non-story commits) before re-submit -> guard still refuses because storyFilesHash is unchanged through both drifts; WHY: multiple sequential drifts must not circumvent the guard by accumulating state",
+            "type": "cli"
+          },
+          {
+            "desc": "Attacker commits a file that exists in BOTH the story diff and main, then merges main which changes that file -> storyFilesHash changes -> guard allows resubmit; verify this is correct behavior (genuinely new story material, not a false bypass); WHY: boundary between drift-accept (storyFilesHash unchanged) and genuine story-material change (storyFilesHash changed) must be airtight",
+            "type": "cli"
+          },
+          {
+            "desc": "Guard refusal on drift-accept branch writes zero host_verdict events, zero verdict files, and does not advance HEAD -> assert hostVerdictEventCount, verdictFileCount, and git rev-parse HEAD are all unchanged; WHY: a guard that refuses but leaks partial state (e.g. events written before throw) would corrupt future quorum attempts",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
