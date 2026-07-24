@@ -283,6 +283,38 @@
         "scanEscalationReason": null
       },
       "_hash": "05d115362ae3cc4060652883ce1a387f52b339e75169c8b622bca4b172d3d2f4"
+    },
+    {
+      "id": "B-f824:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 re-attestation after merge from B-cc54 (adds convergence-breaker.ts + gate-repeat-block-smoke.ts + package/lattice.config version bump to 0.3.231). review_incremental_context classified drift KNOWN_UNRELATED_MATERIAL_DRIFT; confirmed git diff RP-007 priorHeadHash 68271a7a..HEAD for packages/main/src/tasks/flow-stability-smoke.ts is EMPTY (byte-identical to the state RP-007 already verified). None of the 8 changed files are inside B-f824 scope.allowedModify. Re-verified on merged tree: npm --prefix packages/main run build clean; npm run test:flow-stability-smoke PASS (Cases A-D for the B-956f pre-TEST/post-TEST convergence boundary still hold post-merge); npm run test:process-fact-contract PASS. checklist_get reconfirms all 4 items done with 15/15 must verificationIntent entries carrying concrete, non-generic passing verificationEvidence (logic_test/manual_transcript/docs_check), 0 failing, 0 waivers. No coverage gap. No blocker.",
+      "createdAt": "2026-07-24T02:59:03.185Z",
+      "reviewRound": "2026-07-24T02:56:15.005Z",
+      "reviewRunId": "B-f824:RR-012",
+      "envelopeId": "e8e2485c02a5a722c9ae484f569962f101ebe06c2392c6a5e847c7329e77365f",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/background.md",
+          ".lattice/story/actives/B-f824/checklist.json",
+          ".lattice/story/actives/B-f824/plan.md"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "99fa5468b8bfa5a17c37cb0e0962d85f4fa44ccd550396eebbbdfca276ddd65a"
     }
   ]
 }
