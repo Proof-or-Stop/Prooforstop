@@ -679,6 +679,18 @@ export function listSubstantiveIdPrefixes(): string[] {
  *                           (F-051). Cross-host codex measured all four as WORSE
  *                           THAN MAIN, which rewrites every ordinal to `#` and
  *                           collapses them.
+ *   whole token + optional
+ *   `<label>:` QUALIFIER
+ *   (round 10)              closed both ends, then re-opened ONE of them by hand.
+ *                           The qualifier was added to rescue the composite render
+ *                           `B-bf52:F-012`, and it accepted ANY label, not only a
+ *                           story id: in the raw test output core/machine.ts:1190
+ *                           embeds, `timeout:bug-2` and `timeout:bug-5` are
+ *                           ordinary TAP subtest names, and they keyed APART on
+ *                           that branch while main collapses them (F-052). It was
+ *                           an unbounded enumeration re-introduced inside a form
+ *                           whose entire justification was having no enumeration
+ *                           left to leak.
  *
  * Every one of those leaks has the same structure: an id WELDED into a larger
  * token was protected as though the token were the id. So the rule is stated as
@@ -691,19 +703,9 @@ export function listSubstantiveIdPrefixes(): string[] {
  *
  * The pattern, applied to one stripped token and anchored at both ends:
  *
- *   ^(?:[a-z0-9-]+:)?(?:<stems>)-(?!(?:<stems>)-)[a-z0-9-]*\d$
- *    └── qualifier ──┘└── stem ──┘└─ no doubled ─┘└─ body ──┘
+ *   ^(?:<stems>)-(?!(?:<stems>)-)[a-z0-9-]*\d$
+ *    └── stem ──┘└─ no doubled ─┘└── body ───┘
  *
- *   qualifier   ONE optional `<label>:` segment. It is what keeps the REAL
- *               composite render protected: handlers/finding.ts:552 mints a
- *               finding id as `${storyId}:F-${NNN}` and core/machine.ts:756
- *               renders it verbatim, so `B-bf52:F-012` arrives as a single token
- *               with the story id welded on. Without the qualifier those ids lose
- *               protection and two genuinely different blocking findings collapse
- *               onto one key — merely TYING with main instead of beating it.
- *               It is deliberately NOT repeatable: `a:b:bug-2` is not a render
- *               this repo emits, and `(?:[a-z0-9-]+:)*` would re-open the welding
- *               hole from the head end.
  *   no doubled  `(?!(?:<stems>)-)` keeps `BUG-BUG-2` out (F-048 (b)). It is
  *               retained from the previous revision because it is a statement
  *               about the id's own shape, not about its surroundings.
@@ -712,16 +714,56 @@ export function listSubstantiveIdPrefixes(): string[] {
  *               preceded by `bf52-`, so a rule matching only the prefix
  *               immediately before the digits left it unprotected.
  *
- * Built FROM the allowlist so the two cannot drift apart.
+ * There is NO interior structure left: after the wrapping-punctuation strip, a
+ * token is protected only when it IS an artifact id. Built FROM the allowlist, so
+ * the two cannot drift apart, and there is nothing else in the form to enumerate.
+ *
+ * THE COST OF HAVING NO QUALIFIER, stated symmetrically because it is symmetric
+ * (F-052). Every COLON-JOINED COMPOSITE now collapses, and that includes two real
+ * first-party renders, not only the forged one that produced the finding:
+ *
+ *   prefix form  handlers/finding.ts:552 mints a finding id as `${storyId}:F-${NNN}`
+ *                and core/machine.ts:756 renders it verbatim, so `B-bf52:F-012`
+ *                and `B-bf52:F-013` normalize alike to `b-#:f-#`;
+ *   suffix form  core/verification.ts:22-24 mints an intentRef as
+ *                `${itemId}:${lane}:${index}`, rendered at core/machine.ts:1173, so
+ *                `CHK-001:happy:0` normalizes to `chk-#:happy:#`;
+ *   forged form  `timeout:bug-2` in embedded test output, which is what the
+ *                qualifier was leaking.
+ *
+ * On all three this branch now TIES with main (main's `/\d+/g` collapses them too)
+ * instead of beating it on the first two while leaking on the third. That is ONE
+ * rule with ONE honest cost, in place of a rule with a rescue clause that leaked.
+ * The cost is bounded to the composite forms: a BARE artifact id in every real
+ * delimiter position this tree renders — space-separated, at the very start of a
+ * reason, parenthesized, bracketed, quoted, comma-attached, semicolon-attached and
+ * sentence-final — is still protected, and each of those positions is a named
+ * must-differ case in tasks/convergence-breaker-smoke.ts. The three collapse cases
+ * tagged `substantive-id-colon-composite-cost` in that file are where the cost
+ * itself is pinned, so it is visible in the suite and not only in this comment.
  *
  * THE RESIDUAL, and its direction. A real id introduced by a character outside
  * the wrapping-punctuation classes below — `itemId=CHK-001` is the standing
- * example — is not the whole token, so it is NOT protected and its ordinal
- * collapses. That makes the breaker fire EARLIER, which is the fail-safe
- * direction for a circuit breaker, and it is never worse than main, which
- * collapses that shape too. The opposite error — protecting a non-id — is the one
- * that hands a stuck agent back an unbounded retry loop, and it is the one this
- * shape structurally cannot make.
+ * example, and the colon composites above are now the other one — is not the whole
+ * token, so it is NOT protected and its ordinal collapses. That makes the breaker
+ * fire EARLIER, which is the fail-safe direction for a circuit breaker, and it is
+ * never worse than main, which collapses those shapes too.
+ *
+ * The opposite error — protecting a NON-id — is the one that hands a stuck agent
+ * back an unbounded retry loop, and with the qualifier gone this shape structurally
+ * cannot make it: the pattern is anchored at both ends over a character class that
+ * excludes every welding character, so the only strings it accepts are strings that
+ * are themselves artifact ids.
+ *
+ * That claim was FALSE while the qualifier stood — `timeout:bug-2` is a non-id the
+ * shape protected — so it is stated here only because it is MEASURED, by a command
+ * rather than by this comment:
+ *
+ *   node packages/main/tests/red/red-s3-differential-probe.mjs <path-to-a-main-dist>
+ *
+ * That probe runs every leak shape from rounds 7-11 against a separately built
+ * comparison normalizer and exits non-zero if this build distinguishes any ordinal
+ * that a retry re-mints. Do not quote a number from this comment; run it.
  *
  * EMPTY-ALLOWLIST SAFETY (F-041). If the set is ever emptied, an alternation over
  * zero stems is the empty string and `(?:)` matches EVERYWHERE, so the pattern
@@ -738,8 +780,7 @@ function buildSubstantiveIdRe(prefixes: Iterable<string>): RegExp {
     .sort((a, b) => b.length - a.length || a.localeCompare(b));
   if (stems.length === 0) return /(?!)/;
   const alt = stems.join('|');
-  const QUALIFIER = '(?:[a-z0-9-]+:)?';
-  return new RegExp(`^${QUALIFIER}(?:${alt})-(?!(?:${alt})-)[a-z0-9-]*\\d$`);
+  return new RegExp(`^(?:${alt})-(?!(?:${alt})-)[a-z0-9-]*\\d$`);
 }
 const SUBSTANTIVE_ID_RE = buildSubstantiveIdRe(SUBSTANTIVE_ID_PREFIXES);
 
@@ -755,10 +796,13 @@ const SUBSTANTIVE_ID_RE = buildSubstantiveIdRe(SUBSTANTIVE_ID_PREFIXES);
  * `bug-2/x` — whose extra characters are NOT wrapping punctuation — does not.
  *
  * The two classes are deliberately asymmetric and deliberately SMALL. `-`, `/`,
- * `_`, `=` and `.` in a token's INTERIOR are the welding characters every earlier
- * leak used, so none of them appears in either class; `.` is a CLOSING character
- * only, where it is a sentence terminator after the id, and even there it cannot
- * re-open the hole because stripping happens only at the token's END.
+ * `_`, `=`, `.` and `:` in a token's INTERIOR are the welding characters every
+ * earlier leak used — `:` is the one F-052 added, via the deleted qualifier — and
+ * none of them appears in the OPENING class at all. `.`, `:` and `;` are CLOSING
+ * characters only, where they terminate a sentence or a list after the id, and
+ * even there they cannot re-open the hole: stripping happens only at the token's
+ * END, so an interior `:` is still part of the string the anchored whole-token
+ * test has to accept, and it cannot (`:` is outside `[a-z0-9-]`).
  */
 const TOKEN_LEAD_PUNCT_RE = /^[("'[{<]+/;
 const TOKEN_TRAIL_PUNCT_RE = /[)"'\]}>,;:.!?]+$/;
