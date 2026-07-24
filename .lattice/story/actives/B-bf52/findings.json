@@ -1121,6 +1121,21 @@
       "signatureTagSource": "auto",
       "resolvedAt": "2026-07-24T16:08:39.997Z",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-bf52:F-059",
+      "desc": "doc-promise-undelivered: .lattice/story/actives/B-bf52/plan.md:22-89 (Sections 2-4, part of this branch's own diff, 129 lines added vs main, last touched round-4 commit 8e06bc84c0 and never revised since) states as current fact that \"C2, C3 and C4 ARE delivered by this story\" via \"a bounded allowlist over this repo's own artifact-id vocabulary\" (lines 39-44), and Section 3 (lines 46-68, \"Why the digit rule is semantic and not syntactic\") argues at length for that allowlist mechanism. Round 15 (finding F-058, resolved 2026-07-24T16:08Z) deleted the entire apparatus -- the allowlist, the id pattern, the whole-token walk, the placeholder encode/decode -- from packages/main/src/core/convergence-breaker.ts, replacing it with main's bare /\\d+/g rule (convergence-breaker.ts:647) plus a source comment (lines 543-603) proving C3 cannot be delivered from message text alone. checklist.json's own CHK-003 verificationEvidence (all four intentRefs) correctly and repeatedly says NOT DELIVERED with this exact proof. plan.md therefore directly contradicts the story's own authoritative checklist evidence and describes, as delivered, a mechanism that no longer exists anywhere in the shipped code -- verified by grep: SUBSTANTIVE_ID/allowlist appear in convergence-breaker.ts only inside the F-058 retrospective comment explaining why there is no allowlist. A future reader of plan.md (which the story's own Section 6 postmortem says future readers/reviewers must trust over a stale branch) would believe C3 ships via a semantic allowlist, which is false. Fix: rewrite plan.md Sections 2-4 to record the round-15 outcome (C2/C4 delivered via the token-start path rule; C1 partially delivered via the signals-conditional prefix per CHK-001's evidence; C3 withdrawn with the F-058 proof), or replace them with a pointer to the current source-of-truth (the F-058 comment block and the checklist.json evidence) rather than leaving a superseded design as the story's stated narrative.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-behavior",
+      "createdAt": "2026-07-24T17:33:38.633Z",
+      "reviewRound": "2026-07-24T16:08:34.598Z",
+      "reviewRunId": "B-bf52:RR-033",
+      "_hash": "c3985fa3def8d11528e4a5eb8e94ad7a3ba8e1fb5173a93aebeec2e2fa299fb2",
+      "signatureTag": "missing|unknown|promise-undelivered-lattice",
+      "signatureTagSource": "auto"
     }
   ]
 }
