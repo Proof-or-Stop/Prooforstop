@@ -1,0 +1,93 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-4043",
+  "status": "FAIL",
+  "startedAt": "2026-07-24T20:23:45.698Z",
+  "endedAt": "2026-07-24T20:25:14.905Z",
+  "durationMs": 89207,
+  "headHash": "3d4bfa6648bd89c1b649aca22888a78602b2d743",
+  "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+  "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 27375,
+      "outputDigest": "2f5eb7e8aacb85723ceb9660bd4bf9dbe3c95fcf49c93cdcb2a5e1b1daf5402d",
+      "outputTail": "\n> @lattice/core@0.3.233 build\n> tsc\n\n",
+      "startedAt": "2026-07-24T20:23:45.699Z",
+      "endedAt": "2026-07-24T20:24:13.074Z",
+      "effectiveEnvironmentDigest": "2b7f4c7c2ea18f487d5aaf800fc59cf168abf5a05b09ebf529881fc2f8440dd8",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "3d4bfa6648bd89c1b649aca22888a78602b2d743",
+      "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+      "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-4043",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 61237,
+      "outputDigest": "fca556a9de01bb4db309f16dd1ce25225f0900fa92941bda240865ac1a0a6e61",
+      "outputTail": "seInvariant: resolved close requires evidence refs\n  ✓ validateResolvedCloseInvariant: resolved close requires current material hash\n  ✓ validateResolvedCloseInvariant: resolved close accepts fresh evidence refs\n  ✓ validateResolvedCloseInvariant: blocked close does not require resolved evidence refs\n\n[2] runReviewLoopGate gate behavior\n  ✓ gate passes when no loops exist\n  ✓ gate throws for start record (open loop)\n  ✓ gate message includes loopId\n  ✓ gate message includes decision and nextAction when iteration is latest\n  ✓ gate passes after resolved close\n  ✓ gate passes after blocked close (loop gate clears; other gates still apply separately)\n  ✓ gate passes after escalated close (loop gate clears; other gates still apply separately)\n  ✓ gate throws for open loop even if a different loop is resolved\n  ✓ gate fails closed when review loop records are unreadable\n\n[3] getGuardFailureReason TEST phase with open loop\n  ✓ returns Cannot enter TEST message with open_review_loop tag\n  ✓ shared verdict preserves iteration decision and nextAction diagnostics\n  ✓ returns null (no loop blocker) after resolved close — reviewer gate then controls\n  ✓ blocked close also clears loop gate message\n  ✓ returns fail-closed reason when review loop records are unreadable\n\n[4] Authority/receipt/production field absence\n  ✓ ReviewLoopStart has no authority/receipt/production fields\n  ✓ ReviewLoopIteration has no authority/receipt/production fields\n  ✓ ReviewLoopClose has no authority/receipt/production fields\n\n[5] Reflection context isolation\n  ✓ reusableLearning is stored in reflection only, not at top-level or in evaluation\n  ✓ DEFAULT_REVIEW_LOOP_POLICY has no auto-execution flags set true\n\n[6] Handler projection and duplicate loopId safety\n  ✓ review_loop_status JSON exposes active and latest fields\n  ✓ review_loop_start rejects duplicate explicit loopId\n  ✓ review_loop_start rejects placeholder rollbackRef hashes\n\nreview-loop-smoke: 39 passed, 0 failed\n\n> lattice@0.3.233 test:delivery-context-pack-smoke\n> npm --prefix packages/main run test:delivery-context-pack-smoke\n\n\n> @lattice/core@0.3.233 test:delivery-context-pack-smoke\n> node dist/tasks/delivery-context-pack-smoke.js\n\ndelivery_context_pack smoke passed\n\n> lattice@0.3.233 test:flow-stability-smoke\n> npm --prefix packages/main run test:flow-stability-smoke\n\n\n> @lattice/core@0.3.233 test:flow-stability-smoke\n> node dist/tasks/flow-stability-smoke.js\n\nnode:internal/modules/run_main:122\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: The input did not match the regular expression /Acceptance coverage basis: complete/. Input:\n\n'Acceptance coverage basis: partial\\n' +\n  'Story: B-smoke\\n' +\n  'Profile: profile:typescript-proof-gate:plan:v1\\n' +\n  'Adapters: 5\\n' +\n  'Paths: 4\\n' +\n  'Basis digest: sha256:63dcc310b421a0f9e82f1c0214a0ce9b0e4fb163e13cc095d8b04d190a73d11b\\n' +\n  'Receipt: receipt:coverage-basis:B-smoke:plan:eb7275ba71afabc1 (verified)\\n' +\n  '✓ lattice metadata auto-committed: lattice: record B-smoke acceptance_basis_generate metadata (f1a785b)'\n\n    at assertStoryAdvanceReviewEchoOmitsRetiredChannel (file:///Users/jek/Documents/Work/proofbound/.worktrees/B-4043/packages/main/dist/tasks/flow-stability-smoke.js:1745:16)\n    at file:///Users/jek/Documents/Work/proofbound/.worktrees/B-4043/packages/main/dist/tasks/flow-stability-smoke.js:4008:7\n    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {\n  generatedMessage: true,\n  code: 'ERR_ASSERTION',\n  actual: 'Acceptance coverage basis: partial\\n' +\n    'Story: B-smoke\\n' +\n    'Profile: profile:typescript-proof-gate:plan:v1\\n' +\n    'Adapters: 5\\n' +\n    'Paths: 4\\n' +\n    'Basis digest: sha256:63dcc310b421a0f9e82f1c0214a0ce9b0e4fb163e13cc095d8b04d190a73d11b\\n' +\n    'Receipt: receipt:coverage-basis:B-sm\n...[truncated 244 chars]",
+      "startedAt": "2026-07-24T20:24:13.445Z",
+      "endedAt": "2026-07-24T20:25:14.682Z",
+      "effectiveEnvironmentDigest": "2b7f4c7c2ea18f487d5aaf800fc59cf168abf5a05b09ebf529881fc2f8440dd8",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "3d4bfa6648bd89c1b649aca22888a78602b2d743",
+      "materialHash": "efe12ab6a3d8efc2b35b0ca3a3790b2ac6efa5e3a610777e5e705000dbc046d3",
+      "storyFilesHash": "0df3d9891f7e8768d8a43e5e8f79b5eec080ff57e0b4a9056e81fe449947a0f4"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
