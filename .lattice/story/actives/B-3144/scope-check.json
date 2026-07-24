@@ -1,6 +1,6 @@
 {
   "storyId": "B-3144",
-  "checkedAt": "2026-07-24T20:38:15.768Z",
+  "checkedAt": "2026-07-24T20:45:34.790Z",
   "features": [
     {
       "feature": "quorum_submit duplicate guard extended: refuse resubmission on a planned runId when an existing committed host_verdict would drift-accept at current evaluation (same materialDigest OR storyFilesHash equal to current, mirroring the floor predicate)",
@@ -74,8 +74,8 @@
     },
     {
       "feature": "quorum_prune 5-point wiring: new handler file + handlers/lattice-cli.ts + cli/command-catalog.ts + core/command-policy.ts (ownership-class/gateEvidence-adjacent policy entry) + core/process-fact-levels.ts fact row",
-      "covered_by": null,
-      "status": "gap",
+      "covered_by": "CHK-003",
+      "status": "covered",
       "excluded_by": null,
       "source": "plan.md"
     },
@@ -183,6 +183,7 @@
       ".lattice/story/actives/B-3144/acceptance-basis.json",
       ".lattice/story/actives/B-3144/background.md",
       ".lattice/story/actives/B-3144/checklist.json",
+      ".lattice/story/actives/B-3144/decision.json",
       ".lattice/story/actives/B-3144/index.json",
       ".lattice/story/actives/B-3144/init-check.json",
       ".lattice/story/actives/B-3144/plan.md",
@@ -319,14 +320,14 @@
   },
   "summary": {
     "total": 25,
-    "covered": 21,
+    "covered": 22,
     "excluded": 3,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "6406ad3e03a943308a7fc7f321794e2383a7a292054b33fed9754cac1e130935",
+  "_hash": "68861f4c5a60d30647c727c71737bd411a7d9099a390ab417fb12b39fcf41d3f",
   "openQuestions": [
     {
       "id": "OQ-1",
@@ -336,9 +337,7 @@
         "docs/requirements/decisions/story-files-hash-material-drift.md",
         "docs/requirements/decisions/review-run-binding-race.md",
         "CHK-002"
-      ],
-      "resolution": "The new quorum_submit guard faithfully mirrors the floor predicate AS IT IS, including its lack of an EMPTY_STORY_FILES_HASH no-signal exclusion. Rationale: the guard exists to refuse exactly the set of resubmissions the floor would drift-accept (docs/requirements/decisions/story-files-hash-material-drift.md lists review escalation host verdicts as an adopted storyFilesHash binding); if the guard unilaterally added the EMPTY_STORY_FILES_HASH exclusion that eventsWithStoryFilesHashDowngrade (core/review-escalation.ts:948-969) does not have, an empty-story-diff corner would let a resubmit through while the floor still drift-accepts the old verdicts, recreating the B-bf52 poisoning in that corner. The guard additionally skips legacy events whose storyFilesHash field is absent/blank (no signal, no collision claim). Adding the EMPTY_STORY_FILES_HASH no-signal guard to the FLOOR (per review-run-binding-race.md mandatory-guard guidance) is a floor-semantics change, which is explicitly excluded scope for B-3144; when a future story adds it to the floor, the quorum guard must be updated in lockstep, and the guard comment will say so.",
-      "resolvedAt": "2026-07-24T20:39:48.042Z"
+      ]
     }
   ]
 }
