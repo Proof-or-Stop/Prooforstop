@@ -45,11 +45,11 @@
           "kind": "manual_transcript",
           "command": "git show 304d459c8d --stat && git show 304d459c8d -- lattice.config.json",
           "result": "pass",
-          "note": "git show 304d459c8d reports 1 file changed, 1 deletion(-) and the diff contains exactly one removed line, the bare string entry. An ordered-subsequence comparison of the pre-edit (48) and post-edit (47) normalised lists consumed all 47 post entries with that single removal, so no other entry was added, removed, reordered or reworded.",
-          "headHash": "014bc7a699ef8a11df3a15c116988e4a23d5c126",
-          "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
-          "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
-          "timestamp": "2026-07-24T18:00:52.250Z"
+          "note": "Re-attested post-merge. Commit 304d459c8d still shows 1 file changed, 1 deletion(-) removing only the bare-string entry. The subsequent main merge (c15e6dc864, quorum budget 600000->1200000 on a different line) did not reintroduce a duplicate: current validate.commands is 47 entries with the smoke registered once.",
+          "headHash": "6ce406254290438d0973392c8a0e1200b23ddba0",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:01:45.853Z"
         },
         {
           "intentRef": "CHK-001:happy:0",
