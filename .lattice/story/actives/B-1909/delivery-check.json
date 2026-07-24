@@ -1,0 +1,90 @@
+{
+  "storyId": "B-1909",
+  "checkedAt": "2026-07-24T23:10:07.105Z",
+  "headHash": "ec3a44708a470b47250c011893f612d6f9be1081",
+  "materialHash": "c9df76dbea33614314025b7bcaea9417419e959b3465a87ac688132563fc1957",
+  "storyFilesHash": "f74dcc0e9bcfc63f30702044fc7f97d6c170e88665282e8b7766719fe491e88b",
+  "reviewRound": "2026-07-24T21:58:22.162Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-001",
+      "promise": "ChecklistStatus gains a terminal 'withdrawn' value plus ChecklistItem.decisionRef; checklist_update REFUSES a direct status=withdrawn write (both Zod-declared and runtime-enforced) and points at scope_shrinkage_decision_set as the sole authorized applier; legacy items without the field still load unchanged.",
+      "verifiedBy": "diff/grep + real-machine execution",
+      "evidence": "packages/main/src/core/types.ts: ChecklistStatus union + ChecklistItem.decisionRef; packages/main/src/cli/command-catalog.ts: z.enum([...,'withdrawn']) with refusal note; packages/main/src/handlers/checklist.ts:589-214 throws '[withdrawn_requires_scope_shrinkage_decision]' before any write; node packages/main/dist/tasks/withdrawn-disposition-smoke.js -> PASS (asserts throw + item unchanged + legacy round-trip)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-002",
+      "promise": "Every done-consumer across core/handlers treats withdrawn as terminal-but-not-delivered: advancement guards accept done-or-withdrawn, delivered/done tallies stay done-only, and no renderer (checklist_get/story_get/session_brief/story_list/dashboard) ever prints a withdrawn item as DONE.",
+      "verifiedBy": "diff/grep + real-machine execution",
+      "evidence": "new packages/main/src/core/checklist-status.ts (isDeliveredChecklistStatus/isTerminalChecklistStatus/isWithdrawnChecklistStatus) consumed by machine.ts, artifact-contract.ts, guard-utils.ts, lifecycle-readiness.ts, milestone-status.ts, verification.ts, dashboard.ts, handlers/{checklist,hints,session,story-query}.ts; node packages/main/dist/tasks/withdrawn-disposition-smoke.js -> PASS (asserts checklistAllDoneGuard advance, counts done=1/withdrawn=1, story_list '1/2 +1w', hints all-terminal path, milestone-status no risk/next-action + control differential, story_get/session_brief render 'withdrawn' never 'done')."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-003",
+      "promise": "ScopeShrinkageDecisionData extended with a stable, immutable decisionId plus withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs that ACCUMULATE (union) across repeated calls under one decisionId; legacy decision.json without these fields keeps loading; a confirmed decision with nothing to withdraw is rejected.",
+      "verifiedBy": "diff/grep + real-machine execution",
+      "evidence": "packages/main/src/core/proofstory.ts buildScopeShrinkageDecision (unionStringRefs, immutable-decisionId conflict rejection, SD- deterministic id); node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js -> PASS (legacy load, decisionId generation/preservation, empty-removal rejection, two-call union accumulation, conflicting decisionId rejected with byte-identical record)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-004",
+      "promise": "An append-only ProofStoryContractData.bindingDispositions record marks acceptance bindings withdrawn without mutating the frozen acceptanceBindings; effectiveAcceptanceBindings excludes withdrawn bindings; this is readable/writable from DEV and REVIEW without returning to PLAN, while proofstory_contract_set itself stays PLAN-frozen.",
+      "verifiedBy": "diff/grep + real-machine execution",
+      "evidence": "packages/main/src/core/types.ts ProofStoryBindingDisposition + ProofStoryContractData.bindingDispositions; core/proofstory.ts effectiveAcceptanceBindings + buildProofStoryContract carries existing bindingDispositions forward verbatim (proofstory_contract_set has no arg to set them); node packages/main/dist/tasks/withdrawn-disposition-smoke.js -> PASS asserts COMMAND_POLICIES['proofstory_contract_set'].allowedPhases === ['PLAN'] while scope_shrinkage_decision_set reaches DEV/REVIEW/TEST, and proves original AB-1 binding JSON survives byte-for-byte after withdrawal, from both a DEV-phase and REVIEW-phase story."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-005",
+      "promise": "Withdrawal authority is validated in both directions before any write: every withdrawnChecklistItemRef/withdrawnAcceptanceBindingRef must name a real item/binding, a withdrawal is only authorized by a confirmed+userConfirmed decision, and the check is enforced at handler entry (defense-in-depth over Zod) with the internal-call path (which bypasses Zod) also tested.",
+      "verifiedBy": "diff/grep + real-machine execution",
+      "evidence": "packages/main/src/handlers/proofstory.ts scope_shrinkage_decision_set: validates every ref against store.readChecklist/readProofStoryContract BEFORE any write, and a separate handler-level 'hasWithdrawals && !(confirmed&&userConfirmed)' guard fires even when buildScopeShrinkageDecision itself would not throw (decision=rejected+refs case); node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js and withdrawn-disposition-smoke.js -> both PASS, covering unknown-item/unknown-binding refusal (no decision/disposition written), userConfirmed:false refusal, and decision=rejected-with-refs refusal, each asserting zero mutation."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-006",
+      "promise": "A story cannot obtain a formal PASS by withdrawing every acceptance requirement that proved hard: emptying the effective (non-withdrawn) acceptance-binding set is HARD-REFUSED at write time (independent of doneGateMode) unless an explicit fullWithdrawalReapproval {approvedBy, reason, at} is attached to the confirmed decision; a defense-in-depth diagnostic gap also flags empty-scope in evaluateDoneIntentEquivalence/evaluateReviewCompleteness.",
+      "verifiedBy": "diff/grep + real-machine execution",
+      "evidence": "packages/main/src/handlers/proofstory.ts empty-scope floor check before APPLY; packages/main/src/core/proofstory.ts evaluateDoneIntentEquivalence/evaluateReviewCompleteness push 'empty_scope_after_withdrawal' gap (severity fail) when originalBindingCount>0 and effective===0; node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js and withdrawn-disposition-smoke.js -> both PASS: full withdrawal without reapproval throws /empty_scope_after_withdrawal/ and writes nothing; the SAME withdrawal with fullWithdrawalReapproval succeeds and records both dispositions."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-1909/checklist.json#CHK-007",
+      "promise": "A smoke covering both directions (positive: withdrawal recorded + rendered from DEV and REVIEW with no PLAN return; negative: done-still-delivered, direct withdrawn refused, bad refs refused, mismatched/immutable decisionId refused, byte-for-byte binding survival, empty-scope refusal) is registered under packages/main/src/tasks/ and in validate.commands.",
+      "verifiedBy": "diff/grep + direct execution by this reviewer",
+      "evidence": "lattice.config.json validate.commands entries for both dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js and dist/tasks/withdrawn-disposition-smoke.js; package.json (root + packages/main) test:scope-shrinkage-withdrawal-floor-smoke / test:withdrawn-disposition-smoke scripts wired into the aggregate 'test' script; I ran `npm --prefix packages/main run build` then `node packages/main/dist/tasks/withdrawn-disposition-smoke.js` and `node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js` myself in this fresh-context review and both printed PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "withdrawn-disposition-smoke.js PASS: direct checklist_update status=withdrawn throws /scope_shrinkage_decision_set/, item stays done (no write); legacy items load unchanged."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "withdrawn-disposition-smoke.js PASS: checklistAllDoneGuard(done+withdrawn)=true; counts done=1/withdrawn=1 (never 2); story_list '1/2 +1w'; hints all-terminal advancement path (no '下一项', no CHK-002 mention); milestone-status no risk/no next-action + checklist=complete, with an in_progress CONTROL case proving the branch is load-bearing; story_get and session_brief render 'withdrawn' with decisionRef, never 'done'."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "scope-shrinkage-withdrawal-floor-smoke.js PASS: legacy decision (no new fields) yields empty withdrawal sets and 2/2 bindings effective; decisionId generated with SD- prefix and preserved across an update; confirmed decision with all three removal sets empty throws /at least one of/i; confirmed without userConfirmed throws."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "withdrawn-disposition-smoke.js PASS: proofstory_contract_get shows an AB-1 bindingDisposition (disposition='withdrawn', decisionRef=decisionId) while the original AB-1 JSON is byte-identical to pre-withdrawal capture; effectiveAcceptanceBindings excludes AB-1, keeps AB-2; COMMAND_POLICIES confirms proofstory_contract_set stays ['PLAN'] while scope_shrinkage_decision_set reaches DEV/REVIEW/TEST."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Both smokes PASS: unknown checklist ref -> /not a checklist item/, unknown binding ref -> /not an acceptance binding/, both leaving zero decision/disposition written; userConfirmed:false on a confirmed decision with real refs throws /userConfirmed/i at the handler; decision=rejected with withdrawal refs throws /require decision=confirmed with userConfirmed/ (proving the handler-level guard fires independently of the core-fn guard)."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "Both smokes PASS: withdrawing every acceptance binding without fullWithdrawalReapproval throws /empty_scope_after_withdrawal/ and writes nothing; the identical call WITH an explicit fullWithdrawalReapproval succeeds, recording both dispositions and yielding an empty effective set (2/2 bindings withdrawn)."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "I independently rebuilt (npm --prefix packages/main run build) and ran both registered smokes myself: `node packages/main/dist/tasks/withdrawn-disposition-smoke.js` -> 'withdrawn-disposition-smoke: PASS'; `node packages/main/dist/tasks/scope-shrinkage-withdrawal-floor-smoke.js` -> 'scope-shrinkage-withdrawal-floor-smoke: PASS'. Both are wired into lattice.config.json validate.commands and package.json test scripts (verified by grep)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 checklist promises are backed by source I read line-by-line and by two real-machine smokes I rebuilt and executed myself (both PASS), covering positive withdrawal, layer independence, legacy compatibility, authority refusal, bad-ref refusal, idempotency, and the empty-scope write-time floor with re-approval escape hatch. All 9 reviewer findings are resolved with verified evidence state and no TODO/FIXME/HACK remains in the diff; this story touches no CLAUDE.md/docs files so the promise set is the checklist DoneWhen contract."
+  },
+  "_hash": "0b1d68f2d52a837524206ab6407422ee9cbece2942709ff87f8a692a8584a772"
+}
