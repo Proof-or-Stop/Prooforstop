@@ -27,15 +27,32 @@
       "phase": "DEV",
       "headHash": "f1784aecf93693d4223d8a7c5fec231149685e14",
       "materialHash": "4e773a809eab77a2a2301832bafbe73da725819c5e5d20d8c8b9a9d7b3b941ec"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The RED evidence harness for this story, relocated from gitignored tmp/ into the tracked test tree at review request so it is durable, reproducible evidence rather than a throwaway. It is test-only, imports nothing from production beyond the built dist it asserts against, and its move out of tmp/ is exactly what the reproFirst freshness warning asked for. Named as an allowedTest for this story alongside convergence-breaker-smoke.ts.",
+      "timestamp": "2026-07-24T04:02:24.365Z",
+      "paths": [
+        "packages/main/tests/red/red-s3-digest-collapse.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/tests/red/red-s3-digest-collapse.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "36907117be82ee4b6344a17ddef9a14e1cabbff9",
+      "materialHash": "0774f8040d63b819bdd47e798f5bff3544485396f037303cb9ea49a45bd6395d"
     }
   ],
   "createdAt": "2026-07-23T22:59:24.443Z",
-  "updatedAt": "2026-07-23T23:22:31.132Z",
+  "updatedAt": "2026-07-24T04:02:24.365Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
     "packages/main/src/core/convergence-breaker.ts": "packages/main/src/core/convergence-breaker.ts",
     "packages/main/src/tasks/convergence-breaker-smoke.ts": "packages/main/src/tasks/convergence-breaker-smoke.ts",
-    ".lattice/story/actives/B-bf52/acceptance-basis.json": ".lattice/story/actives/B-bf52/acceptance-basis.json"
+    ".lattice/story/actives/B-bf52/acceptance-basis.json": ".lattice/story/actives/B-bf52/acceptance-basis.json",
+    "packages/main/tests/red/red-s3-digest-collapse.mjs": "packages/main/tests/red/red-s3-digest-collapse.mjs"
   }
 }
