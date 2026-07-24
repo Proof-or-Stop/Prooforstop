@@ -389,6 +389,39 @@
         "scanEscalationReason": "Confirmation-only round: material content of all changed files verified byte-unchanged since prior fully-reviewed rounds RP-007/RP-011 (git diff vs 280a5440b4 and vs main both empty), so full re-read was not required; build+test re-execution was the substantive verification for this round."
       },
       "_hash": "67028371d8d6c0220bd1c29e4084db6426338076e8eecef15adc69289c9ca7c6"
+    },
+    {
+      "id": "B-bf52:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Fresh-round residual confirmation post-merge (51 sibling commits merged into main since prior rounds). git diff main...HEAD is scoped correctly (29 files, no sibling-commit bleed). No identifier-level concept rename/deletion is visible IN THIS DIFF relative to main (the withdrawn substantive-id apparatus — SUBSTANTIVE_ID_PREFIXES/listSubstantiveIdPrefixes/buildSubstantiveIdRe/SUBSTANTIVE_ID_RE/protectSubstantiveIds/TOKEN_PLACEHOLDER encode-decode — was introduced and fully withdrawn within this branchs own prior commits before ever reaching main, so main never had it and this diff shows only the post-withdrawal state). As due diligence given the storys documented 8-round history, ran git grep (tracked files only, repo-wide) for all 8 withdrawn identifiers: zero hits outside this storys own historical ledgers (findings.json/review-runs.json/prompt-envelopes.json, legitimate audit trail of past rounds, not shipped code). Two untracked, gitignored local files (packages/main/src/core/convergence-breaker.ts.bak matching the pre-existing *.bak rule; packages/main/dist/core/convergence-breaker-RLMUTANT.js inside gitignored dist/) do contain the old apparatus but are not tracked, not committed, and not referenced by any tracked script -- confirmed via git diff 280a5440b4 -- convergence-breaker.ts convergence-breaker-smoke.ts tests/red/ = empty (zero drift in actual source since the withdrawal commit). CHK-003s frozen done status despite non-delivery is a properly recorded, operator-approved scope-shrinkage-decision.json (approvedBy jek, userConfirmed true), machine-pinned by must-still-collapse cases K5a/K5b (checklist-ordinal, unfixed-bug-ordinal) -- not an undelivered promise. Verified GuardRule union (8 declared: path-rule-overreach, path-rule-collapse, prefix-window-residual, digit-rule-collapse, iso-or-digit-rule-collapse, hex-rule-collapse, signals-conditional-prefix, signals-fold) all 8 used in the MUST_DIFFER/MUST_COLLAPSE matrix, none orphaned. Rebuilt dist clean (tsc, 0 errors). npm run test:convergence-breaker PASS (5 must-differ + 16 must-still-collapse). Both tests/red/ probes PASS (red-s3-digest-collapse.mjs 10/10; red-s3-differential-probe.mjs BAR3 4/4, differential lane SKIPped by design with no comparison build supplied). No blocker.",
+      "createdAt": "2026-07-24T23:07:31.070Z",
+      "reviewRound": "2026-07-24T23:00:04.606Z",
+      "reviewRunId": "B-bf52:RR-045",
+      "envelopeId": "00d7ff73e623da5940f95d0f4dce99d1a978bd450d48c841138db14d5ce22baa",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/plan.md",
+          ".lattice/story/actives/B-bf52/scope-shrinkage-decision.json",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/tests/red/red-s3-differential-probe.mjs",
+          "packages/main/tests/red/red-s3-digest-collapse.mjs"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/findings.json",
+          ".lattice/story/actives/B-bf52/prompt-envelopes.json",
+          ".lattice/story/actives/B-bf52/review-runs.json",
+          "packages/main/dist/core/convergence-breaker-RLMUTANT.js",
+          "packages/main/src/core/convergence-breaker.ts.bak"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9a7e2d9448231d9bcfe35369c989221d6969994bf30a0b0544e35ddb2b538daf"
     }
   ]
 }
