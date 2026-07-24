@@ -142,7 +142,43 @@
       "context": "Prove by test that tripping the breaker never marks the gate satisfied, never rewrites finding attribution, and never advances the phase. The breaker only stops and reports; review independence must remain intact.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call gate evaluation THRESHOLD+2 times with same blocker reason -> result.ok is false on EVERY call including after breaker trips on the final ones; WHY: tripping the breaker must never auto-satisfy the gate -- it only stops, never clears",
+            "type": "cli"
+          },
+          {
+            "desc": "After breaker trips, read story phase from store -> still INIT (never advanced to DEV or REVIEW); no finding.agent field was rewritten in any recorded finding; WHY: breaker only stops and reports, never forges progress or rewrites review attribution",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Breaker trips on gate-repeat signal, then a DIFFERENT gate (different command name) independently refuses -> second gate result.ok=false is preserved with its own independent reason, uncontaminated by the prior breaker trip; WHY: breaker trip must not leak state into unrelated gate evaluations",
+            "type": "cli"
+          },
+          {
+            "desc": "resetGateFailureCounts on a story dir with no gate-failure-counts.json file -> no file created, no error thrown (F-005 guard); WHY: empty-state reset must not create stray untracked files that dirty the git tree",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Manually overwrite gate-failure-counts.json setting count=0 for the active key (simulating an attacker resetting the counter via direct file write) -> next bumpGateFailureCount increments from 0, attacker gets threshold more free attempts before re-trip; WHY: file-based counter has no integrity protection -- any co-located process can reset it",
+            "type": "cli"
+          },
+          {
+            "desc": "Manually write breaker-state.json with frozen=false and autoRecoveriesSpent=0 (simulating attacker clearing a freeze via direct file write) -> next assessBreaker re-assesses from scratch, grants a fresh auto-recovery plus threshold more attempts; WHY: persisted state file is the entire trust boundary and has no tamper detection or signing",
+            "type": "cli"
+          },
+          {
+            "desc": "bumpGateFailureCount called with command as empty string and reason as empty string -> produces a valid digest key and increments the counter normally without throwing; WHY: empty inputs must not bypass counting or crash the bookkeeping path",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
