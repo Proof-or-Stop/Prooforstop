@@ -364,6 +364,34 @@
         "scanEscalationReason": null
       },
       "_hash": "601616b234503c2e2132b633d7ed777c32451fa0d3b1be692c4a1bd9a9e80fd2"
+    },
+    {
+      "id": "B-4043:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Quality-lane re-review scoped to the F-008 evidence rebind (per dispatch). Verified via git diff (b2f7d5fa5b..HEAD, and my bound review head eea676c57c..current HEAD 9413751ff2, both excluding .lattice/*) that NO production or test source file changed since RP-010 -- only .lattice metadata (checklist.json evidence entries, findings.json, index.json phase events) moved. Confirmed the F-008 rebind itself: CHK-004:adversarial:fail-closed-mutations command field changed from the default-mode smoke invocation to the --issuer-mutations invocation; all 14 other verificationEvidence entries kept their original command, only notes/hashes/timestamps were re-stamped. Re-confirmed both security-relevant properties named in the dispatch still hold at current HEAD: (1) all 7 execFileSync git call sites in packages/main/src/core/acceptance-rollout.ts route through hardenedGitArgs(); (2) package.json's root test script still ends with the proofstory-acceptance-rollout test run (no flag, default mode), lattice.config.json doneRequiredCommands' full test suite entry runs plain npm test, so the 57-assertion default-mode smoke remains reachable from the DONE-required chain, and lattice.config.json validate.commands separately registers the --issuer-mutations invocation as its own gate. Independently ran both suites live at current head in a freshly-built isolated clone, not the shared worktree: issuer-mutations mode PASS 7 assertions confirming the F-006 hook-regression assertion the rebind was meant to make reachable; default mode PASS 57 assertions, about 12 minutes real git-checkout flow, matching the test-coverage lane's independent timing, confirming the pre-existing gate-consumer battery is untouched. While this round was open, two other lanes, lattice-review-concept F-009 and lattice-review-test-coverage F-010, both high or medium severity, correctly caught that the F-008 rebind had REPLACED rather than added the CHK-004:adversarial:fail-closed-mutations binding, leaving that intent's own literal enumeration of receipt/quorum/waiver/inventory/false-block/omission codes rejected by the real runAcceptanceRolloutGate consumer with zero evidence, since --issuer-mutations and the default-mode realConsumerMutations loop are mutually exclusive code branches. I independently verified this claim by reading smoke.ts myself before checking resolution status, and it is correct. Both findings are now resolved, 0 open findings story-wide: CHK-004:adversarial:fail-closed-mutations was restored to the default-mode command, and a new non-frozen ref CHK-004:hardening:issuance-replay-integrity was added bound to --issuer-mutations for the F-004/F-006 issuance-path hardening. This resolution again touched only checklist.json and findings.json, no production or test source. No dead code, type-safety, or I/O-isolation issues in scope since nothing in packages/main/src changed this round. No blocker from this lane.",
+      "createdAt": "2026-07-24T16:01:38.291Z",
+      "reviewRound": "2026-07-24T15:21:09.803Z",
+      "reviewRunId": "B-4043:RR-023",
+      "envelopeId": "2c0ea4d9f0ce8c98b6511666b176c9beeca3ebb30a9499adf7da2dc60decd82c",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/index.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bd367ca534708fa780562899d9b39edfd40360214ed2877a2a36056ae9b91b2d"
     }
   ]
 }
