@@ -284,7 +284,8 @@ const HEALTHY: BreakerCounters = {
 // that rule being NARROW, not on it existing, and keep passing):
 //
 //   path-rule-collapse / digit-rule-collapse / hex-rule-collapse /
-//   iso-timestamp-rule       the case fails if the rule is DELETED or narrowed;
+//   iso-or-digit-rule-collapse
+//                            the case fails if the rule is DELETED or narrowed;
 //   path-rule-overreach /
 //   substantive-id-allowlist the case fails if the rule is reverted to the WIDER
 //                            form main has — the slash-anywhere path rule, or
@@ -294,6 +295,27 @@ const HEALTHY: BreakerCounters = {
 //                            concrete mistake it stops), and is the inverse
 //                            revert of `substantive-id-allowlist` on the same
 //                            rule.
+//
+// MEASURED OVERLAPS. A tag names the revert a case is HERE to catch, not the only
+// revert that can fail it, and pretending otherwise is how the false ISO claim
+// below got written. What mutation testing actually shows: deleting the bare-digit
+// rule fails the whole collapse lane's digit group AND `bcc54-story-id-digits`
+// (allowlist-boundedness) AND both review-bookkeeping cases, because with no digit
+// rule every ordinal survives; deleting the hex rule fails `hex-id` and
+// `bcc54-cross-vendor-noise`; reverting the path rule to main's wide form fails
+// both `path-rule-overreach` cases, `signal-less-long-rejection`, and also
+// `init-check-issue-ordinal-past-window` — that last one because the wide rule
+// SHORTENS the normalized text enough to pull a past-window ordinal back inside
+// the 200-character cut, which is a neat demonstration that the F-033 residual is
+// a character-position accident rather than a property of the id. Localization
+// therefore works by GROUP, which is what the grouped failure report prints: a
+// single group means that rule regressed, and a case failing alone means the rule
+// its tag names.
+//
+// The closing banner's inventory is DERIVED from these arrays, never hand-typed:
+// a hand-written count is the first thing to go stale when a case is added, and a
+// stale count in a PASS line is a false attestation about what was checked.
+let digestMatrixSummary = '';
 {
   const CMD = 'story_advance';
 
@@ -358,6 +380,45 @@ const HEALTHY: BreakerCounters = {
     `Cannot enter TEST: the scope gate is blocking for B-bf52. The story scope contract is in enforce mode, so every changed path must be ` +
     `declared by the contract, covered by a shared classifier rule, or carry an explicit acknowledgement that a reviewer can see. ` +
     `Run scope_contract_acknowledge with a reviewer-visible reason, add the path to the contract, or revert it. Blocking path: ${path}`;
+
+  // ── The real pending scope-extension-proposal rejection (F-032) ────────────
+  // core/machine.ts:269 renders `Cannot enter INIT_CHECK: ${pending.length} scope
+  // extension proposal(s) are still pending: ${ids}. [scope_extension_proposal_pending]`
+  // plus its next-action line; handlers/scope-anti-expansion.ts:120 mints the ids
+  // as `SEP-${storyId}-${NNN}`. Composed here as it renders.
+  //
+  // This is the COMPOUND-id shape that defeated the first mechanism: the ordinal
+  // `-001` is preceded by `bf52-`, not by `sep-`, so a rule that inspects only
+  // the prefix immediately before a digit run left it unprotected even with
+  // `sep-` allowlisted. It is protected now because a substantive id is matched
+  // as a WHOLE TOKEN.
+  const scopeExtensionPending = (ids: string[]): string =>
+    `Cannot enter INIT_CHECK: ${ids.length} scope extension proposal(s) are still pending: ${ids.join(', ')}. [scope_extension_proposal_pending]\n` +
+    `→ Run scope_extension_decide for each proposal, then rerun scope_freeze_check.`;
+
+  // ── The real INIT_CHECK reviewer-issue rejection (F-034, and the F-033 pair) ─
+  // core/machine.ts:1042-1046, composed as it renders. `${issue.id}` is the
+  // reviewer's self-assigned id, whose declared shape is `I-1` (the init_check_set
+  // schema in cli/command-catalog.ts) — NOT the `INIT-001` shape minted by
+  // handlers/draft-check.ts:81, which ids draft-check issues and is never read by
+  // a transition guard. That mix-up is why `init-` used to sit in the allowlist
+  // protecting a shape no story_advance rejection can contain.
+  //
+  // The agentId is a parameter because its LENGTH is what makes this producer
+  // straddle the 200-character prefix window, which is how the two F-033 cases
+  // below are built from one real message rather than from a contrived pad.
+  const initCheckBlockingIssues = (agentId: string, ids: string[]): string => [
+    'Cannot enter INIT_CHECK: init-check reviewer recorded high/critical issues; you must fix them and re-run the corresponding reviewer first. [init_check_blocking_issues]',
+    ...ids.map((id) => `  - ${agentId}: high ${id} the story boundary is not decidable from the description`),
+  ].join('\n');
+
+  // ── The real open-review-loop rejection (F-036) ────────────────────────────
+  // core/machine.ts:640-661 builds `active review loop(s): loopId=${loopId}, ...`
+  // and core/machine.ts:1192 wraps it as `Cannot enter TEST: ${message} [${code}]`.
+  // handlers/review-loop.ts:141 mints the id as `${storyId}:RL-${NNN}`.
+  const openReviewLoop = (loopOrdinal: string): string =>
+    `Cannot enter TEST: active review loop(s): loopId=B-bf52:${loopOrdinal}, decision=revise, ` +
+    `nextAction={phase=DEV, owner=lattice-implementer} [open_review_loop]`;
 
   // ── The real ProofStory DEV-gate rejection (signals fold) ──────────────────
   // Preamble verbatim from core/machine.ts:179, body in the exact shape
@@ -434,14 +495,28 @@ const HEALTHY: BreakerCounters = {
     assert.equal(a.replace('RR-002', 'RR-00X'), b.replace('RR-003', 'RR-00X'), 'stale-evidence fixture: the pair must differ ONLY in the review-run ordinal');
     console.log('  fixture-precondition stale-evidence: the pair differs only in the RR- ordinal');
   }
-
   type GuardRule =
     | 'path-rule-overreach'
     | 'path-rule-collapse'
     | 'substantive-id-allowlist'
+    // F-032: fails if a substantive id is matched by the prefix immediately
+    // before its digit run instead of as a WHOLE TOKEN — the revert under which
+    // a COMPOUND id such as `SEP-B-bf52-001` loses its trailing ordinal even
+    // though `sep-` is allowlisted. The simple-id cases above do NOT fail under
+    // that revert, which is why this tag is separate from the allowlist tag.
+    | 'substantive-id-whole-token'
     | 'allowlist-boundedness'
+    // F-033, the ACCEPTED residual: fails if the 200-character prefix cut on the
+    // signals branch is WIDENED. It is the direction B-cc54's
+    // CHK-002:adversarial:1 also depends on, and it is the case that documents
+    // where this branch stops being better than main (it never becomes worse).
+    | 'prefix-window-residual'
     | 'digit-rule-collapse'
-    | 'iso-timestamp-rule'
+    // Volatile timestamps must collapse. Measured: the ISO rule and the bare-digit
+    // rule are redundant for a pure-digit timestamp, so this fails only when BOTH
+    // are deleted — it is a disjunction, not a single-rule guard, and the tag says
+    // so rather than overclaiming.
+    | 'iso-or-digit-rule-collapse'
     | 'hex-rule-collapse'
     // F-031: fails if the signals-conditional prefix is reverted to an
     // unconditional 200-char cut (the signal-less pair then collapses).
@@ -508,6 +583,40 @@ const HEALTHY: BreakerCounters = {
       b: 'Cannot enter DONE: 1 unfixed bug(s): BUG-002',
     },
     {
+      // F-032. `SEP-B-bf52-001` is a COMPOUND id: its ordinal is preceded by
+      // `bf52-`, not by `sep-`, so the mechanism that inspected the single prefix
+      // in front of a digit run left it unprotected — allowlisting `sep-` changed
+      // nothing and the two proposals still shared a key. Deciding SEP-…-001 and
+      // then being blocked by SEP-…-002 is a story working through its proposals,
+      // which is progress, not a repeat.
+      //
+      // This case is the ONLY one that fails when whole-token matching is reverted
+      // to prefix-before-digits while the allowlist itself is left intact, which is
+      // what makes it a single-rule guard on that mechanism.
+      name: 'scope-extension-proposal-ordinal',
+      guardedBy: 'substantive-id-whole-token',
+      a: scopeExtensionPending(['SEP-B-bf52-001']),
+      b: scopeExtensionPending(['SEP-B-bf52-002']),
+    },
+    {
+      // F-034. Two different INIT_CHECK reviewer issues. `i-`, not `init-`, is the
+      // prefix that can reach a transition guard: this rejection interpolates the
+      // reviewer's self-assigned `I-N`, while the `INIT-001` shape belongs to
+      // draft-check.json, which core/machine.ts never reads.
+      //
+      // Localization caveat, measured: this pair diverges at normalized character
+      // 195, five characters inside the 200-character window, so it ALSO fails if
+      // that window is narrowed. It is tagged for the allowlist because that is the
+      // revert it is here to catch; the window's own two directions are pinned by
+      // `init-check-issue-ordinal-past-window` in the collapse lane and by the
+      // prefix-window fixture precondition above, which asserts the 195 measurement
+      // rather than assuming it.
+      name: 'init-check-issue-ordinal',
+      guardedBy: 'substantive-id-allowlist',
+      a: initCheckBlockingIssues('product-reviewer', ['I-1']),
+      b: initCheckBlockingIssues('product-reviewer', ['I-2']),
+    },
+    {
       // F-031 / CHK-001: a SIGNAL-LESS rejection that is byte-identical for its
       // first 200 normalized characters and only then names the offending path.
       // The body is the real scope-gate advice (nextActionForViolation in
@@ -521,6 +630,13 @@ const HEALTHY: BreakerCounters = {
       // `slice(0, 200)`. It is the INVERSE revert of B-cc54's
       // CHK-002:adversarial:1, which requires the signals branch to KEEP the cut,
       // so the two together pin the conditional in both directions.
+      //
+      // Localization caveat, measured: the two variants differ only in a
+      // repo-relative PATH, so reverting the path rule to main's slash-anywhere
+      // form also fails this case (both sides become `packages#`). It therefore
+      // fails alone only when the signals-conditional prefix regresses; when it
+      // fails together with the `path-rule-overreach` group, the path rule is the
+      // cause. The grouped failure report prints exactly that distinction.
       name: 'signal-less-long-rejection',
       guardedBy: 'signals-conditional-prefix',
       a: scopeGateBlock('packages/main/src/core/alpha.ts'),
@@ -613,6 +729,48 @@ const HEALTHY: BreakerCounters = {
       b: staleReviewEvidence('RR-003'),
     },
     {
+      // F-036, and the SAME risk as `rr-`/`rp-` above. `Cannot enter TEST: active
+      // review loop(s): loopId=B-bf52:RL-001 …` is a real story_advance rejection
+      // and `RL-` is really minted with an ordinal, so the earlier justification
+      // for excluding it ("no gate-reachable producer") was simply FALSE. The
+      // DIRECTION is still right, for the honest reason: a review loop is re-minted
+      // on retry exactly as a review run is, so a host that closes one loop, opens
+      // another and retries would mint a fresh key every time and the breaker would
+      // never trip.
+      //
+      // The cost of collapsing is real and accepted: two loops opened for genuinely
+      // DIFFERENT triggers share one key, so clearing one and being blocked by the
+      // next reads as a repeat. For a circuit breaker that is the fail-safe error —
+      // it fires early — whereas the opposite error lets an unbounded retry loop run
+      // forever, which is the failure this module exists to stop.
+      name: 'review-loop-ordinal',
+      guardedBy: 'review-bookkeeping-not-allowlisted',
+      a: openReviewLoop('RL-001'),
+      b: openReviewLoop('RL-002'),
+    },
+    {
+      // F-033, the ACCEPTED residual, pinned in its own direction.
+      //
+      // Same producer and same reviewer-issue ordinals as the must-differ
+      // `init-check-issue-ordinal` case; the ONLY change is a longer reviewer name
+      // in front of the id, which pushes the ordinal from normalized character 195
+      // to 204 — past the 200-character prefix cut. Both sides extract the
+      // IDENTICAL signal set, so nothing else can tell them apart and they collapse.
+      //
+      // This is asserted as COLLAPSE because that is what the code does, and saying
+      // so here is the point: it marks exactly where the improvement stops. main
+      // collapses this pair too — main truncates at 200 unconditionally AND rewrites
+      // every ordinal to `#` — and main additionally collapses the within-window
+      // pair that this branch keeps apart. So the change is strictly better inside
+      // the window and equal outside it: bounded, never regressive. Widening the
+      // window is not available as a fix: B-cc54's CHK-002:adversarial:1 requires a
+      // signal-free tail past the banner to leave the key UNCHANGED.
+      name: 'init-check-issue-ordinal-past-window',
+      guardedBy: 'prefix-window-residual',
+      a: initCheckBlockingIssues('lattice-review-story-init', ['I-1']),
+      b: initCheckBlockingIssues('lattice-review-story-init', ['I-2']),
+    },
+    {
       // A bare ordinal carries no artifact prefix, so it is noise. This is the
       // shape B-cc54's noise fixture embeds; it is asserted separately here so a
       // digit-rule deletion is attributable without decoding the noise pair.
@@ -650,19 +808,22 @@ const HEALTHY: BreakerCounters = {
     },
     {
       // The retry ordinal is held CONSTANT and only the ISO timestamp varies, so
-      // this is the matrix's only single-rule guard on the ISO rule. Section 7
-      // above asserts the same pair silently; this case PRINTS both literal
-      // values.
+      // volatile timestamps alone must not mint a second key. Section 7 above
+      // asserts the same pair silently; this case PRINTS both literal values.
       //
-      // Localization caveat, measured not assumed: deleting the ISO rule makes
-      // section 7's bare `assert.equal` throw FIRST, so the run aborts before
-      // this matrix reports and the operator sees section 7's message ("digest
-      // collapses volatile ISO timestamps to the same key") rather than a
-      // grouped matrix failure. Verified separately that this case does fail on
-      // its own under that revert, so the tag is accurate; the ISO rule is
-      // simply the one rule whose regression is reported by an earlier section.
+      // Localization, MEASURED and CORRECTED. An earlier revision of this comment
+      // claimed the case was a single-rule guard on the ISO rule and that the
+      // claim had been "verified separately". Mutation testing says otherwise:
+      // deleting the ISO rule alone fails NOTHING in this suite (exit 0), and so
+      // does deleting the bare-digit rule alone. The reason is that the two rules
+      // are REDUNDANT for a pure-digit timestamp — with the ISO rule gone,
+      // `/\d+/g` still rewrites `2026-07-14t00:00:00z` and `2026-07-14t09:59:59z`
+      // to the same `#-#-#t#:#:#z`. The pair therefore only splits when BOTH rules
+      // are gone, which is what the tag now says. No case in this matrix is bound
+      // to the ISO rule alone, and pretending otherwise was a false verification
+      // claim sitting in a comment.
       name: 'iso-timestamp-only',
-      guardedBy: 'iso-timestamp-rule',
+      guardedBy: 'iso-or-digit-rule-collapse',
       a: 'gate BLOCKED for B-bbaf at 2026-07-14T00:00:00Z (attempt 3)',
       b: 'gate BLOCKED for B-bbaf at 2026-07-14T09:59:59Z (attempt 3)',
     },
@@ -805,6 +966,61 @@ const HEALTHY: BreakerCounters = {
     );
   }
 
+  // Fixture precondition for the F-033 pair, deliberately placed AFTER the matrix
+  // rather than with the other preconditions above.
+  //
+  // It asserts a tight character-index boundary (195 vs 204 around a 200-char cut),
+  // and measurement showed that several UNRELATED reverts — main's slash-anywhere
+  // path rule, an emptied allowlist, a corrupted placeholder encoding — move the
+  // normalized text enough to break that boundary. Run before the matrix, it threw
+  // first and aborted the whole run, so an operator reverting the path rule saw a
+  // character-index message instead of the three cases that name the path rule.
+  // Placed here, a rule regression localizes to its own cases exactly as this
+  // section promises, and the measurement is still pinned on every green run.
+  {
+    // F-033 residual, MEASURED. One real producer, two reviewer names, and the
+    // 200-character prefix window falls between them: with `product-reviewer` the
+    // `I-N` ordinal lands inside the window and the pair keys apart, with
+    // `lattice-review-story-init` it lands outside and the pair collapses. Both
+    // pairs carry the SAME non-empty signal set, so B-cc54's mechanism supplies no
+    // distinctness in either case and the window alone decides.
+    //
+    // These assertions pin the measurement itself. The margin is small on purpose
+    // — 195 vs 204 is the real gap between two real reviewer names — so any later
+    // edit to this fixture's wording that moves either side across the boundary
+    // fails HERE, naming the character index, instead of silently turning one of
+    // the two matrix cases into a copy of the other.
+    const divergeAt = (a: string, b: string): number => {
+      const na = normalizeGateReason(a);
+      const nb = normalizeGateReason(b);
+      let i = 0;
+      while (i < Math.min(na.length, nb.length) && na[i] === nb[i]) i += 1;
+      return i;
+    };
+    const withinA = initCheckBlockingIssues('product-reviewer', ['I-1']);
+    const withinB = initCheckBlockingIssues('product-reviewer', ['I-2']);
+    const pastA = initCheckBlockingIssues('lattice-review-story-init', ['I-1']);
+    const pastB = initCheckBlockingIssues('lattice-review-story-init', ['I-2']);
+    for (const [label, x, y] of [['within', withinA, withinB], ['past', pastA, pastB]] as const) {
+      const sx = extractGateBlockSignals(normalizeGateReason(x));
+      const sy = extractGateBlockSignals(normalizeGateReason(y));
+      assert.ok(sx.length > 0, `prefix-window fixture (${label}): the pair must carry signals, or it exercises the signal-less branch instead`);
+      assert.deepEqual(sx, sy, `prefix-window fixture (${label}): both sides must extract the IDENTICAL signal set, or the signal set — not the window — is what separates them`);
+    }
+    const withinAt = divergeAt(withinA, withinB);
+    const pastAt = divergeAt(pastA, pastB);
+    assert.ok(withinAt < 200, `prefix-window fixture: the within-window pair must diverge BEFORE character 200 (diverged at ${withinAt})`);
+    assert.ok(pastAt > 200, `prefix-window fixture: the past-window pair must diverge AFTER character 200 (diverged at ${pastAt})`);
+    console.log(
+      `  fixture-precondition prefix-window: same producer, identical signal sets, ordinal diverges at char ${withinAt} (within) vs ${pastAt} (past) around the 200-char cut`,
+    );
+  }
+
+  const inventory = (lane: string, cases: DigestCase[]): string =>
+    `${cases.length} ${lane} [${cases.map((c) => `${c.name} (${c.guardedBy})`).join(', ')}]`;
+  digestMatrixSummary =
+    `${inventory('must-differ counter=1', MUST_DIFFER)} + ${inventory('must-still-collapse counter=2 breaker-trips', MUST_COLLAPSE)}`;
+
   // A pathological oversize reason must not throw and must still key. This is a
   // SHAPE check only. F-031 made the prefix cut SIGNALS-CONDITIONAL: a reason
   // that carries structured signals keeps B-cc54's 200-character prefix exactly,
@@ -825,7 +1041,7 @@ const HEALTHY: BreakerCounters = {
   );
 }
 
-// ── 7c. B-bf52 F-029: the allowlist's own completeness guard ──────────────────
+// ── 7c. B-bf52 F-029/F-035: the allowlist's BIDIRECTIONAL completeness guard ──
 //
 // The allowlist SUBSTANTIVE_ID_PREFIXES is hand-written, and F-029 is the proof
 // that a hand-written enumeration cannot see its own gaps: `bug-` was missing,
@@ -833,6 +1049,18 @@ const HEALTHY: BreakerCounters = {
 // collapsed, and fixing one bug then being blocked by the next read as one
 // repeated failure. One more entry does not fix the CLASS; a guard that makes
 // the gap DETECTABLE does.
+//
+// The first version of this guard was one-directional — it failed only when a
+// scanned producer's prefix was unclassified — and six review rounds showed that
+// half the errors run the OTHER way: `ab-` and `oq-` were allowlisted with no
+// producer anywhere in the tree, `init-` was allowlisted for a shape no
+// transition guard can render, and `sep-` was excluded on a premise that its own
+// producer contradicts. None of those were visible from the producer side,
+// because there was nothing to see. The guard is therefore bidirectional: a
+// producer with no classification AND a classification with no producer both
+// fail here. That does not make the enumeration provably complete — no scan can
+// invent a prefix no producer emits yet — but it bounds its DRIFT, which is the
+// property this story can actually deliver.
 //
 // This guard scans production source (core + handlers) for the artifact-id
 // ordinal shapes the finding names — `PREFIX-${…}` id-MINT templates (the
@@ -850,32 +1078,94 @@ const HEALTHY: BreakerCounters = {
 
   // Explicit, commented exclusion categories. The reason lives with the category.
   //
-  // (a) F-030: review BOOKKEEPING ids. `rr-`/`rp-` change on retry and name the
-  // review record, NOT the artifact that must be fixed; allowlisting them
-  // reintroduces the never-tripping stale-evidence loop (guarded, in the inverse
-  // direction, by the must-collapse `stale-review-run-evidence` case above).
-  const EXCLUDED_REVIEW_BOOKKEEPING = new Set(['rr-', 'rp-']);
+  // (a) F-030 / F-036: review BOOKKEEPING ids. `rr-` (review run), `rp-` (review
+  // pass) and `rl-` (review loop) all name a record that is RE-MINTED on retry
+  // rather than the artifact that must be fixed, so allowlisting them lets a host
+  // mint a fresh digest key on every attempt and the breaker never trips on an
+  // unbounded retry loop. Guarded, in the inverse direction, by the must-collapse
+  // `stale-review-run-evidence` and `review-loop-ordinal` cases above.
+  //
+  // `rl-` is here on that ground and ONLY that ground. Its earlier justification
+  // — that no story_advance rejection can contain a review-loop id — was false:
+  // core/machine.ts:640-661 renders `active review loop(s): loopId=${loopId}` and
+  // core/machine.ts:1192 wraps it as a `Cannot enter TEST` rejection, while
+  // handlers/review-loop.ts:141 mints the id as `${storyId}:RL-${NNN}`. The
+  // accepted COST of collapsing is that two loops opened for genuinely different
+  // triggers share one key; that cost is taken because it makes the breaker fire
+  // EARLY, which is the fail-safe direction for a breaker, while the opposite
+  // error makes it never fire at all.
+  const EXCLUDED_REVIEW_BOOKKEEPING = new Set(['rl-', 'rp-', 'rr-']);
   // (b) The story-id prefix itself is not an artifact ordinal; it must normalize
   // like any other bare id (guarded by the must-collapse `bcc54-story-id-digits`).
   const EXCLUDED_STORY_ID = new Set(['b-']);
-  // (c) Ids minted by subsystems whose records are NEVER emitted by a
+  // (c) F-034: a prefix whose minted shape is CONFUSABLE with a gate-reachable one
+  // but is not the same id. `INIT-001` is minted by handlers/draft-check.ts:81 for
+  // draft-check issues, and core/machine.ts never reads draft-check.json, so no
+  // `INIT-…` id can appear in a transition-guard rejection. The INIT_CHECK
+  // rejection that DOES name issue ids (core/machine.ts:1042-1046) renders
+  // init-check.json reviewer issues, whose declared shape is `I-1` — so `i-` is
+  // the allowlisted prefix and `init-` is excluded here rather than silently
+  // dropped, because a silent drop is indistinguishable from an oversight.
+  const EXCLUDED_SHAPE_CONFUSABLE = new Set(['init-']);
+  // (d) Ids minted by subsystems whose records are NEVER emitted by a
   // story_advance transition-guard rejection: playbook / learning / capability /
-  // handoff / autopilot / dispatch / cluster / planner / grill / review-loop /
-  // review-escalation / test-run / session-label producers. If any of these ever
-  // starts appearing in a transition-guard rejection whose ordinal marks progress
-  // (clear one, hit the next), it must MOVE to the allowlist with its own
-  // must-differ case — this guard is exactly what will force that decision.
+  // handoff / autopilot / dispatch / cluster / planner / grill / review-escalation
+  // / test-run / session-label producers. If any of these ever starts appearing in
+  // a transition-guard rejection whose ordinal marks progress (clear one, hit the
+  // next), it must MOVE to the allowlist with its own must-differ case — this
+  // guard is exactly what will force that decision.
   const EXCLUDED_NON_GATE_SUBSYSTEM = new Set([
     'ap-', 'ar-', 'auto-', 'cl-', 'd-', 'ddp-', 'done-', 'gq-', 'grill-', 'hp-',
     'override-', 'pba-', 'pbd-', 'pbh-', 'pbls-', 'pbo-', 'pbp-', 'pbs-',
-    'pbsrc-', 'pcr-', 'pol-', 'ref-', 'rhp-', 'rl-', 's-', 'sep-', 'src-',
+    'pbsrc-', 'pcr-', 'pol-', 'ref-', 'rhp-', 's-', 'src-',
     'tea-', 'test-', 'timer-',
   ]);
 
   const allowlist = new Set(listSubstantiveIdPrefixes());
-  const isClassified = (p: string): boolean =>
-    allowlist.has(p) || EXCLUDED_REVIEW_BOOKKEEPING.has(p) ||
-    EXCLUDED_STORY_ID.has(p) || EXCLUDED_NON_GATE_SUBSYSTEM.has(p);
+  // Where each classified prefix is DECLARED, so the reverse direction of the
+  // guard can tell an operator which file to edit when an entry goes dead.
+  const CLASSIFICATION_SETS: Array<{ label: string; file: string; set: Set<string> }> = [
+    { label: 'SUBSTANTIVE_ID_PREFIXES', file: 'src/core/convergence-breaker.ts', set: allowlist },
+    { label: 'EXCLUDED_REVIEW_BOOKKEEPING', file: 'src/tasks/convergence-breaker-smoke.ts', set: EXCLUDED_REVIEW_BOOKKEEPING },
+    { label: 'EXCLUDED_STORY_ID', file: 'src/tasks/convergence-breaker-smoke.ts', set: EXCLUDED_STORY_ID },
+    { label: 'EXCLUDED_SHAPE_CONFUSABLE', file: 'src/tasks/convergence-breaker-smoke.ts', set: EXCLUDED_SHAPE_CONFUSABLE },
+    { label: 'EXCLUDED_NON_GATE_SUBSYSTEM', file: 'src/tasks/convergence-breaker-smoke.ts', set: EXCLUDED_NON_GATE_SUBSYSTEM },
+  ];
+  const isClassified = (p: string): boolean => CLASSIFICATION_SETS.some(({ set }) => set.has(p));
+
+  // CALLER-SUPPLIED id shapes have no `PREFIX-${…}` mint template anywhere,
+  // because the id is written by the caller and the code only interpolates it. The
+  // scan below cannot see them, so the reverse direction of the guard would report
+  // them as dead config. Each therefore carries a CITATION instead of a producer:
+  // the file that declares the shape and the file that renders it into a
+  // story_advance rejection, both checked literally. If either citation stops
+  // resolving — a renamed schema description, a deleted render site — this guard
+  // fails, so the entry cannot quietly rot into the `ab-`/`oq-` state.
+  const CALLER_SUPPLIED_ID_SHAPES: Array<{
+    prefix: string; shapeFile: string; shapeNeedle: string; renderFile: string; renderNeedle: string; note: string;
+  }> = [
+    {
+      prefix: 'i-',
+      shapeFile: 'src/cli/command-catalog.ts',
+      shapeNeedle: 'Reviewer self-assigned ID, for example I-1',
+      renderFile: 'src/core/machine.ts',
+      renderNeedle: 'Cannot enter INIT_CHECK: init-check reviewer recorded high/critical issues',
+      note: 'guarded by the must-differ init-check-issue-ordinal case',
+    },
+    {
+      prefix: 'req-',
+      shapeFile: 'src/core/proofstory.ts',
+      shapeNeedle: '"sourceRequirementId": "REQ-001"',
+      renderFile: 'src/core/proofstory.ts',
+      renderNeedle: 'references sourceRequirementId ',
+      note:
+        'MEASURED INERT at its only render site: the ProofStory diagnostic report preamble exceeds 200 ' +
+        'normalized characters even in its minimal form, so the REQ ordinal always lands past the F-033 ' +
+        'prefix window and two unbound requirements collapse anyway. Kept because the render site is real ' +
+        'and the ordinal genuinely names WHICH requirement is unbound; it protects nothing today, and it ' +
+        'has no must-differ matrix case for exactly that reason.',
+    },
+  ];
 
   // Comment-aware tokenizer: yields string + template literal bodies, skipping
   // comments so a prefix mentioned only in prose does not count as a producer.
@@ -953,23 +1243,76 @@ const HEALTHY: BreakerCounters = {
   // deliberately-excluded review-bookkeeping prefixes — otherwise a broken
   // tokenizer could pass this section vacuously.
   assert.ok(fileCount > 100, `completeness scan must cover the source tree (saw ${fileCount} files)`);
-  for (const anchor of ['bug-', 'rr-', 'rp-', 'chk-', 'f-']) {
+  for (const anchor of ['bug-', 'rr-', 'rp-', 'chk-', 'f-', 'sep-', 'rl-', 'init-']) {
     assert.ok(discovered.has(anchor), `completeness scan must discover the ${anchor} producer, or it is not scanning the real id-mint sites`);
   }
 
-  const unclassified = [...discovered.entries()].filter(([p]) => !isClassified(p)).sort();
-  if (unclassified.length > 0) {
-    assert.fail(
-      `B-bf52 completeness guard: ${unclassified.length} artifact-id prefix(es) appear in a story_advance-reachable ` +
-      `producer but are neither in SUBSTANTIVE_ID_PREFIXES nor in an explicit exclusion category. ` +
-      `Decide each one: allowlist it (with a must-differ matrix case) if its ordinal names WHICH artifact the gate ` +
-      `refused on, or add it to an exclusion category with a reason. Offending: ` +
-      unclassified.map(([p, where]) => `${p} (${where})`).join(' ;; '),
+  // Every citation must resolve, literally, before it is allowed to excuse a
+  // missing producer. A citation that no longer matches its file is drift, and
+  // drift is the whole thing this section exists to catch.
+  const citedPrefixes = new Set<string>();
+  for (const c of CALLER_SUPPLIED_ID_SHAPES) {
+    assert.ok(
+      isClassified(c.prefix),
+      `B-bf52 completeness guard: ${c.prefix} carries a caller-supplied-shape citation but is itself unclassified — the citation cannot excuse an entry that does not exist`,
     );
+    for (const [kind, rel, needle] of [['shape', c.shapeFile, c.shapeNeedle], ['render', c.renderFile, c.renderNeedle]] as const) {
+      const abs = join(packageRoot, rel);
+      assert.ok(existsSync(abs), `B-bf52 completeness guard: ${c.prefix} cites ${rel} for its ${kind}, but that file does not exist`);
+      assert.ok(
+        readFileSync(abs, 'utf8').includes(needle),
+        `B-bf52 completeness guard: ${c.prefix}'s ${kind} citation no longer resolves — ${rel} does not contain «${needle}». ` +
+        `Re-verify whether the prefix still has a story_advance-reachable id shape, then update the citation or remove the entry.`,
+      );
+    }
+    citedPrefixes.add(c.prefix);
   }
+
+  // ── Direction 1: a scanned producer whose prefix nobody classified ──────────
+  const unclassified = [...discovered.entries()].filter(([p]) => !isClassified(p)).sort();
+  // ── Direction 2: a classified prefix with no producer and no citation ───────
+  //
+  // This is the direction F-035 needed and did not have. `ab-` and `oq-` sat in
+  // the allowlist for six review rounds asserting that acceptance-basis and
+  // open-question ordinals are substantive, while NO producer in the tree emits
+  // either shape into a rejection — dead config that made the enumeration look
+  // better evidenced than it was, and that nothing could have flagged because the
+  // guard only ever looked from producers towards the classification. It is also
+  // the direction that would have caught `init-`, whose producer exists but mints
+  // an id no transition guard can render. Together the two directions bound the
+  // enumeration's DRIFT: a newly minted id prefix and a newly dead one both fail
+  // here, so neither waits for the next round of review to be noticed.
+  const producerless = CLASSIFICATION_SETS
+    .flatMap(({ label, file, set }) => [...set].map((p) => ({ prefix: p, label, file })))
+    .filter(({ prefix }) => !discovered.has(prefix) && !citedPrefixes.has(prefix))
+    .sort((x, y) => x.prefix.localeCompare(y.prefix));
+
+  if (unclassified.length > 0 || producerless.length > 0) {
+    const parts: string[] = [];
+    if (unclassified.length > 0) {
+      parts.push(
+        `UNCLASSIFIED (${unclassified.length}): ${unclassified.map(([p, where]) => `${p} (${where})`).join(' ;; ')}. ` +
+        `Decide each one: allowlist it (with a must-differ matrix case) if its ordinal names WHICH artifact the gate ` +
+        `refused on, or add it to an exclusion category with a reason.`,
+      );
+    }
+    if (producerless.length > 0) {
+      parts.push(
+        `NO PRODUCER (${producerless.length}): ${producerless.map(({ prefix, label, file }) => `${prefix} (declared in ${label}, ${file})`).join(' ;; ')}. ` +
+        `Nothing in src/core or src/handlers mints or renders this shape, so the entry is asserting a classification ` +
+        `about ids that do not exist. Delete it, or — if the id is caller-supplied and therefore has no mint template — ` +
+        `add it to CALLER_SUPPLIED_ID_SHAPES with a citation that resolves.`,
+      );
+    }
+    assert.fail(`B-bf52 bidirectional completeness guard: ${parts.join(' | ')}`);
+  }
+  const excludedCount = CLASSIFICATION_SETS
+    .filter(({ set }) => set !== allowlist)
+    .reduce((sum, { set }) => sum + set.size, 0);
   console.log(
     `  completeness-guard  scanned ${fileCount} files, ${discovered.size} id-prefix producers, ` +
-    `all classified (${allowlist.size} substantive, ${EXCLUDED_REVIEW_BOOKKEEPING.size + EXCLUDED_STORY_ID.size + EXCLUDED_NON_GATE_SUBSYSTEM.size} excluded)`,
+    `bidirectionally reconciled (${allowlist.size} substantive, ${excludedCount} excluded, ` +
+    `${citedPrefixes.size} caller-supplied with resolving citations, 0 unclassified, 0 producerless)`,
   );
 }
 
@@ -1186,4 +1529,12 @@ const HEALTHY: BreakerCounters = {
   }
 }
 
-console.log('PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, gate-repeat digest/reset, B-bf52 digest matrix reconciled with B-cc54 (7 must-differ counter=1 + 11 must-still-collapse counter=2 breaker-trips: the C2/C3/C4 normalizer-overreach classes this story owns — slash-bearing phase pairs, in-repo relative file paths, and the checklist/finding/BUG ordinals separated by the SUBSTANTIVE_ID_PREFIXES allowlist (F-029) — plus the F-031 signals-conditional prefix (a signal-less long rejection keeps distinct keys) and the test-coverage-lane signals FOLD case (two DEV-gate rejections sharing a 200-char prefix but differing only in their extracted gap-code set, the only case that genuinely exercises B-cc54\'s C1 mechanism), against machine-absolute + delimiter-attached POSIX paths, free-standing hex ids, ISO timestamps, a welded lease heartbeat age, embedded lane counts, a bare attempt ordinal, the F-030 stale-review-run-evidence pair that must collapse so an unbounded review_run_start loop still trips, and B-cc54\'s own cross-vendor noise and story-id-digit fixtures quoted verbatim so the allowlist cannot be widened past that vocabulary from inside this suite) + the F-029 completeness guard scanning core/handlers id-mint sites so a missing allowlist prefix fails loudly, thresholds, autopilot refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, enforce-gate frozen-block + takeover-block, no-spurious-reset, canonical-id guard rejection');
+console.log(
+  'PASS convergence-breaker: storm trips 4 signals + auto-recover->freeze->ack, healthy control clean, '
+  + 'gate-repeat digest/reset, B-bf52 digest matrix reconciled with B-cc54 — '
+  + digestMatrixSummary
+  + ' — plus the BIDIRECTIONAL completeness guard (an unclassified producer AND a producerless '
+  + 'classification both fail; caller-supplied shapes carry resolving citations), thresholds, autopilot '
+  + 'refusal, gitignored state, F-003 takeover re-baseline, collectBreakerCounters derivation, '
+  + 'enforce-gate frozen-block + takeover-block, no-spurious-reset, canonical-id guard rejection',
+);

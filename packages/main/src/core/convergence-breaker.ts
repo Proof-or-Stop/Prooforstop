@@ -552,17 +552,36 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
  * substantive when it names WHICH lifecycle artifact the gate refused on, and
  * every other digit run is incidental.
  *
- * That is decidable, because this repo mints its lifecycle artifact ids from a
- * fixed vocabulary: CHK-001 (checklist item), F-012 (finding), BUG-001 (bug
- * report), AB-003 (acceptance basis), OQ-001 (open question), INIT-002 (init
- * check), REQ-005 (requirement). Two gate refusals naming DIFFERENT members of
- * that vocabulary are two different failures; a story that clears CHK-001 and
- * then trips on CHK-002 is making progress, and counting that as one gate
- * failing twice is the false freeze this story exists to kill. `bug-` is here
- * for the same reason and with the same kind of evidence: machine.ts:1195
- * renders `Cannot enter DONE: 1 unfixed bug(s): BUG-001`, so fixing BUG-001 and
- * then being blocked by BUG-002 is progress that would otherwise read as one
- * repeated failure (F-029, cross-host codex round 5).
+ * The members, each with its story_advance-reachable render site:
+ *   chk-  checklist item — core/machine.ts checklist gate
+ *   f-    finding        — blocking-finding rejection
+ *   bug-  bug report     — core/machine.ts:1195 `Cannot enter DONE: 1 unfixed bug(s): BUG-001`
+ *   sep-  scope-extension proposal — core/machine.ts:269 `Cannot enter INIT_CHECK: N
+ *         scope extension proposal(s) are still pending: SEP-<storyId>-001`, minted by
+ *         handlers/scope-anti-expansion.ts:120
+ *   i-    INIT_CHECK reviewer issue — core/machine.ts:1036-1044 renders the blocking
+ *         issue ids, whose shape is `I-1` per the init_check_set schema in
+ *         cli/command-catalog.ts
+ *   req-  requirement id — core/proofstory.ts:1026 `<milestone> references
+ *         sourceRequirementId REQ-001, which is not in original intent
+ *         keyRequirementIds`, surfaced by the ProofStory DEV gate
+ * Two gate refusals naming DIFFERENT members are two different failures; a story
+ * that clears CHK-001 and then trips on CHK-002 is making progress, and counting
+ * that as one gate failing twice is the false freeze this story exists to kill.
+ *
+ * WHAT WAS REMOVED, AND WHY (review round 6, cross-host codex).
+ *   `ab-` / `oq-`  DEAD CONFIG (F-035). No `AB-` producer exists anywhere in
+ *                  packages/main/src; `OQ-` appears only in comments and in the
+ *                  open_question_resolve schema description, and no story_advance
+ *                  transition guard renders an open-question id. They protected
+ *                  nothing, and their presence made the allowlist look better
+ *                  evidenced than it was.
+ *   `init-`        WRONG SHAPE (F-034). The only `INIT-${…}` mint is
+ *                  handlers/draft-check.ts:81, which ids draft-check issues; that
+ *                  artifact is never rendered by a story_advance guard. The real
+ *                  INIT_CHECK reviewer-issue ids are `I-1` style, so `i-` replaces
+ *                  it. `init-` is now an explicit EXCLUSION in the completeness
+ *                  guard, not a silent omission.
  *
  * WHAT IS DELIBERATELY NOT HERE, AND WHY (F-030, cross-host codex round 5). The
  * criterion above is "names WHICH artifact must be FIXED". Review BOOKKEEPING
@@ -575,23 +594,30 @@ export function extractGateBlockSignals(normalizedReason: string): string[] {
  * the fix is to return to DEV), a host repeating review_run_start then
  * story_advance would mint a fresh key on every attempt and the breaker would
  * never trip. That is the unbounded retry loop this module exists to stop, so
- * `rr-`/`rp-` are excluded and the `review-run-ordinal` collapse case in
+ * `rr-`/`rp-` are excluded and the `stale-review-run-evidence` collapse case in
  * tasks/convergence-breaker-smoke.ts is the standing guard against re-adding
- * them.
+ * them. `rl-` (review loop) is excluded on the SAME ground — see the exclusion
+ * category in that file for its honest justification.
  *
- * This is the same kind of structured, repo-specific knowledge extractGateBlockSignals
- * already relies on (B-cc54 reads bracketed reason codes and bulleted gap ids by
- * their emitted FORM). It is not a guess about free text: an unrecognised prefix
- * — including the story-id prefix `b-` — normalizes exactly as main always did.
+ * ACCEPTED RESIDUAL — THIS ENUMERATION IS NOT PROVABLY COMPLETE. It is a
+ * hand-written vocabulary, and no mechanism here can invent a prefix that no
+ * producer emits yet: a NEW artifact id that starts appearing in a
+ * story_advance rejection is, until someone classifies it, treated as volatile
+ * and its ordinals collapse (the direction that makes the breaker fire MORE
+ * often, i.e. fail-safe for a breaker, but still a false freeze). What IS
+ * bounded is DRIFT: the bidirectional completeness guard in
+ * tasks/convergence-breaker-smoke.ts section 7c fails when a scanned producer's
+ * prefix is unclassified AND when a classified prefix has no producer, so a
+ * newly minted or newly deleted id shape is caught by the suite rather than by
+ * the next round of review. Do not read this list as "the set of substantive
+ * ordinals"; read it as "the set decided so far, with its drift bounded".
  *
  * Keep this set SMALL and evidence-backed. Every prefix added here is a prefix
  * whose ordinals stop collapsing, which makes the breaker fire LESS often; the
  * `bcc54-story-id-digits` case in tasks/convergence-breaker-smoke.ts is the
- * standing guard that `b-` never joins it, and the completeness guard in the
- * same file (section 7c) is the standing guard that a MISSING prefix — the F-029
- * failure mode — is detected rather than waiting to be noticed by a reviewer.
+ * standing guard that `b-` never joins it.
  */
-const SUBSTANTIVE_ID_PREFIXES = new Set(['chk-', 'f-', 'bug-', 'ab-', 'oq-', 'init-', 'req-']);
+const SUBSTANTIVE_ID_PREFIXES = new Set(['bug-', 'chk-', 'f-', 'i-', 'req-', 'sep-']);
 
 /**
  * The allowlist, exported READ-ONLY so the completeness guard in
@@ -604,19 +630,97 @@ export function listSubstantiveIdPrefixes(): string[] {
 }
 
 /**
+ * A substantive artifact id, matched as a WHOLE TOKEN (F-032).
+ *
+ * The earlier mechanism inspected only the single prefix immediately before a
+ * digit run, which silently failed on COMPOUND ids: `SEP-B-bf52-001` has `sep-`
+ * at its head but `-001` is preceded by `bf52-`, so allowlisting `sep-` did not
+ * protect the trailing ordinal at all and the two proposals still collapsed. A
+ * whole-token match protects the id entire: an allowlisted prefix, then the rest
+ * of the id, ending in a digit.
+ *
+ * Built FROM the set so the two cannot drift apart. The leading `\b` and the
+ * mandatory hyphen are what keep the one-letter members (`i-`, `f-`) from
+ * matching inside ordinary words: `multi-2`, `anti-3`, `ref-012` and `wifi-5`
+ * have a word character before the letter, so no boundary exists there.
+ */
+const SUBSTANTIVE_ID_TOKEN_RE = new RegExp(
+  `\\b(?:${[...SUBSTANTIVE_ID_PREFIXES]
+    .map((p) => p.slice(0, -1))
+    .sort((a, b) => b.length - a.length || a.localeCompare(b))
+    .join('|')})-[a-z0-9-]*\\d\\b`,
+  'g',
+);
+
+/**
+ * Placeholder encoding for a protected token.
+ *
+ * The index is written in a NON-DIGIT, NON-HEX alphabet (`g`-`z`) between two
+ * U+0001 sentinels, and that is load-bearing rather than cosmetic: a numeric
+ * index would be rewritten by the bare-number rule below, every placeholder
+ * would collapse to the same text, and every protected token would then restore
+ * to whichever token happened to be first — turning the fix into a new collision
+ * source. `g`-`z` is also outside `[0-9a-f]`, so the hash rule cannot eat a
+ * placeholder either.
+ */
+const TOKEN_PLACEHOLDER_ALPHABET = 'ghijklmnopqrstuvwxyz';
+const TOKEN_SENTINEL = '\u0001';
+const TOKEN_SENTINEL_RE = /\u0001/g;
+const TOKEN_PLACEHOLDER_RE = /\u0001([g-z]+)\u0001/g;
+function encodeTokenIndex(index: number): string {
+  const base = TOKEN_PLACEHOLDER_ALPHABET.length;
+  let n = index;
+  let out = '';
+  do {
+    out = TOKEN_PLACEHOLDER_ALPHABET[n % base] + out;
+    n = Math.floor(n / base);
+  } while (n > 0);
+  return `${TOKEN_SENTINEL}${out}${TOKEN_SENTINEL}`;
+}
+function decodeTokenIndex(encoded: string): number {
+  const base = TOKEN_PLACEHOLDER_ALPHABET.length;
+  let n = 0;
+  for (const ch of encoded) n = n * base + TOKEN_PLACEHOLDER_ALPHABET.indexOf(ch);
+  return n;
+}
+
+/**
  * The volatile-token normalization applied to a gate reason before it is keyed.
  *
- * Extracted (behaviour-identical, same rule order) so a test can assert a
- * fixture's PRECONDITION — "these two reasons share their first 200 normalized
- * characters and only then diverge" — against the REAL rule chain. The
- * alternative, a hand-mirrored copy of the chain inside the smoke (which
+ * Extracted (same rule order as main's) so a test can assert a fixture's
+ * PRECONDITION — "these two reasons share their first 200 normalized characters
+ * and only then diverge" — against the REAL rule chain. The alternative, a
+ * hand-mirrored copy of the chain inside the smoke (which
  * tasks/gate-repeat-block-smoke.ts carries as `normalizePrefix`), can drift out
  * of sync with production silently and then attest to a precondition that no
  * longer holds.
+ *
+ * Structure: extract-protect, normalize, restore. Substantive artifact ids are
+ * lifted out first, the volatile-token rules then run EXACTLY as main runs them
+ * (the digit rule is main's bare `/\d+/g` — the allowlist is applied by the
+ * extraction step, not by a special-cased digit rule), and the ids are put back
+ * before the whitespace fold. A protected token that ends up inside a machine
+ * path is simply eaten by the path rule along with the path, exactly as it was
+ * before this change.
  */
 export function normalizeGateReason(reason: string): string {
-  return String(reason ?? '')
+  const kept: string[] = [];
+  const keptIndex = new Map<string, number>();
+  const protectedText = String(reason ?? '')
+    // U+0001 never appears in a rendered gate reason; stripping it means no
+    // caller-supplied text can forge a placeholder and impersonate a protected id.
+    .replace(TOKEN_SENTINEL_RE, '')
     .toLowerCase()
+    .replace(SUBSTANTIVE_ID_TOKEN_RE, (token: string) => {
+      let i = keptIndex.get(token);
+      if (i === undefined) {
+        i = kept.length;
+        kept.push(token);
+        keptIndex.set(token, i);
+      }
+      return encodeTokenIndex(i);
+    });
+  return protectedText
     .replace(/0x[0-9a-f]+/g, '#')
     .replace(/\b[0-9a-f]{7,}\b/g, '#')          // hex ids / hashes
     .replace(/\d{4}-\d{2}-\d{2}t[\d:.]+z?/g, '#') // ISO timestamps
@@ -630,16 +734,12 @@ export function normalizeGateReason(reason: string): string {
     // bracket, colon, equals, comma) keeps per-machine roots collapsing while
     // leaving relative in-repo paths and slash-joined identifiers intact.
     .replace(/(?:^|(?<=[\s"'(\[:=,]))\/[^\s"')\]]*/g, '#')
-    // Digit runs (B-bf52 C3). Identical to main's `/\d+/g` EXCEPT that an ordinal
-    // carrying a lifecycle-artifact prefix keeps its value: `chk-001` and
-    // `chk-002` name two different checklist items, not one gate failing twice.
-    // Everything else still normalizes exactly as before — a bare `attempt 3`, a
-    // welded `45s` heartbeat age (the digits have no prefix, so `45` becomes `#`
-    // and the unit letter is untouched), `0/4 lanes`, and any unrecognised
-    // prefix including the story-id prefix `b-`.
-    .replace(/([a-z]+-)?\d+/g, (m: string, prefix: string | undefined) => (
-      prefix && SUBSTANTIVE_ID_PREFIXES.has(prefix) ? m : `${prefix ?? ''}#`
-    ))
+    // Bare digit runs, byte-for-byte main's rule (B-bf52 C3). A bare `attempt 3`,
+    // a welded `45s` heartbeat age, `0/4 lanes` and the story-id ordinal in
+    // `b-1234` all still become `#`; the ONLY reason `chk-001` survives is that it
+    // was lifted out above.
+    .replace(/\d+/g, '#')
+    .replace(TOKEN_PLACEHOLDER_RE, (_m: string, code: string) => kept[decodeTokenIndex(code)] ?? '#')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -670,6 +770,27 @@ export function gateFailureDigest(command: string, reason: string): string {
   // signals branch that must keep the cut; only the signal-less branch may relax
   // it. The 16,384-character bound is a sanity ceiling on that branch alone, so a
   // pathological embedded transcript is still cheap to hash.
+  //
+  // ACCEPTED RESIDUAL (F-033), measured, not assumed. The 200-character window on
+  // the signals branch is a real blind spot: when two rejections extract the
+  // IDENTICAL signal set and their ONLY difference is a substantive ordinal
+  // sitting PAST character 200 of the normalized reason, both the prefix and the
+  // signal list are equal, so the two still collapse onto one key and clearing
+  // one then tripping on the next reads as one repeated failure.
+  //
+  // This is accepted rather than fixed because it is NEVER WORSE THAN MAIN, and
+  // that comparison was measured rather than argued: main truncates at 200
+  // unconditionally AND rewrites every ordinal to `#`, so main collapses that
+  // same pair — and collapses the within-200 pair too. Within the 200-character
+  // window this branch is strictly better (the ordinal survives and the pair
+  // keys apart); past it, the two branches are equal. The improvement is
+  // therefore BOUNDED, not regressive. Widening the window is not free: B-cc54's
+  // CHK-002:adversarial:1 requires a signal-free tail past the banner to leave
+  // the key UNCHANGED, so the signals branch cannot relax this cut without
+  // breaking a landed contract. The `past-200-substantive-ordinal` collapse case
+  // and its `within-200-substantive-ordinal` twin in
+  // tasks/convergence-breaker-smoke.ts pin BOTH directions of this residual, so
+  // it stays a known, tested boundary rather than a surprise.
   const prefix = signals.length > 0 ? normalized.slice(0, 200) : normalized.slice(0, 16_384);
   // F-003: encode the parts unambiguously instead of concatenating them with a
   // literal " signals:" delimiter. Concatenation only resisted forgery by accident
