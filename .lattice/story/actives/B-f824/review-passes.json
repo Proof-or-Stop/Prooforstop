@@ -375,6 +375,29 @@
         "scanEscalationReason": null
       },
       "_hash": "6fbb0fc5f614f3422c5a88795af229dd0a49e57d6ab4f3304913440f116862e5"
+    },
+    {
+      "id": "B-f824:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 re-attestation for review-assurance floor rebinding. review_incremental_context confirms isFirstPass=false, scopeChanged=false, changedFiles=(none), freshnessClassification=CURRENT_MATERIAL, reasonCodes=ELIGIBLE_NO_MATERIAL_CHANGE+ELIGIBLE_TRUSTED_PRIOR_BINDINGS relative to prior PASS B-f824:RP-009 (head 56d3478d). git log 56d3478d..HEAD shows only lattice story-metadata commits (review_pass_set/quorum/validate/test-transition/REVIEW records), no source diff change. Prior concept-residue verdict (no concept deletion/replacement in scope; clean, no residue) still holds; re-attesting PASS bound to fresh review run/basis without re-scanning unchanged source.",
+      "createdAt": "2026-07-24T03:11:58.511Z",
+      "reviewRound": "2026-07-24T03:10:13.213Z",
+      "reviewRunId": "B-f824:RR-013",
+      "envelopeId": "f58b459cfffdb482d67ca63481b779c9e798c76e53af05dc5c5c4eb9c7f9aff8",
+      "writerSessionId": "sess-5d5a2e98a79d098107b0846c4d382ae3",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-f824/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-f824/review-runs.json",
+          ".lattice/story/actives/B-f824/summary.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "142b493c20b076b9017283a6964fe50e3e5339218addce3ee26f3a8ae562266f"
     }
   ]
 }
