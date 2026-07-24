@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3144",
+  "mode": "correctness_fix",
+  "allowed": [
+    "quorum_prune recovery command (dry-run + backup + metadata commit) for duplicate host-verdict events",
+    "quorum_submit duplicate-guard predicate alignment with the floor's storyFilesHash drift-accept",
+    "RED repro + smoke coverage for the cross-material redundant resubmission scenario"
+  ],
+  "excluded": [
+    "changes to floor/escalation acceptance semantics (eventsWithStoryFilesHashDowngrade stays as-is)",
+    "material-scoped runId scheme migration (<storyId>-q-<digest>-rN)",
+    "process-events.jsonl integrity hash chain"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User selected option 2 (tool-defect fix story: guard-predicate alignment + recovery command; runId-scheme migration explicitly deferred) in chat on 2026-07-24.",
+  "createdAt": "2026-07-24T20:06:06.730Z",
+  "updatedAt": "2026-07-24T20:06:06.730Z",
+  "_hash": "c4b54e7aa0086c79a773a5d9ffdcb52cc9556bc28a2e294ae0a66a445d752e4c"
+}
