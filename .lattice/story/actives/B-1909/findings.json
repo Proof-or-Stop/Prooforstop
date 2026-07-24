@@ -5,7 +5,7 @@
       "desc": "core/proofstory.ts:1326-1367 buildScopeShrinkageDecision: withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs are derived only from the current call args (optionalStringArray(args.x)), never merged with existing.withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs. If scope_shrinkage_decision_set is invoked twice under the same decisionId (e.g. withdraw CHK-002 in call 1, then withdraw AB-1 in call 2 without repeating withdrawnChecklistItemRefs), the persisted decision.json silently narrows to only the latest calls refs, so scope_shrinkage_decision_get under-reports the cumulative withdrawal history for that decisionId. The actual checklist item status / proofstory.json bindingDispositions remain correct (stamped durably at write time, not re-derived from this field), and the empty-scope floor still works correctly because it unions the fresh decision with the already-persisted contract.bindingDispositions -- so this is an audit-trail/read-model completeness gap in decision.json, not a gating bypass. Worth a merge-with-existing fix or an explicit doc note that repeat calls under one decisionId must re-supply the full ref set.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-07-24T22:12:39.560Z",
@@ -13,7 +13,11 @@
       "reviewRunId": "B-1909:RR-005",
       "_hash": "d1987ef8e7d2349be5ef86884396095d667b2110c2b44d2e638132e5ea5ea985",
       "signatureTag": "missing|unknown|core-proofstory-1326",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "ac756995e7: buildScopeShrinkageDecision now UNIONs withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs with existing (unionStringRefs). Regression in scope-shrinkage-withdrawal-floor-smoke (c865b13ba6): two sequential calls under one decisionId accumulate both ref lists.",
+      "resolvedAt": "2026-07-24T22:38:18.334Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1909:F-002",
