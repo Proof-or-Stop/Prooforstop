@@ -124,13 +124,13 @@
         {
           "intentRef": "CHK-002:happy:0",
           "kind": "integration_test",
-          "command": "node bin/lattice.js validate --json",
+          "command": "LATTICE_MAX_TIMEOUT_MS=3600000 node bin/lattice.js validate --json",
           "result": "pass",
-          "note": "Invocation record from a real unfocused validate run in this worktree. The runner announced \"running 47 configured validate.command(s)\" (was 48) and its per-command record contains exactly one invocation of the smoke: \"command 12/47 started configured validate.commands[11]: node packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js timeoutMs=270000\" followed by \"command 12/47 ended configured validate.commands[11]: code=0 elapsedMs=2488\". Exactly one start line and one end line reference that script, and it passed. NOTE: the surrounding run did not finish - an unrelated command (delivery-check-freshness-smoke.js) hit its 270s timeout and the run then hit the global 900s cap, under a host load average of ~371 caused by other concurrent sessions. That abort is unrelated to this change and does not affect the exactly-once count, which is established by the per-command record above.",
-          "headHash": "8d7cd294343c3111eb3a4cb1a89ded9e61525a95",
+          "note": "Complete unfocused validate run: the JSON invocation record contains 47 command results, of which exactly ONE references reviewer-scan-budget-guard-smoke.js: {label: configured validate.commands[11], command: node, args: [packages/main/dist/tasks/reviewer-scan-budget-guard-smoke.js], code: 0, output: \"reviewer-scan-budget-guard: PASS (6 prompt copies clean, 7 required phrases present)\"}. The stderr per-command record independently agrees (one start line, one end line, code=0). A prior run reproduced the same count of one. The overall run status is fail on two unrelated timing-sensitive commands (validate-progress-heartbeat-smoke.js, which times out waiting for a fixture file under host load and passes standalone, and quorum-submit-smoke.js, which exceeded its own 600s budget); neither references this script nor lattice.config.json parsing, and this change only removes work.",
+          "headHash": "17ff66a55d7e5aa9b11969113378a14d00ca5db0",
           "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
           "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
-          "timestamp": "2026-07-24T18:01:32.339Z"
+          "timestamp": "2026-07-24T18:53:07.078Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
