@@ -778,6 +778,34 @@
         "scanEscalationReason": null
       },
       "_hash": "97e5f8b3c0277121ddbeb300f77f2261acc3babfe1ad57cc1ac3b29e5d1173ce"
+    },
+    {
+      "id": "B-4043:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Fresh-round re-review confirms git diff 0b09a8bc4f..HEAD touches only .lattice/story/actives/B-4043/* metadata (checklist.json, index.json, findings.json, review-runs.json, prompt-envelopes.json, review-passes.json, scope-contract.json, test-evidence.json, process-events/metrics, closeout-write-receipts, acceptance-rollout-report.json) — no production or test source changed. F-011 fix verified: all 16 acceptance-rollout notes now read 49 configured commands with an explicit CORRECTION paragraph naming the stale 47 figure and its provenance (pre-merge commit b8e28971d0); no other stale figures found. Standing property 1 re-confirmed: every execFileSync(\"git\", ...) call site in packages/main/src/core/acceptance-rollout.ts (lines 91, 204, 211, 219, 234, 349, 362) passes args through hardenedGitArgs(); no bare git exec/spawn bypasses it. Standing property 2 re-confirmed: root package.json test script includes test:proofstory-acceptance-rollout -> node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js (default mode, no --issuer-mutations flag), so the 57-assertion default-mode smoke remains reachable from the DONE-required npm test chain; lattice.config.json validate.commands only wires the --issuer-mutations variant, which matches the prior-round note and is expected (validate covers the mutation variant, npm test covers default mode). No source-level re-check beyond static diff/grep was needed since the diff is note-text only. No blockers found.",
+      "createdAt": "2026-07-24T19:17:44.470Z",
+      "reviewRound": "2026-07-24T18:38:51.301Z",
+      "reviewRunId": "B-4043:RR-040",
+      "envelopeId": "e8ce43522c54bcb23ac3c5b8312a038fcf6a2dfde5403b25599b1e948edcc938",
+      "writerSessionId": "b4043-review-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-4043/checklist.json",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/acceptance-rollout.ts"
+        ],
+        "filesTriagedByName": [
+          ".lattice/story/actives/B-4043/background.md",
+          ".lattice/story/actives/B-4043/findings.json",
+          ".lattice/story/actives/B-4043/plan.md",
+          ".lattice/story/actives/B-4043/review-passes.json",
+          ".lattice/story/actives/B-4043/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ab1269eb315e1529c40a8d0ae977c73f68a6ac1dfd4ad13e99262ce98b9ea8ce"
     }
   ]
 }
