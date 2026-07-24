@@ -32,6 +32,31 @@
         "scanEscalationReason": null
       },
       "_hash": "95a9704119c2fca4dd1c25f2c811c0c0053cf971fb798c24a15100f99261cdf7"
+    },
+    {
+      "id": "B-bf52:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review after F-045/F-046/F-047 fix. Verified all 19 verificationEvidence notes (whole-set re-recording, no partial-set drift): CHK-002:adversarial:0 M1-subset now reads phase-pair/in-repo-file-path/signal-less-long-rejection with the withdrawn cross-dependency claim, CHK-003:happy:0 init-check-issue-ordinal correctly moved out of substantive-id-allowlist must-differ into must-still-collapse (consistent with CHK-003:edge:1), CHK-004:adversarial:0 window claim corrected to measured M12b(592)/M12(600) facts consistent with CHK-001:edge:0. All three independently reproduced against real code in a detached immutable worktree (git worktree add --detach), not taken on faith: M1 (path rule widened) fails exactly {phase-pair, in-repo-file-path, signal-less-long-rejection}; M12b (window->592) leaves B-cc54 suite green while M12 (window->600) breaks it at CHK-002:adversarial:1; init-check-issue-ordinal confirmed present only in MUST_COLLAPSE with guardedBy review-bookkeeping-not-allowlisted. Also spot-verified M9 and M14 mutation claims in CHK-003:adversarial:0. Cross-checked all 22 guardedBy tags across all 19 notes against the live source guardedBy fields: zero mismatches. Ran the real suites clean-build in the detached copy: convergence-breaker-smoke.js PASS (23/23 cases) and gate-repeat-block-smoke.js (B-cc54, byte-unmodified per git diff main) PASS, both exit 0. No stale case names, no wrong guard tags, no cross-note contradictions found. The whole-set re-recording holds this round. No blocker.",
+      "createdAt": "2026-07-24T11:52:40.653Z",
+      "reviewRound": "2026-07-24T11:13:41.302Z",
+      "reviewRunId": "B-bf52:RR-026",
+      "envelopeId": "f6dbddc55bceb2b64c63bca94949ff79c240428d99e166af0cd8b4bbfb9865c6",
+      "writerSessionId": "main-agent-s2s1-stable-f93ff408f3",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".lattice/story/actives/B-bf52/background.md",
+          ".lattice/story/actives/B-bf52/checklist.json",
+          ".lattice/story/actives/B-bf52/plan.md",
+          "packages/main/src/core/convergence-breaker.ts",
+          "packages/main/src/tasks/convergence-breaker-smoke.ts",
+          "packages/main/src/tasks/gate-repeat-block-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9416bf787fd4b76304345bda76d759b53867467e8b1dbcc19707e6087bb449b3"
     }
   ]
 }
