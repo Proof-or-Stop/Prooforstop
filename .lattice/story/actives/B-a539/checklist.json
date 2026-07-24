@@ -148,11 +148,11 @@
           "kind": "manual_transcript",
           "command": "node -e \"same-script-path scan over validate.commands, reported separately\"",
           "result": "pass",
-          "note": "The same-script scan is run and reported separately from the full-identity scan. Pre-edit it found exactly one same-script pair (indexes 4 and 12, the duplicate), and no other entry in the list shares a script path with different execution parameters, so nothing differentiated existed that could have been removed by mistake. Post-edit the same-script scan reports zero remaining pairs, confirming only the true duplicate was removed.",
-          "headHash": "b9dcacc0132e8112617d84f06fce46f312c1890a",
-          "materialHash": "a9294a0e45e85dc9ed2a6a32d944969e68249858c808d60d8ac6f964b30c7ee8",
-          "storyFilesHash": "1b4df138cfb3256fa6b46eb2fe91845332487c915f5aa5fdbee5109a74b0e8e3",
-          "timestamp": "2026-07-24T18:01:42.295Z"
+          "note": "Re-attested post-merge. Same-script scan reported separately reports zero remaining pairs; no entry shares a script path with different execution parameters, so nothing differentiated was removed.",
+          "headHash": "b8f0b6a8ff0ca8f9fd58281c3e9742c65596de0c",
+          "materialHash": "bed5a718b87063091b9562bfd4d78f911b41847f8def3e84a6582b44d6cfeae1",
+          "storyFilesHash": "4255e027d631ce5e4134e76b7712054c816fa82b1471d0a8d9949361405f0c7a",
+          "timestamp": "2026-07-24T20:01:49.884Z"
         }
       ]
     }
