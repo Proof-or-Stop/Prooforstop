@@ -24,7 +24,7 @@
       "desc": "concept-incompleteness: packages/main/src/core/proofstory.ts buildScopeShrinkageDecision (~line 1323) rebuilds withdrawnChecklistItemRefs/withdrawnAcceptanceBindingRefs/evidenceRefs from args ONLY (optionalStringArray(args.X, ...)), never merged with existing.X. Reproduced: seed a story, call scope_shrinkage_decision_set withdrawing CHK-002 (decision.withdrawnChecklistItemRefs=[CHK-002], decisionId=SD-x) then call it again withdrawing AB-1 only (same decisionId, reused since args.decisionId omitted) -> decision.withdrawnChecklistItemRefs becomes [] even though checklist.json still correctly shows CHK-002 status=withdrawn decisionRef=SD-x. The decision record (the promised single authorizing record both layers cite, CHK-003) becomes a false/incomplete audit trail of what it actually authorized after a second legitimate call under the same decisionId -- contradicting the storys own storage-honesty principle. Compounding: withdrawnChecklistItemIdsFrom (core/proofstory.ts) is imported into handlers/proofstory.ts but never called there, so unlike bindings (withdrawnBindingIdsFrom feeds effectiveAcceptanceBindings), there is no symmetric checklist-side consumer of the decisions own arrays -- only the per-item stamp on checklist.json keeps things functionally correct, so the decision.json array drift is currently latent (no gate breaks) but is a real half-migrated inconsistency in the new vocabulary the story introduced. No smoke test exercises calling scope_shrinkage_decision_set twice under the same decisionId with different ref sets.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-07-24T22:12:46.321Z",
@@ -32,7 +32,11 @@
       "reviewRunId": "B-1909:RR-004",
       "_hash": "c8103b0dfbcb29fc2b6b418c08088ecbb96d394039a58d02ab098973d5597347",
       "signatureTag": "missing|unknown|concept-incompleteness-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same root defect as F-001, fixed in ac756995e7 (union-with-existing). Dead withdrawn*IdsFrom imports removed from handlers/proofstory.ts. Two-sequential-call regression added in c865b13ba6 proves accumulation + immutable decisionId.",
+      "resolvedAt": "2026-07-24T22:38:19.804Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1909:F-003",
