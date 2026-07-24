@@ -300,6 +300,21 @@
       "_hash": "40c3a62d32fc5e321941e12b5c9a6a736df83bff7d68e9ad535feca423e71f47",
       "signatureTag": "missing|unknown|edge-adversarial-verificationevidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-bf52:F-018",
+      "desc": "CHK-001:happy:0 verificationEvidence (checklist.json) states the two reconstructed DEV-gate renders are 'identical for the first 244 normalized characters and differing only in the outstanding gap', repeating a figure that also appears in plan.md sec 1/3 and convergence-breaker.ts:469-470. Verified this number against the actual code: reconstructing the exact devGateRejection('B-d877', [...]) fixture used by the case (smoke.ts:263-277) and running it through gateFailureDigest's own normalization, the shared FIXED HEADER (preamble + diagnostics/mode/status/blocking/hardening/ledger lines, before the gap list) normalizes to 328 chars without the preamble or 423 chars with it -- not 244 under either reading. The smoke's own printed preview for this exact case (dev-gate-one-gap-differs) reports the compared values 'share their first 617 chars' before diverging, since case a/b also share their entire first gap (GAP_SNAPSHOT). This is a low-severity factual inaccuracy, not a coverage gap: the underlying case is genuine (verified by direct reproduction -- restoring the pre-story 200-char cut fails exactly {dev-gate-one-gap-differs, dev-gate-gap-count-differs} and no other case), and the qualitative point (the real header exceeds the old 200-char truncation) holds even more strongly than the 244 figure implies. But the number was seemingly never recomputed against the current renderProofStoryDiagnosticReport (which already included the Hardening/Ledger lines, added 2026-06-29/30, well before this story's branch) at any of the three places it was copied -- plan.md, the source comment, and now the round-3 evidence note -- an unverified figure restated three times rather than measured once.",
+      "severity": "low",
+      "category": "happy",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-07-24T02:01:34.409Z",
+      "reviewRound": "2026-07-24T01:43:51.293Z",
+      "reviewRunId": "B-bf52:RR-011",
+      "_hash": "1844d73c7d953e55c32981f9174fabc7821b8cd58187bd4ec92b2214113a7923",
+      "signatureTag": "happy|unknown|happy-verificationevidence-checklist",
+      "signatureTagSource": "auto"
     }
   ]
 }
