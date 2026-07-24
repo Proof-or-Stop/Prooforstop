@@ -255,7 +255,7 @@ function optionalNonEmptyString(value: unknown, fieldName: string): string | und
   return requireNonEmptyString(value, fieldName);
 }
 
-function optionalStringArray(value: unknown, fieldName: string): string[] {
+export function optionalStringArray(value: unknown, fieldName: string): string[] {
   if (value == null) return [];
   if (!Array.isArray(value)) throw new Error(`${fieldName} must be an array`);
   const out: string[] = [];
@@ -266,6 +266,23 @@ function optionalStringArray(value: unknown, fieldName: string): string[] {
     out.push(entry.trim());
   }
   return [...new Set(out)];
+}
+
+/**
+ * B-1909: accumulate a ref array across repeated writes of a single evolving
+ * record. Existing refs come first (stable order), incoming refs are appended,
+ * duplicates collapse. Used so a second scope_shrinkage_decision_set under one
+ * decisionId adds to — rather than resets — the withdrawal/evidence trail.
+ */
+function unionStringRefs(existing: readonly string[] | undefined, incoming: readonly string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const ref of [...(existing ?? []), ...incoming]) {
+    if (seen.has(ref)) continue;
+    seen.add(ref);
+    out.push(ref);
+  }
+  return out;
 }
 
 function optionalStoryId(value: unknown, fieldName: string): string | undefined {
@@ -1323,9 +1340,20 @@ export function buildScopeShrinkageDecision(
   const decision = args.decision;
   if (decision !== 'confirmed' && decision !== 'rejected') throw new Error('decision must be confirmed or rejected');
   const removedMilestoneIds = optionalStringArray(args.removedMilestoneIds, 'removedMilestoneIds');
-  const withdrawnChecklistItemRefs = optionalStringArray(args.withdrawnChecklistItemRefs, 'withdrawnChecklistItemRefs');
-  const withdrawnAcceptanceBindingRefs = optionalStringArray(args.withdrawnAcceptanceBindingRefs, 'withdrawnAcceptanceBindingRefs');
-  const evidenceRefs = optionalStringArray(args.evidenceRefs, 'evidenceRefs');
+  // Refs supplied by THIS call.
+  const incomingChecklistItemRefs = optionalStringArray(args.withdrawnChecklistItemRefs, 'withdrawnChecklistItemRefs');
+  const incomingAcceptanceBindingRefs = optionalStringArray(args.withdrawnAcceptanceBindingRefs, 'withdrawnAcceptanceBindingRefs');
+  const incomingEvidenceRefs = optionalStringArray(args.evidenceRefs, 'evidenceRefs');
+  // B-1909 F-001/F-002: the scope-shrinkage decision is a SINGLE evolving record
+  // per story (one authorizing record both the checklist item.decisionRef and
+  // the append-only binding disposition cite). Repeated scope_shrinkage_decision_set
+  // calls under one decisionId must ACCUMULATE the withdrawal/evidence refs
+  // (union, dedup, stable order) rather than reset the record to only the latest
+  // call's args — otherwise the audit trail silently narrows and contradicts the
+  // durable per-item / per-binding stamps.
+  const withdrawnChecklistItemRefs = unionStringRefs(existing?.withdrawnChecklistItemRefs, incomingChecklistItemRefs);
+  const withdrawnAcceptanceBindingRefs = unionStringRefs(existing?.withdrawnAcceptanceBindingRefs, incomingAcceptanceBindingRefs);
+  const evidenceRefs = unionStringRefs(existing?.evidenceRefs, incomingEvidenceRefs);
   // B-1909 CHK-003: a confirmed decision must remove SOMETHING — milestones,
   // checklist items, or acceptance bindings. Reject "nothing to withdraw"
   // (previously this only checked removedMilestoneIds, which blocked the new
@@ -1347,10 +1375,22 @@ export function buildScopeShrinkageDecision(
   const createdAt = existing?.createdAt ?? now;
   const fullWithdrawalReapproval = normalizeFullWithdrawalReapproval(args.fullWithdrawalReapproval)
     ?? existing?.fullWithdrawalReapproval;
+  // B-1909 F-007: decisionId is IMMUTABLE once assigned. The checklist items
+  // (item.decisionRef) and the append-only binding dispositions (disposition
+  // .decisionRef) already stamped with the stored id cite it as their authorizing
+  // record; silently overriding it would orphan those references. Reject a
+  // caller-supplied decisionId that conflicts with the stored one.
+  const requestedDecisionId = optionalNonEmptyString(args.decisionId, 'decisionId');
+  if (requestedDecisionId && existing?.decisionId && requestedDecisionId !== existing.decisionId) {
+    throw new Error(
+      `decisionId is immutable once set: story ${args.storyId} already has scope-shrinkage decision "${existing.decisionId}"; `
+      + `refusing to reassign it to "${requestedDecisionId}" (checklist items and binding dispositions already cite the original)`,
+    );
+  }
   // Stable id: explicit caller value wins, else preserve the existing decision's
   // id (updates stay stable), else derive a deterministic short id from the
   // immutable createdAt so re-derivation on later updates is identical.
-  const decisionId = optionalNonEmptyString(args.decisionId, 'decisionId')
+  const decisionId = requestedDecisionId
     ?? existing?.decisionId
     ?? `SD-${createHash('sha256').update(`${args.storyId}:${createdAt}`).digest('hex').slice(0, 8)}`;
   return {

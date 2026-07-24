@@ -23,12 +23,11 @@ import {
   evaluateDoneIntentEquivalence,
   evaluateProofStoryDiagnostics,
   evaluateReviewCompleteness,
+  optionalStringArray,
   renderProofStoryDiagnosticReport,
   setSpikeResult,
   setSpikeStatus,
   startSpike,
-  withdrawnBindingIdsFrom,
-  withdrawnChecklistItemIdsFrom,
   type ProofStoryDiagnosticInput,
 } from '../core/proofstory.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
@@ -69,25 +68,6 @@ type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
 
 function emptyChecklist(): ChecklistData {
   return { items: [] };
-}
-
-/**
- * B-1909 CHK-005: handler-entry re-validation of the scope-shrinkage withdrawal
- * ref arrays, independent of Zod (the internal fn path bypasses the CLI schema).
- * Mirrors optionalStringArray in core/proofstory.ts: each entry must be a
- * non-empty string; duplicates collapse; absent = empty.
- */
-function normalizeScopeRefArray(value: unknown, field: string): string[] {
-  if (value == null) return [];
-  if (!Array.isArray(value)) throw new Error(`${field} must be an array of non-empty strings`);
-  const out: string[] = [];
-  for (const entry of value) {
-    if (typeof entry !== 'string' || entry.trim().length === 0) {
-      throw new Error(`${field} contains an invalid value: ${JSON.stringify(entry)}`);
-    }
-    out.push(entry.trim());
-  }
-  return [...new Set(out)];
 }
 
 function stringify(data: unknown, pretty = true): string {
@@ -961,9 +941,10 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       store.readStory(args.storyId);
 
       // CHK-005: handler-entry re-validation of the ref arrays (belt-and-suspenders
-      // over Zod; the internal fn path bypasses the CLI schema).
-      const withdrawnChecklistItemRefs = normalizeScopeRefArray(args.withdrawnChecklistItemRefs, 'withdrawnChecklistItemRefs');
-      const withdrawnAcceptanceBindingRefs = normalizeScopeRefArray(args.withdrawnAcceptanceBindingRefs, 'withdrawnAcceptanceBindingRefs');
+      // over Zod; the internal fn path bypasses the CLI schema). Reuses the core
+      // optionalStringArray helper so the validation rule cannot drift (B-1909 F-003).
+      const withdrawnChecklistItemRefs = optionalStringArray(args.withdrawnChecklistItemRefs, 'withdrawnChecklistItemRefs');
+      const withdrawnAcceptanceBindingRefs = optionalStringArray(args.withdrawnAcceptanceBindingRefs, 'withdrawnAcceptanceBindingRefs');
       const hasWithdrawals = withdrawnChecklistItemRefs.length > 0 || withdrawnAcceptanceBindingRefs.length > 0;
 
       return withMkdirLock(

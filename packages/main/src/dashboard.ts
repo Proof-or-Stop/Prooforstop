@@ -12,6 +12,7 @@ import { StoryStore } from './core/store.js';
 import { loadConfig, hasProjectConfigFile, LATTICE_CONFIG_FILENAME } from './core/config.js';
 import { resolveProjectGitCwd } from './core/story-signed-workspace-resolution.js';
 import { formatStoryOutcomeKind, normalizeStoryOutcomeKind, type StoryOutcomeKind, type StoryInfo, type ChecklistData } from './core/types.js';
+import { isDeliveredChecklistStatus, isWithdrawnChecklistStatus } from './core/checklist-status.js';
 
 // ── Types ──
 
@@ -33,6 +34,8 @@ interface StorySnapshot {
   title: string;
   checklistDone: number;
   checklistTotal: number;
+  /** B-1909 F-005: withdrawn items are terminal-but-not-delivered (own bucket). */
+  checklistWithdrawn: number;
   bugsOpen: number;
   worktreePath?: string;
 }
@@ -103,12 +106,16 @@ export function collectProject(root: string): ProjectSnapshot {
         // Skip terminal states for active list
         if (story.phase === 'DONE' || story.phase === 'DISCARDED') continue;
 
-        let checklistDone = 0, checklistTotal = 0;
+        let checklistDone = 0, checklistTotal = 0, checklistWithdrawn = 0;
         try {
           const cl = store.readChecklist(id);
           if (cl && Array.isArray(cl.items)) {
             checklistTotal = cl.items.length;
-            checklistDone = cl.items.filter(i => i.status === 'done').length;
+            // B-1909 F-005: delivered/done count is DELIVERED-only (never counts
+            // withdrawn); a withdrawn item is terminal-but-not-delivered and gets
+            // its own bucket, matching handlers/checklist.ts summarizeChecklist.
+            checklistDone = cl.items.filter(i => isDeliveredChecklistStatus(i.status)).length;
+            checklistWithdrawn = cl.items.filter(i => isWithdrawnChecklistStatus(i.status)).length;
           }
         } catch { /* no checklist */ }
 
@@ -118,6 +125,7 @@ export function collectProject(root: string): ProjectSnapshot {
           title: story.title || '',
           checklistDone,
           checklistTotal,
+          checklistWithdrawn,
           bugsOpen,
           worktreePath: worktrees[id],
         });
@@ -214,8 +222,15 @@ export function renderProject(proj: ProjectSnapshot, index: number, selected: bo
   for (const s of sorted.slice(0, maxShow)) {
     const phasePad = s.phase.padEnd(17);
     const titleTrunc = s.title.length > 40 ? s.title.slice(0, 39) + '…' : s.title;
+    // B-1909 F-005: the bar fills on TERMINAL progress (done + withdrawn) so a
+    // story with a legitimately withdrawn item can reach 100% instead of parking
+    // the withdrawn item in the outstanding remainder forever. The numeric label
+    // keeps done DELIVERED-only and annotates withdrawn separately so the two are
+    // never conflated.
+    const checklistTerminal = s.checklistDone + s.checklistWithdrawn;
+    const withdrawnMark = s.checklistWithdrawn > 0 ? ` ${DIM}(+${s.checklistWithdrawn} withdrawn)${RESET}` : '';
     const bar = s.checklistTotal > 0
-      ? ` ${progressBar(s.checklistDone, s.checklistTotal, 8)} ${s.checklistDone}/${s.checklistTotal}`
+      ? ` ${progressBar(checklistTerminal, s.checklistTotal, 8)} ${s.checklistDone}/${s.checklistTotal}${withdrawnMark}`
       : '';
     const bugMark = s.bugsOpen > 0 ? ` \x1b[31m[${s.bugsOpen}bug]${RESET}` : '';
     lines.push(`     ${phaseColor(s.phase)}${s.id} ${phasePad}${RESET} ${titleTrunc}${bar}${bugMark}`);
