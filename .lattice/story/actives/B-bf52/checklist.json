@@ -288,11 +288,11 @@
           "file": "packages/main/src/tasks/convergence-breaker-smoke.ts",
           "command": "node packages/main/dist/tasks/convergence-breaker-smoke.js",
           "result": "pass",
-          "note": "Case 'must-differ review-run-ordinal [guard: substantive-id-allowlist]' asserts an ordinal that names WHICH lifecycle artifact failed survives normalization. The complement is 'must-still-collapse bcc54-story-id-digits [guard: allowlist-boundedness]', which reproduces B-cc54's own b-1234/b-5678 fixture: a story id is constant within a per-story counter, so its digits are noise, and b- is deliberately absent from the allowlist.",
-          "headHash": "4626ab848f210a0aca18e4c00f749142bc4097a0",
-          "materialHash": "1af14fb2ac5e5281132b81e8b2c2c266b0aec1673f6911c1108b21676547800c",
-          "storyFilesHash": "92e7fa3e31df6b732cfdafe7c0a8c27e33bb60bbbadcd3eb6f5a17b077f58948",
-          "timestamp": "2026-07-24T03:29:53.269Z"
+          "note": "Case 'must-differ scope-extension-proposal-ordinal [guard: substantive-id-whole-token]' asserts a COMPOUND artifact id keeps its trailing ordinal distinct; mutation M6 (whole-token protection reduced to prefix-before-digits) fails exactly that case. The converse is pinned by 'must-still-collapse stale-review-run-evidence' and 'review-loop-ordinal' [guard: review-bookkeeping-not-allowlisted]: review bookkeeping ids are re-minted on retry, so collapsing them is the fail-safe direction for a brake. Case names and guard tags only, deliberately no counts: every prior re-recording of this evidence went stale because it hand-wrote totals that the next fix round changed (F-013, F-017, F-028, F-039, F-040 were all that defect).",
+          "headHash": "7a675723120c2aff283423839d05506e3fe7f9d6",
+          "materialHash": "a875a01a9919a2acce49e0e07ea9080f56fb2dc467fb86af627b747be58da81e",
+          "storyFilesHash": "e1fad7bc127a7e1e1109f435dcfe4cbc2d68f4bb8c06481ef9dc13ce7b06bf72",
+          "timestamp": "2026-07-24T10:15:50.770Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
