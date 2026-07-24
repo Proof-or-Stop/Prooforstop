@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Fail-closed: widening the dedup key must never let a genuinely stuck loop escape the brake.",
+    "Never forge provenance: the breaker may stop and report, never auto-satisfy a gate or rewrite finding attribution.",
+    "Back-compatible by default: a reason with no structured signal keeps its historical key.",
+    "The diagnostic must be machine-actionable so an unattended agent can self-correct without a human."
+  ],
+  "drivers": [
+    "An unattended run cannot obtain the interactive TTY ack the freeze demands, so a false-positive freeze is unrecoverable.",
+    "The existing breaker is load-bearing (B-bbaf) and its smoke must keep passing.",
+    "The distinguishing blocker information lives far beyond the 200-char slice, so the key must be widened, not merely re-tuned."
+  ],
+  "options": [
+    {
+      "name": "structured-signal-key",
+      "pros": [
+        "Keys on a bounded vocabulary (bracketed reason codes + gap ids) so a real loop still repeats the same set",
+        "Leaves unstructured reasons on the historical key, so existing behaviour and its smoke are untouched",
+        "Small, local change inside the existing module"
+      ],
+      "cons": [
+        "Depends on gate reasons carrying structured codes; a gate emitting only free text gains nothing"
+      ]
+    },
+    {
+      "name": "raise-or-remove-the-200-char-slice",
+      "pros": [
+        "Trivial one-line change"
+      ],
+      "cons": [
+        "Volatile tail content would leak into the key, so nearly every failure would look distinct and the brake would stop tripping at all",
+        "Directly violates the fail-closed principle"
+      ]
+    },
+    {
+      "name": "escalate-review-convergence-to-blocking",
+      "pros": [
+        "Reuses an existing signal"
+      ],
+      "cons": [
+        "It keys on a finding-count trend, not refusal identity, so it cannot see this failure mode at all",
+        "Turning an advisory into a hard block is a much larger behavioural change"
+      ]
+    }
+  ],
+  "chosen": "structured-signal-key",
+  "rationale": "Only this option distinguishes different blockers while keeping a genuinely repeated blocker on one stable key, which is exactly the fail-closed property the brake exists for. Raising the slice would widen the key with volatile text and effectively disable the brake; escalating review-convergence cannot observe refusal identity at all. The spike confirmed the existing module is the right choke point.",
+  "preMortem": [
+    {
+      "scenario": "The key widens so much that a real livelock never trips the brake",
+      "trigger": "Volatile free text leaks into the key basis",
+      "consequence": "The B-f458 class of 14-hour burn returns with no hard brake",
+      "mitigation": "Only a bounded vocabulary (bracketed codes + gap ids) enters the key; a smoke case asserts appending free text does not change the key"
+    },
+    {
+      "scenario": "Existing breaker behaviour silently regresses",
+      "trigger": "The digest changes for reasons that carry no structured signal",
+      "consequence": "convergence-breaker-smoke fails or the brake mis-fires on unrelated stories",
+      "mitigation": "Signal extraction returns empty for unstructured reasons so they keep the historical prefix-only key; the existing smoke is re-run as a regression check"
+    },
+    {
+      "scenario": "The fix is asserted but never actually proven",
+      "trigger": "A test that only compiles against the fixed tree (missing-symbol failure rather than a behavioural one)",
+      "consequence": "A green suite that never demonstrated the defect",
+      "mitigation": "The smoke imports only pre-existing exports so it compiles against the unfixed tree and fails on an assertion; RED was captured before the fix and re-verified by reverting it"
+    }
+  ],
+  "timestamp": "2026-07-24T00:13:23.624Z"
+}
